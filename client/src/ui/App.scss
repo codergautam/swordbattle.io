@@ -1,0 +1,85 @@
+.App {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  background-color: #333;
+  width: 100%;
+  height: 100%;
+  user-select: text;
+
+  .title {
+    color: #ffffff;
+    font-size: 50px;
+    -webkit-text-stroke: 2px #111111;
+  }
+
+  .settings-button {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    transform-origin: bottom left;
+
+    img {
+      width: 200px;
+      height: auto;
+    }
+  }
+
+  .startGame {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center;
+
+    input {
+      width: 300px;
+      height: 40px;
+      border: 2px solid #ccc;
+      background-color: #fff;
+      border-radius: 5px;
+      font-size: 22px;
+      color: #444444;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .startButton {
+      width: 250px;
+      background-color: #31c51d;
+      color: #333;
+      font-size: 25px;
+      margin: 10px;
+      padding: 5px;
+      border-radius: 5px;
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #60e24f;
+      }
+    }
+  }
+
+  .links {
+    position: fixed;
+    bottom: 15px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    transform-origin: bottom center;
+    
+    a {
+      margin: 0 15px;
+      font-size: 30px;
+      color: white;
+      text-decoration: underline;
+    }
+  
+    .discord {
+      width: auto;
+      max-height: 60px;
+    }
+  }
+}

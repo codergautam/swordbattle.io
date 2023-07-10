@@ -1,0 +1,21 @@
+{
+  "name": "swordbattle.io-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "start": "node ./src/index.js",
+    "dev": "nodemon ./src/index.js --watch ./src",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.1.4",
+    "msgpackr": "^1.9.5",
+    "sat": "^0.9.0",
+    "uWebSockets.js": "uNetworking/uWebSockets.js#v20.30.0",
+    "uuid": "^9.0.0"
+  }
+}

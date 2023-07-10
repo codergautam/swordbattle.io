@@ -1,6 +1,29 @@
 const isDev = process.env.NODE_ENV === 'development';
 
-export const settingsList = {
+interface SettingType {
+  name: string;
+  default: any,
+  type?: string;
+  min?: number;
+  max?: number;
+  list?: any;
+  onChange?: any;
+};
+
+export const settingsList: Record<string, SettingType> = {
+  useWebGL: {
+    name: 'Use WebGL (requires reload)',
+    type: 'toggle',
+    default: false,
+    onChange: (newValue: boolean) => {
+      const saved = localStorage.getItem('swordbattle:WebGL');
+      if (newValue) localStorage.setItem('swordbattle:WebGL', 'OK');
+      else localStorage.removeItem('swordbattle:WebGL');
+      if (saved !== (newValue ? 'OK' : null)) {
+        window.location.reload();
+      }
+    },
+  },
   movementMode: {
     name: 'Movement mode',
     list: [
@@ -70,6 +93,10 @@ class SettingsManager {
 		const savedSettings = this.get();
 		savedSettings[key] = value;
 		localStorage.setItem(this.key, JSON.stringify(savedSettings));
+    
+    if (settingsList[key].onChange) {
+      settingsList[key].onChange(value);
+    }
   }
 }
 

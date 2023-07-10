@@ -12,10 +12,15 @@ if (isDev) {
 }
 
 function SettingsModal() {
+  const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
   const [sound, setSound] = useState(Settings.sound);
   const [server, setServer] = useState(Settings.server);
 
+  const updateUseWebGL = (value: any) => {
+    setUseWebGL(value);
+    Settings.useWebGL = value;
+  }
   const updateMovementMode = (value: any) => {
     setMovementMode(value);
     Settings.movementMode = value;
@@ -33,6 +38,17 @@ function SettingsModal() {
     <div className="settings">
       <div className="settings-title">Settings</div>
 
+      <div className="settings-line">
+        <label htmlFor="movement">Use WebGL (requires reload):</label>
+        <label className="switch">
+          <input type="checkbox" name="useWebGL" id="useWebGL"
+            checked={useWebGL}
+            onChange={(e) => updateUseWebGL(e.target.checked)}
+          />
+          <span className="slider round"></span>
+        </label>
+      </div>
+
       <label htmlFor="movement">Movement mode:</label>
       <select name="movement" id="movement"
         value={movementMode}
@@ -49,14 +65,13 @@ function SettingsModal() {
         onChange={(e) => updateSound(e.target.value)}
       />
 
-    <label htmlFor="server">Server:</label>
+      <label htmlFor="server">Server:</label>
       <select name="server" id="server"
         value={server}
         onChange={(e) => updateServer(e.target.value)}
       >
         {serverList.map((server) => <option key={server.value} value={server.value}>{server.name}</option>)}
       </select>
-
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { InputTypes } from '../Types';
 import SoundManager from '../SoundManager';
 import store from '../../Store';
 import HUD from '../components/HUD';
+import { MouseEventHandler } from 'react';
 
 const publicPath = process.env.PUBLIC_URL;
 
@@ -15,7 +16,7 @@ export default class Game extends Phaser.Scene {
   hud: HUD;
   isMobile: boolean = false;
   joystick: any = null;
-  joystickPointer: any = null;
+  joystickPointer: any= null;
   zoom = 0.8;
 
 	constructor() {
@@ -107,8 +108,9 @@ export default class Game extends Phaser.Scene {
 
     window.addEventListener('blur', () => this.gameState.inputs.clear());
     window.addEventListener('resize', () => this.resize());
+    // console.log(window.addEventListener('resize', () => this.resize()))
     window.addEventListener('orientationchange', () => {
-      if (window.orientation === 0 || window.orientation === 180) { // Portrait
+      if (window.screen.orientation.angle === 0 || window.screen.orientation.angle === 180) { // Portrait
         this.resize(window.innerWidth, window.innerHeight);
         // if (this.scale.isFullscreen) {
         //   this.scale.startFullscreen();
@@ -140,8 +142,9 @@ export default class Game extends Phaser.Scene {
     this.game.scale.setGameSize(width, height);
     this.game.scale.setZoom(scale);
     this.hud.resize();
-
+    
     this.joystick?.setPosition(200, this.scale.height / 1.5);
+    
   }
 
 	update(time: number, delta: number) {

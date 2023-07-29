@@ -16,10 +16,9 @@ const defaultRoutes = [
     }
 ]
 
-// console.log(defaultRoutes[0].path)
+
 
 defaultRoutes.forEach((route) => {
-    console.log(route.route)
     router.use(route.path, route.route)
 })
 

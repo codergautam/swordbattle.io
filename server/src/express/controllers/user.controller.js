@@ -1,22 +1,37 @@
+const httpStatus = require("http-status")
+const ApiError = require("../utils/ApiError")
+
+
 const catchAsync = require("../utils/catchAsync")
 const {userService} = require("../services")
 
 
 
 const createUser = catchAsync(async (req, res) => {
-    const {email,password,username} = req.body
     const user = await userService.createUser(req.body)
-    res.status(200).json({user})
+    res.status(200).send(user)
 })
 
 const getUser = catchAsync(async (req, res) => {
-    const user = await userService.findUserById(req.params.id)
+    const {userId} = req.params
+    const user = await userService.findUserById(userId)
     if(!user){
-    res.status(401).json("User not found")
-    return
+     throw new ApiError(httpStatus.NOT_FOUND, "User not found")
 }
-    return user
+    res.send(user)
+})
+
+const updateUser = catchAsync(async (req,res) => {
+    const {userId} = req.params
+    const user = await userService.updateUserById(userId, req.body)
+    res.status(200).send(user)
+})
+
+const deleteUser = catchAsync(async (req,res) => {
+    const {userId} = req.params
+    await userService.deleteUserById(userId)
+    res.status(httpStatus.NO_CONTENT).send()
 })
 
 
-module.exports = {createUser}
+module.exports = {createUser, getUser,updateUser,deleteUser}

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
 const bcrypt = require("bcrypt")
+const { roles } = require("../config/roles")
 
 const Schema = mongoose.Schema
 
@@ -17,6 +18,11 @@ const UserSchema = new Schema({
         type : String,
         required: true,
         unique : true
+    },
+    role:{
+        type: String,
+        enum: roles,
+        default: "user"
     },
     playTime : {
         type : Number,

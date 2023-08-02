@@ -1,6 +1,6 @@
 const express = require("express")
 const userController = require("../controllers/user.controller")
-
+const auth = require("../middleware/auth")
 
 const router = express.Router()
 
@@ -8,13 +8,13 @@ const router = express.Router()
 
 
 router.route("/")
-    .post(userController.createUser)
-
-
-router.route("/:userId")
-    .get(userController.getUser)
-    .patch(userController.updateUser)
-    .delete(userController.deleteUser)
+    .post(auth("manageUsers"),userController.createUser)
+    
+    router.route("/:userId")
+    .get(auth("getUsers"),userController.getUser)
+    // .get(userController.getUser)
+    .patch(auth("manageUsers"),userController.updateUser)
+    .delete(auth("manageUsers"),userController.deleteUser)
 // router.route("/").patch(userController.updateUser)
 // router.route("/").delete(userController.deleteUser)
 

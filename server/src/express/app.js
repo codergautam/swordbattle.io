@@ -1,28 +1,41 @@
-require("dotenv").config()
-const cors = require("cors")
 const express = require("express")
-const bodyParser = require("body-parser")
+const helmet = require("helmet")
+const cors = require("cors")
 const mongoose = require("mongoose")
-const uri = process.env.MONGO_CONNECTION_URL
+const config = require("./config/config")
+const passport = require("passport")
+const {jwtStrategy} = require("./config/passport")
 const routes = require("./routes/index")
+const { roles, roleRights } = require("./config/roles")
+
 // Creates an express application
-// console.log(uri)
-mongoose.connect(uri)
-mongoose.connection.on("error", (error) => {
-    console.log(error)
-    process.exit(1)
-})
-
-mongoose.connection.on("connected", function () {
-    console.log("Successful connection to MongoDB")
-
-})
 const app = express()
 
-app.use(bodyParser.urlencoded({extended: false}))
-app.use(bodyParser.json())
+console.log(roles,roleRights)
+mongoose.connect(config.mongoose.uri).then(() => {
+    console.log("Connected to MongoDB")
+    app.listen(config.port, () =>{
+        console.log(`listening to port ${config.port}`)
+    })
+})
+
+// mongoose.connection.on("error", (error) => {
+//     console.log(error)
+//     process.exit(1)
+// })
+
+
+app.use(helmet())
+
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
 app.use(cors())
 
+
+
+
+app.use(passport.initialize())
+passport.use("jwt", jwtStrategy)
 
 
 app.use("/api",routes)
@@ -46,10 +59,4 @@ app.use((err, req, res, next) => {
 app.get("/status", (req, res, next) => {
     res.status(200)
     res.json({status: "ok"})
-})
-
-const PORT = process.env.MONGO_PORT || 3000
-
-app.listen(PORT, () => {
-    console.log(`\n=== Server listening on ports ${PORT} ===\n`);
 })

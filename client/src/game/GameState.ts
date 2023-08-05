@@ -1,11 +1,11 @@
-import Socket from './network/Socket';
-import { EntityTypes } from './Types';
-import Game from './scenes/Game';
-import Player from './entities/Player';
-import Coin from './entities/Coin';
 import Inputs from './Inputs';
 import { Settings } from './Settings';
+import { EntityTypes } from './Types';
+import Coin from './entities/Coin';
 import House1 from './entities/House1';
+import Player from './entities/Player';
+import Socket from './network/Socket';
+import Game from './scenes/Game';
 
 class GameState {
   game: Game;
@@ -29,6 +29,7 @@ class GameState {
   ping = 0;
   pingStart = 0;
   interval: any;
+  freeze: boolean = false;
 
   constructor(game: Game) {
     this.game = game;
@@ -56,12 +57,25 @@ class GameState {
 
   initialize() {
     this.game.events.on('startGame', this.start, this);
+    this.game.events.on('pauseGame', this.pause, this);
+    this.game.events.on('resumeGame', this.resume, this);
+    this.game.events.on('evolve', this.evolve, this);
     this.game.game.events.on('restartGame', this.restart, this);
     this.interval = setInterval(() => this.tick(), 1000 / 30);
   }
 
   start(name: string) {
     Socket.emit({ name });
+  }
+
+  pause() {
+    this.inputs.clear();
+    this.previousInputs.clear();
+    this.freeze = true;
+  }
+
+  resume() {
+    this.freeze = false;
   }
 
   onServerOpen() {
@@ -152,6 +166,12 @@ class GameState {
   }
 
   sendInputs() {
+    if (this.freeze) {
+      const data = { freeze: true };
+      Socket.emit(data);
+      return;
+    }
+    
     const inputs = this.inputs.difference(this.previousInputs);
 
     const data: any = {};
@@ -172,6 +192,11 @@ class GameState {
     if (Object.keys(data).length !== 0) {
       Socket.emit(data);
     }
+  }
+
+  evolve(name: string) {
+    const data: any = { evolution: name };
+    Socket.emit(data);
   }
 
   addEntity(id: number, data: any) {

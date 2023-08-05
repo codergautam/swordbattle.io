@@ -1,0 +1,27 @@
+.game-modal {
+  display: flex;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  gap: 128px;
+}
+
+.evolution {
+  background-color: green;
+  cursor: pointer;
+  padding: 16px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  img {
+    width: 120px;
+    height: 120px;
+  }
+
+  div {
+    font-size: 32px;
+    font-family: monospace;
+  }
+}

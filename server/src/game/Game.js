@@ -39,24 +39,33 @@ class Game {
       player = this.addPlayer(client, data);
     }
 
-    if (data.inputs) {
-      for (const input of data.inputs) {
-        if (input.inputDown) {
-          player.inputs.inputDown(input.inputType);
+    if (data.freeze) {
+      player.inputs.clear();
+      player.mouse = null;
+    } else {
+      if (data.inputs) {
+        for (const input of data.inputs) {
+          if (input.inputDown) {
+            player.inputs.inputDown(input.inputType);
+          } else {
+            player.inputs.inputUp(input.inputType);
+          }
+        }
+      }
+      if (!isNaN(data.angle)) {
+        player.angle = Number(data.angle);
+      }
+      if (data.mouse) {
+        if (data.mouse.force === 0) {
+          player.mouse = null;
         } else {
-          player.inputs.inputUp(input.inputType);
+          player.mouse = data.mouse;
         }
       }
     }
-    if (!isNaN(data.angle)) {
-      player.angle = Number(data.angle);
-    }
-    if (data.mouse) {
-      if (data.mouse.force === 0) {
-        player.mouse = null;
-      } else {
-        player.mouse = data.mouse;
-      }
+
+    if (data.evolution) {
+      player.evolve(data.evolution);
     }
   }
 

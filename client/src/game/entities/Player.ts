@@ -5,6 +5,7 @@ class Player extends BaseEntity {
     ...BaseEntity.stateFields, 'radius', 'speed', 'name', 'coinBalance', 'angle',
     'health', 'maxHealth', 'kills', 'isHit', 'isDamaged',
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration',
+    'level', 'evolutions', 'skin',
   ];
 
   body: any = null;
@@ -14,6 +15,8 @@ class Player extends BaseEntity {
   healthBar: any = null;
   healthChanged: boolean = false;
   survivalStarted: number = 0;
+  skin: any = null;
+  skinChanged: boolean = false;
 
   isInBuilding: boolean = false;
   isTransparent: boolean = false;
@@ -71,6 +74,10 @@ class Player extends BaseEntity {
     this.healthBar.fillRect(0, 0, barWidth * healthPercent, 30);
   }
 
+  updateSkin() {
+    this.body.setTexture(this.skin);
+  }
+
   beforeStateUpdate(data: any): void {
     if (data.health !== undefined || data.maxHealth !== undefined) {
       this.healthChanged = true;
@@ -86,6 +93,9 @@ class Player extends BaseEntity {
     if (data.angle !== undefined) {
       this.previousAngle = this.angle;
       this.angleLerp = 0;
+    }
+    if (data.skin !== undefined && this.skin !== data.skin) {
+      this.skinChanged = true;
     }
   }
 
@@ -143,6 +153,11 @@ class Player extends BaseEntity {
       this.updateHealth();
       this.healthChanged = false;
     }
+
+    if (this.skinChanged) {
+      this.updateSkin();
+      this.skinChanged = false;
+    }
     
     if (this.isMe) {
       this.updateRotation();
@@ -169,6 +184,10 @@ class Player extends BaseEntity {
         const force = Math.sqrt(mousePos.x ** 2 + mousePos.y ** 2);
         gameState.mouse.angle = angle;
         gameState.mouse.force = force;
+      }
+
+      if (this.evolutions.length) {
+        this.game.game.events.emit('openModal', { evolutions: this.evolutions });
       }
     } else {
       let isTransparent = this.isInBuilding && this.buildingId !== self?.buildingId;

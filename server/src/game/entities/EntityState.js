@@ -56,7 +56,9 @@ class EntityState {
 
     const changes = {};
     for (const key in fields) {
-      if (typeof fields[key] === 'object') {
+      if (Array.isArray(fields[key])) {
+        changes[key] = fields[key];
+      } else if (typeof fields[key] === 'object') {
         const subChanges = this.getChanges(fields[key], previousFields[key] || {});
         if (Object.keys(subChanges).length) {
           changes[key] = subChanges;

@@ -18,7 +18,7 @@ class Stats {
     this.game = hud.game;
   }
 
-  initalize() {
+  initialize() {
     const { indent } = this;
     const style: Phaser.Types.GameObjects.Text.TextStyle = {
       fontSize: 20,

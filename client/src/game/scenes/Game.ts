@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
-import GameState from '../GameState';
-import { InputTypes } from '../Types';
-import SoundManager from '../SoundManager';
 import store from '../../Store';
+import GameState from '../GameState';
+import SoundManager from '../SoundManager';
+import { InputTypes } from '../Types';
 import HUD from '../components/HUD';
 
 const publicPath = process.env.PUBLIC_URL;
@@ -38,6 +38,8 @@ export default class Game extends Phaser.Scene {
     this.load.image('sword', publicPath + '/assets/game/sword.png');
     this.load.image('house1', publicPath + '/assets/game/house1.png');
     this.load.image('house1roof', publicPath + '/assets/game/house1roof.png');
+    this.load.image('tank', publicPath + "/assets/game/tankSkin.png");
+    this.load.image('berserker', publicPath + "/assets/game/berserkerSkin.png");
 
     this.load.audio('damage', publicPath + '/assets/sound/damage.mp3');
     this.load.audio('hitenemy', publicPath + '/assets/sound/hitenemy.wav');

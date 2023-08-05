@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import GameComponent from './game/GameComponent';
 import Modal from './Modal';
 import SettingsModal from './SettingsModal';
+import GameComponent from './game/GameComponent';
 
-import { useScale } from './Scale';
 import ChangelogModal from './ChangelogModal';
 import LoadingScreen from './LoadingScreen';
+import { useScale } from './Scale';
 
-import SettingsImg from '../assets/img/settings.png';
 import DiscordLogo from '../assets/img/discordLogo.png';
+import SettingsImg from '../assets/img/settings.png';
 import './App.scss';
 
 const preloadImages: string[] = [

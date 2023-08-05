@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import './Leaderboard.scss';
 import { useScale } from '../Scale';
+import './Leaderboard.scss';
 
 function Leaderboard({ game }: any) {
   const [players, setPlayers] = useState<any>([]);

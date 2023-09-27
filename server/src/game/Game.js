@@ -1,36 +1,33 @@
 const { pack } = require('msgpackr');
-const IdPool = require('./IdPool');
+const SAT = require('sat');
+const IdPool = require('./components/IdPool');
+const QuadTree = require('./components/Quadtree');
 const GameMap = require('./GameMap');
+const GlobalEntities = require('./GlobalEntities');
 const Player = require('./entities/Player');
-const Coin = require('./entities/Coin');
 const helpers = require('../helpers');
-const QuadTree = require('./Quadtree');
 const config = require('../config');
 
 class Game {
   constructor() {
     this.entities = new Set();
     this.players = new Set();
-    this.swords = new Set();
-    this.coins = new Set();
-    this.mapObjects = new Set();
-    this.walls = new Set();
+    this.buildings = new Set();
     this.newEntities = new Set();
     this.removedEntities = new Set();
     this.idPool = new IdPool();
-    this.map = new GameMap(this, config.map.width, config.map.height);
-    this.coinsQuadtree = null;
-    this.playersQuadtree = null;
-    this.swordsQuadtree = null;
+    this.map = new GameMap(this);
+    this.globalEntities = new GlobalEntities(this);
+
+    this.entitiesQuadtree = null;
     this.tps = 0;
   }
 
   initialize() {
-    const mapBoundary = { x: 0, y: 0, width: this.map.width, height: this.map.height };
-    this.coinsQuadtree = new QuadTree(mapBoundary, 15, 4);
-    this.playersQuadtree = new QuadTree(mapBoundary, 10, 4);
-    this.swordsQuadtree = new QuadTree(mapBoundary, 10, 4);
-    this.map.spawnObjects();
+    this.map.initialize();
+
+    const mapBoundary = this.map;
+    this.entitiesQuadtree = new QuadTree(mapBoundary, 15, 5);
   }
 
   processClientMessage(client, data) {
@@ -58,27 +55,47 @@ class Game {
         player.mouse = data.mouse;
       }
     }
+    if (data.selectedEvolution) {
+      player.evolutions.upgrade(data.selectedEvolution);
+    }
   }
 
   tick(dt) {
-    this.updateQuadtree(this.coinsQuadtree, this.coins);
-    this.updateQuadtree(this.playersQuadtree, this.players);
-    this.updateQuadtree(this.swordsQuadtree, this.swords);
-
-    for (let i = this.coins.size; i < this.map.coinsCount; i++) {
-      const coin = new Coin(this);
-      this.addCoin(coin);
-    }
-
     for (const entity of this.entities) {
       entity.update(dt);
+    }
+
+    this.updateQuadtree(this.entitiesQuadtree, this.entities);
+    const response = new SAT.Response();
+    for (const entity of this.entities) {
+      if (entity.targets.length !== 0) {
+        this.processCollisions(entity, response, dt);
+      }
+    }
+    for (const entity of this.entities) {
+      this.map.processBorderCollision(entity);
+    }
+  }
+
+  processCollisions(entity, response, dt) {
+    const quadtreeSearch = this.entitiesQuadtree.get(entity.shape.boundary);
+
+    for (const { entity: targetEntity } of quadtreeSearch) {
+      if (entity === targetEntity) continue;
+      if (!entity.targets.includes(targetEntity.type)) continue;
+
+      response.clear();
+
+      if (targetEntity.shape.collides(entity.shape, response)) {
+        entity.processTargetsCollision(targetEntity, response, dt);
+      }
     }
   }
 
   updateQuadtree(quadtree, entities) {
     quadtree.clear();
     for (const entity of entities) {
-      const collisionRect = entity.boundary;
+      const collisionRect = entity.shape.boundary;
       collisionRect.entity = entity;
       quadtree.insert(collisionRect);
     }
@@ -92,22 +109,23 @@ class Game {
     if (this.newEntities.has(player)) {
       data.fullSync = true;
       data.selfId = player.id;
-      data.entities = this.getAllEntities();
       data.mapData = this.map.getData();
+      data.entities = this.getAllEntities(player);
+      data.globalEntities = this.globalEntities.getAll();
     } else {
-      data.entities = Object.assign(
-        this.getEntitiesChanges(),
-        this.getNewEntities(),
-      );
+      data.entities = this.getEntitiesChanges(player);
+      data.globalEntities = this.globalEntities.getChanges();
     }
     if (process.env.DEBUG === 'TRUE') {
-      data.timestamp = Date.now();
       data.tps = this.tps;
     }
 
     // Delete empty entities object so that we don't send empty payload.
     if (Object.keys(data.entities).length === 0) {
       delete data.entities;
+    }
+    if (Object.keys(data.globalEntities).length === 0) {
+      delete data.globalEntities;
     }
     if (Object.keys(data).length === 0) {
       return null;
@@ -116,81 +134,59 @@ class Game {
     return pack(data);
   }
 
-  getAllEntities() {
+  getAllEntities(player) {
     const entities = {};
-    for (const entity of this.entities) {
+    for (const entity of player.getEntitiesInViewport()) {
+      if (entity.isStatic) continue;
       entities[entity.id] = entity.state.get();
     }
     return entities;
   }
 
-  getEntitiesChanges() {
+  getEntitiesChanges(player) {
     const changes = {};
-    for (const entity of this.entities) {
-      entity.state.get();
-      if (entity.state.hasChanged()) {
-        changes[entity.id] = entity.state.getChanges();
+    const previousViewport = player.viewportEntities;
+    const currentViewport = player.getEntitiesInViewport();
+    const allViewportEntities = currentViewport.concat(previousViewport);
+    for (const entity of allViewportEntities) {
+      if (entity.isStatic) continue;
+
+      entity.state.get(); // updates state
+
+      // If player wasn't it previous viewport, it sends as new entity
+      if (previousViewport.indexOf(entity) === -1) {
+        changes[entity.id] = entity.state.get();
+      // If entity was in previous viewport but it's not in current, it counts as removed entity
+      } else if (currentViewport.indexOf(entity) === -1) {
+        changes[entity.id] = {
+          ...entity.state.getChanges(),
+          removed: true,
+        };
+      // If entity is in both viewports, just send changes
+      } else {
+        if (entity.state.hasChanged()) {
+          changes[entity.id] = entity.state.getChanges();
+        }
       }
     }
-    for (const entity of this.removedEntities) {
-      entity.state.get();
-      changes[entity.id] = {
-        ...entity.state.getChanges(),
-        removed: true,
-      };
-      if (entity.client) changes[entity.id].disconnectReason = entity.client.disconnectReason;
-    }
-    return changes;
-  }
 
-  getNewEntities() {
-    const newEntities = {};
-    for (const entity of this.newEntities) {
-      newEntities[entity.id] = entity.state.get();
-    }
-    return newEntities;
+    return changes;
   }
 
   endTick() {
     this.cleanup();
   }
 
-  cleanup() {
-    for (const entity of this.entities) {
-      entity.cleanup();
-    }
-
-    this.newEntities.clear();
-    this.removedEntities.clear();
-  }
-
   addPlayer(client, data) {
     const name = this.handleNickname(data.name || '');
     const player = new Player(this, name);
-    this.swords.add(player.sword);
 
     client.player = player;
     player.client = client;
     this.players.add(player);
-    this.spawnPlayer(player);
+    this.map.spawnPlayer(player);
     this.addEntity(player);
     return player;
-  }
-
-  spawnPlayer(player) {
-    player.x = helpers.random(player.radius, this.map.width - player.radius);
-    player.y = helpers.random(player.radius, this.map.height - player.radius);
-  }
-
-  addBuilding(building) {
-    this.addEntity(building);
-    this.mapObjects.add(building);
-    building.walls.forEach(wall => this.walls.add(wall));
-  }
-
-  addCoin(coin) {
-    this.addEntity(coin);
-    this.coins.add(coin);
   }
 
   addEntity(entity) {
@@ -213,15 +209,11 @@ class Game {
   removeEntity(entity) {
     if (!this.entities.has(entity)) return;
 
-    if (entity.sword) this.swords.delete(entity.sword);
     this.entities.delete(entity);
     this.players.delete(entity);
-    this.coins.delete(entity);
     this.newEntities.delete(entity);
     this.removedEntities.add(entity);
     entity.removed = true;
-
-    this.idPool.give(entity.id);
   }
 
   handleNickname(nickname) {
@@ -238,6 +230,16 @@ class Game {
       return nickname;
     }
     return helpers.randomNickname();
+  }
+
+  cleanup() {
+    for (const entity of this.entities) {
+      entity.cleanup();
+    }
+    
+    this.newEntities.clear();
+    this.removedEntities.clear();
+    this.globalEntities.cleanup();
   }
 }
 

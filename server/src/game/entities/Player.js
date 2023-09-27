@@ -1,157 +1,157 @@
 const SAT = require('sat');
-const Inputs = require('../Inputs');
-const Types = require('../Types');
-const collisions = require('../collisions');
-const { CircleEntity } = require('./BaseEntity');
+const Inputs = require('../components/Inputs');
+const Entity = require('./Entity');
+const Circle = require('../shapes/Circle');
 const Sword = require('./Sword');
+const Effect = require('../effects/Effect');
+const SpeedEffect = require('../effects/SpeedEffect');
+const SlippingEffect = require('../effects/SlippingEffect');
+const BurningEffect = require('../effects/BurningEffect');
+const Property = require('../components/Property');
+const Viewport = require('../components/Viewport');
+const LevelSystem = require('../components/LevelSystem');
+const EvolutionSystem = require('../evolutions');
+const Types = require('../Types');
 const config = require('../../config');
 
-class Player extends CircleEntity {
+class Player extends Entity {
   constructor(game, name) {
     super(game, Types.Entity.Player);
     this.name = name;
     this.client = null;
     this.velocity = new SAT.Vector(0, 0);
+    this.movedDistance = new SAT.Vector(0, 0);
     this.movementDirection = 0;
     this.angle = 0;
     this.inputs = new Inputs();
     this.mouse = null;
+    this.targets.push(Types.Entity.Player);
 
-    const { speed, radius, maxHealth, regeneration } = config.player;
-    this.speed = speed;
+    const { speed, radius, maxHealth, regeneration, viewport } = config.player;
+    this.shape = Circle.create(0, 0, radius);
+    this.speed = new Property(speed);
     this.radius = radius;
-    this.maxHealth = maxHealth;
-    this.health = this.maxHealth;
+    this.maxHealth = new Property(maxHealth);
+    this.health = new Property(maxHealth);
+    this.friction = new Property(1);
     this.regeneration = regeneration;
-    this.coinBalance = 0;
     this.kills = 0;
     this.isHit = false;
     this.isDamaged = false;
+    this.inSafezone = true;
     this.inBuildingId = null;
 
+    this.viewport = new Viewport(this, viewport.width, viewport.height, viewport.zoom);
+    this.viewportEntities = [];
+    this.biomes = new Set();
+    this.effects = new Map();
     this.sword = new Sword(this);
+    this.game.addEntity(this.sword);
+    this.levels = new LevelSystem(this);
+    this.evolutions = new EvolutionSystem(this);
   }
 
   createState() {
     const state = super.createState();
-    state.speed = this.speed;
     state.name = this.name;
-    state.coinBalance = this.coinBalance;
     state.angle = this.angle;
-    state.health = this.health;
-    state.maxHealth = this.maxHealth;
+    state.health = this.health.value;
+    state.maxHealth = this.maxHealth.value;
     state.kills = this.kills;
     state.isHit = this.isHit;
     state.isDamaged = this.isDamaged;
+    
+    state.level = this.levels.level;
+    state.coins = this.levels.coins;
+    state.nextLevelCoins = this.levels.nextLevelCoins;
+    state.previousLevelCoins = this.levels.previousLevelCoins;
+    state.upgradePoints = this.levels.upgradePoints;
+
+    state.evolution = this.evolutions.evolution;
+    state.possibleEvolutions = {};
+    this.evolutions.possibleEvols.forEach(evol => state.possibleEvolutions[evol] = true);
+
+    state.viewportZoom = this.viewport.zoom.value;
 
     state.swordSwingAngle = this.sword.swingAngle;
     state.swordSwingProgress = this.sword.swingProgress;
-    state.swordSwingDuration = this.sword.swingDuration;
-
+    state.swordSwingDuration = this.sword.cooldown.value;
+    if (this.removed) state.disconnectReason = this.client.disconnectReason; 
     return state;
   }
 
   update(dt) {
-    this.health = Math.min(this.health + this.regeneration * dt, this.maxHealth);
+    this.applyBiomeEffects();
+
+    this.effects.forEach(effect => effect.update(dt));
     this.applyInputs(dt);
-    this.sword.update(dt);
-    this.collisionCheck();
+    
+    this.health.value = Math.min(this.health.baseValue + this.regeneration * dt, this.maxHealth.baseValue);
   }
 
-  collisionCheck() {
-    // Coins
-    const searchRadius = this.radius * 1.2;
-    const coinsSearchRect = collisions.getCircleBoundary(this.x, this.y, searchRadius);
-    const coinTargets = this.game.coinsQuadtree.get(coinsSearchRect);
-    for (const target of coinTargets) {
-      const coin = target.entity;
-      if (collisions.circleCircle(coin, { x: this.x, y: this.y, radius: searchRadius })) {
-        this.coinBalance += coin.value;
-        coin.hunterId = this.id;
-        coin.remove();
+  applyBiomeEffects() {
+    const response = new SAT.Response();
+    for (const biome of this.game.map.biomes) {
+      if (biome.shape.collides(this.shape, response)) {
+        biome.collides(this, response);
       }
     }
 
-    // Players
-    const boundary = this.boundary;
-    const playerTargets = this.game.playersQuadtree.get(boundary);
-    for (const target of playerTargets) {
-      const otherPlayer = target.entity;
-      if (collisions.circleCircle(otherPlayer, this)) {
-        const otherPlayerPoly = new SAT.Circle(new SAT.Vector(otherPlayer.x, otherPlayer.y), otherPlayer.radius);
-        const mtv = this.getMtv(otherPlayerPoly).scale(0.5);
-        this.applyMtv(mtv);
-        otherPlayer.applyMtv(mtv.reverse());
+    if (this.biomes.has(Types.Biome.Safezone)) {
+      this.viewport.zoom.multiplier *= 0.75;
+      this.sword.damage.multiplier = 0;
+      this.sword.knockback.multiplier = 0;
+    } else {
+      this.inSafezone = false;
+
+      if (this.biomes.has(Types.Biome.Fire)) {
+        this.maxHealth.multiplier *= 0.8;
+        this.health.multiplier *= 0.8;
+        this.sword.damage.multiplier *= 1.2;
+      } else if (this.biomes.has(Types.Biome.Earth)) {
+        this.speed.multiplier *= 0.8;
+        this.sword.damage.multiplier *= 0.85;
+        this.sword.knockback.multiplier *= 0.85;
+      } else if (this.biomes.has(Types.Biome.Ice)) {
+        this.speed.multiplier *= 1.2;
+        this.sword.cooldown.multiplier *= 0.9;
+        this.addEffect(Types.Effect.Slipping, 'iceBiome', { friction: 0.2, duration: 0.3 });
+      }
+
+      if (this.biomes.has(Types.Biome.River)) {
+        this.speed.multiplier *= 1.4;
       }
     }
+  }
 
-    // Buildings
-    const point = { x: this.x, y: this.y, radius: 1 };
-    let buildingId = null;
-    for (const building of this.game.mapObjects) {
-      if (collisions.circleRectangle(point, building)) {
-        buildingId = building.id;
-      }
-    }
-    this.inBuildingId = buildingId;
+  processTargetsCollision(entity, response) {
+    const selfWeight = this.weight;
+    const targetWeight = entity.weight;
+    const totalWeight = selfWeight + targetWeight;
 
+    const mtv = this.shape.getCollisionOverlap(response);
+    const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
+    const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
 
-    // Player swords
-    const swordsTargets = this.game.swordsQuadtree.get(boundary);
-    for (const target of swordsTargets) {
-      const sword = target.entity;
-      const otherPlayer = sword.player;
-      if (sword === this.sword
-        || !sword.canCollide(this)
-        || this.inBuildingId !== otherPlayer.inBuildingId) continue;
-
-      const swordPoly = sword.getCollisionPolygon();
-      const response = new SAT.Response();
-      if (SAT.testCirclePolygon(this.collisionPoly, swordPoly, response)) {
-        const angle = Math.atan2(otherPlayer.y - this.y, otherPlayer.x - this.x);
-        this.velocity.x -= sword.force * Math.cos(angle);
-        this.velocity.y -= sword.force * Math.sin(angle);
-        this.damage(sword.damage, otherPlayer);
-      }
-    }
-
-    // Walls (buildings)
-    // can use quadtree later
-    for (const wall of this.game.walls) {
-      if (collisions.circleRectangle(this, wall)) {
-        const mtv = this.getMtv(wall.poly);
-        this.applyMtv(mtv);
-      }
-    }
-
-    // Borders
-    const mapWidth = this.game.map.width;
-    const mapHeight = this.game.map.height;
-    if (this.x - this.radius <= 0) {
-      this.x = this.radius;
-    } else if (this.x + this.radius >= mapWidth) {
-      this.x = mapWidth - this.radius;
-    }
-    if (this.y - this.radius <= 0) {
-      this.y = this.radius;
-    } else if (this.y + this.radius >= mapHeight) {
-      this.y = mapHeight - this.radius;
-    }
+    this.shape.applyCollision(selfMtv);
+    entity.shape.applyCollision(targetMtv);
   }
 
   applyInputs(dt) {
     const isMouseMovement = this.mouse !== null;
 
-    let speed = this.speed;
+    let speed = this.speed.value;
+    let dx = 0;
+    let dy = 0;
+
     if (isMouseMovement) {
       const mouseDistanceFullStrength = 150;
       const mouseAngle = this.mouse.angle;
       const mouseDistance = Math.min(this.mouse.force, mouseDistanceFullStrength);
-
       speed *= mouseDistance / mouseDistanceFullStrength;
-      this.x += speed * Math.cos(mouseAngle) * dt;
-      this.y += speed * Math.sin(mouseAngle) * dt;
       this.movementDirection = mouseAngle;
+      dx = speed * Math.cos(this.movementDirection);
+      dy = speed * Math.sin(this.movementDirection);
     } else {
       let directionX = 0;
       let directionY = 0;
@@ -170,41 +170,89 @@ class Player extends CircleEntity {
   
       if (directionX !== 0 || directionY !== 0) {
         this.movementDirection = Math.atan2(directionY, directionX);
-        this.x += this.speed * Math.cos(this.movementDirection) * dt;
-        this.y += this.speed * Math.sin(this.movementDirection) * dt;
+        dx = speed * Math.cos(this.movementDirection);
+        dy = speed * Math.sin(this.movementDirection);
       } else {
         this.movementDirection = 0;
       }
     }
 
-    // Velocity
-    this.x += this.velocity.x;
-    this.y += this.velocity.y;
+    this.shape.x += this.velocity.x;
+    this.shape.y += this.velocity.y;
     this.velocity.scale(0.9);
+
+    const slide = this.movedDistance;
+    const friction = 1 - this.friction.value;
+    slide.scale(friction);
+    
+    dx += slide.x;
+    dy += slide.y;
+
+    const absDx = Math.abs(dx);
+    const absDy = Math.abs(dy);
+
+    if (absDx > speed) {
+      dx *= speed / absDx;
+    }
+    if (absDy > speed) {
+      dy *= speed / absDy;
+    }
+
+    this.shape.x += dx * dt;
+    this.shape.y += dy * dt;
+
+    this.movedDistance.x = dx;
+    this.movedDistance.y = dy;
   }
 
-  damage(damage, player) {
-    this.health -= damage;
+  damage(damage, reason = 'Suddenly dead') {
+    this.health.baseValue -= damage;
     this.isDamaged = true;
-    player.isHit = true;
-    player.sword.collidedEntities.add(this);
-    if (this.health <= 0) {
-      this.health = 0;
-      this.remove(player.name);
-      player.kills += 1;
+
+    if (this.health.value <= 0) {
+      this.health.value = 0;
+      this.remove(reason);
     }
+  }
+
+  addEffect(type, id, config) {
+    let EffectClass = Effect;
+    switch (type) {
+      case Types.Effect.Speed: EffectClass = SpeedEffect; break;
+      case Types.Effect.Slipping: EffectClass = SlippingEffect; break;
+      case Types.Effect.Burning: EffectClass = BurningEffect; break;
+    }
+
+    if (!id) id = Math.random();
+    if (this.effects.has(id)) {
+      this.effects.get(id).continue(config);
+    } else {
+      const effect = new EffectClass(this, id, config);
+      this.effects.set(id, effect);
+    }
+  }
+
+  getEntitiesInViewport() {
+    this.viewportEntities = this.game.entitiesQuadtree.get(this.viewport.boundary)
+      .map(result => result.entity);
+    return this.viewportEntities;
   }
 
   remove(reason = 'Server') {
     this.client.disconnectReason = reason;
+    this.game.removeEntity(this.sword);
     super.remove();
   }
 
   cleanup() {
     super.cleanup();
+    this.biomes.clear();
     this.sword.cleanup();
     this.isHit = false;
     this.isDamaged = false;
+
+    [this.speed, this.health, this.maxHealth, this.friction, this.viewport.zoom]
+      .forEach((property) => property.reset());
   }
 }
 

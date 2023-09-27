@@ -1,8 +1,10 @@
 const SAT = require('sat');
+const Entity = require('./Entity');
 const Types = require('../Types');
-const { BaseEntity } = require('./BaseEntity');
 
-class House1 extends BaseEntity {
+// TODO: migrate to new shape system
+
+class House1 extends Entity {
   constructor(game, x, y, width, height) {
     super(game, Types.Entity.House1);
     this.x = x;
@@ -41,6 +43,26 @@ class House1 extends BaseEntity {
       boundary.poly = new SAT.Box(new SAT.Vector(boundary.x, boundary.y), boundary.width, boundary.height).toPolygon();
       this.walls.add(boundary);
     }
+  }
+
+  processTargetsCollision() {
+    // // Buildings
+    // const point = { x: this.shape.x, y: this.shape.y, radius: 1 };
+    // let buildingId = null;
+    // for (const building of this.game.buildings) {
+    //   if (collisions.circleRectangle(point, building)) {
+    //     buildingId = building.id;
+    //   }
+    // }
+    // this.inBuildingId = buildingId;
+
+    // Walls (buildings)
+    // for (const wall of this.game.walls) {
+    //   if (collisions.circleRectangle(this, wall)) {
+    //     const mtv = this.getMtv(wall.poly);
+    //     this.shape.collisionPoly.pos.add(mtv);
+    //   }
+    // }
   }
 }
 

@@ -1,4 +1,4 @@
-class EntityState {
+class State {
   constructor(createFields) {
     this.createFields = createFields;
     this.fields = {};
@@ -76,4 +76,4 @@ class EntityState {
   }
 }
 
-module.exports = EntityState;
+module.exports = State;

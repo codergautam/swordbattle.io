@@ -1,4 +1,4 @@
-const { rectangleRectangle } = require('./collisions');
+const { rectangleRectangle } = require('../collisions');
 
 class QuadTree {
   constructor(boundary, capacity = 10, maxLevel = 4, level = 0) {

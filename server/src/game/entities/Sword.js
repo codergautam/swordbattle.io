@@ -1,74 +1,56 @@
 const SAT = require('sat');
+const Entity = require('./Entity');
+const Polygon = require('../shapes/Polygon');
+const Property = require('../components/Property');
 const Types = require('../Types');
 const config = require('../../config');
 
-class Sword {
+class Sword extends Entity {
   constructor(player) {
+    super(player.game, Types.Entity.Sword);
     this.player = player;
     this.swingAngle = -Math.PI / 3;
     this.raiseAnimation = false;
     this.decreaseAnimation = false;
-    this.swingTime = 0;
-    this.swingProgress = 0;
     this.collidedEntities = new Set();
 
     const { swingDuration, damage, knockback } = config.sword;
-    this.swingDuration = swingDuration;
-    this.damage = damage;
-    this.force = knockback;
+    this.cooldown = new Property(swingDuration);
+    this.damage = new Property(damage);
+    this.knockback = new Property(knockback);
+    this.swingTime = 0;
+    this.swingProgress = 0;
 
     this.width = 85;
     this.height = 180;
-  }
-
-  get boundary() {
-    const aabb = this.getCollisionPolygon().getAABB();
-    const points = aabb.calcPoints;
-    
-    let minX = points[0].x;
-    let minY = points[0].y;
-    let maxX = points[0].x;
-    let maxY = points[0].y;
-    
-    for (let i = 1; i < points.length; i++) {
-      minX = Math.min(minX, points[i].x);
-      minY = Math.min(minY, points[i].y);
-      maxX = Math.max(maxX, points[i].x);
-      maxY = Math.max(maxY, points[i].y);
-    }
-    
-    return {
-      x: minX,
-      y: minY,
-      width: maxX - minX,
-      height: maxY - minY,
-    };
+    this.shape = new Polygon(0, 0, [[0, 0]]);
+    this.isStatic = true;
+    this.targets.push(Types.Entity.Player);
   }
 
   get angle() {
     return this.swingAngle * this.swingProgress;
   }
 
-  canCollide(player) {
-    return this.raiseAnimation && !this.collidedEntities.has(player);
+  canCollide(entity) {
+    return this.raiseAnimation && !this.collidedEntities.has(entity);
   }
 
-  getCollisionPolygon() {
-    if (this.cachedPoly) return this.cachedPoly;
+  updateCollisionPoly() {
+    const { player } = this;
 
-    const angle = this.player.angle + this.angle + Math.PI / 2;
-    const point = new SAT.Vector(this.player.x, this.player.y);
+    const angle = player.angle + this.angle + Math.PI / 2;
+    const point = new SAT.Vector(player.shape.x, player.shape.y);
     const poly = new SAT.Box(point, this.width, this.height).toPolygon();
-    const offsetX = this.player.radius + this.width * 0.3;
-    const offsetY = this.player.radius - this.height * 0.75;
+    const offsetX = player.shape.radius + this.width * 0.3;
+    const offsetY = player.shape.radius - this.height * 0.75;
     const offset = new SAT.Vector(offsetX, offsetY);
 
     poly.setAngle(angle);
     poly.setOffset(offset);
     poly.rotate(-Math.PI);
-    this.cachedPoly = poly;
 
-    return poly;
+    this.shape.collisionPoly = poly;
   }
 
   update(dt) {
@@ -83,8 +65,8 @@ class Sword {
 
     if (this.raiseAnimation) {
       this.swingTime += dt;
-      if (this.swingTime >= this.swingDuration) {
-        this.swingTime = this.swingDuration;
+      if (this.swingTime >= this.cooldown.value) {
+        this.swingTime = this.cooldown.value;
         this.raiseAnimation = false;
       }
     }
@@ -96,11 +78,34 @@ class Sword {
         this.collidedEntities.clear();
       }
     }
-    this.swingProgress = this.swingTime / this.swingDuration;
+    this.swingProgress = this.swingTime / this.cooldown.value;
+
+    this.updateCollisionPoly();
+  }
+
+  processTargetsCollision(player) {
+    if (player === this.player) return;
+    if (!this.canCollide(player)) return;
+    if (player.inBuildingId !== this.player.inBuildingId) return;
+
+    const angle = Math.atan2(this.player.shape.y - player.shape.y, this.player.shape.x - player.shape.x);
+    player.velocity.x -= this.knockback.value * Math.cos(angle);
+    player.velocity.y -= this.knockback.value * Math.sin(angle);
+    player.damage(this.damage.value, this.player.name);
+
+    this.player.isHit = true;
+    this.collidedEntities.add(player);
+    if (player.removed) {
+      this.player.kills += 1;
+    }
   }
 
   cleanup() {
-    this.cachedPoly = null;
+    super.cleanup();
+
+    this.damage.reset();
+    this.knockback.reset();
+    this.cooldown.reset();
   }
 }
 

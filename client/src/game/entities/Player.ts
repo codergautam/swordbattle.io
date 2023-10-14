@@ -17,7 +17,7 @@ class Player extends BaseEntity {
   bodyContainer: any = null;
   healthBar: any = null;
   messageText!: Phaser.GameObjects.Text;
-  
+
   isMe: boolean = false;
   isInBuilding: boolean = false;
   isTransparent: boolean = false;
@@ -25,7 +25,7 @@ class Player extends BaseEntity {
   swordLerpProgress = 0;
   angleLerp = 0;
   previousAngle = 0;
-  
+
   survivalStarted: number = 0;
   healthChanged: boolean = false;
   swordRaiseStarted: boolean = false;
@@ -50,7 +50,7 @@ class Player extends BaseEntity {
     name.setFontSize(30);
     name.setOrigin(0.5, 1);
     name.setFill('#000000');
-    
+
     this.healthBar = this.game.add.graphics();
     this.healthBar.x = -100;
     this.healthBar.y = -175;
@@ -141,7 +141,7 @@ class Player extends BaseEntity {
       this.updateEvolution();
     }
   }
-  
+
   afterStateUpdate(data: any): void {
     super.afterStateUpdate(data);
 
@@ -189,7 +189,8 @@ class Player extends BaseEntity {
   }
 
   rotateBody(angle: number) {
-    this.bodyContainer.setRotation(angle + this.swordSwingAngle * this.swordLerpProgress); 
+    this.bodyContainer.setRotation(angle + this.swordSwingAngle * this.swordLerpProgress);
+    this.body.setRotation(-1 * this.swordSwingAngle * this.swordLerpProgress - Math.PI / 2);
   }
 
   updateRotation() {
@@ -218,10 +219,10 @@ class Player extends BaseEntity {
       this.updateHealth();
       this.healthChanged = false;
     }
-    
+
     if (this.isMe) {
       this.updateRotation();
-      
+
       if (this.game.joystick) {
         gameState.mouse.angle = this.game.joystick.angle * (Math.PI / 180);
         gameState.mouse.force = this.game.joystick.force;

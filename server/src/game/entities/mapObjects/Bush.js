@@ -14,7 +14,7 @@ class Bush extends Entity {
   }
 
   processTargetsCollision(player) {
-    player.addEffect(Types.Effect.Speed, 'bush', { multiplier: 0.5 });
+    player.addEffect(Types.Effect.Speed, 'bush', { multiplier: 0.7 });
   }
 }
 

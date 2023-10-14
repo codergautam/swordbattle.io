@@ -1,14 +1,15 @@
 import { BaseEntity } from './BaseEntity';
 
 class Coin extends BaseEntity {
-  static stateFields = [...BaseEntity.stateFields, 'radius'];
+  static stateFields = [...BaseEntity.stateFields];
 
   hunter: any = null;
   eatingTween: Phaser.Tweens.Tween | null = null;
+  displayRadius = 0.8;
 
   createSprite() {
-    this.container = this.game.physics.add.sprite(this.x, this.y, 'coin');
-    this.container.scale = (this.radius * 2) / this.container.width;
+    this.container = this.game.add.sprite(this.shape.x, this.shape.y, 'coin');
+    this.container.scale = (this.shape.radius * 2 * this.displayRadius) / this.container.width;
     this.eatingTween = this.game.tweens.addCounter({
       from: 0,
       to: 1,
@@ -25,17 +26,14 @@ class Coin extends BaseEntity {
     if (this.removed) {
       const { hunter } = this;
       if (hunter) {
-        if (hunter.isMe) {
-          this.game.soundManager.playCoin();
-        }
         this.eatingTween.resume();
 
-        const diffX = hunter.x - this.x;
-        const diffY = hunter.y - this.y;
+        const diffX = hunter.container.x - this.container.x;
+        const diffY = hunter.container.y - this.container.y;
         const angle = Math.atan2(diffY, diffX);
         const value = this.eatingTween.getValue();
-        this.container.x = this.x + Math.abs(diffX) * Math.cos(angle) * value;
-        this.container.y = this.y + Math.abs(diffY) * Math.sin(angle) * value;
+        this.container.x = this.container.x + Math.abs(diffX) * Math.cos(angle) * value;
+        this.container.y = this.container.y + Math.abs(diffY) * Math.sin(angle) * value;
 
         if (!this.eatingTween.isActive()) {
           this.remove();

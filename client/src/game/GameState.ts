@@ -1,37 +1,58 @@
+import Game from './scenes/Game';
 import Socket from './network/Socket';
 import { EntityTypes } from './Types';
-import Game from './scenes/Game';
-import Player from './entities/Player';
-import Coin from './entities/Coin';
-import Inputs from './Inputs';
 import { Settings } from './Settings';
-import House1 from './entities/House1';
+import Inputs from './Inputs';
+import GameMap from './GameMap';
+import Coin from './entities/Coin';
+import Player from './entities/Player';
+import House1 from './entities/mapObjects/House1';
+import MossyRock from './entities/mapObjects/MossyRock';
+import Rock from './entities/mapObjects/Rock';
+import LavaRock from './entities/mapObjects/LavaRock';
+import WolfMob from './entities/mobs/Wolf';
+import BunnyMob from './entities/mobs/Bunny';
+import MooseMob from './entities/mobs/Moose';
+import ChimeraMob from './entities/mobs/Chimera';
+import YetiMob from './entities/mobs/Yeti';
+import RokuMob from './entities/mobs/Roku';
+import Fireball from './entities/Fireball';
+import Chest from './entities/Chest';
+import GlobalEntity from './entities/GlobalEntity';
+import Sword from './entities/Sword';
 
 class GameState {
   game: Game;
   socket: WebSocket;
+  interval: any;
   entities: Record<number, any> = {};
+  globalEntities: Record<number, GlobalEntity> = {};
   removedEntities: Set<any> = new Set();
+  gameMap: GameMap;
   self: {
     id: number,
     entity: Player | null,
   };
-  inputs: Inputs = new Inputs();
-  previousInputs: Inputs = new Inputs();
   lastLeaderboardUpdate: number = 0;
   leaderboardUpdateInterval: number = 1000;
   playerAngle: number = 0;
   previousPlayerAngle: number = 0;
-  mouse: any = { angle: 0, force: 0 };
   payloadsQueue: any[] = [];
-  disconnectReason: string = 'Server';
+  disconnectReason = 'Server';
   tps = 0;
   ping = 0;
   pingStart = 0;
-  interval: any;
+
+  inputs: Inputs = new Inputs();
+  previousInputs: Inputs = new Inputs();
+  mouse: any = { angle: 0, force: 0 };
+  selectedEvolution: string | null = null;
+  selectedBuff: any;
+  chatMessage: string | null = null;
 
   constructor(game: Game) {
     this.game = game;
+    this.gameMap = new GameMap(this.game);
     this.socket = Socket.connect(
       this.getServer(),
       this.onServerOpen.bind(this),
@@ -69,12 +90,16 @@ class GameState {
   }
 
   onServerClose(event: CloseEvent) {
-    this.disconnectReason = event.reason || 'God';
+    this.disconnectReason = event.reason || 'Accidentally died';
     this.disconnect();
   }
 
   onServerMessage(data: any) {
     this.payloadsQueue.push(data);
+  }
+
+  resize() {
+    this.gameMap.biomes.forEach(biome => biome.resize());
   }
 
   updatePing() {
@@ -114,11 +139,26 @@ class GameState {
         this.entities[id].updateState(entityData);
       }
     }
+    for (let stringId in data.globalEntities) {
+      const id = Number(stringId);
+
+      const entityData = data.globalEntities[id];
+      if (!this.globalEntities[id]) {
+        const globalEntity = new GlobalEntity(this.game);
+        globalEntity.updateState(entityData);
+        this.globalEntities[id] = globalEntity;
+      }
+      if (entityData.removed) {
+        delete this.globalEntities[id];
+      } else {
+        this.globalEntities[id].updateState(entityData);
+      }
+    }
 
     if (data.fullSync) {
       const selfEntity = this.entities[this.self.id];
       this.self.entity = selfEntity;
-      this.game.updateMap(data.mapData);
+      this.gameMap.updateMapData(data.mapData);
       this.game.follow(selfEntity.container);
     }
   }
@@ -140,12 +180,14 @@ class GameState {
     for (const entity of Object.values(this.entities)) {
       entity.update(delta, time);
     }
+    this.gameMap.update();
   }
 
   updateLeaderboard() {
     const now = Date.now();
     if (now - this.lastLeaderboardUpdate > this.leaderboardUpdateInterval) {
-      const players = this.getPlayers();
+      const players = Object.values(this.globalEntities)
+        .filter(entity => entity.type === EntityTypes.Player);
       this.game.game.events.emit('playersUpdate', players, this.self.id);
       this.lastLeaderboardUpdate = now;
     }
@@ -169,6 +211,18 @@ class GameState {
       data.angle = this.playerAngle;
       this.previousPlayerAngle = this.playerAngle;
     }
+    if (!this.selectedEvolution !== null) {
+      data.selectedEvolution = this.selectedEvolution;
+      this.selectedEvolution = null;
+    }
+    if (this.selectedBuff) {
+      data.selectedBuff = this.selectedBuff;
+      this.selectedBuff = null;
+    }
+    if (this.chatMessage) {
+      data.chatMessage = this.chatMessage;
+      this.chatMessage = null;
+    }
     if (Object.keys(data).length !== 0) {
       Socket.emit(data);
     }
@@ -180,19 +234,34 @@ class GameState {
       case EntityTypes.Player: EntityClass = Player; break;
       case EntityTypes.Coin: EntityClass = Coin; break;
       case EntityTypes.House1: EntityClass = House1; break;
+      case EntityTypes.MossyRock: EntityClass = MossyRock; break;
+      case EntityTypes.Rock: EntityClass = Rock; break;
+      case EntityTypes.LavaRock: EntityClass = LavaRock; break;
+      case EntityTypes.Chest: EntityClass = Chest; break;
+      case EntityTypes.Sword: EntityClass = Sword; break;
+      case EntityTypes.Wolf: EntityClass = WolfMob; break;
+      case EntityTypes.Bunny: EntityClass = BunnyMob; break;
+      case EntityTypes.Moose: EntityClass = MooseMob; break;
+      case EntityTypes.Chimera: EntityClass = ChimeraMob; break;
+      case EntityTypes.Yeti: EntityClass = YetiMob; break;
+      case EntityTypes.Fireball: EntityClass = Fireball; break;
+      case EntityTypes.Roku: EntityClass = RokuMob; break;
     }
-    if (!EntityClass) return console.log('Unknown entity type: ', data.type);
+    if (!EntityClass) return console.log('Unknown entity type: ', data);
 
     const entity = new EntityClass(this.game);
     entity.updateState(data);
     entity.createSprite();
+    entity.setDepth();
     return entity;
   }
 
   removeEntity(id: number, data: any) {
     const entity = this.entities[id];
-    delete this.entities[id];
+    if (!entity) return;
     
+    delete this.entities[id];
+
     if (entity.type === EntityTypes.Coin) {
       entity.removed = true;
       entity.hunter = this.entities[data.hunterId];
@@ -217,7 +286,7 @@ class GameState {
     const player = this.self.entity;
     if (player) {
       results.name = player.name;
-      results.coins = player.coinBalance;
+      results.coins = player.coins;
       results.kills = player.kills;
       results.survivalTime = player.survivalTime;
     }

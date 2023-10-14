@@ -2,10 +2,11 @@ const Biome = require('./Biome');
 const Types = require('../Types');
 
 class Safezone extends Biome {
-  constructor(game, shape) {
-    super(game, Types.Biome.Safezone, shape);
+  constructor(game, definition) {
+    super(game, Types.Biome.Safezone, definition);
     this.bushesCount = 50;
     this.coinsCollectLimit = 2000;
+    this.zIndex = 3;
   }
 
   initialize(biomeData) {
@@ -31,7 +32,7 @@ class Safezone extends Biome {
       if (player.levels.coins >= this.coinsCollectLimit) {
         this.game.map.shape.randomSpawnInside(player.shape);
       } else {
-        player.biomes.add(this.type);
+        player.viewport.zoom.multiplier *= 0.85;
       }
     } else {
       const mtv = this.shape.getCollisionOverlap(response);

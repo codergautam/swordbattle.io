@@ -7,7 +7,8 @@ class Coin extends Entity {
   constructor(game, objectData) {
     super(game, Types.Entity.Coin, objectData);
 
-    this.value = helpers.randomInteger(1, 6);
+    objectData.value = Array.isArray(objectData.value) ? objectData.value : [1, 6];
+    this.value = helpers.randomInteger(objectData.value[0], objectData.value[1]);
     const radius = 22 + this.value * 2;
 
     this.shape = Circle.create(0, 0, radius);
@@ -27,6 +28,7 @@ class Coin extends Entity {
 
   processTargetsCollision(player) {
     player.levels.addCoins(this.value);
+    player.flags.set(Types.Flags.GetCoin, true);
     this.hunterId = player.id;
 
     if (this.respawnable) this.createInstance();

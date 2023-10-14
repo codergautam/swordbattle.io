@@ -22,4 +22,25 @@ module.exports = {
     }
     return `${code[0].toUpperCase()}${code.slice(1)}`;
   },
+
+  shortAngleDist(a0,a1) {
+    const max = Math.PI * 2;
+    const da = (a1 - a0) % max;
+    return 2 * da % max - da;
+  },
+
+  angleLerp(a0, a1, t, shortest = true) {
+    if (shortest) {
+      return a0 + this.shortAngleDist(a0, a1) * t;
+    }
+    return a0 + (a1 - a0) * t;
+  },
+
+  angle(x1, y1, x2, y2) {
+    return Math.atan2(y2 - y1, x2 - x1);
+  },
+
+  distance(x1, y1, x2, y2) {
+    return Math.sqrt((x2 - x1) ** 2, (y2 - y1) ** 2);
+  },
 };

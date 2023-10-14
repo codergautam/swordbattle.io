@@ -3,9 +3,10 @@ const Types = require('../Types');
 module.exports = {
   chestCount: 50,
   coinsCount: 100,
+  aiPlayersCount: 10,
   biomes: [
     {
-      type: 'safezone',
+      type: Types.Biome.Safezone,
       pos: [0, 0],
       radius: 3000,
       objects: [
@@ -25,13 +26,13 @@ module.exports = {
     },
 
     {
-      type: 'river',
+      type: Types.Biome.River,
       pos: [0, 0],
       radius: 4000,
     },
 
     {
-      type: 'river',
+      type: Types.Biome.River,
       pos: [-15000, -15000],
       points: [
         [2000, 0],
@@ -51,7 +52,7 @@ module.exports = {
     },
 
     {
-      type: 'river',
+      type: Types.Biome.River,
       pos: [15000, -15000],
       points: [
         [0, 2000],
@@ -71,7 +72,7 @@ module.exports = {
     },
 
     {
-      type: 'river',
+      type: Types.Biome.River,
       pos: [0, 3500],
       points: [
         [-1500, 0],
@@ -90,7 +91,7 @@ module.exports = {
     },
 
     {
-      type: 'ice',
+      type: Types.Biome.Ice,
       pos: [-13000, -15000],
       points: [
         [26000, 0],
@@ -117,11 +118,19 @@ module.exports = {
           position: [-2000, -8000],
           size: 5000,
         },
+        {
+          type: Types.Entity.Yeti,
+          amount: 10,
+          position: 'random',
+          respawnable: true,
+          forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+          size: [80, 110],
+        },
       ],
     },
 
     {
-      type: 'earth',
+      type: Types.Biome.Earth,
       pos: [-15000, -13000],
       points: [
         [11500, 11500],
@@ -155,11 +164,35 @@ module.exports = {
           position: 'random',
           respawnable: true,
         },
+        {
+          type: Types.Entity.Wolf,
+          amount: 15,
+          position: 'random',
+          forbiddenBiomes: [Types.Biome.Safezone],
+          respawnable: true,
+          size: [70, 100],
+        },
+        {
+          type: Types.Entity.Bunny,
+          amount: 25,
+          position: 'random',
+          respawnable: true,
+          forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+          size: [40, 60],
+        },
+        {
+          type: Types.Entity.Moose,
+          amount: 10,
+          position: 'random',
+          respawnable: true,
+          forbiddenBiomes: [Types.Biome.Safezone],
+          size: [80, 110],
+        },
       ],
     },
 
     {
-      type: 'fire',
+      type: Types.Biome.Fire,
       pos: [15000, -13000],
       points: [
         [0, 0],
@@ -186,6 +219,29 @@ module.exports = {
           amount: 1,
           position: [9000, 4000],
           size: 5000,
+        },
+        {
+          type: Types.Entity.Chimera,
+          amount: 10,
+          position: 'random',
+          respawnable: true,
+          size: [70, 120],
+          forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+        },
+        {
+          type: Types.Entity.Roku,
+          amount: 1,
+          position: 'random',
+          respawnable: true,
+          forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+
+          size: [300, 500],
+          health: 500,
+          isBoss: true,
+          damage: 3,
+          rotationSpeed: 2,
+          fireballCount: [1, 3, 5],
+          fireballSize: 80,
         },
       ],
     },

@@ -7,7 +7,7 @@ function Leaderboard({ game }: any) {
   const [selfPlayer, setSelfPlayer] = useState<any>(null);
 
   const processPlayers = (players: any[], selfId: number) => {
-    const sortedPlayers = players.sort((a, b) => b.coinBalance - a.coinBalance);
+    const sortedPlayers = players.sort((a, b) => b.coins - a.coins);
     sortedPlayers.forEach((player, i) => player.place = i + 1);
     const selfPlayer = sortedPlayers.find(player => player.id === selfId);
     sortedPlayers.splice(10, sortedPlayers.length - 10);
@@ -17,7 +17,7 @@ function Leaderboard({ game }: any) {
   };
 
   useEffect(() => {
-    if (game !== null) {
+    if (game) {
       game.events.on('playersUpdate', (players: any, selfId: number) => {
         setPlayers(processPlayers(players, selfId));
       });
@@ -34,7 +34,7 @@ function Leaderboard({ game }: any) {
 }
 
 function LeaderboardLine({ player }: any) {
-  const balance = player.coinBalance >= 1000 ? `${(player.coinBalance / 1000).toFixed(1)}k` : player.coinBalance;
+  const balance = player.coins >= 1000 ? `${(player.coins / 1000).toFixed(1)}k` : player.coins;
   return (
     <div className="leaderboard-line">
       <span className="leaderboard-place">#{player.place}: </span>

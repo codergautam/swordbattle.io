@@ -2,8 +2,15 @@ const Biome = require('./Biome');
 const Types = require('../Types');
 
 class IceBiome extends Biome {
-  constructor(game, shape) {
-    super(game, Types.Biome.Ice, shape);
+  constructor(game, definition) {
+    super(game, Types.Biome.Ice, definition);
+    this.zIndex = 2;
+  }
+
+  applyEffects(player) {
+    player.speed.multiplier *= 1.2;
+    player.sword.swingDuration.multiplier *= 0.9;
+    player.addEffect(Types.Effect.Slipping, 'iceBiome', { friction: 0.2, duration: 0.3 });
   }
 }
 

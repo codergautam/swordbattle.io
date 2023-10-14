@@ -11,6 +11,7 @@ class Polygon extends Shape {
     this.type = Types.Shape.Polygon;
     this.collisionPoly = new SAT.Polygon(new SAT.Vector(x, y), points.map(([x, y]) => new SAT.Vector(x, y)));
     this.centerOffset = new SAT.Vector(0.5, 0.5);
+    this.scale = 1;
   }
 
   static createFromPoints(x, y, points) {
@@ -36,6 +37,11 @@ class Polygon extends Shape {
     return new Polygon(x, y, points);
   }
 
+  get center() {
+    const centroid = this.collisionPoly.getCentroid();
+    return { x: this.x + centroid.x, y: this.y + centroid.y };
+  }
+
   get area() {
     let area = 0;
     const points = this.collisionPoly.points;
@@ -49,6 +55,29 @@ class Polygon extends Shape {
   
     area /= 2;
     return Math.abs(area);
+  }
+
+  get angle() {
+    return this.collisionPoly.angle;
+  }
+
+  setScale(scale) {
+    const poly = this.collisionPoly;
+
+    const centroid = new SAT.Vector(0, 0);
+    for (let i = 0; i < poly.points.length; i++) {
+      centroid.add(poly.points[i]);
+    }
+    centroid.scale(1 / poly.points.length);
+
+    for (let i = 0; i < poly.points.length; i++) {
+      const point = poly.points[i];
+      const relPoint = point.clone().sub(centroid);
+      relPoint.scale(1 - (this.scale - scale));
+      point.copy(relPoint.add(centroid));
+    }
+
+    this.scale = scale;
   }
 
   getRandomPoint() {
@@ -78,7 +107,8 @@ class Polygon extends Shape {
       type: this.type,
       x: this.x,
       y: this.y,
-      points: this.collisionPoly.points,
+      points: this.collisionPoly.calcPoints,
+      angle: this.angle,
     };
   }
 }

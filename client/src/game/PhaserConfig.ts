@@ -5,9 +5,11 @@ import { Settings } from './Settings';
 
 const config: Phaser.Types.Core.GameConfig = {
 	type: Settings.useWebGL ? Phaser.WEBGL : Phaser.CANVAS,
+	antialias: Settings.antialiasing,
 	parent: 'phaser-container',
 	backgroundColor: '#000000',
 	powerPreference: 'high-performance',
+	autoRound: true,
 	scale: {
 		width: '100%',
 		height: '100%',
@@ -23,8 +25,11 @@ const config: Phaser.Types.Core.GameConfig = {
 		global: [{
 			key: 'rexVirtualJoystick',
 			plugin: VirtualJoystickPlugin,
-			start: true
+			start: true,
 		}],
+	},
+	dom: {
+		createContainer: true,
 	},
 	scene: [Game],
 }

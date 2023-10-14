@@ -1,5 +1,6 @@
 const SAT = require('sat');
 const Shape = require('./Shape');
+const Property = require('../components/Property');
 const Types = require('../Types');
 
 class Circle extends Shape {
@@ -7,18 +8,28 @@ class Circle extends Shape {
     super();
     this.type = Types.Shape.Circle;
     this.collisionPoly = new SAT.Circle(new SAT.Vector(x, y), radius);
-  }
-
-  get radius() {
-    return this.collisionPoly.r;
+    this.scaleRadius = new Property(radius);
   }
 
   static create(x, y, radius) {
     return new Circle(x, y, radius);
   }
 
+  get radius() {
+    return this.collisionPoly.r;
+  }
+
+  get scale() {
+    return this.scaleRadius.multiplier;
+  }
+
   get area() {
     return this.radius ** 2 * Math.PI;
+  }
+
+  setScale(scale) {
+    this.scaleRadius.multiplier *= scale;
+    this.collisionPoly.r = this.scaleRadius.value;
   }
 
   getRandomPoint() {
@@ -48,6 +59,10 @@ class Circle extends Shape {
       y: this.y,
       radius: this.radius,
     };
+  }
+
+  cleanup() {
+    this.scaleRadius.reset();
   }
 }
 

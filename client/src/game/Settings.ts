@@ -10,6 +10,8 @@ interface SettingType {
   onChange?: any;
 };
 
+let isLoaded = false;
+
 export const settingsList: Record<string, SettingType> = {
   useWebGL: {
     name: 'Use WebGL (requires reload)',
@@ -20,6 +22,16 @@ export const settingsList: Record<string, SettingType> = {
       if (newValue) localStorage.setItem('swordbattle:WebGL', 'OK');
       else localStorage.removeItem('swordbattle:WebGL');
       if (saved !== (newValue ? 'OK' : null)) {
+        window.location.reload();
+      }
+    },
+  },
+  antialiasing: {
+    name: 'Use WebGL (requires reload)',
+    type: 'toggle',
+    default: true,
+    onChange: () => {
+      if (isLoaded) {
         window.location.reload();
       }
     },
@@ -73,6 +85,7 @@ class SettingsManager {
     for (const key in savedSettings) {
       Settings[key] = savedSettings[key];
     }
+    isLoaded = true;
   }
 
   get() {

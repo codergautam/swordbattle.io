@@ -13,6 +13,7 @@ if (isDev) {
 
 function SettingsModal() {
   const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
+  const [antialiasing, setAntialiasing] = useState(Settings.antialiasing);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
   const [sound, setSound] = useState(Settings.sound);
   const [server, setServer] = useState(Settings.server);
@@ -20,6 +21,10 @@ function SettingsModal() {
   const updateUseWebGL = (value: any) => {
     setUseWebGL(value);
     Settings.useWebGL = value;
+  }
+  const updateAntialiasing = (value: any) => {
+    setAntialiasing(value);
+    Settings.antialiasing = value;
   }
   const updateMovementMode = (value: any) => {
     setMovementMode(value);
@@ -39,11 +44,22 @@ function SettingsModal() {
       <div className="settings-title">Settings</div>
 
       <div className="settings-line">
-        <label htmlFor="movement">Use WebGL (requires reload):</label>
+        <label htmlFor="useWebGL">Use WebGL (requires reload):</label>
         <label className="switch">
           <input type="checkbox" name="useWebGL" id="useWebGL"
             checked={useWebGL}
             onChange={(e) => updateUseWebGL(e.target.checked)}
+          />
+          <span className="slider round"></span>
+        </label>
+      </div>
+
+      <div className="settings-line">
+        <label htmlFor="antialiasing">Use Antialiasing:</label>
+        <label className="switch">
+          <input type="checkbox" name="antialiasing" id="antialiasing"
+            checked={antialiasing}
+            onChange={(e) => updateAntialiasing(e.target.checked)}
           />
           <span className="slider round"></span>
         </label>

@@ -10,6 +10,7 @@ class Effect {
     this.runtimes = config.runtimes !== undefined ? config.runtimes : 1;
     this.initialDuration = this.duration;
     this.initialRuntimes = this.runtimes;
+    this.entity = config.entity;
   }
 
   update(dt) {

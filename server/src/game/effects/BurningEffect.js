@@ -1,4 +1,5 @@
 const Effect = require('./Effect');
+const Types = require('../Types');
 
 class BurningEffect extends Effect {
   constructor(player, id, config) {
@@ -10,7 +11,8 @@ class BurningEffect extends Effect {
 
   update(dt) {
     this.player.speed.multiplier *= this.multiplier;
-    this.player.damage(this.damage * dt, 'Accidentally burned in lava');
+    this.player.flags.set(Types.Flags.LavaDamaged, true);
+    this.player.damaged(this.damage * dt, this.entity);
 
     super.update(dt);
   }

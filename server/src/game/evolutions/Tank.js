@@ -6,6 +6,9 @@ module.exports = class Tank extends Evolution {
   static level = 1;
 
   update() {
-    this.player.speed.multiplier *= 1.5;
+    this.player.speed.multiplier *= 0.8;
+    this.player.shape.setScale(1.5);
+    this.player.sword.damage.multiplier *= 2;
+    this.player.sword.knockback.multiplier *= 2;
   }
 }

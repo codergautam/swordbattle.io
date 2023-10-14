@@ -5,12 +5,18 @@ import Leaderboard from './Leaderboard';
 import GameResults from './GameResults';
 import './GameComponent.scss';
 
+declare global {
+  interface Window {
+    phaser_game: Phaser.Game | undefined;
+  }
+}
+
 function GameComponent({ name, onRestart }: any) {
-  const [game, setGame] = useState<Phaser.Game | null>(null);
+  const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
   const [gameResults, setGameResults] = useState<any>(null);
 
   useEffect(() => {
-    if (!window.phaser_game) {
+    if (!game) {
       const game = new Phaser.Game({
         ...config,
         parent: 'phaser-container',

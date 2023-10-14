@@ -27,7 +27,6 @@ function App() {
     setModal(<ChangelogModal />);
   }, []);
 
-  
   const preloadImage = (url: string) => {
     return new Promise<void>((resolve) => {
       fetch(url)

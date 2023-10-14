@@ -6,7 +6,6 @@ const GameMap = require('./GameMap');
 const GlobalEntities = require('./GlobalEntities');
 const Player = require('./entities/Player');
 const helpers = require('../helpers');
-const config = require('../config');
 
 class Game {
   constructor() {
@@ -18,6 +17,7 @@ class Game {
     this.idPool = new IdPool();
     this.map = new GameMap(this);
     this.globalEntities = new GlobalEntities(this);
+    this.leaderPlayer = null;
 
     this.entitiesQuadtree = null;
     this.tps = 0;
@@ -28,6 +28,45 @@ class Game {
 
     const mapBoundary = this.map;
     this.entitiesQuadtree = new QuadTree(mapBoundary, 15, 5);
+  }
+
+  tick(dt) {
+    for (const entity of this.entities) {
+      entity.update(dt);
+    }
+
+    this.updateQuadtree(this.entitiesQuadtree, this.entities);
+    const response = new SAT.Response();
+    for (const entity of this.entities) {
+      if (entity.removed) continue;
+
+      if (entity.isGlobal) {
+        this.globalEntities.entities.add(entity);
+      }
+
+      if (entity.targets.length !== 0) {
+        this.processCollisions(entity, response, dt);
+      }
+    }
+    for (const entity of this.entities) {
+      this.map.processBorderCollision(entity, dt);
+    }
+  }
+
+  processCollisions(entity, response, dt) {
+    const quadtreeSearch = this.entitiesQuadtree.get(entity.shape.boundary);
+
+    for (const { entity: targetEntity } of quadtreeSearch) {
+      if (!entity.targets.includes(targetEntity.type)) continue;
+      if (entity === targetEntity) continue;
+      if (targetEntity.removed) continue;
+
+      response.clear();
+
+      if (targetEntity.shape.collides(entity.shape, response)) {
+        entity.processTargetsCollision(targetEntity, response, dt);
+      }
+    }
   }
 
   processClientMessage(client, data) {
@@ -58,46 +97,11 @@ class Game {
     if (data.selectedEvolution) {
       player.evolutions.upgrade(data.selectedEvolution);
     }
-  }
-
-  tick(dt) {
-    for (const entity of this.entities) {
-      entity.update(dt);
+    if (data.selectedBuff) {
+      player.levels.addBuff(data.selectedBuff);
     }
-
-    this.updateQuadtree(this.entitiesQuadtree, this.entities);
-    const response = new SAT.Response();
-    for (const entity of this.entities) {
-      if (entity.targets.length !== 0) {
-        this.processCollisions(entity, response, dt);
-      }
-    }
-    for (const entity of this.entities) {
-      this.map.processBorderCollision(entity);
-    }
-  }
-
-  processCollisions(entity, response, dt) {
-    const quadtreeSearch = this.entitiesQuadtree.get(entity.shape.boundary);
-
-    for (const { entity: targetEntity } of quadtreeSearch) {
-      if (entity === targetEntity) continue;
-      if (!entity.targets.includes(targetEntity.type)) continue;
-
-      response.clear();
-
-      if (targetEntity.shape.collides(entity.shape, response)) {
-        entity.processTargetsCollision(targetEntity, response, dt);
-      }
-    }
-  }
-
-  updateQuadtree(quadtree, entities) {
-    quadtree.clear();
-    for (const entity of entities) {
-      const collisionRect = entity.shape.boundary;
-      collisionRect.entity = entity;
-      quadtree.insert(collisionRect);
+    if (data.chatMessage && typeof data.chatMessage === 'string') {
+      player.addChatMessage(data.chatMessage);
     }
   }
 
@@ -132,6 +136,15 @@ class Game {
     }
 
     return pack(data);
+  }
+
+  updateQuadtree(quadtree, entities) {
+    quadtree.clear();
+    for (const entity of entities) {
+      const collisionRect = entity.shape.boundary;
+      collisionRect.entity = entity;
+      quadtree.insert(collisionRect);
+    }
   }
 
   getAllEntities(player) {
@@ -209,6 +222,7 @@ class Game {
   removeEntity(entity) {
     if (!this.entities.has(entity)) return;
 
+    if (entity.sword) this.removeEntity(entity.sword);
     this.entities.delete(entity);
     this.players.delete(entity);
     this.newEntities.delete(entity);

@@ -45,6 +45,7 @@ class EvolutionSystem {
     const Evolution = evolutions[evol];
     this.player.effects.delete('evolution');
     this.evolutionEffect = new Evolution(this.player);
+    this.evolution = Evolution.type;
     this.player.effects.set('evolution', this.evolutionEffect);
 
     this.possibleEvols.forEach(type => this.skippedEvols.add(type));

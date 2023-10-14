@@ -29,6 +29,10 @@ class Shape {
     return { x: box.pos.x, y: box.pos.y, width: box.w, height: box.h };
   }
 
+  get center() {
+    return { x: this.x, y: this.y };
+  }
+
   randomSpawnInside(shape) {
     const point = this.getRandomPoint();
     const response = new SAT.Response();
@@ -50,6 +54,8 @@ class Shape {
     this.x += vector.x;
     this.y += vector.y;
   }
+
+  cleanup() {}
 }
 
 module.exports = Shape;

@@ -14,10 +14,41 @@ module.exports = {
     LavaRock: 12,
     LavaPool: 13,
     Chest: 14,
+
+    Wolf: 15,
+    Bunny: 16,
+    Moose: 17,
+    Yeti: 18,
+    Chimera: 19,
+    Roku: 20,
+
+    Fireball: 21,
+  },
+  AI: {
+    Player: 1,
   },
   Evolution: {
     Tank: 1,
     Berserker: 2,
+  },
+  Buff: {
+    Speed: 1,
+    Size: 2,
+    Health: 3,
+    Regeneration: 4,
+    Damage: 5,
+  },
+  Flags: {
+    EnemyHit: 1,
+    Damaged: 2,
+    LavaDamaged: 3,
+    GetCoin: 4,
+    ChestHit: 5,
+    ChestDestroy: 6,
+    SwordSwing: 7,
+    SwordThrow: 8,
+    PlayerKill: 9,
+    PlayerDeath: 10,
   },
   Effect: {
     Custom: 1,
@@ -43,5 +74,6 @@ module.exports = {
     Down: 3,
     Left: 4,
     SwordSwing: 5,
+    SwordThrow: 6,
   },
 }

@@ -3,20 +3,21 @@ import GameState from '../GameState';
 import { InputTypes } from '../Types';
 import SoundManager from '../SoundManager';
 import store from '../../Store';
-import HUD from '../components/HUD';
+import HUD from '../hud/HUD';
+import River from '../biomes/River';
+import Safezone from '../biomes/Safezone';
+import Biome from '../biomes/Biome';
 
-const publicPath = process.env.PUBLIC_URL;
+const publicPath = process.env.PUBLIC_URL as string;
 
 export default class Game extends Phaser.Scene {
-  cursors: any;
   gameState: GameState;
-  background: any;
   soundManager: SoundManager;
   hud: HUD;
+
   isMobile: boolean = false;
   joystick: any = null;
   joystickPointer: any = null;
-  zoom = 0.8;
 
 	constructor() {
 		super('game');
@@ -32,23 +33,54 @@ export default class Game extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('background', publicPath + '/assets/game/background.png');
-    this.load.image('player', publicPath + '/assets/game/player.png');
+    this.load.image('fireTile', publicPath + '/assets/game/tiles/fire.jpg');
+    this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
+    this.load.image('iceTile', publicPath + '/assets/game/tiles/ice.png');
+
     this.load.image('coin', publicPath + '/assets/game/coin.png');
-    this.load.image('sword', publicPath + '/assets/game/sword.png');
     this.load.image('house1', publicPath + '/assets/game/house1.png');
     this.load.image('house1roof', publicPath + '/assets/game/house1roof.png');
+    this.load.image('mossyRock', publicPath + '/assets/game/Mossy_Rock.png');
+    this.load.image('pond', publicPath + '/assets/game/Pond_Earth.png');
+    this.load.image('bush', publicPath + '/assets/game/grass.png');
+    this.load.image('iceMound', publicPath + '/assets/game/Ice_Mound.png');
+    this.load.image('iceSpike', publicPath + '/assets/game/Ice_Spike.png');
+    this.load.image('icePond', publicPath + '/assets/game/Ice_Pond.png');
+    this.load.image('rock', publicPath + '/assets/game/Rock.png');
+    this.load.image('lavaRock', publicPath + '/assets/game/Lava_Rock.png');
+    this.load.image('lavaPool', publicPath + '/assets/game/Lava_Pool.png');
 
-    this.load.audio('damage', publicPath + '/assets/sound/damage.mp3');
-    this.load.audio('hitenemy', publicPath + '/assets/sound/hitenemy.wav');
-    this.load.audio('coin', publicPath + '/assets/sound/coin.m4a');
+    this.load.image('wolfMobPassive', publicPath + '/assets/game/mobs/wolfPassive.png');
+    this.load.image('wolfMobAggressive', publicPath + '/assets/game/mobs/wolfAggressive.png');
+    this.load.image('bunny', publicPath + '/assets/game/mobs/bunny.png');
+    this.load.image('moose', publicPath + '/assets/game/mobs/moose.png');
+    this.load.image('chimera', publicPath + '/assets/game/mobs/chimera.png');
+    this.load.image('yeti', publicPath + '/assets/game/mobs/yeti.png');
+    this.load.image('roku', publicPath + '/assets/game/mobs/roku.png');
+    this.load.image('fireball', publicPath + '/assets/game/mobs/fireball.png');
+
+    this.load.image('chest1', publicPath + '/assets/game/Chest1.png');
+    this.load.image('chest2', publicPath + '/assets/game/Chest2.png');
+    this.load.image('chest3', publicPath + '/assets/game/Chest3.png');
+    this.load.image('chest4', publicPath + '/assets/game/Chest4.png');
+    this.load.image('chest5', publicPath + '/assets/game/Chest5.png');
+    this.load.image('chest6', publicPath + '/assets/game/Chest6.png');
+
+    this.load.image('player', publicPath + '/assets/game/player/player.png');
+    this.load.image('sword', publicPath + '/assets/game/player/sword.png');
+    this.load.image('crown', publicPath + '/assets/game/player/crown.png');
+    this.load.image('tankSkin', publicPath + '/assets/game/player/tankSkin.png');
+    this.load.image('berserkerSkin', publicPath + '/assets/game/player/berserkerSkin.png');
+
+    this.soundManager.load(publicPath);
+    River.createTexture(this);
+    Safezone.createTexture(this);
+    Biome.initialize(this);
   }
 
   create() {
-    this.cameras.main.setZoom(this.zoom);
     this.cameras.main.fadeOut(0);
-    this.background = this.add.tileSprite(0, 0, this.scale.width, this.scale.height, 'background');
-    this.background.setOrigin(0, 0);
+
     this.soundManager.initialize();
     this.hud.initialize();
     this.setupControls();
@@ -58,6 +90,10 @@ export default class Game extends Phaser.Scene {
   fadeInScene() {
     this.cameras.main.setBackgroundColor('#006400');
     this.cameras.main.fadeIn(500);
+  }
+
+  updateZoom(zoom: number) {
+    this.cameras.main.zoomTo(zoom, 1000, Phaser.Math.Easing.Cubic.InOut, true);
   }
 
   setupControls() {
@@ -82,26 +118,33 @@ export default class Game extends Phaser.Scene {
       this.input.keyboard?.on('keyup-A', () => this.gameState.inputs.inputUp(InputTypes.Left));
       this.input.keyboard?.on('keyup-S', () => this.gameState.inputs.inputUp(InputTypes.Down));
       this.input.keyboard?.on('keyup-D', () => this.gameState.inputs.inputUp(InputTypes.Right));
-      
-      this.cursors = this.input.keyboard?.createCursorKeys();
-      this.cursors.up.on('down', () => this.gameState.inputs.inputDown(InputTypes.Up));
-      this.cursors.left.on('down', () => this.gameState.inputs.inputDown(InputTypes.Left));
-      this.cursors.down.on('down', () => this.gameState.inputs.inputDown(InputTypes.Down));
-      this.cursors.right.on('down', () => this.gameState.inputs.inputDown(InputTypes.Right));
-      this.cursors.up.on('up', () => this.gameState.inputs.inputUp(InputTypes.Up));
-      this.cursors.left.on('up', () => this.gameState.inputs.inputUp(InputTypes.Left));
-      this.cursors.down.on('up', () => this.gameState.inputs.inputUp(InputTypes.Down));
-      this.cursors.right.on('up', () => this.gameState.inputs.inputUp(InputTypes.Right));
+
+      this.input.keyboard?.on('keydown-UP', () => this.gameState.inputs.inputDown(InputTypes.Up));
+      this.input.keyboard?.on('keydown-LEFT', () => this.gameState.inputs.inputDown(InputTypes.Left));
+      this.input.keyboard?.on('keydown-DOWN', () => this.gameState.inputs.inputDown(InputTypes.Down));
+      this.input.keyboard?.on('keydown-RIGHT', () => this.gameState.inputs.inputDown(InputTypes.Right));
+      this.input.keyboard?.on('keyup-UP', () => this.gameState.inputs.inputUp(InputTypes.Up));
+      this.input.keyboard?.on('keyup-LEFT', () => this.gameState.inputs.inputUp(InputTypes.Left));
+      this.input.keyboard?.on('keyup-DOWN', () => this.gameState.inputs.inputUp(InputTypes.Down));
+      this.input.keyboard?.on('keyup-RIGHT', () => this.gameState.inputs.inputUp(InputTypes.Right));
     }
 
-    this.input.on('pointerdown', (pointer: any) => {
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      pointer.event.preventDefault();
       if (pointer.leftButtonDown()) {
         this.gameState.inputs.inputDown(InputTypes.SwordSwing);
       }
+      if (pointer.rightButtonDown()) {
+        this.gameState.inputs.inputDown(InputTypes.SwordThrow);
+      }
     });
-    this.input.on('pointerup', (pointer: any) => {
+    this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      pointer.event.preventDefault();
       if (pointer.leftButtonReleased()) {
         this.gameState.inputs.inputUp(InputTypes.SwordSwing);
+      }
+      if (pointer.rightButtonReleased()) {
+        this.gameState.inputs.inputUp(InputTypes.SwordThrow);
       }
     });
 
@@ -125,13 +168,9 @@ export default class Game extends Phaser.Scene {
     this.cameras.main.startFollow(sprite);
   }
 
-  updateMap(mapData: any) {
-    this.physics.world.setBounds(0, 0, mapData.width, mapData.height);
-    this.background.setSize(mapData.width, mapData.height);
-  }
-
   resize(width?: any, height?: any) {
     if (!this.game) return;
+
     const scale = store.scale;
     if (width === undefined) width = window.innerWidth / scale;
     if (height === undefined) height = window.innerHeight / scale;
@@ -140,6 +179,7 @@ export default class Game extends Phaser.Scene {
     this.game.scale.setGameSize(width, height);
     this.game.scale.setZoom(scale);
     this.hud.resize();
+    this.gameState.resize();
 
     this.joystick?.setPosition(200, this.scale.height / 1.5);
   }
@@ -147,6 +187,6 @@ export default class Game extends Phaser.Scene {
 	update(time: number, delta: number) {
     this.soundManager.update(delta);
     this.gameState.updateGraphics(time, delta);
-    this.hud.update();
+    this.hud.update(delta);
   }
 }

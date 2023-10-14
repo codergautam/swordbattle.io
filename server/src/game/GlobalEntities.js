@@ -1,12 +1,13 @@
 const Types = require('./Types');
 
 class GlobalEntities {
-  static fields = ['id', 'name', 'coins', 'shapeData', 'removed'];
+  static fields = ['id', 'type', 'name', 'coins', 'shapeData', 'removed', 'angle'];
 
   constructor(game) {
     this.game = game;
     this.getAllCache = null;
     this.getChangesCache = null;
+    this.entities = new Set();
   }
 
   filterAndWrite(object, id, fields) {
@@ -27,8 +28,8 @@ class GlobalEntities {
   getAll() {
     if (!this.getAllCache) {
       this.getAllCache = {};
-      for (const player of this.game.players) {
-        this.filterAndWrite(this.getAllCache, player.id, player.state.get());
+      for (const entity of this.entities) {
+        this.filterAndWrite(this.getAllCache, entity.id, entity.state.get());
       }
     }
     return this.getAllCache;
@@ -37,14 +38,17 @@ class GlobalEntities {
   getChanges() {
     if (!this.getChangesCache) {
       this.getChangesCache = {};
-      for (const player of this.game.players) {
-        if (this.game.newEntities.has(player)) {
-          this.filterAndWrite(this.getChangesCache, player.id, player.state.get());
+      for (const entity of this.entities) {
+        const fields = entity.state.get(); // update state
+        if (this.game.newEntities.has(entity)) {
+          this.filterAndWrite(this.getChangesCache, entity.id, fields);
         } else {
-          this.filterAndWrite(this.getChangesCache, player.id, player.state.getChanges());
+          this.filterAndWrite(this.getChangesCache, entity.id, entity.state.getChanges());
         }
       }
       for (const entity of this.game.removedEntities) {
+        if (!entity.isGlobal) continue;
+
         if (entity.type === Types.Entity.Player) {
           this.getChangesCache[entity.id] = { removed: true };
         }
@@ -56,6 +60,7 @@ class GlobalEntities {
   cleanup() {
     this.getAllCache = null;
     this.getChangesCache = null;
+    this.entities.clear(); // Update globals every tick
   }
 }
 

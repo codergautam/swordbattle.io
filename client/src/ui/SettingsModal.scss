@@ -7,16 +7,13 @@
 
   label {
     display: block;
-    margin-bottom: 3px;
+    margin-bottom: 10px;
   }
 
   .settings-line {
-    label {
-      display: inline-block;
-    }
-    .switch {
-      float: right;
-    } 
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
   
   select, input {

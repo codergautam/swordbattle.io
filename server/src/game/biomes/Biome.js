@@ -1,7 +1,32 @@
+const Circle = require('../shapes/Circle');
+const Polygon = require('../shapes/Polygon');
+
 class Biome {
-  constructor(game, type, shape) {
+  constructor(game, type, definition) {
     this.game = game;
     this.type = type;
+    this.definition = definition;
+
+    this.shape = null;
+    this.zIndex = 0;
+    this.createShape(definition);
+  }
+
+  createShape(definition) {
+    const x = definition.pos[0];
+    const y = definition.pos[1];
+    let shape;
+
+    if (definition.radius !== undefined) {
+      shape = Circle.create(x, y, definition.radius);
+    } else if (definition.points !== undefined) {
+      shape = Polygon.createFromPoints(x, y, definition.points);
+    } else if (definition.width !== undefined && definition.height !== undefined) {
+      shape = Polygon.createFromRectangle(x, y, definition.width, definition.height);
+    } else {
+      throw new Error('Unknown biome shape: ' + JSON.stringify(definition));
+    }
+
     this.shape = shape;
   }
 
@@ -12,10 +37,11 @@ class Biome {
     };
   }
 
-  initialize(biomeData) {
-    biomeData.objects = biomeData.objects || [];
+  initialize() {
+    const { definition } = this;
+    definition.objects = definition.objects || [];
 
-    for (const entityData of biomeData.objects) {
+    for (const entityData of definition.objects) {
       const data = { ...entityData };
       if (data.position === 'random') data.spawnZone = this.shape;
 
@@ -25,9 +51,9 @@ class Biome {
     }
   }
 
-  collides(player) {
-    player.biomes.add(this.type);
-  }
+  collides(player, response) {}
+
+  applyEffects(player, response) {}
 }
 
 module.exports = Biome;

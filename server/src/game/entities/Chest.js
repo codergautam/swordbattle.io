@@ -32,9 +32,11 @@ class Chest extends Entity {
   processTargetsCollision(sword) {
     if (!sword.canCollide(this)) return;
 
-    this.health -= sword.damage.baseValue;
+    sword.collidedEntities.add(this);
+    this.health -= sword.damage.value;
     if (this.health <= 0) {
       this.health = 0;
+      sword.player.flags.set(Types.Flags.ChestDestroy, true);
 
       for (let i = 0; i < this.coins; i++) {
         this.game.map.addEntity({
@@ -45,6 +47,8 @@ class Chest extends Entity {
 
       if (this.respawnable) this.createInstance();
       this.remove();
+    } else {
+      sword.player.flags.set(Types.Flags.ChestHit, true);
     }
   }
 

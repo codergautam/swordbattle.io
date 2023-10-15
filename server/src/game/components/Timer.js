@@ -5,7 +5,11 @@ class Timer {
     this.time = time;
     this.minTime = minTime;
     this.maxTime = maxTime === undefined ? minTime : maxTime;
-    this.duration = helpers.random(minTime, maxTime);
+    this.duration = helpers.random(this.minTime, this.maxTime);
+    // Prevent NaN
+    if(isNaN(this.duration)) {
+      throw new Error(`Timer duration is NaN: ${this.duration}`);
+    }
     this.finished = false;
   }
 

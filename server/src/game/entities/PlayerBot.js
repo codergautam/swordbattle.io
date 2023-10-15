@@ -62,7 +62,7 @@ class PlayerAI extends Player {
     this.smartness = Math.random();
     this.stageTime = 0;
     this.stageDuration = 0;
-    this.stageTimer = new Timer(0, )
+    this.stageTimer = new Timer(0, 3, 5);
     this.changeDirectionTimer = new Timer(0, 3, 5);
 
     this.game.map.shape.randomSpawnInside(this.shape);
@@ -88,7 +88,7 @@ class PlayerAI extends Player {
     if (this.stageTimer.finished) {
       this.changeStage();
     }
-    this.attackCooldown -= dt; 
+    this.attackCooldown -= dt;
     if (this.attackCooldown < 0) {
       this.attackCooldown = 0;
     }
@@ -237,7 +237,7 @@ class PlayerAI extends Player {
 
   remove(reason) {
     super.remove(reason);
-  
+
     this.game.map.spawnPlayerBot();
   }
 }

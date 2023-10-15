@@ -15,9 +15,9 @@ class RokuMob extends Entity {
     speed: 20,
     damage: 2,
     jumpCooldown: [2, 3],
-    fireballCooldown: [2, 3],
-    fireballDuration: [5, 10],
-    fireballCount: [1],
+    fireballCooldown: [1, 2],
+    fireballDuration: [1, 2],
+    fireballCount: [1, 3, 5],
     fireballSpeed: 50,
     fireballSize: 50,
     fireballsSpread: Math.PI / 6,
@@ -34,7 +34,7 @@ class RokuMob extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.velocity = new SAT.Vector(0, 0);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    
+
     this.jumpTimer = new Timer(0, this.definition.jumpCooldown[0], this.definition.jumpCooldown[1]);
     this.fireballTimer = new Timer(0, this.definition.fireballCooldown[0], this.definition.fireballCooldown[1]);
 
@@ -57,7 +57,7 @@ class RokuMob extends Entity {
       const searchZone = this.shape.boundary;
       searchZone.x -= searchRadius;
       searchZone.y -= searchRadius;
-      searchZone.width += searchRadius; 
+      searchZone.width += searchRadius;
       searchZone.height += searchRadius;
 
       const targets = this.game.entitiesQuadtree.get(searchZone);
@@ -88,7 +88,6 @@ class RokuMob extends Entity {
       this.angle = helpers.angleLerp(this.angle, targetAngle, dt * this.definition.rotationSpeed);
       if (this.fireballTimer.finished) {
         this.fireballTimer.renew();
-
         const fireballs = helpers.randomChoice(this.definition.fireballCount);
         const spread = this.definition.fireballsSpread;
         for (let i = 0; i < fireballs; i++) {
@@ -153,7 +152,7 @@ class RokuMob extends Entity {
 
   remove() {
     super.remove();
-  
+
     this.createInstance();
   }
 

@@ -234,7 +234,6 @@ module.exports = {
           position: 'random',
           respawnable: true,
           forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
-
           size: [300, 500],
           health: 500,
           isBoss: true,

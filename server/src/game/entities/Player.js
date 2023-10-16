@@ -41,7 +41,7 @@ class Player extends Entity {
     this.biome = 0;
     this.inSafezone = true;
     this.inBuildingId = null;
-    
+
     this.viewport = new Viewport(this, viewport.width, viewport.height, viewport.zoom);
     this.viewportEntities = [];
     this.effects = new Map();
@@ -70,7 +70,7 @@ class Player extends Entity {
     for (const flag of Object.values(Types.Flags)) {
       state.flags[flag] = this.flags.has(flag) ? this.flags.get(flag) : false;
     }
-    
+
     state.level = this.levels.level;
     state.coins = this.levels.coins;
     state.nextLevelCoins = this.levels.nextLevelCoins;
@@ -90,7 +90,7 @@ class Player extends Entity {
     state.swordSwingDuration = this.sword.swingDuration.value;
     state.swordFlying = this.sword.isFlying;
     state.swordFlyingCooldown = this.sword.flyCooldownTime;
-    if (this.removed && this.client) state.disconnectReason = this.client.disconnectReason; 
+    if (this.removed && this.client) state.disconnectReason = this.client.disconnectReason;
     return state;
   }
 
@@ -100,7 +100,7 @@ class Player extends Entity {
     this.effects.forEach(effect => effect.update(dt));
     this.viewport.zoom.multiplier /= this.shape.scaleRadius.multiplier;
     this.applyInputs(dt);
-    
+
     this.health.value = Math.min(this.health.baseValue + this.regeneration.value * dt, this.maxHealth.baseValue);
 
     const leader = this.game.leaderPlayer;
@@ -119,9 +119,12 @@ class Player extends Entity {
   applyBiomeEffects() {
     const biomes = [];
     const response = new SAT.Response();
+    let onRiver = false;
     for (const biome of this.game.map.biomes) {
       if (biome.shape.collides(this.shape, response)) {
         biomes.push([biome, response]);
+        if(onRiver && config.doubleRiverCollideFix) continue;
+        if (biome.type === Types.Biome.River) onRiver = true;
         biome.collides(this, response);
       }
     }
@@ -170,19 +173,19 @@ class Player extends Entity {
     } else {
       let directionX = 0;
       let directionY = 0;
-  
+
       if (this.inputs.isInputDown(Types.Input.Up)) {
         directionY = -1;
       } else if (this.inputs.isInputDown(Types.Input.Down)) {
         directionY = 1;
       }
-  
+
       if (this.inputs.isInputDown(Types.Input.Right)) {
         directionX = 1;
       } else if (this.inputs.isInputDown(Types.Input.Left)) {
         directionX = -1;
       }
-  
+
       if (directionX !== 0 || directionY !== 0) {
         this.movementDirection = Math.atan2(directionY, directionX);
         dx = speed * Math.cos(this.movementDirection);
@@ -199,7 +202,7 @@ class Player extends Entity {
     const slide = this.movedDistance;
     const friction = 1 - this.friction.value;
     slide.scale(friction);
-    
+
     dx += slide.x;
     dy += slide.y;
 

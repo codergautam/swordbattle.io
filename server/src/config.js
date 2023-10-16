@@ -16,4 +16,5 @@ module.exports = {
     damage: 5,
     knockback: 50,
   },
+  doubleRiverCollideFix: true // When enabled, only sends player collision to one river (when overlapping multiple)
 };

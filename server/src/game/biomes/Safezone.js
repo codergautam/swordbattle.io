@@ -32,7 +32,7 @@ class Safezone extends Biome {
       if (player.levels.coins >= this.coinsCollectLimit) {
         this.game.map.shape.randomSpawnInside(player.shape);
       } else {
-        player.viewport.zoom.multiplier *= 0.85;
+        player.viewport.zoom.multiplier *= 0.9;
       }
     } else {
       const mtv = this.shape.getCollisionOverlap(response);

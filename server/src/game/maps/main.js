@@ -1,9 +1,8 @@
 const Types = require('../Types');
 
 module.exports = {
-  chestCount: 50,
-  coinsCount: 100,
-  aiPlayersCount: 10,
+  coinsCount: 0,
+  aiPlayersCount: 0,
   biomes: [
     {
       type: Types.Biome.Safezone,
@@ -15,13 +14,7 @@ module.exports = {
           amount: 30,
           position: 'random',
           respawnable: true,
-        },
-        {
-          type: Types.Entity.Chest,
-          amount: 1,
-          position: 'random',
-          respawnable: true,
-        },
+        }
       ],
     },
 
@@ -70,7 +63,6 @@ module.exports = {
         },
       ],
     },
-
     {
       type: Types.Biome.River,
       pos: [0, 3500],
@@ -126,6 +118,18 @@ module.exports = {
           forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
           size: [80, 110],
         },
+        {
+          type: Types.Entity.Chest,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+        },
+        {
+          type: Types.Entity.Coin,
+          amount: 500,
+          position: 'random',
+          respawnable: true,
+        }
       ],
     },
 
@@ -186,8 +190,20 @@ module.exports = {
           position: 'random',
           respawnable: true,
           forbiddenBiomes: [Types.Biome.Safezone],
-          size: [80, 110],
+          size: [170, 230],
         },
+        {
+          type: Types.Entity.Chest,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+        },
+        {
+          type: Types.Entity.Coin,
+          amount: 500,
+          position: 'random',
+          respawnable: true,
+        }
       ],
     },
 
@@ -242,6 +258,18 @@ module.exports = {
           fireballCount: [1, 3, 5],
           fireballSize: 80,
         },
+        {
+          type: Types.Entity.Chest,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+        },
+        {
+          type: Types.Entity.Coin,
+          amount: 500,
+          position: 'random',
+          respawnable: true,
+        }
       ],
     },
   ],

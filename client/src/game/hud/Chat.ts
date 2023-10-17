@@ -19,16 +19,19 @@ class Chat {
       .setAlpha(0);
 
     this.game.input.keyboard?.on('keydown-ENTER', () => this.toggle());
+    this.game.input.keyboard?.on('keydown-ESC', () => {
+      if (!this.hidden) this.toggle(false);
+    });
     this.hud.add(this.container);
   }
 
-  toggle() {
+  toggle(send=true) {
     this.hidden = !this.hidden;
 
     const input = this.container.node as HTMLInputElement;
     if (this.hidden) {
       const message = input.value;
-      if (message.length !== 0) {
+      if (message.length !== 0 && send) {
         this.game.gameState.chatMessage = message;
       }
       input.value = '';
@@ -37,7 +40,7 @@ class Chat {
     this.game.tweens.add({
       targets: this.container,
       alpha: this.hidden ? 0 : 1,
-      duration: 200,
+      duration: 100,
       onUpdate: (tween: Phaser.Tweens.Tween) => {
         if (tween.progress > 0) {
           if (!this.hidden) input.focus();

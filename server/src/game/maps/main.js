@@ -233,6 +233,7 @@ module.exports = {
         {
           type: Types.Entity.LavaPool,
           amount: 1,
+          respawnTime: [60, 120],
           position: [9000, 4000],
           size: 5000,
         },

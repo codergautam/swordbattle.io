@@ -60,9 +60,7 @@ class PlayerAI extends Player {
     this.target = null;
     this.attackCooldown = 0;
     this.smartness = Math.random();
-    this.stageTime = 0;
-    this.stageDuration = 0;
-    this.stageTimer = new Timer(0, 3, 5);
+    this.stageTimer = new Timer(0, 0, 0);
     this.changeDirectionTimer = new Timer(0, 3, 5);
 
     this.game.map.shape.randomSpawnInside(this.shape);

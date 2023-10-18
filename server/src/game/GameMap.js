@@ -26,6 +26,7 @@ const ChimeraMob = require('./entities/mobs/Chimera');
 const YetiMob = require('./entities/mobs/Yeti');
 const RokuMob = require('./entities/mobs/Roku');
 const Fireball = require('./entities/Fireball');
+const Timer = require('./components/Timer');
 const Types = require('./Types');
 const map = require('./maps/main');
 const helpers = require('../helpers');
@@ -41,7 +42,7 @@ class GameMap {
     this.height = 0;
     this.safezone = null;
     this.shape = null;
-
+    this.entityTimers = new Set();
     this.coinsCount = map.coinsCount !== undefined ? map.coinsCount : 100;
     this.chestsCount = map.chestCount !== undefined ? map.chestsCount : 50;
     this.aiPlayersCount = map.aiPlayersCount !== undefined ? map.aiPlayersCount : 10;
@@ -73,11 +74,27 @@ class GameMap {
     }
   }
 
+
+  update(dt) {
+    for (const entity of this.game.entities) {
+      this.processBorderCollision(entity, dt);
+    }
+
+    for (const spawner of this.entityTimers) {
+      spawner.timer.update(dt);
+      if (spawner.timer.finished) {
+        this.entityTimers.delete(spawner);
+        this.addEntity(spawner.definition);
+      }
+    }
+  }
+
   spawnPlayerBot() {
     this.addAI({
       type: Types.Entity.Player,
       name: `${helpers.randomNickname()}Bot`,
       isPlayer: true,
+      respawnTime: [10, 30],
     });
   }
 
@@ -130,6 +147,13 @@ class GameMap {
     return entity;
   }
 
+    addEntityTimer(definition, time) {
+    this.entityTimers.add({
+      timer: new Timer(0, time[0], time[1]),
+      definition,
+    });
+  }
+  
   addBiome(biomeData) {
     let BiomeClass = Biome;
     switch (biomeData.type) {

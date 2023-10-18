@@ -84,8 +84,12 @@ class Entity {
   }
 
   createInstance() {
-    this.game.map.addEntity(this.originalDefinition);
-  }
+    if (this.definition.respawnTime) {
+      this.game.map.addEntityTimer(this.originalDefinition, this.definition.respawnTime);
+    } else {
+      this.game.map.addEntity(this.originalDefinition);
+    }
+    }
 
   remove() {
     this.game.removeEntity(this);

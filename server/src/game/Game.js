@@ -48,9 +48,8 @@ class Game {
         this.processCollisions(entity, response, dt);
       }
     }
-    for (const entity of this.entities) {
-      this.map.processBorderCollision(entity, dt);
-    }
+    this.map.update(dt);
+      }
   }
 
   processCollisions(entity, response, dt) {

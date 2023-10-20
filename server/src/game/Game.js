@@ -50,7 +50,6 @@ class Game {
     }
     this.map.update(dt);
       }
-  }
 
   processCollisions(entity, response, dt) {
     const quadtreeSearch = this.entitiesQuadtree.get(entity.shape.boundary);
@@ -249,7 +248,7 @@ class Game {
     for (const entity of this.entities) {
       entity.cleanup();
     }
-    
+
     this.newEntities.clear();
     this.removedEntities.clear();
     this.globalEntities.cleanup();

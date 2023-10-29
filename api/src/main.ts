@@ -9,6 +9,8 @@ import { AppModule } from './app.module';
 import { ExcludeInterceptor } from './exclude.interceptor';
 import { config } from './config';
 
+console.log("config.databaseURL: ", config.databaseURL)
+
 const sessionStore = new (connectPgSimple(session))({
   conString: config.databaseURL,
   tableName: 'sessions',

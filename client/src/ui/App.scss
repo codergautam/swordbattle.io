@@ -61,6 +61,27 @@
     }
   }
 
+  .auth-buttons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+
+    .auth-btn {
+      margin-bottom: 10px;
+      height: 70px;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    .auth-username {
+      font-size: 40px;
+    }
+  }
+
   .links {
     position: fixed;
     bottom: 15px;

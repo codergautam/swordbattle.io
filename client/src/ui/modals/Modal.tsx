@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import './Modal.scss';
-import { useScale } from './Scale';
+import { useScale } from '../Scale';
 
 function Modal({ child, close, className = '' }: any) {
   const keyPress = (e: KeyboardEvent) => {

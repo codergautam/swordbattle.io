@@ -150,8 +150,6 @@ class Sword extends Entity {
     if (entity === this.player) return;
     if (!this.canCollide(entity)) return;
     // if (entity.inBuildingId !== this.player.inBuildingId) return;
-    if (this.damage.value === 0) return;
-    if (entity.inSafezone) return;
 
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
     entity.velocity.x -= this.knockback.value * Math.cos(angle);

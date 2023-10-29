@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings } from '../game/Settings';
+import { Settings } from '../../game/Settings';
 import './SettingsModal.scss';
 
 const isDev = process.env.NODE_ENV === 'development';

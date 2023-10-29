@@ -74,7 +74,6 @@ class GameMap {
     }
   }
 
-
   update(dt) {
     for (const entity of this.game.entities) {
       this.processBorderCollision(entity, dt);
@@ -147,7 +146,7 @@ class GameMap {
     return entity;
   }
 
-    addEntityTimer(definition, time) {
+  addEntityTimer(definition, time) {
     this.entityTimers.add({
       timer: new Timer(0, time[0], time[1]),
       definition,

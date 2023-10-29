@@ -89,7 +89,7 @@ class Entity {
     } else {
       this.game.map.addEntity(this.originalDefinition);
     }
-    }
+  }
 
   remove() {
     this.game.removeEntity(this);

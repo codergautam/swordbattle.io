@@ -1,5 +1,6 @@
-import Game from '../scenes/Game';
 import HUD from './HUD';
+import Game from '../scenes/Game';
+import { BiomeTypes } from '../Types';
 
 class ProgressBar {
   // Member Variables
@@ -8,7 +9,8 @@ class ProgressBar {
   container: any;
   barBackground: any;
   progressBar: any;
-  levelText: Phaser.GameObjects.Text | null = null;
+  levelText!: Phaser.GameObjects.Text;
+  inSafezoneMessage!: Phaser.GameObjects.Text;
   width = 500;
   height = 15;
 
@@ -43,8 +45,16 @@ class ProgressBar {
       strokeThickness: 6,
     }).setOrigin(0.5);
 
+    // "You are in the safe zone" text
+    this.inSafezoneMessage = this.game.add.text(this.width / 2, -this.game.scale.height + 100, 'You are in the safe zone', {
+      fontSize: 22,
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 6,
+    }).setOrigin(0.5);
+
     // Create a container to house all of the above components
-    this.container = this.game.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText]);
+    this.container = this.game.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText, this.inSafezoneMessage]);
     this.hud.add(this.container);
   }
 
@@ -54,6 +64,13 @@ class ProgressBar {
     this.container.y = this.game.scale.height - this.height - 15;
   }
 
+  toggleSafezoneText(show: boolean) {
+    this.game.tweens.add({
+      targets: [this.inSafezoneMessage],
+      alpha: show ? 1 : 0,
+      duration: 100,
+    });
+  }
 
   update() {
     const player = this.game.gameState.self.entity;
@@ -64,20 +81,21 @@ class ProgressBar {
 
     // Check for a level-up event
     if (this.lastKnownLevel !== null && player.level > this.lastKnownLevel) {
-      // Level up logic
       console.log('Level Up Event Logged');
-
     }
     this.lastKnownLevel = player.level;
 
     // Interpolation for smoother progress bar movement
     this.currentProgress += (this.targetProgress - this.currentProgress) * 0.1;
-
-    // Update level text with the current level and progress percentage
     this.levelText!.text = `Level: ${player.level} (${Math.round(this.currentProgress * 100)}%)`;
-
-    // Adjust the scaleX property to represent current progress
     this.progressBar.scaleX = this.currentProgress;
+
+    // Update safezone message visibility
+    const shouldShow = player.biome === BiomeTypes.Safezone && this.hud.evolutionSelect.hidden;
+    const isShown = Boolean(this.inSafezoneMessage.alpha);
+    if (isShown !== shouldShow) {
+      this.toggleSafezoneText(shouldShow);
+    }
   }
 }
 

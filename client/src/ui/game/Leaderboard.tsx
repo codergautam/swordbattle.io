@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import './Leaderboard.scss';
 import { useScale } from '../Scale';
+import './Leaderboard.scss';
 
 function Leaderboard({ game }: any) {
+  const [show, setShow] = useState(true);
   const [players, setPlayers] = useState<any>([]);
   const [selfPlayer, setSelfPlayer] = useState<any>(null);
 
@@ -24,11 +25,19 @@ function Leaderboard({ game }: any) {
     }
   }, [game]);
 
+  const toggleVisibility = () => setShow(!show);
+
   return (
     <div className="leaderboard" style={useScale(false)}>
-      {players.map((player: any) => <LeaderboardLine key={player.id} player={player} />)}
-      {selfPlayer && (<div>...</div>)}
-      {selfPlayer && <LeaderboardLine player={selfPlayer} />}
+      <div className="leaderboard-title" role="button" onClick={toggleVisibility}>
+        Leaderboard
+      </div>
+      
+      <div className={`leaderboard-content ${show ? '' : 'hidden'}`}>
+        {players.map((player: any) => <LeaderboardLine key={player.id} player={player} />)}
+        {selfPlayer && (<div>...</div>)}
+        {selfPlayer && <LeaderboardLine player={selfPlayer} />}
+      </div>
     </div>
   );
 }

@@ -172,7 +172,7 @@ module.exports = {
           type: Types.Entity.Wolf,
           amount: 15,
           position: 'random',
-          forbiddenBiomes: [Types.Biome.Safezone],
+          forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
           respawnable: true,
           size: [70, 100],
         },
@@ -189,7 +189,7 @@ module.exports = {
           amount: 10,
           position: 'random',
           respawnable: true,
-          forbiddenBiomes: [Types.Biome.Safezone],
+          forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
           size: [170, 230],
         },
         {

@@ -1,15 +1,12 @@
-require('dotenv').config();
 const path = require('path');
 const uws = require('uWebSockets.js');
-const { v4: uuidv4 } = require('uuid')
 
 const Game = require('./game/Game');
-const { Server, Client } = require('./game/Server');
-const { pack, unpack } = require('msgpackr');
+const Server = require('./network/Server');
 const config = require('./config');
 
 let app;
-if (process.env.USE_SSL === 'TRUE') {
+if (config.useSSL) {
   app = uws.SSLApp({
     key_file_name: path.resolve(__dirname, 'ssl/key.pem'),
     cert_file_name: path.resolve(__dirname, 'ssl/cert.pem'),
@@ -18,53 +15,18 @@ if (process.env.USE_SSL === 'TRUE') {
   app = uws.App();
 }
 
-const port = process.env.PORT || 8000;
-app.listen('0.0.0.0', port, (ws) => {
+app.listen('0.0.0.0', config.port, (ws) => {
   if (ws) {
     start();
-    console.log(`Game started on port ${port}.`);
+    console.log(`Game started on port ${config.port}.`);
   }
 });
 
 function start() {
-  const clients = new Map();
   const game = new Game();
   game.initialize();
   const server = new Server(game);
-
-  app.ws('/*', {
-    compression: uws.SHARED_COMPRESSOR,
-    idleTimeout: 32,
-    open: (socket) => {
-      socket.id = uuidv4();
-      console.log(`Client ${socket.id} connected.`);
-      const client = new Client(socket);
-      clients.set(socket.id, client);
-    },
-    message: (socket, message) => {
-      const client = clients.get(socket.id);
-      const payload = unpack(message);
-
-      if (payload.isPing) {
-        const pong = pack({ isPong: true });
-        socket.send(pong, { binary: true, compress: true });
-      } else {
-        if (!client.server) {
-          server.addClient(client);
-        }
-        client.addMessage(payload);
-      }
-    },
-    close: (socket, code) => {
-      const client = clients.get(socket.id);
-      client.isSocketClosed = true;
-      if (client && client.server) {
-        client.server.removeClient(client);
-      }
-      clients.delete(socket.id);
-      console.log(`Client disconnected with code ${code}.`);
-    }
-  });
+  server.initialize(app);
 
   // Gameloop
   const frameRate = config.tickRate;

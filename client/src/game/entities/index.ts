@@ -5,8 +5,8 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.LavaPool]: 2,
   [EntityTypes.IcePond]: 3,
   [EntityTypes.IceSpike]: 4,
-  [EntityTypes.Chest]: 5,
-  [EntityTypes.Coin]: 6,
+  [EntityTypes.Coin]: 5,
+  [EntityTypes.Chest]: 6,
   
   [EntityTypes.Rock]: 10,
   [EntityTypes.LavaRock]: 10,

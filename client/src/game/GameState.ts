@@ -186,8 +186,7 @@ class GameState {
   updateLeaderboard() {
     const now = Date.now();
     if (now - this.lastLeaderboardUpdate > this.leaderboardUpdateInterval) {
-      const players = Object.values(this.globalEntities)
-        .filter(entity => entity.type === EntityTypes.Player);
+      const players = this.getPlayers();
       this.game.game.events.emit('playersUpdate', players, this.self.id);
       this.lastLeaderboardUpdate = now;
     }
@@ -272,7 +271,7 @@ class GameState {
   }
 
   getPlayers() {
-    return Object.values(this.entities).filter((e: any) => e.type === EntityTypes.Player);
+    return Object.values(this.globalEntities).filter((e: any) => e.type === EntityTypes.Player);
   }
 
   collectResults() {

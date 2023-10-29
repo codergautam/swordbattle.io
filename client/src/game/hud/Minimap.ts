@@ -98,8 +98,8 @@ class Minimap {
     graphics.clear();
     graphics.lineStyle(1, 0x000000);
     
+    // const players = this.game.gameState.getPlayers();
     const players = Object.values(this.game.gameState.globalEntities)
-      // .filter(entity => entity.type === EntityTypes.Player);
     let leader;
     for (const player of players) {
       const playerX = (player.shape.x - map.x) * this.scaleX;

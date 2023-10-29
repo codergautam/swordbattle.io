@@ -1,3 +1,4 @@
+const { Vector } = require('sat');
 const Entity = require('./Entity');
 const Polygon = require('../shapes/Polygon');
 const Types = require('../Types');
@@ -14,6 +15,10 @@ const rarities = [
 ];
 
 class Chest extends Entity {
+  static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.River],
+  };
+
   constructor(game, objectData) {
     super(game, Types.Entity.Chest, objectData);
 
@@ -22,11 +27,19 @@ class Chest extends Entity {
     this.coins = rarities[this.rarity][1];
     this.maxHealth = rarities[this.rarity][2];
     this.health = this.maxHealth;
+    this.velocity = new Vector(0, 0);
 
     this.shape = Polygon.createFromRectangle(0, 0, this.size, this.size * 0.6);
     this.targets.push(Types.Entity.Sword);
 
     this.spawn();
+  }
+
+  update() {
+    // Use velocity to restrict spawn outside biomes
+    this.shape.x += this.velocity.x;
+    this.shape.y += this.velocity.y;
+    this.velocity.scale(0.9);
   }
 
   processTargetsCollision(sword) {

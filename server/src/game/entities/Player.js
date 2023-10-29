@@ -37,6 +37,7 @@ class Player extends Entity {
     this.friction = new Property(1);
     this.regeneration = new Property(regeneration);
 
+    this.startTimestamp = Date.now();
     this.kills = 0;
     this.biome = 0;
     this.inSafezone = true;
@@ -59,6 +60,10 @@ class Player extends Entity {
     return this.health.value / this.maxHealth.value;
   }
 
+  get playtime() {
+    return Math.round((Date.now() - this.startTimestamp) / 1000);
+  }
+
   createState() {
     const state = super.createState();
     state.name = this.name;
@@ -71,6 +76,7 @@ class Player extends Entity {
       state.flags[flag] = this.flags.has(flag) ? this.flags.get(flag) : false;
     }
 
+    state.biome = this.biome;
     state.level = this.levels.level;
     state.coins = this.levels.coins;
     state.nextLevelCoins = this.levels.nextLevelCoins;
@@ -119,7 +125,7 @@ class Player extends Entity {
   applyBiomeEffects() {
     const biomes = [];
     const response = new SAT.Response();
-    let onRiver = false;
+    let onRiver = false; // we can implement generalBiomeEffect (multipliers) and certainBiomeEffect (e.g collision)
     for (const biome of this.game.map.biomes) {
       if (biome.shape.collides(this.shape, response)) {
         biomes.push([biome, response]);
@@ -130,6 +136,7 @@ class Player extends Entity {
     }
 
     biomes.sort((a, b) => b.zIndex - a.zIndex);
+    // should exclude Safezone if inSafezone is false
     if (biomes[0]) {
       const biome = biomes[0][0];
       const response = biomes[0][1];
@@ -274,7 +281,16 @@ class Player extends Entity {
   }
 
   remove(reason = 'Server') {
-    if (this.client) this.client.disconnectReason = reason;
+    if (this.client) {
+      this.client.disconnectReason = reason;
+      this.client.saveGame({
+        coins: this.levels.coins,
+        kills: this.kills,
+        playtime: this.playtime,
+      });
+      // this.client.updateStats({
+      // });
+    }
     super.remove();
 
     const maxCoins = 30;

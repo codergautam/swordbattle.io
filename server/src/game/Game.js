@@ -6,6 +6,7 @@ const GameMap = require('./GameMap');
 const GlobalEntities = require('./GlobalEntities');
 const Player = require('./entities/Player');
 const helpers = require('../helpers');
+const config = require('../config');
 
 class Game {
   constructor() {
@@ -49,7 +50,6 @@ class Game {
       }
     }
     this.map.update(dt);
-      }
   }
 
   processCollisions(entity, response, dt) {
@@ -119,7 +119,7 @@ class Game {
       data.entities = this.getEntitiesChanges(player);
       data.globalEntities = this.globalEntities.getChanges();
     }
-    if (process.env.DEBUG === 'TRUE') {
+    if (config.DEBUG) {
       data.tps = this.tps;
     }
 
@@ -190,7 +190,7 @@ class Game {
   }
 
   addPlayer(client, data) {
-    const name = this.handleNickname(data.name || '');
+    const name = client.account ? client.account.username : this.handleNickname(data.name || '');
     const player = new Player(this, name);
 
     client.player = player;

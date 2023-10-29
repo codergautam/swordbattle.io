@@ -8,6 +8,26 @@
   font-family: Arial, Helvetica, sans-serif;
 	text-shadow: 1px 1px 1px rgb(0, 0, 0);
   transform-origin: top right;
+  user-select: none;
+
+  .leaderboard-title {
+    margin-bottom: 5px;
+    text-align: center;
+    font-size: 24px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .leaderboard-content {
+    opacity: 1;
+    transition: all 0.2s ease-in;
+
+    &.hidden {
+      opacity: 0;
+    }
+  }
 }
 
 .leaderboard-line {

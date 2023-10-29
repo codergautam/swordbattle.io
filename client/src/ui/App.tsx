@@ -1,22 +1,36 @@
 import { useEffect, useState } from 'react';
-import GameComponent from './game/GameComponent';
-import Modal from './Modal';
-import SettingsModal from './SettingsModal';
-
+import { useDispatch, useSelector } from 'react-redux';
 import { useScale } from './Scale';
-import ChangelogModal from './ChangelogModal';
+
+import GameComponent from './game/GameComponent';
+import Modal from './modals/Modal';
+import SettingsModal from './modals/SettingsModal';
 import LoadingScreen from './LoadingScreen';
+import ChangelogModal from './modals/ChangelogModal';
+import LoginModal from './modals/LoginModal';
+import SignupModal from './modals/SignupModal';
+
+import { clearAccount, logout, setAccount } from '../redux/account/slice';
+import { selectAccount } from '../redux/account/selector';
+import api from '../api';
 
 import SettingsImg from '../assets/img/settings.png';
 import DiscordLogo from '../assets/img/discordLogo.png';
+import SignupImg from '../assets/img/signup.png';
+import LoginImg from '../assets/img/login.png';
 import './App.scss';
 
 const preloadImages: string[] = [
   SettingsImg,
   DiscordLogo,
+  SignupImg,
+  LoginImg,
 ];
 
 function App() {
+  const dispatch = useDispatch();
+  const account = useSelector(selectAccount);
+
   const scale = useScale(false);
   const [name, setName] = useState('');
   const [gameStarted, setGameStarted] = useState(false);
@@ -24,6 +38,14 @@ function App() {
   const [loadingProgress, setLoadingProgress] = useState(0);
 
   useEffect(() => {
+    api.get(`${api.endpoint}/auth/account`, (data) => {
+      if (data.account) {
+        dispatch(setAccount(data.account));
+      } else {
+        dispatch(clearAccount());
+      }
+    });
+    
     setModal(<ChangelogModal />);
   }, []);
 
@@ -54,6 +76,11 @@ function App() {
   const closeModal = () => setModal(null);
   const onRestart = () => setGameStarted(false);
 
+  const onSucessAuth = () => setModal(null);
+  const onLogin = () => setModal(<LoginModal onSuccess={onSucessAuth} />);
+  const onSignup = () => setModal(<SignupModal onSuccess={onSucessAuth} />);
+  const onLogout = () => dispatch(logout());
+
   return (
     <div className="App">
       <LoadingScreen progress={loadingProgress} />
@@ -83,6 +110,17 @@ function App() {
           </div>
 
           {modal && <Modal child={modal} close={closeModal} />}
+
+          <div className="auth-buttons">
+            {account.isLoggedIn ? (
+              <div className="auth-username" onClick={onLogout}>{account.username}</div>
+            ) : (
+              <>
+              <img src={LoginImg} alt="Login" role="button" className="auth-btn" onClick={onLogin} />
+              <img src={SignupImg} alt="Signup" role="button" className="auth-btn" onClick={onSignup} />
+              </>
+            )}
+          </div>
 
           <footer className="links" style={scale}>
             <div>

@@ -5,7 +5,7 @@ import { Evolutions } from '../Evolutions';
 class Player extends BaseEntity {
   static stateFields = [
     ...BaseEntity.stateFields, 'name', 'angle',
-    'health', 'maxHealth', 'kills', 'flags',
+    'health', 'maxHealth', 'kills', 'flags', 'biome',
     'level', 'upgradePoints', 'coins', 'nextLevelCoins', 'previousLevelCoins',
     'buffs', 'evolution', 'possibleEvolutions',
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordFlying', 'swordFlyingCooldown',

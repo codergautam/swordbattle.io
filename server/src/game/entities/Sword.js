@@ -26,20 +26,18 @@ class Sword extends Entity {
     this.swingTime = 0;
     this.swingProgress = 0;
     this.isFlying = false;
+    this.restrictFly = false;
     this.isAnimationFinished = true;
     this.flyTime = 0;
     this.flyCooldownTime = 0;
 
+    this.focusTime = 200;
+    this.focusDamageMultiplier = 1;
+    this.lastSwordSwing = Date.now();
+
     this.proportion = 0.7;
-    this.shape = new Polygon(0, 0, [
-      [0, 0],
-      [-0.14615384615384616 * this.size, -1.7769230769230768 * this.size],
-      [0.34615384615384615 * this.size, -2.4923076923076923 * this.size],
-      [0.8538461538461538 * this.size, -1.7769230769230768 * this.size],
-      [0.7153846153846154 * this.size, -0.015384615384615385 * this.size],
-    ]);
-    this.targets.push(Types.Entity.Player, Types.Entity.Wolf, Types.Entity.Bunny,
-      Types.Entity.Moose, Types.Entity.Chimera, Types.Entity.Yeti, Types.Entity.Roku);
+    this.shape = new Polygon(0, 0, [[0, 0]]);
+    this.targets.push(Types.Entity.Player, ...Types.Groups.Mobs);
   }
 
   get angle() {
@@ -51,7 +49,9 @@ class Sword extends Entity {
   }
 
   canCollide(entity) {
-    return (this.isFlying || this.raiseAnimation) && !this.collidedEntities.has(entity);
+    return (this.isFlying || this.raiseAnimation)
+      && !this.collidedEntities.has(entity)
+      && this.player.depth === entity.depth;
   }
 
   canSwing() {
@@ -61,15 +61,22 @@ class Sword extends Entity {
   }
 
   canFly() {
-    return !this.isFlying
+    return !this.isFlying && !this.restrictFly
       && this.player.inputs.isInputDown(Types.Input.SwordThrow)
       && this.flyCooldownTime <= 0;
+  }
+
+  stopFly() {
+    this.isFlying = false;
+    this.flyTime = 0;
+    this.collidedEntities.clear();
   }
 
   createState() {
     const state = super.createState();
     state.size = this.size;
     state.isFlying = this.isFlying;
+    state.abilityActive = this.player.evolutions.evolutionEffect.isAbilityActive;
     return state;
   }
 
@@ -85,23 +92,33 @@ class Sword extends Entity {
 
       this.flyTime += dt;
       if (this.flyTime >= this.flyDuration.value) {
-        this.isFlying = false;
-        this.flyTime = 0;
-        this.collidedEntities.clear();
+        this.stopFly();
       }
     } else {
       const angle = player.angle + this.angle + Math.PI / 2;
       const offsetX = player.shape.radius - this.size / 2.5;
       const offsetY = -player.shape.radius + this.size / 1.7;
       const offset = new SAT.Vector(offsetX, offsetY);
+
+      this.updateCollisionPoly();
       this.shape.collisionPoly.setAngle(angle);
       this.shape.collisionPoly.setOffset(offset);
-  
-      this.shape.x = player.shape.x;
-      this.shape.y = player.shape.y;
     }
 
     this.shape.setScale(player.shape.scale);
+  }
+
+  updateCollisionPoly() {
+    const points = [
+      [0, 0],
+      [-0.14615384615384616 * this.size, -1.7769230769230768 * this.size],
+      [0.34615384615384615 * this.size, -2.4923076923076923 * this.size],
+      [0.8538461538461538 * this.size, -1.7769230769230768 * this.size],
+      [0.7153846153846154 * this.size, -0.015384615384615385 * this.size],
+    ].map(([x, y]) => new SAT.Vector(x, y));
+
+    const pos = new SAT.Vector(this.player.shape.x, this.player.shape.y);
+    this.shape.collisionPoly = new SAT.Polygon(pos, points);
   }
 
   updateFlags(dt) {
@@ -109,6 +126,10 @@ class Sword extends Entity {
       this.raiseAnimation = true;
       this.isAnimationFinished = false;
       this.player.flags.set(Types.Flags.SwordSwing, true);
+
+      const elapsed = Date.now() - this.lastSwordSwing;
+      const multiplier = elapsed / this.focusTime;
+      this.focusDamageMultiplier = Math.max(0.5, Math.min(1.2, multiplier));
     }
     if (this.canFly()) {
       this.isFlying = true;
@@ -119,7 +140,10 @@ class Sword extends Entity {
 
     if (!this.isAnimationFinished && !this.raiseAnimation && !this.player.inputs.isInputDown(Types.Input.SwordSwing)) {
       this.decreaseAnimation = true;
+      this.focusDamageMultiplier = 1;
+      this.lastSwordSwing = Date.now();
     }
+    this.damage.multiplier *= this.focusDamageMultiplier;
 
     this.flyCooldownTime -= dt;
     if (this.flyCooldownTime < 0) {
@@ -144,12 +168,12 @@ class Sword extends Entity {
     }
 
     this.swingProgress = this.swingTime / this.swingDuration.value;
+    this.restrictFly = false;
   }
 
   processTargetsCollision(entity) {
     if (entity === this.player) return;
     if (!this.canCollide(entity)) return;
-    // if (entity.inBuildingId !== this.player.inBuildingId) return;
 
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
     entity.velocity.x -= this.knockback.value * Math.cos(angle);
@@ -157,19 +181,15 @@ class Sword extends Entity {
     entity.damaged(this.damage.value, this.player);
 
     this.collidedEntities.add(entity);
-
-    if (entity.removed) {
-      this.player.flags.set(Types.Flags.PlayerKill, true);
-    } else {
-      this.player.flags.set(Types.Flags.EnemyHit, true);
-    }
+    this.player.flags.set(Types.Flags.EnemyHit, entity.id);
 
     if (entity.type === Types.Entity.Player) {
       if (entity.removed) {
         this.player.kills += 1;
+        this.player.flags.set(Types.Flags.PlayerKill, entity.id);
         entity.flags.set(Types.Flags.PlayerDeath, true);
       } else {
-        entity.flags.set(Types.Flags.Damaged, true);
+        entity.flags.set(Types.Flags.Damaged, entity.id);
       }
     }
   }

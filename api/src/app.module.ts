@@ -6,6 +6,7 @@ import { config } from './config';
 import { GamesModule } from './games/games.module';
 import { JwtBodyStrategy } from './auth/strategies/jwt-body.strategy';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy';
     AuthModule,
     AccountsModule,
     GamesModule,
+    StatsModule,
   ],
   providers: [JwtStrategy, JwtBodyStrategy],
 })

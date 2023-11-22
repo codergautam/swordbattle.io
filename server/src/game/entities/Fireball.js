@@ -12,10 +12,10 @@ class Fireball extends Entity {
     damage: 2,
     duration: [5, 10],
     position: [0, 0],
+    forbiddenBiomes: [Types.Biome.River],
   };
 
   constructor(game, definition) {
-    definition = Object.assign({ size: 50, position: [0, 0] }, definition);
     super(game, Types.Entity.Fireball, definition);
 
     this.shape = Circle.create(0, 0, this.size);
@@ -40,6 +40,8 @@ class Fireball extends Entity {
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.depth !== this.depth) return;
+
     const mtv = this.shape.getCollisionOverlap(response);
     entity.velocity.sub(mtv.scale(0.1));
     entity.damaged(this.damage.value, this);

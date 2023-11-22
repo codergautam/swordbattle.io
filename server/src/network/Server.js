@@ -1,6 +1,6 @@
 const uws = require('uWebSockets.js');
-const { pack, unpack } = require('msgpackr');
 const { v4: uuidv4 } = require('uuid');
+const Protocol = require('./protocol/Protocol');
 const Client = require('./Client');
 
 class Server {
@@ -15,16 +15,12 @@ class Server {
   }
 
   initialize(app) {   
-    const getCookie = (res, req, name) => {
-      res.cookies ??= req.getHeader('cookie');
-      return res.cookies && res.cookies.match(getCookie[name] ??= new RegExp(`(^|;)\\s*${name}\\s*=\\s*([^;]+)`))?.[2];
-    };
-
     app.ws('/*', {
       compression: uws.SHARED_COMPRESSOR,
       idleTimeout: 32,
+      maxPayloadLength: 512,
       upgrade:(res, req, context) => {
-        res.upgrade({ id: uuidv4(), token: getCookie(res, req, 'auth-token') },
+        res.upgrade({ id: uuidv4() },
           req.getHeader('sec-websocket-key'),
           req.getHeader('sec-websocket-protocol'),
           req.getHeader('sec-websocket-extensions'), context,
@@ -32,18 +28,14 @@ class Server {
       },
       open: (socket) => {
         console.log(`Client ${socket.id} connected.`);
-        const client = new Client(socket, socket.token);
+        const client = new Client(this.game, socket);
         this.addClient(client);
       },
       message: (socket, message) => {
         const client = this.clients.get(socket.id);
-        const payload = unpack(message);
-  
-        if (payload.isPing) {
-          const pong = pack({ isPong: true });
-          socket.send(pong, { binary: true, compress: true });
-        } else {
-          client.addMessage(payload);
+        const data = Protocol.decode(message);
+        if (data) {
+          client.addMessage(data);
         }
       },
       close: (socket, code) => {
@@ -74,7 +66,7 @@ class Server {
     for (const client of this.clients.values()) {
       if (!client.isReady) continue;
 
-      client.update();
+      client.update(dt);
       for (const message of client.messages) {
         this.game.processClientMessage(client, message);
       }
@@ -96,6 +88,7 @@ class Server {
     }
 
     this.game.endTick();
+    this.clients.forEach(client => client.cleanup());
   }
 }
 

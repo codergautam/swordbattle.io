@@ -19,6 +19,7 @@ class EvolutionSystem {
     this.skippedEvols = new Set();
     this.evolution = BasicEvolution.type;
     this.evolutionEffect = new BasicEvolution(player);
+    player.effects.set('evolution', this.evolutionEffect);
     this.checkForEvolutions();
   }
 

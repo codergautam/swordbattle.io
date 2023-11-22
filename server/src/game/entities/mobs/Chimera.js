@@ -1,4 +1,3 @@
-const SAT = require('sat');
 const Entity = require('../Entity');
 const Circle = require('../../shapes/Circle');
 const Timer = require('../../components/Timer');
@@ -8,14 +7,19 @@ const Types = require('../../Types');
 const helpers = require('../../../helpers');
 
 class ChimeraMob extends Entity {
+  static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+    attackRadius: 1000,
+  };
+
   constructor(game, objectData) {
     objectData = Object.assign({ size: 70 }, objectData);
     super(game, Types.Entity.Chimera, objectData);
 
     this.shape = Circle.create(0, 0, this.size);
-    this.velocity = new SAT.Vector(5, 5);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    
+    this.coinsDrop = this.size;
+
     this.jumpTimer = new Timer(0, 4, 5);
     this.angryTimer = new Timer(0, 15, 20);
     this.maneuverSpeed = helpers.random(1000, 2000);
@@ -23,7 +27,6 @@ class ChimeraMob extends Entity {
     this.health = new Health(100, 2);
     this.speed = new Property(20);
     this.damage = new Property(1);
-    this.isFlying = false;
     this.target = null;
     this.targets.push(Types.Entity.Player);
 
@@ -32,14 +35,34 @@ class ChimeraMob extends Entity {
 
   update(dt) {
     if (this.angryTimer.finished || !this.target || this.target.removed) {
-      this.isFlying = false;
       this.target = null;
     }
     
+    if (!this.target) {
+      const searchRadius = this.definition.attackRadius;
+      const searchZone = this.shape.boundary;
+      searchZone.x -= searchRadius;
+      searchZone.y -= searchRadius;
+      searchZone.width += searchRadius;
+      searchZone.height += searchRadius;
+
+      const targets = this.game.entitiesQuadtree.get(searchZone);
+      for (const { entity: target } of targets) {
+        if (target === this) continue;
+        if (target.type !== Types.Entity.Player) continue;
+
+        const distance = helpers.distance(this.shape.x, this.shape.y, target.shape.x, target.shape.y);
+        if (distance < searchRadius) {
+          this.target = target;
+          break;
+        }
+      }
+    }
+
     this.health.update(dt);
     this.jumpTimer.update(dt);
 
-    if (this.isFlying) {
+    if (this.target) {
       const distance = helpers.distance(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
       const progress = performance.now() / this.maneuverSpeed;
       const targetX = this.target.shape.x + distance * Math.cos(progress);
@@ -64,7 +87,9 @@ class ChimeraMob extends Entity {
   }
 
   processTargetsCollision(entity, response) {
-    if (this.isFlying) {
+    if (entity.depth !== this.depth) return;
+
+    if (this.target) {
       entity.damaged(this.damage.value, this);
       
       const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
@@ -85,7 +110,6 @@ class ChimeraMob extends Entity {
 
   damaged(damage, entity) {
     this.health.damaged(damage);
-    this.isFlying = true;
     this.target = entity;
     this.angryTimer.renew();
 
@@ -97,22 +121,18 @@ class ChimeraMob extends Entity {
   createState() {
     const state = super.createState();
     state.angle = this.angle;
-    state.isFlying = this.isFlying;
-    state.health = this.health.value.value;
-    state.maxHealth = this.health.max.value;
+    state.isAngry = !!this.target;
     return state;
   }
 
   remove() {
     super.remove();
-  
+    this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
     this.createInstance();
   }
 
   cleanup() {
     super.cleanup();
-
-    this.health.cleanup();
     this.speed.reset();
     this.damage.reset();
   }

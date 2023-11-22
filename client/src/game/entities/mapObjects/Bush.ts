@@ -5,7 +5,7 @@ class Bush extends BaseEntity {
 
   createSprite() {
     this.container = this.game.add.sprite(this.shape.x, this.shape.y, 'bush');
-    this.container.scale = (this.shape.radius * 2 * 1.3) / this.container.width;
+    this.container.scale = (this.shape.radius * 2 * 1.5) / this.container.width;
     return this.container;
   }
 }

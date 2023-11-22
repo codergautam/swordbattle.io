@@ -1,8 +1,13 @@
 const Entity = require('../Entity');
 const Polygon = require('../../shapes/Polygon');
 const Types = require('../../Types');
+const helpers = require('../../../helpers');
 
 class LavaRock extends Entity {
+  static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+  };
+
   constructor(game, objectData) {
     super(game, Types.Entity.LavaRock, objectData);
 
@@ -16,14 +21,15 @@ class LavaRock extends Entity {
       [0.8741007194244604 * this.size, 0.05935251798561151 * this.size],
       [0.10431654676258993 * this.size, 0.11151079136690648 * this.size],
     ]);
-    this.targets.push(Types.Entity.Player, Types.Entity.Wolf, Types.Entity.Bunny,
-      Types.Entity.Moose, Types.Entity.Chimera, Types.Entity.Yeti, Types.Entity.Roku,
-      Types.Entity.Rock, Types.Entity.MossyRock, Types.Entity.LavaRock);
+    this.shape.angle = helpers.random(-Math.PI, Math.PI);
+    this.targets.push(...Types.Groups.Obstacles);
 
     this.spawn();
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.type === Types.Entity.Sword && !entity.canCollide(entity)) return;
+
     const selfWeight = this.weight;
     const targetWeight = entity.weight;
     const totalWeight = selfWeight + targetWeight;

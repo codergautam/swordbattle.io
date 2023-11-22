@@ -1,4 +1,5 @@
-import { pack, unpack } from 'msgpackr';
+import * as Protocol from './Protocol';
+
 const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
 window.socket = null;
 
@@ -32,9 +33,14 @@ class Socket {
     });
     this.socket.addEventListener('message', (message: any) => {
       if (typeof message.data === 'string') return;
-  
-      const payload = unpack(message.data);
-      onMessage(payload);
+ 
+      try {
+        const payload = Protocol.decodeServerMessage(new Uint8Array(message.data));
+        // console.log('receive:', message.data.byteLength);
+        onMessage(payload);
+      } catch (err) {
+        console.error('Decoding message error: ', err);
+      }
     });
   
     return this.socket;
@@ -51,7 +57,7 @@ class Socket {
       return this.queue.push(data);
     }
 
-    const payload = pack(data);
+    const payload = Protocol.encodeClientMessage(data);
     this.socket?.send(payload);
   }
 

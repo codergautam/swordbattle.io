@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { GamesService } from './games.service';
-import { SaveGameDTO } from './games.dto';
+import { FetchGamesDTO, SaveGameDTO } from './games.dto';
 import { ServerGuard } from 'src/auth/guards/server.guard';
 
 @Controller('games')
@@ -14,6 +14,7 @@ export class GamesController {
   }
 
   @Post('fetch')
-  fetchGames() {
+  fetchGames(@Body() data: FetchGamesDTO) {
+    return this.gamesService.fetch(data);
   }
 }

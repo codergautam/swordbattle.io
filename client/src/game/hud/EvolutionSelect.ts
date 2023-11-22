@@ -1,22 +1,13 @@
+import HudComponent from './HudComponent';
 import { Evolutions } from '../Evolutions';
-import Game from '../scenes/Game';
-import HUD from './HUD';
 
-class EvolutionSelect {
-  hud: HUD;
-  game: Game;
-  container: Phaser.GameObjects.Container | null = null;
+class EvolutionSelect extends HudComponent {
   spritesContainer: Phaser.GameObjects.Container | null = null;
   hideButton: Phaser.GameObjects.Text | null = null;
-  spriteSize = 150;
+  spriteSize = 125;
   indent = 50;
-  hidden = false;
+  minimized = false;
   updateList = false;
-
-  constructor(hud: HUD) {
-    this.hud = hud;
-    this.game = hud.game;
-  }
 
   initialize() {
     if (!this.hud.scene) return;
@@ -30,9 +21,9 @@ class EvolutionSelect {
       .setInteractive()
       .on('pointerover', () => this.game.input.setDefaultCursor('pointer'))
       .on('pointerout', () => this.game.input.setDefaultCursor('default'))
-      .on('pointerdown', () => this.toggle());
+      .on('pointerdown', () => this.toggleMinimize());
 
-    this.spritesContainer = this.hud.scene.add.container(0, 0);
+    this.spritesContainer = this.hud.scene.add.container(0, -70);
     this.container = this.hud.scene.add.container(0, 0, [this.spritesContainer, this.hideButton]);
     this.hud.add(this.container);
   }
@@ -40,15 +31,15 @@ class EvolutionSelect {
   resize() {
     if (!this.container) return;
     this.container.x = this.game.scale.width / 2;
-    this.container.y = 200;
+    this.container.y = 200 * this.scale;
   }
 
-  toggle() {
-    this.hidden = !this.hidden;
+  toggleMinimize() {
+    this.minimized = !this.minimized;
 
     this.hud.scene!.tweens.add({
       targets: this.spritesContainer,
-      alpha: this.hidden ? 0 : 1,
+      alpha: this.minimized ? 0 : 1,
       duration: 250,
     });
   }
@@ -67,7 +58,7 @@ class EvolutionSelect {
     if (this.updateList) {
       this.spritesContainer?.removeAll(true);
 
-      const alpha = 0.7;
+      const alpha = 0.8;
       const count = Object.keys(player.possibleEvolutions).length;
       this.container.setVisible(count !== 0);
 
@@ -75,33 +66,36 @@ class EvolutionSelect {
       for (const evol in player.possibleEvolutions) {
         i += 1;
         const evolution = Evolutions[evol];
-        const sprite = this.hud.scene!.add.sprite((this.spriteSize + 50) * (i - (count + 1) / 2), 0, evolution[1])
-          .setOrigin(0.5, 0.75);
+        const body = this.hud.scene.add.sprite(0, 0, 'player');
+        const overlay = this.hud.scene.add.sprite(0, 0, evolution[1]).setOrigin(evolution[3][0], evolution[3][1]);
+        overlay.setScale(body.width / overlay.width * evolution[2])
+
+        const container = this.hud.scene.add.container((this.spriteSize + 50) * (i - (count + 1) / 2), 0, [body, overlay]);
+        container.setScale(this.spriteSize / body.height).setAlpha(alpha);
 
         const text = this.hud.scene!.add.text(0, 0, evolution[0], {
-          fontSize: 30,
+          fontSize: 40,
           fontStyle: 'bold',
           stroke: '#000000',
           strokeThickness: 6,
         }).setAlpha(alpha);
 
-        sprite.setScale(this.spriteSize / sprite.height)
-          .setAlpha(alpha)
-          .setInteractive()
+        body.setInteractive()
           .on('pointerover', () => {
             this.game.input.setDefaultCursor('pointer');
-            sprite.setAlpha(1);
+            container.setAlpha(1);
             text.setAlpha(1);
           })
           .on('pointerout', () => {
             this.game.input.setDefaultCursor('default');
-            sprite.setAlpha(alpha);
+            container.setAlpha(alpha);
             text.setAlpha(alpha);
           })
           .on('pointerdown', () => this.selectEvolution(evol));
 
-        Phaser.Display.Align.In.Center(text, sprite, 0, -70);
-        this.spritesContainer.add([sprite, text]);
+        container.add(text);
+        Phaser.Display.Align.In.BottomCenter(text, body, 0, 40);
+        this.spritesContainer.add(container);
       }
       this.updateList = false;
     }

@@ -1,7 +1,7 @@
-const { pack } = require('msgpackr');
 const SAT = require('sat');
 const IdPool = require('./components/IdPool');
 const QuadTree = require('./components/Quadtree');
+const Protocol = require('../network/protocol/Protocol');
 const GameMap = require('./GameMap');
 const GlobalEntities = require('./GlobalEntities');
 const Player = require('./entities/Player');
@@ -12,7 +12,6 @@ class Game {
   constructor() {
     this.entities = new Set();
     this.players = new Set();
-    this.buildings = new Set();
     this.newEntities = new Set();
     this.removedEntities = new Set();
     this.idPool = new IdPool();
@@ -21,19 +20,20 @@ class Game {
     this.leaderPlayer = null;
 
     this.entitiesQuadtree = null;
-    this.tps = 0;
+    this.tps = config.tickRate;
   }
 
   initialize() {
     this.map.initialize();
 
     const mapBoundary = this.map;
-    this.entitiesQuadtree = new QuadTree(mapBoundary, 15, 5);
+    this.entitiesQuadtree = new QuadTree(mapBoundary, 10, 5);
   }
 
   tick(dt) {
     for (const entity of this.entities) {
       entity.update(dt);
+      entity.updateDepth();
     }
 
     this.updateQuadtree(this.entitiesQuadtree, this.entities);
@@ -69,10 +69,21 @@ class Game {
   }
 
   processClientMessage(client, data) {
+    if (data.isPing) {
+      client.pong = true;
+    }
+
+    if (data.spectate && !client.spectator.isSpectating) {
+      this.addSpectator(client, data);
+      return;
+    }
+
     let { player } = client;
-    if (!player) {
+    if (data.play && (!player || player.removed)) {
       player = this.addPlayer(client, data);
     }
+
+    if (!player) return;
 
     if (data.inputs) {
       for (const input of data.inputs) {
@@ -105,24 +116,39 @@ class Game {
   }
 
   createPayload(client) {
-    const { player } = client;
-    if (!player) return null;
+    const { spectator } = client;
+    const entity = spectator.isSpectating ? spectator : client.player;
+    if (!entity) return null;
 
     const data = {};
-    if (this.newEntities.has(player)) {
-      data.fullSync = true;
-      data.selfId = player.id;
-      data.mapData = this.map.getData();
-      data.entities = this.getAllEntities(player);
-      data.globalEntities = this.globalEntities.getAll();
-    } else {
-      data.entities = this.getEntitiesChanges(player);
-      data.globalEntities = this.globalEntities.getChanges();
+
+    if (spectator.isSpectating) {
+      const spectatorData = spectator.state.get();
+      if (client.fullSync) {
+        data.spectator = spectatorData;
+        data.mapData = this.map.getData();
+      } else {
+        if (spectator.state.hasChanged()) {
+          data.spectator = spectator.state.getChanges();
+        }
+      }
     }
-    if (config.DEBUG) {
+    if (client.pong) {
+      client.pong = false;
+      data.isPong = true;
       data.tps = this.tps;
     }
 
+    if (client.fullSync) {
+      client.fullSync = false;
+      data.fullSync = true;
+      data.selfId = entity.id;
+      data.entities = this.getAllEntities(entity);
+      data.globalEntities = this.globalEntities.getAll();
+    } else {
+      data.entities = this.getEntitiesChanges(entity);
+      data.globalEntities = this.globalEntities.getChanges();
+    }
     // Delete empty entities object so that we don't send empty payload.
     if (Object.keys(data.entities).length === 0) {
       delete data.entities;
@@ -130,11 +156,11 @@ class Game {
     if (Object.keys(data.globalEntities).length === 0) {
       delete data.globalEntities;
     }
+
     if (Object.keys(data).length === 0) {
       return null;
     }
-
-    return pack(data);
+    return Protocol.encode(data);
   }
 
   updateQuadtree(quadtree, entities) {
@@ -190,15 +216,40 @@ class Game {
   }
 
   addPlayer(client, data) {
-    const name = client.account ? client.account.username : this.handleNickname(data.name || '');
-    const player = new Player(this, name);
+    const name = client.player
+      ? client.player.name
+      : (client.account ? client.account.username : this.handleNickname(data.name || ''));
 
+    if (this.isNameReserved(name)) return;
+
+    const player = new Player(this, name);
+    client.spectator.isSpectating = false;
+    client.fullSync = true;
     client.player = player;
     player.client = client;
     this.players.add(player);
     this.map.spawnPlayer(player);
     this.addEntity(player);
     return player;
+  }
+
+  isNameReserved(name) {
+    for (const player of this.players) {
+      if (player.name === name) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  addSpectator(client) {
+    const { spectator } = client;
+    spectator.isSpectating = true;
+    if (!client.player) {
+      spectator.initialize();
+      client.fullSync = true;
+    }
+    return spectator;
   }
 
   addEntity(entity) {
@@ -231,18 +282,7 @@ class Game {
 
   handleNickname(nickname) {
     const nicknameLength = nickname.length >= 1 && nickname.length <= 16;
-
-    let unique = true;
-    for (const entity of this.entities) {
-      if (entity.name === nickname) {
-        unique = false;
-      }
-    }
-
-    if (nicknameLength && unique) {
-      return nickname;
-    }
-    return helpers.randomNickname();
+    return nicknameLength ? nickname : helpers.randomNickname();
   }
 
   cleanup() {

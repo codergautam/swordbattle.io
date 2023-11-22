@@ -12,6 +12,7 @@ class Polygon extends Shape {
     this.collisionPoly = new SAT.Polygon(new SAT.Vector(x, y), points.map(([x, y]) => new SAT.Vector(x, y)));
     this.centerOffset = new SAT.Vector(0.5, 0.5);
     this.scale = 1;
+    this.sendPoints = false;
   }
 
   static createFromPoints(x, y, points) {
@@ -26,13 +27,15 @@ class Polygon extends Shape {
     for (const convexPolygon of convexPolygons) {
       shapes.push(new Polygon(x, y, convexPolygon));
     }
-    return new ComplexPolygon(x, y, shapes, points);
+    return new ComplexPolygon(shapes, points);
   }
 
-  static createFromRectangle(x, y, width, height) {
+  static createFromRectangle(x, y, width, height, withPosition = false) {
+    const px = withPosition ? x : 0;
+    const py = withPosition ? y : 0;
     const points = [
-      [0, 0], [width, 0],
-      [width, height], [0, height],
+      [px, py], [px + width, py],
+      [px + width, py + height], [px, py + height],
     ];
     return new Polygon(x, y, points);
   }
@@ -61,9 +64,13 @@ class Polygon extends Shape {
     return this.collisionPoly.angle;
   }
 
+  set angle(value) {
+    this.collisionPoly.setAngle(value);
+  }
+
+  // seems like it doesn't work
   setScale(scale) {
     const poly = this.collisionPoly;
-
     const centroid = new SAT.Vector(0, 0);
     for (let i = 0; i < poly.points.length; i++) {
       centroid.add(poly.points[i]);
@@ -90,6 +97,11 @@ class Polygon extends Shape {
     return point;
   }
 
+  isPointInside(x, y) {
+    const point = new SAT.Vector(x, y);
+    return SAT.pointInPolygon(point, this.collisionPoly);
+  }
+
   collides(shape, response) {
     if (shape.type === Types.Shape.Circle) {
       return SAT.testPolygonCircle(this.collisionPoly, shape.collisionPoly, response);
@@ -103,13 +115,16 @@ class Polygon extends Shape {
   } 
 
   getData() {
-    return {
+    const data = {
       type: this.type,
       x: this.x,
       y: this.y,
-      points: this.collisionPoly.calcPoints,
       angle: this.angle,
     };
+    if (this.sendPoints) {
+      data.points = this.collisionPoly.calcPoints;
+    }
+    return data;
   }
 }
 

@@ -7,11 +7,12 @@ const Effect = require('../effects/Effect');
 const SpeedEffect = require('../effects/SpeedEffect');
 const SlippingEffect = require('../effects/SlippingEffect');
 const BurningEffect = require('../effects/BurningEffect');
+const LevelSystem = require('../components/LevelSystem');
 const Property = require('../components/Property');
 const Viewport = require('../components/Viewport');
-const LevelSystem = require('../components/LevelSystem');
-const EvolutionSystem = require('../evolutions');
+const Health = require('../components/Health');
 const Timer = require('../components/Timer');
+const EvolutionSystem = require('../evolutions');
 const Types = require('../Types');
 const config = require('../../config');
 
@@ -21,7 +22,6 @@ class Player extends Entity {
     this.name = name;
     this.isGlobal = true;
     this.client = null;
-    this.velocity = new SAT.Vector(0, 0);
     this.movedDistance = new SAT.Vector(0, 0);
     this.movementDirection = 0;
     this.angle = 0;
@@ -32,8 +32,7 @@ class Player extends Entity {
     const { speed, radius, maxHealth, regeneration, viewport } = config.player;
     this.shape = Circle.create(0, 0, radius);
     this.speed = new Property(speed);
-    this.maxHealth = new Property(maxHealth);
-    this.health = new Property(maxHealth);
+    this.health = new Health(maxHealth, regeneration);
     this.friction = new Property(1);
     this.regeneration = new Property(regeneration);
 
@@ -41,7 +40,6 @@ class Player extends Entity {
     this.kills = 0;
     this.biome = 0;
     this.inSafezone = true;
-    this.inBuildingId = null;
 
     this.viewport = new Viewport(this, viewport.width, viewport.height, viewport.zoom);
     this.viewportEntities = [];
@@ -56,10 +54,6 @@ class Player extends Entity {
     this.chatMessageTimer = new Timer(0, 3);
   }
 
-  get healthPercent() {
-    return this.health.value / this.maxHealth.value;
-  }
-
   get playtime() {
     return Math.round((Date.now() - this.startTimestamp) / 1000);
   }
@@ -67,9 +61,8 @@ class Player extends Entity {
   createState() {
     const state = super.createState();
     state.name = this.name;
+    state.account = this.client && this.client.account;
     state.angle = this.angle;
-    state.health = this.health.value;
-    state.maxHealth = this.maxHealth.value;
     state.kills = this.kills;
     state.flags = {};
     for (const flag of Object.values(Types.Flags)) {
@@ -88,6 +81,11 @@ class Player extends Entity {
     state.possibleEvolutions = {};
     this.evolutions.possibleEvols.forEach(evol => state.possibleEvolutions[evol] = true);
 
+    state.isAbilityAvailable = this.evolutions.evolutionEffect.isAbilityAvailable;
+    state.abilityActive = this.evolutions.evolutionEffect.isAbilityActive;
+    state.abilityDuration = this.evolutions.evolutionEffect.durationTime;
+    state.abilityCooldown = this.evolutions.evolutionEffect.cooldownTime;
+
     state.viewportZoom = this.viewport.zoom.value;
     state.chatMessage = this.chatMessage;
 
@@ -104,10 +102,14 @@ class Player extends Entity {
     this.applyBiomeEffects();
     this.levels.applyBuffs();
     this.effects.forEach(effect => effect.update(dt));
-    this.viewport.zoom.multiplier /= this.shape.scaleRadius.multiplier;
+    this.health.update(dt);
     this.applyInputs(dt);
 
-    this.health.value = Math.min(this.health.baseValue + this.regeneration.value * dt, this.maxHealth.baseValue);
+    if (this.inputs.isInputDown(Types.Input.Ability) && this.evolutions.evolutionEffect.canActivateAbility) {
+      this.evolutions.evolutionEffect.activateAbility();
+    }
+
+    this.viewport.zoom.multiplier /= this.shape.scaleRadius.multiplier;
 
     const leader = this.game.leaderPlayer;
     if (!leader || this.levels.coins > leader.levels.coins) {
@@ -123,20 +125,18 @@ class Player extends Entity {
   }
 
   applyBiomeEffects() {
-    const biomes = [];
+    let biomes = [];
     const response = new SAT.Response();
-    let onRiver = false; // we can implement generalBiomeEffect (multipliers) and certainBiomeEffect (e.g collision)
     for (const biome of this.game.map.biomes) {
       if (biome.shape.collides(this.shape, response)) {
         biomes.push([biome, response]);
-        if(onRiver && config.doubleRiverCollideFix) continue;
-        if (biome.type === Types.Biome.River) onRiver = true;
         biome.collides(this, response);
       }
     }
 
-    biomes.sort((a, b) => b.zIndex - a.zIndex);
-    // should exclude Safezone if inSafezone is false
+    // excludes safezone if this.inSafezone is false
+    biomes = biomes.filter(([biome]) => biome.type !== Types.Biome.Safezone || this.inSafezone)
+      .sort((a, b) => b.zIndex - a.zIndex);
     if (biomes[0]) {
       const biome = biomes[0][0];
       const response = biomes[0][1];
@@ -204,7 +204,7 @@ class Player extends Entity {
 
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
-    this.velocity.scale(0.9);
+    this.velocity.scale(0.6);
 
     const slide = this.movedDistance;
     const friction = 1 - this.friction.value;
@@ -231,11 +231,9 @@ class Player extends Entity {
   }
 
   damaged(damage, entity = null) {
-    this.health.baseValue -= damage; // fix applying effects
+    this.health.damaged(damage);
 
-    if (this.health.value <= 0) {
-      this.health.value = 0;
-
+    if (this.health.isDead) {
       let reason = 'Suddenly dead';
       if (entity) {
         switch (entity.type) {
@@ -243,6 +241,9 @@ class Player extends Entity {
           case Types.Entity.LavaPool: reason = 'Accidentally burned in lava'; break;
           case Types.Entity.Wolf: reason = 'Was torn to pieces by a wolf'; break;
           case Types.Entity.Moose: reason = 'Was trampled by a moose'; break;
+          case Types.Entity.Yeti: reason = 'Was mauled by Yeti'; break;
+          case Types.Entity.Chimera: reason = 'Was burned by Chimera'; break;
+          case Types.Entity.Roku: reason = 'Was burned by Roku'; break;
         }
       }
       this.remove(reason);
@@ -283,28 +284,17 @@ class Player extends Entity {
   remove(reason = 'Server') {
     if (this.client) {
       this.client.disconnectReason = reason;
-      this.client.saveGame({
+      const game = {
         coins: this.levels.coins,
         kills: this.kills,
         playtime: this.playtime,
-      });
-      // this.client.updateStats({
-      // });
+        xp: Math.round(this.kills + this.levels.coins / 100),
+      };
+      this.client.saveGame(game);
     }
     super.remove();
 
-    const maxCoins = 30;
-    const coins = Math.min(Math.round(this.levels.coins / 5), maxCoins);
-    const minCoinValue = this.levels.coins / coins / 3;
-    const maxCoinValue = this.levels.coins / coins / 2;
-    for (let i = 0; i < coins; i++) {
-      this.game.map.addEntity({
-        type: Types.Entity.Coin,
-        respawnable: false,
-        spawnZone: this.shape,
-        value: [minCoinValue, maxCoinValue],
-      });
-    }
+    this.game.map.spawnCoinsInShape(this.shape, this.levels.coins);
   }
 
   cleanup() {
@@ -312,8 +302,7 @@ class Player extends Entity {
     this.sword.cleanup();
     this.flags.clear();
 
-    [this.speed, this.health, this.maxHealth, this.regeneration, this.friction, this.viewport.zoom]
-      .forEach((property) => property.reset());
+    [this.speed, this.regeneration, this.friction, this.viewport.zoom].forEach((property) => property.reset());
   }
 }
 

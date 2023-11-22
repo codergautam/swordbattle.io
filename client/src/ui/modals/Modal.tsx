@@ -4,7 +4,7 @@ import { useScale } from '../Scale';
 
 function Modal({ child, close, className = '' }: any) {
   const keyPress = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') close();
+    if (close && e.key === 'Escape') close();
   }
 
   useEffect(() => {
@@ -15,7 +15,7 @@ function Modal({ child, close, className = '' }: any) {
   return (
     <div className={`modal ${className}`} style={useScale(true)}>
       {child}
-      <button className="modal-close" onClick={close} />
+      {close && <button className="modal-close" onClick={close} />}
     </div>
   )
 }

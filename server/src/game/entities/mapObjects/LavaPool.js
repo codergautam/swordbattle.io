@@ -3,6 +3,10 @@ const Polygon = require('../../shapes/Polygon');
 const Types = require('../../Types');
 
 class LavaPool extends Entity {
+  static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+  };
+
   constructor(game, objectData) {
     super(game, Types.Entity.LavaPool, objectData);
 

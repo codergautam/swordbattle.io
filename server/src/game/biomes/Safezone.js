@@ -27,16 +27,18 @@ class Safezone extends Biome {
     }
   }
 
-  collides(player, response) {
-    if (player.inSafezone) {
-      if (player.levels.coins >= this.coinsCollectLimit) {
-        this.game.map.shape.randomSpawnInside(player.shape);
-      } else {
-        player.viewport.zoom.multiplier *= 0.9;
-        player.sword.damage.multiplier = 0;
-        player.sword.knockback.multiplier *= 0.1;
-      }
+  applyEffects(player) {
+    if (player.levels.coins >= this.coinsCollectLimit) {
+      this.game.map.shape.randomSpawnInside(player.shape);
     } else {
+      player.viewport.zoom.multiplier *= 0.9;
+      player.sword.damage.multiplier = 0;
+      player.sword.knockback.multiplier *= 0.1;
+    }
+  }
+
+  collides(player, response) {
+    if (!player.inSafezone) {
       const mtv = this.shape.getCollisionOverlap(response);
       player.shape.applyCollision(mtv);
     }

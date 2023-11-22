@@ -1,33 +1,51 @@
+const Entity = {
+  Player: 1,
+  Coin: 2,
+  House1: 3,
+  MossyRock: 4,
+  Pond: 5,
+  Sword: 6,
+  Bush: 7,
+  IceMound: 8,
+  IcePond: 9,
+  IceSpike: 10,
+  Rock: 11,
+  LavaRock: 12,
+  LavaPool: 13,
+  Chest: 14,
+
+  Wolf: 15,
+  Bunny: 16,
+  Moose: 17,
+  Yeti: 18,
+  Chimera: 19,
+  Roku: 20,
+
+  Fireball: 21,
+  Snowball: 22,
+};
+
+const Mobs = [
+  Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Chimera, Entity.Roku,
+];
+const Groups = {
+  Obstacles: [
+    Entity.Player, Entity.Sword, Entity.Coin,
+    Entity.IceSpike, Entity.Rock, Entity.MossyRock, Entity.LavaRock,
+    Entity.Fireball, Entity.Snowball, Entity.Chest,
+    ...Mobs,
+  ],
+  Mobs,
+};
+
 module.exports = {
-  Entity: {
-    Player: 1,
-    Coin: 2,
-    House1: 3,
-    MossyRock: 4,
-    Pond: 5,
-    Sword: 6,
-    Bush: 7,
-    IceMound: 8,
-    IcePond: 9,
-    IceSpike: 10,
-    Rock: 11,
-    LavaRock: 12,
-    LavaPool: 13,
-    Chest: 14,
-
-    Wolf: 15,
-    Bunny: 16,
-    Moose: 17,
-    Yeti: 18,
-    Chimera: 19,
-    Roku: 20,
-
-    Fireball: 21,
-  },
+  Entity,
+  Groups,
   AI: {
     Player: 1,
   },
   Evolution: {
+    Basic: 0,
     Tank: 1,
     Berserker: 2,
   },
@@ -75,5 +93,6 @@ module.exports = {
     Left: 4,
     SwordSwing: 5,
     SwordThrow: 6,
+    Ability: 7,
   },
 }

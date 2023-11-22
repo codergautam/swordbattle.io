@@ -8,23 +8,26 @@ const Types = require('../../Types');
 const helpers = require('../../../helpers');
 
 class WolfMob extends Entity {
+  static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+    attackRadius: 1000,
+  };
+
   constructor(game, objectData) {
     objectData = Object.assign({ size: 70 }, objectData);
     super(game, Types.Entity.Wolf, objectData);
 
     this.shape = Circle.create(0, 0, this.size);
-    this.velocity = new SAT.Vector(5, 5);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    
+    this.coinsDrop = this.size;
+
     this.jumpTimer = new Timer(0, 2, 3);
     this.angryTimer = new Timer(0, 10, 20);
 
     this.health = new Health(50, 2);
     this.speed = new Property(35);
     this.damage = new Property(6);
-    this.isAngry = false;
     this.target = null;
-    this.inBuildingId = null;
     this.targets.push(Types.Entity.Player);
 
     this.spawn();
@@ -33,7 +36,6 @@ class WolfMob extends Entity {
   update(dt) {
     this.angryTimer.update(dt);
     if (this.angryTimer.finished || !this.target || this.target.removed) {
-      this.isAngry = false;
       this.target = null;
     }
 
@@ -66,6 +68,8 @@ class WolfMob extends Entity {
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.depth !== this.depth) return;
+
     const selfWeight = this.weight;
     const targetWeight = entity.weight;
     const totalWeight = selfWeight + targetWeight;
@@ -75,7 +79,7 @@ class WolfMob extends Entity {
     const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
 
     const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
-    if (this.isAngry) {
+    if (this.target) {
       entity.damaged(this.damage.value, this);
       
       this.velocity.scale(-0.5);
@@ -92,7 +96,6 @@ class WolfMob extends Entity {
 
   damaged(damage, entity) {
     this.health.damaged(damage);
-    this.isAngry = true;
     this.target = entity;
     this.angryTimer.renew();
 
@@ -104,22 +107,18 @@ class WolfMob extends Entity {
   createState() {
     const state = super.createState();
     state.angle = this.angle;
-    state.isAngry = this.isAngry;
-    state.health = this.health.value.value;
-    state.maxHealth = this.health.max.value;
+    state.isAngry = !!this.target;
     return state;
   }
 
   remove() {
     super.remove();
-  
+    this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
     this.createInstance();
   }
 
   cleanup() {
     super.cleanup();
-
-    this.health.cleanup();
     this.speed.reset();
     this.damage.reset();
   }

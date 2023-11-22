@@ -3,6 +3,10 @@ const Circle = require('../../shapes/Circle');
 const Types = require('../../Types');
 
 class Bush extends Entity {
+  static defaultDefinition = {
+    forbiddenEntities: [Types.Entity.House1],
+  };
+
   constructor(game, objectData) {
     super(game, Types.Entity.Bush, objectData);
 

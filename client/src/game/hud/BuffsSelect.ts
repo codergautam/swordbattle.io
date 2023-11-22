@@ -1,32 +1,23 @@
+import HudComponent from './HudComponent';
 import { BuffTypes } from '../Types';
-import Game from '../scenes/Game';
-import HUD from './HUD';
 
 const buffsData: Record<any, [string, number]> = {
   [BuffTypes.Speed]: ['Speed', 0x6d92ec],
-  [BuffTypes.Size]: ['Size', 0x99ec68],
+  [BuffTypes.VisionRange]: ['Vision Range', 0x99ec68],
   [BuffTypes.Health]: ['Health', 0xed68ec],
   [BuffTypes.Regeneration]: ['Regeneration', 0xefb28c],
   [BuffTypes.Damage]: ['Damage', 0xf16868],
 };
 
-class BuffsSelect {
-  hud: HUD;
-  game: Game;
-  container: Phaser.GameObjects.Container | null = null;
+class BuffsSelect extends HudComponent {
   buffsContainer: Phaser.GameObjects.Container | null = null;
   hideButton: Phaser.GameObjects.Text | null = null;
-  hidden = false;
+  minimized = false;
   width = 250;
   lineHeight = 20;
 
   buffs: Record<any, any> = {};
   buffsProgress: Record<any, any> = {};
-
-  constructor(hud: HUD) {
-    this.hud = hud;
-    this.game = hud.game;
-  }
 
   initialize() {
     if (!this.hud.scene) return;
@@ -40,18 +31,18 @@ class BuffsSelect {
       .setInteractive()
       .on('pointerover', () => this.game.input.setDefaultCursor('pointer'))
       .on('pointerout', () => this.game.input.setDefaultCursor('default'))
-      .on('pointerdown', () => this.toggle());
+      .on('pointerdown', () => this.toggleMinimize());
 
     this.buffsContainer = this.hud.scene.add.container(0, 40);
     this.container = this.hud.scene.add.container(10, 10, [this.buffsContainer, this.hideButton]);
   }
 
-  toggle() {
-    this.hidden = !this.hidden;
+  toggleMinimize() {
+    this.minimized = !this.minimized;
 
     this.hud.scene!.tweens.add({
       targets: this.buffsContainer,
-      alpha: this.hidden ? 0 : 1,
+      alpha: this.minimized ? 0 : 1,
       duration: 250,
     });
   }

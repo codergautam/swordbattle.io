@@ -24,7 +24,7 @@ class Timer {
   }
 
   update(dt) {
-    if (this.time < this.duration) {
+    if (!this.finished) {
       this.time += dt;
     }
     if (this.time >= this.duration) {

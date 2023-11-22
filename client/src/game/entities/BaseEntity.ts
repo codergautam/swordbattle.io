@@ -2,21 +2,28 @@ import { EntityDepth } from '.';
 import { isObject, mergeDeep } from '../../helpers';
 import { ShapeTypes } from '../Types';
 import { Shape, ShapeType } from '../physics/Shape';
+import { Health } from '../components/Health';
 import Game from '../scenes/Game';
 
 export class BaseEntity {
-  static stateFields: string[] = ['id', 'type', 'shapeData'];
+  static stateFields: string[] = ['id', 'type', 'shapeData', 'depth', 'healthPercent'];
+  static removeTransition = 0;
 
   [key: string]: any;
   game: Game;
-  shape: ShapeType;
+  shape!: ShapeType;
   container: any = null;
+  healthBar?: Health;
   removed: boolean = false;
+  hidden: boolean = false;
+  depth = 0;
+  justSpawned = true;
   
   constructor(game: Game) {
     this.game = game;
-    this.shape = new Shape(0, 0);
   }
+
+  createSprite() {}
 
   setDepth() {
     if (!this.container) return;
@@ -53,7 +60,7 @@ export class BaseEntity {
 
   beforeStateUpdate(data: any) {
     if (data.shapeData !== undefined) {
-      if (this.shape.type === ShapeTypes.Point) {
+      if (!this.shape) {
         this.shape = Shape.create(data.shapeData);
       } else {
         this.shape.update(data.shapeData);
@@ -63,13 +70,62 @@ export class BaseEntity {
 
   afterStateUpdate(data: any) {}
 
-  update(delta: number, time: number) {
-    const scale = delta / 60;
-    this.container.x = Phaser.Math.Linear(this.container.x, this.shape.x, scale);
-    this.container.y = Phaser.Math.Linear(this.container.y, this.shape.y, scale);
+  update(dt: number) {
+    if (!this.container) return;
+    const lerpRate = this.game.gameState.tps / this.game.game.loop.actualFps;
+    this.container.x = Phaser.Math.Linear(this.container.x, this.shape.x, lerpRate);
+    this.container.y = Phaser.Math.Linear(this.container.y, this.shape.y, lerpRate);
+    if (this.shape.type === ShapeTypes.Polygon) {
+      this.container.setRotation(this.shape.angle);
+    }
+    this.updateRotation();
+    this.updateWorldDepth();
+    this.healthBar?.update(dt);
+  }
+
+  updateRotation() {
+    if (!this.body) return;
+
+    const targetAngle = (this.constructor as any).basicAngle + this.angle; 
+    const angleDifference = Phaser.Math.Angle.Wrap(targetAngle - this.body.rotation);
+    const lerpRate = this.game.gameState.tps / this.game.game.loop.actualFps / 10;
+    const angleStep = angleDifference * lerpRate;
+    this.body.setRotation(this.body.rotation + angleStep);
+  }
+
+  updateWorldDepth() {
+    const self = this.game.gameState.self.entity as any;
+    if (!self) return;
+
+    const show = self.depth === this.depth || this.depth === 0;
+    if (this.healthBar) this.healthBar.hidden = !show;
+    if (this.hidden !== show) {
+      this.game.tweens.add({
+        targets: [this.container, this.healthBar?.bar],
+        alpha: show ? 1 : 0,
+        duration: this.justSpawned ? 0 : 100,
+      });
+      this.hidden = show;
+    }
+
+    this.justSpawned = false;
   }
 
   remove() {
-    this.container?.destroy();
+    const duration = (this.constructor as typeof BaseEntity).removeTransition;
+    const destroy = () => {
+      this.container?.destroy();
+      this.healthBar?.destroy();
+    };
+
+    if (!duration) return destroy();
+
+    if (this.healthBar) this.healthBar.hidden = true;
+    this.game.add.tween({
+      targets: [this.container, this.healthBar?.bar],
+      duration,
+      alpha: 0,
+      onComplete: destroy,
+    });
   }
 }

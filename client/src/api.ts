@@ -1,4 +1,6 @@
-const endpoint = `${window.location.protocol}//${process.env.REACT_APP_API}`;
+import { config } from './config';
+
+const endpoint = `${window.location.protocol}//${config.apiEndpoint}`;
 const unavialableMessage = 'Server is temporarily unavailable, try again later';
 
 function get(url: string, callback = (data: any) => {}): any {

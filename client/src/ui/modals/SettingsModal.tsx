@@ -1,22 +1,20 @@
-import { useState } from 'react';
-import { Settings } from '../../game/Settings';
+import { useEffect, useState } from 'react';
+import { Settings, settingsList } from '../../game/Settings';
+import { getServerList } from '../../ServerList';
 import './SettingsModal.scss';
-
-const isDev = process.env.NODE_ENV === 'development';
-const serverList = [
-  { value: 'eu', name: 'EU' },
-  { value: 'us', name: 'US' },
-];
-if (isDev) {
-  serverList.unshift({ value: 'dev', name: 'Dev (localhost)' });
-}
 
 function SettingsModal() {
   const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
   const [antialiasing, setAntialiasing] = useState(Settings.antialiasing);
+  const [resolution, setResolution] = useState(Settings.resolution);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
   const [sound, setSound] = useState(Settings.sound);
   const [server, setServer] = useState(Settings.server);
+  const [servers, setServers] = useState<any[]>([]);
+
+  useEffect(() => {
+    getServerList().then(setServers);
+  }, []);
 
   const updateUseWebGL = (value: any) => {
     setUseWebGL(value);
@@ -25,6 +23,10 @@ function SettingsModal() {
   const updateAntialiasing = (value: any) => {
     setAntialiasing(value);
     Settings.antialiasing = value;
+  }
+  const updateResolution = (value: any) => {
+    setResolution(value);
+    Settings.resolution = Number(value);
   }
   const updateMovementMode = (value: any) => {
     setMovementMode(value);
@@ -65,6 +67,13 @@ function SettingsModal() {
         </label>
       </div>
 
+      <label htmlFor="resolution">Resolution:</label>
+      <input type="range" name="resolution" id="resolution"
+        min={settingsList.resolution.min} max={settingsList.resolution.max}
+        value={resolution}
+        onChange={(e) => updateResolution(e.target.value)}
+      />
+
       <label htmlFor="movement">Movement mode:</label>
       <select name="movement" id="movement"
         value={movementMode}
@@ -83,10 +92,13 @@ function SettingsModal() {
 
       <label htmlFor="server">Server:</label>
       <select name="server" id="server"
-        value={server}
+        value={servers.length === 0 ? 'loading' : server}
         onChange={(e) => updateServer(e.target.value)}
       >
-        {serverList.map((server) => <option key={server.value} value={server.value}>{server.name}</option>)}
+        {servers.length === 0 && <option value="loading" disabled>Loading...</option>}
+        {servers.map((server) => <option key={server.value} value={server.value} disabled={server.offline}>
+          {server.name} ({server.offline ? 'OFFLINE' : server.ping + 'ms' })
+        </option>)}
       </select>
     </div>
   )

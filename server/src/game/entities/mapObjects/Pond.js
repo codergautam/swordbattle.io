@@ -3,6 +3,11 @@ const Polygon = require('../../shapes/Polygon');
 const Types = require('../../Types');
 
 class Pond extends Entity {
+  static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+    forbiddenEntities: [Types.Entity.House1],
+  };
+
   constructor(game, objectData) {
     super(game, Types.Entity.Pond, objectData);
 

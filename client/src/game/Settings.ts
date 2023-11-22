@@ -27,13 +27,24 @@ export const settingsList: Record<string, SettingType> = {
     },
   },
   antialiasing: {
-    name: 'Use WebGL (requires reload)',
+    name: 'Antialiasing',
     type: 'toggle',
     default: true,
     onChange: () => {
       if (isLoaded) {
         window.location.reload();
       }
+    },
+  },
+  resolution: {
+    name: 'Resolution',
+    type: 'range',
+    default: 100,
+    min: 30,
+    max: 100,
+    onChange: () => {
+      // Emit resize event to update game resolution
+      window.dispatchEvent(new Event('resize'));
     },
   },
   movementMode: {
@@ -53,12 +64,7 @@ export const settingsList: Record<string, SettingType> = {
   },
   server: {
     name: 'Server',
-    list: [
-      { name: 'Dev (localhost)', value: 'dev' },
-      { name: 'EU', value: 'eu' },
-      { name: 'US', value: 'us' },
-    ],
-    default: isDev ? 'dev' : 'eu',
+    default: isDev ? 'dev' : 'auto',
   },
 };
 

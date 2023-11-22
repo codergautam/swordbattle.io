@@ -1,28 +1,33 @@
 import Phaser from 'phaser';
+import VirtualJoyStickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-plugin';
 import GameState from '../GameState';
-import { InputTypes } from '../Types';
 import SoundManager from '../SoundManager';
-import store from '../../Store';
 import HUD from '../hud/HUD';
-import River from '../biomes/River';
 import Safezone from '../biomes/Safezone';
 import Biome from '../biomes/Biome';
+import { BaseEntity } from '../entities/BaseEntity';
+import { Settings } from '../Settings';
+import { config } from '../../config';
+import { Controls } from '../Controls';
 
 const publicPath = process.env.PUBLIC_URL as string;
 
 export default class Game extends Phaser.Scene {
   gameState: GameState;
   soundManager: SoundManager;
+  controls: Controls;
   hud: HUD;
 
-  isMobile: boolean = false;
-  joystick: any = null;
-  joystickPointer: any = null;
+  isReady = false;
+  isMobile = false;
+  zoom = 1;
+  scaleZoom = 1;
 
 	constructor() {
 		super('game');
     this.gameState = new GameState(this);
     this.soundManager = new SoundManager(this);
+    this.controls = new Controls(this);
     this.hud = new HUD(this);
 	}
 
@@ -36,6 +41,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('fireTile', publicPath + '/assets/game/tiles/fire.jpg');
     this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice.png');
+    this.load.image('river', publicPath + '/assets/game/tiles/river.png');
 
     this.load.image('coin', publicPath + '/assets/game/coin.png');
     this.load.image('house1', publicPath + '/assets/game/house1.png');
@@ -58,6 +64,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('yeti', publicPath + '/assets/game/mobs/yeti.png');
     this.load.image('roku', publicPath + '/assets/game/mobs/roku.png');
     this.load.image('fireball', publicPath + '/assets/game/mobs/fireball.png');
+    this.load.image('snowball', publicPath + '/assets/game/mobs/snowball.png');
 
     this.load.image('chest1', publicPath + '/assets/game/Chest1.png');
     this.load.image('chest2', publicPath + '/assets/game/Chest2.png');
@@ -69,124 +76,91 @@ export default class Game extends Phaser.Scene {
     this.load.image('player', publicPath + '/assets/game/player/player.png');
     this.load.image('sword', publicPath + '/assets/game/player/sword.png');
     this.load.image('crown', publicPath + '/assets/game/player/crown.png');
-    this.load.image('tankSkin', publicPath + '/assets/game/player/tankSkin.png');
-    this.load.image('berserkerSkin', publicPath + '/assets/game/player/berserkerSkin.png');
+    this.load.image('tankOverlay', publicPath + '/assets/game/player/tank.png');
+    this.load.image('berserkerOverlay', publicPath + '/assets/game/player/berserker.png');
+
+    this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
+    this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');
+    
+    this.load.image('chatButton', publicPath + '/assets/game/ui/chat.png');
+    this.load.image('abilityButton', publicPath + '/assets/game/ui/ability.png');
+    this.load.image('swordThrowButton', publicPath + '/assets/game/ui/swordThrow.png');
+
+    this.load.plugin('rexVirtualJoystick', VirtualJoyStickPlugin, true);
 
     this.soundManager.load(publicPath);
-    River.createTexture(this);
     Safezone.createTexture(this);
     Biome.initialize(this);
   }
 
   create() {
-    this.cameras.main.fadeOut(0);
+    this.cameras.main.setBackgroundColor('#006400');
 
     this.soundManager.initialize();
     this.hud.initialize();
-    this.setupControls();
+    this.hud.setShow(false);
+    this.controls.initialize();
     this.resize();
-  }
 
-  fadeInScene() {
-    this.cameras.main.setBackgroundColor('#006400');
-    this.cameras.main.fadeIn(500);
-  }
-
-  updateZoom(zoom: number) {
-    this.cameras.main.zoomTo(zoom, 1000, Phaser.Math.Easing.Cubic.InOut, true);
-  }
-
-  setupControls() {
-    if (this.isMobile) {
-      // @ts-ignore
-      this.joystick = this.plugins.get('rexVirtualJoystick')?.add(this.hud.scene, {
-        radius: 150,
-      });
-      this.joystick.on('pointerdown', (pointer: any) => {
-        this.joystickPointer = pointer;
-      });
-      this.joystick.on('pointerup', () => {
-        this.joystickPointer = null;
-      })
-      this.input.addPointer(2);
-    } else {
-      this.input.keyboard?.on('keydown-W', () => this.gameState.inputs.inputDown(InputTypes.Up));
-      this.input.keyboard?.on('keydown-A', () => this.gameState.inputs.inputDown(InputTypes.Left));
-      this.input.keyboard?.on('keydown-S', () => this.gameState.inputs.inputDown(InputTypes.Down));
-      this.input.keyboard?.on('keydown-D', () => this.gameState.inputs.inputDown(InputTypes.Right));
-      this.input.keyboard?.on('keyup-W', () => this.gameState.inputs.inputUp(InputTypes.Up));
-      this.input.keyboard?.on('keyup-A', () => this.gameState.inputs.inputUp(InputTypes.Left));
-      this.input.keyboard?.on('keyup-S', () => this.gameState.inputs.inputUp(InputTypes.Down));
-      this.input.keyboard?.on('keyup-D', () => this.gameState.inputs.inputUp(InputTypes.Right));
-
-      this.input.keyboard?.on('keydown-UP', () => this.gameState.inputs.inputDown(InputTypes.Up));
-      this.input.keyboard?.on('keydown-LEFT', () => this.gameState.inputs.inputDown(InputTypes.Left));
-      this.input.keyboard?.on('keydown-DOWN', () => this.gameState.inputs.inputDown(InputTypes.Down));
-      this.input.keyboard?.on('keydown-RIGHT', () => this.gameState.inputs.inputDown(InputTypes.Right));
-      this.input.keyboard?.on('keyup-UP', () => this.gameState.inputs.inputUp(InputTypes.Up));
-      this.input.keyboard?.on('keyup-LEFT', () => this.gameState.inputs.inputUp(InputTypes.Left));
-      this.input.keyboard?.on('keyup-DOWN', () => this.gameState.inputs.inputUp(InputTypes.Down));
-      this.input.keyboard?.on('keyup-RIGHT', () => this.gameState.inputs.inputUp(InputTypes.Right));
-    }
-
-    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      pointer.event.preventDefault();
-      if (pointer.leftButtonDown()) {
-        this.gameState.inputs.inputDown(InputTypes.SwordSwing);
-      }
-      if (pointer.rightButtonDown()) {
-        this.gameState.inputs.inputDown(InputTypes.SwordThrow);
-      }
-    });
-    this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      pointer.event.preventDefault();
-      if (pointer.leftButtonReleased()) {
-        this.gameState.inputs.inputUp(InputTypes.SwordSwing);
-      }
-      if (pointer.rightButtonReleased()) {
-        this.gameState.inputs.inputUp(InputTypes.SwordThrow);
-      }
-    });
-
-    window.addEventListener('blur', () => this.gameState.inputs.clear());
     window.addEventListener('resize', () => this.resize());
     window.addEventListener('orientationchange', () => {
       if (window.orientation === 0 || window.orientation === 180) { // Portrait
-        this.resize(window.innerWidth, window.innerHeight);
         // if (this.scale.isFullscreen) {
         //   this.scale.startFullscreen();
         // }
       } else { // Landscape
-        this.resize(window.innerHeight, window.innerWidth);
         // this.scale.startFullscreen();
       }
     });
-    this.resize();
   }
 
-  follow(sprite: any) {
-    this.cameras.main.startFollow(sprite);
-  }
-
-  resize(width?: any, height?: any) {
+  resize() {
     if (!this.game) return;
 
-    const scale = store.scale;
-    if (width === undefined) width = window.innerWidth / scale;
-    if (height === undefined) height = window.innerHeight / scale;
+    const view = config.viewportSize;
+    const resolution = Settings.resolution / 100;
+    const scale = window.devicePixelRatio * resolution;
+    const width = document.documentElement.clientWidth * scale;
+    const height = document.documentElement.clientHeight * scale;
     this.game.scale.resize(width, height);
-    this.game.scale.setParentSize(width, height);
-    this.game.scale.setGameSize(width, height);
-    this.game.scale.setZoom(scale);
+    this.game.scale.setZoom(1 / scale);
+
+    const cameraScale = Math.max(width / view, height / view);
+    this.setScaleZoom(cameraScale);
+
     this.hud.resize();
     this.gameState.resize();
-
-    this.joystick?.setPosition(200, this.scale.height / 1.5);
   }
 
-	update(time: number, delta: number) {
-    this.soundManager.update(delta);
-    this.gameState.updateGraphics(time, delta);
-    this.hud.update(delta);
+  updateZoom(zoom: number, duration = 1500) {
+    this.zoom = zoom;
+    this.cameras.main.zoomTo(zoom * this.scaleZoom, duration, Phaser.Math.Easing.Cubic.InOut, true);
+  }
+
+  setScaleZoom(zoom: number) {
+    this.scaleZoom = zoom;
+    this.cameras.main.setZoom(this.zoom * this.scaleZoom);
+  } 
+
+  follow(entity: BaseEntity) {
+    const camera = this.cameras.main;
+    const sprite = entity.container;
+    camera.pan(sprite.x, sprite.y, 1500, Phaser.Math.Easing.Cubic.InOut, true, (camera, progress) => {
+      if (progress === 1) {
+        entity.following = true;
+        camera.startFollow(sprite);
+        this.gameState.spectator.disable();
+      }
+    });
+  }
+
+	update(time: number, dt: number) {
+    if (!this.isReady) {
+      this.isReady = true;
+    }
+    this.soundManager.update(dt);
+    this.gameState.updateGraphics(dt);
+    this.hud.update(dt);
+    this.controls.update();
   }
 }

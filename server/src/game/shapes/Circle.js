@@ -40,6 +40,11 @@ class Circle extends Shape {
     return new SAT.Vector(this.x + x, this.y + y);
   }
 
+  isPointInside(x, y) {
+    const point = new SAT.Vector(x, y);
+    return SAT.pointInCircle(point, this.collisionPoly);
+  }
+
   collides(shape, response) {
     if (shape.type === Types.Shape.Circle) {
       return SAT.testCircleCircle(this.collisionPoly, shape.collisionPoly, response);

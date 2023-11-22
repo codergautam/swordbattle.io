@@ -22,6 +22,22 @@ app.listen('0.0.0.0', config.port, (ws) => {
   }
 });
 
+function setCorsHeaders(response) {
+  response.writeHeader('Access-Control-Allow-Origin', '*');
+  response.writeHeader('Access-Control-Allow-Methods', 'GET');
+  response.writeHeader('Access-Control-Allow-Headers', 'content-type');
+}
+
+app.options('/ping', (res) => {
+  setCorsHeaders(res);
+});
+app.get('/ping', (res) => {
+  setCorsHeaders(res);
+  res.writeHeader('Content-Type', 'text/plain');
+  res.writeStatus('200 OK');
+  res.end('pong');
+});
+
 function start() {
   const game = new Game();
   game.initialize();

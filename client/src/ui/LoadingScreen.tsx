@@ -20,7 +20,7 @@ function LoadingScreen({ progress }: any) {
   return (
     <div className="loading-screen" style={{opacity}}>
       <div className="loading-container" style={scale}>
-        <div className="loading-text">Loading images...</div>
+        <div className="loading-text">Loading...</div>
         <div className="progress-bar">
           <div className="progress" style={{ width: `${progress}%` }}></div>
         </div>

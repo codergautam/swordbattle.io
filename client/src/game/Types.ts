@@ -20,10 +20,12 @@ export enum EntityTypes {
   Yeti = 18,
   Chimera = 19,
   Roku = 20,
+
   Fireball = 21,
+  Snowball = 22,
 }
 
-export enum SoundTypes {
+export enum FlagTypes {
   EnemyHit = 1,
   Damaged = 2,
   LavaDamaged = 3,
@@ -44,7 +46,7 @@ export enum EvolutionTypes {
 
 export enum BuffTypes {
   Speed = 1,
-  Size = 2,
+  VisionRange = 2,
   Health = 3,
   Regeneration = 4,
   Damage = 5,
@@ -71,4 +73,5 @@ export enum InputTypes {
   Left = 4,
   SwordSwing = 5,
   SwordThrow = 6,
+  Ability = 7,
 }

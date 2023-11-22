@@ -83,10 +83,12 @@ export class PolygonShape extends Shape {
   angle: number = 0;
   polygonBounds!: Phaser.Geom.Rectangle;
 
-  constructor(x: number, y: number, points: Point[]) {
+  constructor(x: number, y: number, points?: Point[]) {
     super(x, y);
     this.type = ShapeTypes.Polygon;
-    this.points = Object.values(points).reverse();
+    if (points) {
+      this.points = Object.values(points).reverse();
+    }
     this.recalculateBounds();
   }
 

@@ -1,15 +1,14 @@
-import HUD from './HUD';
-import Game from '../scenes/Game';
-import { BiomeTypes } from '../Types';
+import HudComponent from './HudComponent';
+import { BiomeTypes, FlagTypes } from '../Types';
 
-class ProgressBar {
-  // Member Variables
-  hud: HUD;
-  game: Game;
-  container: any;
+class ProgressBar extends HudComponent {
   barBackground: any;
-  progressBar: any;
+  progressBar!: Phaser.GameObjects.Graphics;
+  progressBarContainer!: Phaser.GameObjects.Container;
   levelText!: Phaser.GameObjects.Text;
+  levelTextTween!: Phaser.Tweens.Tween;
+  levelUpText!: Phaser.GameObjects.Text;
+  stabbedText!: Phaser.GameObjects.Text;
   inSafezoneMessage!: Phaser.GameObjects.Text;
   width = 500;
   height = 15;
@@ -18,11 +17,7 @@ class ProgressBar {
   currentProgress: number = 0;
   targetProgress: number = 0;
   lastKnownLevel: number | null = null;
-
-  constructor(hud: HUD) {
-    this.hud = hud;
-    this.game = hud.game;
-  }
+  levelUpStreak = 0;
 
   initialize() {
     // Create the background bar
@@ -46,22 +41,61 @@ class ProgressBar {
     }).setOrigin(0.5);
 
     // "You are in the safe zone" text
-    this.inSafezoneMessage = this.game.add.text(this.width / 2, -this.game.scale.height + 100, 'You are in the safe zone', {
+    this.inSafezoneMessage = this.game.add.text(this.width / 2, -this.height - 40, 'You are in the safe zone', {
       fontSize: 22,
       fontStyle: 'bold',
       stroke: '#000000',
       strokeThickness: 6,
     }).setOrigin(0.5);
 
-    // Create a container to house all of the above components
-    this.container = this.game.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText, this.inSafezoneMessage]);
+    this.levelUpText = this.game.add.text(this.width / 2, -this.game.scale.height / 5, '', {
+      fontSize: 50,
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 6,
+    }).setOrigin(0.5);
+
+    this.stabbedText = this.game.add.text(this.width / 2, this.game.scale.height, '', {
+      fontSize: 50,
+      fontStyle: 'bold',
+      color: '#f23838',
+      stroke: '#000000',
+      strokeThickness: 6,
+    }).setOrigin(0.5).setAlpha(0);
+
+    this.progressBarContainer = this.hud.scene.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText, this.inSafezoneMessage]);
+    this.container = this.game.add.container(0, 0, [this.progressBarContainer, this.levelUpText, this.stabbedText]);
     this.hud.add(this.container);
   }
 
   // Adjust the progress bar's position on window resize
   resize() {
-    this.container.x = (this.game.scale.width - this.width) / 2;
-    this.container.y = this.game.scale.height - this.height - 15;
+    if (!this.progressBarContainer) return;
+    this.container.x = (this.game.scale.width - this.width * this.scale) / 2;
+    this.progressBarContainer.y = this.game.scale.height / this.scale - (this.height + 10);
+  }
+
+  showStabbedText(nickname: string) {
+    this.stabbedText.text = `Stabbed ${nickname}`;
+    
+    const onComplete = () => {
+      this.game.tweens.add({
+        targets: this.stabbedText,
+        alpha: 0,
+        y: this.game.scale.height,
+        duration: 250,
+        ease: 'Power2',
+      });
+    }
+    
+    this.game.tweens.add({
+      targets: this.stabbedText,
+      alpha: 1,
+      y: this.game.scale.height * 0.8,
+      duration: 2000,
+      ease: 'Bounce',
+      onComplete,
+    });
   }
 
   toggleSafezoneText(show: boolean) {
@@ -69,6 +103,33 @@ class ProgressBar {
       targets: [this.inSafezoneMessage],
       alpha: show ? 1 : 0,
       duration: 100,
+    });
+  }
+
+  updateLevelUpText(difference: number) {
+    this.levelUpStreak += difference;
+    this.levelUpText.setText(`Level up!${this.levelUpStreak > 1 ? ' x' + this.levelUpStreak : ''}`);
+
+    if (this.levelTextTween) this.levelTextTween.stop();
+
+    const onComplete = () => {
+      this.levelTextTween = this.hud.scene.add.tween({
+        targets: this.levelUpText,
+        alpha: 0,
+        y: this.game.scale.height / 5.5,
+        onComplete: () => this.levelUpStreak = 0,
+        ease: 'Power2',
+      });
+    };
+
+    this.levelTextTween = this.hud.scene.add.tween({
+      targets: this.levelUpText,
+      y: this.game.scale.height / 4.5,
+      alpha: 1,
+      completeDelay: 1000,
+      duration: 500,
+      onComplete,
+      ease: 'Power2',
     });
   }
 
@@ -81,7 +142,7 @@ class ProgressBar {
 
     // Check for a level-up event
     if (this.lastKnownLevel !== null && player.level > this.lastKnownLevel) {
-      console.log('Level Up Event Logged');
+      this.updateLevelUpText(player.level - this.lastKnownLevel);
     }
     this.lastKnownLevel = player.level;
 
@@ -91,10 +152,16 @@ class ProgressBar {
     this.progressBar.scaleX = this.currentProgress;
 
     // Update safezone message visibility
-    const shouldShow = player.biome === BiomeTypes.Safezone && this.hud.evolutionSelect.hidden;
+    const shouldShow = player.biome === BiomeTypes.Safezone;
     const isShown = Boolean(this.inSafezoneMessage.alpha);
     if (isShown !== shouldShow) {
       this.toggleSafezoneText(shouldShow);
+    }
+
+    const stabbedId = player.flags[FlagTypes.PlayerKill];
+    const stabbedEntity = this.game.gameState.entities[stabbedId];
+    if (stabbedEntity && this.stabbedText.alpha === 0) {
+      this.showStabbedText(stabbedEntity.name);
     }
   }
 }

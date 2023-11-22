@@ -3,6 +3,11 @@ const Circle = require('../../shapes/Circle');
 const Types = require('../../Types');
 
 class IceMound extends Entity {
+  static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+    forbiddenEntities: [Types.Entity.House1],
+  };
+
   constructor(game, objectData) {
     super(game, Types.Entity.IceMound, objectData);
 

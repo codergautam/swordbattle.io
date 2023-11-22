@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AccountsService } from '../accounts/accounts.service';
 import { LoginDTO, RegisterDTO } from './auth.dto';
 import { JwtPayload } from './auth.interface';
+import { Account } from 'src/accounts/account.entity';
 
 @Injectable()
 export class AuthService {
@@ -17,8 +18,7 @@ export class AuthService {
     }
 
     const account = await this.accountsService.create(data);
-    const payload = { sub: account.username };
-    const token = this.jwtService.sign(payload);
+    const token = await this.getToken(account);
     return { account: this.accountsService.sanitizeAccount(account), token };
   }
 
@@ -32,16 +32,17 @@ export class AuthService {
       throw new UnauthorizedException('Wrong password');
     }
 
-    const payload = { sub: account.username };
-    const token = this.jwtService.sign(payload);
+    const token = await this.getToken(account);
     return { account: this.accountsService.sanitizeAccount(account), token };
   }
 
+  async getToken(account: Account) {
+    const payload = { sub: account.username };
+    const token = this.jwtService.sign(payload);
+    return token;
+  }
+
   async validateAccount(payload: JwtPayload) {
-    const account = await this.accountsService.findOne({ where: { username: payload.sub } });
-    if (!account) {
-      throw new UnauthorizedException('User not found');
-    }
-    return this.accountsService.sanitizeAccount(account);
+    return this.accountsService.getByUsername(payload.sub);
   }
 }

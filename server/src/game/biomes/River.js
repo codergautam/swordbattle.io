@@ -9,10 +9,7 @@ class River extends Biome {
 
   applyEffects(player) {
     player.speed.multiplier *= 1.4;
-  }
-
-  collides(player, response) {
-    if(!player.inSafezone) player.viewport.zoom.multiplier *= 0.8;
+    player.viewport.zoom.multiplier *= 0.8
   }
 }
 

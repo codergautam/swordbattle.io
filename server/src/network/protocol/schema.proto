@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+message ClientMessage {
+  bool spectate = 1;
+  bool play = 2;
+  float angle = 3;
+  repeated InputData inputs = 4;
+  MouseData mouse = 5;
+  int32 selectedEvolution = 6;
+  int32 selectedBuff = 7;
+  string chatMessage = 8;
+  bool isPing = 9;
+  string token = 10;
+}
+message InputData {
+  int32 inputType = 1;
+  bool inputDown = 2;
+}
+message MouseData {
+  float angle = 1;
+  int32 force = 2;
+}
+
+message ServerMessage {
+  bool fullSync = 1;
+  int32 selfId = 2;
+  Point spectator = 3;
+  MapData mapData = 4;
+  map<int32, Entity> entities = 5;
+  map<int32, Entity> globalEntities = 6;
+  bool isPong = 7;
+  int32 tps = 8;
+}
+message Shape {
+  int32 type = 1;
+  float x = 2;
+  float y = 3;
+  float angle = 4;
+  int32 radius = 5;
+  repeated Point points = 6;
+}
+message Point {
+  int32 x = 1;
+  int32 y = 2;
+}
+message Buff {
+  int32 level = 1;
+  int32 max = 2;
+  float step = 3;
+}
+message Account {
+  int32 id = 1;
+  string created_at = 2;
+  string email = 3;
+  int32 gems = 4;
+  bool subscription = 5;
+  string subscription_start_date = 6;
+  bool is_v1 = 7;
+  int32 profile_views = 8;
+}
+message MapData {
+  int32 x = 1;
+  int32 y = 2;
+  int32 width = 3;
+  int32 height = 4;
+  repeated Entity biomes = 5;
+  repeated Entity staticObjects = 6;
+}
+message Entity {
+  // General
+  int32 id = 1;
+  int32 type = 2;
+  int32 depth = 3;
+  bool removed = 4;
+  Shape shapeData = 5;
+  float healthPercent = 6;
+  float angle = 7;
+  int32 size = 8;
+  bool isAngry = 9;
+
+  // Player
+  string name = 10;
+  string username = 11;
+  Account account = 12;
+  int32 kills = 13;
+  map<int32, int32> flags = 14;
+  int32 biome = 15;
+  int32 level = 16;
+  int32 coins = 17;
+  int32 nextLevelCoins = 18;
+  int32 previousLevelCoins = 19;
+  int32 upgradePoints = 20;
+  map<int32, Buff> buffs = 21;
+  int32 evolution = 22;
+  map<int32, bool> possibleEvolutions = 23;
+  bool isAbilityAvailable = 24;
+  bool abilityActive = 25;
+  float abilityDuration = 26;
+  float abilityCooldown = 27;
+  float viewportZoom = 28;
+  string chatMessage = 29;
+  bool isFlying = 30;
+  bool swordFlying = 31;
+  float swordSwingAngle = 32;
+  float swordSwingProgress = 33;
+  float swordSwingDuration = 34;
+  float swordFlyingCooldown = 35;
+  string disconnectReason = 36;
+
+  // Coin
+  int32 hunterId = 37;
+  // Chest
+  int32 rarity = 38;
+  // Building
+  int32 width = 39;
+  int32 height = 40;
+}

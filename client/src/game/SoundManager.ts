@@ -1,44 +1,44 @@
 import Game from './scenes/Game';
 import { Settings } from './Settings';
 import { Sound } from './Sound';
-import { SoundTypes } from './Types';
+import { FlagTypes } from './Types';
 
 class SoundManager {
   game: Game;
   volume: number = Number(Settings.sound) / 10;
-  manager: Partial<Record<SoundTypes, Sound>>;
+  manager: Partial<Record<FlagTypes, Sound>>;
 
   constructor(game: Game) {
     this.game = game;
     this.manager = {
-      [SoundTypes.EnemyHit]: new Sound(SoundTypes.EnemyHit, [
+      [FlagTypes.EnemyHit]: new Sound(FlagTypes.EnemyHit, [
         'HitEnemy/EnemyHit1.wav', 'HitEnemy/EnemyHit2.wav', 'HitEnemy/EnemyHit3.wav',
       ]),
-      [SoundTypes.Damaged]: new Sound(SoundTypes.Damaged, [
+      [FlagTypes.Damaged]: new Sound(FlagTypes.Damaged, [
         'TakeDamage/TakeDamage1.wav', 'TakeDamage/TakeDamage2.wav', 'TakeDamage/TakeDamage3.wav',
       ]),
-      [SoundTypes.LavaDamaged]: new Sound(SoundTypes.LavaDamaged, [
+      [FlagTypes.LavaDamaged]: new Sound(FlagTypes.LavaDamaged, [
         'TakeDamage/LavaDamage.mp3',
       ], 500),
-      [SoundTypes.GetCoin]: new Sound(SoundTypes.GetCoin, [
+      [FlagTypes.GetCoin]: new Sound(FlagTypes.GetCoin, [
         'GetCoin/GetCoin1.wav', 'GetCoin/GetCoin2.wav', 'GetCoin/GetCoin3.wav',
       ], 50),
-      [SoundTypes.ChestHit]: new Sound(SoundTypes.ChestHit, [
+      [FlagTypes.ChestHit]: new Sound(FlagTypes.ChestHit, [
         'HitChest/HitChest1.wav', 'HitChest/HitChest2.wav', 'HitChest/HitChest3.wav',
       ]),
-      [SoundTypes.ChestDestroy]: new Sound(SoundTypes.ChestDestroy, [
+      [FlagTypes.ChestDestroy]: new Sound(FlagTypes.ChestDestroy, [
         'ChestDestroy/ChestDestroy1.wav', 'ChestDestroy/ChestDestroy2.wav', 'ChestDestroy/ChestDestroy3.wav',
       ]),
-      [SoundTypes.SwordSwing]: new Sound(SoundTypes.SwordSwing, [
+      [FlagTypes.SwordSwing]: new Sound(FlagTypes.SwordSwing, [
         'SwordSwing/SwordSwing1.wav', 'SwordSwing/SwordSwing2.wav',
       ]),
-      [SoundTypes.SwordThrow]: new Sound(SoundTypes.SwordThrow, [
+      [FlagTypes.SwordThrow]: new Sound(FlagTypes.SwordThrow, [
         'SwordThrow/SwordThrow1.wav', 'SwordThrow/SwordThrow2.wav', 'SwordThrow/SwordThrow3.wav',
       ]),
-      [SoundTypes.PlayerKill]: new Sound(SoundTypes.PlayerKill, [
+      [FlagTypes.PlayerKill]: new Sound(FlagTypes.PlayerKill, [
         'PlayerKill/PlayerKill1.wav', 'PlayerKill/PlayerKill2.wav', 'PlayerKill/PlayerKill3.wav',
       ]),
-      [SoundTypes.PlayerDeath]: new Sound(SoundTypes.PlayerDeath, [
+      [FlagTypes.PlayerDeath]: new Sound(FlagTypes.PlayerDeath, [
         'PlayerDeath/PlayerDeath1.wav', 'PlayerDeath/PlayerDeath2.wav', 'PlayerDeath/PlayerDeath3.wav',
       ]),
     };
@@ -50,8 +50,8 @@ class SoundManager {
     }
   }
 
-  play(type: SoundTypes | any) {
-    const sound = this.manager[type as SoundTypes];
+  play(type: FlagTypes | any) {
+    const sound = this.manager[type as FlagTypes];
     sound?.play();
   }
 

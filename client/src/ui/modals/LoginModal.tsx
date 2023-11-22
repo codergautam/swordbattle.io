@@ -15,6 +15,7 @@ function LoginModal({ onSuccess }: any) {
       if (data.message) {
         window.alert(Array.isArray(data.message) ? data.message.join('\n') : data.message);
       } else {
+        data.account.token = data.token;
         dispatch(setAccount(data.account));
         onSuccess();
       }

@@ -3,6 +3,10 @@ const Polygon = require('../../shapes/Polygon');
 const Types = require('../../Types');
 
 class MossyRock extends Entity {
+  static defaultDefinition = {
+    forbiddenEntities: [Types.Entity.House1],
+  };
+
   constructor(game, objectData) {
     super(game, Types.Entity.MossyRock, objectData);
 
@@ -13,14 +17,14 @@ class MossyRock extends Entity {
       [0.2134646962233169 * this.size, -0.5221674876847291 * this.size],
     ]);
     this.density = 3;
-    this.targets.push(Types.Entity.Player, Types.Entity.Wolf, Types.Entity.Bunny,
-      Types.Entity.Moose, Types.Entity.Chimera, Types.Entity.Yeti, Types.Entity.Roku,
-      Types.Entity.Rock, Types.Entity.MossyRock, Types.Entity.LavaRock);
+    this.targets.push(...Types.Groups.Obstacles);
 
     this.spawn();
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.type === Types.Entity.Sword && !entity.canCollide(entity)) return;
+
     const selfWeight = this.weight;
     const targetWeight = entity.weight;
     const totalWeight = selfWeight + targetWeight;

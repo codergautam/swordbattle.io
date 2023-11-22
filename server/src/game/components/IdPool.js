@@ -1,6 +1,6 @@
 class IdPool {
   constructor() {
-    this.available = [0];
+    this.available = [1];
   }
 
   take() {

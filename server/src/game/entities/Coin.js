@@ -9,13 +9,19 @@ class Coin extends Entity {
 
     objectData.value = Array.isArray(objectData.value) ? objectData.value : [1, 6];
     this.value = helpers.randomInteger(objectData.value[0], objectData.value[1]);
-    const radius = 22 + this.value * 2;
+    const radius = 75 + helpers.randomChoice([5, 15, 25, 30, 35]);
 
     this.shape = Circle.create(0, 0, radius);
     this.targets.push(Types.Entity.Player);
     this.hunterId = null;
 
     this.spawn();
+  }
+
+  update() {
+    this.shape.x += this.velocity.x;
+    this.shape.y += this.velocity.y;
+    this.velocity.scale(0.5);
   }
 
   createState() {

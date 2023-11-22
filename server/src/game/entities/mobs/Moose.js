@@ -13,9 +13,9 @@ class MooseMob extends Entity {
     super(game, Types.Entity.Moose, objectData);
 
     this.shape = Circle.create(0, 0, this.size);
-    this.velocity = new SAT.Vector(5, 5);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    
+    this.coinsDrop = this.size;
+
     this.movementTimer = new Timer(0, 3, 4);
     this.stayTimer = new Timer(3, 2, 3);
     this.angryTimer = new Timer(0, 6, 8);
@@ -81,6 +81,8 @@ class MooseMob extends Entity {
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.depth !== this.depth) return;
+
     const selfWeight = this.weight;
     const targetWeight = entity.weight;
     const totalWeight = selfWeight + targetWeight;
@@ -123,21 +125,17 @@ class MooseMob extends Entity {
   createState() {
     const state = super.createState();
     state.angle = this.angle;
-    state.health = this.health.value.value;
-    state.maxHealth = this.health.max.value;
     return state;
   }
 
   remove() {
     super.remove();
-
+    this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
     this.createInstance();
   }
 
   cleanup() {
     super.cleanup();
-
-    this.health.cleanup();
     this.speed.reset();
   }
 }

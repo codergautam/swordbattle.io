@@ -5,7 +5,7 @@ class Coin extends BaseEntity {
 
   hunter: any = null;
   eatingTween: Phaser.Tweens.Tween | null = null;
-  displayRadius = 0.8;
+  displayRadius = 0.35;
 
   createSprite() {
     this.container = this.game.add.sprite(this.shape.x, this.shape.y, 'coin');
@@ -20,7 +20,9 @@ class Coin extends BaseEntity {
     return this.container;
   }
 
-  update() {
+  update(dt: number) {
+    super.update(dt);
+
     if (!this.eatingTween) return;
 
     if (this.removed) {

@@ -10,8 +10,8 @@ class Fireball extends BaseEntity {
     return this.container;
   }
 
-  update(delta: number, time: number): void {
-    super.update(delta, time);
+  update(dt: number): void {
+    super.update(dt);
 
     const startAngle = Phaser.Math.Angle.Wrap(this.container.rotation);
     const endAngle = Phaser.Math.Angle.Wrap(Fireball.baseAngle + this.angle);

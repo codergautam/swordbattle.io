@@ -8,25 +8,41 @@ const Types = require('../../Types');
 const helpers = require('../../../helpers');
 
 class YetiMob extends Entity {
-  constructor(game, objectData) {
-    objectData = Object.assign({ size: 70 }, objectData);
-    super(game, Types.Entity.Yeti, objectData);
+  static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+    size: 70,
+    health: 50,
+    regen: 2,
+    speed: 35,
+    damage: 5,
+    snowballCooldown: [0.2, 2],
+    snowballDuration: [2, 2],
+    snowballSpeed: 100,
+    snowballSize: 80,
+    attackRadius: 2000,
+    density: 5,
+    isBoss: false,
+  };
 
+  constructor(game, definition) {
+    super(game, Types.Entity.Yeti, definition);
+
+    this.isGlobal = this.definition.isBoss;
     this.shape = Circle.create(0, 0, this.size);
-    this.velocity = new SAT.Vector(5, 5);
     this.angle = helpers.random(-Math.PI, Math.PI);
+    this.coinsDrop = this.size * (this.definition.isBoss ? 2 : 1);
     this.density = 3;
 
+    this.snowballTimer = new Timer(0, this.definition.snowballCooldown[0], this.definition.snowballCooldown[1]);
     this.movementTimer = new Timer(0, 3, 4);
     this.stayTimer = new Timer(3, 2, 3);
-    this.angryTimer = new Timer(0, 6, 8);
-    this.damage = new Property(10);
     this.isMoving = false;
     this.targetAngle = this.angle;
     this.startAngle = this.angle;
 
-    this.health = new Health(50, 2);
-    this.speed = new Property(35);
+    this.health = new Health(this.definition.health, this.definition.regen);
+    this.speed = new Property(this.definition.speed);
+    this.damage = new Property(this.definition.damage);
     this.target = null;
     this.targets.push(Types.Entity.Player);
 
@@ -34,9 +50,29 @@ class YetiMob extends Entity {
   }
 
   update(dt) {
-    this.angryTimer.update(dt);
-    if (this.angryTimer.finished || !this.target || this.target.removed) {
+    if (!this.target || this.target.removed) {
       this.target = null;
+    }
+
+    if (!this.target) {
+      const searchRadius = this.definition.attackRadius;
+      const searchZone = this.shape.boundary;
+      searchZone.x -= searchRadius;
+      searchZone.y -= searchRadius;
+      searchZone.width += searchRadius;
+      searchZone.height += searchRadius;
+
+      const targets = this.game.entitiesQuadtree.get(searchZone);
+      for (const { entity: target } of targets) {
+        if (target === this) continue;
+        if (target.type !== Types.Entity.Player) continue;
+
+        const distance = helpers.distance(this.shape.x, this.shape.y, target.shape.x, target.shape.y);
+        if (distance < searchRadius) {
+          this.target = target;
+          break;
+        }
+      }
     }
 
     if (this.isMoving) {
@@ -61,7 +97,6 @@ class YetiMob extends Entity {
       if (this.target) {
         const targetAngle = helpers.angle(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
         this.angle = helpers.angleLerp(this.startAngle, targetAngle, this.movementTimer.progress);
-        this.speed.multiplier *= 2;
         this.velocity.add(new SAT.Vector(
           this.speed.value * Math.cos(this.angle) * (this.movementTimer.progress * 3) * dt,
           this.speed.value * Math.sin(this.angle) * (this.movementTimer.progress * 3) * dt,
@@ -75,6 +110,22 @@ class YetiMob extends Entity {
       }
     }
 
+    if (this.definition.isBoss) {
+      this.snowballTimer.update(dt);
+      if (this.snowballTimer.finished) {
+        this.snowballTimer.renew();
+        this.game.map.addEntity({
+          type: Types.Entity.Snowball,
+          size: this.definition.snowballSize,
+          speed: this.definition.snowballSpeed,
+          angle: this.angle,
+          damage: this.damage.value,
+          duration: [this.definition.snowballDuration[0], this.definition.snowballDuration[1]],
+          position: [this.shape.x, this.shape.y],
+        });
+      }
+    }
+
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
     this.velocity.scale(0.92);
@@ -83,6 +134,8 @@ class YetiMob extends Entity {
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.depth !== this.depth) return;
+
     const selfWeight = this.weight;
     const targetWeight = entity.weight;
     const totalWeight = selfWeight + targetWeight;
@@ -100,11 +153,7 @@ class YetiMob extends Entity {
       entity.velocity.x -= knockback * Math.cos(this.angle - Math.PI);
       entity.velocity.y -= knockback * Math.sin(this.angle - Math.PI);
       entity.damaged(force, this);
-
-      // 50% chance of kicking off multiple times
-      if (Math.random() > 0.5) {
-        this.target = null;
-      }
+      this.velocity.scale(0);
     }
   }
 
@@ -115,7 +164,6 @@ class YetiMob extends Entity {
       this.movementTimer.renew();
     }
     this.isMoving = true;
-    this.angryTimer.renew();
 
     if (this.health.isDead) {
       this.remove();
@@ -125,21 +173,17 @@ class YetiMob extends Entity {
   createState() {
     const state = super.createState();
     state.angle = this.angle;
-    state.health = this.health.value.value;
-    state.maxHealth = this.health.max.value;
     return state;
   }
 
   remove() {
     super.remove();
-
+    this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
     this.createInstance();
   }
 
   cleanup() {
     super.cleanup();
-
-    this.health.cleanup();
     this.speed.reset();
   }
 }

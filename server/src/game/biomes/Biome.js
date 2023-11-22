@@ -27,13 +27,14 @@ class Biome {
       throw new Error('Unknown biome shape: ' + JSON.stringify(definition));
     }
 
+    shape.sendPoints = true;
     this.shape = shape;
   }
 
   getData() {
     return {
       type: this.type,
-      shape: this.shape.getData(),
+      shapeData: this.shape.getData(),
     };
   }
 
@@ -46,7 +47,7 @@ class Biome {
       if (data.position === 'random') data.spawnZone = this.shape;
 
       for (let i = 0; i < entityData.amount; i++) {
-        this.game.map.addEntity(data)
+        this.game.map.addEntity(data);
       }
     }
   }

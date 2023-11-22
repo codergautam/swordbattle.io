@@ -1,106 +1,169 @@
 .App {
   position: fixed;
-  display: flex;
-  justify-content: center;
   background-color: #333;
   width: 100%;
   height: 100%;
   user-select: text;
 
-  .title {
-    color: #ffffff;
-    font-size: 50px;
-    -webkit-text-stroke: 2px #111111;
-  }
+  .main-ui {
+    @import "~bootstrap/scss/functions";
+    @import "~bootstrap/scss/variables";
+    @import "~bootstrap/scss/mixins";
+    @import "~bootstrap/scss/dropdown";
 
-  .settings-button {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-    transform-origin: bottom left;
-
-    img {
-      width: 200px;
-      height: auto;
-    }
-  }
-
-  .startGame {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transform-origin: center;
-
-    input {
-      width: 300px;
-      height: 40px;
-      border: 2px solid #ccc;
-      background-color: #fff;
-      border-radius: 5px;
-      font-size: 22px;
-      color: #444444;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    .startButton {
-      width: 250px;
-      background-color: #31c51d;
-      color: #333;
-      font-size: 25px;
-      margin: 10px;
-      padding: 5px;
-      border-radius: 5px;
-      transition: all 0.2s ease-in-out;
-      cursor: pointer;
-
-      &:hover {
-        background-color: #60e24f;
-      }
-    }
-  }
-
-  .auth-buttons {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    flex-direction: column;
-
-    .auth-btn {
-      margin-bottom: 10px;
-      height: 70px;
-
-      &:hover {
-        cursor: pointer;
-      }
-    }
-
-    .auth-username {
-      font-size: 40px;
-    }
-  }
-
-  .links {
+    width: 100%;
+    height: 100%;
     position: fixed;
-    bottom: 15px;
     display: flex;
-    justify-content: space-around;
-    align-items: center;
-    flex-wrap: wrap;
-    transform-origin: bottom center;
-    
-    a {
-      margin: 0 15px;
-      font-size: 30px;
-      color: white;
-      text-decoration: underline;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(2px);
+
+    .title {
+      color: #ffffff;
+      font-size: 120px;
+      text-shadow: #474747 3px 5px 2px;
+      margin-bottom: 20px;
     }
   
-    .discord {
-      width: auto;
-      max-height: 60px;
+    .settings-button {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      transform-origin: bottom left;
+  
+      img {
+        width: 200px;
+        height: auto;
+      }
+    }
+  
+    .startGame {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center;
+
+      @keyframes dropDown {
+        0% {
+          transform: translateY(-100%) scale(var(--scale));
+        }
+        100% {
+          transform: translateY(-12%) scale(var(--scale));
+        }
+      }
+
+      &.animation {
+        animation: dropDown 1s ease-out forwards;
+      }
+
+      input {
+        width: 300px;
+        height: 40px;
+        border: 2px solid #ccc;
+        background-color: #fff;
+        border-radius: 5px;
+        font-size: 22px;
+        color: #444444;
+        font-weight: bold;
+        text-align: center;
+      }
+  
+      .startButton {
+        width: 250px;
+        background-color: #31c51d;
+        color: #333;
+        font-size: 25px;
+        margin: 10px;
+        padding: 5px;
+        border-radius: 5px;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+  
+        &:hover {
+          background-color: #60e24f;
+        }
+      }
+    }
+  
+    .auth-buttons {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      transform-origin: top right;
+  
+      .dropdown {
+        
+        .dropdown-menu {
+          background-color: #f9f9f9;
+          box-shadow: 0 8px 16px 0px rgba(0, 0, 0, 0.2);
+          padding: 12px 16px;
+          border-radius: 16px;
+          right: 10px;
+          user-select: none;
+
+          .dropdown-item {
+            font-size: 18px;
+
+            &:active {
+              background-color: transparent;
+              color: unset;
+            }
+          }
+        }
+      }
+      .dropdown:hover .dropdown-menu {
+        display: block;
+      }
+      .auth-username {
+        font-size: 40px;
+      }
+      .auth-btn {
+        margin-bottom: 10px;
+        height: 70px;
+  
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+  
+    .links {
+      position: fixed;
+      bottom: 20px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      flex-wrap: wrap;
+      transform-origin: bottom center;
+      
+      @keyframes liftUp {
+        0% {
+          transform: translateY(100%) scale(var(--scale));
+        }
+        100% {
+          transform: translateY(0) scale(var(--scale));
+        }
+      }
+
+      &.animation {
+        animation: liftUp 1s ease-out;
+      }
+
+      a {
+        margin: 0 15px;
+        font-size: 30px;
+        color: white;
+        text-decoration: underline;
+      }
+    
+      .discord {
+        width: auto;
+        max-height: 60px;
+      }
     }
   }
 }

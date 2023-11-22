@@ -3,7 +3,7 @@ const Shape = require('./Shape');
 const Types = require('../Types');
 
 class ComplexPolygon extends Shape {
-  constructor(x, y, shapes, originalPoints) {
+  constructor(shapes, originalPoints) {
     super();
     this.type = Types.Shape.Polygon;
     this.shapes = shapes;
@@ -62,16 +62,27 @@ class ComplexPolygon extends Shape {
     return this.bounds;
   }
 
+  isPointInside(x, y) {
+    for (const shape of this.shapes) {
+      if (shape.isPointInside(x, y)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   collides(otherShape, response) {
     let collides = false;
+    const mtv = new SAT.Vector();
     for (const shape of this.shapes) {
       const internalResponse = new SAT.Response();
       if (shape.collides(otherShape, internalResponse)) {
         collides = true;
-        response.overlapV.add(internalResponse.overlapV);
-        response.overlapN.add(internalResponse.overlapN);
+        mtv.add(internalResponse.overlapN).add(internalResponse.overlapV);
       }
     }
+    response.overlapV = mtv;
+    response.overlapN.scale(0);
     return collides;
   }
 

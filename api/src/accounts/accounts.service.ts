@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { Account } from './account.entity';
@@ -15,8 +15,11 @@ export class AccountsService {
     return this.accountsRepository.save(account);
   }
 
-  async findOne(where: FindOneOptions<Account>) {
+  async findOne(where: FindOneOptions<Account>, throwException = false) {
     const account = await this.accountsRepository.findOne(where);
+    if (!account && throwException) {
+      throw new NotFoundException(`Account not found where: ${where}`);
+    }
     return account;
   }
 
@@ -28,12 +31,25 @@ export class AccountsService {
     return account;
   }
 
+  async getByUsername(username: string) {
+    const account = await this.findOne({ where: { username: username } });
+    if (!account) {
+      throw new UnauthorizedException('User not found');
+    }
+    return this.sanitizeAccount(account);
+  }
+
   async update(id: number, updates: Partial<Account>) {
     const account = await this.accountsRepository.findOneBy({ id });
     if (!account) {
       throw new NotFoundException(`There isn't any account with id: ${id}`);
     }
     this.accountsRepository.merge(account, updates);
+    return this.accountsRepository.save(account);
+  }
+
+  async incrementProfileViews(account: Account) {
+    account.profile_views += 1;
     return this.accountsRepository.save(account);
   }
 

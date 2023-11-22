@@ -9,6 +9,7 @@ const helpers = require('../../../helpers');
 
 class RokuMob extends Entity {
   static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
     size: 100,
     health: 250,
     regen: 2,
@@ -32,8 +33,8 @@ class RokuMob extends Entity {
 
     this.isGlobal = this.definition.isBoss;
     this.shape = Circle.create(0, 0, this.size);
-    this.velocity = new SAT.Vector(0, 0);
     this.angle = helpers.random(-Math.PI, Math.PI);
+    this.coinsDrop = this.size * (this.definition.isBoss ? 2 : 1);
 
     this.jumpTimer = new Timer(0, this.definition.jumpCooldown[0], this.definition.jumpCooldown[1]);
     this.fireballTimer = new Timer(0, this.definition.fireballCooldown[0], this.definition.fireballCooldown[1]);
@@ -121,6 +122,8 @@ class RokuMob extends Entity {
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.depth !== this.depth) return;
+
     const selfWeight = this.weight;
     const targetWeight = entity.weight;
     const totalWeight = selfWeight + targetWeight;
@@ -145,21 +148,17 @@ class RokuMob extends Entity {
   createState() {
     const state = super.createState();
     state.angle = this.angle;
-    state.health = this.health.value.value;
-    state.maxHealth = this.health.max.value;
     return state;
   }
 
   remove() {
     super.remove();
-
+    this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
     this.createInstance();
   }
 
   cleanup() {
     super.cleanup();
-
-    this.health.cleanup();
     this.speed.reset();
     this.damage.reset();
   }

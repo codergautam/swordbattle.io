@@ -3,8 +3,34 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "./",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "build-protocol": "npx pbjs --ts ./src/game/network/Protocol.ts ./src/game/network/schema.proto",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.4.2",
+    "@fortawesome/free-solid-svg-icons": "^6.4.2",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@reduxjs/toolkit": "^1.9.7",
+    "bootstrap": "^5.3.2",
+    "clsx": "^2.0.0",
+    "phaser": "^3.60.0",
+    "phaser3-rex-plugins": "^1.60.2",
+    "react": "^18.2.0",
+    "react-countup": "^6.5.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.1.3",
+    "react-router-dom": "^6.17.0",
+    "react-scripts": "5.0.1",
+    "sass": "^1.63.3",
+    "typescript": "^5.1.3",
+    "valtio": "^1.10.5"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.1",
     "@types/react": "^18.2.12",
@@ -12,22 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^5.59.11",
     "@typescript-eslint/parser": "^5.59.11",
     "eslint": "^8.42.0",
-    "msgpackr": "^1.9.5",
-    "phaser": "^3.60.0",
-    "phaser3-rex-plugins": "^1.60.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-redux": "^8.1.3",
-    "react-scripts": "5.0.1",
-    "sass": "^1.63.3",
-    "typescript": "^5.1.3",
-    "valtio": "^1.10.5"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "protobufjs": "^7.2.5"
   },
   "eslintConfig": {
     "extends": [
@@ -48,9 +59,6 @@
     ]
   },
   "engines": {
-    "node": ">=18.x"
-  },
-  "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "node": "18.x"
   }
 }

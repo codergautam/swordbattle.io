@@ -5,46 +5,32 @@ class House1 extends BaseEntity {
 
   houseSprite: Phaser.GameObjects.Sprite | null = null;
   roofSprite: Phaser.GameObjects.Sprite | null = null;
-  roofTransparent: boolean = false;
+  isRoofTransparent: boolean = false;
 
   createSprite() {
-    this.houseSprite = this.game.physics.add.sprite(0, 0, 'house1');
-    this.houseSprite.setOrigin(0);
-    this.houseSprite.setDepth(9);
-
-    this.roofSprite = this.game.physics.add.sprite(0, 0, 'house1roof');
-    this.roofSprite.setOrigin(0);
-    this.roofSprite.setDepth(11);
-    this.game.physics.world.enableBody(this.roofSprite);
+    this.houseSprite = this.game.add.sprite(0, 0, 'house1').setOrigin(0).setDepth(1);
+    this.roofSprite = this.game.add.sprite(0, 0, 'house1roof').setOrigin(0).setDepth(50);
 
     this.houseSprite.x = this.roofSprite.x = this.shape.x;
     this.houseSprite.y = this.roofSprite.y = this.shape.y;
     this.houseSprite.displayWidth = this.roofSprite.displayWidth = this.width;
     this.houseSprite.displayHeight = this.roofSprite.displayHeight = this.height;
+
+    this.container = this.game.add.container(this.shape.x, this.shape.y, []);
   }
 
   update() {
-    const players = this.game.gameState.getPlayers();
+    const self = this.game.gameState.self.entity;
+    if (!self) return;
 
-    let roofTransparent = false;
-    for (const player of players) {
-      let isInBuilding = false;
-      this.game.physics.collide(player.container, this.roofSprite as any, () => {
-        const isSelf = player.id === this.game.gameState.self.id;
-        isInBuilding = true;
-        if (isSelf) roofTransparent = true;
-      });
-      player.isInBuilding = isInBuilding;
-      player.buildingId = isInBuilding ? this.id : null;
-    }
-
-    if (roofTransparent !== this.roofTransparent) {
+    let isRoofTransparent = self.depth === this.id;
+    if (isRoofTransparent !== this.isRoofTransparent) {
       this.game.tweens.add({
         targets: this.roofSprite,
-        alpha: roofTransparent ? 0 : 1,
+        alpha: isRoofTransparent ? 0 : 1,
         duration: 500,
       });
-      this.roofTransparent = roofTransparent;
+      this.isRoofTransparent = isRoofTransparent;
     }
   }
 

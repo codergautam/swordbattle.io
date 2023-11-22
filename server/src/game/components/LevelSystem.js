@@ -72,10 +72,10 @@ class LevelSystem {
           this.player.shape.setScale(multiplier);
           break;
         case Types.Buff.Health:
-          this.player.maxHealth.multiplier *= multiplier;
+          this.player.health.max.multiplier *= multiplier;
           break;
         case Types.Buff.Regeneration:
-          this.player.regeneration.multiplier *= multiplier;
+          this.player.health.regen.multiplier *= multiplier;
           break;
         case Types.Buff.Damage:
           this.player.sword.damage.multiplier *= multiplier;

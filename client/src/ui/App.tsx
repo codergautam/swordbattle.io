@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faSignOut } from '@fortawesome/free-solid-svg-icons';
+
+import clsx from 'clsx';
 import { useScale } from './Scale';
 
 import GameComponent from './game/GameComponent';
@@ -9,6 +14,7 @@ import LoadingScreen from './LoadingScreen';
 import ChangelogModal from './modals/ChangelogModal';
 import LoginModal from './modals/LoginModal';
 import SignupModal from './modals/SignupModal';
+import ConnectionError from './modals/ConnectionError';
 
 import { clearAccount, logout, setAccount } from '../redux/account/slice';
 import { selectAccount } from '../redux/account/selector';
@@ -34,12 +40,14 @@ function App() {
   const scale = useScale(false);
   const [name, setName] = useState('');
   const [gameStarted, setGameStarted] = useState(false);
-  const [modal, setModal] = useState<any>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [modal, setModal] = useState<any>(null);
+  const [connectionError, setConnectionError] = useState<string>('');
 
   useEffect(() => {
     api.get(`${api.endpoint}/auth/account`, (data) => {
       if (data.account) {
+        data.account.token = data.token;
         dispatch(setAccount(data.account));
       } else {
         dispatch(clearAccount());
@@ -66,34 +74,53 @@ function App() {
     preloadImages.forEach((url) => {
       preloadImage(url).then(() => {
         loadedImages++;
-        setLoadingProgress((loadedImages / preloadImages.length) * 100);
+        setLoadingProgress((loadedImages / preloadImages.length) * 90);
       });
     });
   }, []);
 
-  const onStart = () => setGameStarted(true);
+  const onGameReady = () => {
+    setLoadingProgress(100);
+    console.log('Game ready');
+  };
+  const onStart = () => {
+    setGameStarted(true);
+    window.phaser_game?.events.emit('startGame', name);
+  };
   const openSettings = () => setModal(<SettingsModal />);
   const closeModal = () => setModal(null);
-  const onRestart = () => setGameStarted(false);
+  const onHome = () => setGameStarted(false);
+  const onConnectionClosed = (reason: string) => setConnectionError(reason);
 
   const onSucessAuth = () => setModal(null);
   const onLogin = () => setModal(<LoginModal onSuccess={onSucessAuth} />);
   const onSignup = () => setModal(<SignupModal onSuccess={onSucessAuth} />);
   const onLogout = () => dispatch(logout());
 
+  const isLoaded = loadingProgress === 100;
   return (
     <div className="App">
       <LoadingScreen progress={loadingProgress} />
-
-      {gameStarted && <GameComponent name={name} onRestart={onRestart} />}
+      <GameComponent
+        onHome={onHome}
+        onGameReady={onGameReady}
+        onConnectionClosed={onConnectionClosed}
+      />
+      {connectionError && (
+        <Modal
+          child={<ConnectionError reason={connectionError}/>}
+          className="connectionErrorModal"
+        />
+      )}
 
       {!gameStarted && (
-        <>
-          <div className="startGame" style={scale}>
+        <div className="main-ui">
+          <div className={clsx('startGame', isLoaded && 'animation')} style={scale}>
             <div className='title'>Swordbattle.io</div>
             <input type="text" maxLength={16} placeholder="Enter Name"
-              value={name}
+              value={account.isLoggedIn ? account.username : name}
               onChange={(e) => setName(e.target.value)}
+              disabled={account.isLoggedIn}
             />
             <button className="startButton" onClick={onStart}>Play!</button>
           </div>
@@ -111,9 +138,21 @@ function App() {
 
           {modal && <Modal child={modal} close={closeModal} />}
 
-          <div className="auth-buttons">
+          <div className="auth-buttons" style={scale}>
             {account.isLoggedIn ? (
-              <div className="auth-username" onClick={onLogout}>{account.username}</div>
+              <div className="dropdown">
+                <div className="auth-username">{account.username}</div>
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link to={`/profile?username=${account.username}`} target="_blank" className="dropdown-item">
+                      <FontAwesomeIcon icon={faUser} /> Profile
+                    </Link>
+                  </li>
+                  <li><a className="dropdown-item" href="#" onClick={onLogout}>
+                    <FontAwesomeIcon icon={faSignOut} /> Logout
+                  </a></li>
+                </ul>
+              </div>
             ) : (
               <>
               <img src={LoginImg} alt="Login" role="button" className="auth-btn" onClick={onLogin} />
@@ -122,12 +161,12 @@ function App() {
             )}
           </div>
 
-          <footer className="links" style={scale}>
+          <footer className={clsx('links', isLoaded && 'animation')} style={scale}>
             <div>
               <a href="https://swordbattle.io/about.html" target="_blank" rel="noreferrer">About</a>
             </div>
             <div>
-              <a href="https://swordbattle.io/leaderboard" target="_blank" rel="noreferrer">Leaderboard</a>
+              <Link to="/leaderboard" target="_blank" rel="noreferrer">Leaderboard</Link>
             </div>
             <div>
               <a href="https://forum.codergautam.dev/c/swordbattle/5" target="_blank" rel="noreferrer">Forum</a>
@@ -138,7 +177,7 @@ function App() {
               </a>
             </div>
           </footer>
-        </>
+        </div>
       )}
     </div>
   );

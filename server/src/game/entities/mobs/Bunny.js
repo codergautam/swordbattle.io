@@ -8,13 +8,17 @@ const Types = require('../../Types');
 const helpers = require('../../../helpers');
 
 class BunnyMob extends Entity {
+  static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+  };
+
   constructor(game, objectData) {
     objectData = Object.assign({ size: 70 }, objectData);
     super(game, Types.Entity.Bunny, objectData);
 
     this.shape = Circle.create(0, 0, this.size);
-    this.velocity = new SAT.Vector(5, 5);
     this.angle = helpers.random(-Math.PI, Math.PI);
+    this.coinsDrop = this.size;
     
     this.jumpTimer = new Timer(0, 2, 3);
     this.runawayTimer = new Timer(0, 5, 10);
@@ -88,21 +92,17 @@ class BunnyMob extends Entity {
   createState() {
     const state = super.createState();
     state.angle = this.angle;
-    state.health = this.health.value.value;
-    state.maxHealth = this.health.max.value;
     return state;
   }
 
   remove() {
     super.remove();
-
+    this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
     this.createInstance();
   }
 
   cleanup() {
     super.cleanup();
-
-    this.health.cleanup();
     this.speed.reset();
   }
 }

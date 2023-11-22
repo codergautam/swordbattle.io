@@ -26,6 +26,7 @@ const ChimeraMob = require('./entities/mobs/Chimera');
 const YetiMob = require('./entities/mobs/Yeti');
 const RokuMob = require('./entities/mobs/Roku');
 const Fireball = require('./entities/Fireball');
+const Snowball = require('./entities/Snowball');
 const Timer = require('./components/Timer');
 const Types = require('./Types');
 const map = require('./maps/main');
@@ -97,6 +98,26 @@ class GameMap {
     });
   }
 
+  spawnCoinsInShape(shape, totalCoins) {
+    const maxCoinsCount = 30;
+    const coins = Math.min(Math.round(totalCoins / 5), maxCoinsCount);
+    const minCoinValue = totalCoins / coins / 3;
+    const maxCoinValue = totalCoins / coins / 2;
+    for (let i = 0; i < coins; i++) {
+      const center = shape.center;
+      const coin = this.game.map.addEntity({
+        type: Types.Entity.Coin,
+        position: [center.x, center.y], 
+        value: [minCoinValue, maxCoinValue],
+      });
+      const randomPoint = shape.getRandomPoint();
+      coin.velocity.add(new SAT.Vector(
+        randomPoint.x - center.x,
+        randomPoint.y - center.y,
+      ).scale(0.5));
+    }
+  }
+
   addAI(objectData) {
     let ObjectClass;
     switch (objectData.type) {
@@ -119,6 +140,7 @@ class GameMap {
       case Types.Entity.MossyRock: ObjectClass = MossyRock; break;
       case Types.Entity.Pond: ObjectClass = Pond; break;
       case Types.Entity.Bush: ObjectClass = Bush; break;
+      case Types.Entity.House1: ObjectClass = House1; break;
       case Types.Entity.IceMound: ObjectClass = IceMound; break;
       case Types.Entity.IcePond: ObjectClass = IcePond; break;
       case Types.Entity.IceSpike: ObjectClass = IceSpike; break;
@@ -132,8 +154,9 @@ class GameMap {
       case Types.Entity.Moose: ObjectClass = MooseMob; break;
       case Types.Entity.Chimera: ObjectClass = ChimeraMob; break;
       case Types.Entity.Yeti: ObjectClass = YetiMob; break;
-      case Types.Entity.Fireball: ObjectClass = Fireball; break;
       case Types.Entity.Roku: ObjectClass = RokuMob; break;
+      case Types.Entity.Fireball: ObjectClass = Fireball; break;
+      case Types.Entity.Snowball: ObjectClass = Snowball; break;
     }
 
     if (!ObjectClass) return console.warn('Unknown entity type: ', objectData);
@@ -197,21 +220,9 @@ class GameMap {
   }
 
   processBorderCollision(entity, dt) {
+    entity.collidesWithForbidden(dt, true);
+    
     const bounds = entity.shape.boundary;
-
-    if (entity.forbiddenBiomes.length > 0) {
-      const response = new SAT.Response();
-      for (const biome of entity.forbiddenBiomes) {
-        if (biome.shape.collides(entity.shape, response)) {
-          const mtv = entity.shape.getCollisionOverlap(response);
-          entity.velocity.add(mtv.scale(dt));
-          entity.angle = Math.atan2(mtv.y, mtv.x);
-          entity.target = null; // if the entity is targeting someone reset the target, coz he reached forbidden zone
-          break;
-        }
-      }
-    }
-
     if (bounds.x < this.x) {
       entity.shape.x = this.x + bounds.width * (0.5 - entity.shape.centerOffset.x);
     } else if (bounds.x + bounds.width >= this.x + this.width) {
@@ -227,12 +238,12 @@ class GameMap {
   getData() {
     const biomesData = this.biomes.map((biome) => biome.getData());
     return {
-      biomes: biomesData,
-      staticObjects: this.staticObjects.map((obj) => obj.createState()),
       x: this.x,
       y: this.y,
       width: this.width,
       height: this.height,
+      biomes: biomesData,
+      staticObjects: this.staticObjects.map((obj) => obj.createState()),
     };
   }
 }

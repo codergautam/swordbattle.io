@@ -20,7 +20,7 @@ class Biome {
   constructor(game: Game, biomeData: any) {
     this.scene = game;
     this.type = biomeData.type;
-    this.shape = Shape.create(biomeData.shape);
+    this.shape = Shape.create(biomeData.shapeData);
     this.viewportSize = {
       width: this.scene.scale.width,
       height: this.scene.scale.height,
@@ -60,7 +60,7 @@ class Biome {
   resize() {
     if (!this.container) return;
     const camera = this.scene.cameras.main;
-    this.container.setSize(this.scene.game.canvas.width, this.scene.game.canvas.height);
+    this.container.setSize(camera.width, camera.height);
     this.container.setPosition(camera.width / 2, camera.height / 2);
   }
 

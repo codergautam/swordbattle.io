@@ -2,13 +2,8 @@ import Game from './scenes/Game';
 import Biome, { BiomeType } from './biomes/Biome';
 import Safezone from './biomes/Safezone';
 import River from './biomes/River';
-import Pond from './entities/mapObjects/Pond';
-import Bush from './entities/mapObjects/Bush';
-import IceMound from './entities/mapObjects/IceMound';
-import IcePond from './entities/mapObjects/IcePond';
-import IceSpike from './entities/mapObjects/IceSpike';
-import LavaPool from './entities/mapObjects/LavaPool';
-import { BiomeTypes, EntityTypes } from './Types';
+import { BiomeTypes } from './Types';
+import { GetEntityClass } from './entities';
 
 class GameMap {
   scene: Game;
@@ -42,18 +37,7 @@ class GameMap {
   }
 
   addStaticObject(objectData: any) {
-    let EntityClass;
-    switch (objectData.type) {
-      case EntityTypes.Pond: EntityClass = Pond; break;
-      case EntityTypes.Bush: EntityClass = Bush; break;
-      case EntityTypes.IceMound: EntityClass = IceMound; break;
-      case EntityTypes.IcePond: EntityClass = IcePond; break;
-      case EntityTypes.IceSpike: EntityClass = IceSpike; break;
-      case EntityTypes.LavaPool: EntityClass = LavaPool; break;
-    }
-
-    if (!EntityClass) throw new Error('Unknown entity type: ', objectData);
-
+    const EntityClass = GetEntityClass(objectData.type);
     const entity = new EntityClass(this.scene);
     entity.updateState(objectData);
     entity.createSprite();

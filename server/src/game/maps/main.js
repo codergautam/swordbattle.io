@@ -14,7 +14,7 @@ module.exports = {
           amount: 30,
           position: 'random',
           respawnable: true,
-        }
+        },
       ],
     },
 
@@ -106,17 +106,41 @@ module.exports = {
         },
         {
           type: Types.Entity.IcePond,
+          amount: 15,
+          position: 'random',
+          size: [600, 900],
+        },
+        {
+          type: Types.Entity.IcePond,
           amount: 1,
-          position: [-2000, -8000],
-          size: 5000,
+          position: [0, -10000],
+          size: 3000,
+        },
+        {
+          type: Types.Entity.House1,
+          amount: 1,
+          width: 2500,
+          height: 1400,
+          position: [-1000, -13000],
         },
         {
           type: Types.Entity.Yeti,
           amount: 10,
           position: 'random',
           respawnable: true,
-          forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
           size: [80, 110],
+        },
+        {
+          type: Types.Entity.Yeti,
+          amount: 1,
+          position: 'random',
+          respawnable: true,
+          respawnTime: [60, 120],
+          size: [300, 400],
+          health: 500,
+          isBoss: true,
+          damage: 3,
+          speed: 20,
         },
         {
           type: Types.Entity.Chest,
@@ -126,7 +150,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Coin,
-          amount: 500,
+          amount: 300,
           position: 'random',
           respawnable: true,
         }
@@ -160,11 +184,29 @@ module.exports = {
           type: Types.Entity.Pond,
           amount: 1,
           position: [-10000, 5000],
-          size: 5000,
+          size: 4500,
+        },
+        {
+          type: Types.Entity.House1,
+          amount: 1,
+          width: 2000,
+          height: 1500,
+          position: [-10000, 2000],
+        },
+        {
+          type: Types.Entity.House1,
+          amount: 1,
+          position: [-12000, -2000],
+        },
+        {
+          type: Types.Entity.Pond,
+          amount: 20,
+          position: 'random',
+          size: [400, 900],
         },
         {
           type: Types.Entity.Coin,
-          amount: 300,
+          amount: 700,
           position: 'random',
           respawnable: true,
         },
@@ -172,7 +214,6 @@ module.exports = {
           type: Types.Entity.Wolf,
           amount: 15,
           position: 'random',
-          forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
           respawnable: true,
           size: [70, 100],
         },
@@ -181,7 +222,6 @@ module.exports = {
           amount: 25,
           position: 'random',
           respawnable: true,
-          forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
           size: [40, 60],
         },
         {
@@ -189,7 +229,6 @@ module.exports = {
           amount: 10,
           position: 'random',
           respawnable: true,
-          forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
           size: [170, 230],
         },
         {
@@ -198,12 +237,6 @@ module.exports = {
           position: 'random',
           respawnable: true,
         },
-        {
-          type: Types.Entity.Coin,
-          amount: 500,
-          position: 'random',
-          respawnable: true,
-        }
       ],
     },
 
@@ -233,7 +266,6 @@ module.exports = {
         {
           type: Types.Entity.LavaPool,
           amount: 1,
-          respawnTime: [60, 120],
           position: [9000, 4000],
           size: 5000,
         },
@@ -243,15 +275,14 @@ module.exports = {
           position: 'random',
           respawnable: true,
           size: [70, 120],
-          forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
         },
         {
           type: Types.Entity.Roku,
           amount: 1,
           position: 'random',
           respawnable: true,
-          forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
-          size: [300, 500],
+          respawnTime: [60, 120],
+          size: [500, 600],
           health: 500,
           isBoss: true,
           damage: 3,
@@ -267,7 +298,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Coin,
-          amount: 500,
+          amount: 400,
           position: 'random',
           respawnable: true,
         }

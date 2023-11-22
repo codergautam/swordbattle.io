@@ -1,9 +1,14 @@
 const SAT = require('sat')
 const State = require('../components/State');
+const Health = require('../components/Health');
+const Types = require('../Types');
 const helpers = require('../../helpers');
 
 class Entity {
-  static defaultDefinition = {};
+  static defaultDefinition = {
+    forbiddenBiomes: [],
+    forbiddenEntities: [],
+  };
 
   constructor(game, type, definition = {}) {
     this.game = game;
@@ -12,7 +17,9 @@ class Entity {
     this.id = null;
     this.shape = null;
     this.removed = false;
+    this.isStatic = false;
     this.isGlobal = false;
+    this.depth = 0;
     this.targets = [];
     this.velocity = new SAT.Vector(0, 0);
     this.state = new State(this.createState.bind(this));
@@ -20,7 +27,6 @@ class Entity {
     this.density = 1;
     this.spawnZone = null;
     this.respawnable = false;
-    this.forbiddenBiomes = [];
 
     this.originalDefinition = { ...definition }; // used for entity respawn
     this.definition = definition;
@@ -32,7 +38,7 @@ class Entity {
   }
 
   processDefinition() {
-    this.definition = Object.assign({}, this.constructor.defaultDefinition, this.definition);
+    this.definition = Object.assign({}, Entity.defaultDefinition, this.constructor.defaultDefinition, this.definition);
     
     const { definition } = this;
     
@@ -47,9 +53,6 @@ class Entity {
       }
     }
 
-    if (definition.forbiddenBiomes !== undefined) {
-      this.forbiddenBiomes = this.game.map.biomes.filter(biome => definition.forbiddenBiomes.includes(biome.type));
-    }
     if (definition.spawnZone !== undefined) {
       this.spawnZone = definition.spawnZone;
     }
@@ -59,21 +62,94 @@ class Entity {
   spawn() {
     if (this.spawnZone) {
       this.spawnZone.randomSpawnInside(this.shape);
+
+      // Respawn if entity collides with forbidden objects
+      let tries = 0;
+      while (tries < 10 && this.collidesWithForbidden(1, false)) {
+        tries += 1;
+        this.spawnZone.randomSpawnInside(this.shape);
+      }
     } else if (Array.isArray(this.definition.position)) {
       this.shape.x = this.definition.position[0];
       this.shape.y = this.definition.position[1];
     }
   }
 
+  collidesWithForbidden(dt, collide = false) {
+    const response = new SAT.Response();
+
+    for (const biomeType of this.definition.forbiddenBiomes) {
+      for (const biome of this.game.map.biomes) {
+        if (biome.type !== biomeType) continue;
+
+        if (biome.shape.collides(this.shape, response)) {
+          if (!collide) return true;
+
+          const mtv = this.shape.getCollisionOverlap(response);
+          if (Types.Groups.Mobs.includes(this.type)) {
+            this.velocity.add(mtv.scale(dt));
+            this.target = null; // if the this is targeting someone reset the target, coz he reached forbidden zone
+            this.angle = Math.atan2(mtv.y, mtv.x);
+          } else {
+            this.shape.applyCollision(mtv);
+          }
+        }
+      }
+    }
+    
+    // When we spawn entities on game initalize, quadtree is not ready yet
+    if (!this.game.entitiesQuadtree) return false;
+
+    for (const entityType of this.definition.forbiddenEntities) {
+      const targets = this.game.entitiesQuadtree.get(this.shape.boundary).map(res => res.entity);
+      for (const entity of targets) {
+        if (entity.type !== entityType) continue;
+        
+        const collisionShape = entity.depthZone ? entity.depthZone : entity.shape;
+        if (collisionShape.collides(this.shape, response)) {
+          if (!collide) return true;
+          
+          const mtv = this.shape.getCollisionOverlap(response);
+          this.shape.applyCollision(mtv);
+        }
+      }
+    }
+    return false;
+  }
+
   createState() {
-    return {
+    const data = {
       id: this.id,
       type: this.type,
       shapeData: this.shape.getData(),
+      depth: this.depth,
     };
+    if (this.health instanceof Health) {
+      data.healthPercent = this.health.percent;
+    }
+    return data;
   }
 
   update() {
+    // Use velocity to restrict spawn outside biomes
+    this.shape.x += this.velocity.x;
+    this.shape.y += this.velocity.y;
+    this.velocity.scale(0.9);
+  }
+
+  updateDepth() {
+    const bounds = this.shape.center;
+    bounds.width = 1;
+    bounds.height = 1;
+    const closestEntities = this.game.entitiesQuadtree.get(bounds);
+    for (const { entity } of closestEntities) {
+      if (!entity.depthZone || entity === this) continue;
+      if (!entity.depthZone.isPointInside(bounds.x, bounds.y)) continue;
+
+      this.depth = entity.id;
+      return;
+    }
+    this.depth = 0;
   }
 
   processTargetsCollision(targetEntity, dt) {}
@@ -81,6 +157,9 @@ class Entity {
   cleanup() {
     this.state.cleanup();
     this.shape.cleanup();
+    if (this.health instanceof Health) {
+      this.health.cleanup();
+    }
   }
 
   createInstance() {

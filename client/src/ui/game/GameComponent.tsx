@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-function GameComponent({ name, onRestart }: any) {
+function GameComponent({ onHome, onGameReady, onConnectionClosed }: any) {
   const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
   const [gameResults, setGameResults] = useState<any>(null);
 
@@ -24,16 +24,9 @@ function GameComponent({ name, onRestart }: any) {
       setGame(game);
       window.phaser_game = game;
 
-      game.events.once('ready', () => {
-        game.scene.scenes[0].events.emit('startGame', name);
-      });
-      game.events.on('gameEnded', (results: any) => {
-        setGameResults(results);
-      });
-      game.events.on('destroy', () => {
-        window.phaser_game = undefined;
-        onRestart();
-      });
+      game.events.on('gameReady', onGameReady);
+      game.events.on('connectionClosed', onConnectionClosed);
+      game.events.on('setGameResults', (results: any) => setGameResults(results));
     }
   }, []);
 
@@ -41,7 +34,11 @@ function GameComponent({ name, onRestart }: any) {
     <div className="game">
       <div id="phaser-container" />
       <Leaderboard game={game} />
-      {gameResults && <GameResults results={gameResults} game={game} />}
+      {gameResults && <GameResults
+        onHome={onHome}
+        game={game}
+        results={gameResults}
+      />}
     </div>
   );
 }

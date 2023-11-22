@@ -2,31 +2,29 @@ const Property = require('./Property');
 
 class Health {
   constructor(max, regen = 1) {
-    this.value = new Property(max);
     this.max = new Property(max);
     this.regen = new Property(regen);
+    
+    this.percent = 1;
     this.isDead = false;
   }
 
-  get percent() {
-    return this.value.value / this.max.value;
-  }
-
   damaged(damage) {
-    this.value.baseValue -= damage;
+    const coef = damage / this.max.value;
+    this.percent -= coef;
 
-    if (this.value.value <= 0) {
-      this.value.value = 0;
+    if (this.percent <= 0) {
+      this.percent = 0;
       this.isDead = true;
     }
   }
 
   update(dt) {
-    this.value.value = Math.min(this.value.baseValue + this.regen.value * dt, this.max.baseValue);
+    const coef = this.regen.value / this.max.value * dt;
+    this.percent = Math.min(this.percent + coef, 1);
   }
 
   cleanup() {
-    this.value.reset();
     this.max.reset();
     this.regen.reset();
   }

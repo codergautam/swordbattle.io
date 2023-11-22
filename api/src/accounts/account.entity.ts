@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany, BeforeInsert } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany, BeforeInsert, OneToOne } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
-import { Transaction } from 'src/transactions/transactions.entity';
-import { Stats } from 'src/stats/stats.entity';
 import { Game } from 'src/games/games.entity';
+import { Transaction } from 'src/transactions/transactions.entity';
+import { DailyStats } from 'src/stats/dailyStats.entity';
+import { TotalStats } from 'src/stats/totalStats.entity';
 
 @Entity({ name: 'accounts' })
 export class Account {
@@ -26,11 +27,16 @@ export class Account {
 
   @Column({ default: false }) is_v1: boolean;
 
+  @Column({ default: 0 }) profile_views: number;
+  
   @OneToMany(() => Transaction, transaction => transaction.account)
   transactions: Transaction[];
 
-  @OneToMany(() => Stats, stats => stats.account)
-  stats: Stats[];
+  @OneToMany(() => DailyStats, stats => stats.account)
+  daily_stats: DailyStats[];
+
+  @OneToOne(() => TotalStats, stats => stats.account)
+  total_stats: TotalStats;
 
   @OneToMany(() => Game, game => game.account)
   games: Game[];

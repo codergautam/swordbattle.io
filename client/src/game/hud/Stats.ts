@@ -1,9 +1,6 @@
-import Game from '../scenes/Game';
-import HUD from './HUD';
+import HudComponent from './HudComponent';
 
-class Stats {
-  hud: HUD;
-  game: Game;
+class Stats extends HudComponent {
   indent = 20;
   lastUpdate = 0;
   updateInterval = 1000;
@@ -11,12 +8,6 @@ class Stats {
   fpsSprite: any;
   tpsSprite: any;
   pingSprite: any;
-  container: Phaser.GameObjects.Container | null = null;
-
-  constructor(hud: HUD) {
-    this.hud = hud;
-    this.game = hud.game;
-  }
 
   initialize() {
     const { indent } = this;
@@ -34,13 +25,12 @@ class Stats {
 
     this.container = this.game.add.container(0, 0, [this.playersSprite, this.fpsSprite, this.tpsSprite, this.pingSprite]);
     this.hud.add(this.container);
-    this.resize();
   }
 
   resize() {
     if (!this.container) return;
     this.container.x = 10;
-    this.container.y = this.game.scale.height - this.indent * 5;
+    this.container.y = this.game.scale.height - (this.indent * 5) * this.scale;
   }
 
   update() {
@@ -49,7 +39,7 @@ class Stats {
     const now = Date.now();
     if (this.lastUpdate + this.updateInterval > now) return;
     this.lastUpdate = now;
-    this.game.gameState.updatePing();
+    this.game.gameState.updatePing = true;
 
     const playersCount = this.game.gameState.getPlayers().length;
     const fps = this.game.game.loop.actualFps.toFixed(1);

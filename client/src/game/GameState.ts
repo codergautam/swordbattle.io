@@ -2,50 +2,36 @@ import Game from './scenes/Game';
 import Socket from './network/Socket';
 import { EntityTypes } from './Types';
 import { Settings } from './Settings';
-import Inputs from './Inputs';
 import GameMap from './GameMap';
-import Coin from './entities/Coin';
 import Player from './entities/Player';
-import House1 from './entities/mapObjects/House1';
-import MossyRock from './entities/mapObjects/MossyRock';
-import Rock from './entities/mapObjects/Rock';
-import LavaRock from './entities/mapObjects/LavaRock';
-import WolfMob from './entities/mobs/Wolf';
-import BunnyMob from './entities/mobs/Bunny';
-import MooseMob from './entities/mobs/Moose';
-import ChimeraMob from './entities/mobs/Chimera';
-import YetiMob from './entities/mobs/Yeti';
-import RokuMob from './entities/mobs/Roku';
-import Fireball from './entities/Fireball';
-import Chest from './entities/Chest';
 import GlobalEntity from './entities/GlobalEntity';
-import Sword from './entities/Sword';
+import { GetEntityClass } from './entities';
+import { Spectator } from './Spectator';
+import { getServer } from '../ServerList';
 
 class GameState {
   game: Game;
-  socket: WebSocket;
+  socket!: WebSocket;
   interval: any;
   entities: Record<number, any> = {};
   globalEntities: Record<number, GlobalEntity> = {};
   removedEntities: Set<any> = new Set();
   gameMap: GameMap;
-  self: {
-    id: number,
-    entity: Player | null,
-  };
+  spectator: Spectator;
+  self: { id: number, entity?: Player } = { id: -1 };
   lastLeaderboardUpdate: number = 0;
   leaderboardUpdateInterval: number = 1000;
   playerAngle: number = 0;
   previousPlayerAngle: number = 0;
   payloadsQueue: any[] = [];
+  isReady = false;
   disconnectReason = 'Server';
-  tps = 0;
+  name = '';
+  tps = 20;
   ping = 0;
   pingStart = 0;
+  updatePing = true;
 
-  inputs: Inputs = new Inputs();
-  previousInputs: Inputs = new Inputs();
-  mouse: any = { angle: 0, force: 0 };
   selectedEvolution: string | null = null;
   selectedBuff: any;
   chatMessage: string | null = null;
@@ -53,58 +39,71 @@ class GameState {
   constructor(game: Game) {
     this.game = game;
     this.gameMap = new GameMap(this.game);
-    this.socket = Socket.connect(
-      this.getServer(),
-      this.onServerOpen.bind(this),
-      this.onServerMessage.bind(this),
-      this.onServerClose.bind(this),
-    );
-  
-    this.self = {
-      id: -1,
-      entity: null,
-    };
-  }
+    this.spectator = new Spectator(this.game);
 
-  getServer() {
-    const servers = {
-      dev: process.env.REACT_APP_ENDPOINT_DEV || 'localhost:8000',
-      eu: process.env.REACT_APP_ENDPOINT_EU || '',
-      us: process.env.REACT_APP_ENDPOINT_US || '',
-    } as any;
-    return servers[Settings.server];
+    getServer().then(server => {
+      console.log('connecting to', server.address);
+      this.socket = Socket.connect(
+        server.address,
+        this.onServerOpen.bind(this),
+        this.onServerMessage.bind(this),
+        this.onServerClose.bind(this),
+      );
+    })
   }
 
   initialize() {
-    this.game.events.on('startGame', this.start, this);
+    this.game.game.events.on('startGame', this.start, this);
     this.game.game.events.on('restartGame', this.restart, this);
-    this.interval = setInterval(() => this.tick(), 1000 / 30);
+    this.game.game.events.on('startSpectate', this.spectate, this);
+    this.game.game.events.on('tokenUpdate', this.updateToken, this);
+    this.interval = setInterval(() => this.tick(), 1000 / 20);
   }
 
   start(name: string) {
-    Socket.emit({ name });
+    Socket.emit({ play: true, name });
+  }
+
+  restart() {
+    Socket.emit({ play: true });
+  }
+
+  spectate() {
+    Socket.emit({ spectate: true });
+  }
+
+  updateToken(token: string) {
+    Socket.emit({ token });
   }
 
   onServerOpen() {
+    Socket.emit({ spectate: true });
     console.log('server connected');
   }
 
   onServerClose(event: CloseEvent) {
-    this.disconnectReason = event.reason || 'Accidentally died';
-    this.disconnect();
+    Socket.close();
+    clearInterval(this.interval);
+
+    const reason = event.reason || 'Connection failed';
+    this.game.game.events.emit('connectionClosed', reason);
+    console.log('connection closed');
   }
 
   onServerMessage(data: any) {
-    this.payloadsQueue.push(data);
+    if (!this.game.isReady) {
+      this.payloadsQueue.push(data);
+    } else {
+      if (this.payloadsQueue.length !== 0) {
+        this.payloadsQueue.forEach(msg => this.processServerMessage(msg));
+        this.payloadsQueue = [];
+      }
+      this.processServerMessage(data);
+    }
   }
 
   resize() {
     this.gameMap.biomes.forEach(biome => biome.resize());
-  }
-
-  updatePing() {
-    this.pingStart = Date.now();
-    Socket.emit({ isPing: true });
   }
 
   processServerMessage(data: any) {
@@ -116,9 +115,9 @@ class GameState {
     }
 
     if (data.fullSync) {
+      Object.values(this.entities).forEach(entity => entity.remove());
       this.entities = {};
       this.self.id = data.selfId;
-      this.game.fadeInScene();
     }
 
     for (let stringId in data.entities) {
@@ -126,13 +125,13 @@ class GameState {
 
       const entityData = data.entities[id];
       if (!this.entities[id]) {
-        this.entities[id] = this.addEntity(id, entityData);
+        this.addEntity(id, entityData);
       }
 
       if (entityData.removed) {
         if (id === this.self.id) {
           this.disconnectReason = entityData.disconnectReason;
-          this.disconnect();
+          this.showGameResults();
         }
         this.removeEntity(id, entityData);
       } else {
@@ -144,43 +143,57 @@ class GameState {
 
       const entityData = data.globalEntities[id];
       if (!this.globalEntities[id]) {
-        const globalEntity = new GlobalEntity(this.game);
-        globalEntity.updateState(entityData);
-        this.globalEntities[id] = globalEntity;
+        this.addGlobalEntity(id, entityData);
       }
       if (entityData.removed) {
-        delete this.globalEntities[id];
+        this.removeGlobalEntity(id);
       } else {
         this.globalEntities[id].updateState(entityData);
       }
     }
 
+    if (data.spectator) {
+      if (!this.spectator.active) {
+        this.spectator.enable();
+      }
+      this.spectator.follow(data.spectator);
+    }
+    if (data.mapData) {
+      this.gameMap.updateMapData(data.mapData);
+    }
+
     if (data.fullSync) {
       const selfEntity = this.entities[this.self.id];
       this.self.entity = selfEntity;
-      this.gameMap.updateMapData(data.mapData);
-      this.game.follow(selfEntity.container);
+      if (selfEntity) {
+        this.game.follow(selfEntity);
+      }
+
+      if (!this.isReady) {
+        this.isReady = true;
+        this.game.game.events.emit('gameReady');
+      }
     }
   }
 
   tick() {
+    if (!this.self.entity) return;
     this.updateLeaderboard();
     this.sendInputs();
   }
 
-  updateGraphics(time: number, delta: number) {
-    if (this.payloadsQueue.length !== 0) {
-      this.payloadsQueue.forEach(msg => this.processServerMessage(msg));
-      this.payloadsQueue = [];
-    }
-
+  updateGraphics(dt: number) {
     for (const entity of this.removedEntities) {
-      entity.update(delta, time);
+      entity.update(dt);
     }
     for (const entity of Object.values(this.entities)) {
-      entity.update(delta, time);
+      entity.update(dt);
+    }
+    for (const entity of Object.values(this.globalEntities)) {
+      entity.update(dt);
     }
     this.gameMap.update();
+    this.spectator.update(dt);
   }
 
   updateLeaderboard() {
@@ -193,24 +206,25 @@ class GameState {
   }
 
   sendInputs() {
-    const inputs = this.inputs.difference(this.previousInputs);
+    const inputs = this.game.controls.getChanges();
 
     const data: any = {};
     if (Settings.movementMode === 'mouse' || this.game.isMobile) {
-      data.mouse = {
-        angle: this.mouse.angle,
-        force: this.mouse.force,
-      };
+      data.mouse = this.game.controls.mouse;
     } 
+    if (this.updatePing) {
+      this.updatePing = false;
+      this.pingStart = Date.now();
+      data.isPing = true;
+    }
     if (inputs.length !== 0) {
       data.inputs = inputs;
-      this.previousInputs.set(this.inputs.clone());
     }
     if (this.playerAngle !== this.previousPlayerAngle) {
       data.angle = this.playerAngle;
       this.previousPlayerAngle = this.playerAngle;
     }
-    if (!this.selectedEvolution !== null) {
+    if (this.selectedEvolution !== null) {
       data.selectedEvolution = this.selectedEvolution;
       this.selectedEvolution = null;
     }
@@ -228,30 +242,12 @@ class GameState {
   }
 
   addEntity(id: number, data: any) {
-    let EntityClass;
-    switch (data.type) {
-      case EntityTypes.Player: EntityClass = Player; break;
-      case EntityTypes.Coin: EntityClass = Coin; break;
-      case EntityTypes.House1: EntityClass = House1; break;
-      case EntityTypes.MossyRock: EntityClass = MossyRock; break;
-      case EntityTypes.Rock: EntityClass = Rock; break;
-      case EntityTypes.LavaRock: EntityClass = LavaRock; break;
-      case EntityTypes.Chest: EntityClass = Chest; break;
-      case EntityTypes.Sword: EntityClass = Sword; break;
-      case EntityTypes.Wolf: EntityClass = WolfMob; break;
-      case EntityTypes.Bunny: EntityClass = BunnyMob; break;
-      case EntityTypes.Moose: EntityClass = MooseMob; break;
-      case EntityTypes.Chimera: EntityClass = ChimeraMob; break;
-      case EntityTypes.Yeti: EntityClass = YetiMob; break;
-      case EntityTypes.Fireball: EntityClass = Fireball; break;
-      case EntityTypes.Roku: EntityClass = RokuMob; break;
-    }
-    if (!EntityClass) return console.log('Unknown entity type: ', data);
-
+    const EntityClass = GetEntityClass(data.type);
     const entity = new EntityClass(this.game);
     entity.updateState(data);
     entity.createSprite();
     entity.setDepth();
+    this.entities[id] = entity;
     return entity;
   }
 
@@ -270,11 +266,24 @@ class GameState {
     }
   }
 
+  addGlobalEntity(id: number, entityData: any) {
+    const globalEntity = new GlobalEntity(this.game);
+    globalEntity.updateState(entityData);
+    this.globalEntities[id] = globalEntity;
+    return globalEntity;
+  }
+
+  removeGlobalEntity(id: number) {
+    const globalEntity = this.globalEntities[id];
+    globalEntity.remove();
+    delete this.globalEntities[id];
+  }
+
   getPlayers() {
     return Object.values(this.globalEntities).filter((e: any) => e.type === EntityTypes.Player);
   }
 
-  collectResults() {
+  showGameResults() {
     const results = {
       name: '',
       coins: 0,
@@ -289,18 +298,8 @@ class GameState {
       results.kills = player.kills;
       results.survivalTime = player.survivalTime;
     }
-    return results;
-  }
 
-  disconnect() {
-    const results = this.collectResults();
-    this.game.game.events.emit('gameEnded', results);
-  }
-
-  restart() {
-    Socket.close();
-    clearInterval(this.interval);
-    this.game.game.destroy(true);
+    this.game.game.events.emit('setGameResults', results);
   }
 }
 

@@ -169,10 +169,8 @@ class PlayerAI extends Player {
 
     if (attack) this.attack(distance);
 
-    const spreadDirection = this.smartness > 0.5 ? 1 : -1;
-    const spread = helpers.random(0.1, 0.4) * spreadDirection;
     this.angle = helpers.angleLerp(this.angle, angle, dt / 0.2);
-    this.movementDirection = helpers.angleLerp(this.movementDirection, angle, dt / spread);
+    this.movementDirection = helpers.angleLerp(this.movementDirection, angle, dt / 0.2);
     this.mouse = {
       angle: this.movementDirection,
       force: helpers.random(force[0], force[1]),
@@ -180,7 +178,7 @@ class PlayerAI extends Player {
   }
 
   runAway(dt, attack = false) {
-    if (!this.target || (this.healthPercent > 0.5)) {
+    if (!this.target || (this.health.percent > 0.5)) {
       return this.changeStage();
     }
 
@@ -190,10 +188,8 @@ class PlayerAI extends Player {
 
     if (attack) this.attack(distance);
 
-    const spreadDirection = this.smartness > 0.5 ? 1 : -1;
-    const spread = helpers.random(0.1, 0.3) * spreadDirection;
     this.angle = helpers.angleLerp(this.angle, angle, dt / 0.2);
-    this.movementDirection = helpers.angleLerp(this.movementDirection, movementAngle, dt / spread);
+    this.movementDirection = helpers.angleLerp(this.movementDirection, movementAngle, dt / 0.2);
     this.mouse = {
       angle: this.movementDirection,
       force: helpers.random(130, 150),
@@ -220,10 +216,10 @@ class PlayerAI extends Player {
       // 40% chance of angry or run away
       if (Math.random() > 0.6) {
         // if health is less than 0.5, then run away
-        if (this.healthPercent < 0.5) {
+        if (this.health.percent < 0.5) {
           this.changeStage(BehaviourStages.RunAway);
           this.target = entity;
-        } else if (entity.type === Types.Entity.Player && this.stage !== BehaviourStages.RunAway) {
+        } else if (this.stage !== BehaviourStages.RunAway) {
           this.changeStage(BehaviourStages.TargetPlayer);
           this.target = entity;
         }

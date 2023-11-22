@@ -1,10 +1,11 @@
 const Entity = require('../Entity');
 const Polygon = require('../../shapes/Polygon');
 const Types = require('../../Types');
+const helpers = require('../../../helpers');
 
 class Rock extends Entity {
-  constructor(game, objectData) {
-    super(game, Types.Entity.Rock, objectData);
+  constructor(game, definition) {
+    super(game, Types.Entity.Rock, definition);
 
     this.shape = Polygon.createFromPoints(0, 0, [
       [0, 0],
@@ -13,15 +14,16 @@ class Rock extends Entity {
       [-0.09771689497716896 * this.size, 0.3817351598173516 * this.size],
       [-0.13972602739726028 * this.size, 0.28401826484018267 * this.size],
     ]);
+    this.shape.angle = helpers.random(-Math.PI, Math.PI);
     this.density = 5;
-    this.targets.push(Types.Entity.Player, Types.Entity.Wolf, Types.Entity.Bunny,
-      Types.Entity.Moose, Types.Entity.Chimera, Types.Entity.Yeti, Types.Entity.Roku,
-      Types.Entity.Rock, Types.Entity.MossyRock, Types.Entity.LavaRock);
+    this.targets.push(...Types.Groups.Obstacles);
 
     this.spawn();
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.type === Types.Entity.Sword && !entity.canCollide(entity)) return;
+
     const selfWeight = this.weight;
     const targetWeight = entity.weight;
     const totalWeight = selfWeight + targetWeight;

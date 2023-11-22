@@ -1,7 +1,7 @@
 import { useSnapshot } from 'valtio';
 import store from '../Store';
 
-function setScale() {
+export function setScale() {
 	const gc = gcd()
 	let initial_scale = 1
 	const { w, h } = { w: 16, h: 9 };
@@ -32,9 +32,10 @@ window.addEventListener('resize', setScale);
 window.addEventListener('orientationchange', setScale);
 setScale();
 
-function useScale(translate?: boolean) {
+export function useScale(translate?: boolean) {
 	const scale = useSnapshot(store).scale;
 	const style = {
+		'--scale': scale,
 		transform: `scale(${scale})`,
 	};
 	if (translate) {
@@ -42,5 +43,3 @@ function useScale(translate?: boolean) {
 	}
 	return style;
 }
-
-export { useScale, setScale };

@@ -3,6 +3,10 @@ require('dotenv').config();
 module.exports = {
   port: process.env.PORT || 8000,
   useSSL: process.env.USE_SSL === 'TRUE',
+  sslData: {
+    key: process.env.SSL_KEY || '',
+    cert: process.env.SSL_CERT || '',
+  },
   debug: process.env.DEBUG === 'TRUE',
   serverSecret: process.env.SERVER_SECRET || 'server-secret',
   apiEndpoint: process.env.API_ENDPOINT || 'http://localhost:8080',

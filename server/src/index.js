@@ -8,8 +8,8 @@ const config = require('./config');
 let app;
 if (config.useSSL) {
   app = uws.SSLApp({
-    key_file_name: path.resolve(__dirname, 'ssl/key.pem'),
-    cert_file_name: path.resolve(__dirname, 'ssl/cert.pem'),
+    key_file_name: path.resolve(config.sslData.key),
+    cert_file_name: path.resolve(config.sslData.cert),
   });
 } else {
   app = uws.App();
@@ -47,11 +47,11 @@ function start() {
   // Gameloop
   const frameRate = config.tickRate;
   const frameDuration = 1000 / frameRate;
-  
+
   let lastFrameTime = performance.now();
   let lastTpsCheck = 0;
   let ticks = 0;
-  
+
   function gameLoop() {
     const now = performance.now();
     if (lastFrameTime + frameDuration < now) {
@@ -74,6 +74,6 @@ function start() {
       setImmediate(gameLoop);
     }
   }
-  
+
   gameLoop();
 }

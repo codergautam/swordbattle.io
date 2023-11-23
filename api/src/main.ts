@@ -6,7 +6,7 @@ import * as passport from 'passport';
 import { AppModule } from './app.module';
 import { ExcludeInterceptor } from './exclude.interceptor';
 import { config } from './config';
-import fs from 'fs';
+import * as fs from 'fs';
 
 async function bootstrap() {
   let ss = {};
@@ -21,7 +21,7 @@ async function bootstrap() {
       ...ss,
     }
   });
-  
+
   app.use(cookieParser(config.appSecret));
   app.enableCors({
     origin: (origin, callback) => callback(null, true),

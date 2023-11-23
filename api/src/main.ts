@@ -6,9 +6,22 @@ import * as passport from 'passport';
 import { AppModule } from './app.module';
 import { ExcludeInterceptor } from './exclude.interceptor';
 import { config } from './config';
+import fs from 'fs';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  let ss = {};
+  if(process.env.SSL_CERT && process.env.SSL_KEY) {
+    ss = {
+      key: fs.readFileSync(process.env.SSL_KEY),
+      cert: fs.readFileSync(process.env.SSL_CERT),
+    };
+  }
+  const app = await NestFactory.create(AppModule, {
+    httpsOptions: {
+      ...ss,
+    }
+  });
+  
   app.use(cookieParser(config.appSecret));
   app.enableCors({
     origin: (origin, callback) => callback(null, true),

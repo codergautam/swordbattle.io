@@ -13,7 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "pm2prod": "yarn build && pm2 start yarn --name api -- start:prod"
+    "foreverprod": "yarn build && forever start dist/main.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

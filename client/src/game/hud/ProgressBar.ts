@@ -77,7 +77,7 @@ class ProgressBar extends HudComponent {
 
   showStabbedText(nickname: string) {
     this.stabbedText.text = `Stabbed ${nickname}`;
-    
+
     const onComplete = () => {
       this.game.tweens.add({
         targets: this.stabbedText,
@@ -87,11 +87,11 @@ class ProgressBar extends HudComponent {
         ease: 'Power2',
       });
     }
-    
+
     this.game.tweens.add({
       targets: this.stabbedText,
       alpha: 1,
-      y: this.game.scale.height * 0.8,
+      y: this.game.scale.height * 0.6,
       duration: 2000,
       ease: 'Bounce',
       onComplete,

@@ -46,7 +46,7 @@ export enum EvolutionTypes {
 
 export enum BuffTypes {
   Speed = 1,
-  VisionRange = 2,
+  Size = 2,
   Health = 3,
   Regeneration = 4,
   Damage = 5,

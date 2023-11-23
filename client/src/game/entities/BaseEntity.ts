@@ -18,7 +18,7 @@ export class BaseEntity {
   hidden: boolean = false;
   depth = 0;
   justSpawned = true;
-  
+
   constructor(game: Game) {
     this.game = game;
   }
@@ -86,7 +86,7 @@ export class BaseEntity {
   updateRotation() {
     if (!this.body) return;
 
-    const targetAngle = (this.constructor as any).basicAngle + this.angle; 
+    const targetAngle = (this.constructor as any).basicAngle + this.angle;
     const angleDifference = Phaser.Math.Angle.Wrap(targetAngle - this.body.rotation);
     const lerpRate = this.game.gameState.tps / this.game.game.loop.actualFps / 10;
     const angleStep = angleDifference * lerpRate;
@@ -103,7 +103,7 @@ export class BaseEntity {
       this.game.tweens.add({
         targets: [this.container, this.healthBar?.bar],
         alpha: show ? 1 : 0,
-        duration: this.justSpawned ? 0 : 100,
+        duration: this.justSpawned ? 0 : 50,
       });
       this.hidden = show;
     }

@@ -3,7 +3,7 @@ import { BuffTypes } from '../Types';
 
 const buffsData: Record<any, [string, number]> = {
   [BuffTypes.Speed]: ['Speed', 0x6d92ec],
-  [BuffTypes.VisionRange]: ['Vision Range', 0x99ec68],
+  [BuffTypes.Size]: ['Size', 0x99ec68],
   [BuffTypes.Health]: ['Health', 0xed68ec],
   [BuffTypes.Regeneration]: ['Regeneration', 0xefb28c],
   [BuffTypes.Damage]: ['Damage', 0xf16868],
@@ -71,7 +71,7 @@ class BuffsSelect extends HudComponent {
           .on('pointerover', () => this.game.input.setDefaultCursor('pointer'))
           .on('pointerout', () => this.game.input.setDefaultCursor('default'))
           .on('pointerdown', () => this.selectBuff(type));
-        
+
         // background
         const background = scene.add.graphics();
         background.fillStyle(0x111111, 0.5);

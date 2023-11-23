@@ -2,7 +2,7 @@ const Types = require('../Types');
 
 module.exports = {
   coinsCount: 0,
-  aiPlayersCount: 0,
+  aiPlayersCount: 20,
   biomes: [
     {
       type: Types.Biome.Safezone,
@@ -125,7 +125,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Yeti,
-          amount: 10,
+          amount: 5,
           position: 'random',
           respawnable: true,
           size: [80, 110],

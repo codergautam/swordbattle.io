@@ -16,7 +16,7 @@ export const settingsList: Record<string, SettingType> = {
   useWebGL: {
     name: 'Use WebGL (requires reload)',
     type: 'toggle',
-    default: false,
+    default: true,
     onChange: (newValue: boolean) => {
       const saved = localStorage.getItem('swordbattle:WebGL');
       if (newValue) localStorage.setItem('swordbattle:WebGL', 'OK');
@@ -112,7 +112,7 @@ class SettingsManager {
 		const savedSettings = this.get();
 		savedSettings[key] = value;
 		localStorage.setItem(this.key, JSON.stringify(savedSettings));
-    
+
     if (settingsList[key].onChange) {
       settingsList[key].onChange(value);
     }

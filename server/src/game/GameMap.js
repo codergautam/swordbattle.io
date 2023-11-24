@@ -118,16 +118,14 @@ class GameMap {
     // }
     let toDrop = totalCoins;
     var coinSizes = [5,4,3, 2, 1];
+    if(totalCoins < 5) coinSizes = [1];
     if(toDrop > 500) coinSizes.unshift(15);
     if(toDrop > 1000) coinSizes.unshift(25);
     if(toDrop > 5000) coinSizes.unshift(50);
 
     while(toDrop > 0) {
-      var coinSize = coinSizes[helpers.randomInteger(0, coinSizes.length - 1)];
-      var coinValue = coinSize * 2;
-      if(toDrop < coinValue) {
-        coinValue = toDrop;
-      }
+      // Pick highest coin size that can be dropped
+      var coinValue = coinSizes[0];
       toDrop -= coinValue;
       const center = shape.center;
       const coin = this.game.map.addEntity({
@@ -140,6 +138,7 @@ class GameMap {
         randomPoint.x - center.x,
         randomPoint.y - center.y,
       ).scale(0.5));
+      if(toDrop < coinSizes[0]) coinSizes.shift();
     }
   }
 

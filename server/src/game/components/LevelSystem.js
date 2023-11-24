@@ -15,26 +15,31 @@ class LevelSystem {
         level: 0,
         max: 10,
         step: 0.1,
+        buyable: true,
       },
       [Types.Buff.Size]: {
         level: 0,
         max: 10,
         step: 0.1,
+        buyable: false,
       },
       [Types.Buff.Health]: {
         level: 0,
         step: 0.2,
         max: 10,
+        buyable: true,
       },
       [Types.Buff.Regeneration]: {
         level: 0,
         step: 0.2,
         max: 10,
+        buyable: true,
       },
       [Types.Buff.Damage]: {
         level: 0,
         step: 0.2,
         max: 10,
+        buyable: true,
       },
     }
   }
@@ -53,10 +58,11 @@ class LevelSystem {
     return this.upgradePoints > 0 && buff && buff.level < buff.max;
   }
 
-  addBuff(type) {
+  addBuff(type, buy=true) {
     if (!this.canBuff(type)) return;
+    if (buy && !this.buffs[type].buyable) return;
     this.buffs[type].level += 1;
-    this.upgradePoints -= 1;
+    if(buy) this.upgradePoints -= 1;
   }
 
   applyBuffs() {
@@ -88,8 +94,9 @@ class LevelSystem {
     this.level += 1;
     this.previousLevelCoins = this.nextLevelCoins;
     this.nextLevelCoins = this.previousLevelCoins * 1.4;
-    this.upgradePoints += 1; 
+    this.upgradePoints += 1;
     this.player.evolutions.checkForEvolutions();
+    this.addBuff(Types.Buff.Size, false);
   }
 }
 

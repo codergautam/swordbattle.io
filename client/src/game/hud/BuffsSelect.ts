@@ -3,7 +3,6 @@ import { BuffTypes } from '../Types';
 
 const buffsData: Record<any, [string, number]> = {
   [BuffTypes.Speed]: ['Speed', 0x6d92ec],
-  [BuffTypes.Size]: ['Size', 0x99ec68],
   [BuffTypes.Health]: ['Health', 0xed68ec],
   [BuffTypes.Regeneration]: ['Regeneration', 0xefb28c],
   [BuffTypes.Damage]: ['Damage', 0xf16868],
@@ -66,6 +65,7 @@ class BuffsSelect extends HudComponent {
       const step = this.width / buff.max;
       if (!this.buffs[type]) {
         const config = buffsData[type];
+        if (!config) continue;
         const buffContainer = scene.add.container(0, i * (this.lineHeight + 10))
           .setInteractive(new Phaser.Geom.Rectangle(0, 0, this.width, this.lineHeight), Phaser.Geom.Rectangle.Contains)
           .on('pointerover', () => this.game.input.setDefaultCursor('pointer'))

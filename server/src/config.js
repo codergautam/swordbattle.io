@@ -11,7 +11,7 @@ module.exports = {
   serverSecret: process.env.SERVER_SECRET || 'server-secret',
   apiEndpoint: process.env.API_ENDPOINT || 'http://localhost:8080',
 
-  tickRate: 20,
+  tickRate: 30,
   player: {
     speed: 700,
     radius: 100,

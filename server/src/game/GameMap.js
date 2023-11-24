@@ -99,16 +99,41 @@ class GameMap {
   }
 
   spawnCoinsInShape(shape, totalCoins) {
-    const maxCoinsCount = 30;
-    const coins = Math.min(Math.round(totalCoins / 5), maxCoinsCount);
-    const minCoinValue = totalCoins / coins / 3;
-    const maxCoinValue = totalCoins / coins / 2;
-    for (let i = 0; i < coins; i++) {
+    // const maxCoinsCount = 30;
+    // const coins = Math.min(Math.round(totalCoins / 5), maxCoinsCount);
+    // const minCoinValue = totalCoins / coins / 3;
+    // const maxCoinValue = totalCoins / coins / 2;
+    // for (let i = 0; i < coins; i++) {
+    //   const center = shape.center;
+    //   const coin = this.game.map.addEntity({
+    //     type: Types.Entity.Coin,
+    //     position: [center.x, center.y],
+    //     value: [minCoinValue, maxCoinValue],
+    //   });
+    //   const randomPoint = shape.getRandomPoint();
+    //   coin.velocity.add(new SAT.Vector(
+    //     randomPoint.x - center.x,
+    //     randomPoint.y - center.y,
+    //   ).scale(0.5));
+    // }
+    let toDrop = totalCoins;
+    var coinSizes = [5,4,3, 2, 1];
+    if(toDrop > 500) coinSizes.unshift(15);
+    if(toDrop > 1000) coinSizes.unshift(25);
+    if(toDrop > 5000) coinSizes.unshift(50);
+
+    while(toDrop > 0) {
+      var coinSize = coinSizes[helpers.randomInteger(0, coinSizes.length - 1)];
+      var coinValue = coinSize * 2;
+      if(toDrop < coinValue) {
+        coinValue = toDrop;
+      }
+      toDrop -= coinValue;
       const center = shape.center;
       const coin = this.game.map.addEntity({
         type: Types.Entity.Coin,
-        position: [center.x, center.y], 
-        value: [minCoinValue, maxCoinValue],
+        position: [center.x, center.y],
+        value: coinValue,
       });
       const randomPoint = shape.getRandomPoint();
       coin.velocity.add(new SAT.Vector(
@@ -175,7 +200,7 @@ class GameMap {
       definition,
     });
   }
-  
+
   addBiome(biomeData) {
     let BiomeClass = Biome;
     switch (biomeData.type) {
@@ -203,7 +228,7 @@ class GameMap {
     let minY = Infinity;
     let maxX = -Infinity;
     let maxY = -Infinity;
-    
+
     for (const biome of this.biomes) {
       const bounds = biome.shape.boundary;
       if (minX > bounds.x) minX = bounds.x;
@@ -221,7 +246,7 @@ class GameMap {
 
   processBorderCollision(entity, dt) {
     entity.collidesWithForbidden(dt, true);
-    
+
     const bounds = entity.shape.boundary;
     if (bounds.x < this.x) {
       entity.shape.x = this.x + bounds.width * (0.5 - entity.shape.centerOffset.x);

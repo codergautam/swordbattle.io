@@ -7,6 +7,7 @@ class Coin extends Entity {
   constructor(game, objectData) {
     super(game, Types.Entity.Coin, objectData);
 
+    if(typeof objectData.value === 'number') objectData.value = [objectData.value, objectData.value];
     objectData.value = Array.isArray(objectData.value) ? objectData.value : [1, 6];
     this.value = helpers.randomInteger(objectData.value[0], objectData.value[1]);
     const radius = 75 + this.value * 5;

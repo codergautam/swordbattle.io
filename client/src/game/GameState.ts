@@ -91,6 +91,7 @@ class GameState {
   }
 
   onServerMessage(data: any) {
+    console.log('receive:', data);
     if (!this.game.isReady) {
       this.payloadsQueue.push(data);
     } else {
@@ -211,7 +212,7 @@ class GameState {
     const data: any = {};
     if (Settings.movementMode === 'mouse' || this.game.isMobile) {
       data.mouse = this.game.controls.mouse;
-    } 
+    }
     if (this.updatePing) {
       this.updatePing = false;
       this.pingStart = Date.now();
@@ -254,7 +255,7 @@ class GameState {
   removeEntity(id: number, data: any) {
     const entity = this.entities[id];
     if (!entity) return;
-    
+
     delete this.entities[id];
 
     if (entity.type === EntityTypes.Coin) {

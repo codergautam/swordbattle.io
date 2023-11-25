@@ -100,6 +100,7 @@ export class BaseEntity {
     const show = self.depth === this.depth || this.depth === 0;
     if (this.healthBar) this.healthBar.hidden = !show;
     if (this.hidden !== show) {
+      console.log('show', show, this.constructor.name);
       this.game.tweens.add({
         targets: [this.container, this.healthBar?.bar],
         alpha: show ? 1 : 0,

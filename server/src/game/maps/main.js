@@ -9,12 +9,6 @@ module.exports = {
       pos: [0, 0],
       radius: 3000,
       objects: [
-        {
-          type: Types.Entity.Coin,
-          amount: 30,
-          position: 'random',
-          respawnable: true,
-        },
       ],
     },
 

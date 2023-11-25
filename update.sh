@@ -38,7 +38,7 @@ cd api
 yarn install
 yarn build
 # yarn run foreverprod
-pm2 start dist/index.js --name "api"
+pm2 start dist/main.js --name "api"
 cd ..
 
 echo "Update completed successfully!"

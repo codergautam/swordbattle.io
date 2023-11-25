@@ -17,6 +17,10 @@ class Chest extends BaseEntity {
       offsetX: this.sprite.width / 2,
       offsetY: -30,
     });
+    // if(this.rarity === 0) {
+    //   // One health, so we can hide the health bar
+    //   this.healthBar.bar.alpha = 0;
+    // }
 
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.sprite])
       .setScale(this.size / this.sprite.width);

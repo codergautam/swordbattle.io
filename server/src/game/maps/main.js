@@ -144,7 +144,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Chest,
-          amount: 5,
+          amount: 10,
           position: 'random',
           respawnable: true,
         },
@@ -233,7 +233,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Chest,
-          amount: 5,
+          amount: 10,
           position: 'random',
           respawnable: true,
         },
@@ -292,7 +292,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Chest,
-          amount: 5,
+          amount: 10,
           position: 'random',
           respawnable: true,
         },

@@ -39,9 +39,9 @@ class Entity {
 
   processDefinition() {
     this.definition = Object.assign({}, Entity.defaultDefinition, this.constructor.defaultDefinition, this.definition);
-    
+
     const { definition } = this;
-    
+
     if (definition.density !== undefined) {
       this.density = definition.density;
     }
@@ -96,7 +96,7 @@ class Entity {
         }
       }
     }
-    
+
     // When we spawn entities on game initalize, quadtree is not ready yet
     if (!this.game.entitiesQuadtree) return false;
 
@@ -104,11 +104,11 @@ class Entity {
       const targets = this.game.entitiesQuadtree.get(this.shape.boundary).map(res => res.entity);
       for (const entity of targets) {
         if (entity.type !== entityType) continue;
-        
+
         const collisionShape = entity.depthZone ? entity.depthZone : entity.shape;
         if (collisionShape.collides(this.shape, response)) {
           if (!collide) return true;
-          
+
           const mtv = this.shape.getCollisionOverlap(response);
           this.shape.applyCollision(mtv);
         }
@@ -134,6 +134,9 @@ class Entity {
     // Use velocity to restrict spawn outside biomes
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
+    // prevent leaving map
+    // this.shape.x = helpers.clamp(this.shape.x, 0, this.game.map.width);
+    // this.shape.y = helpers.clamp(this.shape.y, 0, this.game.map.height);
     this.velocity.scale(0.9);
   }
 

@@ -5,15 +5,17 @@ const Health = require('../components/Health');
 const Types = require('../Types');
 const helpers = require('../../helpers');
 
-// size, coins, health
+// size, coins, health, weight
 const rarities = [
-  [200, 100, 1],
-  [350, 200, 50],
-  [500, 500, 300],
-  [900, 1000, 600],
-  [1200, 3000, 1000],
-  [1700, 10000, 1500],
+  [200, 100, 1, 80],
+  [350, 200, 50, 10],
+  [500, 500, 300, 5 ],
+  [900, 1000, 600, 3],
+  [1200, 3000, 1000, 2],
+  [1700, 10000, 1500, 1],
 ];
+
+let totalWeight = rarities.reduce((acc, rarity) => acc + rarity[3], 0);
 
 class Chest extends Entity {
   static defaultDefinition = {
@@ -23,7 +25,12 @@ class Chest extends Entity {
   constructor(game, objectData) {
     super(game, Types.Entity.Chest, objectData);
 
-    this.rarity = helpers.randomInteger(0, rarities.length - 1);
+    let rand = helpers.randomInteger(0, totalWeight - 1);
+    this.rarity = rarities.findIndex(rarity => {
+      rand -= rarity[3];
+      return rand < 0;
+    });
+
     this.size = rarities[this.rarity][0];
     this.coins = rarities[this.rarity][1];
     this.health = new Health(rarities[this.rarity][2], 0);

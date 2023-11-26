@@ -11,18 +11,18 @@ class Socket {
     this.socket = null;
     this.queue = [];
   }
-  
+
   connect(address: string, onOpen: any, onMessage: any, onClose: any) {
     const endpoint = `${protocol}${address}`;
-  
+
     if (window.socket !== null) {
       window.socket.close();
     }
-  
+
     this.socket = new WebSocket(endpoint);
     this.socket.binaryType = 'arraybuffer';
     window.socket = this.socket;
-  
+
     this.socket.addEventListener('open', () => {
       this.onOpen();
       onOpen();
@@ -33,16 +33,17 @@ class Socket {
     });
     this.socket.addEventListener('message', (message: any) => {
       if (typeof message.data === 'string') return;
- 
+
       try {
         const payload = Protocol.decodeServerMessage(new Uint8Array(message.data));
         // console.log('receive:', message.data.byteLength);
         onMessage(payload);
       } catch (err) {
         console.error('Decoding message error: ', err);
+        alert("Your game has crashed. Please refresh the page. If this issue persists, please contact support. Error: " + err)
       }
     });
-  
+
     return this.socket;
   }
 

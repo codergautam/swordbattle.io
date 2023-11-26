@@ -81,10 +81,10 @@ class WolfMob extends Entity {
     const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
     if (this.target) {
       entity.damaged(this.damage.value, this);
-      
+
       this.velocity.scale(-0.5);
-      entity.velocity.x += 10 * Math.cos(angle);
-      entity.velocity.y += 10 * Math.sin(angle);
+      entity.velocity.x += 75 * Math.cos(angle);
+      entity.velocity.y += 75 * Math.sin(angle);
 
       this.shape.applyCollision(mtv);
       entity.shape.applyCollision(mtv.clone().scale(-1));

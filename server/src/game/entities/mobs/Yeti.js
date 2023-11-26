@@ -149,7 +149,7 @@ class YetiMob extends Entity {
 
     if (entity === this.target) {
       const force = this.damage.value * this.movementTimer.progress;
-      const knockback = force * 2;
+      const knockback = force * 7;
       entity.velocity.x -= knockback * Math.cos(this.angle - Math.PI);
       entity.velocity.y -= knockback * Math.sin(this.angle - Math.PI);
       entity.damaged(force, this);

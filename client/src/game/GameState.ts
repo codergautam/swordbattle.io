@@ -91,7 +91,7 @@ class GameState {
   }
 
   onServerMessage(data: any) {
-    console.log('receive:', data);
+    // console.log('receive:', data);
     if (!this.game.isReady) {
       this.payloadsQueue.push(data);
     } else {

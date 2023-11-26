@@ -7,6 +7,7 @@ interface HealthOptions {
   offsetX: number;
   offsetY: number;
   hideWhenFull: boolean;
+  alwaysHide: boolean;
 }
 
 const defaultOptions: HealthOptions = {
@@ -15,6 +16,7 @@ const defaultOptions: HealthOptions = {
   hideWhenFull: true,
   offsetX: 0,
   offsetY: 0,
+  alwaysHide: false
 };
 
 export class Health {
@@ -25,6 +27,7 @@ export class Health {
   value: number;
   hidden = false;
   internalHidden = false;
+  alwaysHide = false;
 
   constructor(entity: any, options: Partial<HealthOptions> = {}) {
     this.options = Object.assign({}, defaultOptions, options);
@@ -34,9 +37,11 @@ export class Health {
     this.value = entity.healthPercent;
     this.bar = this.game.add.graphics().setDepth(100);
     this.game.add.existing(this.bar);
+    this.alwaysHide = this.options.alwaysHide;
   }
 
   update(dt: number) {
+    if(this.alwaysHide) return;
     this.value = Phaser.Math.Linear(this.value, this.entity.healthPercent, dt / 60);
 
     if (!this.hidden) {

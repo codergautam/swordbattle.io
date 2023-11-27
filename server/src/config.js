@@ -13,7 +13,7 @@ module.exports = {
 
   tickRate: 20,
   player: {
-    speed: 700,
+    speed: 1000,
     radius: 100,
     maxHealth: 100,
     regeneration: 2,

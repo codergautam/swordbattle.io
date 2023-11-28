@@ -15,7 +15,14 @@ const decode = (msg) => {
     console.log('[Protocol] Decoding error: ', error);
     return null;
   };
-  return ClientMessage.decode(payload);
+let decoded;
+  try {
+  ClientMessage.decode(payload);
+  } catch (e) {
+    console.log('[Protocol] Decoding error: ', e);
+    return null;
+  }
+  return decoded;
 }
 
 module.exports = {

@@ -53,7 +53,7 @@ function App() {
         dispatch(clearAccount());
       }
     });
-    
+
     setModal(<ChangelogModal />);
   }, []);
 
@@ -124,7 +124,7 @@ function App() {
             />
             <button className="startButton" onClick={onStart}>Play!</button>
           </div>
-    
+
           <div
             className="settings-button"
             style={scale}

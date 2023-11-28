@@ -14,7 +14,7 @@ class Server {
     return this.game.players.size;
   }
 
-  initialize(app) {   
+  initialize(app) {
     app.ws('/*', {
       compression: uws.SHARED_COMPRESSOR,
       idleTimeout: 32,
@@ -34,6 +34,7 @@ class Server {
       message: (socket, message) => {
         const client = this.clients.get(socket.id);
         const data = Protocol.decode(message);
+        console.log(`Received message from ${socket.id}. Data: ${JSON.stringify(data)}`);
         if (data) {
           client.addMessage(data);
         }

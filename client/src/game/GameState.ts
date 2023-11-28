@@ -81,11 +81,14 @@ class GameState {
     console.log('server connected');
   }
 
-  onServerClose(event: CloseEvent) {
+  onServerClose(event: CloseEvent, endpoint: string) {
     Socket.close();
     clearInterval(this.interval);
 
-    const reason = event.reason || 'Connection failed';
+    let reason = event.reason || 'Connection failed';
+    if(endpoint) {
+      reason += ` (${endpoint})`;
+    }
     this.game.game.events.emit('connectionClosed', reason);
     console.log('connection closed');
   }

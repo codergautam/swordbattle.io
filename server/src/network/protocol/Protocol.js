@@ -17,7 +17,7 @@ const decode = (msg) => {
   };
 let decoded;
   try {
-  ClientMessage.decode(payload);
+  decoded = ClientMessage.decode(payload);
   } catch (e) {
     console.log('[Protocol] Decoding error: ', e);
     return null;

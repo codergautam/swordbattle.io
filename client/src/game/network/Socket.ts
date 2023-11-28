@@ -28,7 +28,7 @@ class Socket {
       onOpen();
     });
     this.socket.addEventListener('close', (event: CloseEvent) => {
-      onClose(event);
+      onClose(event, endpoint);
       this.close();
     });
     this.socket.addEventListener('message', (message: any) => {

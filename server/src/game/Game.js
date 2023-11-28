@@ -282,14 +282,14 @@ class Game {
 
   handleNickname(nickname) {
     const nicknameLength = nickname.length >= 1 && nickname.length <= 16;
-    return nicknameLength ? nickname : helpers.randomNickname();
+    return nicknameLength ? nickname : 'Player'
   }
 
   cleanup() {
     for (const entity of this.entities) {
       entity.cleanup();
     }
-    
+
     this.newEntities.clear();
     this.removedEntities.clear();
     this.globalEntities.cleanup();

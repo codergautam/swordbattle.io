@@ -9,18 +9,7 @@ import { config } from './config';
 import * as fs from 'fs';
 
 async function bootstrap() {
-  let ss = {};
-  if(process.env.SSL_CERT && process.env.SSL_KEY) {
-    ss = {
-      key: fs.readFileSync(process.env.SSL_KEY),
-      cert: fs.readFileSync(process.env.SSL_CERT),
-    };
-  }
-  const app = await NestFactory.create(AppModule, {
-    httpsOptions: {
-      ...ss,
-    }
-  });
+  const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser(config.appSecret));
   app.enableCors({

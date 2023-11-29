@@ -144,7 +144,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Coin,
-          amount: 0,
+          amount: 500,
           position: 'random',
           respawnable: true,
         }
@@ -200,7 +200,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Coin,
-          amount: 0,
+          amount: 500,
           position: 'random',
           respawnable: true,
         },
@@ -292,7 +292,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Coin,
-          amount: 0,
+          amount: 500,
           position: 'random',
           respawnable: true,
         }

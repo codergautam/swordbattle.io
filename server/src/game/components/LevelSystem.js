@@ -7,7 +7,7 @@ class LevelSystem {
     this.maxLevel = 50;
     this.coins = 0;
     this.previousLevelCoins = 0;
-    this.nextLevelCoins = 10;
+    this.nextLevelCoins = 100;
     this.upgradePoints = 0;
 
     this.buffs = {

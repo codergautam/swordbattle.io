@@ -16,8 +16,8 @@ class RokuMob extends Entity {
     speed: 20,
     damage: 2,
     jumpCooldown: [2, 3],
-    fireballCooldown: [1, 2],
-    fireballDuration: [1, 2],
+    fireballCooldown: [0.5, 1],
+    fireballDuration: [3, 5],
     fireballCount: [1, 3, 5],
     fireballSpeed: 50,
     fireballSize: 50,
@@ -44,6 +44,7 @@ class RokuMob extends Entity {
     this.damage = new Property(this.definition.damage);
     this.target = null;
     this.targets.push(Types.Entity.Player);
+    this.lastSearch = 0;
 
     this.spawn();
   }
@@ -53,7 +54,9 @@ class RokuMob extends Entity {
       this.target = null;
     }
 
-    if (!this.target) {
+    if ((this.isGlobal && (Date.now() - this.lastSearch > 5000)) || !this.target) {
+      this.lastSearch = Date.now();
+      
       const searchRadius = this.definition.attackRadius;
       const searchZone = this.shape.boundary;
       searchZone.x -= searchRadius;
@@ -78,6 +81,7 @@ class RokuMob extends Entity {
     this.health.update(dt);
     this.jumpTimer.update(dt);
 
+    // Refresh global targets to always attack closest player
     if (this.target) {
       const targetAngle = helpers.angle(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
       const distance = helpers.distance(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);

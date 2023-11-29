@@ -242,6 +242,7 @@ class GameState {
     }
     if (Object.keys(data).length !== 0) {
       Socket.emit(data);
+      console.log('send:', data);
     }
   }
 

@@ -7,7 +7,7 @@ class LevelSystem {
     this.maxLevel = 50;
     this.coins = 0;
     this.previousLevelCoins = 0;
-    this.nextLevelCoins = 100;
+    this.nextLevelCoins = 50;
     this.upgradePoints = 0;
 
     this.buffs = {
@@ -20,7 +20,7 @@ class LevelSystem {
       [Types.Buff.Size]: {
         level: 0,
         max: 10,
-        step: 0.1,
+        step: 0.25,
         buyable: false,
       },
       [Types.Buff.Health]: {
@@ -93,7 +93,7 @@ class LevelSystem {
   levelUp() {
     this.level += 1;
     this.previousLevelCoins = this.nextLevelCoins;
-    this.nextLevelCoins = this.previousLevelCoins * 1.4;
+    this.nextLevelCoins = this.previousLevelCoins * 2;
     this.upgradePoints += 1;
     this.player.evolutions.checkForEvolutions();
     this.addBuff(Types.Buff.Size, false);

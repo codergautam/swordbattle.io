@@ -18,6 +18,12 @@ const decode = (msg) => {
 let decoded;
   try {
   decoded = ClientMessage.decode(payload);
+  const keys = Object.keys(decoded);
+  for (const key of keys) {
+    if (typeof decoded[key] === 'number') {
+      decoded[key] = parseFloat(decoded[key].toFixed(2));
+    }
+  }
   } catch (e) {
     console.log('[Protocol] Decoding error: ', e);
     return null;

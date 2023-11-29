@@ -82,7 +82,7 @@ class ProgressBar extends HudComponent {
       this.game.tweens.add({
         targets: this.stabbedText,
         alpha: 0,
-        y: this.game.scale.height,
+        y: this.game.scale.height / this.scale,
         duration: 250,
         ease: 'Power2',
       });
@@ -91,9 +91,10 @@ class ProgressBar extends HudComponent {
     this.game.tweens.add({
       targets: this.stabbedText,
       alpha: 1,
-      y: this.game.scale.height * 0.6,
-      duration: 2000,
+      y: this.game.scale.height / this.scale - (this.height + 10) - 100,
+      duration: 500,
       ease: 'Bounce',
+      completeDelay: 1000,
       onComplete,
     });
   }
@@ -116,7 +117,7 @@ class ProgressBar extends HudComponent {
       this.levelTextTween = this.hud.scene.add.tween({
         targets: this.levelUpText,
         alpha: 0,
-        y: this.game.scale.height / 5.5,
+        y: 0,
         onComplete: () => this.levelUpStreak = 0,
         ease: 'Power2',
       });
@@ -124,7 +125,7 @@ class ProgressBar extends HudComponent {
 
     this.levelTextTween = this.hud.scene.add.tween({
       targets: this.levelUpText,
-      y: this.game.scale.height / 4.5,
+      y: (this.game.scale.height / this.scale) * 0.15,
       alpha: 1,
       completeDelay: 1000,
       duration: 500,

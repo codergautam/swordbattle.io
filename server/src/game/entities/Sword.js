@@ -18,7 +18,7 @@ class Sword extends Entity {
     this.swingDuration = new Property(swingDuration);
     this.damage = new Property(damage);
     this.knockback = new Property(knockback);
-    this.flySpeed = new Property(200);
+    this.flySpeed = new Property(100);
     this.flyDuration = new Property(1.5);
     this.flyCooldown = new Property(5);
     this.playerSpeedBoost = new Property(1.3);

@@ -38,47 +38,6 @@ app.get('/ping', (res) => {
   res.end('pong');
 });
 
-// function start() {
-//   const game = new Game();
-//   game.initialize();
-//   const server = new Server(game);
-//   server.initialize(app);
-
-//   // Gameloop
-//   const frameRate = config.tickRate;
-//   const frameDuration = 1000 / frameRate;
-
-//   let lastFrameTime = performance.now();
-//   let lastTpsCheck = 0;
-//   let ticks = 0;
-
-//   function gameLoop() {
-//     const now = performance.now();
-//     if (lastFrameTime + frameDuration < now) {
-//       const deltaTime = now - lastFrameTime;
-//       lastFrameTime = now;
-//       if (lastTpsCheck + 1000 < now) {
-//         game.tps = ticks;
-//         ticks = 0;
-//         lastTpsCheck = now;
-//       }
-//       ticks += 1;
-
-//       console.time('tick');
-//       server.tick(deltaTime / 1000);
-//       console.timeEnd('tick');
-//     }
-
-//     // if we are more than 16 milliseconds away from the next tick
-//     if (now - lastFrameTime < frameDuration - 16) {
-//       setTimeout(gameLoop);
-//     } else {
-//       setImmediate(gameLoop);
-//     }
-//   }
-
-//   gameLoop();
-// }
 function start() {
   const game = new Game();
   game.initialize();
@@ -93,7 +52,7 @@ function start() {
   let lastTpsCheck = 0;
   let ticks = 0;
 
-  const intervalId = setInterval(() => {
+  function gameLoop() {
     const now = performance.now();
     if (lastFrameTime + frameDuration < now) {
       const deltaTime = now - lastFrameTime;
@@ -105,12 +64,18 @@ function start() {
       }
       ticks += 1;
 
-      console.time('tick');
+      // console.time('tick');
       server.tick(deltaTime / 1000);
-      console.timeEnd('tick');
+      // console.timeEnd('tick');
     }
-  }, 0);
 
-  // Clear the interval when needed
-  // clearInterval(intervalId);
+    // if we are more than 16 milliseconds away from the next tick
+    if (now - lastFrameTime < frameDuration - 16) {
+      setTimeout(gameLoop);
+    } else {
+      setImmediate(gameLoop);
+    }
+  }
+
+  gameLoop();
 }

@@ -251,8 +251,11 @@ class Player extends BaseEntity {
     }
 
     const cursorWorldPos = new Phaser.Geom.Point(pointer.worldX, pointer.worldY);
-    const angle = Phaser.Math.Angle.BetweenPoints(this.container, cursorWorldPos);
+    let angle = Phaser.Math.Angle.BetweenPoints(this.container, cursorWorldPos);
+    // Round to 2 decimal places
+    angle = Math.round(angle * 100) / 100;
     this.angle = this.game.gameState.playerAngle = angle;
+
     this.rotateBody(angle);
   }
 

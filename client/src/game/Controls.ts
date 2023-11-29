@@ -93,6 +93,8 @@ export class Controls {
       this.mouse.angle = angle;
       this.mouse.force = force;
     }
+    // Round to 2 decimal places
+    this.mouse.angle = Math.round(this.mouse.angle * 100) / 100;
   }
 
   enable() {
@@ -106,11 +108,11 @@ export class Controls {
   isInputDown(inputType: InputTypes) {
     return this.downInputs.includes(inputType);
   }
-  
+
   isInputUp(inputType: InputTypes) {
     return !this.isInputDown(inputType);
   }
-  
+
   inputDown(inputType: InputTypes) {
     if (this.isInputDown(inputType) || this.disabled) {
       return;
@@ -146,7 +148,7 @@ export class Controls {
     this.previousDownInputs = this.downInputs.slice();
     return difference;
   }
-  
+
   clear() {
     this.downInputs = [];
   }

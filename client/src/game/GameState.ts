@@ -62,10 +62,12 @@ class GameState {
 
   start(name: string) {
     Socket.emit({ play: true, name });
+    if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
   }
 
   restart() {
     Socket.emit({ play: true });
+    if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
   }
 
   spectate() {

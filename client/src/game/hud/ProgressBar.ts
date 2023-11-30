@@ -111,6 +111,8 @@ class ProgressBar extends HudComponent {
     this.levelUpStreak += difference;
     this.levelUpText.setText(`Level up!${this.levelUpStreak > 1 ? ' x' + this.levelUpStreak : ''}`);
 
+    if(this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
+
     if (this.levelTextTween) this.levelTextTween.stop();
 
     const onComplete = () => {

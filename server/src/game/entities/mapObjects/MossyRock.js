@@ -28,7 +28,7 @@ class MossyRock extends Entity {
     const selfWeight = this.weight;
     const targetWeight = entity.weight;
     const totalWeight = selfWeight + targetWeight;
-    
+
     const mtv = this.shape.getCollisionOverlap(response);
     const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
     const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);

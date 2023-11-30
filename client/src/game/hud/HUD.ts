@@ -20,7 +20,7 @@ class HUD {
   components: any[];
   scale = 1;
   hidden = false;
-  
+
   constructor(game: Game) {
     this.game = game;
     this.minimap = new Minimap(this);

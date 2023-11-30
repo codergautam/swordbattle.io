@@ -11,12 +11,17 @@ const buffsData: Record<any, [string, number]> = {
 class BuffsSelect extends HudComponent {
   buffsContainer: Phaser.GameObjects.Container | null = null;
   hideButton: Phaser.GameObjects.Text | null = null;
-  minimized = false;
+  minimized = true;
   width = 250;
   lineHeight = 20;
 
   buffs: Record<any, any> = {};
   buffsProgress: Record<any, any> = {};
+
+  constructor(hud: any) {
+    super(hud);
+    this.minimized = true;
+  }
 
   initialize() {
     if (!this.hud.scene) return;
@@ -32,7 +37,7 @@ class BuffsSelect extends HudComponent {
       .on('pointerout', () => this.game.input.setDefaultCursor('default'))
       .on('pointerdown', () => this.toggleMinimize());
 
-    this.buffsContainer = this.hud.scene.add.container(0, 40);
+    this.buffsContainer = this.hud.scene.add.container(-this.width, 40).setAlpha(0);
     this.container = this.hud.scene.add.container(10, 10, [this.buffsContainer, this.hideButton]);
   }
 
@@ -42,6 +47,7 @@ class BuffsSelect extends HudComponent {
     this.hud.scene!.tweens.add({
       targets: this.buffsContainer,
       alpha: this.minimized ? 0 : 1,
+      x: this.minimized ? -this.width : 0,
       duration: 250,
     });
   }
@@ -51,6 +57,12 @@ class BuffsSelect extends HudComponent {
 
   selectBuff(type: any) {
     this.game.gameState.selectedBuff = type;
+    console.log('selected buff', type, this.game.gameState?.self?.entity?.upgradePoints, this.minimized);
+    if(this.game.gameState?.self?.entity?.upgradePoints === 1 && !this.minimized) {
+      setTimeout(() => {
+      this.toggleMinimize();
+      }, 500);
+    }
   }
 
   update() {
@@ -58,7 +70,7 @@ class BuffsSelect extends HudComponent {
     const scene = this.hud.scene!;
     if (!this.container || !this.buffsContainer || !player) return;
 
-    this.hideButton!.text = `Upgrade points: ${player.upgradePoints}`;
+    this.hideButton!.text = `Upgrades ${player.upgradePoints > 0 ? `(x${player.upgradePoints})` : ''}`;
 
     let i = 0;
     for (const [type, buff] of Object.entries(player.buffs) as any) {

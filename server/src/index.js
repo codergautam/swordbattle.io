@@ -66,6 +66,7 @@ function start() {
 
       // console.time('tick');
       server.tick(deltaTime / 1000);
+        // console.log(`TPS: ${game.tps}`);
       // console.timeEnd('tick');
     }
 

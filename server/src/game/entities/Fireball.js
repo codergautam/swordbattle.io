@@ -45,6 +45,12 @@ class Fireball extends Entity {
     const mtv = this.shape.getCollisionOverlap(response);
     entity.velocity.sub(mtv.scale(0.1));
     entity.damaged(this.damage.value, this);
+
+    entity.velocity.x += this.speed.value * Math.cos(this.angle) / (entity.knockbackResistance.value || 1);
+    entity.velocity.y += this.speed.value * Math.sin(this.angle) / (entity.knockbackResistance.value || 1);
+
+    // Destroy the fireball
+    this.remove();
   }
 
   createState() {

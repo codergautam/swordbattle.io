@@ -30,7 +30,7 @@ class WolfMob extends Entity {
     this.target = null;
     this.targets.push(Types.Entity.Player);
 
-    this.knockbackResistance = 0.5;
+    this.knockbackResistance = new Property(2);
 
     this.spawn();
   }

@@ -46,8 +46,11 @@ class Snowball extends Entity {
     entity.velocity.sub(mtv.scale(0.1));
     entity.damaged(this.damage.value, this);
 
-    entity.velocity.x += this.speed.value * Math.cos(this.angle) * 0.5;
-    entity.velocity.y += this.speed.value * Math.sin(this.angle) * 0.5;
+    entity.velocity.x += this.speed.value * Math.cos(this.angle) / (entity.knockbackResistance.value || 1);
+    entity.velocity.y += this.speed.value * Math.sin(this.angle) / (entity.knockbackResistance.value || 1);
+
+    // Destroy the snowball
+    this.remove();
   }
 
   createState() {

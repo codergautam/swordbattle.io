@@ -46,7 +46,7 @@ class YetiMob extends Entity {
     this.target = null;
     this.targets.push(Types.Entity.Player);
 
-    this.knockbackResistance = 0.5;
+    this.knockbackResistance = new Property(2);
 
     this.spawn();
   }
@@ -152,8 +152,8 @@ class YetiMob extends Entity {
     if (entity === this.target) {
       const force = this.damage.value * this.movementTimer.progress;
       const knockback = force * 7;
-      entity.velocity.x -= knockback * Math.cos(this.angle - Math.PI);
-      entity.velocity.y -= knockback * Math.sin(this.angle - Math.PI);
+      entity.velocity.x -= knockback * Math.cos(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
+      entity.velocity.y -= knockback * Math.sin(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
       entity.damaged(force, this);
       this.velocity.scale(0);
     }

@@ -37,7 +37,7 @@ class ChimeraMob extends Entity {
     if (this.angryTimer.finished || !this.target || this.target.removed) {
       this.target = null;
     }
-    
+
     if (!this.target) {
       const searchRadius = this.definition.attackRadius;
       const searchZone = this.shape.boundary;
@@ -67,10 +67,10 @@ class ChimeraMob extends Entity {
       const progress = performance.now() / this.maneuverSpeed;
       const targetX = this.target.shape.x + distance * Math.cos(progress);
       const targetY = this.target.shape.y + distance * Math.sin(2 * progress) / 2;
-      
+
       this.angle = Math.atan2(targetY - this.shape.y, targetX - this.shape.x);
       this.speed.multiplier *= 3;
-    
+
       this.velocity.x += this.speed.value * Math.cos(this.angle) * dt;
       this.velocity.y += this.speed.value * Math.sin(this.angle) * dt;
     } else if (this.jumpTimer.finished) {
@@ -91,15 +91,15 @@ class ChimeraMob extends Entity {
 
     if (this.target) {
       entity.damaged(this.damage.value, this);
-      
+
       const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
-      entity.velocity.x -= 2 * Math.cos(angle);
-      entity.velocity.y -= 2 * Math.sin(angle);
+      entity.velocity.x -= 2 * Math.cos(angle) / (entity.knockbackResistance.value || 1);
+      entity.velocity.y -= 2 * Math.sin(angle) / (entity.knockbackResistance.value || 1);
     } else {
       const selfWeight = this.weight;
       const targetWeight = entity.weight;
       const totalWeight = selfWeight + targetWeight;
-  
+
       const mtv = this.shape.getCollisionOverlap(response);
       const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
       const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);

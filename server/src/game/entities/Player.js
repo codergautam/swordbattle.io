@@ -35,6 +35,7 @@ class Player extends Entity {
     this.health = new Health(maxHealth, regeneration);
     this.friction = new Property(1);
     this.regeneration = new Property(regeneration);
+    this.knockbackResistance = new Property(1);
 
     this.startTimestamp = Date.now();
     this.kills = 0;
@@ -302,7 +303,7 @@ class Player extends Entity {
     this.sword.cleanup();
     this.flags.clear();
 
-    [this.speed, this.regeneration, this.friction, this.viewport.zoom].forEach((property) => property.reset());
+    [this.speed, this.regeneration, this.friction, this.viewport.zoom, this.knockbackResistance].forEach((property) => property.reset());
   }
 }
 

@@ -9,6 +9,7 @@
 	text-shadow: 1px 1px 1px rgb(0, 0, 0);
   transform-origin: top right;
   user-select: none;
+  pointer-events: none;
 
   .leaderboard-title {
     margin-bottom: 5px;

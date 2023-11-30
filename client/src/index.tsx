@@ -27,6 +27,9 @@ const router = createHashRouter([
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root') as Element);
+document.addEventListener('contextmenu',function(e) {
+  e.preventDefault();
+  });
 root.render(
   <Provider store={store}>
     <RouterProvider router={router} />

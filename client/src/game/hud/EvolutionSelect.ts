@@ -17,7 +17,7 @@ class EvolutionSelect extends HudComponent {
       fontStyle: 'bold',
       stroke: '#000000',
       strokeThickness: 5,
-    }).setOrigin(0.5)
+    }).setOrigin(0.5).setVisible(false)
       .setInteractive()
       .on('pointerover', () => this.game.input.setDefaultCursor('pointer'))
       .on('pointerout', () => this.game.input.setDefaultCursor('default'))
@@ -61,6 +61,7 @@ class EvolutionSelect extends HudComponent {
       const alpha = 0.8;
       const count = Object.keys(player.possibleEvolutions).length;
       this.container.setVisible(count !== 0);
+      this.hideButton?.setVisible(count !== 0);
 
       let i = 0;
       for (const evol in player.possibleEvolutions) {

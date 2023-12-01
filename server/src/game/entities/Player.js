@@ -300,8 +300,14 @@ class Player extends Entity {
     }
     super.remove();
 
-    this.game.map.spawnCoinsInShape(this.shape, this.levels.coins);
+    this.game.map.spawnCoinsInShape(this.shape, this.calculateDropAmount());
   }
+
+  calculateDropAmount() {
+    const coins = this.levels.coins;
+    return coins < 13 ? 10 : Math.round(coins < 25000 ? coins * 0.8 : Math.log10(coins) * 30000 - 111938.2002602);
+  }
+
 
   cleanup() {
     super.cleanup();

@@ -27,7 +27,7 @@ module.exports = {
   sword: {
     swingDuration: 0.1,
     damage: 10,
-    knockback: 200,
+    knockback: 250,
   },
   saveGame: {
     playtime: 30, // in minutes

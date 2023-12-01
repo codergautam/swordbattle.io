@@ -15,6 +15,7 @@ const Timer = require('../components/Timer');
 const EvolutionSystem = require('../evolutions');
 const Types = require('../Types');
 const config = require('../../config');
+const { clamp } = require('../../helpers');
 
 class Player extends Entity {
   constructor(game, name) {
@@ -229,6 +230,10 @@ class Player extends Entity {
 
     this.movedDistance.x = dx;
     this.movedDistance.y = dy;
+
+    // Clamp to map bounds
+    this.shape.x = clamp(this.shape.x, -this.game.map.width / 2, this.game.map.width / 2);
+    this.shape.y = clamp(this.shape.y, -this.game.map.height / 2, this.game.map.height / 2);
   }
 
   damaged(damage, entity = null) {

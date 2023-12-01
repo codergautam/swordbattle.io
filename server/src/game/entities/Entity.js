@@ -135,8 +135,8 @@ class Entity {
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
     // prevent leaving map
-    // this.shape.x = helpers.clamp(this.shape.x, 0, this.game.map.width);
-    // this.shape.y = helpers.clamp(this.shape.y, 0, this.game.map.height);
+    this.shape.x = helpers.clamp(this.shape.x, -this.game.map.width / 2, this.game.map.width / 2);
+    this.shape.y = helpers.clamp(this.shape.y, -this.game.map.height / 2, this.game.map.height / 2);
     this.velocity.scale(0.9);
   }
 

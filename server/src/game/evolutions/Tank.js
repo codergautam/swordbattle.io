@@ -14,7 +14,7 @@ module.exports = class Tank extends Evolution {
     this.player.shape.setScale(1.75);
     this.player.health.regen.multiplier *= 5;
 
-    // TODO: this.player.healWait.multiplier *= 0;
+    this.player.regenWait.multiplier *= 0;
     // TODO: this.player.swingTime.multiplier *= 0.5;
 
   }

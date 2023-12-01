@@ -40,6 +40,7 @@ class EvolutionSelect extends HudComponent {
     this.hud.scene!.tweens.add({
       targets: this.spritesContainer,
       alpha: this.minimized ? 0 : 1,
+      y: this.minimized ? -140 : -70,
       duration: 250,
     });
   }
@@ -60,8 +61,42 @@ class EvolutionSelect extends HudComponent {
 
       const alpha = 0.8;
       const count = Object.keys(player.possibleEvolutions).length;
-      this.container.setVisible(count !== 0);
-      this.hideButton?.setVisible(count !== 0);
+      // this.container.setVisible(count !== 0);
+      // this.hideButton?.setVisible(count !== 0);
+      // Smooth visibility
+      if(count === 0 && this.container.visible) {
+        this.hud.scene!.tweens.add({
+          targets: this.container,
+          alpha: 0,
+          duration: 250,
+          onComplete: () => this.container?.setVisible(false),
+        });
+      } else if(count !== 0 && !this.container.visible) {
+        this.container?.setVisible(true);
+        this.container?.setAlpha(0);
+        this.hud.scene!.tweens.add({
+          targets: this.container,
+          alpha: 1,
+          duration: 250,
+        });
+      }
+
+      if(count === 0 && this.hideButton?.visible) {
+        this.hud.scene!.tweens.add({
+          targets: this.hideButton,
+          alpha: 0,
+          duration: 250,
+          onComplete: () => this.hideButton?.setVisible(false),
+        });
+      } else if(count !== 0 && !this.hideButton?.visible) {
+        this.hideButton?.setVisible(true);
+        this.hideButton?.setAlpha(0);
+        this.hud.scene!.tweens.add({
+          targets: this.hideButton,
+          alpha: 1,
+          duration: 250,
+        });
+      }
 
       let i = 0;
       for (const evol in player.possibleEvolutions) {

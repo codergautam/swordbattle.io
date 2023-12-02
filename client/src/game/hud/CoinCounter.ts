@@ -31,8 +31,9 @@ class CoinCounter extends HudComponent {
 
     this.coinImg = new Phaser.GameObjects.Image(this.game, 0, indent * 0, 'coin').setOrigin(0, 0);
     this.coinImg.setScale(0.35);
-    this.stabImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight + 5, 'coin').setOrigin(0, 0);
-    this.stabImg.setScale(0.35);
+    this.stabImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight + 5, 'kill').setOrigin(0, 0);
+    this.stabImg.displayHeight = this.coinImg.displayHeight;
+    this.stabImg.displayWidth = this.coinImg.displayWidth;
     this.textObj = new Phaser.GameObjects.Text(this.game, this.coinImg.displayWidth+ 5, indent * 0, '', this.style);
 
     this.container = new Phaser.GameObjects.Container(this.game, 0, 0, [this.textObj, this.coinImg, this.stabImg]);

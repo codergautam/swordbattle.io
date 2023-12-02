@@ -97,7 +97,7 @@ class Game {
         }
       }
     }
-    if (!isNaN(data.angle)) {
+    if (data.angle && !isNaN(data.angle)) {
       player.angle = Number(data.angle);
     }
     if (data.mouse) {

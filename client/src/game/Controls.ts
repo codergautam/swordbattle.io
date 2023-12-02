@@ -95,6 +95,11 @@ export class Controls {
     }
     // Round to 2 decimal places
     this.mouse.angle = Math.round(this.mouse.angle * 100) / 100;
+
+    // Normalize
+    if (this.mouse.angle <= 0) {
+      this.mouse.angle += Math.PI * 2;
+    }
   }
 
   enable() {

@@ -45,9 +45,7 @@ class BuffsSelect extends HudComponent {
     // Calculate height of the buffs and everything else
     let height = 0;
     if(!this.minimized) {
-    for (const buff of Object.values(this.buffs)) {
-      height += buff.displayHeight + 25;
-    }
+    height = (this.lineHeight+5) * Object.keys(this.game.gameState.self.entity!.buffs).length * this.scale;
   }
     return height + 10 + this.hideButton!.displayHeight;
   }

@@ -41,6 +41,17 @@ class BuffsSelect extends HudComponent {
     this.container = this.hud.scene.add.container(10, 10, [this.buffsContainer, this.hideButton]);
   }
 
+  get height() {
+    // Calculate height of the buffs and everything else
+    let height = 0;
+    if(!this.minimized) {
+    for (const buff of Object.values(this.buffs)) {
+      height += buff.displayHeight + 25;
+    }
+  }
+    return height + 10 + this.hideButton!.displayHeight;
+  }
+
   toggleMinimize() {
     this.minimized = !this.minimized;
 

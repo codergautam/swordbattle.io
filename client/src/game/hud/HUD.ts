@@ -6,6 +6,7 @@ import EvolutionSelect from './EvolutionSelect';
 import BuffsSelect from './BuffsSelect';
 import Chat from './Chat';
 import MobileControls from './MobileControls';
+import CoinCounter from './CoinCounter';
 
 class HUD {
   game: Game;
@@ -17,6 +18,7 @@ class HUD {
   buffsSelect: BuffsSelect;
   chat: Chat;
   mobileControls: MobileControls;
+  coinCounter: CoinCounter;
   components: any[];
   scale = 1;
   hidden = false;
@@ -30,7 +32,8 @@ class HUD {
     this.buffsSelect = new BuffsSelect(this);
     this.chat = new Chat(this);
     this.mobileControls = new MobileControls(this);
-    this.components = [this.minimap, this.stats, this.progressBar, this.evolutionSelect, this.buffsSelect, this.chat, this.mobileControls];
+    this.coinCounter = new CoinCounter(this);
+    this.components = [this.minimap, this.stats, this.progressBar, this.evolutionSelect, this.buffsSelect, this.chat, this.mobileControls, this.coinCounter];
   }
 
   initialize() {

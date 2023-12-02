@@ -115,6 +115,7 @@ class GameState {
   processServerMessage(data: any) {
     if (data.isPong) {
       this.ping = Date.now() - this.pingStart;
+      return;
     }
     if (data.tps) {
       this.tps = data.tps;
@@ -221,7 +222,8 @@ class GameState {
     if (this.updatePing) {
       this.updatePing = false;
       this.pingStart = Date.now();
-      data.isPing = true;
+      // data.isPing = true;
+      Socket.emit({ isPing: true });
     }
     if (inputs.length !== 0) {
       data.inputs = inputs;

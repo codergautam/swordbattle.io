@@ -34,7 +34,6 @@ class Server {
       message: (socket, message) => {
         const client = this.clients.get(socket.id);
         const data = Protocol.decode(message);
-        console.log(`Received message from ${socket.id}. Data: ${JSON.stringify(data)}`);
         if (data) {
           client.addMessage(data);
         }

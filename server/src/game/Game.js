@@ -70,7 +70,10 @@ class Game {
 
   processClientMessage(client, data) {
     if (data.isPing) {
-      client.pong = true;
+      return client.socket.send(Protocol.encode({
+        isPong: true,
+        tps: this.tps,
+      }), { binary: true, compress: true });
     }
 
     if (data.spectate && !client.spectator.isSpectating) {

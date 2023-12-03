@@ -213,6 +213,7 @@ class GameState {
   }
 
   sendInputs() {
+    if(this.game.gameState.spectator.active) return;
     const inputs = this.game.controls.getChanges();
 
     const data: any = {};

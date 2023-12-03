@@ -15,7 +15,7 @@ class Player extends BaseEntity {
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordFlying', 'swordFlyingCooldown',
     'viewportZoom', 'chatMessage',
   ];
-  static removeTransition = 1000;
+  static removeTransition = 500;
 
   body!: Phaser.GameObjects.Sprite;
   sword!: Phaser.GameObjects.Sprite;

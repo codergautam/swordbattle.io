@@ -14,8 +14,8 @@ class Sword extends Entity {
     this.decreaseAnimation = false;
     this.collidedEntities = new Set();
 
-    const { swingDuration, damage, knockback } = config.sword;
-    this.swingDuration = new Property(swingDuration);
+    const { initialSwingDuration, damage, knockback } = config.sword;
+    this.swingDuration = new Property(initialSwingDuration);
     this.damage = new Property(damage);
     this.knockback = new Property(knockback);
     this.flySpeed = new Property(100);

@@ -5,6 +5,10 @@
   height: 100%;
   user-select: text;
 
+  img {
+    user-select: none;
+  }
+
   .main-ui {
     @import "~bootstrap/scss/functions";
     @import "~bootstrap/scss/variables";
@@ -148,14 +152,15 @@
 
       p {
         margin: 0;
-        font-size: 40px;
         color: white;
         display: inline-block;
+          user-select: none;
       }
       img {
         height: auto;
         display: inline-block;
         transform: translate(0, 40%);
+
       }
         transform: translate(-50%, -50%);
         margin-top: 20px;

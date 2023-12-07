@@ -102,3 +102,7 @@ export function lastSeen(dateString: string) {
     return daysDiff + ' days ago';
   }
 }
+
+export function addCommas(num: number) {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

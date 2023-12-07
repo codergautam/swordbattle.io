@@ -46,6 +46,7 @@ function App() {
   const [connectionError, setConnectionError] = useState<string>('');
 
   useEffect(() => {
+    if(gameStarted) return;
     api.get(`${api.endpoint}/auth/account`, (data) => {
       if (data.account) {
         data.account.token = data.token;
@@ -56,7 +57,7 @@ function App() {
     });
 
     setModal(<ChangelogModal />);
-  }, []);
+  }, [gameStarted]);
 
   const preloadImage = (url: string) => {
     return new Promise<void>((resolve) => {
@@ -145,7 +146,7 @@ function App() {
           {modal && <Modal child={modal} close={closeModal} />}
 
           {account.isLoggedIn && (
-            <GemCount account={account} />
+            <GemCount account={account} scale={scale.factor} />
           )}
 
           <div className="auth-buttons" style={scale.styles}>

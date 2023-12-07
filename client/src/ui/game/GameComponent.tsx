@@ -14,6 +14,7 @@ declare global {
 function GameComponent({ onHome, onGameReady, onConnectionClosed }: any) {
   const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
   const [gameResults, setGameResults] = useState<any>(null);
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     if (!game) {
@@ -26,14 +27,23 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed }: any) {
 
       game.events.on('gameReady', onGameReady);
       game.events.on('connectionClosed', onConnectionClosed);
-      game.events.on('setGameResults', (results: any) => setGameResults(results));
+      game.events.on('setGameResults', (results: any) => {
+        setGameResults(results);
+        setPlaying(false);
+      });
+      game.events.on('restartGame', (name: string) => {
+        setPlaying(true);
+      });
+      game.events.on('startGame', (name: string) => {
+        setPlaying(true);
+      });
     }
   }, []);
 
   return (
     <div className="game">
       <div id="phaser-container" />
-      <Leaderboard game={game} />
+      { playing && <Leaderboard game={game} /> }
       {gameResults && <GameResults
         onHome={onHome}
         game={game}

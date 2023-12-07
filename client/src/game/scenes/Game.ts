@@ -146,6 +146,7 @@ export default class Game extends Phaser.Scene {
   follow(entity: BaseEntity) {
     const camera = this.cameras.main;
     const sprite = entity.container;
+    entity.following = false;
     camera.pan(sprite.x, sprite.y, 1500, Phaser.Math.Easing.Cubic.InOut, true, (camera, progress) => {
       if (progress === 1) {
         entity.following = true;

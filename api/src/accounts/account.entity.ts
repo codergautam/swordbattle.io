@@ -28,7 +28,9 @@ export class Account {
   @Column({ default: false }) is_v1: boolean;
 
   @Column({ default: 0 }) profile_views: number;
-  
+
+  @Column({ nullable: true })  lastUsernameChange: Date;
+
   @OneToMany(() => Transaction, transaction => transaction.account)
   transactions: Transaction[];
 

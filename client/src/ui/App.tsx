@@ -16,7 +16,7 @@ import LoginModal from './modals/LoginModal';
 import SignupModal from './modals/SignupModal';
 import ConnectionError from './modals/ConnectionError';
 
-import { clearAccount, logout, setAccount } from '../redux/account/slice';
+import { clearAccount, setAccount, logoutAsync, changeNameAsync } from '../redux/account/slice';
 import { selectAccount } from '../redux/account/selector';
 import api from '../api';
 
@@ -95,8 +95,13 @@ function App() {
   const onSucessAuth = () => setModal(null);
   const onLogin = () => setModal(<LoginModal onSuccess={onSucessAuth} />);
   const onSignup = () => setModal(<SignupModal onSuccess={onSucessAuth} />);
-  const onLogout = () => dispatch(logout());
+  const onLogout = () => dispatch(logoutAsync() as any);
+  const onChangeName = () => {
+    const newName = prompt('What do you want to change your name to? Please note that you can only change your name once every 7 days.');
+    if (!newName) return;
 
+    dispatch(changeNameAsync(newName) as any);
+  }
   const isLoaded = loadingProgress === 100;
   return (
     <div className="App">
@@ -147,6 +152,11 @@ function App() {
                     <Link to={`/profile?username=${account.username}`} target="_blank" className="dropdown-item">
                       <FontAwesomeIcon icon={faUser} /> Profile
                     </Link>
+                  </li>
+                  <li>
+                  <a className="dropdown-item" href="#" onClick={onChangeName}>
+                    <FontAwesomeIcon icon={faUser} /> Change Name
+                  </a>
                   </li>
                   <li><a className="dropdown-item" href="#" onClick={onLogout}>
                     <FontAwesomeIcon icon={faSignOut} /> Logout

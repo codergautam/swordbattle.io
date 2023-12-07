@@ -19,6 +19,7 @@ function get(url: string, callback = (data: any) => {}): any {
 }
 
 function post(url: string, body: any, callback = (data: any) => {}): any {
+  console.log('post', url, body);
   fetch(url, {
     method: 'POST',
     mode: 'cors',
@@ -32,6 +33,14 @@ function post(url: string, body: any, callback = (data: any) => {}): any {
   .then(res => res.json())
   .then(callback)
   .catch(() => callback({ message: unavialableMessage }));
+}
+
+async function postAsync(url: string, body: any): Promise<any> {
+  return new Promise((resolve, reject) => {
+    post(url, body, (data: any) => {
+      resolve(data);
+    });
+  });
 }
 
 function method(url: string, options: {}, callback = (data: any) => {}): any {
@@ -48,4 +57,4 @@ function method(url: string, options: {}, callback = (data: any) => {}): any {
   .catch(() => callback({ message: unavialableMessage }));
 }
 
-export default { endpoint, get, post, method };
+export default { endpoint, get, post, method, postAsync };

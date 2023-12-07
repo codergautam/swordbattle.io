@@ -8,6 +8,9 @@ interface ConfigProps {
   jwtSecret: string;
   appSecret: string;
   serverSecret: string;
+
+  usernameWaitTime: number;
+  usernameLength: [number, number];
 }
 
 export const config: ConfigProps = {
@@ -18,4 +21,7 @@ export const config: ConfigProps = {
   jwtSecret: process.env.JWT_SECRET || 'jwt-secret',
   appSecret: process.env.APP_SECRET || 'app-secret',
   serverSecret: process.env.SERVER_SECRET || 'server-secret',
+
+  usernameWaitTime: 7 * 24 * 60 * 60 * 1000, // 7 days
+  usernameLength: [1, 16]
 };

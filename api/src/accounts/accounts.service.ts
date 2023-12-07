@@ -2,6 +2,9 @@ import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/co
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { Account } from './account.entity';
+import * as config from '../config';
+import validateUsername from 'src/helpers/validateUsername';
+const usernameWaitTime = config.config.usernameWaitTime;
 
 @Injectable()
 export class AccountsService {
@@ -18,7 +21,7 @@ export class AccountsService {
   async findOne(where: FindOneOptions<Account>, throwException = false) {
     const account = await this.accountsRepository.findOne(where);
     if (!account && throwException) {
-      throw new NotFoundException(`Account not found where: ${where}`);
+      throw new NotFoundException(`Account not found`);
     }
     return account;
   }
@@ -37,6 +40,50 @@ export class AccountsService {
       throw new UnauthorizedException('User not found');
     }
     return this.sanitizeAccount(account);
+  }
+
+  async changeUsername(id: number, username: string) {
+    // validate username
+    if(validateUsername(username)) {
+      return {error: validateUsername(username)};
+    }
+    const account = await this.getById(id);
+    // Make sure the username is not taken
+    const existingAccount = await this.findOne({ where: { username } });
+    if (existingAccount) {
+      return {error: 'Username already taken'};
+    }
+
+    // Make sure the username is not changed too often
+    const now = new Date();
+    const lastUsernameChange = new Date(account.lastUsernameChange);
+    const diff = now.getTime() - lastUsernameChange.getTime();
+    if (diff < usernameWaitTime) {
+
+      // Human readable error time left (seconds, hours, days)
+      let human = '';
+      const seconds = Math.ceil((usernameWaitTime - diff) / 1000);
+      if (seconds < 60) {
+        human = seconds + ' seconds';
+      } else if (seconds < 3600) {
+        human = Math.ceil(seconds / 60) + ' minutes';
+      } else if (seconds < 86400) {
+        human = Math.ceil(seconds / 3600) + ' hours';
+      } else {
+        human = Math.ceil(seconds / 86400) + ' days';
+      }
+
+     return {error: 'You can change your name again in ' + human};
+    }
+
+    account.username = username;
+    account.lastUsernameChange = new Date();
+    try {
+    await this.accountsRepository.save(account);
+    return {success: true};
+    } catch(e) {
+      return {error: 'Failed to update name, '+ e.message};
+    }
   }
 
   async update(id: number, updates: Partial<Account>) {

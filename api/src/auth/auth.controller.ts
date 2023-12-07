@@ -21,6 +21,7 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginData: LoginDTO, @Res({ passthrough: true }) res: Response) {
+    console.log(loginData);
     const data = await this.authService.login(loginData);
     res.set('Authorization', `Bearer ${data.token}`);
     this.setCookie(res, 'auth-token', data.token);
@@ -45,6 +46,17 @@ export class AuthController {
   @Post('verify')
   async verify(@Req() req) {
     return { account: req.user };
+  }
+
+  @Post('change-username')
+  async changeUsername(@Req() request) {
+    console.log(request.body);
+    const { newUsername, curUsername } = request.body;
+    // Get account
+    const account = await this.authService.getAccountFromUsername(curUsername);
+
+    let result = await this.authService.changeUsername(account, newUsername);
+    return result;
   }
 
   setCookie(res: Response, key: string, value: string) {

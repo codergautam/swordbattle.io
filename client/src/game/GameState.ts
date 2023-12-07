@@ -213,7 +213,7 @@ class GameState {
   }
 
   sendInputs() {
-    if(this.game.gameState.spectator.active) return;
+    if(!this.self.entity?.following) return;
     const inputs = this.game.controls.getChanges();
 
     const data: any = {};

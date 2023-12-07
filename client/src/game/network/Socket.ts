@@ -40,7 +40,7 @@ class Socket {
         onMessage(payload);
       } catch (err) {
         console.error('Decoding message error: ', err);
-        alert("Your game has crashed. Please refresh the page. If this issue persists, please contact support. Error: " + err)
+        // alert("Your game has crashed. Please refresh the page. If this issue persists, please contact support. Error: " + err)
       }
     });
 

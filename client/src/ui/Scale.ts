@@ -5,7 +5,7 @@ export function setScale() {
 	const gc = gcd()
 	let initial_scale = 1
 	const { w, h } = { w: 16, h: 9 };
-	
+
 	if ((gc * window.innerWidth) / (gc * window.innerHeight) > w / h) {
 		initial_scale = vh(27) / 150;
 	} else {
@@ -41,5 +41,5 @@ export function useScale(translate?: boolean) {
 	if (translate) {
 		style.transform = `translate(-50%, -50%) scale(${scale})`;
 	}
-	return style;
+	return {styles: style, factor: scale};
 }

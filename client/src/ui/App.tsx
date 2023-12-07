@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSignOut } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOut, faICursor } from '@fortawesome/free-solid-svg-icons';
 
 import clsx from 'clsx';
 import { useScale } from './Scale';
@@ -25,6 +25,7 @@ import DiscordLogo from '../assets/img/discordLogo.png';
 import SignupImg from '../assets/img/signup.png';
 import LoginImg from '../assets/img/login.png';
 import './App.scss';
+import GemCount from './GemCount';
 
 const preloadImages: string[] = [
   SettingsImg,
@@ -120,7 +121,7 @@ function App() {
 
       {!gameStarted && (
         <div className="main-ui">
-          <div className={clsx('startGame', isLoaded && 'animation')} style={scale}>
+          <div className={clsx('startGame', isLoaded && 'animation')} style={scale.styles}>
             <div className='title'>Swordbattle.io</div>
             <input type="text" maxLength={16} placeholder="Enter Name"
               value={account.isLoggedIn ? account.username : name}
@@ -132,7 +133,7 @@ function App() {
 
           <div
             className="settings-button"
-            style={scale}
+            style={scale.styles}
             role="button"
             onClick={openSettings}
             onKeyDown={event => event.key === 'Enter' && openSettings()}
@@ -143,10 +144,14 @@ function App() {
 
           {modal && <Modal child={modal} close={closeModal} />}
 
-          <div className="auth-buttons" style={scale}>
+          {account.isLoggedIn && (
+            <GemCount account={account} />
+          )}
+
+          <div className="auth-buttons" style={scale.styles}>
             {account.isLoggedIn ? (
               <div className="dropdown">
-                <div className="auth-username">{account.username}</div>
+                <div className="auth-username"><FontAwesomeIcon icon={faUser} /> {account.username}</div>
                 <ul className="dropdown-menu">
                   <li>
                     <Link to={`/profile?username=${account.username}`} target="_blank" className="dropdown-item">
@@ -155,7 +160,7 @@ function App() {
                   </li>
                   <li>
                   <a className="dropdown-item" href="#" onClick={onChangeName}>
-                    <FontAwesomeIcon icon={faUser} /> Change Name
+                    <FontAwesomeIcon icon={faICursor} /> Change Name
                   </a>
                   </li>
                   <li><a className="dropdown-item" href="#" onClick={onLogout}>
@@ -171,7 +176,7 @@ function App() {
             )}
           </div>
 
-          <footer className={clsx('links', isLoaded && 'animation')} style={scale}>
+          <footer className={clsx('links', isLoaded && 'animation')} style={scale.styles}>
             <div>
               <a href="https://swordbattle.io/about.html" target="_blank" rel="noreferrer">About</a>
             </div>

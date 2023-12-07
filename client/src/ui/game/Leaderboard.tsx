@@ -28,11 +28,11 @@ function Leaderboard({ game }: any) {
   const toggleVisibility = () => setShow(!show);
 
   return (
-    <div className="leaderboard" style={useScale(false)}>
+    <div className="leaderboard" style={useScale(false).styles}>
       <div className="leaderboard-title" role="button" onClick={toggleVisibility}>
         Leaderboard
       </div>
-      
+
       <div className={`leaderboard-content ${show ? '' : 'hidden'}`}>
         {players.map((player: any) => <LeaderboardLine key={player.id} player={player} />)}
         {selfPlayer && (<div>...</div>)}

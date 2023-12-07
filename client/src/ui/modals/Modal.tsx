@@ -13,7 +13,7 @@ function Modal({ child, close, className = '' }: any) {
   });
 
   return (
-    <div className={`modal ${className}`} style={useScale(true)}>
+    <div className={`modal ${className}`} style={useScale(true).styles}>
       {child}
       {close && <button className="modal-close" onClick={close} />}
     </div>

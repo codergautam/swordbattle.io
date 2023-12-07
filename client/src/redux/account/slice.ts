@@ -6,6 +6,7 @@ export type AccountState = {
   username: string;
   isLoggedIn: boolean;
   token: string;
+  gems: number;
 }
 
 const initialState: AccountState = {
@@ -13,6 +14,7 @@ const initialState: AccountState = {
   username: '',
   token: '',
   isLoggedIn: false,
+  gems: 0,
 };
 
 // Async Thunks
@@ -60,6 +62,7 @@ const accountSlice = createSlice({
       state.email = '';
       state.username = '';
       state.token = '';
+      state.gems = 0;
       state.isLoggedIn = false;
     },
     setAccount: (state, action) => {
@@ -68,6 +71,7 @@ const accountSlice = createSlice({
       state.isLoggedIn = true;
       const previousToken = state.token;
       state.token = action.payload.token;
+      state.gems = action.payload.gems;
       if (previousToken !== state.token) {
         window.phaser_game?.events.emit('tokenUpdate', state.token);
       }

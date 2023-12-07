@@ -17,7 +17,7 @@ function GameResults({ onHome, results, game }: any) {
   };
 
   return (
-    <div className="results" style={useScale(true)}>
+    <div className="results" style={useScale(true).styles}>
       <div className="results-title">
         You got stabbed
         <br />

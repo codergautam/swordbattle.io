@@ -42,5 +42,14 @@ module.exports = {
 
   clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
+  },
+
+ calculateGemsXP(coins, kills) {
+    const xp = Math.floor(coins / 100) + kills
+    return {
+      xp,
+      gems: Math.floor(xp / 5)
+    }
   }
+
 };

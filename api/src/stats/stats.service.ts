@@ -21,8 +21,13 @@ export class StatsService {
       where: { id: data.account_id },
       relations: ['total_stats'],
     }, true);
-    this.updateTotalStats(account, data);
-    this.updateDailyStats(account, data);
+    await this.updateTotalStats(account, data);
+    await this.updateDailyStats(account, data);
+
+    // Update gems
+    let gems = data.gems;
+    await this.accountsService.addGems(account, gems, "game");
+
     return true;
   }
 
@@ -80,7 +85,7 @@ export class StatsService {
       .createQueryBuilder('total_stats')
       .select('total_stats.id', 'id')
       .addSelect('RANK() OVER (ORDER BY total_stats.xp DESC)', 'rank');
-  
+
     const result = await this.totalStatsRepository
       .createQueryBuilder()
       .select('sub.rank', 'rank')
@@ -88,10 +93,10 @@ export class StatsService {
       .setParameter('id', account.id)
       .where('sub.id = :id')
       .getRawOne();
-  
+
     return result ? parseInt(result.rank, 10) : undefined;
   }
-  
+
   async fetch(fetchData: FetchStatsDTO) {
     const { sortBy, timeRange, limit } = fetchData;
 

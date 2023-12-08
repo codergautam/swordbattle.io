@@ -47,6 +47,7 @@ function App() {
 
   useEffect(() => {
     if(gameStarted) return;
+    setTimeout(() => {
     api.get(`${api.endpoint}/auth/account`, (data) => {
       if (data.account) {
         data.account.token = data.token;
@@ -55,6 +56,7 @@ function App() {
         dispatch(clearAccount());
       }
     });
+  }, 1000);
 
     setModal(<ChangelogModal />);
   }, [gameStarted]);

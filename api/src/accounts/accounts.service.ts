@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable, NotFoundException, UnauthorizedException, Module } from '@nestjs/common';
+import { InjectRepository, TypeOrmModule } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { Account } from './account.entity';
 import * as config from '../config';
 import validateUsername from 'src/helpers/validateUsername';
+import { Transaction } from 'src/transactions/transactions.entity';
+
 const usernameWaitTime = config.config.usernameWaitTime;
 
 @Injectable()
@@ -11,6 +13,8 @@ export class AccountsService {
   constructor(
     @InjectRepository(Account)
     private readonly accountsRepository: Repository<Account>,
+    @InjectRepository(Transaction)
+    private readonly transactionsRepository: Repository<Transaction>,
   ) {}
 
   async create(data: Partial<Account>) {
@@ -31,6 +35,22 @@ export class AccountsService {
     if (!account) {
       throw new NotFoundException(`There isn't any account with id: ${id}`);
     }
+    return account;
+  }
+
+  async addGems(account: Account, gems: number, reason = "server") {
+    if(gems === 0) return account;
+    account.gems += gems;
+    await this.accountsRepository.save(account);
+    // add to transactions table
+    const transaction = this.transactionsRepository.create({
+      account: account,
+      amount: gems,
+      description: reason,
+      transaction_id: "gems",
+    });
+    await this.transactionsRepository.save(transaction);
+
     return account;
   }
 

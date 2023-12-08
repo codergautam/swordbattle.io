@@ -2,7 +2,7 @@ import { IsEnum, IsInt, IsNumber, Max, Min } from 'class-validator';
 
 export class SaveGameDTO {
   @IsInt() account_id: number;
-  
+
   @IsNumber() xp: number;
 
   @IsInt() kills: number;
@@ -10,6 +10,8 @@ export class SaveGameDTO {
   @IsInt() coins: number;
 
   @IsNumber() playtime: number;
+
+  @IsNumber() gems: number;
 }
 
 export enum TimeRange {
@@ -27,7 +29,7 @@ export enum StatsSortType {
 
 export class FetchStatsDTO {
   @IsEnum(StatsSortType) sortBy: StatsSortType;
-  
+
   @IsEnum(TimeRange) timeRange: TimeRange;
 
   @Min(0) @Max(100) limit: number;

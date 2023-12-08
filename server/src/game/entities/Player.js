@@ -15,7 +15,7 @@ const Timer = require('../components/Timer');
 const EvolutionSystem = require('../evolutions');
 const Types = require('../Types');
 const config = require('../../config');
-const { clamp } = require('../../helpers');
+const { clamp, calculateGemsXP } = require('../../helpers');
 
 class Player extends Entity {
   constructor(game, name) {
@@ -301,7 +301,6 @@ class Player extends Entity {
         coins: this.levels.coins,
         kills: this.kills,
         playtime: this.playtime,
-        xp: Math.round(this.kills + this.levels.coins / 100),
       };
       this.client.saveGame(game);
     }

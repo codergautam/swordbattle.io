@@ -41,6 +41,9 @@ class Server {
       close: (socket, code) => {
         const client = this.clients.get(socket.id);
         client.isSocketClosed = true;
+        if (client.player) {
+          client.player.remove()
+        }
         this.removeClient(client);
         console.log(`Client disconnected with code ${code}.`);
       }

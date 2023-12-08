@@ -2,6 +2,7 @@ const Account = require('./Account');
 const Spectator = require('../game/Spectator');
 const config = require('../config');
 const api = require('./api');
+const { calculateGemsXP } = require('../helpers');
 
 class Client {
   constructor(game, socket) {
@@ -80,8 +81,13 @@ class Client {
 
   saveGame(game) {
     if (!this.account) return;
-
     game.account_id = this.account.id;
+    const { gems, xp } = calculateGemsXP(game.coins, game.kills);
+    game.gems = gems;
+    game.xp = xp;
+
+    console.log('Saving game:', game);
+
 
     api.post('/stats/update', game, (data) => {
       if (data.message) {

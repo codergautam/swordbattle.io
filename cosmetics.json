@@ -1,0 +1,11 @@
+{
+  "skins" : {
+    "player": {
+      "name": "player",
+      "displayName": "Default",
+      "id": 1,
+      "swordFileName": "sword.png",
+      "bodyFileName": "player.png"
+    }
+  }
+}

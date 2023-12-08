@@ -13,6 +13,7 @@ class Fireball extends Entity {
     duration: [5, 10],
     position: [0, 0],
     forbiddenBiomes: [Types.Biome.River],
+    knockbackMultiplier: 2
   };
 
   constructor(game, definition) {
@@ -24,6 +25,7 @@ class Fireball extends Entity {
     this.duration = new Timer(0, this.definition.duration[0], this.definition.duration[1]);
     this.angle = this.definition.angle;
     this.targets.push(Types.Entity.Player);
+    this.knockbackMultiplier = new Property(this.definition.knockbackMultiplier);
 
     this.spawn();
     this.duration.renew();
@@ -46,8 +48,8 @@ class Fireball extends Entity {
     entity.velocity.sub(mtv.scale(0.1));
     entity.damaged(this.damage.value, this);
 
-    entity.velocity.x += this.speed.value * Math.cos(this.angle) / (entity.knockbackResistance.value || 1);
-    entity.velocity.y += this.speed.value * Math.sin(this.angle) / (entity.knockbackResistance.value || 1);
+    entity.velocity.x += this.speed.value * Math.cos(this.angle) * this.knockbackMultiplier.value / (entity.knockbackResistance.value || 1);
+    entity.velocity.y += this.speed.value * Math.sin(this.angle) * this.knockbackMultiplier.value / (entity.knockbackResistance.value || 1);
 
     // Destroy the fireball
     this.remove();

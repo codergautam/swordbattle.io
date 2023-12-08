@@ -19,7 +19,7 @@ class RokuMob extends Entity {
     fireballCooldown: [0.5, 1],
     fireballDuration: [3, 5],
     fireballCount: [1, 3, 5],
-    fireballSpeed: 50,
+    fireballSpeed: 80,
     fireballSize: 50,
     fireballsSpread: Math.PI / 6,
     attackRadius: 1500,
@@ -56,7 +56,7 @@ class RokuMob extends Entity {
 
     if ((this.isGlobal && (Date.now() - this.lastSearch > 5000)) || !this.target) {
       this.lastSearch = Date.now();
-      
+
       const searchRadius = this.definition.attackRadius;
       const searchZone = this.shape.boundary;
       searchZone.x -= searchRadius;

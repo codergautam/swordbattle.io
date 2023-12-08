@@ -15,7 +15,7 @@ class YetiMob extends Entity {
     regen: 2,
     speed: 35,
     damage: 2,
-    snowballCooldown: [0.05, 0.25],
+    snowballCooldown: [0.1, 0.3],
     snowballDuration: [3, 3],
     snowballSpeed: 150,
     snowballSize: 80,
@@ -46,7 +46,7 @@ class YetiMob extends Entity {
     this.target = null;
     this.targets.push(Types.Entity.Player);
 
-    this.knockbackResistance = new Property(2);
+    this.knockbackResistance = new Property(1);
 
     this.spawn();
   }

@@ -9,7 +9,7 @@ class Snowball extends Entity {
     size: 50,
     angle: 0,
     speed: 40,
-    damage: 2,
+    damage: 8,
     duration: [5, 10],
     position: [0, 0],
     forbiddenBiomes: [Types.Biome.River],

@@ -4,6 +4,7 @@ import { useScale } from '../Scale';
 import PlayAgainImg from '../../assets/img/play-again.png';
 import HomeImg from '../../assets/img/home.png';
 import './GameResults.scss';
+import { DisconnectTypes } from '../../game/Types';
 
 function GameResults({ onHome, results, game }: any) {
   const onHomeClick = () => {
@@ -19,15 +20,15 @@ function GameResults({ onHome, results, game }: any) {
   return (
     <div className="results" style={useScale(true).styles}>
       <div className="results-title">
-        You got stabbed
+        {results.disconnectReason?.type === DisconnectTypes.Player ? 'You got stabbed' : results.disconnectReason?.type === DisconnectTypes.Mob ? 'You were destroyed' : 'You were disconnected'}
         <br />
         <span className="name">{results.name}</span>
       </div>
 
       <div className="results-container">
         <div className="info">
-          <div className="title">Stabbed By:</div>
-          {results.disconnectReason}
+          <div className="title">{results.disconnectReason?.type === DisconnectTypes.Player ? 'Stabbed by' : results.disconnectReason?.type === DisconnectTypes.Mob ? 'By' : 'Disconnect reason:'}</div>
+          {results.disconnectReason?.message}
         </div>
 
         <div className="info">
@@ -39,7 +40,7 @@ function GameResults({ onHome, results, game }: any) {
         </div>
 
         <div className="info">
-          <div className="title">Kills</div>
+          <div className="title">Kills:</div>
           <CountUp
             duration={3}
             end={results.kills}
@@ -66,6 +67,7 @@ function GameResults({ onHome, results, game }: any) {
         >
           <img src={HomeImg} alt="Home" />
         </div>
+        { results.disconnectReason?.type !== DisconnectTypes.Server && (
         <div
           className="play-again"
           role="button"
@@ -75,6 +77,7 @@ function GameResults({ onHome, results, game }: any) {
         >
           <img src={PlayAgainImg} alt="Play again" />
         </div>
+        )}
       </div>
     </div>
   )

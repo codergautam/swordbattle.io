@@ -96,7 +96,10 @@ class Player extends Entity {
     state.swordSwingDuration = this.sword.swingDuration.value;
     state.swordFlying = this.sword.isFlying;
     state.swordFlyingCooldown = this.sword.flyCooldownTime;
-    if (this.removed && this.client) state.disconnectReason = this.client.disconnectReason;
+    if (this.removed && this.client) {
+      state.disconnectReasonMessage = this.client.disconnectReason.message;
+      state.disconnectReasonType = this.client.disconnectReason.type;
+    }
     return state;
   }
 
@@ -244,15 +247,15 @@ class Player extends Entity {
       if (entity) {
         switch (entity.type) {
           case Types.Entity.Player: reason = entity.name; break;
-          case Types.Entity.LavaPool: reason = 'Accidentally burned in lava'; break;
-          case Types.Entity.Wolf: reason = 'Was torn to pieces by a wolf'; break;
-          case Types.Entity.Moose: reason = 'Was trampled by a moose'; break;
-          case Types.Entity.Yeti: reason = 'Was mauled by Yeti'; break;
-          case Types.Entity.Chimera: reason = 'Was burned by Chimera'; break;
-          case Types.Entity.Roku: reason = 'Was burned by Roku'; break;
+          case Types.Entity.LavaPool: reason = 'Lava'; break;
+          case Types.Entity.Wolf: reason = 'A Wolf'; break;
+          case Types.Entity.Moose: reason = 'A Moose'; break;
+          case Types.Entity.Yeti: reason = 'A Yeti'; break;
+          case Types.Entity.Chimera: reason = 'A Chimera'; break;
+          case Types.Entity.Roku: reason = 'A Roku'; break;
         }
       }
-      this.remove(reason);
+      this.remove(reason, entity.type === Types.Entity.Player ? Types.DisconnectReason.Player : Types.DisconnectReason.Mob);
     }
   }
 
@@ -287,9 +290,13 @@ class Player extends Entity {
     return this.viewportEntities;
   }
 
-  remove(reason = 'Server') {
+  remove(message = 'Server', type = Types.DisconnectReason.Server) {
     if (this.client) {
-      this.client.disconnectReason = reason;
+      this.client.disconnectReason = {
+        message: message,
+        type: type
+      }
+      console.log(`[Player] ${this.name} disconnected: ${message} ${type}`);
       const game = {
         coins: this.levels.coins,
         kills: this.kills,

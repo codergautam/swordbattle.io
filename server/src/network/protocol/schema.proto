@@ -105,7 +105,7 @@ message Entity {
   float swordSwingProgress = 33;
   float swordSwingDuration = 34;
   float swordFlyingCooldown = 35;
-  string disconnectReason = 36;
+  string disconnectReasonMessage = 36;
 
   // Coin
   int32 hunterId = 37;
@@ -114,4 +114,5 @@ message Entity {
   // Building
   int32 width = 39;
   int32 height = 40;
+  int32 disconnectReasonType = 41;
 }

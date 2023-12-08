@@ -12,7 +12,7 @@ module.exports = class Berserker extends Evolution {
     this.player.sword.knockback.multiplier *= 1.8;
     this.player.speed.multiplier *= 1.6;
     this.player.knockbackResistance.multiplier *= 1.2;
-    // TODO: this.player.swingTime.multiplier *= 0.5;
+     this.player.sword.swingDuration.multiplier *= 0.5;
   }
 
   update(dt) {

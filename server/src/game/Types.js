@@ -95,4 +95,9 @@ module.exports = {
     SwordThrow: 6,
     Ability: 7,
   },
+  DisconnectReason: {
+    Server: 1,
+    Player: 2,
+    Mob: 3
+  }
 }

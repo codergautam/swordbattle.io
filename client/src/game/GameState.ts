@@ -25,7 +25,10 @@ class GameState {
   previousPlayerAngle: number = 0;
   payloadsQueue: any[] = [];
   isReady = false;
-  disconnectReason = 'Server';
+  disconnectReason = {
+    code: 0,
+    reason: '',
+  }
   name = '';
   tps = 20;
   ping = 0;
@@ -96,7 +99,6 @@ class GameState {
   }
 
   onServerMessage(data: any) {
-    // console.log('receive:', data);
     if (!this.game.isReady) {
       this.payloadsQueue.push(data);
     } else {
@@ -247,7 +249,6 @@ class GameState {
     }
     if (Object.keys(data).length !== 0) {
       Socket.emit(data);
-      console.log('send:', data);
     }
   }
 

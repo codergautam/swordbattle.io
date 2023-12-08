@@ -21,7 +21,10 @@ class Client {
     this.messages = [];
     this.pingTimer = 0;
     this.pong = false;
-    this.disconnectReason = '';
+    this.disconnectReason = {
+      message: '',
+      type: 0
+    }
   }
 
   addMessage(message) {

@@ -75,3 +75,9 @@ export enum InputTypes {
   SwordThrow = 6,
   Ability = 7,
 }
+
+export enum DisconnectTypes {
+  Server = 1,
+  Player = 2,
+  Mob = 3,
+}

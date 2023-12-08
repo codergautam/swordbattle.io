@@ -1123,7 +1123,10 @@ export interface Entity {
   swordSwingProgress?: number;
   swordSwingDuration?: number;
   swordFlyingCooldown?: number;
-  disconnectReason?: string;
+  disconnectReason?: {
+    type: number;
+    message: string;
+  }
   hunterId?: number;
   rarity?: number;
   width?: number;
@@ -1424,11 +1427,11 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
     writeFloat(bb, $swordFlyingCooldown);
   }
 
-  // optional string disconnectReason = 36;
-  let $disconnectReason = message.disconnectReason;
-  if ($disconnectReason !== undefined) {
+  // optional string disconnectReasonMessage = 36;
+  let $disconnectReasonMessage = message.disconnectReason?.message
+  if ($disconnectReasonMessage !== undefined) {
     writeVarint32(bb, 290);
-    writeString(bb, $disconnectReason);
+    writeString(bb, $disconnectReasonMessage);
   }
 
   // optional int32 hunterId = 37;
@@ -1457,6 +1460,13 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
   if ($height !== undefined) {
     writeVarint32(bb, 320);
     writeVarint64(bb, intToLong($height));
+  }
+
+  // optional int32 disconnectReasonType = 41;
+  let $disconnectReasonType = message.disconnectReason?.type
+  if ($disconnectReasonType !== undefined) {
+    writeVarint32(bb, 328);
+    writeVarint64(bb, intToLong($disconnectReasonType));
   }
 }
 
@@ -1762,9 +1772,23 @@ function _decodeEntity(bb: ByteBuffer): Entity {
         break;
       }
 
-      // optional string disconnectReason = 36;
+      // optional string disconnectReasonMessage = 36;
       case 36: {
-        message.disconnectReason = readString(bb, readVarint32(bb));
+        if(!message.disconnectReason) message.disconnectReason = {
+          type: 0,
+          message: ''
+        };
+        message.disconnectReason.message = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional int32 disconnectReasonType = 41;
+      case 41: {
+        if(!message.disconnectReason) message.disconnectReason = {
+          type: 0,
+          message: ''
+        };
+        message.disconnectReason.type = readVarint32(bb);
         break;
       }
 

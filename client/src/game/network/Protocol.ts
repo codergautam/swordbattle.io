@@ -1123,14 +1123,13 @@ export interface Entity {
   swordSwingProgress?: number;
   swordSwingDuration?: number;
   swordFlyingCooldown?: number;
-  disconnectReason?: {
-    type: number;
-    message: string;
-  }
+  disconnectReasonMessage?: string;
   hunterId?: number;
   rarity?: number;
   width?: number;
   height?: number;
+  disconnectReasonType?: number;
+  skin?: number;
 }
 
 export function encodeEntity(message: Entity): Uint8Array {
@@ -1428,7 +1427,7 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
   }
 
   // optional string disconnectReasonMessage = 36;
-  let $disconnectReasonMessage = message.disconnectReason?.message
+  let $disconnectReasonMessage = message.disconnectReasonMessage;
   if ($disconnectReasonMessage !== undefined) {
     writeVarint32(bb, 290);
     writeString(bb, $disconnectReasonMessage);
@@ -1463,10 +1462,17 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
   }
 
   // optional int32 disconnectReasonType = 41;
-  let $disconnectReasonType = message.disconnectReason?.type
+  let $disconnectReasonType = message.disconnectReasonType;
   if ($disconnectReasonType !== undefined) {
     writeVarint32(bb, 328);
     writeVarint64(bb, intToLong($disconnectReasonType));
+  }
+
+  // optional int32 skin = 42;
+  let $skin = message.skin;
+  if ($skin !== undefined) {
+    writeVarint32(bb, 336);
+    writeVarint64(bb, intToLong($skin));
   }
 }
 
@@ -1774,21 +1780,7 @@ function _decodeEntity(bb: ByteBuffer): Entity {
 
       // optional string disconnectReasonMessage = 36;
       case 36: {
-        if(!message.disconnectReason) message.disconnectReason = {
-          type: 0,
-          message: ''
-        };
-        message.disconnectReason.message = readString(bb, readVarint32(bb));
-        break;
-      }
-
-      // optional int32 disconnectReasonType = 41;
-      case 41: {
-        if(!message.disconnectReason) message.disconnectReason = {
-          type: 0,
-          message: ''
-        };
-        message.disconnectReason.type = readVarint32(bb);
+        message.disconnectReasonMessage = readString(bb, readVarint32(bb));
         break;
       }
 
@@ -1813,6 +1805,18 @@ function _decodeEntity(bb: ByteBuffer): Entity {
       // optional int32 height = 40;
       case 40: {
         message.height = readVarint32(bb);
+        break;
+      }
+
+      // optional int32 disconnectReasonType = 41;
+      case 41: {
+        message.disconnectReasonType = readVarint32(bb);
+        break;
+      }
+
+      // optional int32 skin = 42;
+      case 42: {
+        message.skin = readVarint32(bb);
         break;
       }
 

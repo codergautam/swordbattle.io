@@ -16,6 +16,7 @@ const EvolutionSystem = require('../evolutions');
 const Types = require('../Types');
 const config = require('../../config');
 const { clamp, calculateGemsXP } = require('../../helpers');
+const { skins } = require('../../../../cosmetics.json');
 
 class Player extends Entity {
   constructor(game, name) {
@@ -29,6 +30,7 @@ class Player extends Entity {
     this.inputs = new Inputs();
     this.mouse = null;
     this.targets.push(Types.Entity.Player);
+    this.skin = skins.player.id;
 
     const { speed, radius, maxHealth, regeneration, viewport } = config.player;
     this.shape = Circle.create(0, 0, radius);
@@ -77,6 +79,7 @@ class Player extends Entity {
     state.nextLevelCoins = this.levels.nextLevelCoins;
     state.previousLevelCoins = this.levels.previousLevelCoins;
     state.upgradePoints = this.levels.upgradePoints;
+    state.skin = this.skin;
 
     state.buffs = structuredClone(this.levels.buffs);
     state.evolution = this.evolutions.evolution;

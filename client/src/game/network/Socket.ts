@@ -36,7 +36,7 @@ class Socket {
 
       try {
         const payload = Protocol.decodeServerMessage(new Uint8Array(message.data));
-        // console.log('receive:', message.data.byteLength);
+        console.log('receive:', payload);
         onMessage(payload);
       } catch (err) {
         console.error('Decoding message error: ', err);

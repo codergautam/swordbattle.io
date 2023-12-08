@@ -115,4 +115,6 @@ message Entity {
   int32 width = 39;
   int32 height = 40;
   int32 disconnectReasonType = 41;
+  // skin
+  int32 skin = 42;
 }

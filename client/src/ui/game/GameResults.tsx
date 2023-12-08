@@ -20,15 +20,15 @@ function GameResults({ onHome, results, game }: any) {
   return (
     <div className="results" style={useScale(true).styles}>
       <div className="results-title">
-        {results.disconnectReason?.type === DisconnectTypes.Player ? 'You got stabbed' : results.disconnectReason?.type === DisconnectTypes.Mob ? 'You were destroyed' : 'You were disconnected'}
+        {results.disconnectReason?.code === DisconnectTypes.Player ? 'You got stabbed' : results.disconnectReason?.code === DisconnectTypes.Mob ? 'You were destroyed' : 'You were disconnected'}
         <br />
         <span className="name">{results.name}</span>
       </div>
 
       <div className="results-container">
         <div className="info">
-          <div className="title">{results.disconnectReason?.type === DisconnectTypes.Player ? 'Stabbed by' : results.disconnectReason?.type === DisconnectTypes.Mob ? 'By' : 'Disconnect reason:'}</div>
-          {results.disconnectReason?.message}
+          <div className="title">{results.disconnectReason?.code === DisconnectTypes.Player ? 'Stabbed by' : results.disconnectReason?.code === DisconnectTypes.Mob ? 'By' : 'Disconnect reason:'}</div>
+          {results.disconnectReason?.reason}
         </div>
 
         <div className="info">

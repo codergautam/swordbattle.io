@@ -139,7 +139,10 @@ class GameState {
 
       if (entityData.removed) {
         if (id === this.self.id) {
-          this.disconnectReason = entityData.disconnectReason;
+          this.disconnectReason = {
+            reason: entityData.disconnectReasonMessage,
+            code: entityData.disconnectReasonType,
+          }
           this.showGameResults();
         }
         this.removeEntity(id, entityData);
@@ -302,6 +305,7 @@ class GameState {
       survivalTime: 0,
       disconnectReason: this.disconnectReason,
     };
+
     const player = this.self.entity;
     if (player) {
       results.name = player.name;

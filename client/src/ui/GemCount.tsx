@@ -37,7 +37,7 @@ export default function GemCount({account, scale}: {account: AccountState, scale
   return (
     <div className="auth-stats">
       <img src={GemImg} alt="Gems" width={86*scale} height={86*scale} />
-      <p style={{fontSize:`${scale*40}px`}}>{addCommas(displayGems)}</p>
+      <p style={{fontSize:`${Math.max(0.3,scale)*40}px`,margin: 0, lineHeight:1}}>{addCommas(displayGems)}</p>
     </div>
   );
 }

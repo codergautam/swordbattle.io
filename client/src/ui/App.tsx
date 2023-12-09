@@ -26,6 +26,7 @@ import SignupImg from '../assets/img/signup.png';
 import LoginImg from '../assets/img/login.png';
 import './App.scss';
 import GemCount from './GemCount';
+import ShopButton from './ShopButton';
 
 const preloadImages: string[] = [
   SettingsImg,
@@ -148,7 +149,10 @@ function App() {
           {modal && <Modal child={modal} close={closeModal} />}
 
           {account.isLoggedIn && (
+            <>
             <GemCount account={account} scale={scale.factor} />
+            <ShopButton account={account} scale={scale.factor} />
+            </>
           )}
 
           <div className="auth-buttons" style={scale.styles}>

@@ -2,6 +2,7 @@ const path = require('path');
 const uws = require('uWebSockets.js');
 
 const Game = require('./game/Game');
+const Loop = require('./utilities/Loop');
 const Server = require('./network/Server');
 const config = require('./config');
 
@@ -45,38 +46,44 @@ function start() {
   server.initialize(app);
 
   // Gameloop
-  const frameRate = config.tickRate;
-  const frameDuration = 1000 / frameRate;
+  const frameTime = 1000 / config.tickRate;
+  const dt = frameTime / 1000;
+  const loop = new Loop(frameTime);
+  loop.setEventHandler(() => server.tick(dt));
+  loop.start();
 
-  let lastFrameTime = performance.now();
-  let lastTpsCheck = 0;
-  let ticks = 0;
+  // const frameRate = config.tickRate;
+  // const frameDuration = 1000 / frameRate;
 
-  async function gameLoop() {
-    const now = performance.now();
-    if (lastFrameTime + frameDuration < now) {
-      const deltaTime = now - lastFrameTime;
-      lastFrameTime = now;
-      if (lastTpsCheck + 1000 < now) {
-        game.tps = ticks;
-        ticks = 0;
-        lastTpsCheck = now;
-      }
-      ticks += 1;
+  // let lastFrameTime = performance.now();
+  // let lastTpsCheck = 0;
+  // let ticks = 0;
 
-      // console.time('tick');
-      await server.tick(deltaTime / 1000);
-        // console.log(`TPS: ${game.tps}`);
-      // console.timeEnd('tick');
-    }
+  // function gameLoop() {
+  //   const now = performance.now();
+  //   if (lastFrameTime + frameDuration < now) {
+  //     const deltaTime = now - lastFrameTime;
+  //     lastFrameTime = now;
+  //     if (lastTpsCheck + 1000 < now) {
+  //       game.tps = ticks;
+  //       ticks = 0;
+  //       lastTpsCheck = now;
+  //     }
+  //     ticks += 1;
 
-    // if we are more than 16 milliseconds away from the next tick
-    if (now - lastFrameTime < frameDuration - 16) {
-      setTimeout(gameLoop);
-    } else {
-      setImmediate(gameLoop);
-    }
-  }
+  //     // console.time('tick');
+  //     // server.tick(deltaTime / 1000);
+  //       console.log(`TPS: ${game.tps}`, deltaTime);
+  //     // console.timeEnd('tick');
+  //   }
 
-  gameLoop();
+  //   // if we are more than 16 milliseconds away from the next tick
+  //   if (now - lastFrameTime < frameDuration - 16) {
+  //     setTimeout(gameLoop);
+  //   } else {
+  //     setImmediate(gameLoop);
+  //   }
+  // }
+
+  // gameLoop();
 }

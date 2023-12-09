@@ -31,6 +31,10 @@ class Game {
   }
 
   tick(dt) {
+    if (config.debug) {
+      console.log('entities count:', this.entities.size);
+    }
+
     for (const entity of this.entities) {
       entity.update(dt);
       entity.updateDepth();

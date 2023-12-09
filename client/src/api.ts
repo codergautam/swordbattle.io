@@ -19,7 +19,6 @@ function get(url: string, callback = (data: any) => {}): any {
 }
 
 function post(url: string, body: any, callback = (data: any) => {}): any {
-  console.log('post', url, body);
   fetch(url, {
     method: 'POST',
     mode: 'cors',

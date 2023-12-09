@@ -20,8 +20,8 @@ class LevelSystem {
       },
       [Types.Buff.Size]: {
         level: 0,
-        max: 5,
-        step: 0.15,
+        max: 10,
+        step: 0.2,
         buyable: false,
       },
       [Types.Buff.Health]: {
@@ -94,7 +94,7 @@ class LevelSystem {
   levelUp() {
     this.level += 1;
     this.previousLevelCoins = this.nextLevelCoins;
-    this.nextLevelCoins = this.previousLevelCoins * 2;
+    this.nextLevelCoins = this.previousLevelCoins * 1.25;
     this.player.sword.swingDuration.value = Math.min(maxSwingDuration, this.player.sword.swingDuration.value + swingDurationIncrease);
     this.upgradePoints += 1;
     this.player.evolutions.checkForEvolutions();

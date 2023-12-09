@@ -122,6 +122,8 @@ class GameMap {
     if(toDrop > 500) coinSizes.unshift(15);
     if(toDrop > 1000) coinSizes.unshift(25);
     if(toDrop > 5000) coinSizes.unshift(50);
+    if(toDrop > 10000) coinSizes.unshift(100);
+    if(toDrop > 20000) coinSizes.unshift(250);
 
     while(toDrop > 0) {
       // Pick highest coin size that can be dropped

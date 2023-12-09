@@ -1,11 +1,18 @@
 import { random } from '../../helpers';
 import { BaseEntity } from './BaseEntity';
+import * as cosmetics from '../cosmetics.json';
+const {skins} = cosmetics;
 
 class Sword extends BaseEntity {
-  static stateFields = [...BaseEntity.stateFields, 'size', 'isFlying', 'abilityActive'];
+  static stateFields = [...BaseEntity.stateFields, 'size', 'isFlying', 'abilityActive', 'skin', 'skinName']
 
   createSprite() {
-    this.container = this.game.add.sprite(this.shape.x, this.shape.y, 'sword')
+    if(this.skin) {
+      this.skinName = (Object.values(skins).find(skin => skin.id === this.skin)?.name ?? 'player')+'Sword';
+    } else {
+      this.skinName = 'playerSword';
+    }
+    this.container = this.game.add.sprite(this.shape.x, this.shape.y, this.skinName)
       .setOrigin(-0.2, 0.5);
     return this.container;
   }

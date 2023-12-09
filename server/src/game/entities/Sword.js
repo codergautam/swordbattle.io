@@ -30,6 +30,7 @@ class Sword extends Entity {
     this.isAnimationFinished = true;
     this.flyTime = 0;
     this.flyCooldownTime = 0;
+    this.skin = player.skin;
 
     this.focusTime = 200;
     this.focusDamageMultiplier = 1;
@@ -77,6 +78,7 @@ class Sword extends Entity {
     state.size = this.size;
     state.isFlying = this.isFlying;
     state.abilityActive = this.player.evolutions.evolutionEffect.isAbilityActive;
+    state.skin = this.skin;
     return state;
   }
 

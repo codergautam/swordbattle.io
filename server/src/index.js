@@ -52,7 +52,7 @@ function start() {
   let lastTpsCheck = 0;
   let ticks = 0;
 
-  function gameLoop() {
+  async function gameLoop() {
     const now = performance.now();
     if (lastFrameTime + frameDuration < now) {
       const deltaTime = now - lastFrameTime;
@@ -65,7 +65,7 @@ function start() {
       ticks += 1;
 
       // console.time('tick');
-      server.tick(deltaTime / 1000);
+      await server.tick(deltaTime / 1000);
         // console.log(`TPS: ${game.tps}`);
       // console.timeEnd('tick');
     }

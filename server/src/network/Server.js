@@ -65,13 +65,13 @@ class Server {
     this.disconnectedClients.add(client);
   }
 
-  tick(dt) {
+  async tick(dt) {
     for (const client of this.clients.values()) {
       if (!client.isReady) continue;
 
       client.update(dt);
       for (const message of client.messages) {
-        this.game.processClientMessage(client, message);
+        await this.game.processClientMessage(client, message);
       }
       client.messages = [];
     }

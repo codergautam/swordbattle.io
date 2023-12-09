@@ -68,7 +68,7 @@ class Game {
     }
   }
 
-  processClientMessage(client, data) {
+  async processClientMessage(client, data) {
     if (data.isPing) {
       try {
       return client.socket.send(Protocol.encode({
@@ -87,7 +87,7 @@ class Game {
 
     let { player } = client;
     if (data.play && (!player || player.removed)) {
-      player = this.addPlayer(client, data);
+      player = await this.addPlayer(client, data);
     }
 
     if (!player) return;
@@ -222,7 +222,7 @@ class Game {
     this.cleanup();
   }
 
-  addPlayer(client, data) {
+  async addPlayer(client, data) {
     const name = client.player
       ? client.player.name
       : (client.account ? client.account.username : this.handleNickname(data.name || ''));
@@ -234,6 +234,13 @@ class Game {
     client.fullSync = true;
     client.player = player;
     player.client = client;
+    if(client.account) {
+      // Refresh account data
+      const account = await client.getAccountAsync();
+        player.skin = account.skins.equipped;
+
+        player.sword.skin = player.skin;
+    }
     this.players.add(player);
     this.map.spawnPlayer(player);
     this.addEntity(player);

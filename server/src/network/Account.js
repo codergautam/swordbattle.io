@@ -8,6 +8,9 @@ class Account {
 
   update(data) {
     Object.assign(this, data);
+    if(this.skins) {
+      this.skins = JSON.parse(this.skins);
+    }
   }
 }
 

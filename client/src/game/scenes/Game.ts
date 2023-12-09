@@ -9,6 +9,8 @@ import { BaseEntity } from '../entities/BaseEntity';
 import { Settings } from '../Settings';
 import { config } from '../../config';
 import { Controls } from '../Controls';
+import * as cosmetics from '../cosmetics.json';
+const {skins} = cosmetics;
 
 const publicPath = process.env.PUBLIC_URL as string;
 
@@ -74,8 +76,6 @@ export default class Game extends Phaser.Scene {
     this.load.image('chest5', publicPath + '/assets/game/Chest5.png');
     this.load.image('chest6', publicPath + '/assets/game/Chest6.png');
 
-    this.load.image('player', publicPath + '/assets/game/player/player.png');
-    this.load.image('sword', publicPath + '/assets/game/player/sword.png');
     this.load.image('crown', publicPath + '/assets/game/player/crown.png');
     this.load.image('tankOverlay', publicPath + '/assets/game/player/tank.png');
     this.load.image('berserkerOverlay', publicPath + '/assets/game/player/berserker.png');
@@ -86,6 +86,16 @@ export default class Game extends Phaser.Scene {
     this.load.image('chatButton', publicPath + '/assets/game/ui/chat.png');
     this.load.image('abilityButton', publicPath + '/assets/game/ui/ability.png');
     this.load.image('swordThrowButton', publicPath + '/assets/game/ui/swordThrow.png');
+
+    // load skins
+    const basePath =  `${publicPath}/assets/game/player/`;
+    for (const skin of Object.values(skins)) {
+      console.log('loading', skin.name+'Body', basePath + skin.bodyFileName)
+      this.load.image(skin.name+'Body', basePath + skin.bodyFileName);
+      console.log('loading', skin.name+'Sword', basePath + skin.swordFileName)
+      this.load.image(skin.name+'Sword', basePath + skin.swordFileName);
+    }
+
 
     this.load.plugin('rexVirtualJoystick', VirtualJoyStickPlugin, true);
 

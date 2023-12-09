@@ -64,6 +64,7 @@ const accountSlice = createSlice({
       state.token = '';
       state.gems = 0;
       state.isLoggedIn = false;
+      window.phaser_game?.events.emit('tokenUpdate', '');
     },
     setAccount: (state, action) => {
       state.email = action.payload.email;

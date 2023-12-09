@@ -4,7 +4,8 @@ import { Evolutions } from '../Evolutions';
 import { Health } from '../components/Health';
 import { BiomeTypes, EntityTypes, FlagTypes, InputTypes } from '../Types';
 import { random } from '../../helpers';
-
+import * as cosmetics from '../cosmetics.json';
+const {skins} = cosmetics;
 class Player extends BaseEntity {
   static stateFields = [
     ...BaseEntity.stateFields, 'name', 'angle',
@@ -13,7 +14,7 @@ class Player extends BaseEntity {
     'buffs', 'evolution', 'possibleEvolutions',
     'isAbilityAvailable', 'abilityActive', 'abilityDuration', 'abilityCooldown',
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordFlying', 'swordFlyingCooldown',
-    'viewportZoom', 'chatMessage',
+    'viewportZoom', 'chatMessage', 'skin', 'skinName'
   ];
   static removeTransition = 500;
 
@@ -43,11 +44,12 @@ class Player extends BaseEntity {
 
     this.shape = Shape.create(this.shapeData);
     this.survivalStarted = Date.now();
-    this.body = this.game.add.sprite(0, 0, 'player');
+    this.skinName = Object.values(skins).find(skin => skin.id === this.skin)?.name;
+    this.body = this.game.add.sprite(0, 0, this.skinName+'Body').setRotation(-Math.PI / 2);
     this.evolutionOverlay = this.game.add.sprite(0, 0, '').setRotation(-Math.PI / 2);
     this.updateEvolution();
 
-    this.sword = this.game.add.sprite(this.body.width / 2, this.body.height / 2, 'sword').setRotation(Math.PI / 4);
+    this.sword = this.game.add.sprite(this.body.width / 2, this.body.height / 2, this.skinName+'Sword').setRotation(Math.PI / 4);
     this.swordContainer = this.game.add.container(0, 0, [this.sword]);
 
     this.healthBar = new Health(this, {

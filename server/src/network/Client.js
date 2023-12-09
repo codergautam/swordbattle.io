@@ -29,6 +29,10 @@ class Client {
   }
 
   addMessage(message) {
+    if(message.hasOwnProperty("token") && message.token === '' && this.token !== '' && this.account !== null) {
+      this.token = '';
+      this.account = null;
+    }
     if (message.token && message.token !== this.token) {
       this.token = message.token;
       this.getAccount();
@@ -70,6 +74,25 @@ class Client {
         this.account.update(data.account);
       }
       this.isReady = true;
+    });
+  }
+
+  getAccountAsync() {
+    return new Promise((resolve, reject) => {
+      if (!this.token) {
+        resolve();
+        return;
+      }
+
+      this.isReady = false;
+      api.post('/auth/verify', { token: this.token }, (data) => {
+        if (data.account) {
+          this.account = new Account();
+          this.account.update(data.account);
+        }
+        this.isReady = true;
+        resolve(this.account);
+      });
     });
   }
 

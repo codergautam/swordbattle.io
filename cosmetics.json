@@ -6,6 +6,13 @@
       "id": 1,
       "swordFileName": "sword.png",
       "bodyFileName": "player.png"
+    },
+    "anime": {
+      "name": "anime",
+      "displayName": "Anime",
+      "id": 2,
+      "swordFileName": "sword.png",
+      "bodyFileName": "anime.png"
     }
   }
 }

@@ -43,6 +43,8 @@ export class Account {
   @OneToMany(() => Game, game => game.account)
   games: Game[];
 
+  @Column({ default: '{"equipped": 1, "owned": [1]}' }) skins: string;
+
   constructor(data: Partial<Account> = {}) {
     Object.assign(this, data);
   }

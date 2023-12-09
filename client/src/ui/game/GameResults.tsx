@@ -22,7 +22,6 @@ function GameResults({ onHome, results, game }: any) {
       <div className="results-title">
         {results.disconnectReason?.code === DisconnectTypes.Player ? 'You got stabbed' : results.disconnectReason?.code === DisconnectTypes.Mob ? 'You were destroyed' : 'You were disconnected'}
         <br />
-        <span className="name">{results.name}</span>
       </div>
 
       <div className="results-container">

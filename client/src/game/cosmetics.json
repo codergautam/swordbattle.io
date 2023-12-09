@@ -1,0 +1,18 @@
+{
+  "skins" : {
+    "player": {
+      "name": "player",
+      "displayName": "Default",
+      "id": 1,
+      "swordFileName": "sword.png",
+      "bodyFileName": "player.png"
+    },
+    "anime": {
+      "name": "anime",
+      "displayName": "Anime",
+      "id": 2,
+      "swordFileName": "animeSword.png",
+      "bodyFileName": "animePlayer.png"
+    }
+  }
+}

@@ -1,7 +1,9 @@
-import { Controller, Param, Post, Req } from '@nestjs/common';
+import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { AccountsService } from './accounts.service';
 import { StatsService } from 'src/stats/stats.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('profile')
 export class AccountsController {
@@ -10,10 +12,66 @@ export class AccountsController {
   constructor(
     private readonly statsService: StatsService,
     private readonly accountsService: AccountsService,
+    private readonly authService: AuthService,
   ) {}
 
-  @Post(':username')
+  @Get('skins/buys')
+  async getSkinBuys() {
+    return this.accountsService.getCosmeticCnts('skins');
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('cosmetics/:type/buy/:itemId')
+  async buySkin(@Req() request: Request) {
+    const { token } = request.body;
+    const id = await this.authService.getIdFromToken(token);
+    const account = await this.accountsService.getById(id);
+    const itemId = request.params.itemId;
+    const type = request.params.type;
+
+    if(!['skins'].includes(type)) {
+      return { error: 'Invalid type' };
+    }
+
+    if(!itemId || isNaN(Number(itemId))) {
+      return { error: 'Invalid item id' };
+    }
+
+    const itemIdNum = Number(itemId);
+
+    return await this.accountsService.buyCosmetic(id, itemIdNum, type);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('cosmetics/skins/equip/:skinId')
+  async equipSkin(@Req() request: Request) {
+    const { token } = request.body;
+    const id = await this.authService.getIdFromToken(token);
+    const skinId = request.params.skinId;
+    if(!skinId || isNaN(Number(skinId))) {
+      return { error: 'Invalid skin id' };
+    }
+    const skinIdNum = Number(skinId);
+
+    return await this.accountsService.equipSkin(id, skinIdNum);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('getPrivateUserInfo')
+  async getPrivateAccount(@Req() request: Request) {
+    // get token from auth header 'Bearer <token>'
+    const token = request.headers.authorization.split(' ')[1];
+
+    const id = await this.authService.getIdFromToken(token);
+    const account = await this.accountsService.getById(id);
+
+    return { account: this.accountsService.sanitizeAccount(account) };
+  }
+
+  @Post('getPublicUserInfo/:username')
   async getAccount(@Param('username') username: string, @Req() request: Request) {
+    //TODO: IP protection rate limit
+
     const account = await this.accountsService.getByUsername(username);
     const totalStats = await this.statsService.getTotalStats(account);
     const latestDayStats = await this.statsService.getLatestDayStats(account);

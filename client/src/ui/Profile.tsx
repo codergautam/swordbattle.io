@@ -33,7 +33,7 @@ export default function Profile() {
   const [isLoading, setLoading] = useState(true);
 
   const fetchAccount = () => {
-    api.post(`${api.endpoint}/profile/${username}`, {}, (data) => {
+    api.post(`${api.endpoint}/profile/getPublicUserInfo/${username}`, {}, (data) => {
       if (!data.message) {
         setAccountData(data);
       }
@@ -61,7 +61,7 @@ export default function Profile() {
         <h4>Joined {sinceFrom(data.account.created_at)} ago</h4>
         <h4>Last seen {data.latestDayStats ? lastSeen(data.latestDayStats.date) : 'never'}</h4>
         <br />
-      
+
         {data.rank && <h4>#{data.rank} all time</h4>}
         <br />
         <br />

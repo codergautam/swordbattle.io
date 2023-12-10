@@ -27,6 +27,7 @@ import LoginImg from '../assets/img/login.png';
 import './App.scss';
 import GemCount from './GemCount';
 import ShopButton from './ShopButton';
+import ShopModal from './modals/ShopModal';
 
 const preloadImages: string[] = [
   SettingsImg,
@@ -107,6 +108,16 @@ function App() {
 
     dispatch(changeNameAsync(newName) as any);
   }
+  const openShop = () => {
+    setModal(<ShopModal account={account} />);
+  }
+
+  useEffect(() => {
+    if (modal?.type?.name === 'ShopModal') {
+      setModal(<ShopModal account={account} />);
+    }
+  }, [account]);
+
   const isLoaded = loadingProgress === 100;
   return (
     <div className="App">
@@ -146,12 +157,14 @@ function App() {
             <img src={SettingsImg} alt="Settings" />
           </div>
 
-          {modal && <Modal child={modal} close={closeModal} />}
+          {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal'} />}
+
+          {/* 'Shop' button and gem count */}
 
           {account.isLoggedIn && (
             <>
             <GemCount account={account} scale={scale.factor} />
-            <ShopButton account={account} scale={scale.factor} />
+            <ShopButton account={account} scale={scale.factor} openShop={openShop} />
             </>
           )}
 
@@ -191,11 +204,13 @@ function App() {
               <Link to="/leaderboard" target="_blank" rel="noreferrer">Leaderboard</Link>
             </div>
             <div>
-              <a href="https://forum.codergautam.dev/c/swordbattle/5" target="_blank" rel="noreferrer">Forum</a>
+              <a href="https://iogames.forum/swordbattle" target="_blank" rel="noreferrer" className='forum'>
+                Forum
+              </a>
             </div>
             <div>
-              <a href="https://discord.com/invite/9A9dNTGWb9" target="_blank" rel="noreferrer">
-                <img src={DiscordLogo} alt="Discord" className="discord" />
+              <a href="https://discord.com/invite/9A9dNTGWb9" target="_blank" rel="noreferrer" className='discord'>
+                Discord
               </a>
             </div>
           </footer>

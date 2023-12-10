@@ -149,13 +149,19 @@
       left: 0%;
       top: 0%;
       transform-origin: left;
+      cursor: pointer;
+
 
       img {
         height: auto;
         display: inline-block;
         margin-left: 10px;
         margin-top: 10px;
+        transition: transform 0.3s ease;
+      }
 
+      img:hover {
+        transform: scale(1.1);
       }
     }
 
@@ -211,11 +217,9 @@
         font-size: 30px;
         color: white;
         text-decoration: underline;
-      }
-
-      .discord {
-        width: auto;
-        max-height: 60px;
+        &:hover {
+          color: lime;
+        }
       }
     }
   }

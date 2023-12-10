@@ -5,14 +5,16 @@
       "displayName": "Default",
       "id": 1,
       "swordFileName": "sword.png",
-      "bodyFileName": "player.png"
+      "bodyFileName": "player.png",
+      "price": 0
     },
     "anime": {
       "name": "anime",
       "displayName": "Anime",
       "id": 2,
       "swordFileName": "animeSword.png",
-      "bodyFileName": "animePlayer.png"
+      "bodyFileName": "animePlayer.png",
+      "price": 3
     }
   }
 }

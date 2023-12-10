@@ -7,6 +7,7 @@ export type AccountState = {
   isLoggedIn: boolean;
   token: string;
   gems: number;
+  skins: { equipped: number; owned: number[] };
 }
 
 const initialState: AccountState = {
@@ -15,6 +16,7 @@ const initialState: AccountState = {
   token: '',
   isLoggedIn: false,
   gems: 0,
+  skins: { equipped: 1, owned: [1] }
 };
 
 // Async Thunks
@@ -26,15 +28,35 @@ export const logoutAsync = createAsyncThunk(
   }
 );
 
+export const updateAccountAsync = createAsyncThunk(
+  'account/updateAccount',
+  (_, { getState, dispatch }) => {
+    return new Promise((resolve, reject) => {
+    const state: any = getState();
+    api.post(`${api.endpoint}/profile/getPrivateUserInfo`, {}, (response: any) => {
+      console.log('updateAccountAsync', response);
+    if (response.error) {
+      alert(response.error);
+      reject(response.error);
+    } else if (response.account) {
+      response.account.token = state.account.token;
+      dispatch(setAccount(response.account));
+      resolve(response.account);
+    }
+  }, state.account.token);
+  });
+  }
+);
+
 export const changeNameAsync = createAsyncThunk(
   'account/changeName',
   async (newUsername: string, { getState, dispatch }) => {
     const state: any = getState();
     console.log('changeNameAsync', newUsername, state.account.username);
     try {
-      const response = await api.postAsync(`${api.endpoint}/auth/change-username`, {
+      const response = await api.postAsync(`${api.endpoint}/auth/change-username?now=${Date.now()}`, {
         newUsername,
-        curUsername: state.account.username
+        token: state.account.token
       });
 
       if (response.error) {
@@ -64,6 +86,7 @@ const accountSlice = createSlice({
       state.token = '';
       state.gems = 0;
       state.isLoggedIn = false;
+      state.skins = { equipped: 1, owned: [1] };
       window.phaser_game?.events.emit('tokenUpdate', '');
     },
     setAccount: (state, action) => {
@@ -73,6 +96,7 @@ const accountSlice = createSlice({
       const previousToken = state.token;
       state.token = action.payload.token;
       state.gems = action.payload.gems;
+      state.skins = action.payload.skins;
       if (previousToken !== state.token) {
         window.phaser_game?.events.emit('tokenUpdate', state.token);
       }

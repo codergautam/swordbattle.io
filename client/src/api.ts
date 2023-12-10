@@ -18,7 +18,7 @@ function get(url: string, callback = (data: any) => {}): any {
   .catch((err) => callback({ message: err }));
 }
 
-function post(url: string, body: any, callback = (data: any) => {}): any {
+function post(url: string, body: any, callback = (data: any) => {}, token?: string): any {
   fetch(url, {
     method: 'POST',
     mode: 'cors',
@@ -27,6 +27,7 @@ function post(url: string, body: any, callback = (data: any) => {}): any {
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': endpoint,
+      'Authorization': token ? `Bearer ${token}` : '',
     },
   })
   .then(res => res.json())

@@ -21,6 +21,9 @@ export class AuthService {
     if (await this.accountsService.findOne({ where: { username: data.username } })) {
       throw new UnauthorizedException('User already exists');
     }
+    if(await this.accountsService.findOne({ where: { email: data.email } })) {
+      throw new UnauthorizedException('Email already used by another account');
+    }
 
     const account = await this.accountsService.create(data);
     const token = await this.getToken(account);
@@ -28,7 +31,6 @@ export class AuthService {
   }
 
   async login(data: LoginDTO) {
-    console.log(data.username);
     let account;
     try {
     account = await this.accountsService.findOne({ where: { username: data.username } }, true);
@@ -51,6 +53,15 @@ export class AuthService {
     const payload = { sub: account.id };
     const token = this.jwtService.sign(payload);
     return token;
+  }
+
+  async getIdFromToken(token: string) {
+    const payload = this.jwtService.decode(token) as JwtPayload;
+    return payload.sub;
+  }
+
+  async getAccountById(id: number) {
+    return this.accountsService.getById(id);
   }
 
   async changeUsername(account: Account, newUsername: string) {

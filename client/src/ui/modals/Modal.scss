@@ -17,22 +17,22 @@
     justify-content: center;
     top: -15px;
     right: -15px;
-    width: 30px;
-    
+    width: 60px;
+
     cursor: pointer;
     appearance: none;
     background-color: #000;
     border: 2px solid #fff;
-    height: 30px;
+    height: 60px;
     line-height: normal;
-    border-radius: 20px;
+    border-radius: 60px;
     transform: rotate(0deg);
     transition: all 0.2s linear;
 
     &::before, &::after {
       content: ' ';
       display: block;
-      width: 10px;
+      width: 30px;
       height: 2px;
       background-color: #fff;
       transform: rotate(45deg);

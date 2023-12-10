@@ -47,12 +47,14 @@ export class AuthController {
     return { account: req.user };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('change-username')
   async changeUsername(@Req() request) {
-    const { newUsername, curUsername } = request.body;
-    // Get account
-    const account = await this.authService.getAccountFromUsername(curUsername);
+    const token = await this.authService.getIdFromToken(request.body.token);
+    const { newUsername } = request.body;
 
+    // Get account
+    const account = await this.authService.getAccountById(token);
     let result = await this.authService.changeUsername(account, newUsername);
     return result;
   }

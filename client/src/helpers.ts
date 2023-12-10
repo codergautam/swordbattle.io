@@ -114,3 +114,27 @@ export function calculateGemsXP(coins: number, kills: number) {
     gems: Math.floor(xp / 5)
   }
 }
+
+export function buyFormats(amount: number) {
+  const values = ['<5', '<10', '10+', '20+', '50+', '100+', '200+', '500+', '1K+', '2K+', '5K+', '10K+', '20K+', '50K+', '100K+', '200K+', '500K+', '1M+', '2M+', '5M+', '10M+'];
+
+  const amountToNumber = (val: string) => {
+    const num = parseFloat(val.replace(/[<+KM]/g, ''));
+    return val.includes('M') ? num * 1000000 : val.includes('K') ? num * 1000 : num;
+  };
+
+  for (let i = 0; i < values.length; i++) {
+    const current = values[i];
+    const next = i + 1 < values.length ? values[i + 1] : null;
+
+    const currentVal = amountToNumber(current);
+    const nextVal = next ? amountToNumber(next) : Infinity;
+
+    if ((current.includes('<') && amount < currentVal) ||
+        (!current.includes('<') && amount >= currentVal && amount < nextVal)) {
+      return current;
+    }
+  }
+
+  return values[values.length - 1];
+}

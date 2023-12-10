@@ -5,16 +5,22 @@ import { Account } from './account.entity';
 import * as config from '../config';
 import validateUsername from 'src/helpers/validateUsername';
 import { Transaction } from 'src/transactions/transactions.entity';
+import * as cosmetics from '../cosmetics.json';
+import CacheObj from 'src/cache';
 
 const usernameWaitTime = config.config.usernameWaitTime;
 
+
 @Injectable()
 export class AccountsService {
+  private cosmeticCountsCache = new CacheObj<{ [key: number]: number }>(7200000) // 2 hours in milliseconds
+
   constructor(
     @InjectRepository(Account)
     private readonly accountsRepository: Repository<Account>,
     @InjectRepository(Transaction)
     private readonly transactionsRepository: Repository<Transaction>,
+
   ) {}
 
   async create(data: Partial<Account>) {
@@ -36,6 +42,126 @@ export class AccountsService {
       throw new NotFoundException(`There isn't any account with id: ${id}`);
     }
     return account;
+  }
+
+  async getCosmeticCnts(type: 'skins') {
+    // TODO: Add support for other types cache
+    // Check if cache is stale
+    if (this.cosmeticCountsCache.isStale()) {
+      // Fetch new data from database and update cache
+      const counts = await this.fetchAndCountCosmeticsFromDB(type);
+      this.cosmeticCountsCache.updateData(counts);
+    }
+
+    // Return data from cache
+    return this.cosmeticCountsCache.getData();
+  }
+
+  async fetchAndCountCosmeticsFromDB(type: 'skins') {
+    const skinIds = Object.values(cosmetics[type]).map((c: any) => c.id);
+
+    // Prepare an object to hold the counts
+    const counts = skinIds.reduce((acc, id) => ({ ...acc, [id]: 0 }), {});
+
+    // Iterate over each skinId and count occurrences in the database
+    for (const skinId of skinIds) {
+      const countResult = await this.accountsRepository.createQueryBuilder()
+        .select("COUNT(*)", "count")
+        .where("skins @> :skinId", { skinId: `{"owned": [${skinId}]}` }) // Adjust the condition according to your database type and schema
+        .getRawOne();
+
+      counts[skinId] = parseInt(countResult.count);
+    }
+
+    return counts;
+  }
+
+  async equipSkin(userId: number, skinId: number) {
+    // Fetch the user's current skin data
+    const user = await this.accountsRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if(typeof skinId !== 'number') {
+      return { error: 'Invalid skin id' };
+    }
+    // Parse the 'skins' data
+    let skinsData;
+    try {
+      skinsData = user.skins
+    } catch (e) {
+      return { error: 'Failed to parse skins data' };
+    }
+
+    // Check if the user owns the skin
+    if (!skinsData.owned.includes(skinId)) {
+      return { error: 'User does not own this skin' };
+    }
+
+    // Update the 'equipped' field
+    skinsData.equipped = skinId
+
+    // Save the updated skins data back to the user's account
+    user.skins = skinsData;
+    await this.accountsRepository.save(user);
+
+    return { success: true };
+  }
+
+  async buyCosmetic(userId: number, itemId: number, type: string) {
+    // Fetch the user's current skin data
+    const user = await this.getById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Parse the 'skins' data
+    let skinsData;
+    try {
+      skinsData = user.skins
+    } catch (e) {
+      return { error: 'Failed to parse skins data' };
+    }
+
+    // Check if the user already owns the skin
+    if (skinsData.owned.includes(itemId)) {
+      return { error: 'User already owns this skin' };
+    }
+
+    // Check if the skin exists
+    const cosmetic: any = Object.values(cosmetics[type]).find((c: any) => c.id === itemId);
+    if (!cosmetic) {
+      return { error: 'Invalid skin id' };
+    }
+    console.log(cosmetic, user);
+
+    // Check if the user has enough gems
+    const skinPrice = cosmetic.price;
+    if (user.gems < skinPrice) {
+      return { error: 'Not enough gems' };
+    }
+
+    // Update the 'owned' field
+    skinsData.owned.push(itemId);
+
+    // Deduct the gems from the user's account
+    user.gems -= skinPrice;
+
+    // Save the updated skins data and gems back to the user's account
+    user.skins = skinsData;
+    await this.accountsRepository.save(user);
+
+    // Add to transactions table
+    const transaction = this.transactionsRepository.create({
+      account: user,
+      amount: -skinPrice,
+      description: "buy-" + type + "-" + itemId,
+      transaction_id: "gems",
+    });
+    await this.transactionsRepository.save(transaction);
+
+    return { success: true };
   }
 
   async addGems(account: Account, gems: number, reason = "server") {

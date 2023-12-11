@@ -19,6 +19,10 @@ class ProgressBar extends HudComponent {
   lastKnownLevel: number | null = null;
   levelUpStreak = 0;
 
+  killStreak = 0;
+  lastKillTime = 0;
+  lastEntityStabId = 0;
+
   initialize() {
     // Create the background bar
     this.barBackground = this.game.add.graphics();
@@ -76,7 +80,21 @@ class ProgressBar extends HudComponent {
   }
 
   showStabbedText(nickname: string) {
-    this.stabbedText.text = `Stabbed ${nickname}`;
+    if (Date.now() - this.lastKillTime < 2500) {
+      this.stabbedText.setColor('white');
+      let killStreakText = "Kill!";
+      const killStreakList = ["Double", "Triple", "Quadra", "Quinta", "Hexta", "Hepta", "Octa", "Nona", "Deca"];
+      if (this.killStreak - 1 < killStreakList.length) {
+        killStreakText = `${killStreakList[this.killStreak - 1]} ${killStreakText}`;
+      } else {
+        killStreakText = `x${this.killStreak} ${killStreakText}`;
+      }
+      this.stabbedText.setText(killStreakText);
+    } else {
+      this.stabbedText.setColor('#f23838');
+      this.killStreak = 0;
+      this.stabbedText.setText(`Stabbed ${nickname}`);
+    }
 
     const onComplete = () => {
       this.game.tweens.add({
@@ -163,8 +181,14 @@ class ProgressBar extends HudComponent {
 
     const stabbedId = player.flags[FlagTypes.PlayerKill];
     const stabbedEntity = this.game.gameState.entities[stabbedId];
-    if (stabbedEntity && this.stabbedText.alpha === 0) {
+    if (stabbedEntity && stabbedId !== this.lastEntityStabId) {
+
+      console.log(this.killStreak, stabbedEntity.name, stabbedId);
       this.showStabbedText(stabbedEntity.name);
+      this.lastKillTime = Date.now();
+      this.killStreak++;
+      this.lastEntityStabId = stabbedId;
+
     }
   }
 }

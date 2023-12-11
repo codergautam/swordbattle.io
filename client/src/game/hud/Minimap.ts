@@ -26,7 +26,7 @@ class Minimap extends HudComponent {
       .on('pointerover', () => this.game.input.setDefaultCursor('pointer'))
       .on('pointerout', () => this.game.input.setDefaultCursor('default'))
       .on('pointerdown', () => this.toggleMinimize());
-      
+
     this.mapBackground = this.game.add.graphics()
     this.mapBackground.lineStyle(2, 0x96e398);
     this.mapBackground.strokeRect(0, 0, this.width, this.height);
@@ -81,7 +81,7 @@ class Minimap extends HudComponent {
         case BiomeTypes.River: color = 0x4854a2; break;
         case BiomeTypes.Safezone: color = 0x999999; break;
       }
-  
+
       const graphics = this.game.add.graphics();
       graphics.fillStyle(color);
       biome.shape.fillShape(graphics);
@@ -100,7 +100,7 @@ class Minimap extends HudComponent {
 
     const targetX = this.mapContainer.x + player.shape.x * this.scaleX;
     const targetY = this.mapContainer.y + player.shape.y * this.scaleY;
-  
+
     this.crown.x += (targetX - this.crown.x) * lerpFactor;
     this.crown.y += (targetY - this.crown.y) * lerpFactor;
   }
@@ -110,12 +110,16 @@ class Minimap extends HudComponent {
       if (entity.type === EntityTypes.Player) continue;
 
       if (!entity.container) {
+        try {
         const sprite = entity.createSprite();
         this.mapContainer?.add(sprite);
+        } catch (e) {
+          console.error('Failed to add mm entity', e);
+        }
       }
     }
   }
-  
+
   update(dt: number) {
     if (!this.graphics) return;
 
@@ -125,7 +129,7 @@ class Minimap extends HudComponent {
 
     graphics.clear();
     graphics.lineStyle(1, 0x000000);
-    
+
     const players = this.game.gameState.getPlayers();
     let leader;
     for (const player of players) {

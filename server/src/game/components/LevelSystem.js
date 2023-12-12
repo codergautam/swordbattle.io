@@ -8,7 +8,7 @@ class LevelSystem {
     this.maxLevel = 50;
     this.coins = 0;
     this.previousLevelCoins = 0;
-    this.nextLevelCoins = 50;
+    this.nextLevelCoins = 150;
     this.upgradePoints = 0;
 
     this.buffs = {
@@ -89,13 +89,15 @@ class LevelSystem {
           break;
       }
     }
+    this.player.sword.swingDuration.multiplier['level'] = Math.min(maxSwingDuration, Math.max(1, swingDurationIncrease * (this.level-1)));
+
   }
 
   levelUp() {
     this.level += 1;
     this.previousLevelCoins = this.nextLevelCoins;
-    this.nextLevelCoins = this.previousLevelCoins * 1.25;
-    this.player.sword.swingDuration.value = Math.min(maxSwingDuration, this.player.sword.swingDuration.value + swingDurationIncrease);
+    this.nextLevelCoins = this.previousLevelCoins * 1.2;
+
     this.upgradePoints += 1;
     this.player.evolutions.checkForEvolutions();
     this.addBuff(Types.Buff.Size, false);

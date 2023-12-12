@@ -100,7 +100,11 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   return (
     <div className="shop-modal">
       <h1 className='shop-title'>Shop</h1>
+      {account?.isLoggedIn ? (
       <h1>Balance: {account.gems}<img className={'gem'} src='/assets/game/gem.png' alt='Gems' width={30} height={30} /></h1>
+      ) : (
+        <h1>Login or Signup to buy skins & cosmetics from the shop!</h1>
+      )}
       <div className='skins'>
       {Object.values(skins).map((skin, index) => (
         <div className="skin-card" key={skin.name}>
@@ -124,10 +128,12 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
             </>
           )}
           </h4>
+          {account?.isLoggedIn && (
           <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
             {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
             account.skins.owned.includes(skin.id) ? 'Equip' : 'Buy')}
             </button>
+          )}
         </div>
       ))}
       </div>

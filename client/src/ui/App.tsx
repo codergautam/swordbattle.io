@@ -164,9 +164,10 @@ function App() {
           {account.isLoggedIn && (
             <>
             <GemCount account={account} scale={scale.factor} />
-            <ShopButton account={account} scale={scale.factor} openShop={openShop} />
             </>
           )}
+
+          <ShopButton account={account} scale={scale.factor} openShop={openShop} />
 
           <div className="auth-buttons" style={scale.styles}>
             {account.isLoggedIn ? (

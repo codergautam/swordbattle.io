@@ -36,4 +36,8 @@ module.exports = {
     coins: 20000,
     kills: 50,
   },
+  world: {
+    worldHeight: 30000,
+    worldWidth: 30000,
+  }
 };

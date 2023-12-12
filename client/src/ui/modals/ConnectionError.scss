@@ -12,7 +12,6 @@
 
   .content {
     width: 400px;
-    height: 200px;
     background: #f6f6f6;
     color: black;
     padding: 1rem 3rem;
@@ -34,6 +33,23 @@
 
     button {
       margin: 5px;
+    }
+  }
+
+  .reload-btn {
+    background: #f6f6f6;
+    color: black;
+    border: 1px solid black;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: black;
+      color: white;
     }
   }
 

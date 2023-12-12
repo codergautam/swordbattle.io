@@ -31,6 +31,7 @@ const Timer = require('./components/Timer');
 const Types = require('./Types');
 const map = require('./maps/main');
 const helpers = require('../helpers');
+const config = require('../config');
 
 class GameMap {
   constructor(game) {
@@ -242,6 +243,13 @@ class GameMap {
     this.y = minY;
     this.width = maxX - minX;
     this.height = maxY - minY;
+
+    if (this.width !== config.world.worldWidth) {
+      throw new Error(`Map width in config must be ${config.world.worldWidth}, but is ${this.width} calculated from biomes`);
+    }
+    if (this.height !== config.world.worldHeight) {
+      throw new Error(`Map height in config must be ${config.world.worldHeight}, but is ${this.height} calculated from biomes`);
+    }
     this.shape = Polygon.createFromRectangle(this.x, this.y, this.width, this.height);
   }
 

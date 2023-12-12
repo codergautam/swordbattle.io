@@ -6,9 +6,10 @@ export default function ConnectionError({ reason = 'Connection failed' }: any) {
     <div className="content">
       <h2>Oops!</h2>
       <p>Server disconnected: {reason}</p>
-      <a>Please reload the page</a>
-      <button onClick={reload}>
-        Reload
+      <a>Please try reconnecting.</a>
+      <br/>
+      <button className="reload-btn" onClick={reload}>
+        Reconnect
       </button>
     </div>
   );

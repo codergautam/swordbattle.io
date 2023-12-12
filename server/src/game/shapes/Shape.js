@@ -1,5 +1,7 @@
 const SAT = require('sat');
 const Types = require('../Types');
+const helpers = require('../../helpers');
+const config = require('../../config');
 
 class Shape {
   constructor() {
@@ -10,10 +12,12 @@ class Shape {
 
   get x() {
     return this.collisionPoly.pos.x;
+
   }
 
   set x(value) {
-    this.collisionPoly.pos.x = value;
+    // this.collisionPoly.pos.x = value;
+    this.collisionPoly.pos.x = helpers.clamp(value, -config.world.worldWidth / 2, config.world.worldWidth / 2);
   }
 
   get y() {
@@ -21,7 +25,8 @@ class Shape {
   }
 
   set y(value) {
-    this.collisionPoly.pos.y = value;
+    // this.collisionPoly.pos.y = value;
+    this.collisionPoly.pos.y = helpers.clamp(value, -config.world.worldHeight, config.world.worldHeight / 2);
   }
 
   get boundary() {

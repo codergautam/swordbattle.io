@@ -35,10 +35,18 @@
       left: 0;
       bottom: 0;
       transform-origin: bottom left;
+      cursor: pointer;
+      // smooth transition
+      transition: transform 0.3s ease;
 
       img {
         width: 200px;
         height: auto;
+        transition: transform 0.3s ease;
+      }
+
+      img:hover {
+        transform: scale(1.1);
       }
     }
 

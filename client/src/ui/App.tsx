@@ -46,8 +46,10 @@ function App() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [modal, setModal] = useState<any>(null);
   const [connectionError, setConnectionError] = useState<string>('');
+  const [firstGame, setFirstGame] = useState(true);
 
   useEffect(() => {
+    if(gameStarted && firstGame) setFirstGame(false);
     if(gameStarted) return;
     setTimeout(() => {
     api.get(`${api.endpoint}/auth/account`, (data) => {
@@ -60,6 +62,7 @@ function App() {
     });
   }, 1000);
 
+  if(!firstGame) return;
     setModal(<ChangelogModal />);
   }, [gameStarted]);
 

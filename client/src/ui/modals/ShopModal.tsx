@@ -113,8 +113,8 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
             src={basePath + skin.bodyFileName}
             alt={skin.name}
             ref={(el) => assignRef(el as HTMLImageElement, index)}
-            width={200}
-            height={200}
+            width={150}
+            height={150}
             className='skin-img'
           />
           <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys

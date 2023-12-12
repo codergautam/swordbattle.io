@@ -9,6 +9,7 @@ export interface ClientMessage {
   chatMessage?: string;
   isPing?: boolean;
   token?: string;
+  name?: string;
 }
 
 export function encodeClientMessage(message: ClientMessage): Uint8Array {
@@ -97,6 +98,13 @@ function _encodeClientMessage(message: ClientMessage, bb: ByteBuffer): void {
     writeVarint32(bb, 82);
     writeString(bb, $token);
   }
+
+  // optional string name = 11;
+  let $name = message.name;
+  if ($name !== undefined) {
+    writeVarint32(bb, 90);
+    writeString(bb, $name);
+  }
 }
 
 export function decodeClientMessage(binary: Uint8Array): ClientMessage {
@@ -175,6 +183,12 @@ function _decodeClientMessage(bb: ByteBuffer): ClientMessage {
       // optional string token = 10;
       case 10: {
         message.token = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string name = 11;
+      case 11: {
+        message.name = readString(bb, readVarint32(bb));
         break;
       }
 

@@ -246,7 +246,7 @@ class Player extends Entity {
     this.health.damaged(damage);
 
     if (this.health.isDead) {
-      let reason = 'Suddenly dead';
+      let reason = 'Unknown Entity';
       if (entity) {
         switch (entity.type) {
           case Types.Entity.Player: reason = entity.name; break;
@@ -256,6 +256,8 @@ class Player extends Entity {
           case Types.Entity.Yeti: reason = 'A Yeti'; break;
           case Types.Entity.Chimera: reason = 'A Chimera'; break;
           case Types.Entity.Roku: reason = 'A Roku'; break;
+          case Types.Entity.Snowball: reason = 'Yeti Boss'; break; // the yeti boss throws snowballs
+          case Types.Entity.Fireball: reason = 'The Roku'; break; // the roku throws fireballs
         }
       }
       this.remove(reason, entity.type === Types.Entity.Player ? Types.DisconnectReason.Player : Types.DisconnectReason.Mob);

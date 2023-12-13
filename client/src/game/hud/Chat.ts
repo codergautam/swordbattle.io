@@ -4,18 +4,28 @@ import ChatInput from '../../ui/game/ChatInput';
 class Chat extends HudComponent {
   input!: Phaser.GameObjects.DOMElement;
   isOpen = false;
+  sendButton: Phaser.GameObjects.DOMElement;
 
   initialize() {
-    this.input = this.hud.scene.add.dom(0, 0, ChatInput)
+    this.input = this.hud.scene.add.dom(0, 0, ChatInput.input)
       .setOrigin(0.5, 1)
       .setAlpha(0);
+    this.sendButton = this.hud.scene.add.dom(0, 0, ChatInput.sendButton).setAlpha(0);
+    this.sendButton.y = -this.input.height-10;
 
-    this.game.input.keyboard?.on('keydown-ENTER', () => this.toggle());
+    this.sendButton.addListener('click');
+    this.sendButton.on('click', () => {
+      this.toggle();
+    });
+
+    this.game.input.keyboard?.on('keydown-ENTER', () => {
+      if(this.game.gameState.self.entity?.following) this.toggle();
+    });
     this.game.input.keyboard?.on('keydown-ESC', () => {
       if (this.isOpen) this.toggle(false);
     });
 
-    this.container = this.hud.scene.add.container(0, 0, [this.input]);
+    this.container = this.hud.scene.add.container(0, 0, [this.input, this.sendButton]);
     this.hud.add(this.container);
   }
 
@@ -35,7 +45,7 @@ class Chat extends HudComponent {
     this.isOpen = !this.isOpen;
 
     this.game.tweens.add({
-      targets: this.input,
+      targets: [this.input, this.sendButton],
       alpha: this.isOpen ? 1 : 0,
       duration: 100,
       onUpdate: (tween: Phaser.Tweens.Tween) => {

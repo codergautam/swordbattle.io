@@ -47,7 +47,7 @@ function LeaderboardLine({ player }: any) {
   return (
     <div className="leaderboard-line">
       <span className="leaderboard-place">#{player.place}: </span>
-      <span className="leaderboard-name" style={!layer.account ? { color: '#3333ff' } : {}}>{player.name} <span style={{color: 'white'}}>- </span></span>
+      <span className="leaderboard-name" style={!player.account ? { color: '#3333ff' } : {}}>{player.name} <span style={{color: 'white'}}>- </span></span>
       <span className="leaderboard-score">{balance}</span>
     </div>
   );

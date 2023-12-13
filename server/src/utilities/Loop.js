@@ -44,7 +44,7 @@ class Loop {
       this.runLoop();
     }
     this.lastTickTime = startTime;
-    // console.log('tps:', this.tps, '| tick time:', passedTime, '| delta time:', deltaTime);
+    console.log('tps:', this.tps, '| tick time:', passedTime);
   }
 
   calculateElapsedTime(endTime, startTime) {

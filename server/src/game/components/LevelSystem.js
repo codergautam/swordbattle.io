@@ -96,7 +96,8 @@ class LevelSystem {
   levelUp() {
     this.level += 1;
     this.previousLevelCoins = this.nextLevelCoins;
-    this.nextLevelCoins = this.previousLevelCoins * 1.2;
+    // 20percent increase
+    this.nextLevelCoins = this.previousLevelCoins * 2.2;
 
     this.upgradePoints += 1;
     this.player.evolutions.checkForEvolutions();

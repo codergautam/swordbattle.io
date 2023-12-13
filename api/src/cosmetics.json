@@ -1,12 +1,13 @@
 {
-  "skins" : {
+  "skins": {
     "player": {
       "name": "player",
       "displayName": "Default",
       "id": 1,
       "swordFileName": "sword.png",
       "bodyFileName": "player.png",
-      "price": 0
+      "buyable":true,
+      "description": "The default skin"
     },
     "anime": {
       "name": "anime",
@@ -14,7 +15,1747 @@
       "id": 2,
       "swordFileName": "animeSword.png",
       "bodyFileName": "animePlayer.png",
+      "buyable": true,
       "price": 3
+    },
+    "yinyang": {
+      "name": "yinyang",
+      "displayName": "Yin Yang OG",
+      "id": 4,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "yinyangSword.png",
+      "bodyFileName": "yinyangPlayer.png",
+      "description": "Find a balance"
+    },
+    "neon": {
+      "name": "neon",
+      "displayName": "Neon OG",
+      "id": 5,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "neonSword.png",
+      "bodyFileName": "neonPlayer.png",
+      "description": "Ahhh.. So bright!"
+    },
+    "sponge": {
+      "name": "sponge",
+      "displayName": "Sponge OG",
+      "id": 7,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "spongeSword.png",
+      "bodyFileName": "spongePlayer.png",
+      "description": "Soaks up coins"
+    },
+    "vortex": {
+      "name": "vortex",
+      "displayName": "Vortex OG",
+      "id": 6,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "vortexSword.png",
+      "bodyFileName": "vortexPlayer.png",
+      "description": "The power is too strong.."
+    },
+    "bubble": {
+      "name": "bubble",
+      "displayName": "Bubble OG",
+      "id": 8,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "bubbleSword.png",
+      "bodyFileName": "bubblePlayer.png",
+      "description": "Magical, colorful, mysterious"
+    },
+    "bullseye": {
+      "name": "bullseye",
+      "displayName": "Bullseye OG",
+      "id": 9,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "bullseyeSword.png",
+      "bodyFileName": "bullseyePlayer.png",
+      "description": "It can't miss"
+    },
+    "fox": {
+      "name": "fox",
+      "displayName": "Fox OG",
+      "id": 10,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "foxSword.png",
+      "bodyFileName": "foxPlayer.png",
+      "description": "Very sneaky"
+    },
+    "peppermint": {
+      "name": "peppermint",
+      "displayName": "Peppermint OG",
+      "id": 11,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "peppermintSword.png",
+      "bodyFileName": "peppermintPlayer.png",
+      "description": "Tastes like coins"
+    },
+    "spring": {
+      "name": "spring",
+      "displayName": "Spring OG",
+      "id": 12,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "springSword.png",
+      "bodyFileName": "springPlayer.png",
+      "description": "Spring is here!"
+    },
+    "pig": {
+      "name": "pig",
+      "displayName": "Pig OG",
+      "id": 13,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "pigSword.png",
+      "bodyFileName": "pigPlayer.png",
+      "description": "It managed to survive the wolf..."
+    },
+    "smile": {
+      "name": "smile",
+      "displayName": "Smile OG",
+      "id": 14,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "smileSword.png",
+      "bodyFileName": "smilePlayer.png",
+      "description": "Smile while you stab"
+    },
+    "sad": {
+      "name": "sad",
+      "displayName": "Sad OG",
+      "id": 15,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "sadSword.png",
+      "bodyFileName": "sadPlayer.png",
+      "description": "Stab with sadness..."
+    },
+    "glass": {
+      "name": "glass",
+      "displayName": "Glass OG",
+      "id": 16,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "glassSword.png",
+      "bodyFileName": "glassPlayer.png",
+      "description": "Why have gold when you can have glass?"
+    },
+    "sick": {
+      "name": "sick",
+      "displayName": "Sick OG",
+      "id": 17,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "sickSword.png",
+      "bodyFileName": "sickPlayer.png",
+      "description": "I don't feel so good... I need coins"
+    },
+    "clef": {
+      "name": "clef",
+      "displayName": "Bass OG",
+      "id": 18,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "clefSword.png",
+      "bodyFileName": "clefPlayer.png",
+      "description": "Slap them with you bass"
+    },
+    "bowling": {
+      "name": "bowling",
+      "displayName": "Bowling OG",
+      "id": 19,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "bowlingSword.png",
+      "bodyFileName": "bowlingPlayer.png",
+      "description": "It can knock people over like a pin"
+    },
+    "hacker": {
+      "name": "hacker",
+      "displayName": "Hacker OG",
+      "id": 20,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "hackerSword.png",
+      "bodyFileName": "hackerPlayer.png",
+      "description": "\u2119\ud835\udd63\ud835\udd60 \ud835\udd59\ud835\udd52\ud835\udd54\ud835\udd5c\ud835\udd56\ud835\udd63"
+    },
+    "red": {
+      "name": "red",
+      "displayName": "Red OG",
+      "id": 21,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "redSword.png",
+      "bodyFileName": "redPlayer.png",
+      "description": "Its a better default"
+    },
+    "frager201": {
+      "name": "frager201",
+      "displayName": "Frager OG",
+      "id": 22,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "frager201Sword.png",
+      "bodyFileName": "frager201Player.png",
+      "description": "Frag your way through"
+    },
+    "bread": {
+      "name": "bread",
+      "displayName": "Bread OG",
+      "id": 23,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "breadSword.png",
+      "bodyFileName": "breadPlayer.png",
+      "description": "Fresh, and tasty!"
+    },
+    "starrynight": {
+      "name": "starrynight",
+      "displayName": "Starry Night OG",
+      "id": 24,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "starrynightSword.png",
+      "bodyFileName": "starrynightPlayer.png",
+      "description": "A nice sight before a kill"
+    },
+    "cursed": {
+      "name": "cursed",
+      "displayName": "Cursde OG",
+      "id": 25,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "cursedSword.png",
+      "bodyFileName": "cursedPlayer.png",
+      "description": "Curse them to your advantage"
+    },
+    "chef": {
+      "name": "chef",
+      "displayName": "Chef OG",
+      "id": 26,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "chefSword.png",
+      "bodyFileName": "chefPlayer.png",
+      "description": "Chop 'em up"
+    },
+    "rainbow": {
+      "name": "rainbow",
+      "displayName": "Rainbow OG",
+      "id": 27,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "rainbowSword.png",
+      "bodyFileName": "rainbowPlayer.png",
+      "description": "Its bright and colorful"
+    },
+    "meelee": {
+      "name": "meelee",
+      "displayName": "Melee OG",
+      "id": 28,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "meeleeSword.png",
+      "bodyFileName": "meeleePlayer.png",
+      "description": "Charge in headfirst"
+    },
+    "radiation": {
+      "name": "radiation",
+      "displayName": "Radiation OG",
+      "id": 29,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "radiationSword.png",
+      "bodyFileName": "radiationPlayer.png",
+      "description": "Very Toxic..."
+    },
+    "pizza": {
+      "name": "pizza",
+      "displayName": "Pizza OG",
+      "id": 30,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "pizzaSword.png",
+      "bodyFileName": "pizzaPlayer.png",
+      "description": "A treat for a kill"
+    },
+    "painting": {
+      "name": "painting",
+      "displayName": "Painting OG",
+      "id": 31,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "paintingSword.png",
+      "bodyFileName": "paintingPlayer.png",
+      "description": "Paint your coins"
+    },
+    "astronaut": {
+      "name": "astronaut",
+      "displayName": "Astronaut OG",
+      "id": 32,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "astronautSword.png",
+      "bodyFileName": "astronautPlayer.png",
+      "description": "No gravity..."
+    },
+    "matrix": {
+      "name": "matrix",
+      "displayName": "Matrix OG",
+      "id": 33,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "matrixSword.png",
+      "bodyFileName": "matrixPlayer.png",
+      "description": "Matrix: Its a mystery"
+    },
+    "smokedetector": {
+      "name": "smokedetector",
+      "displayName": "Smoke Detector OG",
+      "id": 34,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "smokedetectorSword.png",
+      "bodyFileName": "smokedetectorPlayer.png",
+      "description": "BEEP BEEP, scare your enemies"
+    },
+    "student": {
+      "name": "student",
+      "displayName": "Student OG",
+      "id": 35,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "studentSword.png",
+      "bodyFileName": "studentPlayer.png",
+      "description": "Study the arts of stabbing..."
+    },
+    "axolotl": {
+      "name": "axolotl",
+      "displayName": "Axolotl OG",
+      "id": 36,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "axolotlSword.png",
+      "bodyFileName": "axolotlPlayer.png",
+      "description": "Just swimming around"
+    },
+    "ninja": {
+      "name": "ninja",
+      "displayName": "Ninja OG",
+      "id": 37,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "ninjaSword.png",
+      "bodyFileName": "ninjaPlayer.png",
+      "description": "A skilled warrior"
+    },
+    "viking": {
+      "name": "viking",
+      "displayName": "Viking OG",
+      "id": 38,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "vikingSword.png",
+      "bodyFileName": "vikingPlayer.png",
+      "description": "A fearsome warrior"
+    },
+    "sea": {
+      "name": "sea",
+      "displayName": "Sea OG",
+      "id": 39,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "seaSword.png",
+      "bodyFileName": "seaPlayer.png",
+      "description": "Peaceful and relaxing."
+    },
+    "flame": {
+      "name": "flame",
+      "displayName": "Flame OG",
+      "id": 40,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "flameSword.png",
+      "bodyFileName": "flamePlayer.png",
+      "description": "Dont like it? Set it ablaze"
+    },
+    "determined": {
+      "name": "determined",
+      "displayName": "Determined OG",
+      "id": 41,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "determinedSword.png",
+      "bodyFileName": "determinedPlayer.png",
+      "description": "I. Need. Coins."
+    },
+    "tiger": {
+      "name": "tiger",
+      "displayName": "Tiger OG",
+      "id": 42,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "tigerSword.png",
+      "bodyFileName": "tigerPlayer.png",
+      "description": "Don't get in the way of its claws..."
+    },
+    "frumpythefrog": {
+      "name": "frumpythefrog",
+      "displayName": "Frumpy the Frog OG",
+      "id": 43,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "frumpythefrogSword.png",
+      "bodyFileName": "frumpythefrogPlayer.png",
+      "description": "A frog named Frumpy"
+    },
+    "vinyl": {
+      "name": "vinyl",
+      "displayName": "Vinyl OG",
+      "id": 44,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "vinylSword.png",
+      "bodyFileName": "vinylPlayer.png",
+      "description": "Go old fashioned"
+    },
+    "asteroid": {
+      "name": "asteroid",
+      "displayName": "Asteroid OG",
+      "id": 45,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "asteroidSword.png",
+      "bodyFileName": "asteroidPlayer.png",
+      "description": "Be the destruction"
+    },
+    "lightning": {
+      "name": "lightning",
+      "displayName": "Lightning OG",
+      "id": 46,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "lightningSword.png",
+      "bodyFileName": "lightningPlayer.png",
+      "description": "One zap and you're dead..."
+    },
+    "smore": {
+      "name": "smore",
+      "displayName": "Smore OG",
+      "id": 47,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "smoreSword.png",
+      "bodyFileName": "smorePlayer.png",
+      "description": "Delicious"
+    },
+    "mystery": {
+      "name": "mystery",
+      "displayName": "Mystery OG",
+      "id": 48,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "mysterySword.png",
+      "bodyFileName": "mysteryPlayer.png",
+      "description": "Its a murder mystery..."
+    },
+    "dayandnight": {
+      "name": "dayandnight",
+      "displayName": "Day and Night OG",
+      "id": 49,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "dayandnightSword.png",
+      "bodyFileName": "dayandnightPlayer.png",
+      "description": "Show your dedication no matter what time..."
+    },
+    "cheese": {
+      "name": "cheese",
+      "displayName": "Cheese OG",
+      "id": 50,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "cheeseSword.png",
+      "bodyFileName": "cheesePlayer.png",
+      "description": "Its cheese"
+    },
+    "farmer": {
+      "name": "farmer",
+      "displayName": "Farmer OG",
+      "id": 51,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "farmerSword.png",
+      "bodyFileName": "farmerPlayer.png",
+      "description": "Trained in the fields"
+    },
+    "medic": {
+      "name": "medic",
+      "displayName": "Medic OG",
+      "id": 52,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "medicSword.png",
+      "bodyFileName": "medicPlayer.png",
+      "description": "Heal.. or Stab..."
+    },
+    "pumpkin": {
+      "name": "pumpkin",
+      "displayName": "Pumpkin OG",
+      "id": 56,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "pumpkinSword.png",
+      "bodyFileName": "pumpkinPlayer.png",
+      "description": "Very spooky..."
+    },
+    "floral": {
+      "name": "floral",
+      "displayName": "Floral OG",
+      "id": 57,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "floralSword.png",
+      "bodyFileName": "floralPlayer.png",
+      "description": "Smells good like coins"
+    },
+    "king": {
+      "name": "king",
+      "displayName": "King OG",
+      "id": 53,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "kingSword.png",
+      "bodyFileName": "kingPlayer.png",
+      "description": "All hail the king"
+    },
+    "xray": {
+      "name": "xray",
+      "displayName": "X-Ray OG",
+      "id": 54,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "xraySword.png",
+      "bodyFileName": "xrayPlayer.png",
+      "description": "Stare into your enemies soul"
+    },
+    "monkey": {
+      "name": "monkey",
+      "displayName": "Monkey OG",
+      "id": 55,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "monkeySword.png",
+      "bodyFileName": "monkeyPlayer.png",
+      "description": "Le Monke"
+    },
+    "santa": {
+      "name": "santa",
+      "displayName": "Santa OG",
+      "id": 58,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "santaSword.png",
+      "bodyFileName": "santaPlayer.png",
+      "description": "Ho ho ho"
+    },
+    "superhero": {
+      "name": "superhero",
+      "displayName": "Superhero OG",
+      "id": 59,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "superheroSword.png",
+      "bodyFileName": "superheroPlayer.png",
+      "description": "Super skills for a super player"
+    },
+    "movie": {
+      "name": "movie",
+      "displayName": "Movie OG",
+      "id": 60,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "movieSword.png",
+      "bodyFileName": "moviePlayer.png",
+      "description": "Eat coins like popcorn"
+    },
+    "killerbot": {
+      "name": "killerbot",
+      "displayName": "Killer Bot OG",
+      "id": 61,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "killerbotSword.png",
+      "bodyFileName": "killerbotPlayer.png",
+      "description": "Makes your opponents wish they were fighting an actual bot"
+    },
+    "comic": {
+      "name": "comic",
+      "displayName": "Comic OG",
+      "id": 62,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "comicSword.png",
+      "bodyFileName": "comicPlayer.png",
+      "description": "Be like the villain"
+    },
+    "masquerade": {
+      "name": "masquerade",
+      "displayName": "Masquerade OG",
+      "id": 63,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "masqueradeSword.png",
+      "bodyFileName": "masqueradePlayer.png",
+      "description": "Wear your mask, and stab in disguise"
+    },
+    "ham": {
+      "name": "ham",
+      "displayName": "Ham OG",
+      "id": 65,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "hamSword.png",
+      "bodyFileName": "hamPlayer.png",
+      "description": "Chomp"
+    },
+    "chicken": {
+      "name": "chicken",
+      "displayName": "Chicken OG",
+      "id": 66,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "chickenSword.png",
+      "bodyFileName": "chickenPlayer.png",
+      "description": "A snack before slaughter"
+    },
+    "dog": {
+      "name": "dog",
+      "displayName": "Dog OG",
+      "id": 64,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "dogSword.png",
+      "bodyFileName": "dogPlayer.png",
+      "description": "Dogs!"
+    },
+    "cat": {
+      "name": "cat",
+      "displayName": "Cat OG",
+      "id": 67,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "catSword.png",
+      "bodyFileName": "catPlayer.png",
+      "description": "Cats!"
+    },
+    "wizard": {
+      "name": "wizard",
+      "displayName": "Wizard OG",
+      "id": 68,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "wizardSword.png",
+      "bodyFileName": "wizardPlayer.png",
+      "description": "Fight like magic"
+    },
+    "angry": {
+      "name": "angry",
+      "displayName": "Angry OG",
+      "id": 69,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "angrySword.png",
+      "bodyFileName": "angryPlayer.png",
+      "description": "Let your anger drive you..."
+    },
+    "fighter": {
+      "name": "fighter",
+      "displayName": "Fighter OG",
+      "id": 70,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "fighterSword.png",
+      "bodyFileName": "fighterPlayer.png",
+      "description": "Fight like a pro"
+    },
+    "soldier": {
+      "name": "soldier",
+      "displayName": "Soldier OG",
+      "id": 71,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "soldierSword.png",
+      "bodyFileName": "soldierPlayer.png",
+      "description": "A hardened veteran"
+    },
+    "suit": {
+      "name": "suit",
+      "displayName": "The Suit OG",
+      "id": 72,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "suitSword.png",
+      "bodyFileName": "suitPlayer.png",
+      "description": "Hide secrets under the suit"
+    },
+    "cardboard": {
+      "name": "cardboard",
+      "displayName": "Cardboard OG",
+      "id": 73,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "cardboardSword.png",
+      "bodyFileName": "cardboardPlayer.png",
+      "description": "Pacakge and keep your coins safe"
+    },
+    "whale": {
+      "name": "whale",
+      "displayName": "Whale OG",
+      "id": 74,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "whaleSword.png",
+      "bodyFileName": "whalePlayer.png",
+      "description": "A chilling spray of water"
+    },
+    "cactus": {
+      "name": "cactus",
+      "displayName": "Cactus OG",
+      "id": 75,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "cactusSword.png",
+      "bodyFileName": "cactusPlayer.png",
+      "description": "Adds an extra poke to your stab"
+    },
+    "baseball": {
+      "name": "baseball",
+      "displayName": "Baseball OG",
+      "id": 76,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "baseballSword.png",
+      "bodyFileName": "baseballPlayer.png",
+      "description": "Hit them off the map"
+    },
+    "basketball": {
+      "name": "basketball",
+      "displayName": "Basketball OG",
+      "id": 77,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "basketballSword.png",
+      "bodyFileName": "basketballPlayer.png",
+      "description": "Shoot some coins into your shop"
+    },
+    "quarterback": {
+      "name": "quarterback",
+      "displayName": "Football OG",
+      "id": 78,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "quarterbackSword.png",
+      "bodyFileName": "quarterbackPlayer.png",
+      "description": "Be strong"
+    },
+    "winter": {
+      "name": "winter",
+      "displayName": "Winter OG",
+      "id": 79,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "winterSword.png",
+      "bodyFileName": "winterPlayer.png",
+      "description": "I like it cold."
+    },
+    "painter": {
+      "name": "painter",
+      "displayName": "Painter OG",
+      "id": 80,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "painterSword.png",
+      "bodyFileName": "painterPlayer.png",
+      "description": "The power of paint"
+    },
+    "fall": {
+      "name": "fall",
+      "displayName": "Fall OG",
+      "id": 81,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "fallSword.png",
+      "bodyFileName": "fallPlayer.png",
+      "description": "I like it cool"
+    },
+    "formal": {
+      "name": "formal",
+      "displayName": "Formal OG",
+      "id": 82,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "formalSword.png",
+      "bodyFileName": "formalPlayer.png",
+      "description": "They'll never expect the gentleman"
+    },
+    "zombie": {
+      "name": "zombie",
+      "displayName": "Zombie OG",
+      "id": 83,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "zombieSword.png",
+      "bodyFileName": "zombiePlayer.png",
+      "description": "Eats the brains of enemies"
+    },
+    "donut": {
+      "name": "donut",
+      "displayName": "Donut OG",
+      "id": 84,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "donutSword.png",
+      "bodyFileName": "donutPlayer.png",
+      "description": "Become hyper for a kill spree..."
+    },
+    "burger": {
+      "name": "burger",
+      "displayName": "Burger OG",
+      "id": 85,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "burgerSword.png",
+      "bodyFileName": "burgerPlayer.png",
+      "description": "As tasty as coins"
+    },
+    "panda": {
+      "name": "panda",
+      "displayName": "Panda OG",
+      "id": 86,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "pandaSword.png",
+      "bodyFileName": "pandaPlayer.png",
+      "description": "It looks cuddly but watch out..."
+    },
+    "framework": {
+      "name": "framework",
+      "displayName": "Framework OG",
+      "id": 87,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "frameworkSword.png",
+      "bodyFileName": "frameworkPlayer.png",
+      "description": "Built like a rock..."
+    },
+    "blobfish": {
+      "name": "blobfish",
+      "displayName": "Blobfish OG",
+      "id": 88,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "blobfishSword.png",
+      "bodyFileName": "blobfishPlayer.png",
+      "description": "Don't leave the deep..."
+    },
+    "blueberry": {
+      "name": "blueberry",
+      "displayName": "Blueberry OG",
+      "id": 89,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "blueberrySword.png",
+      "bodyFileName": "blueberryPlayer.png",
+      "description": "As juicy as coins"
+    },
+    "bishop": {
+      "name": "bishop",
+      "displayName": "Chess Bishop OG",
+      "id": 90,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "bishopSword.png",
+      "bodyFileName": "bishopPlayer.png",
+      "description": "Deliver the final checkmate to your opponent."
+    },
+    "covid": {
+      "name": "covid",
+      "displayName": "Covid OG",
+      "id": 91,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "covidSword.png",
+      "bodyFileName": "covidPlayer.png",
+      "description": "Increase your immunity"
+    },
+    "thief": {
+      "name": "thief",
+      "displayName": "Thief OG",
+      "id": 92,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "thiefSword.png",
+      "bodyFileName": "thiefPlayer.png",
+      "description": "Steal coins from enemy"
+    },
+    "alarm": {
+      "name": "alarm",
+      "displayName": "Alarm Clock OG",
+      "id": 93,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "alarmSword.png",
+      "bodyFileName": "alarmPlayer.png",
+      "description": "Shak'em before they are ready"
+    },
+    "emerald": {
+      "name": "emerald",
+      "displayName": "Emerald OG",
+      "id": 94,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "emeraldSword.png",
+      "bodyFileName": "emeraldPlayer.png",
+      "description": "Oooh shiny...."
+    },
+    "beach": {
+      "name": "beach",
+      "displayName": "Beach OG",
+      "id": 95,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "beachSword.png",
+      "bodyFileName": "beachPlayer.png",
+      "description": "Seems relaxing... but not for enemies"
+    },
+    "trippy": {
+      "name": "trippy",
+      "displayName": "Trippy OG",
+      "id": 96,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "trippySword.png",
+      "bodyFileName": "trippyPlayer.png",
+      "description": "PRO TIP: Wear this skin and spin to give enemies headaches"
+    },
+    "sunset": {
+      "name": "sunset",
+      "displayName": "Sunset OG",
+      "id": 97,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "sunsetSword.png",
+      "bodyFileName": "sunsetPlayer.png",
+      "description": "A beautiful sight"
+    },
+    "cell": {
+      "name": "cell",
+      "displayName": "Cell OG",
+      "id": 98,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "cellSword.png",
+      "bodyFileName": "cellPlayer.png",
+      "description": "Have stronger cells to be stronger"
+    },
+    "compass": {
+      "name": "compass",
+      "displayName": "Compass OG",
+      "id": 99,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "compassSword.png",
+      "bodyFileName": "compassPlayer.png",
+      "description": "Points you towards coins"
+    },
+    "luminescent": {
+      "name": "luminescent",
+      "displayName": "Luminescent OG",
+      "id": 100,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "luminescentSword.png",
+      "bodyFileName": "luminescentPlayer.png",
+      "description": "Glow with coins"
+    },
+    "mage": {
+      "name": "mage",
+      "displayName": "Mage OG",
+      "id": 101,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "mageSword.png",
+      "bodyFileName": "magePlayer.png",
+      "description": "Cast a spell"
+    },
+    "lava": {
+      "name": "lava",
+      "displayName": "Lava OG",
+      "id": 102,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "lavaSword.png",
+      "bodyFileName": "lavaPlayer.png",
+      "description": "Hot Hot Hot"
+    },
+    "unloaded": {
+      "name": "unloaded",
+      "displayName": "Unloaded OG",
+      "id": 103,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "unloadedSword.png",
+      "bodyFileName": "unloadedPlayer.png",
+      "description": "Error: Skin not loading, report to forum."
+    },
+    "music": {
+      "name": "music",
+      "displayName": "Music OG",
+      "id": 104,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "musicSword.png",
+      "bodyFileName": "musicPlayer.png",
+      "description": "Lure your opponents to death..."
+    },
+    "hotmetal": {
+      "name": "hotmetal",
+      "displayName": "Hotmetal OG",
+      "id": 105,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "hotmetalSword.png",
+      "bodyFileName": "hotmetalPlayer.png",
+      "description": "Bring on the heat"
+    },
+    "ice": {
+      "name": "ice",
+      "displayName": "Ice OG",
+      "id": 106,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "iceSword.png",
+      "bodyFileName": "icePlayer.png",
+      "description": "Bring on the cold"
+    },
+    "faded": {
+      "name": "faded",
+      "displayName": "Faded OG",
+      "id": 107,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "fadedSword.png",
+      "bodyFileName": "fadedPlayer.png",
+      "description": "Fade enemies out of existence"
+    },
+    "thanksgiving": {
+      "name": "thanksgiving",
+      "displayName": "Thanksgiving OG",
+      "id": 108,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "thanksgivingSword.png",
+      "bodyFileName": "thanksgivingPlayer.png",
+      "description": "Say thanks for your coins"
+    },
+    "magician": {
+      "name": "magician",
+      "displayName": "Magician OG",
+      "id": 109,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "magicianSword.png",
+      "bodyFileName": "magicianPlayer.png",
+      "description": "Vanish enemies"
+    },
+    "cyborg": {
+      "name": "cyborg",
+      "displayName": "Cyborg OG",
+      "id": 110,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "cyborgSword.png",
+      "bodyFileName": "cyborgPlayer.png",
+      "description": "AI-Assisted Stabbing"
+    },
+    "mummy": {
+      "name": "mummy",
+      "displayName": "Mummy OG",
+      "id": 111,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "mummySword.png",
+      "bodyFileName": "mummyPlayer.png",
+      "description": "Back from the dead!"
+    },
+    "toilet": {
+      "name": "toilet",
+      "displayName": "Toilet OG",
+      "id": 112,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "toiletSword.png",
+      "bodyFileName": "toiletPlayer.png",
+      "description": "Release the explosives..."
+    },
+    "vaporwave": {
+      "name": "vaporwave",
+      "displayName": "Vaporwave OG",
+      "id": 113,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "vaporwaveSword.png",
+      "bodyFileName": "vaporwavePlayer.png",
+      "description": "Vaporwave is back"
+    },
+    "chainmail": {
+      "name": "chainmail",
+      "displayName": "Chainmail OG",
+      "id": 114,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "chainmailSword.png",
+      "bodyFileName": "chainmailPlayer.png",
+      "description": "Have some armor"
+    },
+    "glowing": {
+      "name": "glowing",
+      "displayName": "Glowing OG",
+      "id": 115,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "glowingSword.png",
+      "bodyFileName": "glowingPlayer.png",
+      "description": "Blind them with your radiance..."
+    },
+    "scorpion": {
+      "name": "scorpion",
+      "displayName": "Scorpion OG",
+      "id": 116,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "scorpionSword.png",
+      "bodyFileName": "scorpionPlayer.png",
+      "description": "Poisoned wounds are the worst..."
+    },
+    "illusionary": {
+      "name": "illusionary",
+      "displayName": "Illusionary OG",
+      "id": 117,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "illusionarySword.png",
+      "bodyFileName": "illusionaryPlayer.png",
+      "description": "So colorful..."
+    },
+    "bird": {
+      "name": "bird",
+      "displayName": "Eagle OG",
+      "id": 118,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "birdSword.png",
+      "bodyFileName": "birdPlayer.png",
+      "description": "Watch out for the talons..."
+    },
+    "bottlecap": {
+      "name": "bottlecap",
+      "displayName": "Bottle Cap OG",
+      "id": 119,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "bottlecapSword.png",
+      "bodyFileName": "bottlecapPlayer.png",
+      "description": "A boost of energy"
+    },
+    "galaxy": {
+      "name": "galaxy",
+      "displayName": "Galaxy OG",
+      "id": 120,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "galaxySword.png",
+      "bodyFileName": "galaxyPlayer.png",
+      "description": "Rule the cosmos"
+    },
+    "dragonfruit": {
+      "name": "dragonfruit",
+      "displayName": "DragonFruit OG",
+      "id": 121,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "dragonfruitSword.png",
+      "bodyFileName": "dragonfruitPlayer.png",
+      "description": "Tastes like a pear pineapple"
+    },
+    "pirate": {
+      "name": "pirate",
+      "displayName": "Pirate OG",
+      "id": 122,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "pirateSword.png",
+      "bodyFileName": "piratePlayer.png",
+      "description": "Fearsome"
+    },
+    "neumorphism": {
+      "name": "neumorphism",
+      "displayName": "Neumorphism OG",
+      "id": 123,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "neumorphismSword.png",
+      "bodyFileName": "neumorphismPlayer.png",
+      "description": "Its neumorphic"
+    },
+    "incendiary": {
+      "name": "incendiary",
+      "displayName": "Incendiary OG",
+      "id": 124,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "incendiarySword.png",
+      "bodyFileName": "incendiaryPlayer.png",
+      "description": "Melt your gold"
+    },
+    "snake": {
+      "name": "snake",
+      "displayName": "Snake OG",
+      "id": 125,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "snakeSword.png",
+      "bodyFileName": "snakePlayer.png",
+      "description": "Coil around coins"
+    },
+    "eclipse": {
+      "name": "eclipse",
+      "displayName": "Eclipse OG",
+      "id": 126,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "eclipseSword.png",
+      "bodyFileName": "eclipsePlayer.png",
+      "description": "Make other players be in YOUR shadow"
+    },
+    "magnet": {
+      "name": "magnet",
+      "displayName": "Magnet OG",
+      "id": 127,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "magnetSword.png",
+      "bodyFileName": "magnetPlayer.png",
+      "description": "Attracts gold"
+    },
+    "devex": {
+      "name": "devex",
+      "displayName": "Dev3x OG",
+      "id": 128,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "devexSword.png",
+      "bodyFileName": "devexPlayer.png",
+      "description": "3x the power!"
+    },
+    "boar": {
+      "name": "boar",
+      "displayName": "Boar OG",
+      "id": 130,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "boarSword.png",
+      "bodyFileName": "boarPlayer.png",
+      "description": "Sharp horns..."
+    },
+    "apocalypse": {
+      "name": "apocalypse",
+      "displayName": "Apocalypse OG",
+      "id": 131,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "apocalypseSword.png",
+      "bodyFileName": "apocalypsePlayer.png",
+      "description": "End the world"
+    },
+    "onion": {
+      "name": "onion",
+      "displayName": "Onion OG",
+      "id": 132,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "onionSword.png",
+      "bodyFileName": "onionPlayer.png",
+      "description": "Help! My eyes are watering!"
+    },
+    "pie": {
+      "name": "pie",
+      "displayName": "Pie OG",
+      "id": 133,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "pieSword.png",
+      "bodyFileName": "piePlayer.png",
+      "description": "A snack before destruction"
+    },
+    "octopus": {
+      "name": "octopus",
+      "displayName": "The Octopus OG",
+      "id": 129,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "octopusSword.png",
+      "bodyFileName": "octopusPlayer.png",
+      "description": "Drag them away"
+    },
+    "camera": {
+      "name": "camera",
+      "displayName": "Camera OG",
+      "id": 134,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "cameraSword.png",
+      "bodyFileName": "cameraPlayer.png",
+      "description": "A photo with your friends"
+    },
+    "bubblegum": {
+      "name": "bubblegum",
+      "displayName": "Bubblegum OG",
+      "id": 135,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "bubblegumSword.png",
+      "bodyFileName": "bubblegumPlayer.png",
+      "description": "Blow it slowly"
+    },
+    "angel": {
+      "name": "angel",
+      "displayName": "ANGEL OG",
+      "id": 136,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "angelSword.png",
+      "bodyFileName": "angelPlayer.png",
+      "description": "The best at PVP. Ever."
+    },
+    "starhog": {
+      "name": "starhog",
+      "displayName": "Starhog OG",
+      "id": 137,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "starhogSword.png",
+      "bodyFileName": "starhogPlayer.png",
+      "description": "A  hog in  space doesn't seem right..."
+    },
+    "scuba": {
+      "name": "scuba",
+      "displayName": "Scuba OG",
+      "id": 138,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "scubaSword.png",
+      "bodyFileName": "scubaPlayer.png",
+      "description": "Go deep for coins"
+    },
+    "fish": {
+      "name": "fish",
+      "displayName": "Fish OG",
+      "id": 139,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "fishSword.png",
+      "bodyFileName": "fishPlayer.png",
+      "description": "C'est un poisson!"
+    },
+    "shuriken": {
+      "name": "shuriken",
+      "displayName": "Shuriken OG",
+      "id": 140,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "shurikenSword.png",
+      "bodyFileName": "shurikenPlayer.png",
+      "description": "More than one edge"
+    },
+    "glitch": {
+      "name": "glitch",
+      "displayName": "Glitch OG",
+      "id": 141,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "glitchSword.png",
+      "bodyFileName": "glitchPlayer.png",
+      "description": "Glitch them out of existence"
+    },
+    "patchwork": {
+      "name": "patchwork",
+      "displayName": "Patchwork OG",
+      "id": 142,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "patchworkSword.png",
+      "bodyFileName": "patchworkPlayer.png",
+      "description": "Its only being held together by some glitch..."
+    },
+    "virus": {
+      "name": "virus",
+      "displayName": "Virus OG",
+      "id": 143,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "virusSword.png",
+      "bodyFileName": "virusPlayer.png",
+      "description": "Infect them all"
+    },
+    "arachne": {
+      "name": "arachne",
+      "displayName": "Arachne OG",
+      "id": 144,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "arachneSword.png",
+      "bodyFileName": "arachnePlayer.png",
+      "description": "Crawl all over the coins"
+    },
+    "ice cream": {
+      "name": "ice cream",
+      "displayName": "Ice Cream OG",
+      "id": 145,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "ice creamSword.png",
+      "bodyFileName": "ice creamPlayer.png",
+      "description": "I scream, you scream, your enemies scream"
+    },
+    "shark": {
+      "name": "shark",
+      "displayName": "Sharky OG",
+      "id": 146,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "sharkSword.png",
+      "bodyFileName": "sharkPlayer.png",
+      "description": "You never know what will hide in the deep ocean"
+    },
+    "elements": {
+      "name": "elements",
+      "displayName": "Elements OG",
+      "id": 147,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "elementsSword.png",
+      "bodyFileName": "elementsPlayer.png",
+      "description": "Be a swordbender... Make it your own element"
+    },
+    "acol": {
+      "name": "acol",
+      "displayName": "Acol OG",
+      "id": 148,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "acolSword.png",
+      "bodyFileName": "acolPlayer.png",
+      "description": "The world's #1 player.."
+    },
+    "devil": {
+      "name": "devil",
+      "displayName": "Devil OG",
+      "id": 149,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "devilSword.png",
+      "bodyFileName": "devilPlayer.png",
+      "description": "Now this will scare everyone!"
+    },
+    "demon": {
+      "name": "demon",
+      "displayName": "Demon OG",
+      "id": 150,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "demonSword.png",
+      "bodyFileName": "demonPlayer.png",
+      "description": "Brother of the devil"
+    },
+    "mossmech": {
+      "name": "mossmech",
+      "displayName": "Moss Mech OG",
+      "id": 151,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "mossmechSword.png",
+      "bodyFileName": "mossmechPlayer.png",
+      "description": "Rise from the wild and DOMINATE!"
+    },
+    "explosion": {
+      "name": "explosion",
+      "displayName": "Explosion OG",
+      "id": 152,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "explosionSword.png",
+      "bodyFileName": "explosionPlayer.png",
+      "description": "I hope they're not nukes.."
+    },
+    "honeycomb": {
+      "name": "honeycomb",
+      "displayName": "Honeycomb OG",
+      "id": 153,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "honeycombSword.png",
+      "bodyFileName": "honeycombPlayer.png",
+      "description": "Very sweet!"
+    },
+    "storm": {
+      "name": "storm",
+      "displayName": "Storm OG",
+      "id": 154,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "stormSword.png",
+      "bodyFileName": "stormPlayer.png",
+      "description": "A storm is brewing"
+    },
+    "cookie": {
+      "name": "cookie",
+      "displayName": "Cookie OG",
+      "id": 155,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "cookieSword.png",
+      "bodyFileName": "cookiePlayer.png",
+      "description": "Scrumptious!"
+    },
+    "controller": {
+      "name": "controller",
+      "displayName": "Controller OG",
+      "id": 156,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "controllerSword.png",
+      "bodyFileName": "controllerPlayer.png",
+      "description": "Use this to control the computer skin"
+    },
+    "computer": {
+      "name": "computer",
+      "displayName": "Computer OG",
+      "id": 157,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "computerSword.png",
+      "bodyFileName": "computerPlayer.png",
+      "description": "Play swordbattle on swordbattle"
+    },
+    "skull": {
+      "name": "skull",
+      "displayName": "Skull OG",
+      "id": 158,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "skullSword.png",
+      "bodyFileName": "skullPlayer.png",
+      "description": "Scary"
+    },
+    "mitblade": {
+      "name": "mitblade",
+      "displayName": "MitBald OG",
+      "id": 159,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "mitbladeSword.png",
+      "bodyFileName": "mitbladePlayer.png",
+      "description": "\"Buy channel membership only $3!!!!\""
+    },
+    "cylinder": {
+      "name": "cylinder",
+      "displayName": "Cylinder OG",
+      "id": 160,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "cylinderSword.png",
+      "bodyFileName": "cylinderPlayer.png",
+      "description": "Its 3D. Its just better like that."
+    },
+    "solarsystem": {
+      "name": "solarsystem",
+      "displayName": "Solar Sytem OG",
+      "id": 161,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "solarsystemSword.png",
+      "bodyFileName": "solarsystemPlayer.png",
+      "description": "PLUTO"
+    },
+    "microwave": {
+      "name": "microwave",
+      "displayName": "Microwave OG",
+      "id": 162,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "microwaveSword.png",
+      "bodyFileName": "microwavePlayer.png",
+      "description": "The microwave will burn you to ashes..."
+    },
+    "soundwave": {
+      "name": "soundwave",
+      "displayName": "Soundwave OG",
+      "id": 163,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "soundwaveSword.png",
+      "bodyFileName": "soundwavePlayer.png",
+      "description": "BOOM!!!"
+    },
+    "predator": {
+      "name": "predator",
+      "displayName": "predator OG",
+      "id": 164,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "predatorSword.png",
+      "bodyFileName": "predatorPlayer.png",
+      "description": "Hunt them down..."
+    },
+    "mercenary": {
+      "name": "mercenary",
+      "displayName": "Mercenary OG",
+      "id": 165,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "mercenarySword.png",
+      "bodyFileName": "mercenaryPlayer.png",
+      "description": "Hunt down predators"
+    },
+    "biker": {
+      "name": "biker",
+      "displayName": "Biker OG",
+      "id": 166,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "bikerSword.png",
+      "bodyFileName": "bikerPlayer.png",
+      "description": "Training to be assassin"
+    },
+    "reaper": {
+      "name": "reaper",
+      "displayName": "Reaper OG",
+      "id": 167,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "reaperSword.png",
+      "bodyFileName": "reaperPlayer.png",
+      "description": "Scary... watch out"
+    },
+    "laserfoil": {
+      "name": "laserfoil",
+      "displayName": "Laserfoil OG",
+      "id": 168,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "laserfoilSword.png",
+      "bodyFileName": "laserfoilPlayer.png"
+    },
+    "scythe": {
+      "name": "scythe",
+      "displayName": "Scythe OG",
+      "id": 169,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "scytheSword.png",
+      "bodyFileName": "scythePlayer.png",
+      "description": "I'm coming for you!"
+    },
+    "sandcastle": {
+      "name": "sandcastle",
+      "displayName": "Sandcastle OG",
+      "id": 170,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "sandcastleSword.png",
+      "bodyFileName": "sandcastlePlayer.png",
+      "description": "The strength of a million grains of sand"
+    },
+    "supremeneon": {
+      "name": "supremeneon",
+      "displayName": "Supreme Neon OG",
+      "id": 171,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "supremeneonSword.png",
+      "bodyFileName": "supremeneonPlayer.png",
+      "description": "Neon but better"
+    },
+    "shadow": {
+      "name": "shadow",
+      "displayName": "Shadow OG",
+      "id": 172,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "shadowSword.png",
+      "bodyFileName": "shadowPlayer.png",
+      "description": "Fight with a legendary Shadowblade"
+    },
+    "bush": {
+      "name": "bush",
+      "displayName": "Bush OG",
+      "id": 173,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "bushSword.png",
+      "bodyFileName": "bushPlayer.png",
+      "description": "The ultimate camouflage."
+    },
+    "codergautamyt": {
+      "name": "codergautamyt",
+      "displayName": "Coder Gautam YT OG",
+      "id": 174,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "codergautamytSword.png",
+      "bodyFileName": "codergautamytPlayer.png",
+      "description": "The creator of swordbattle.."
+    },
+    "assasin": {
+      "name": "assasin",
+      "displayName": "Assassin OG",
+      "id": 175,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "assasinSword.png",
+      "bodyFileName": "assasinPlayer.png",
+      "description": "You don't stand a chance-"
+    },
+    "anniversary": {
+      "name": "anniversary",
+      "displayName": "Anniversary OG",
+      "id": 176,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "anniversarySword.png",
+      "bodyFileName": "anniversaryPlayer.png",
+      "description": "Celebrate the 1 year anniversary of the game!"
+    },
+    "dragon": {
+      "name": "dragon",
+      "displayName": "Dragon OG",
+      "id": 177,
+      "buyable": false,
+      "og": true,
+      "swordFileName": "dragonSword.png",
+      "bodyFileName": "dragonPlayer.png",
+      "description": "The king of the skies... and swords."
     }
   }
 }

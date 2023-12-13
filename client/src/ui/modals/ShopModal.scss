@@ -28,6 +28,7 @@
   flex-wrap: wrap;
   justify-content: space-around;
   overflow-y: auto;
+  overflow-x: hidden;
   align-content: flex-start;
 }
 
@@ -53,6 +54,7 @@
   align-items: center;
   padding: 10px;
   box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.25);
+  width: 200px;
 
   .skin-name {
     font-size: 25px;

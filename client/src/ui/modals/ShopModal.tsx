@@ -14,6 +14,20 @@ interface ShopModalProps {
   account: AccountState;
 }
 
+interface Skin {
+  name: string;
+  displayName: string;
+  id: number;
+  buyable: boolean;
+  og: boolean;
+  swordFileName: string;
+  bodyFileName: string;
+  price?: number;
+  description?: string;
+}
+
+const rotate = false;
+
 const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   const dispatch = useDispatch();
   const [skinStatus, setSkinStatus] = useState<{ [id: number]: string }>({});
@@ -82,7 +96,9 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
 
     const modal = document.querySelector('.shop-modal');
     if (!modal) return;
+    if(rotate) {
     modal.addEventListener('mousemove', handleMouseMove);
+    }
 
     // Fetch skin counts
     api.get(`${api.endpoint}/profile/skins/buys`, (data) => {
@@ -91,7 +107,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
     });
 
     return () => {
-      if (modal) {
+      if (modal && rotate) {
         modal.removeEventListener('mousemove', handleMouseMove);
       }
     };
@@ -103,10 +119,12 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {account?.isLoggedIn ? (
       <h1>Balance: {account.gems}<img className={'gem'} src='/assets/game/gem.png' alt='Gems' width={30} height={30} /></h1>
       ) : (
-        <h1>Login or Signup to buy skins & cosmetics from the shop!</h1>
+        <h1>Login or Signup to buy stuff from the shop! (No real money required)</h1>
       )}
       <div className='skins'>
-      {Object.values(skins).map((skin, index) => (
+      {Object.values(skins).map((skinData: any, index) => {
+        const skin = skinData as Skin;
+        return (
         <div className="skin-card" key={skin.name}>
           <h2 className="skin-name">{skin.displayName}</h2>
           <img
@@ -119,23 +137,26 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           />
           <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
           <br/>
-          { skin.price > 0 ? (
+          <p>{skin.description}</p>
+          { (skin?.price ?? 0) > 0 ? (
             <>
           {skin.price} <img className={'gem'} src='/assets/game/gem.png' alt='Gems' width={30} height={30} />
           </> ) : (
             <>
-            <p style={{marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7}}>Free</p>
+            <p style={{marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7}}>{skin.buyable ? 'Free' : ''}</p>
             </>
           )}
           </h4>
-          {account?.isLoggedIn && (
+          {account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
           <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
             {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
             account.skins.owned.includes(skin.id) ? 'Equip' : 'Buy')}
             </button>
           )}
         </div>
-      ))}
+      )
+      }
+      )}
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ class Loop {
     this.ticksThisSecond = 0;
     this.lastTickTime = process.hrtime();
     this.lastSecond = this.lastTickTime[0];
+    this.tickTimeElapsed = 0;
     this.accumulator = 0;
   }
 
@@ -43,7 +44,9 @@ class Loop {
 
     while (this.accumulator >= this.interval) {
       this.updateTPS(currentTime);
+      const now = Date.now();
       this.eventHandler();
+      this.tickTimeElapsed = Date.now() - now;
       this.accumulator -= this.interval;
     }
 
@@ -58,7 +61,7 @@ class Loop {
   updateTPS(currentTime) {
     const currentSecond = currentTime[0];
     if (currentSecond !== this.lastSecond) {
-      console.log('tps:', this.tps,' | expected tps:', 1000 / this.interval);
+      console.log('tps:', this.tps,' | expected tps:', 1000 / this.interval, ' | tick time:', this.tickTimeElapsed);
       this.tps = this.ticksThisSecond;
       this.onTpsUpdate(this.tps);
       this.ticksThisSecond = 0;

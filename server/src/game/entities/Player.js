@@ -112,6 +112,7 @@ class Player extends Entity {
     this.effects.forEach(effect => effect.update(dt));
     this.health.update(dt);
     this.applyInputs(dt);
+    this.sword.flySpeed.value = this.speed.value / 10;
 
     if (this.inputs.isInputDown(Types.Input.Ability) && this.evolutions.evolutionEffect.canActivateAbility) {
       this.evolutions.evolutionEffect.activateAbility();

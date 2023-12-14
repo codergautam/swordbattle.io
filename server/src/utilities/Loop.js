@@ -7,7 +7,6 @@ class Loop {
     this.lastTickTime = process.hrtime();
     this.lastSecond = this.lastTickTime[0];
     this.tickTimeElapsed = 0;
-    this.accumulator = 0;
     this.eventHandler = () => {};
     this.onTpsUpdate = () => {};
   }
@@ -42,28 +41,20 @@ class Loop {
     if (!this.isRunning) return;
 
     const currentTime = process.hrtime();
-    const elapsed = this.calculateElapsedTime(currentTime, this.lastTickTime);
-    this.accumulator += elapsed;
     this.lastTickTime = currentTime;
+    const now = Date.now();
 
-    while (this.accumulator >= this.interval) {
+
       this.updateTPS(currentTime);
-      const now = Date.now();
       this.eventHandler();
       this.tickTimeElapsed = Date.now() - now;
-      this.accumulator -= this.interval;
-    }
 
+      if(this.tickTimeElapsed > this.interval) {
+        console.log('Server lagging...');
+      }
     this.ticksThisSecond++;
-    const delay = this.interval - (this.accumulator % this.interval);
+    const delay = this.interval - this.tickTimeElapsed;
     setTimeout(() => this.runLoop(), delay);
-  }
-
-  calculateElapsedTime(endTime, startTime) {
-    const [endSeconds, endNanoseconds] = endTime;
-    const [startSeconds, startNanoseconds] = startTime;
-    const elapsedMilliseconds = (endSeconds - startSeconds) * 1000 + (endNanoseconds - startNanoseconds) / 1e6;
-    return elapsedMilliseconds;
   }
 
   updateTPS(currentTime) {

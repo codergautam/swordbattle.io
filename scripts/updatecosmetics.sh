@@ -13,6 +13,14 @@ else
     echo "File not found."
 fi
 
+echo "Deleting server/src/cosmetics.json..."
+if [ -f server/src/cosmetics.json ]; then
+    rm server/src/cosmetics.json
+    echo "Deleted successfully."
+else
+    echo "File not found."
+fi
+
 echo "Deleting api/src/cosmetics.json..."
 if [ -f api/src/cosmetics.json ]; then
     rm api/src/cosmetics.json
@@ -23,6 +31,10 @@ fi
 
 echo "Copying new cosmetics.json to client/src/game..."
 cp cosmetics.json client/src/game/cosmetics.json
+echo "Copy complete."
+
+echo "Copying new cosmetics.json to server/src..."
+cp cosmetics.json server/src/cosmetics.json
 echo "Copy complete."
 
 echo "Copying new cosmetics.json to api/src..."

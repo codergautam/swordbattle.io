@@ -100,48 +100,22 @@ class GameMap {
   }
 
   spawnCoinsInShape(shape, totalCoins) {
-    // const maxCoinsCount = 30;
-    // const coins = Math.min(Math.round(totalCoins / 5), maxCoinsCount);
-    // const minCoinValue = totalCoins / coins / 3;
-    // const maxCoinValue = totalCoins / coins / 2;
-    // for (let i = 0; i < coins; i++) {
-    //   const center = shape.center;
-    //   const coin = this.game.map.addEntity({
-    //     type: Types.Entity.Coin,
-    //     position: [center.x, center.y],
-    //     value: [minCoinValue, maxCoinValue],
-    //   });
-    //   const randomPoint = shape.getRandomPoint();
-    //   coin.velocity.add(new SAT.Vector(
-    //     randomPoint.x - center.x,
-    //     randomPoint.y - center.y,
-    //   ).scale(0.5));
-    // }
-    let toDrop = totalCoins;
-    var coinSizes = [5,4,3, 2, 1];
-    if(totalCoins < 5) coinSizes = [1];
-    if(toDrop > 500) coinSizes.unshift(15);
-    if(toDrop > 1000) coinSizes.unshift(25);
-    if(toDrop > 5000) coinSizes.unshift(50);
-    if(toDrop > 10000) coinSizes.unshift(100);
-    if(toDrop > 20000) coinSizes.unshift(250);
-
-    while(toDrop > 0) {
-      // Pick highest coin size that can be dropped
-      var coinValue = coinSizes[0];
-      toDrop -= coinValue;
+    const maxCoinsCount = 30;
+    const coins = Math.min(Math.round(totalCoins / 5), maxCoinsCount);
+    const minCoinValue = totalCoins / coins / 3;
+    const maxCoinValue = totalCoins / coins / 2;
+    for (let i = 0; i < coins; i++) {
       const center = shape.center;
       const coin = this.game.map.addEntity({
         type: Types.Entity.Coin,
         position: [center.x, center.y],
-        value: coinValue,
+        value: [minCoinValue, maxCoinValue],
       });
       const randomPoint = shape.getRandomPoint();
       coin.velocity.add(new SAT.Vector(
         randomPoint.x - center.x,
         randomPoint.y - center.y,
       ).scale(0.5));
-      if(toDrop < coinSizes[0]) coinSizes.shift();
     }
   }
 

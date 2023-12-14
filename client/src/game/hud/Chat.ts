@@ -1,5 +1,6 @@
 import HudComponent from './HudComponent';
 import ChatInput from '../../ui/game/ChatInput';
+import { InputTypes } from '../Types';
 
 class Chat extends HudComponent {
   input!: Phaser.GameObjects.DOMElement;
@@ -37,9 +38,9 @@ class Chat extends HudComponent {
         this.game.gameState.chatMessage = message;
       }
       input.value = '';
-      this.game.controls.enable();
+      this.game.controls.enableAllKeys();
     } else {
-      this.game.controls.disable();
+      this.game.controls.disableKeys([InputTypes.SwordSwing, InputTypes.SwordThrow, InputTypes.Ability]);
     }
 
     this.isOpen = !this.isOpen;

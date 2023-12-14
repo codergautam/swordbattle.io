@@ -92,6 +92,17 @@ class Server {
 
     this.game.endTick();
     this.clients.forEach(client => client.cleanup());
+
+    // calculate top entity types
+    // const topEntityTypes = new Map();
+    // for (const entity of this.game.entities) {
+    //   if (entity.removed) continue;
+    //   if (!topEntityTypes.has(entity.type)) {
+    //     topEntityTypes.set(entity.type, 0);
+    //   }
+    //   topEntityTypes.set(entity.type, topEntityTypes.get(entity.type) + 1);
+    // }
+    // console.log('top 5 entity types by count:', [...topEntityTypes.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5), 'total:', this.game.entities.size);
   }
 }
 

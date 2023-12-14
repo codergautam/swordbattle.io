@@ -1,6 +1,7 @@
 class Loop {
-  constructor(interval = 1000) {
+  constructor(interval = 50) { // 1000ms / 20tps = 50ms per tick
     this.eventHandler = (deltaTime) => {};
+    this.onTpsUpdate = (tps) => {};
     this.interval = interval;
     this.isRunning = false;
     this.tps = 0;
@@ -12,6 +13,10 @@ class Loop {
 
   setEventHandler(eventHandler) {
     this.eventHandler = eventHandler;
+  }
+
+  setOnTpsUpdate(onTpsUpdate) {
+    this.onTpsUpdate = onTpsUpdate;
   }
 
   start() {
@@ -32,19 +37,18 @@ class Loop {
   runLoop() {
     if (!this.isRunning) return;
 
-    const startTime = process.hrtime();
-    this.updateTPS(startTime);
-    this.eventHandler();
+    const currentTime = process.hrtime();
+    this.accumulator += this.calculateElapsedTime(currentTime, this.lastTickTime);
+    this.lastTickTime = currentTime;
 
-    const passedTime = this.calculateElapsedTime(process.hrtime(), startTime);
-    if (passedTime < this.interval) {
-      const delay = this.interval - passedTime;
-      setTimeout(() => this.runLoop(), delay);
-    } else {
-      this.runLoop();
+    while (this.accumulator >= this.interval) {
+      this.updateTPS(currentTime);
+      this.eventHandler();
+      this.accumulator -= this.interval;
     }
-    this.lastTickTime = startTime;
-    console.log('tps:', this.tps, '| tick time:', passedTime);
+
+    const delay = this.interval - (this.accumulator % this.interval);
+    setTimeout(() => this.runLoop(), delay);
   }
 
   calculateElapsedTime(endTime, startTime) {
@@ -54,7 +58,9 @@ class Loop {
   updateTPS(currentTime) {
     const currentSecond = currentTime[0];
     if (currentSecond !== this.lastSecond) {
+      console.log('tps:', this.tps,' | expected tps:', 1000 / this.interval);
       this.tps = this.ticksThisSecond;
+      this.onTpsUpdate(this.tps);
       this.ticksThisSecond = 0;
       this.lastSecond = currentSecond;
     }

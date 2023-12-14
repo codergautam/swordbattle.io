@@ -34,13 +34,13 @@ export const updateAccountAsync = createAsyncThunk(
     return new Promise((resolve, reject) => {
     const state: any = getState();
     api.post(`${api.endpoint}/profile/getPrivateUserInfo`, {}, (response: any) => {
-      console.log('updateAccountAsync', response);
     if (response.error) {
       alert(response.error);
       reject(response.error);
     } else if (response.account) {
       response.account.token = state.account.token;
       dispatch(setAccount(response.account));
+      window.phaser_game?.events.emit('tokenUpdate', state.account.token);
       resolve(response.account);
     }
   }, state.account.token);

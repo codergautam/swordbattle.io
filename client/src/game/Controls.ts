@@ -16,6 +16,7 @@ export class Controls {
 
   joystick: any = null;
   joystickPointer: Phaser.Input.Pointer | null = null;
+  disabledKeys: number[];
 
   constructor(game: Game) {
     this.game = game;
@@ -74,6 +75,7 @@ export class Controls {
     });
 
     window.addEventListener('blur', () => this.clear());
+    this.disabledKeys = [];
   }
 
   update() {
@@ -110,6 +112,14 @@ export class Controls {
     this.disabled = true;
   }
 
+  disableKeys(keys: number[]) {
+    this.disabledKeys = keys;
+  }
+
+  enableAllKeys() {
+    this.disabledKeys = [];
+  }
+
   isInputDown(inputType: InputTypes) {
     return this.downInputs.includes(inputType);
   }
@@ -119,14 +129,14 @@ export class Controls {
   }
 
   inputDown(inputType: InputTypes) {
-    if (this.isInputDown(inputType) || this.disabled) {
+    if (this.isInputDown(inputType) || this.disabled || this.disabledKeys.includes(inputType)) {
       return;
     }
     this.downInputs.push(inputType);
   }
 
   inputUp(inputType: InputTypes) {
-    if (this.isInputUp(inputType) || this.disabled) {
+    if (this.isInputUp(inputType) || this.disabled || this.disabledKeys.includes(inputType)) {
       return;
     }
     this.downInputs.splice(this.downInputs.indexOf(inputType), 1);

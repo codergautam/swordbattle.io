@@ -4,12 +4,14 @@ class Loop {
     this.onTpsUpdate = (tps) => {};
     this.interval = interval;
     this.isRunning = false;
-    this.tps = 0;
     this.ticksThisSecond = 0;
     this.lastTickTime = process.hrtime();
     this.lastSecond = this.lastTickTime[0];
     this.tickTimeElapsed = 0;
     this.accumulator = 0;
+    // For stats
+    this.entityCnt = 0;
+    this.tps = 0;
   }
 
   setEventHandler(eventHandler) {
@@ -18,6 +20,10 @@ class Loop {
 
   setOnTpsUpdate(onTpsUpdate) {
     this.onTpsUpdate = onTpsUpdate;
+  }
+
+  setEntityCnt(entityCnt) {
+    this.entityCnt = entityCnt;
   }
 
   start() {
@@ -61,8 +67,7 @@ class Loop {
   updateTPS(currentTime) {
     const currentSecond = currentTime[0];
     if (currentSecond !== this.lastSecond) {
-      console.log('tps:', this.tps,' | expected tps:', 1000 / this.interval, ' | tick time:', this.tickTimeElapsed);
-      this.tps = this.ticksThisSecond;
+      console.log('tps:', this.tps,' | expected tps:', 1000 / this.interval, ' | tick time:', this.tickTimeElapsed, 'ms | entitites:', this.entityCnt, '| time per 100 entities:', (Math.round(this.tickTimeElapsed * 10000 / this.entityCnt) / 100) + 'ms');
       this.onTpsUpdate(this.tps);
       this.ticksThisSecond = 0;
       this.lastSecond = currentSecond;

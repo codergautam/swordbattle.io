@@ -1,5 +1,8 @@
 class Loop {
-  constructor(interval = 50) { // 1000ms / 20tps = 50ms per tick
+  constructor(interval = 50) {
+        // For stats
+      this.entityCnt = 0;
+        this.tps = 0; // 1000ms / 20tps = 50ms per tick
     this.eventHandler = (deltaTime) => {};
     this.onTpsUpdate = (tps) => {};
     this.interval = interval;
@@ -9,9 +12,7 @@ class Loop {
     this.lastSecond = this.lastTickTime[0];
     this.tickTimeElapsed = 0;
     this.accumulator = 0;
-    // For stats
-    this.entityCnt = 0;
-    this.tps = 0;
+
   }
 
   setEventHandler(eventHandler) {
@@ -47,7 +48,7 @@ class Loop {
     const currentTime = process.hrtime();
     this.accumulator += this.calculateElapsedTime(currentTime, this.lastTickTime);
     this.lastTickTime = currentTime;
-
+    this.tps = this.ticksThisSecond;
     while (this.accumulator >= this.interval) {
       this.updateTPS(currentTime);
       const now = Date.now();

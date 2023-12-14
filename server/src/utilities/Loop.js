@@ -1,10 +1,6 @@
 class Loop {
   constructor(interval = 50) {
-        // For stats
-      this.entityCnt = 0;
-        this.tps = 0; // 1000ms / 20tps = 50ms per tick
-    this.eventHandler = (deltaTime) => {};
-    this.onTpsUpdate = (tps) => {};
+    this.entityCnt = 0;
     this.interval = interval;
     this.isRunning = false;
     this.ticksThisSecond = 0;
@@ -12,7 +8,8 @@ class Loop {
     this.lastSecond = this.lastTickTime[0];
     this.tickTimeElapsed = 0;
     this.accumulator = 0;
-
+    this.eventHandler = () => {};
+    this.onTpsUpdate = () => {};
   }
 
   setEventHandler(eventHandler) {
@@ -38,7 +35,6 @@ class Loop {
 
   stop() {
     this.isRunning = false;
-    this.tps = 0;
     this.ticksThisSecond = 0;
   }
 
@@ -46,9 +42,10 @@ class Loop {
     if (!this.isRunning) return;
 
     const currentTime = process.hrtime();
-    this.accumulator += this.calculateElapsedTime(currentTime, this.lastTickTime);
+    const elapsed = this.calculateElapsedTime(currentTime, this.lastTickTime);
+    this.accumulator += elapsed;
     this.lastTickTime = currentTime;
-    this.tps = this.ticksThisSecond;
+
     while (this.accumulator >= this.interval) {
       this.updateTPS(currentTime);
       const now = Date.now();
@@ -57,23 +54,26 @@ class Loop {
       this.accumulator -= this.interval;
     }
 
+    this.ticksThisSecond++;
     const delay = this.interval - (this.accumulator % this.interval);
     setTimeout(() => this.runLoop(), delay);
   }
 
   calculateElapsedTime(endTime, startTime) {
-    return (endTime[0] - startTime[0]) * 1000 + (endTime[1] - startTime[1]) / 1e6;
+    const [endSeconds, endNanoseconds] = endTime;
+    const [startSeconds, startNanoseconds] = startTime;
+    const elapsedMilliseconds = (endSeconds - startSeconds) * 1000 + (endNanoseconds - startNanoseconds) / 1e6;
+    return elapsedMilliseconds;
   }
 
   updateTPS(currentTime) {
     const currentSecond = currentTime[0];
     if (currentSecond !== this.lastSecond) {
-      console.log('tps:', this.tps,' | expected tps:', 1000 / this.interval, ' | tick time:', this.tickTimeElapsed, 'ms | entitites:', this.entityCnt, '| time per 100 entities:', (Math.round(this.tickTimeElapsed * 10000 / this.entityCnt) / 100) + 'ms');
-      this.onTpsUpdate(this.tps);
+      console.log(`tps: ${this.ticksThisSecond} | expected tps: ${1000 / this.interval} | tick time: ${this.tickTimeElapsed}ms | entities: ${this.entityCnt} | time per 100 entities: ${(Math.round(this.tickTimeElapsed * 10000 / this.entityCnt) / 100)}ms`);
+      this.onTpsUpdate(this.ticksThisSecond);
       this.ticksThisSecond = 0;
       this.lastSecond = currentSecond;
     }
-    this.ticksThisSecond++;
   }
 }
 

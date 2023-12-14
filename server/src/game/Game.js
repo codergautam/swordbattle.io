@@ -20,7 +20,7 @@ class Game {
     this.leaderPlayer = null;
 
     this.entitiesQuadtree = null;
-    this.tps = config.tickRate;
+    this.tps = 0;
   }
 
   initialize() {
@@ -147,6 +147,7 @@ class Game {
     if (client.pong) {
       client.pong = false;
       data.isPong = true;
+      console.log('pong', this.tps);
       data.tps = this.tps;
     }
 

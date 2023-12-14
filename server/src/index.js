@@ -50,6 +50,7 @@ function start() {
   const dt = frameTime / 1000;
   const loop = new Loop(frameTime);
   loop.setEventHandler(() => server.tick(dt));
+  loop.setOnTpsUpdate((tps) => game.tps = tps);
   loop.start();
 
   // const frameRate = config.tickRate;

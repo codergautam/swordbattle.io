@@ -30,7 +30,7 @@ class GameState {
     reason: '',
   }
   name = '';
-  tps = 20;
+  tps = 0;
   ping = 0;
   pingStart = 0;
   updatePing = true;
@@ -117,6 +117,7 @@ class GameState {
   processServerMessage(data: any) {
     if (data.isPong) {
       this.ping = Date.now() - this.pingStart;
+      this.tps = data.tps;
       return;
     }
     if (data.tps) {

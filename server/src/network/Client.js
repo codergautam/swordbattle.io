@@ -33,7 +33,7 @@ class Client {
       this.token = '';
       this.account = null;
     }
-    if (message.token && message.token !== this.token) {
+    if (message.token) {
       this.token = message.token;
       this.getAccount();
     } else {

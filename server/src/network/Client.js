@@ -1,5 +1,6 @@
 const Account = require('./Account');
 const Spectator = require('../game/Spectator');
+const Protocol = require('../network/protocol/Protocol');
 const config = require('../config');
 const api = require('./api');
 const { calculateGemsXP } = require('../helpers');
@@ -21,7 +22,6 @@ class Client {
 
     this.messages = [];
     this.pingTimer = 0;
-    this.pong = false;
     this.disconnectReason = {
       message: '',
       type: 0
@@ -33,11 +33,22 @@ class Client {
       this.token = '';
       this.account = null;
     }
-    if (message.token) {
+    if (message.isPing) {
+      this.send({ isPong: true, tps: this.game.tps });
+    } else if (message.token) {
       this.token = message.token;
       this.getAccount();
     } else {
       this.messages.push(message);
+    }
+  }
+
+  send(data) {
+    if (!data) return;
+
+    const packet = Protocol.encode(data);
+    if (!this.isSocketClosed) {
+      this.socket.send(packet, { binary: true, compress: true });
     }
   }
 
@@ -104,12 +115,13 @@ class Client {
 
   saveGame(game) {
     if (!this.account) return;
+
     game.account_id = this.account.id;
     const { gems, xp } = calculateGemsXP(game.coins, game.kills);
     game.gems = gems;
     game.xp = xp;
 
-    console.log('Saving game:', game);
+    // console.log('Saving game:', game);
 
 
     api.post('/stats/update', game, (data) => {

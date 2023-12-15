@@ -140,21 +140,6 @@ class Entity {
     this.velocity.scale(0.9);
   }
 
-  updateDepth() {
-    const bounds = this.shape.center;
-    bounds.width = 1;
-    bounds.height = 1;
-    const closestEntities = this.game.entitiesQuadtree.get(bounds);
-    for (const { entity } of closestEntities) {
-      if (!entity.depthZone || entity === this) continue;
-      if (!entity.depthZone.isPointInside(bounds.x, bounds.y)) continue;
-
-      this.depth = entity.id;
-      return;
-    }
-    this.depth = 0;
-  }
-
   processTargetsCollision(targetEntity, dt) {}
 
   cleanup() {

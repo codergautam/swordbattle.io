@@ -33,7 +33,6 @@ class GameState {
   tps = 0;
   ping = 0;
   pingStart = 0;
-  updatePing = true;
 
   selectedEvolution: string | null = null;
   selectedBuff: any;
@@ -86,7 +85,7 @@ class GameState {
     console.log('server connected');
   }
 
-  onServerClose(event: CloseEvent, endpoint: string) {
+  onServerClose(event: CloseEvent, endpoint?: string) {
     Socket.close();
     clearInterval(this.interval);
 
@@ -117,8 +116,6 @@ class GameState {
   processServerMessage(data: any) {
     if (data.isPong) {
       this.ping = Date.now() - this.pingStart;
-      this.tps = data.tps;
-      return;
     }
     if (data.tps) {
       this.tps = data.tps;
@@ -218,6 +215,11 @@ class GameState {
     }
   }
 
+  updatePing() {
+    this.pingStart = Date.now();
+    Socket.emit({ isPing: true });
+  }
+
   sendInputs() {
     if(!this.self.entity?.following) return;
     const inputs = this.game.controls.getChanges();
@@ -225,12 +227,6 @@ class GameState {
     const data: any = {};
     if (Settings.movementMode === 'mouse' || this.game.isMobile) {
       data.mouse = this.game.controls.mouse;
-    }
-    if (this.updatePing) {
-      this.updatePing = false;
-      this.pingStart = Date.now();
-      // data.isPing = true;
-      Socket.emit({ isPing: true });
     }
     if (inputs.length !== 0) {
       data.inputs = inputs;
@@ -306,7 +302,6 @@ class GameState {
       survivalTime: 0,
       disconnectReason: this.disconnectReason,
     };
-
     const player = this.self.entity;
     if (player) {
       results.name = player.name;

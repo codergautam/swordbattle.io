@@ -49,45 +49,12 @@ function start() {
   const frameTime = 1000 / config.tickRate;
   const dt = frameTime / 1000;
   const loop = new Loop(frameTime);
-  loop.setEventHandler(() => server.tick(dt));
-  loop.setOnTpsUpdate((tps) => {
-    game.tps = tps
-    loop.setEntityCnt(game.entities.size);
+  loop.setEventHandler(() => {
+    server.tick(dt);
   });
+  loop.onTpsUpdate = (tps) => {
+    game.tps = tps;
+    loop.entityCnt = game.entities.size;
+  }
   loop.start();
-
-  // const frameRate = config.tickRate;
-  // const frameDuration = 1000 / frameRate;
-
-  // let lastFrameTime = performance.now();
-  // let lastTpsCheck = 0;
-  // let ticks = 0;
-
-  // function gameLoop() {
-  //   const now = performance.now();
-  //   if (lastFrameTime + frameDuration < now) {
-  //     const deltaTime = now - lastFrameTime;
-  //     lastFrameTime = now;
-  //     if (lastTpsCheck + 1000 < now) {
-  //       game.tps = ticks;
-  //       ticks = 0;
-  //       lastTpsCheck = now;
-  //     }
-  //     ticks += 1;
-
-  //     // console.time('tick');
-  //     // server.tick(deltaTime / 1000);
-  //       console.log(`TPS: ${game.tps}`, deltaTime);
-  //     // console.timeEnd('tick');
-  //   }
-
-  //   // if we are more than 16 milliseconds away from the next tick
-  //   if (now - lastFrameTime < frameDuration - 16) {
-  //     setTimeout(gameLoop);
-  //   } else {
-  //     setImmediate(gameLoop);
-  //   }
-  // }
-
-  // gameLoop();
 }

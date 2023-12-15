@@ -1,7 +1,6 @@
 const SAT = require('sat');
 const IdPool = require('./components/IdPool');
 const QuadTree = require('./components/Quadtree');
-const Protocol = require('../network/protocol/Protocol');
 const GameMap = require('./GameMap');
 const GlobalEntities = require('./GlobalEntities');
 const Player = require('./entities/Player');
@@ -31,13 +30,8 @@ class Game {
   }
 
   tick(dt) {
-    if (config.debug) {
-      console.log('entities count:', this.entities.size);
-    }
-
     for (const entity of this.entities) {
       entity.update(dt);
-      entity.updateDepth();
     }
 
     this.updateQuadtree(this.entitiesQuadtree, this.entities);
@@ -49,9 +43,7 @@ class Game {
         this.globalEntities.entities.add(entity);
       }
 
-      if (entity.targets.length !== 0) {
-        this.processCollisions(entity, response, dt);
-      }
+      this.processCollisions(entity, response, dt);
     }
     this.map.update(dt);
   }
@@ -59,31 +51,30 @@ class Game {
   processCollisions(entity, response, dt) {
     const quadtreeSearch = this.entitiesQuadtree.get(entity.shape.boundary);
 
+    let depth = 0;
     for (const { entity: targetEntity } of quadtreeSearch) {
-      if (!entity.targets.includes(targetEntity.type)) continue;
       if (entity === targetEntity) continue;
       if (targetEntity.removed) continue;
 
-      response.clear();
+      // Update entity depth (buildings)
+      if (targetEntity.depthZone) {
+        const center = entity.shape.center;
+        if (targetEntity.depthZone.isPointInside(center.x, center.y)) {
+          depth = targetEntity.id;
+        }
+      }
 
+      if (!entity.targets.includes(targetEntity.type)) continue;
+
+      response.clear();
       if (targetEntity.shape.collides(entity.shape, response)) {
         entity.processTargetsCollision(targetEntity, response, dt);
       }
     }
+    entity.depth = depth;
   }
 
   processClientMessage(client, data) {
-    if (data.isPing) {
-      try {
-      return client.socket.send(Protocol.encode({
-        isPong: true,
-        tps: this.tps,
-      }), { binary: true, compress: true });
-    } catch (e) {
-      console.log(e);
-    }
-    }
-
     if (data.spectate && !client.spectator.isSpectating) {
       this.addSpectator(client, data);
       return;
@@ -144,12 +135,6 @@ class Game {
         }
       }
     }
-    if (client.pong) {
-      client.pong = false;
-      data.isPong = true;
-      console.log('pong', this.tps);
-      data.tps = this.tps;
-    }
 
     if (client.fullSync) {
       client.fullSync = false;
@@ -172,7 +157,7 @@ class Game {
     if (Object.keys(data).length === 0) {
       return null;
     }
-    return Protocol.encode(data);
+    return data;
   }
 
   updateQuadtree(quadtree, entities) {

@@ -85,9 +85,7 @@ class Server {
     }
     for (const client of this.clients.values()) {
       const payload = this.game.createPayload(client);
-      if (payload !== null && !client.isSocketClosed) {
-        client.socket.send(payload, { binary: true, compress: true });
-      }
+      client.send(payload);
     }
 
     this.game.endTick();

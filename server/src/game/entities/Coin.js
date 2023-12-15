@@ -27,6 +27,7 @@ class Coin extends Entity {
     this.velocity.scale(0.5);
 
     if (Date.now() > this.despawnTime) {
+      if(this.respawnable) this.createInstance();
       this.remove();
     }
   }

@@ -219,10 +219,10 @@ class GameMap {
     this.height = maxY - minY;
 
     if (this.width !== config.world.worldWidth) {
-      throw new Error(`Map width in config must be ${config.world.worldWidth}, but is ${this.width} calculated from biomes`);
+      throw new Error(`Map width in config is ${config.world.worldWidth}, which differs from ${this.width} calculated from biome definitions`);
     }
     if (this.height !== config.world.worldHeight) {
-      throw new Error(`Map height in config must be ${config.world.worldHeight}, but is ${this.height} calculated from biomes`);
+      throw new Error(`Map height in config is ${config.world.worldHeight}, which differs from ${this.height} calculated from biome definitions`);
     }
     this.shape = Polygon.createFromRectangle(this.x, this.y, this.width, this.height);
   }

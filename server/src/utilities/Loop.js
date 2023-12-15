@@ -49,8 +49,8 @@ class Loop {
       this.eventHandler();
       this.tickTimeElapsed = Date.now() - now;
 
-      if(this.tickTimeElapsed > this.interval) {
-        console.log(`Server lagging... tick took, ${this.tickTimeElapsed}, ms. Expected < ${this.interval}, ms.`);
+      if(this.tickTimeElapsed > this.interval * 2) {
+        console.log(`Server lagging severely... tick took ${this.tickTimeElapsed} ms. Expecting <${this.interval}, ms.`);
       }
     this.ticksThisSecond++;
     const delay = this.interval - this.tickTimeElapsed;

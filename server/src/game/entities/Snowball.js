@@ -8,8 +8,8 @@ class Snowball extends Entity {
   static defaultDefinition = {
     size: 50,
     angle: 0,
-    speed: 40,
-    damage: 8,
+    speed: 30,
+    damage: 30,
     duration: [5, 10],
     position: [0, 0],
     forbiddenBiomes: [Types.Biome.River],

@@ -28,6 +28,7 @@ class Coin extends BaseEntity {
     if (this.removed) {
       const { hunter } = this;
       if (hunter) {
+        try {
         this.eatingTween.resume();
 
         const diffX = hunter.container.x - this.container.x;
@@ -40,6 +41,10 @@ class Coin extends BaseEntity {
         if (!this.eatingTween.isActive()) {
           this.remove();
         }
+      } catch (e) {
+        console.log(e);
+        this.remove();
+      }
       } else {
         this.remove();
       }

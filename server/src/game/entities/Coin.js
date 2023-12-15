@@ -15,6 +15,9 @@ class Coin extends Entity {
     this.targets.push(Types.Entity.Player);
     this.hunterId = null;
 
+    // Despawn coin after 2 minutes
+    this.despawnTime = Date.now() + (1000 * 60 * 2);
+
     this.spawn();
   }
 
@@ -22,6 +25,10 @@ class Coin extends Entity {
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
     this.velocity.scale(0.5);
+
+    if (Date.now() > this.despawnTime) {
+      this.remove();
+    }
   }
 
   createState() {

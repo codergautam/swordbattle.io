@@ -38,7 +38,16 @@ class Chest extends Entity {
     this.shape = Polygon.createFromRectangle(0, 0, this.size, this.size * 0.6);
     this.targets.push(Types.Entity.Sword);
 
+    // Despawn coin after 10 minutes
+    this.despawnTime = Date.now() + (1000 * 60 * 10);
+
     this.spawn();
+  }
+
+  update() {
+    if (Date.now() > this.despawnTime) {
+      this.remove();
+    }
   }
 
   processTargetsCollision(sword) {

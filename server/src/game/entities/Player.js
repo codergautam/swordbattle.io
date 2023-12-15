@@ -16,7 +16,7 @@ const EvolutionSystem = require('../evolutions');
 const Types = require('../Types');
 const config = require('../../config');
 const { clamp, calculateGemsXP } = require('../../helpers');
-const { skins } = require('../../../../cosmetics.json');
+const { skins } = require('../../cosmetics.json');
 
 class Player extends Entity {
   constructor(game, name) {

@@ -1,14 +1,14 @@
 class Loop {
-  constructor(interval = 50) { // 1000ms / 20tps = 50ms per tick
-    this.eventHandler = (deltaTime) => {};
-    this.onTpsUpdate = (tps) => {};
+  constructor(interval = 50) {
+    this.entityCnt = 0;
     this.interval = interval;
     this.isRunning = false;
-    this.tps = 0;
     this.ticksThisSecond = 0;
     this.lastTickTime = process.hrtime();
     this.lastSecond = this.lastTickTime[0];
-    this.accumulator = 0;
+    this.tickTimeElapsed = 0;
+    this.eventHandler = () => {};
+    this.onTpsUpdate = () => {};
   }
 
   setEventHandler(eventHandler) {
@@ -17,6 +17,10 @@ class Loop {
 
   setOnTpsUpdate(onTpsUpdate) {
     this.onTpsUpdate = onTpsUpdate;
+  }
+
+  setEntityCnt(entityCnt) {
+    this.entityCnt = entityCnt;
   }
 
   start() {
@@ -30,7 +34,6 @@ class Loop {
 
   stop() {
     this.isRunning = false;
-    this.tps = 0;
     this.ticksThisSecond = 0;
   }
 
@@ -38,33 +41,32 @@ class Loop {
     if (!this.isRunning) return;
 
     const currentTime = process.hrtime();
-    this.accumulator += this.calculateElapsedTime(currentTime, this.lastTickTime);
     this.lastTickTime = currentTime;
+    const now = Date.now();
 
-    while (this.accumulator >= this.interval) {
+
       this.updateTPS(currentTime);
       this.eventHandler();
-      this.accumulator -= this.interval;
-    }
+      this.tickTimeElapsed = Date.now() - now;
 
-    const delay = this.interval - (this.accumulator % this.interval);
+      if(this.tickTimeElapsed > this.interval * 2) {
+        console.log(`Server lagging severely... tick took ${this.tickTimeElapsed} ms. Expecting <${this.interval}, ms.`);
+      }
+    this.ticksThisSecond++;
+    const delay = this.interval - this.tickTimeElapsed;
     setTimeout(() => this.runLoop(), delay);
-  }
-
-  calculateElapsedTime(endTime, startTime) {
-    return (endTime[0] - startTime[0]) * 1000 + (endTime[1] - startTime[1]) / 1e6;
   }
 
   updateTPS(currentTime) {
     const currentSecond = currentTime[0];
     if (currentSecond !== this.lastSecond) {
-      console.log('tps:', this.tps,' | expected tps:', 1000 / this.interval);
-      this.tps = this.ticksThisSecond;
-      this.onTpsUpdate(this.tps);
+      const memoryUsage = process.memoryUsage();
+      const memoryUsageReadable = `${Math.round(memoryUsage.heapUsed / 1024 / 1024 * 100) / 100}MB`;
+      console.log(`tps: ${this.ticksThisSecond} | expected tps: ${1000 / this.interval} | tick time: ${this.tickTimeElapsed}ms | entities: ${this.entityCnt} | time per 100 entities: ${(Math.round(this.tickTimeElapsed * 10000 / this.entityCnt) / 100)}ms | memory usage: ${memoryUsageReadable}`);
+      this.onTpsUpdate(this.ticksThisSecond);
       this.ticksThisSecond = 0;
       this.lastSecond = currentSecond;
     }
-    this.ticksThisSecond++;
   }
 }
 

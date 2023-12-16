@@ -108,7 +108,7 @@ export function addCommas(num: number) {
 }
 
 export function calculateGemsXP(coins: number, kills: number) {
-  const xp = Math.floor(coins / 100) + kills
+  const xp = Math.floor(coins / 50) + kills
   return {
     xp,
     gems: Math.floor(xp / 5)

@@ -7,12 +7,12 @@ const helpers = require('../../helpers');
 
 // size, coins, health, weight
 const rarities = [
-  [200, 100, 1, 80],
-  [350, 200, 50, 10],
-  [500, 500, 300, 5 ],
+  [200, 20, 1, 80],
+  [350, 100, 50, 10],
+  [500, 200, 300, 5 ],
   [900, 1000, 600, 3],
   [1200, 3000, 1000, 2],
-  [1700, 10000, 1500, 1],
+  [1700, 5000, 1500, 1],
 ];
 
 let totalWeight = rarities.reduce((acc, rarity) => acc + rarity[3], 0);

@@ -29,7 +29,7 @@ module.exports = {
     swingDurationIncrease: 1.05,
     maxSwingDuration: 3,
     damage: 10,
-    knockback: 150,
+    knockback: 250,
   },
   saveGame: {
     playtime: 30, // in minutes

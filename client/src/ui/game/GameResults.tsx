@@ -5,8 +5,9 @@ import PlayAgainImg from '../../assets/img/play-again.png';
 import HomeImg from '../../assets/img/home.png';
 import './GameResults.scss';
 import { DisconnectTypes } from '../../game/Types';
+import { calculateGemsXP } from '../../helpers';
 
-function GameResults({ onHome, results, game }: any) {
+function GameResults({ onHome, results, game, isLoggedIn }: any) {
   const onHomeClick = () => {
     onHome();
     game.events.emit('setGameResults', null);
@@ -39,7 +40,7 @@ function GameResults({ onHome, results, game }: any) {
         </div>
 
         <div className="info">
-          <div className="title">Kills:</div>
+          <div className="title">Stabs:</div>
           <CountUp
             duration={3}
             end={results.kills}
@@ -54,7 +55,18 @@ function GameResults({ onHome, results, game }: any) {
             formattingFn={(s) => `${((s % 3600) / 60).toFixed(0)}m ${(s % 60).toFixed(0)}s`}
           />
         </div>
+        { isLoggedIn && (
+        <div className="info">
+          <div className="title">Gems Gained</div>
+          <CountUp
+            end={calculateGemsXP(results.coins, results.kills).gems}
+            duration={3}
+          />
+        </div>
+        )}
       </div>
+
+
 
       <div className="results-buttons">
         <div

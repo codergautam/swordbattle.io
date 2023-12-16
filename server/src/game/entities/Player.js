@@ -302,7 +302,6 @@ class Player extends Entity {
         message: message,
         type: type
       }
-      console.log(`[Player] ${this.name} disconnected: ${message} ${type}`);
       const game = {
         coins: this.levels.coins,
         kills: this.kills,

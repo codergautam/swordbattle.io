@@ -169,7 +169,7 @@ class Player extends BaseEntity {
 
   addDamagedParticles() {
     if (this.game.game.loop.actualFps < 30) return;
-
+    try {
     const particles = this.game.add.particles(this.container.x, this.container.y, 'hitParticle', {
       maxParticles: 5,
       scale: 0.01,
@@ -177,12 +177,15 @@ class Player extends BaseEntity {
     });
     particles.setDepth(45);
     particles.setBlendMode(Phaser.BlendModes.ADD);
+  } catch (e) {
+    console.log(e);
+  }
   }
 
   addAbilityParticles() {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
-
+    try {
     const particles = this.game.add.particles(
       this.container.x + random(-this.body.displayWidth, this.body.displayWidth) * 0.5,
       this.container.y + random(-this.body.displayHeight, this.body.displayHeight) * 0.5,
@@ -190,6 +193,9 @@ class Player extends BaseEntity {
       { scale: 0.05, speed: 200, maxParticles: 1 },
     );
     particles.setDepth(45);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   updateEvolution() {

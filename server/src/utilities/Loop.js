@@ -62,7 +62,7 @@ class Loop {
     if (currentSecond !== this.lastSecond) {
       const memoryUsage = process.memoryUsage();
       const memoryUsageReadable = `${Math.round(memoryUsage.heapUsed / 1024 / 1024 * 100) / 100}MB`;
-      console.log(`tps: ${this.ticksThisSecond} | expected tps: ${1000 / this.interval} | tick time: ${this.tickTimeElapsed}ms | entities: ${this.entityCnt} | time per 100 entities: ${(Math.round(this.tickTimeElapsed * 10000 / this.entityCnt) / 100)}ms | memory usage: ${memoryUsageReadable}`);
+      // console.log(`tps: ${this.ticksThisSecond} | expected tps: ${1000 / this.interval} | tick time: ${this.tickTimeElapsed}ms | entities: ${this.entityCnt} | time per 100 entities: ${(Math.round(this.tickTimeElapsed * 10000 / this.entityCnt) / 100)}ms | memory usage: ${memoryUsageReadable}`);
       this.onTpsUpdate(this.ticksThisSecond);
       this.ticksThisSecond = 0;
       this.lastSecond = currentSecond;

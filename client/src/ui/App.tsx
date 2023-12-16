@@ -132,6 +132,7 @@ function App() {
         onHome={onHome}
         onGameReady={onGameReady}
         onConnectionClosed={onConnectionClosed}
+        loggedIn={account.isLoggedIn}
       />
       {connectionError && (
         <Modal

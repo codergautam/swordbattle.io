@@ -121,9 +121,6 @@ class Client {
     game.gems = gems;
     game.xp = xp;
 
-    // console.log('Saving game:', game);
-
-
     api.post('/stats/update', game, (data) => {
       if (data.message) {
         console.warn('Failed to save stats:', game, data.message);

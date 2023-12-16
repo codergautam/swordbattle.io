@@ -47,6 +47,7 @@ function App() {
   const [modal, setModal] = useState<any>(null);
   const [connectionError, setConnectionError] = useState<string>('');
   const [firstGame, setFirstGame] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     if(gameStarted && firstGame) setFirstGame(false);
@@ -83,14 +84,14 @@ function App() {
     preloadImages.forEach((url) => {
       preloadImage(url).then(() => {
         loadedImages++;
-        setLoadingProgress((loadedImages / preloadImages.length) * 90);
+        setLoadingProgress((loadedImages / preloadImages.length) * 100);
       });
     });
   }, []);
 
   const onGameReady = () => {
-    setLoadingProgress(100);
     console.log('Game ready');
+    setIsConnected(true);
   };
   const onStart = () => {
     setGameStarted(true);
@@ -146,7 +147,9 @@ function App() {
               onChange={(e) => setName(e.target.value)}
               disabled={account.isLoggedIn}
             />
-            <button className="startButton" onClick={onStart}>Play!</button>
+            <button className="startButton" onClick={onStart} disabled={!isConnected}>
+              {isConnected ? 'Start' : 'Connecting...'}
+            </button>
           </div>
 
           <div

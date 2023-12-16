@@ -48,12 +48,14 @@ function App() {
   const [connectionError, setConnectionError] = useState<string>('');
   const [firstGame, setFirstGame] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
+  const [accountReady, setAccountReady] = useState(false);
 
   useEffect(() => {
     if(gameStarted && firstGame) setFirstGame(false);
     if(gameStarted) return;
     setTimeout(() => {
     api.get(`${api.endpoint}/auth/account`, (data) => {
+      setAccountReady(true);
       if (data.account) {
         data.account.token = data.token;
         dispatch(setAccount(data.account));
@@ -147,8 +149,8 @@ function App() {
               onChange={(e) => setName(e.target.value)}
               disabled={account.isLoggedIn}
             />
-            <button className="startButton" onClick={onStart} disabled={!isConnected}>
-              {isConnected ? 'Start' : 'Connecting...'}
+            <button className="startButton" onClick={onStart} disabled={!isConnected || !accountReady}>
+              {isConnected && accountReady ? 'Start' : 'Connecting...'}
             </button>
           </div>
 

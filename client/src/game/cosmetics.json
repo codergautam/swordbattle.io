@@ -9,6 +9,26 @@
       "buyable":true,
       "description": "The default skin"
     },
+    "dog": {
+      "name": "dog",
+      "displayName": "Dog",
+      "id": 64,
+      "buyable": true,
+      "swordFileName": "dogSword.png",
+      "bodyFileName": "dogPlayer.png",
+      "description": "Dogs!",
+      "price": 50
+    },
+    "cat": {
+      "name": "cat",
+      "displayName": "Cat",
+      "id": 67,
+      "buyable": true,
+      "swordFileName": "catSword.png",
+      "bodyFileName": "catPlayer.png",
+      "description": "Cats!",
+      "price": 50
+    },
     "anime": {
       "name": "anime",
       "displayName": "Anime",
@@ -637,26 +657,6 @@
       "swordFileName": "chickenSword.png",
       "bodyFileName": "chickenPlayer.png",
       "description": "A snack before slaughter"
-    },
-    "dog": {
-      "name": "dog",
-      "displayName": "Dog OG",
-      "id": 64,
-      "buyable": false,
-      "og": true,
-      "swordFileName": "dogSword.png",
-      "bodyFileName": "dogPlayer.png",
-      "description": "Dogs!"
-    },
-    "cat": {
-      "name": "cat",
-      "displayName": "Cat OG",
-      "id": 67,
-      "buyable": false,
-      "og": true,
-      "swordFileName": "catSword.png",
-      "bodyFileName": "catPlayer.png",
-      "description": "Cats!"
     },
     "wizard": {
       "name": "wizard",

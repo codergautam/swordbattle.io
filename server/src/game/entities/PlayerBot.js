@@ -15,12 +15,12 @@ const BehaviourStages = {
 
 const BehaviourConfig = {
   [BehaviourStages.Idle]: {
-    duration: [3, 7],
+    duration: [3, 5],
     actions: [],
     targets: [],
   },
   [BehaviourStages.RandomMovement]: {
-    duration: [10, 15],
+    duration: [1, 3],
     actions: ['randomMovement'],
     targets: [],
   },
@@ -46,7 +46,7 @@ const BehaviourConfig = {
     force: [50, 90],
   },
   [BehaviourStages.RunAway]: {
-    duration: [5, 10],
+    duration: [1, 5],
     actions: ['runAway', 'attack'],
     targets: [],
   },

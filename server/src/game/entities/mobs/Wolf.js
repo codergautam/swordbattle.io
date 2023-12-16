@@ -26,7 +26,7 @@ class WolfMob extends Entity {
 
     this.health = new Health(50, 2);
     this.speed = new Property(35);
-    this.damage = new Property(6);
+    this.damage = new Property(15);
     this.target = null;
     this.targets.push(Types.Entity.Player);
 

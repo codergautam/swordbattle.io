@@ -179,7 +179,7 @@ class Sword extends Entity {
 
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
     let power = this.knockback.value / (entity.knockbackResistance?.value || 1) * (entity.type === Types.Entity.Player ? 1.5 : 1);
-    power = Math.max(Math.min(power, 250), 100);
+    power = Math.max(Math.min(power, 400), 100);
     const xComp = power * Math.cos(angle);
     const yComp = power * Math.sin(angle);
     entity.velocity.x -= xComp;

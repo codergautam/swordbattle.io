@@ -1,0 +1,55 @@
+.reward-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top:
+20px;
+}
+
+
+.reward-box {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  flex: 0 1 auto;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: left; // Align text to the left
+  gap: 10px; // Space between icon and text
+  transition: border-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+  &:hover {
+    border-color: #fff;
+    transform: scale(1.05);
+    }
+
+  .icon {
+    // Icon styles, adjust as needed
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .text {
+    // Text styles, adjust as needed
+    font-size: 16px;
+    font-weight: bold;
+  }
+}
+
+
+// Different colors for each type of reward
+.gems {
+background-color: #04390f;
+}
+
+.skinsbox {
+background-color: #b52555;
+}
+
+.xp {
+background-color: #1d9fe1;
+}

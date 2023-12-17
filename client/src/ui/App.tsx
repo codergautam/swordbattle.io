@@ -28,6 +28,7 @@ import './App.scss';
 import GemCount from './GemCount';
 import ShopButton from './ShopButton';
 import ShopModal from './modals/ShopModal';
+import MigrationModal from './modals/MigrationModal';
 
 const preloadImages: string[] = [
   SettingsImg,
@@ -122,6 +123,9 @@ function App() {
     if (modal?.type?.name === 'ShopModal') {
       setModal(<ShopModal account={account} />);
     }
+    if(account.is_v1) {
+      setModal(<MigrationModal account={account} />);
+    }
   }, [account]);
 
   const isLoaded = loadingProgress === 100;
@@ -151,7 +155,7 @@ function App() {
               disabled={account.isLoggedIn}
             />
             <button className="startButton" onClick={onStart} disabled={!isConnected || !accountReady}>
-              {isConnected && accountReady ? 'Start' : 'Connecting...'}
+              {isConnected && accountReady ? 'Play!' : 'Connecting...'}
             </button>
           </div>
 

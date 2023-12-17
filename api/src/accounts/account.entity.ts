@@ -20,6 +20,7 @@ export class Account {
   @Column({ default: '' }) email: string;
 
   @Column({ default: 0 }) gems: number;
+  @Column({ default: 0 }) xp: number;
 
   @Column({ default: false }) subscription: boolean;
 

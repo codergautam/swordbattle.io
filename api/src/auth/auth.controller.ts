@@ -24,6 +24,12 @@ export class AuthController {
     const data = await this.authService.login(loginData);
     res.set('Authorization', `Bearer ${data.token}`);
     this.setCookie(res, 'auth-token', data.token);
+    if (data.account.is_v1) {
+      // assume the migration screen has been shown
+      data.account.is_v1 = false;
+      await this.authService.updateAccount(data.account);
+      data.account.is_v1 = true;
+    }
     return data;
   }
 

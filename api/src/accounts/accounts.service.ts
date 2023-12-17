@@ -131,10 +131,10 @@ export class AccountsService {
 
     // Check if the skin exists
     const cosmetic: any = Object.values(cosmetics[type]).find((c: any) => c.id === itemId);
-    if (!cosmetic) {
+    if (!cosmetic || !cosmetic.buyable) {
       return { error: 'Invalid skin id' };
     }
-    console.log(cosmetic, user);
+
 
     // Check if the user has enough gems
     const skinPrice = cosmetic.price;
@@ -177,6 +177,13 @@ export class AccountsService {
     });
     await this.transactionsRepository.save(transaction);
 
+    return account;
+  }
+
+  async addXp(account: Account, xp: number) {
+    if(xp === 0) return account;
+    account.xp += xp;
+    await this.accountsRepository.save(account);
     return account;
   }
 

@@ -8,6 +8,8 @@ export type AccountState = {
   token: string;
   gems: number;
   skins: { equipped: number; owned: number[] };
+  is_v1: boolean;
+  xp: number;
 }
 
 const initialState: AccountState = {
@@ -16,7 +18,9 @@ const initialState: AccountState = {
   token: '',
   isLoggedIn: false,
   gems: 0,
-  skins: { equipped: 1, owned: [1] }
+  skins: { equipped: 1, owned: [1] },
+  is_v1: false,
+  xp: 0,
 };
 
 // Async Thunks
@@ -88,6 +92,8 @@ const accountSlice = createSlice({
       state.isLoggedIn = false;
       state.skins = { equipped: 1, owned: [1] };
       window.phaser_game?.events.emit('tokenUpdate', '');
+      state.is_v1 = false;
+      state.xp = 0;
     },
     setAccount: (state, action) => {
       state.email = action.payload.email;
@@ -97,6 +103,8 @@ const accountSlice = createSlice({
       state.token = action.payload.token;
       state.gems = action.payload.gems;
       state.skins = action.payload.skins;
+      state.is_v1 = action.payload.is_v1;
+      state.xp = action.payload.xp;
       if (previousToken !== state.token) {
         window.phaser_game?.events.emit('tokenUpdate', state.token);
       }

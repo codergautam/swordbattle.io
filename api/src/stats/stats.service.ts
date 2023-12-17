@@ -27,6 +27,7 @@ export class StatsService {
     // Update gems
     let gems = data.gems;
     await this.accountsService.addGems(account, gems, "game");
+    await this.accountsService.addXp(account, data.xp);
 
     return true;
   }

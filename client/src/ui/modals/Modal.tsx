@@ -8,8 +8,10 @@ function Modal({ child, close, className = '', scaleDisabled = false }: any) {
   }
 
   useEffect(() => {
+    if(close) {
     document.addEventListener('keydown', keyPress);
     return () => document.removeEventListener('keydown', keyPress);
+    }
   });
 
   const scale = useScale(true);

@@ -79,6 +79,10 @@ export class AuthService {
     }
   }
 
+  async updateAccount(account: Account) {
+    return this.accountsService.update(account.id, account);
+  }
+
   async getAccountFromUsername(username: string) {
     return this.accountsService.getByUsername(username);
   }

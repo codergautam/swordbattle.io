@@ -61,6 +61,7 @@ export class StatsService {
     } else {
       totalStats = this.totalStatsRepository.create({
         ...data,
+        games: 1,
         account,
       });
     }
@@ -79,6 +80,14 @@ export class StatsService {
       .where('daily_stats.account_id = :id', { id: account.id })
       .orderBy('daily_stats.date', 'DESC')
       .getOne();
+  }
+
+  async getAllDailyStats(account: Account) {
+    return this.dailyStatsRepository
+      .createQueryBuilder('daily_stats')
+      .where('daily_stats.account_id = :id', { id: account.id })
+      .orderBy('daily_stats.date', 'DESC')
+      .getMany();
   }
 
   async getAccountRankByXp(account: Account) {

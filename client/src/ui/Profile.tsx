@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { secondsToTime, sinceFrom, numberWithCommas, lastSeen } from '../helpers';
 import api from '../api';
-
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import './Profile.scss';
-
+import cosmetics from '../game/cosmetics.json';
 interface Stats {
   date: string;
   xp: number;
@@ -18,13 +19,16 @@ interface AccountData {
   username: string;
   created_at: string;
   profile_views: number;
+  skins: { equipped: number, owned: number[] };
 }
 interface ProfileData {
   account: AccountData;
   totalStats?: Stats;
-  latestDayStats?: Stats;
+  dailyStats?: Stats[];
   rank?: number;
 }
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function Profile() {
   const [query] = useSearchParams();
@@ -47,6 +51,24 @@ export default function Profile() {
     return () => document.body.classList.remove('profile-body');
   }, []);
 
+  const prepareGraphData = (dailyStats: Stats[]) => {
+    const labels = dailyStats.map(stat => new Date(stat.date).toLocaleDateString());
+    const data = dailyStats.map(stat => stat.xp);
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Total XP',
+          data,
+          fill: false,
+          backgroundColor: 'rgb(75, 192, 192)',
+          borderColor: 'rgba(75, 192, 192, 0.2)',
+          tension: 0.4,
+        },
+      ],
+    };
+  };
+
   if (isLoading) {
     return <h3>Loading...</h3>
   }
@@ -56,23 +78,47 @@ export default function Profile() {
   return (
     <section className="main-content">
       <div className="container">
-        <h1>{data.account.username}</h1>
+        <div className='statsContent'>
+      <button className="back-button" onClick={() => window.location.href = '/'}>X</button>
+          <center>
+        <h1>
+        <img src={'/assets/game/player/'+Object.values(cosmetics.skins).find((skin: any) => skin.id === data.account.skins.equipped)?.bodyFileName} alt="Equipped skin" className="equipped-skin" />
+
+          {data.account.username}</h1></center>
         <br />
-        <h4>Joined {sinceFrom(data.account.created_at)} ago</h4>
-        <h4>Last seen {data.latestDayStats ? lastSeen(data.latestDayStats.date) : 'never'}</h4>
+        <div className='cluster'>
+          <center>
+        <h4 className="stat">Joined {sinceFrom(data.account.created_at)} ago</h4>
+        <h4 className="stat">{data.dailyStats && data.dailyStats.length ? `Last seen ${lastSeen(data.dailyStats[data.dailyStats.length - 1].date)}` : ''}</h4>
         <br />
 
-        {data.rank && <h4>#{data.rank} all time</h4>}
-        <br />
-        <br />
-        <h4>{numberWithCommas(data.account.profile_views)} profile views</h4>
-        <br />
+        {data.rank && <h4 className="stat">#{data.rank} all time</h4>}
+        <h4 className="stat">{numberWithCommas(data.account.profile_views)} profile views</h4>
+        </center>
+        </div>
 
+        <br />
         <div className="row">
           <Card title="Games Played" text={data.totalStats ? numberWithCommas(data.totalStats.games) : 0} />
           <Card title="XP" text={data.totalStats ? numberWithCommas(data.totalStats.xp) : 0} />
           <Card title="Total Playtime" text={data.totalStats ? secondsToTime(data.totalStats.playtime) : 0} />
           <Card title="Stabs" text={data.totalStats ? numberWithCommas(data.totalStats.kills) : 0} />
+          <Card title="Skins Owned" text={data.account.skins.owned.length} />
+        </div>
+
+        {data.dailyStats &&
+          <div className="xp-graph">
+            <Line data={prepareGraphData(data.dailyStats)} options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }} />
+          </div>
+        }
         </div>
       </div>
     </section>

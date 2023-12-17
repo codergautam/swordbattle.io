@@ -30,7 +30,7 @@ class SoundManager {
         'ChestDestroy/ChestDestroy1.wav', 'ChestDestroy/ChestDestroy2.wav', 'ChestDestroy/ChestDestroy3.wav',
       ]),
       [FlagTypes.SwordSwing]: new Sound(FlagTypes.SwordSwing, [
-        'SwordSwing/SwordSwing1.wav', 'SwordSwing/SwordSwing2.wav',
+        'SwordSwing/SwordSwing1.wav',
       ]),
       [FlagTypes.SwordThrow]: new Sound(FlagTypes.SwordThrow, [
         'SwordThrow/SwordThrow1.wav', 'SwordThrow/SwordThrow2.wav', 'SwordThrow/SwordThrow3.wav',

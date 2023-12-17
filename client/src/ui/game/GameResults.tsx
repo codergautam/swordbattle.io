@@ -56,6 +56,7 @@ function GameResults({ onHome, results, game, isLoggedIn }: any) {
           />
         </div>
         { isLoggedIn && (
+          <>
         <div className="info">
           <div className="title">Gems Gained</div>
           <CountUp
@@ -63,6 +64,14 @@ function GameResults({ onHome, results, game, isLoggedIn }: any) {
             duration={3}
           />
         </div>
+        <div className="info">
+          <div className="title">XP Gained</div>
+          <CountUp
+            end={calculateGemsXP(results.coins, results.kills).xp}
+            duration={3}
+          />
+        </div>
+        </>
         )}
       </div>
 

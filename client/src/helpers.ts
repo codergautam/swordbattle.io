@@ -85,14 +85,19 @@ export function sinceFrom(dateString: string) {
 export function lastSeen(dateString: string) {
   if (!dateString) return 'never';
 
-  const inputDate = new Date(dateString);
+  let inputDate = new Date(dateString);
+  // https://stackoverflow.com/a/14569783
+  inputDate = new Date( inputDate.getTime() + Math.abs(inputDate.getTimezoneOffset()*60000) )
   inputDate.setHours(0, 0, 0, 0);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const diff = today.getTime() - inputDate.getTime();
-  const daysDiff = diff / (1000 * 60 * 60 * 24);
+  console.log(inputDate, today);
+
+  const diff = (today as any) - (inputDate as any);
+
+  const daysDiff = Math.floor(diff / (1000 * 60 * 60 * 24));
 
   if (daysDiff === 0) {
     return 'today';
@@ -102,6 +107,7 @@ export function lastSeen(dateString: string) {
     return daysDiff + ' days ago';
   }
 }
+
 
 export function addCommas(num: number) {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

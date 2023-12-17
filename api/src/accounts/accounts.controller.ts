@@ -70,11 +70,9 @@ export class AccountsController {
 
   @Post('getPublicUserInfo/:username')
   async getAccount(@Param('username') username: string, @Req() request: Request) {
-    //TODO: IP protection rate limit
-
     const account = await this.accountsService.getByUsername(username);
     const totalStats = await this.statsService.getTotalStats(account);
-    const latestDayStats = await this.statsService.getLatestDayStats(account);
+    const dailyStats = await this.statsService.getAllDailyStats(account);
     const rank = await this.statsService.getAccountRankByXp(account);
 
     const ip = request.ip;
@@ -88,6 +86,6 @@ export class AccountsController {
       this.accountsService.incrementProfileViews(account);
     }
 
-    return { account, totalStats, latestDayStats, rank };
+    return { account, totalStats, dailyStats, rank };
   }
 }

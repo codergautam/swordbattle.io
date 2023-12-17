@@ -1,25 +1,79 @@
 .profile-body {
   @import '~bootstrap/scss/bootstrap';
 
-	background: #f9f9f9;
+	background: darkgreen;
 	font-family: "Roboto", sans-serif;;
 
-  .main-content {
-    padding: 100px 0;
+  .back-button {
+    top: 10px;
+    right: 10px;
+    z-index: 100;
+    background: #fff;
+    border-radius: 25px;
+    padding: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #000;
+    cursor: pointer;
+  }
 
+  .main-content {
     h1, h2, h3, h4, h5, h6 {
-      color: #212529;
+      color: #fff;
+    }
+
+    .stat {
+      font-size: 25px;
+    }
+
+    h1 {
+      border: solid 3px #fff;
+      padding: 10px;
+      border-radius: 25px;
+      // width fit content
+      display: inline-block;
+      padding-left: 10px;
+      padding-right: 10px;
+      background: rgb(1, 61, 1);
+    }
+
+    .equipped-skin {
+      // Inlined
+      display: inline-block;
+      margin-right: 10px;
+      // Smaller
+      width: 100px;
+      height: 100px;
+    }
+
+    .cluster {
+      background-color: rgb(1, 61, 0);
+      border: 1px solid rgb(1, 28, 1);
+      border-radius: 25px;
+      padding-left: 10px;
+      padding-top: 10px;
+    }
+
+    .container {
+      border: solid 5px #fff;
+      padding: 10px;
+      height: 100vh;
+      border-radius: 25px;
+    }
+
+    .statsContent {
+
     }
 
     .leaderboard-card {
-      background: #fff;
+      background: rgb(1, 28, 1);
       margin-bottom: 30px;
       border-radius: 5px;
       overflow: hidden;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 
       &__top {
-        background: #f9f6ff;
+        background: rgb(1, 61, 0);
         padding: 20px 0 10px 0;
       }
       &__body {
@@ -38,3 +92,5 @@
     }
   }
 }
+
+

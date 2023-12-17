@@ -205,18 +205,19 @@ class PlayerAI extends Player {
 
     if (distance < 300) {
       this.inputs.inputDown(Types.Input.SwordSwing);
-    } else if (distance < 1300) {
+    }
+    else if (distance < 1300) {
       this.inputs.inputDown(Types.Input.SwordThrow);
     }
-    this.attackCooldown = helpers.random(0.2, 0.5);
+    this.attackCooldown = helpers.random(0.5, 1.3);
   }
 
   damaged(damage, entity) {
     if (entity) {
       // 40% chance of angry or run away
       if (Math.random() > 0.6) {
-        // if health is less than 0.5, then run away
-        if (this.health.percent < 0.5) {
+        // if health is less than 0.2, then run away
+        if (this.health.percent < 0.2) {
           this.changeStage(BehaviourStages.RunAway);
           this.target = entity;
         } else if (this.stage !== BehaviourStages.RunAway) {

@@ -9,7 +9,7 @@ module.exports = class Berserker extends Evolution {
 
   applyAbilityEffects() {
     this.player.sword.damage.multiplier *= 1.6;
-    this.player.sword.knockback.multiplier *= 1.8;
+    this.player.sword.knockback.multiplier['ability'] = 1.8;
     this.player.speed.multiplier *= 1.6;
     this.player.knockbackResistance.multiplier *= 1.2;
      this.player.sword.swingDuration.multiplier['ability'] = 0.5;

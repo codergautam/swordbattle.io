@@ -38,7 +38,7 @@ class Player extends Entity {
     this.health = new Health(maxHealth, regeneration);
     this.friction = new Property(1);
     this.regeneration = new Property(regeneration);
-    this.knockbackResistance = new Property(1.25);
+    this.knockbackResistance = new Property(1);
 
     this.startTimestamp = Date.now();
     this.kills = 0;

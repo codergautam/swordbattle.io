@@ -9,7 +9,7 @@ module.exports = class Tank extends Evolution {
 
   applyAbilityEffects() {
     this.player.sword.damage.multiplier *= 2;
-    this.player.sword.knockback.multiplier *= 1.75;
+    this.player.sword.knockback.multiplier['ability'] = 2;
     this.player.knockbackResistance.multiplier *= 2;
     this.player.shape.setScale(1.75);
     this.player.health.regen.multiplier *= 5;
@@ -26,7 +26,7 @@ module.exports = class Tank extends Evolution {
     this.player.speed.multiplier *= 0.75;
     this.player.shape.setScale(1.25);
     this.player.sword.damage.multiplier *= 1.25;
-    this.player.sword.knockback.multiplier *= 1.25;
+    this.player.sword.knockback.multiplier['ability'] = 1.25;
     this.player.knockbackResistance.multiplier *= 2;
     this.player.health.max.multiplier *= 1.6;
     this.player.health.regen.multiplier *= 1.25;

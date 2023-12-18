@@ -17,7 +17,7 @@ class Sword extends Entity {
     const { initialSwingDuration, damage, knockback } = config.sword;
     this.swingDuration = new Property(initialSwingDuration, true);
     this.damage = new Property(damage);
-    this.knockback = new Property(knockback);
+    this.knockback = new Property(knockback, true);
     this.flySpeed = new Property(100);
     this.flyDuration = new Property(1.5);
     this.flyCooldown = new Property(5);
@@ -182,8 +182,8 @@ class Sword extends Entity {
     power = Math.max(Math.min(power, 400), 100);
     const xComp = power * Math.cos(angle);
     const yComp = power * Math.sin(angle);
-    entity.velocity.x -= xComp;
-    entity.velocity.y -= yComp;
+    entity.velocity.x = -1*xComp;
+    entity.velocity.y =  -1*yComp;
     entity.damaged(this.damage.value, this.player);
 
     this.collidedEntities.add(entity);

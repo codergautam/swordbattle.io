@@ -82,12 +82,16 @@ export function sinceFrom(dateString: string) {
   return humanReadable(secondsDiff);
 }
 
+export function fixDate(inputDate: Date) {
+  // https://stackoverflow.com/a/14569783
+  return  new Date( inputDate.getTime() + Math.abs(inputDate.getTimezoneOffset()*60000) )
+}
+
 export function lastSeen(dateString: string) {
   if (!dateString) return 'never';
 
   let inputDate = new Date(dateString);
-  // https://stackoverflow.com/a/14569783
-  inputDate = new Date( inputDate.getTime() + Math.abs(inputDate.getTimezoneOffset()*60000) )
+  inputDate = fixDate(inputDate);
   inputDate.setHours(0, 0, 0, 0);
 
   const today = new Date();

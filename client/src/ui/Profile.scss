@@ -3,6 +3,7 @@
 
 	background: darkgreen;
 	font-family: "Roboto", sans-serif;;
+  overflow-y: auto;
 
   .back-button {
     top: 10px;
@@ -18,6 +19,7 @@
   }
 
   .main-content {
+
     h1, h2, h3, h4, h5, h6 {
       color: #fff;
     }
@@ -57,14 +59,18 @@
     .container {
       border: solid 5px #fff;
       padding: 10px;
-      height: 100vh;
       border-radius: 25px;
     }
 
     .statsContent {
 
     }
-
+    .xp-graph {
+      height: calc(100vh - 800px); // Adjust the value as needed
+      background-color: rgb(1, 51, 1); // Change to the desired background color
+      border-radius: 5px; // Optional, for rounded corners
+      padding: 10px; // Optional, for some spacing around the graph
+    }
     .leaderboard-card {
       background: rgb(1, 28, 1);
       margin-bottom: 30px;

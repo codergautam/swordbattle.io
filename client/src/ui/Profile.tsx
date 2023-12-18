@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { secondsToTime, sinceFrom, numberWithCommas, lastSeen } from '../helpers';
+import { secondsToTime, sinceFrom, numberWithCommas, lastSeen, fixDate } from '../helpers';
 import api from '../api';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
@@ -52,17 +52,34 @@ export default function Profile() {
   }, []);
 
   const prepareGraphData = (dailyStats: Stats[]) => {
-    const labels = dailyStats.map(stat => new Date(stat.date).toLocaleDateString());
-    const data = dailyStats.map(stat => stat.xp);
+    // Sort the stats by date
+    dailyStats.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // Create a new array for all dates in the range
+    const allDates = [];
+    let d = new Date(dailyStats[0].date);
+    d.setDate(d.getDate() - 1); // One day before the first date
+    const endDate = new Date(dailyStats[dailyStats.length - 1].date);
+    for (; d <= endDate; d.setDate(d.getDate() + 1)) {
+      allDates.push(new Date(d));
+    }
+
+    // Map the stats to the new date range
+    const labels = allDates.map(date => fixDate(date).toLocaleDateString());
+    let runningTotal = 0;
+    const data = allDates.map(date => {
+      const stat = dailyStats.find(stat => fixDate(new Date(stat.date)).toLocaleDateString() === fixDate(date).toLocaleDateString());
+      return stat ? runningTotal += stat.xp : runningTotal;
+    });
+
     return {
       labels,
       datasets: [
         {
           label: 'Total XP',
           data,
-          fill: false,
-          backgroundColor: 'rgb(75, 192, 192)',
-          borderColor: 'rgba(75, 192, 192, 0.2)',
+          backgroundColor: 'white',
+          borderColor: 'white',
           tension: 0.4,
         },
       ],
@@ -113,9 +130,24 @@ export default function Profile() {
               maintainAspectRatio: false,
               scales: {
                 y: {
-                  beginAtZero: true
+                  beginAtZero: true,
+                  ticks: {
+                    color: 'white',
+                  }
+                },
+                x: {
+                  ticks: {
+                    color: 'white',
+                  }
                 }
-              }
+              },
+              plugins: {
+                legend: {
+                  labels: {
+                    color: 'white'
+                  },
+                },
+              },
             }} />
           </div>
         }

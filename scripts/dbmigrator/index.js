@@ -9,7 +9,9 @@ import fs from 'fs';
 config();
 
 const ignoreNewDb = true;
-const useStatsCached = true;
+const useStatsCached = false;
+// set stopAt to integer to limit to N users migrated
+let stopAt = false;
 
 if(!process.env.OLD_DB) throw new Error('No old db url provided');
 if(!process.env.NEW_DB && !ignoreNewDb) throw new Error('No new db url provided');
@@ -239,7 +241,6 @@ async function insertDailyStats(stats, acc_id) {
   return newStats;
 }
 
-let stopAt = 10000;
 (async () => {
   let accs;
   logText('Downloading database (0/2)');

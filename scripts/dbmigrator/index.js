@@ -10,6 +10,9 @@ config();
 
 if(!process.env.OLD_DB) throw new Error('No old db url provided');
 if(!process.env.NEW_DB) throw new Error('No new db url provided');
+
+const useStats = true;
+
 // connect to the old db
 const sql = postgres(process.env.OLD_DB, {
   ssl: {
@@ -229,7 +232,7 @@ async function insertDailyStats(stats, acc_id) {
   return newStats;
 }
 
-let stopAt = false;
+let stopAt = 10000;
 (async () => {
   let accs;
   logText('Downloading database (0/2)');
@@ -239,7 +242,7 @@ let stopAt = false;
     accs = await sql`SELECT * FROM accounts`;
   }
   logText('Downloading database (1/2)');
-  const accStats = {};
+  let accStats = {};
   // const accGames = {};
   const allStats = await sql`SELECT * FROM stats`;
   // logText('Downloading database (2/2)');
@@ -249,16 +252,17 @@ let stopAt = false;
   function findAll(dataset, predicate) {
     return dataset.filter(predicate);
 }
-  let done = 0;
-  const start = Date.now();
-  let startTen = Date.now();
+let done = 0;
+const start = Date.now();
+
+if(useStats) {
+  accStats = fs.readFileSync('./accStats.json');
+  done = Object.keys(accStats).length;
+} else {
   const processAccount = async (acc, index, total) => {
     try {
       accStats[acc.username] = findAll(allStats, s => s.username === acc.username);
       done++;
-      if(done % 10 === 0) {
-        startTen = Date.now();
-      }
       logText(`Fetching accounts (${done}/${total}) ETA: ${calculateEta(start, done, total)} ${acc.username}`);
     } catch (error) {
       console.error('Error processing account:', acc.username, error);
@@ -267,13 +271,17 @@ let stopAt = false;
 
   let promises = accs;
   promises = promises.map((acc, index) => processAccount(acc, index, promises.length));
+  logText(`Fetching accounts..`)
   await Promise.all(promises);
-
-  addTextToPerm(`Fetched accounts (${done}/${promises.length})`);
+}
+  addTextToPerm(`Fetched accounts (${done}/${typeof promises !== 'undefined' ? promises.length : done})`);
   // save in json file
+  if(!useStats) {
   fs.writeFileSync('./accStats.json', JSON.stringify(accStats));
-
+  }
   // migrate users
+  const waitMs = 10;
+  const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
   let migrated = 0;
   let migratedUsers = {};
   let migratedTotalStats = {};
@@ -296,6 +304,7 @@ let stopAt = false;
       migrated++;
 
       if(migrated !== Object.values(migratedUsers).length) throw new Error('Failed to map user - '+ acc.username+' - probably a duplicate username');
+      await wait(waitMs);
       logText(`Mapping users (${migrated}/${accs.length}) ETA: ${calculateEta(start, migrated, accs.length)} ${acc.username}`);
 
   }

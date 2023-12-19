@@ -5,6 +5,7 @@
 import postgres from 'postgres'
 import cosmetics from '../../cosmetics.json' assert { type: "json" };
 import {config} from 'dotenv';
+import fs from 'fs';
 config();
 
 if(!process.env.OLD_DB) throw new Error('No old db url provided');
@@ -163,7 +164,7 @@ async function migrateUser(username, account, stats, games) {
   return newAccStruct;
 }
 function logText(text) {
-
+  console.clear();
   if(!text) return console.log(permText.join('\n'));
   console.log(permText.join('\n') + '\n' + text??'');
 }
@@ -228,25 +229,36 @@ async function insertDailyStats(stats, acc_id) {
   return newStats;
 }
 
-let stopAt = 100;
+let stopAt = false;
 (async () => {
-  addTextToPerm('Starting migration...');
-  const accs = await sql`SELECT * FROM accounts limit ${stopAt}`;
+  let accs;
+  logText('Downloading database (0/2)');
+  if(stopAt) {
+  accs= await sql`SELECT * FROM accounts limit ${stopAt}`;
+  } else {
+    accs = await sql`SELECT * FROM accounts`;
+  }
+  logText('Downloading database (1/2)');
   const accStats = {};
-  const accGames = {};
+  // const accGames = {};
+  const allStats = await sql`SELECT * FROM stats`;
+  // logText('Downloading database (2/2)');
+  // const allGames = await sql`SELECT * FROM games`;
+  addTextToPerm('Downloaded database (2/2)');
 
+  function findAll(dataset, predicate) {
+    return dataset.filter(predicate);
+}
   let done = 0;
   const start = Date.now();
   let startTen = Date.now();
   const processAccount = async (acc, index, total) => {
     try {
-      accStats[acc.username] = await sql`SELECT * FROM stats WHERE username = ${acc.username}`;
-      accGames[acc.username] = await sql`SELECT * FROM games WHERE name = ${acc.username}`;
+      accStats[acc.username] = findAll(allStats, s => s.username === acc.username);
       done++;
       if(done % 10 === 0) {
         startTen = Date.now();
       }
-      console.clear();
       logText(`Fetching accounts (${done}/${total}) ETA: ${calculateEta(start, done, total)} ${acc.username}`);
     } catch (error) {
       console.error('Error processing account:', acc.username, error);
@@ -258,6 +270,8 @@ let stopAt = 100;
   await Promise.all(promises);
 
   addTextToPerm(`Fetched accounts (${done}/${promises.length})`);
+  // save in json file
+  fs.writeFileSync('./accStats.json', JSON.stringify(accStats));
 
   // migrate users
   let migrated = 0;
@@ -265,10 +279,8 @@ let stopAt = 100;
   let migratedTotalStats = {};
   let migratedDailyStats = {};
   for (const acc of accs) {
-    try {
-      let migratedUser = await migrateUser(acc.username, acc, accStats[acc.username], accGames[acc.username]);
+      let migratedUser = await migrateUser(acc.username, acc, accStats[acc.username], null);
       if(migratedUser) {
-        migrated++;
         migratedUsers[acc.username] = migratedUser;
       } else {
         throw new Error('User failed mapping - '+ acc.username);
@@ -281,24 +293,32 @@ let stopAt = 100;
       let migratedStatsDaily = accStats[acc.username].map(s => mapStatsDaily(s, migratedUser.id));
       if(!migratedStatsDaily) throw new Error('Failed to map stats daily for user - '+ acc.username);
       migratedDailyStats[acc.username] = migratedStatsDaily;
+      migrated++;
 
-      if(migrated % 10000 === 0) {
+      if(migrated !== Object.values(migratedUsers).length) throw new Error('Failed to map user - '+ acc.username+' - probably a duplicate username');
       logText(`Mapping users (${migrated}/${accs.length}) ETA: ${calculateEta(start, migrated, accs.length)} ${acc.username}`);
-      }
-    } catch (error) {
-      console.error('Error mapping user:', acc.username, error);
-      throw error;
-    }
+
   }
   addTextToPerm(`Mapped users (${migrated}/${accs.length})`);
+
+  if(accs.length !== Object.values(migratedUsers).length) {
+    console.log('accs', accs.length, 'migrated', Object.values(migratedUsers).length);
+    let failed = accs.filter(acc => !Object.keys(migratedUsers).includes(acc.username));
+    failed = failed.concat(Object.values(migratedUsers).filter(acc => !acc));
+    // rm duplicates
+    failed = [...new Set(failed)];
+    console.log(failed)
+    // addTextToPerm(`Failed to migrate ${failed.length} users`);
+    // // log the users that failed
+    // addTextToPerm(`Failed users: ${failed.map(f => f.username).join(', ')}`);
+    throw new Error('Failed to migrate all users');
+  }
 
   // insert accounts
   let inserted = 0;
   for(const acc of Object.values(migratedUsers)) {
-    try {
       let newAcc = await insertAccount(acc);
       if(!newAcc) throw new Error('Failed to insert account - '+ acc.username);
-      inserted++;
 
       newAcc = newAcc[0];
       let newId = newAcc.id;
@@ -313,13 +333,9 @@ let stopAt = 100;
         let newStat = await insertDailyStats(stat, newId);
         if(!newStat) throw new Error('Failed to insert daily stat - '+ acc.username);
       }
-      if(inserted % 10000 === 0) {
+      inserted++;
+
         logText(`Inserting accounts (${inserted}/${Object.values(migratedUsers).length})`);
-      }
-    } catch (error) {
-      console.error('Error inserting account:', acc.username, error);
-      throw error;
-    }
   }
   addTextToPerm(`Inserted accounts (${inserted}/${Object.values(migratedUsers).length})`);
   console.log('Done migrating! Built with <3 by Gautam');

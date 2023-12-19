@@ -91,6 +91,7 @@ class LevelSystem {
     }
     this.player.sword.swingDuration.multiplier['level'] = Math.min(maxSwingDuration, Math.max(1, swingDurationIncrease * (this.level-1)));
     this.player.knockbackResistance.value = 0.8 + (this.buffs[Types.Buff.Size].level * 0.05);
+    this.player.sword.knockback.multiplier['level'] = 1 + (this.buffs[Types.Buff.Size].level * 0.1);
   }
 
   levelUp() {

@@ -8,10 +8,11 @@ import {config} from 'dotenv';
 import fs from 'fs';
 config();
 
-if(!process.env.OLD_DB) throw new Error('No old db url provided');
-if(!process.env.NEW_DB) throw new Error('No new db url provided');
+const ignoreNewDb = true;
+const useStatsCached = true;
 
-const useStats = true;
+if(!process.env.OLD_DB) throw new Error('No old db url provided');
+if(!process.env.NEW_DB && !ignoreNewDb) throw new Error('No new db url provided');
 
 // connect to the old db
 const sql = postgres(process.env.OLD_DB, {
@@ -21,9 +22,10 @@ const sql = postgres(process.env.OLD_DB, {
   max: 3
 });
 
-const sql2 = postgres(process.env.NEW_DB, {
-});
+const sql2 = !ignoreNewDb ? postgres(process.env.NEW_DB, {
+}) : () => {};
 
+if(!ignoreNewDb) {
 // check if te new db works
 (async () => {
   try {
@@ -33,6 +35,7 @@ const sql2 = postgres(process.env.NEW_DB, {
     throw error;
   }
 })();
+}
 
 let permText = ["Swordbattle.io Database Migrator\n"];
 
@@ -97,6 +100,7 @@ function convertIfNumber(value) {
 }
 
 function getNewSkins (skins) {
+  if(!skins || !skins.hasOwnProperty('collected') || !skins.hasOwnProperty('selected')) throw new Error('Invalid skins object- '+ JSON.stringify(skins));
   function getSkinId(skinName) {
     let skin = Object.values(cosmetics.skins).find(s => s.name.toLowerCase() === skinName.toLowerCase())?.id;
     if(!skin) throw new Error('Skin not found- '+ skinName);
@@ -105,7 +109,6 @@ function getNewSkins (skins) {
   let newSkins = {}
   newSkins.owned = skins.collected.filter(s => !s || !ignoredList.includes(s)).map(s => getSkinId(s));
   newSkins.equipped = !skins.selected || ignoredList.includes(skins.selected) ? 1 : getSkinId(skins.selected);
-
   if(newSkins.equipped === -1) throw new Error('Skin not found', skins.equipped);
   if(newSkins.owned.includes(-1)) throw new Error('Skin not found', skins.owned.find(s => s === -1));
 
@@ -151,6 +154,10 @@ async function migrateUser(username, account, stats, games) {
   // get user stats
   // let stats = await sql`SELECT * FROM stats WHERE username = ${username}`;
   // let games = await sql`SELECT * FROM games WHERE name = ${username}`;
+
+  if(typeof account.skins === "string") {
+    account.skins = JSON.parse(account.skins)
+  }
 
   let newAccStruct = {
     created_at: account.created_at,
@@ -255,8 +262,9 @@ let stopAt = 10000;
 let done = 0;
 const start = Date.now();
 
-if(useStats) {
+if(useStatsCached) {
   accStats = fs.readFileSync('./accStats.json');
+  accStats = JSON.parse(accStats);
   done = Object.keys(accStats).length;
 } else {
   const processAccount = async (acc, index, total) => {
@@ -276,7 +284,7 @@ if(useStats) {
 }
   addTextToPerm(`Fetched accounts (${done}/${typeof promises !== 'undefined' ? promises.length : done})`);
   // save in json file
-  if(!useStats) {
+  if(!useStatsCached){
   fs.writeFileSync('./accStats.json', JSON.stringify(accStats));
   }
   // migrate users
@@ -327,7 +335,7 @@ if(useStats) {
   let inserted = 0;
   for(const acc of Object.values(migratedUsers)) {
       let newAcc = await insertAccount(acc);
-      if(!newAcc) throw new Error('Failed to insert account - '+ acc.username);
+      if(!newAcc) throw new Error('Failed to insert account - '+ acc.username+' - data: '+JSON.stringify(acc));
 
       newAcc = newAcc[0];
       let newId = newAcc.id;

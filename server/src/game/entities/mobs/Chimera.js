@@ -25,7 +25,7 @@ class ChimeraMob extends Entity {
     this.maneuverSpeed = helpers.random(1000, 2000);
 
     this.health = new Health(100, 2);
-    this.speed = new Property(20);
+    this.speed = new Property(5);
     this.damage = new Property(1);
     this.target = null;
     this.targets.push(Types.Entity.Player);

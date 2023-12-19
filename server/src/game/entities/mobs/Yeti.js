@@ -15,9 +15,10 @@ class YetiMob extends Entity {
     regen: 2,
     speed: 35,
     damage: 2,
-    snowballCooldown: [0.3, 0.6],
-    snowballDuration: [3, 3],
-    snowballSpeed: 150,
+    bossDamage: 15,
+    snowballCooldown: [0.2, 0.4],
+    snowballDuration: [2, 3],
+    snowballSpeed: 90,
     snowballSize: 80,
     attackRadius: 2000,
     density: 5,
@@ -42,11 +43,11 @@ class YetiMob extends Entity {
 
     this.health = new Health(this.definition.health, this.definition.regen);
     this.speed = new Property(this.definition.speed);
-    this.damage = new Property(this.definition.damage);
+    this.damage = new Property(this.definition.isBoss ? this.definition.bossDamage : this.definition.damage);
     this.target = null;
     this.targets.push(Types.Entity.Player);
 
-    this.knockbackResistance = new Property(1);
+    this.knockbackResistance = new Property(5);
 
     this.spawn();
   }

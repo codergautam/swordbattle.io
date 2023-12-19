@@ -9,7 +9,7 @@ import fs from 'fs';
 config();
 
 const ignoreNewDb = true;
-const useStatsCached = false;
+const useStatsCached = true;
 // set stopAt to integer to limit to N users migrated
 let stopAt = false;
 
@@ -287,6 +287,13 @@ if(useStatsCached) {
   // save in json file
   if(!useStatsCached){
   fs.writeFileSync('./accStats.json', JSON.stringify(accStats));
+  }
+
+  //check for differences
+  if(accs.length > Object.keys(accStats).length) {
+    let diff = accs.filter(acc => !accStats[acc.username]).map(acc => acc.username);
+    console.log(diff);
+    throw new Error('Not all accounts have stats, dbAccs-'+accs.length+', statsLen-'+Object.keys(accStats).length)
   }
   // migrate users
   const waitMs = 10;

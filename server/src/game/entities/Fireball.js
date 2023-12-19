@@ -13,7 +13,7 @@ class Fireball extends Entity {
     duration: [5, 10],
     position: [0, 0],
     forbiddenBiomes: [Types.Biome.River],
-    knockbackMultiplier: 2
+    knockbackMultiplier: 8
   };
 
   constructor(game, definition) {

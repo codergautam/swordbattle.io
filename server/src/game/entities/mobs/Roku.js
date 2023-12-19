@@ -42,6 +42,8 @@ class RokuMob extends Entity {
     this.health = new Health(this.definition.health, this.definition.regen);
     this.speed = new Property(this.definition.speed);
     this.damage = new Property(this.definition.damage);
+
+    this.knockbackResistance = new Property(5);
     this.target = null;
     this.targets.push(Types.Entity.Player);
 

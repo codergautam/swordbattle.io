@@ -7,11 +7,10 @@ module.exports = {
     {
       type: Types.Biome.Safezone,
       pos: [0, 0],
-      radius: 3000,
+      radius: 2000,
       objects: [
       ],
     },
-
     {
       type: Types.Biome.River,
       pos: [0, 0],

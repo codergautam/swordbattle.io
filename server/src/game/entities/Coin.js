@@ -4,6 +4,11 @@ const Types = require('../Types');
 const helpers = require('../../helpers');
 
 class Coin extends Entity {
+
+  static defaultDefinition = {
+    forbiddenEntities: [Types.Entity.IceSpike],
+  };
+
   constructor(game, objectData) {
     super(game, Types.Entity.Coin, objectData);
     if(typeof objectData.value === 'number') objectData.value = [objectData.value, objectData.value];

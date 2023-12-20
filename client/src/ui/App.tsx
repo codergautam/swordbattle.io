@@ -160,7 +160,7 @@ function App() {
       )}
 
       {!gameStarted && (
-        <div className="main-ui">
+        <div className={`main-ui ${isConnected && 'main-ui-loaded'}`}>
           <div className={clsx('startGame', isLoaded && 'animation')} style={scale.styles}>
             <div className='title'>Swordbattle.io</div>
             <input type="text" maxLength={16} placeholder="Enter Name"

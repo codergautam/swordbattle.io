@@ -108,8 +108,12 @@ export class StatsService {
   }
 
   async fetch(fetchData: FetchStatsDTO) {
-    const { sortBy, timeRange, limit } = fetchData;
+    let { sortBy, timeRange, limit } = fetchData;
 
+    if(limit > 100) {
+      limit = 100;
+    }
+    console.log(sortBy, timeRange, limit);
     let where = {};
     const today = new Date();
     if (timeRange === TimeRange.PastDay) {
@@ -133,8 +137,8 @@ export class StatsService {
           'total_stats.kills as kills',
           'total_stats.playtime as playtime',
         ])
+        .limit(limit)
         .orderBy('total_stats.' + sortBy, 'DESC')
-        .take(limit)
         .getRawMany();
     } else {
       return this.dailyStatsRepository
@@ -148,10 +152,10 @@ export class StatsService {
           'SUM(daily_stats.playtime) as playtime',
         ])
         .where(where)
+        .limit(limit)
         .groupBy('daily_stats.account_id')
         .addGroupBy('account.username')
         .orderBy('SUM(daily_stats.' + sortBy + ')', 'DESC')
-        .take(limit)
         .getRawMany();
     }
   }

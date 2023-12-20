@@ -1,5 +1,6 @@
 import HudComponent from './HudComponent';
 import { Evolutions } from '../Evolutions';
+import { config } from '../../config';
 
 class EvolutionSelect extends HudComponent {
   spritesContainer: Phaser.GameObjects.Container | null = null;
@@ -19,8 +20,8 @@ class EvolutionSelect extends HudComponent {
       strokeThickness: 5,
     }).setOrigin(0.5).setVisible(false)
       .setInteractive()
-      .on('pointerover', () => this.game.input.setDefaultCursor('pointer'))
-      .on('pointerout', () => this.game.input.setDefaultCursor('default'))
+      // .on('pointerover', () => this.game.input.setDefaultCursor('pointer'))
+      // .on('pointerout', () => this.game.input.setDefaultCursor(config.cursorUrl || 'default'))
       .on('pointerdown', () => this.toggleMinimize());
 
     this.spritesContainer = this.hud.scene.add.container(0, -70);
@@ -49,7 +50,7 @@ class EvolutionSelect extends HudComponent {
     this.game.gameState.selectedEvolution = type;
     this.game.gameState.self.entity!.possibleEvolutions = {};
     this.updateList = true;
-    this.game.input.setDefaultCursor('default');
+    // this.game.input.setDefaultCursor(config.cursorUrl || 'default');
   }
 
   update() {
@@ -120,12 +121,12 @@ class EvolutionSelect extends HudComponent {
 
         body.setInteractive()
           .on('pointerover', () => {
-            this.game.input.setDefaultCursor('pointer');
+            // this.game.input.setDefaultCursor('pointer');
             container.setAlpha(1);
             text.setAlpha(1);
           })
           .on('pointerout', () => {
-            this.game.input.setDefaultCursor('default');
+            // this.game.input.setDefaultCursor(config.cursorUrl || 'default');
             container.setAlpha(alpha);
             text.setAlpha(alpha);
           })

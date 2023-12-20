@@ -21,8 +21,10 @@ export class GamesService {
   }
 
   async fetch(fetchData: FetchGamesDTO) {
-    const { sortBy, timeRange, limit } = fetchData;
-
+    let { sortBy, timeRange, limit } = fetchData;
+    if(limit > 100) {
+      limit = 100;
+    }
     let where = {};
     const today = new Date();
     if (timeRange === TimeRange.PastDay) {
@@ -47,7 +49,7 @@ export class GamesService {
       ])
       .where(where)
       .orderBy('game.' + sortBy, 'DESC')
-      .take(limit)
+      .limit(limit)
       .getRawMany();
   }
 }

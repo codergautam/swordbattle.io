@@ -92,6 +92,20 @@ function App() {
     });
   }, []);
 
+
+  useEffect(() => {
+    if (gameStarted) {
+      // prevent accidental exit
+      window.onbeforeunload = function(e)
+        {
+          e.preventDefault();
+          return "Are you sure you want to exit";
+        }
+
+    } else {
+      window.onbeforeunload = null;
+    }
+  }, [gameStarted]);
   const onGameReady = () => {
     console.log('Game ready');
     setIsConnected(true);

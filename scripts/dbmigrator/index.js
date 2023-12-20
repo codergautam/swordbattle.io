@@ -7,6 +7,8 @@ import cosmetics from '../../cosmetics.json' assert { type: "json" };
 import {config} from 'dotenv';
 import fs from 'fs';
 config();
+console.log('Swordbattle.io Database Migrator.. Initializing..');
+let lastLog = 0;
 
 const ignoreNewDb = false;
 const useStatsCached = false;
@@ -69,7 +71,7 @@ function calculateTotals(stats) {
   let totalStabs = stats.reduce((acc, curr) => acc + convertIfNumber(curr.stabs), 0);
   let totalXp = calcXp(totalCoins, totalStabs);
   return {
-    playtime: stats.reduce((acc, curr) => acc + convertIfNumber(curr.game_time), 0),
+    playtime: Math.round(stats.reduce((acc, curr) => acc + convertIfNumber(curr.game_time), 0)/1000),
     coins: totalCoins,
     kills: totalStabs,
     games: stats.reduce((acc, curr) => acc + convertIfNumber(curr.game_count), 0),
@@ -165,20 +167,22 @@ async function migrateUser(username, account, stats, games) {
     created_at: account.created_at,
     username: account.username,
     password: account.password,
-    email: account.email,
+    email: account.email ?? '',
     gems: calculateGemsXP(stats, account.coins)?.gems,
     xp: calculateGemsXP(stats, account.coins)?.xp,
     is_v1: true,
-    profile_views: convertIfNumber(account.profile_views),
+    profile_views: convertIfNumber(account.views),
     skins: getNewSkins(account.skins),
   }
 
   return newAccStruct;
 }
 function logText(text) {
+  if(Date.now() - lastLog < 50) return;
   console.clear();
   if(!text) return console.log(permText.join('\n'));
   console.log(permText.join('\n') + '\n' + text??'');
+  lastLog = Date.now();
 }
 
 function addTextToPerm(text) {
@@ -209,7 +213,7 @@ function mapStatsDaily(oldStats, account_id) {
     coins: convertIfNumber(oldStats.coins),
     kills: convertIfNumber(oldStats.stabs),
     games: convertIfNumber(oldStats.game_count),
-    playtime: convertIfNumber(oldStats.game_time),
+    playtime: Math.round(convertIfNumber(oldStats.game_time)/1000),
   }
 }
 
@@ -261,6 +265,7 @@ async function insertDailyStats(stats, acc_id) {
   // const accGames = {};
   // const allStats = await sql`SELECT * FROM stats`;
   const allStats = await sql`select * from stats where game_date <=date(now())`;
+  let allStatsClone = [...allStats];
   // logText('Downloading database (2/2)');
   // const allGames = await sql`SELECT * FROM games`;
   addTextToPerm('Downloaded database (2/2)');
@@ -278,9 +283,26 @@ if(useStatsCached) {
 } else {
   const processAccount = async (acc, index, total) => {
     try {
-      accStats[acc.username] = findAll(allStats, s => s.username === acc.username);
+      // accStats[acc.username] = findAll(allStats, s => s.username === acc.username);
+      // find all stats for this account and remove them from the array
+  // can be optimized by not using promises and sorting but im lazy
+
+      // let stats = findAll(allStatsClone, s => s.username === acc.username);
+      // allStatsClone = allStatsClone.filter(s => !stats.includes(s));
+
+      let stats = [];
+      for(let i = 0; i < allStatsClone.length; i++) {
+        if(allStatsClone[i].username === acc.username) {
+          stats.push(allStatsClone[i]);
+          allStatsClone.splice(i, 1);
+          i--;
+        }
+      }
+
+      accStats[acc.username] = stats;
+
       done++;
-      logText(`Fetching accounts (${done}/${total}) ETA: ${calculateEta(start, done, total)} ${acc.username}`);
+      logText(`Fetching accounts (${done}/${total}) ${allStatsClone.length} records left ETA: ${calculateEta(start, done, total)}`);
     } catch (error) {
       console.error('Error processing account:', acc.username, error);
     }
@@ -311,35 +333,62 @@ if(useStatsCached) {
     throw new Error('Not all accounts have stats, dbAccs-'+accs.length+', statsLen-'+Object.keys(accStats).length)
   }
   // migrate users
-  const waitMs = 10;
-  const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  // const waitMs = 1;
+  // const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
   let migrated = 0;
   let migratedUsers = {};
   let migratedTotalStats = {};
   let migratedDailyStats = {};
-  for (const acc of accs) {
-      let migratedUser = await migrateUser(acc.username, acc, accStats[acc.username], null);
-      if(migratedUser) {
-        migratedUsers[acc.username] = migratedUser;
-      } else {
-        throw new Error('User failed mapping - '+ acc.username);
-      }
-      let migratedTotalStat = calculateTotals(accStats[acc.username]);
 
-      if(!migratedTotalStat) throw new Error('Failed to calculate totals for user - '+ acc.username);
-      migratedTotalStats[acc.username] = migratedTotalStat;
+  // Function to process each user
+  async function processUser(acc) {
+      let migratedUser = await migrateUser(acc.username, acc, accStats[acc.username], null);
+      if (!migratedUser) {
+          throw new Error('User failed mapping - ' + acc.username);
+      }
+
+      let migratedTotalStat = calculateTotals(accStats[acc.username]);
+      if (!migratedTotalStat) {
+          throw new Error('Failed to calculate totals for user - ' + acc.username);
+      }
 
       let migratedStatsDaily = accStats[acc.username].map(s => mapStatsDaily(s, migratedUser.id));
-      if(!migratedStatsDaily) throw new Error('Failed to map stats daily for user - '+ acc.username);
-      migratedDailyStats[acc.username] = migratedStatsDaily;
-      migrated++;
+      if (!migratedStatsDaily) {
+          throw new Error('Failed to map stats daily for user - ' + acc.username);
+      }
 
-      if(migrated !== Object.values(migratedUsers).length) throw new Error('Failed to map user - '+ acc.username+' - probably a duplicate username');
-      await wait(waitMs);
-      logText(`Mapping users (${migrated}/${accs.length}) ETA: ${calculateEta(start, migrated, accs.length)} ${acc.username}`);
-
+      return { username: acc.username, migratedUser, migratedTotalStat, migratedStatsDaily };
   }
-  addTextToPerm(`Mapped users (${migrated}/${accs.length})`);
+
+  // Function to handle all migrations
+  async function migrateAllUsers(accs) {
+      const promises = accs.map(acc => processUser(acc).catch(error => {
+          console.error(error.message);
+          return null; // Return null in case of error to keep array alignment
+      }));
+
+      const results = await Promise.all(promises);
+
+      results.forEach((result, index) => {
+          if (result) {
+              const { username, migratedUser, migratedTotalStat, migratedStatsDaily } = result;
+              migratedUsers[username] = migratedUser;
+              migratedTotalStats[username] = migratedTotalStat;
+              migratedDailyStats[username] = migratedStatsDaily;
+              migrated++;
+
+              logText(`Mapping users (${migrated}/${accs.length}) ETA: ${calculateEta(start, migrated, accs.length)} ${username}`);
+          }
+      });
+
+      if (migrated !== Object.keys(migratedUsers).length) {
+          throw new Error('Failed to map all users - possibly due to duplicate usernames or other issues');
+      }
+
+      addTextToPerm(`Mapped users (${migrated}/${accs.length})`);
+  }
+
+  await migrateAllUsers(accs);
 
   if(accs.length !== Object.values(migratedUsers).length) {
     console.log('accs', accs.length, 'migrated', Object.values(migratedUsers).length);
@@ -356,27 +405,50 @@ if(useStatsCached) {
 
   // insert accounts
   let inserted = 0;
-  for(const acc of Object.values(migratedUsers)) {
-      let newAcc = await insertAccount(acc);
-      if(!newAcc) throw new Error('Failed to insert account - '+ acc.username+' - data: '+JSON.stringify(acc));
 
+  // Function to handle insertion of an account and its related data
+  async function insertAccountData(acc) {
+      let newAcc = await insertAccount(acc);
+      if (!newAcc) {
+          throw new Error('Failed to insert account - ' + acc.username + ' - data: ' + JSON.stringify(acc));
+      }
       newAcc = newAcc[0];
       let newId = newAcc.id;
+
+      // Insert total stats
       const totalStats = migratedTotalStats[acc.username];
       let totalinserted = await insertTotalStats(totalStats, newId);
-      if(!totalinserted) throw new Error('Failed to insert total stats - '+ acc.username);
+      if (!totalinserted) {
+          throw new Error('Failed to insert total stats - ' + acc.username);
+      }
+
+      // Handle gems transactions
       const userGems = calculateGemsXP(migratedDailyStats[acc.username], acc.coins)?.gems;
       let transaction = await createTransaction(newId, userGems, 'Veteran player reward');
-      if(!transaction) throw new Error('Failed to insert transaction - '+ acc.username);
-      // daily stats
-      for(const stat of migratedDailyStats[acc.username]) {
-        let newStat = await insertDailyStats(stat, newId);
-        if(!newStat) throw new Error('Failed to insert daily stat - '+ acc.username);
+      if (!transaction) {
+          throw new Error('Failed to insert transaction - ' + acc.username);
       }
-      inserted++;
 
-        logText(`Inserting accounts (${inserted}/${Object.values(migratedUsers).length})`);
+      // Insert daily stats
+      const dailyStatsPromises = migratedDailyStats[acc.username].map(stat => insertDailyStats(stat, newId));
+      await Promise.all(dailyStatsPromises);
   }
-  addTextToPerm(`Inserted accounts (${inserted}/${Object.values(migratedUsers).length})`);
+
+  // Function to handle all account insertions
+  async function insertAllAccounts(migratedUsers) {
+      const promises = Object.values(migratedUsers).map(acc => insertAccountData(acc).catch(error => {
+          console.error(error.message);
+          return null; // Return null in case of error to keep array alignment
+      }));
+
+      logText(`Inserting accounts..`);
+      const results = await Promise.all(promises);
+
+      addTextToPerm(`Inserted accounts (${Object.values(migratedUsers).length}/${Object.values(migratedUsers).length})`);
+  }
+
+  // Call the insertAllAccounts function with your migrated users
+  await insertAllAccounts(migratedUsers);
+
   console.log('Done migrating! Built with <3 by Gautam');
 })();

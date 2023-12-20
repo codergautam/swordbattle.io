@@ -1,6 +1,8 @@
 import HudComponent from './HudComponent';
 import { BuffTypes } from '../Types';
-
+import { config } from '../../config';
+const cursor = config.cursorUrl || 'default';
+console.log('cursor', cursor);
 const buffsData: Record<any, [string, number]> = {
   [BuffTypes.Speed]: ['Speed', 0x6d92ec],
   [BuffTypes.Health]: ['Health', 0xed68ec],
@@ -33,8 +35,22 @@ class BuffsSelect extends HudComponent {
       strokeThickness: 4,
     }).setOrigin(0)
       .setInteractive()
-      .on('pointerover', () => this.game.input.setDefaultCursor('pointer'))
-      .on('pointerout', () => this.game.input.setDefaultCursor('default'))
+      .on('pointerover', () => {
+        this.game.add.tween({
+          targets: this.hideButton,
+          scaleX: 1.1,
+          scaleY: 1.1,
+          duration: 100,
+        });
+      })
+      .on('pointerout', () => {
+        this.game.add.tween({
+          targets: this.hideButton,
+          scaleX: 1,
+          scaleY: 1,
+          duration: 100,
+        });
+      })
       .on('pointerdown', () => this.toggleMinimize());
 
     this.buffsContainer = this.hud.scene.add.container(-this.width, 40).setAlpha(0);
@@ -89,8 +105,22 @@ class BuffsSelect extends HudComponent {
         if (!config) continue;
         const buffContainer = scene.add.container(0, i * (this.lineHeight + 10))
           .setInteractive(new Phaser.Geom.Rectangle(0, 0, this.width, this.lineHeight), Phaser.Geom.Rectangle.Contains)
-          .on('pointerover', () => this.game.input.setDefaultCursor('pointer'))
-          .on('pointerout', () => this.game.input.setDefaultCursor('default'))
+          .on('pointerover', () => {
+            this.game.add.tween({
+              targets: buffContainer,
+              scaleX: 1.1,
+              scaleY: 1.1,
+              duration: 100,
+            });
+          })
+          .on('pointerout', () => {
+            this.game.add.tween({
+              targets: buffContainer,
+              scaleX: 1,
+              scaleY: 1,
+              duration: 100,
+            });
+          })
           .on('pointerdown', () => this.selectBuff(type));
 
         // background

@@ -6,6 +6,7 @@ interface Config {
   serverUS: string;
   apiEndpoint: string;
   viewportSize: number;
+  cursorUrl?: string;
 }
 
 export const config: Config = {
@@ -16,4 +17,5 @@ export const config: Config = {
   serverUS: process.env.REACT_APP_ENDPOINT_US || 'localhost:8000',
   apiEndpoint: process.env.REACT_APP_API || 'localhost:8080',
   viewportSize: 1400,
+  cursorUrl: "cursor: url(/assets/img/cursor.cur) 20 20, crosshair;"
 };

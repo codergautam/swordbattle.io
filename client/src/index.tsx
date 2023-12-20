@@ -35,9 +35,3 @@ root.render(
     <RouterProvider router={router} />
   </Provider>
 );
-
-window.onbeforeunload = function(e)
-{
-  e.preventDefault();
-   return "Are you sure you want to exit";
-}

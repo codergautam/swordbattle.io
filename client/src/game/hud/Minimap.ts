@@ -1,6 +1,7 @@
 import HudComponent from './HudComponent';
 import GlobalEntity from '../entities/GlobalEntity';
 import { BiomeTypes, EntityTypes } from '../Types';
+import { config } from '../../config';
 
 class Minimap extends HudComponent {
   graphics: Phaser.GameObjects.Graphics | null = null;
@@ -23,8 +24,22 @@ class Minimap extends HudComponent {
       strokeThickness: 4,
     })
       .setInteractive()
-      .on('pointerover', () => this.game.input.setDefaultCursor('pointer'))
-      .on('pointerout', () => this.game.input.setDefaultCursor('default'))
+      .on('pointerover', () => {
+        this.game.add.tween({
+          targets: this.toggleButton,
+          scaleX: 1.1,
+          scaleY: 1.1,
+          duration: 100,
+        });
+      })
+       .on('pointerout', () => {
+        this.game.add.tween({
+          targets: this.toggleButton,
+          scaleX: 1,
+          scaleY: 1,
+          duration: 100,
+        });
+       })
       .on('pointerdown', () => this.toggleMinimize());
 
     this.mapBackground = this.game.add.graphics()

@@ -14,7 +14,7 @@ class Player extends BaseEntity {
     'buffs', 'evolution', 'possibleEvolutions',
     'isAbilityAvailable', 'abilityActive', 'abilityDuration', 'abilityCooldown',
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordFlying', 'swordFlyingCooldown',
-    'viewportZoom', 'chatMessage', 'skin', 'skinName'
+    'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account'
   ];
   static removeTransition = 500;
 
@@ -59,9 +59,9 @@ class Player extends BaseEntity {
 
     const name = this.game.add.text(0, -this.body.height / 2 - 50, this.name);
     name.setFontFamily('Arial');
-    name.setFontSize(30);
+    name.setFontSize(50);
     name.setOrigin(0.5, 1);
-    name.setFill('#000000');
+    name.setFill(this.account ? '#0000ff' : '#000000');
 
     this.messageText = this.game.add.text(0, -this.body.height / 2 - 100, '')
       .setFontFamily('Arial')

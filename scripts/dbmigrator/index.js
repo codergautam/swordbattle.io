@@ -8,8 +8,8 @@ import {config} from 'dotenv';
 import fs from 'fs';
 config();
 
-const ignoreNewDb = true;
-const useStatsCached = true;
+const ignoreNewDb = false;
+const useStatsCached = false;
 // set stopAt to integer to limit to N users migrated
 let stopAt = false;
 
@@ -60,7 +60,7 @@ addTextToPerm('Cleared '+ tables.length +' tables');
 
 
 
-let ignoredList = ["bass"]
+let ignoredList = ["bass", "realZombie"]
 function calcXp(coins, kills) {
   return Math.floor((coins) / 50) + kills;
 }
@@ -247,12 +247,20 @@ async function insertDailyStats(stats, acc_id) {
   if(stopAt) {
   accs= await sql`SELECT * FROM accounts limit ${stopAt}`;
   } else {
-    accs = await sql`SELECT * FROM accounts`;
+    // accs = await sql`SELECT * FROM accounts`;
+    accs = await sql`select * from accounts where created_at <=date(now())`;
+    // check for duplicates
+    let duplicateAccQuery = await sql`SELECT username, COUNT(*) FROM accounts GROUP BY username HAVING COUNT(*) > 1`;
+    if(duplicateAccQuery.length > 0) {
+      console.log(duplicateAccQuery);
+      throw new Error('Duplicate accounts found');
+    }
   }
   logText('Downloading database (1/2)');
   let accStats = {};
   // const accGames = {};
-  const allStats = await sql`SELECT * FROM stats`;
+  // const allStats = await sql`SELECT * FROM stats`;
+  const allStats = await sql`select * from stats where game_date <=date(now())`;
   // logText('Downloading database (2/2)');
   // const allGames = await sql`SELECT * FROM games`;
   addTextToPerm('Downloaded database (2/2)');
@@ -283,7 +291,7 @@ if(useStatsCached) {
   logText(`Fetching accounts..`)
   await Promise.all(promises);
 }
-  addTextToPerm(`Fetched accounts (${done}/${typeof promises !== 'undefined' ? promises.length : done})`);
+  addTextToPerm(`Fetched accounts (${done}/${typeof promises !== 'undefined' ? promises.length : accs.length})`);
   // save in json file
   if(!useStatsCached){
   fs.writeFileSync('./accStats.json', JSON.stringify(accStats));
@@ -291,8 +299,15 @@ if(useStatsCached) {
 
   //check for differences
   if(accs.length > Object.keys(accStats).length) {
-    let diff = accs.filter(acc => !accStats[acc.username]).map(acc => acc.username);
-    console.log(diff);
+    // find the missing accounts
+    for(const acc of accs) {
+      if(!accStats.hasOwnProperty(acc.username)) {
+        console.log(acc.username);
+      }
+    }
+    // check for duplicate usernames in accs
+    // let duplicates = accs.filter((acc, index) => accs.findIndex(a => a.username === acc.username) !== index);
+    // console.log(duplicates);
     throw new Error('Not all accounts have stats, dbAccs-'+accs.length+', statsLen-'+Object.keys(accStats).length)
   }
   // migrate users

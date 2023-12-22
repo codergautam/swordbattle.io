@@ -108,3 +108,50 @@ h1 {
   text-align: center;
   color: #ffffff; /* Adjusting header color to fit modal style */
 }
+
+.highlight {
+  background-color: yellow;
+}
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  width: 50%;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.06);
+}
+
+.search-bar input:focus {
+  outline: none;
+  box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar input::placeholder {
+  color: #aaa;
+}
+
+.badges {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.badges button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  background-color: #ddd;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.badges button.active {
+  background-color: #aaa;
+}

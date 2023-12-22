@@ -32,9 +32,16 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   const dispatch = useDispatch();
   const [skinStatus, setSkinStatus] = useState<{ [id: number]: string }>({});
   const [skinCounts, setSkinCounts] = useState<{ [id: number]: number }>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedBadge, setSelectedBadge] = useState('new');
 
   const skinRefs = useRef<(HTMLImageElement | null)[]>(new Array(Object.keys(skins).length).fill(null));
   // const swordRefs = useRef<(HTMLImageElement | null)[]>(new Array(Object.keys(skins).length).fill(null));
+
+  const highlightSearchTerm = (text: string, term: string) => {
+    const regex = new RegExp(`(${term})`, 'gi');
+    return text.replace(regex, '<span class="highlight">$1</span>');
+  };
 
   const assignRef = useCallback((element: HTMLImageElement, index: number) => {
     skinRefs.current[index] = element;
@@ -116,17 +123,37 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   return (
     <div className="shop-modal">
       <h1 className='shop-title'>Shop</h1>
+
       {account?.isLoggedIn ? (
       <h1>Balance: {account.gems}<img className={'gem'} src='/assets/game/gem.png' alt='Gems' width={30} height={30} /></h1>
       ) : (
-        <h1>Login or Signup to buy stuff from the shop! (No real money required)</h1>
+        <h1>Login or Signup to buy stuff from the shop!</h1>
       )}
+
+<div className='search-bar'>
+<input
+        type="text"
+        placeholder="Search skins..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+</div>
+
+<div className="badges">
+<button onClick={() => setSelectedBadge('new')} className={selectedBadge === 'new' ? 'active' : ''}>New Skins</button>
+        <button onClick={() => setSelectedBadge('og')} className={selectedBadge === 'og' ? 'active' : ''}>OG Skins</button>
+      </div>
       <div className='skins'>
-      {Object.values(skins).map((skinData: any, index) => {
+      {Object.values(skins).filter((skinData: any) => {
+        const skin = skinData as Skin;
+        if (selectedBadge === 'og' && !skin.og) return false;
+        if (selectedBadge === 'new' && skin.og) return false;
+        return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+      }).map((skinData: any, index) => {
         const skin = skinData as Skin;
         return (
         <div className="skin-card" key={skin.name}>
-          <h2 className="skin-name">{skin.displayName}</h2>
+          <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
           <img
             src={basePath + skin.bodyFileName}
             alt={skin.name}

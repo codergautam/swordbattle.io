@@ -45,7 +45,7 @@ module.exports = {
   },
 
  calculateGemsXP(coins, kills) {
-    const xp = Math.floor(coins / 50) + kills
+    const xp = Math.floor(coins / 20) + kills
     return {
       xp,
       gems: Math.floor(xp / 5)

@@ -7,6 +7,7 @@ interface Config {
   apiEndpoint: string;
   viewportSize: number;
   cursorUrl?: string;
+  recaptchaClientKey: string;
 }
 
 export const config: Config = {
@@ -16,6 +17,7 @@ export const config: Config = {
   serverEU: process.env.REACT_APP_ENDPOINT_EU || 'localhost:8000',
   serverUS: process.env.REACT_APP_ENDPOINT_US || 'localhost:8000',
   apiEndpoint: process.env.REACT_APP_API || 'localhost:8080',
+  recaptchaClientKey: process.env.REACT_APP_RECAPTCHA_CLIENT_KEY || '',
   viewportSize: 1400,
   cursorUrl: "cursor: url(/assets/img/cursor.cur) 20 20, crosshair;"
 };

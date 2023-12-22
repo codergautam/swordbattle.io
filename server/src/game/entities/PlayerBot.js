@@ -7,7 +7,7 @@ const BehaviourStages = {
   Idle: 0,
   RandomMovement: 1,
   TargetPlayer: 2,
-  TargetLeader: 3,
+  // TargetLeader: 3,
   TargetCoins: 4,
   TargetChests: 5,
   RunAway: 6,
@@ -29,11 +29,11 @@ const BehaviourConfig = {
     actions: ['target', 'attack'],
     targets: [Types.Entity.Player],
   },
-  [BehaviourStages.TargetLeader]: {
-    duration: [25, 35],
-    actions: ['target', 'attack'],
-    targets: [],
-  },
+  // [BehaviourStages.TargetLeader]: {
+  //   duration: [25, 35],
+  //   actions: ['target', 'attack'],
+  //   targets: [],
+  // },
   [BehaviourStages.TargetCoins]: {
     duration: [20, 25],
     actions: ['target'],
@@ -96,7 +96,7 @@ class PlayerAI extends Player {
 
     if (!this.target) {
       if (this.stage === BehaviourStages.TargetLeader) {
-        this.target = this.game.leaderPlayer;
+        // this.target = this.game.leaderPlayer;
       } else {
         const targets = this.getEntitiesInViewport();
         let minDistance = Infinity;

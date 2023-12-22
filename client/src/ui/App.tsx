@@ -226,7 +226,7 @@ function App() {
 
           <footer className={clsx('links', isLoaded && 'animation')} style={scale.styles}>
             <div>
-              <a href="https://swordbattle.io/about.html" target="_blank" rel="noreferrer">About</a>
+              <a href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="noreferrer">About</a>
             </div>
             <div>
               <Link to="/leaderboard" target="_blank" rel="noreferrer">Leaderboard</Link>

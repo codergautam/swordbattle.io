@@ -6,12 +6,14 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ServerGuard } from './guards/server.guard';
 import { JwtBodyGuard } from './guards/jwt-body.guard';
 import { config } from 'src/config';
+import { RecaptchaGuard } from './guards/recaptcha.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @UseGuards(RecaptchaGuard)
   async register(@Body() registerData: RegisterDTO, @Res({ passthrough: true }) res: Response) {
     const data = await this.authService.register(registerData);
     res.set('Authorization', `Bearer ${data.token}`);

@@ -29,6 +29,76 @@
       "description": "Cats!",
       "price": 50
     },
+    "mummy": {
+      "name": "mummy",
+      "displayName": "Mummy",
+      "id": 111,
+      "price": 100,
+      "buyable": true,
+      "swordFileName": "mummySword.png",
+      "bodyFileName": "mummyPlayer.png",
+      "description": "Back from the dead!"
+    },
+    "toilet": {
+      "name": "toilet",
+      "displayName": "Toilet",
+      "id": 112,
+      "buyable": true,
+      "price": 100,
+      "swordFileName": "toiletSword.png",
+      "bodyFileName": "toiletPlayer.png",
+      "description": "Release the explosives..."
+    },
+    "spring": {
+      "name": "spring",
+      "displayName": "Spring",
+      "id": 12,
+      "buyable": true,
+      "price": 150,
+      "swordFileName": "springSword.png",
+      "bodyFileName": "springPlayer.png",
+      "description": "Spring is here!"
+    },
+    "bread": {
+      "name": "bread",
+      "displayName": "Bread",
+      "id": 23,
+      "buyable": true,
+      "price": 200,
+      "swordFileName": "breadSword.png",
+      "bodyFileName": "breadPlayer.png",
+      "description": "Fresh, and tasty!"
+    },
+    "witch": {
+      "name": "witch",
+      "displayName": "Witch",
+      "id": 178,
+      "buyable": true,
+      "price": 200,
+      "swordFileName": "witchSword.png",
+      "bodyFileName": "witchPlayer.png",
+      "description": "Cast a spell on your enemies"
+    },
+    "lion": {
+      "name": "lion",
+      "displayName": "Lion",
+      "id": 179,
+      "buyable": true,
+      "price": 200,
+      "swordFileName": "lionSword.png",
+      "bodyFileName": "lionPlayer.png",
+      "description": "Roar!"
+    },
+    "skeleton": {
+      "name": "skeleton",
+      "displayName": "Skeleton",
+      "id": 180,
+      "buyable": true,
+      "price": 200,
+      "swordFileName": "skeletonSword.png",
+      "bodyFileName": "skeletonPlayer.png",
+      "description": "Spooky scary skeletons"
+    },
     "anime": {
       "name": "anime",
       "displayName": "Anime",
@@ -36,7 +106,17 @@
       "swordFileName": "animeSword.png",
       "bodyFileName": "animePlayer.png",
       "buyable": true,
-      "price": 3
+      "price": 200
+    },
+    "ice cream": {
+      "name": "ice cream",
+      "displayName": "Ice Cream",
+      "id": 145,
+      "buyable": true,
+      "price": 300,
+      "swordFileName": "icecreamSword.png",
+      "bodyFileName": "icecreamPlayer.png",
+      "description": "I scream, you scream, your enemies scream"
     },
     "yinyang": {
       "name": "yinyang",
@@ -117,16 +197,6 @@
       "swordFileName": "peppermintSword.png",
       "bodyFileName": "peppermintPlayer.png",
       "description": "Tastes like coins"
-    },
-    "spring": {
-      "name": "spring",
-      "displayName": "Spring OG",
-      "id": 12,
-      "buyable": false,
-      "og": true,
-      "swordFileName": "springSword.png",
-      "bodyFileName": "springPlayer.png",
-      "description": "Spring is here!"
     },
     "pig": {
       "name": "pig",
@@ -227,16 +297,6 @@
       "swordFileName": "frager201Sword.png",
       "bodyFileName": "frager201Player.png",
       "description": "Frag your way through"
-    },
-    "bread": {
-      "name": "bread",
-      "displayName": "Bread OG",
-      "id": 23,
-      "buyable": false,
-      "og": true,
-      "swordFileName": "breadSword.png",
-      "bodyFileName": "breadPlayer.png",
-      "description": "Fresh, and tasty!"
     },
     "starrynight": {
       "name": "starrynight",
@@ -1088,26 +1148,6 @@
       "bodyFileName": "cyborgPlayer.png",
       "description": "AI-Assisted Stabbing"
     },
-    "mummy": {
-      "name": "mummy",
-      "displayName": "Mummy OG",
-      "id": 111,
-      "buyable": false,
-      "og": true,
-      "swordFileName": "mummySword.png",
-      "bodyFileName": "mummyPlayer.png",
-      "description": "Back from the dead!"
-    },
-    "toilet": {
-      "name": "toilet",
-      "displayName": "Toilet OG",
-      "id": 112,
-      "buyable": false,
-      "og": true,
-      "swordFileName": "toiletSword.png",
-      "bodyFileName": "toiletPlayer.png",
-      "description": "Release the explosives..."
-    },
     "vaporwave": {
       "name": "vaporwave",
       "displayName": "Vaporwave OG",
@@ -1427,16 +1467,6 @@
       "swordFileName": "arachneSword.png",
       "bodyFileName": "arachnePlayer.png",
       "description": "Crawl all over the coins"
-    },
-    "ice cream": {
-      "name": "ice cream",
-      "displayName": "Ice Cream OG",
-      "id": 145,
-      "buyable": false,
-      "og": true,
-      "swordFileName": "icecreamSword.png",
-      "bodyFileName": "icecreamPlayer.png",
-      "description": "I scream, you scream, your enemies scream"
     },
     "shark": {
       "name": "shark",

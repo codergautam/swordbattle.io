@@ -109,6 +109,7 @@ module.exports = {
           position: [0, -10000],
           size: 3000,
         },
+        /*
         {
           type: Types.Entity.House1,
           amount: 1,
@@ -116,6 +117,7 @@ module.exports = {
           height: 1400,
           position: [-1000, -13000],
         },
+        */
         {
           type: Types.Entity.Yeti,
           amount: 5,
@@ -179,6 +181,7 @@ module.exports = {
           position: [-10000, 5000],
           size: 4500,
         },
+        /*
         {
           type: Types.Entity.House1,
           amount: 1,
@@ -191,6 +194,7 @@ module.exports = {
           amount: 1,
           position: [-12000, -2000],
         },
+        */
         {
           type: Types.Entity.Pond,
           amount: 20,

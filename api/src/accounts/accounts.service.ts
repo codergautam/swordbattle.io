@@ -6,7 +6,7 @@ import * as config from '../config';
 import validateUsername from 'src/helpers/validateUsername';
 import { Transaction } from 'src/transactions/transactions.entity';
 import * as cosmetics from '../cosmetics.json';
-import CacheObj from 'src/cache';
+import CacheObj from 'src/Cache';
 
 const usernameWaitTime = config.config.usernameWaitTime;
 

@@ -7,9 +7,11 @@ import { DailyStats } from './dailyStats.entity';
 import { TotalStats } from './totalStats.entity';
 import { Account } from '../accounts/account.entity';
 import { AccountsService } from '../accounts/accounts.service';
+import CacheObj from 'src/Cache';
 
 @Injectable()
 export class StatsService {
+  private top100RankCache = new CacheObj<{ [key: number]: number }>(3600000) // 1 hour in milliseconds
   constructor(
     private readonly accountsService: AccountsService,
     @InjectRepository(DailyStats) private readonly dailyStatsRepository: Repository<DailyStats>,
@@ -90,7 +92,34 @@ export class StatsService {
       .getMany();
   }
 
+  async updateTop100RankCache() {
+    const result = await this.totalStatsRepository
+      .createQueryBuilder('total_stats')
+      .select('total_stats.id', 'id')
+      .addSelect('RANK() OVER (ORDER BY total_stats.xp DESC)', 'rank')
+      .limit(100)
+      .getRawMany();
+
+    const cache = {};
+    for (const row of result) {
+      cache[row.id] = parseInt(row.rank, 10);
+    }
+    this.top100RankCache.updateData(cache);
+  }
+
+  async getTop100RankedUser(account: Account) {
+    // faster ranking for top 100
+    if(this.top100RankCache.isStale()) {
+      await this.updateTop100RankCache();
+    }
+    return this.top100RankCache.getData()[account.id];
+  }
+
   async getAccountRankByXp(account: Account) {
+    if(!this.top100RankCache.isStale() && this.top100RankCache.getData()[account.id]) {
+      return this.top100RankCache.getData()[account.id];
+    }
+
     const subQuery = this.totalStatsRepository
       .createQueryBuilder('total_stats')
       .select('total_stats.id', 'id')
@@ -103,6 +132,7 @@ export class StatsService {
       .setParameter('id', account.id)
       .where('sub.id = :id')
       .getRawOne();
+
 
     return result ? parseInt(result.rank, 10) : undefined;
   }

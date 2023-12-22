@@ -52,12 +52,9 @@ message Buff {
 message Account {
   int32 id = 1;
   string created_at = 2;
-  string email = 3;
-  int32 gems = 4;
-  bool subscription = 5;
-  string subscription_start_date = 6;
-  bool is_v1 = 7;
-  int32 profile_views = 8;
+  bool subscription = 3;
+  string subscription_start_date = 4;
+  int32 rank = 5;
 }
 message MapData {
   int32 x = 1;

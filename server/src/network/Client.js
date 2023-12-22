@@ -81,8 +81,16 @@ class Client {
     this.isReady = false;
     api.post('/auth/verify', { token: this.token }, (data) => {
       if (data.account) {
+        const username = data.account.username;
         this.account = new Account();
+        api.post('/profile/getTop100Rank/' + username, {}, (rankData) => {
+          console.log('rankData', rankData);
+          if (rankData.rank) {
+            data.account.rank = rankData.rank;
+          }
         this.account.update(data.account);
+
+        });
       }
       this.isReady = true;
     });

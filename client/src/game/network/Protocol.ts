@@ -824,12 +824,9 @@ function _decodeBuff(bb: ByteBuffer): Buff {
 export interface Account {
   id?: number;
   created_at?: string;
-  email?: string;
-  gems?: number;
   subscription?: boolean;
   subscription_start_date?: string;
-  is_v1?: boolean;
-  profile_views?: number;
+  rank?: number;
 }
 
 export function encodeAccount(message: Account): Uint8Array {
@@ -853,46 +850,25 @@ function _encodeAccount(message: Account, bb: ByteBuffer): void {
     writeString(bb, $created_at);
   }
 
-  // optional string email = 3;
-  let $email = message.email;
-  if ($email !== undefined) {
-    writeVarint32(bb, 26);
-    writeString(bb, $email);
-  }
-
-  // optional int32 gems = 4;
-  let $gems = message.gems;
-  if ($gems !== undefined) {
-    writeVarint32(bb, 32);
-    writeVarint64(bb, intToLong($gems));
-  }
-
-  // optional bool subscription = 5;
+  // optional bool subscription = 3;
   let $subscription = message.subscription;
   if ($subscription !== undefined) {
-    writeVarint32(bb, 40);
+    writeVarint32(bb, 24);
     writeByte(bb, $subscription ? 1 : 0);
   }
 
-  // optional string subscription_start_date = 6;
+  // optional string subscription_start_date = 4;
   let $subscription_start_date = message.subscription_start_date;
   if ($subscription_start_date !== undefined) {
-    writeVarint32(bb, 50);
+    writeVarint32(bb, 34);
     writeString(bb, $subscription_start_date);
   }
 
-  // optional bool is_v1 = 7;
-  let $is_v1 = message.is_v1;
-  if ($is_v1 !== undefined) {
-    writeVarint32(bb, 56);
-    writeByte(bb, $is_v1 ? 1 : 0);
-  }
-
-  // optional int32 profile_views = 8;
-  let $profile_views = message.profile_views;
-  if ($profile_views !== undefined) {
-    writeVarint32(bb, 64);
-    writeVarint64(bb, intToLong($profile_views));
+  // optional int32 rank = 5;
+  let $rank = message.rank;
+  if ($rank !== undefined) {
+    writeVarint32(bb, 40);
+    writeVarint64(bb, intToLong($rank));
   }
 }
 
@@ -922,39 +898,21 @@ function _decodeAccount(bb: ByteBuffer): Account {
         break;
       }
 
-      // optional string email = 3;
+      // optional bool subscription = 3;
       case 3: {
-        message.email = readString(bb, readVarint32(bb));
-        break;
-      }
-
-      // optional int32 gems = 4;
-      case 4: {
-        message.gems = readVarint32(bb);
-        break;
-      }
-
-      // optional bool subscription = 5;
-      case 5: {
         message.subscription = !!readByte(bb);
         break;
       }
 
-      // optional string subscription_start_date = 6;
-      case 6: {
+      // optional string subscription_start_date = 4;
+      case 4: {
         message.subscription_start_date = readString(bb, readVarint32(bb));
         break;
       }
 
-      // optional bool is_v1 = 7;
-      case 7: {
-        message.is_v1 = !!readByte(bb);
-        break;
-      }
-
-      // optional int32 profile_views = 8;
-      case 8: {
-        message.profile_views = readVarint32(bb);
+      // optional int32 rank = 5;
+      case 5: {
+        message.rank = readVarint32(bb);
         break;
       }
 

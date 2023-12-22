@@ -4,6 +4,7 @@ import { AccountsService } from './accounts.service';
 import { StatsService } from 'src/stats/stats.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { AuthService } from 'src/auth/auth.service';
+import { ServerGuard } from 'src/auth/guards/server.guard';
 
 @Controller('profile')
 export class AccountsController {
@@ -66,6 +67,14 @@ export class AccountsController {
     const account = await this.accountsService.getById(id);
 
     return { account: this.accountsService.sanitizeAccount(account) };
+  }
+
+  @UseGuards(ServerGuard)
+  @Post('getTop100Rank/:username')
+  async getTop100Rank(@Param('username') username: string) {
+    const account = await this.accountsService.getByUsername(username);
+    const rank = await this.statsService.getTop100RankedUser(account);
+    return { rank };
   }
 
   @Post('getPublicUserInfo/:username')

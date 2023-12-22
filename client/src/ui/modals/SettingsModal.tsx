@@ -67,7 +67,7 @@ function SettingsModal() {
         </label>
       </div>
 
-      <label htmlFor="resolution">Resolution:</label>
+      <label htmlFor="resolution">Resolution (Beta):</label>
       <input type="range" name="resolution" id="resolution"
         min={settingsList.resolution.min} max={settingsList.resolution.max}
         value={resolution}

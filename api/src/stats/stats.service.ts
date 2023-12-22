@@ -143,7 +143,6 @@ export class StatsService {
     if(limit > 100) {
       limit = 100;
     }
-    console.log(sortBy, timeRange, limit);
     let where = {};
     const today = new Date();
     if (timeRange === TimeRange.PastDay) {

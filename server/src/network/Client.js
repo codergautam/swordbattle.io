@@ -84,7 +84,6 @@ class Client {
         const username = data.account.username;
         this.account = new Account();
         api.post('/profile/getTop100Rank/' + username, {}, (rankData) => {
-          console.log('rankData', rankData);
           if (rankData.rank) {
             data.account.rank = rankData.rank;
           }

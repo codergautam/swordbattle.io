@@ -1434,8 +1434,8 @@
       "id": 145,
       "buyable": false,
       "og": true,
-      "swordFileName": "ice creamSword.png",
-      "bodyFileName": "ice creamPlayer.png",
+      "swordFileName": "icecreamSword.png",
+      "bodyFileName": "icecreamPlayer.png",
       "description": "I scream, you scream, your enemies scream"
     },
     "shark": {

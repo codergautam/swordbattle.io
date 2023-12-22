@@ -139,8 +139,8 @@ function calculateGemsXP(stats, coinsDiff) {
   use logaithms after 10k gems, way too much
 */
 let gems = Math.floor((totaledCoins + coinsDiff) / 50 / 3);
-if(gems > 10000) {
-  gems = Math.floor(10000 + Math.log10(gems - 10000) * 3000);
+if(gems > 50000) {
+  gems = Math.floor(50000 + Math.log10(gems - 50000) * 3000);
 }
   return {
     xp: totaledXp,
@@ -252,7 +252,7 @@ async function insertDailyStats(stats, acc_id) {
   accs= await sql`SELECT * FROM accounts limit ${stopAt}`;
   } else {
     // accs = await sql`SELECT * FROM accounts`;
-    accs = await sql`select * from accounts where created_at <=date(now())`;
+    accs = await sql`select * from accounts`;
     // check for duplicates
     let duplicateAccQuery = await sql`SELECT username, COUNT(*) FROM accounts GROUP BY username HAVING COUNT(*) > 1`;
     if(duplicateAccQuery.length > 0) {
@@ -264,7 +264,7 @@ async function insertDailyStats(stats, acc_id) {
   let accStats = {};
   // const accGames = {};
   // const allStats = await sql`SELECT * FROM stats`;
-  const allStats = await sql`select * from stats where game_date <=date(now())`;
+  const allStats = await sql`select * from stats`;
   let allStatsClone = [...allStats];
   // logText('Downloading database (2/2)');
   // const allGames = await sql`SELECT * FROM games`;

@@ -138,7 +138,7 @@ function calculateGemsXP(stats, coinsDiff) {
 
   use logaithms after 10k gems, way too much
 */
-let gems = Math.floor((totaledCoins + coinsDiff) / 50 / 5);
+let gems = Math.floor((totaledCoins + coinsDiff) / 50 / 3);
 if(gems > 10000) {
   gems = Math.floor(10000 + Math.log10(gems - 10000) * 3000);
 }

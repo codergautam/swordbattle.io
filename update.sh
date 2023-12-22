@@ -25,12 +25,12 @@ forever stopall
 pm2 stop all
 
 # Start the server
-echo "Starting the server..."
-cd server
-yarn install
-# yarn run foreverprod
-pm2 start src/index.js --name "server"
-cd ..
+# echo "Starting the server..."
+# cd server
+# yarn install
+# # yarn run foreverprod
+# pm2 start src/index.js --name "server"
+# cd ..
 
 # Start the API
 echo "Starting the API..."

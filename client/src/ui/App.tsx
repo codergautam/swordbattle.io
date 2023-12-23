@@ -134,8 +134,7 @@ function App() {
   }
 
   useEffect(() => {
-    console.log('Account changed', account, 'modal', modal);
-    if (modal?.type?.name === 'ShopModal') {
+    if (modal?.type?.displayName === 'ShopModal') {
       setModal(<ShopModal account={account} />);
     }
     if(account.is_v1) {

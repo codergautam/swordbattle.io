@@ -45,7 +45,6 @@ export const updateAccountAsync = createAsyncThunk(
       response.account.token = state.account.token;
       dispatch(setAccount(response.account));
       window.phaser_game?.events.emit('tokenUpdate', state.account.token);
-      console.log('updateAccountAsync', response.account);
       resolve(response.account);
     }
   }, state.account.token);

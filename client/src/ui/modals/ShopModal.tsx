@@ -189,4 +189,6 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   );
 }
 
+ShopModal.displayName = 'ShopModal';
+
 export default ShopModal;

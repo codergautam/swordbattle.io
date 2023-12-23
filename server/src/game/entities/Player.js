@@ -18,6 +18,8 @@ const config = require('../../config');
 const { clamp, calculateGemsXP } = require('../../helpers');
 const { skins } = require('../../cosmetics.json');
 
+const filter = require('leo-profanity');
+
 class Player extends Entity {
   constructor(game, name) {
     super(game, Types.Entity.Player);
@@ -286,6 +288,7 @@ class Player extends Entity {
     if (message.length === '') return;
 
     message = message.slice(0, 35);
+    message = filter.clean(message);
     this.chatMessage = message;
     this.chatMessageTimer.renew();
   }

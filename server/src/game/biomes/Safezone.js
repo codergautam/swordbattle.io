@@ -33,6 +33,7 @@ class Safezone extends Biome {
     } else {
       player.viewport.zoom.multiplier *= 0.9;
       player.sword.damage.multiplier = 0;
+      player.sword.knockback.multiplier['biome'] = 0;
     }
   }
 

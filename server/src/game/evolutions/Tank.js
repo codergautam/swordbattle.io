@@ -5,7 +5,7 @@ module.exports = class Tank extends Evolution {
   static type = Types.Evolution.Tank;
   static level = 5;
   static abilityDuration = 10;
-  static abilityCooldown = 60;
+  static abilityCooldown = 90;
 
   applyAbilityEffects() {
     this.player.sword.damage.multiplier *= 2;
@@ -27,8 +27,8 @@ module.exports = class Tank extends Evolution {
     this.player.shape.setScale(1.25);
     this.player.sword.damage.multiplier *= 1.25;
     this.player.sword.knockback.multiplier['ability'] = 1.25;
-    this.player.knockbackResistance.multiplier *= 2;
-    this.player.health.max.multiplier *= 1.6;
+    this.player.knockbackResistance.multiplier *= 1.25;
+    this.player.health.max.multiplier *= 1.25;
     this.player.health.regen.multiplier *= 1.25;
     //TODO: Damagecooldown: 1.1
   }

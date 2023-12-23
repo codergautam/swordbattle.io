@@ -19,13 +19,13 @@ class MooseMob extends Entity {
     this.movementTimer = new Timer(0, 3, 4);
     this.stayTimer = new Timer(3, 2, 3);
     this.angryTimer = new Timer(0, 6, 8);
-    this.damage = new Property(this.size / 5);
+    this.damage = new Property(this.size / 20);
     this.isMoving = false;
     this.targetAngle = this.angle;
     this.startAngle = this.angle;
 
     this.health = new Health(50, 2);
-    this.speed = new Property(30);
+    this.speed = new Property(10);
     this.target = null;
     this.targets.push(Types.Entity.Player);
 

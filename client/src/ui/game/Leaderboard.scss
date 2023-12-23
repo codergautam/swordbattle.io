@@ -2,7 +2,7 @@
   position: fixed;
   top: 10px;
   right: 10px;
-  width: 300px;
+  width: fit-content;
   padding: 5px;
   color: white;
   font-family: Arial, Helvetica, sans-serif;
@@ -35,7 +35,5 @@
 .leaderboard-line {
   display: block;
   font-size: 22px;
-  text-overflow: ellipsis;
-  overflow: hidden;
   white-space: nowrap;
 }

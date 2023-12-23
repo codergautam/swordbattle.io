@@ -79,6 +79,11 @@ ecdsa-sig-formatter@1.0.11:
   dependencies:
     safe-buffer "^5.0.1"
 
+french-badwords-list@^1.0.6:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/french-badwords-list/-/french-badwords-list-1.0.7.tgz#8ed2442cb20fa2781c38b5a75c944f8e91a73c08"
+  integrity sha512-H1ziKs2PJh2+UXZ9oCGJ/rRQpsI9NBykGf2Sc7WaKaj1OnWFuBXfsvANTdRcfVmOghGQaUmRyZ1hJOPbDpy04Q==
+
 jsonwebtoken@^9.0.2:
   version "9.0.2"
   resolved "https://registry.yarnpkg.com/jsonwebtoken/-/jsonwebtoken-9.0.2.tgz#65ff91f4abef1784697d40952bb1998c504caaf3"
@@ -111,6 +116,14 @@ jws@^3.2.2:
   dependencies:
     jwa "^1.4.1"
     safe-buffer "^5.0.1"
+
+leo-profanity@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/leo-profanity/-/leo-profanity-1.7.0.tgz#4c7e77a0a1376afdff44a727235d08a489a57d93"
+  integrity sha512-88j1R08jrQzOib9Yxk4nxrzMlrHJi3DzFzAmv0L4APQ+ciGEfJ1rftVEvFjoqL0m+0KGFL3csQGRlxXGnYrA7w==
+  optionalDependencies:
+    french-badwords-list "^1.0.6"
+    russian-bad-words "^0.5.0"
 
 lodash.includes@^4.3.0:
   version "4.3.0"
@@ -186,6 +199,11 @@ protobufjs@^7.2.5:
     "@protobufjs/utf8" "^1.1.0"
     "@types/node" ">=13.7.0"
     long "^5.0.0"
+
+russian-bad-words@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/russian-bad-words/-/russian-bad-words-0.5.0.tgz#d4abcdc55f7af37606cdbac44bcb9e0bde6c3855"
+  integrity sha512-euNvEYki6iYYpkNbeudW+lEMMYGEmN7EBwVF8ezlbv0bZoQpVYB7W10cCeUIGV7Ed50sJynLQ0c559q5iI0ejQ==
 
 safe-buffer@^5.0.1:
   version "5.2.1"

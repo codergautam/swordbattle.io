@@ -9,6 +9,11 @@ function ChangelogModal() {
           <h3 style={{color: 'cyan', fontStyle: 'italic'}}>
             V2 is here, with a TON of new features!
           </h3>
+          <p style={{color: 'cyan', fontStyle: 'italic'}}>
+            Login with your old account to restore your progress!
+            <br/>
+            If you forgot your username or password email support@swordbattle.io
+            </p>
         </li>
         <hr />
       </ul>

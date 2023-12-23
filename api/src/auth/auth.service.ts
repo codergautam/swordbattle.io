@@ -15,6 +15,7 @@ export class AuthService {
 
   async register(data: RegisterDTO) {
         // validate username
+        data.username = data.username.toLowerCase();
         if(validateUsername(data.username)) {
           throw new UnauthorizedException(validateUsername(data.username));
         }
@@ -31,6 +32,7 @@ export class AuthService {
   }
 
   async login(data: LoginDTO) {
+    data.username = data.username.toLowerCase();
     let account;
     try {
     account = await this.accountsService.findOne({ where: { username: data.username } }, true);

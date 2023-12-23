@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: false
+      REACT_APP_RECAPTCHA_CLIENT_KEY: 6LdVxgYdAAAAAPtvjrXLAzSd2ANyzIkiSqk_yFpt
+      REACT_APP_API: api.swordbattle.io
+      REACT_APP_ENDPOINT_US: na.swordbattle.io
+      
     steps:
     - uses: actions/checkout@v3
     

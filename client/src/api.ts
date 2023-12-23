@@ -50,7 +50,6 @@ function post(url: string, body: any, callback = (data: any) => {}, token?: stri
     load(recaptchaClientKey).then((recaptcha) => {
       const endpointName = url.split('/').pop();
       recaptcha.execute(endpointName).then((recaptchaToken) => {
-        console.log('recaptchaToken', recaptchaToken);
         sendRequest(recaptchaToken);
       });
     });

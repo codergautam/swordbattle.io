@@ -183,7 +183,6 @@ class ProgressBar extends HudComponent {
     const stabbedEntity = this.game.gameState.entities[stabbedId];
     if (stabbedEntity && stabbedId !== this.lastEntityStabId) {
 
-      console.log(this.killStreak, stabbedEntity.name, stabbedId);
       this.showStabbedText(stabbedEntity.name);
       this.lastKillTime = Date.now();
       this.killStreak++;

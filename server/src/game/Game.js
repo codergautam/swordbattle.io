@@ -213,9 +213,13 @@ class Game {
   }
 
   addPlayer(client, data) {
-    const name = client.player
-      ? client.player.name
-      : (client.account ? client.account.username : this.handleNickname(data.name || ''));
+    // const name = client.player
+    //   ? client.player.name
+    //   : (client.account ? client.account.username : this.handleNickname(data.name || ''));
+    const name = client.account && client.account.username ? client.account.username : (
+      client.player && client.player.name ? client.player.name
+      : this.handleNickname(data.name || '')
+    )
 
     if (this.isNameReserved(name)) return;
 

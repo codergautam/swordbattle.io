@@ -1,8 +1,5 @@
 import HudComponent from './HudComponent';
 import { BuffTypes } from '../Types';
-import { config } from '../../config';
-const cursor = config.cursorUrl || 'default';
-console.log('cursor', cursor);
 const buffsData: Record<any, [string, number]> = {
   [BuffTypes.Speed]: ['Speed', 0x6d92ec],
   [BuffTypes.Health]: ['Health', 0xed68ec],
@@ -82,7 +79,6 @@ class BuffsSelect extends HudComponent {
 
   selectBuff(type: any) {
     this.game.gameState.selectedBuff = type;
-    console.log('selected buff', type, this.game.gameState?.self?.entity?.upgradePoints, this.minimized);
     if(this.game.gameState?.self?.entity?.upgradePoints === 1 && !this.minimized) {
       setTimeout(() => {
       this.toggleMinimize();

@@ -98,7 +98,6 @@ export function lastSeen(dateString: string) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  console.log(inputDate, today);
 
   const diff = (today as any) - (inputDate as any);
 

@@ -9,7 +9,6 @@ export class RecaptchaGuard implements CanActivate {
     const recaptchaToken = body.recaptchaToken;
     const secret = process.env.RECAPTCHA_SECRET_KEY;
 
-    console.log('recaptchaToken', request.headers, 'secret', secret);
     if(!secret) {
       return true;
     }

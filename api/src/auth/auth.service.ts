@@ -15,29 +15,26 @@ export class AuthService {
 
   async register(data: RegisterDTO) {
         // validate username
-        data.username = data.username.toLowerCase();
         if(validateUsername(data.username)) {
           throw new UnauthorizedException(validateUsername(data.username));
         }
-    if (await this.accountsService.findOne({ where: { username: data.username } })) {
-      throw new UnauthorizedException('User already exists');
+    if (await this.accountsService.findOneWithLowercase({ where: { username: data.username } })) {
+      throw new UnauthorizedException('Username already exists');
     }
-    if(await this.accountsService.findOne({ where: { email: data.email } })) {
-      throw new UnauthorizedException('Email already used by another account');
+    if (await this.accountsService.findOneWithLowercase({ where: { email: data.email } })) {
+      throw new UnauthorizedException('Email already exists');
     }
-
     const account = await this.accountsService.create(data);
     const token = await this.getToken(account);
     return { account: this.accountsService.sanitizeAccount(account), token };
   }
 
   async login(data: LoginDTO) {
-    data.username = data.username.toLowerCase();
     let account;
     try {
-    account = await this.accountsService.findOne({ where: { username: data.username } }, true);
+        account = await this.accountsService.findOneWithLowercase({ where: { username: data.username } });
     } catch (e) {
-      account = await this.accountsService.findOne({ where: { email: data.username } }, true);
+        account = await this.accountsService.findOneWithLowercase({ where: { email: data.username } });
     }
 
     if (!account) {

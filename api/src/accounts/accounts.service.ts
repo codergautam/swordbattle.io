@@ -36,6 +36,18 @@ export class AccountsService {
     return account;
   }
 
+  async findOneWithLowercase(options: any): Promise<Account | undefined> {
+    const queryBuilder = this.accountsRepository.createQueryBuilder('account');
+
+    if (options.where.username) {
+        queryBuilder.where('LOWER(account.username) = LOWER(:username)', { username: options.where.username });
+    } else if (options.where.email) {
+        queryBuilder.where('LOWER(account.email) = LOWER(:email)', { email: options.where.email });
+    }
+
+    return queryBuilder.getOne();
+}
+
   async getById(id: number) {
     const account = await this.findOne({ where: { id } });
     if (!account) {
@@ -202,7 +214,7 @@ export class AccountsService {
     }
     const account = await this.getById(id);
     // Make sure the username is not taken
-    const existingAccount = await this.findOne({ where: { username } });
+    const existingAccount = await this.findOneWithLowercase({ where: { username } });
     if (existingAccount) {
       return {error: 'Username already taken'};
     }

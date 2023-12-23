@@ -226,8 +226,12 @@ class Game {
     player.client = client;
     if(client.account) {
       const account=client.account;
+      if(account.skins && account.skins.equipped) {
         player.skin = account.skins.equipped;
         player.sword.skin = player.skin;
+      } else {
+        console.log(account)
+      }
     }
     this.players.add(player);
     this.map.spawnPlayer(player);

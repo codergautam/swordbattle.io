@@ -21,7 +21,7 @@ class LevelSystem {
       [Types.Buff.Size]: {
         level: 0,
         max: 10,
-        step: 0.2,
+        step: 0.05,
         buyable: false,
       },
       [Types.Buff.Health]: {

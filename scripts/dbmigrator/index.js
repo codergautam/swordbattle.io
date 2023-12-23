@@ -17,7 +17,6 @@ let stopAt = false;
 
 if(!process.env.OLD_DB) throw new Error('No old db url provided');
 if(!process.env.NEW_DB && !ignoreNewDb) throw new Error('No new db url provided');
-
 // connect to the old db
 const sql = postgres(process.env.OLD_DB, {
   ssl: {
@@ -139,9 +138,9 @@ function calculateGemsXP(stats, coinsDiff) {
   use logaithms after 10k gems, way too much
 */
 let gems = Math.floor((totaledCoins + coinsDiff) / 50 / 3);
-if(gems > 50000) {
-  gems = Math.floor(50000 + Math.log10(gems - 50000) * 3000);
-}
+// if(gems > 50000) {
+//   gems = Math.floor(50000 + Math.log10(gems - 50000) * 3000);
+// }
   return {
     xp: totaledXp,
     gems: 50+gems,

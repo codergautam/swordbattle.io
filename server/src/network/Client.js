@@ -121,7 +121,7 @@ class Client {
   }
 
   saveGame(game) {
-    if (!this.account) return;
+    if (!this.account || !this.account.id) return;
 
     game.account_id = this.account.id;
     const { gems, xp } = calculateGemsXP(game.coins, game.kills);

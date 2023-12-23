@@ -15,7 +15,7 @@ class LevelSystem {
       [Types.Buff.Speed]: {
         level: 0,
         max: 10,
-        step: 0.75,
+        step: 0.075,
         buyable: true,
       },
       [Types.Buff.Size]: {

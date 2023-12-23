@@ -15,13 +15,13 @@ class LevelSystem {
       [Types.Buff.Speed]: {
         level: 0,
         max: 10,
-        step: 0.1,
+        step: 0.75,
         buyable: true,
       },
       [Types.Buff.Size]: {
         level: 0,
         max: 5,
-        step: 0.1,
+        step: 0.15,
         buyable: false,
       },
       [Types.Buff.Health]: {
@@ -38,7 +38,7 @@ class LevelSystem {
       },
       [Types.Buff.Damage]: {
         level: 0,
-        step: 0.2,
+        step: 0.1,
         max: 10,
         buyable: true,
       },

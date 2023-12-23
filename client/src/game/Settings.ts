@@ -53,7 +53,7 @@ export const settingsList: Record<string, SettingType> = {
       { name: 'Mouse Only', value: 'mouse' },
       { name: 'Mouse + Keys', value: 'keys' },
     ],
-    default: 'keys',
+    default: 'mouse',
   },
   sound: {
     name: 'Sound',

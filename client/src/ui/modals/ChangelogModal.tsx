@@ -7,7 +7,7 @@ function ChangelogModal() {
       <ul>
         <li>
           <h3 style={{color: 'cyan', fontStyle: 'italic'}}>
-            V2 development build
+            V2 is here, with a TON of new features!
           </h3>
         </li>
         <hr />

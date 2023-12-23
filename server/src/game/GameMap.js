@@ -93,7 +93,7 @@ class GameMap {
   spawnPlayerBot() {
     this.addAI({
       type: Types.Entity.Player,
-      name: `${helpers.randomNickname()}Bot`,
+      name: `${helpers.randomNickname()}`,
       isPlayer: true,
       respawnTime: [10, 30],
     });

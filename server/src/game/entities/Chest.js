@@ -47,6 +47,7 @@ class Chest extends Entity {
 
   update() {
     if (Date.now() > this.despawnTime) {
+      if(this.respawnable) this.createInstance();
       this.remove();
     }
   }

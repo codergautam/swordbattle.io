@@ -221,7 +221,7 @@ class Game {
       : this.handleNickname(data.name || '')
     )
 
-    if (this.isNameReserved(name)) return;
+    // if (this.isNameReserved(name)) return;
 
     const player = new Player(this, name);
     client.spectator.isSpectating = false;

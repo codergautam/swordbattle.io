@@ -14,7 +14,7 @@ class Coin extends Entity {
     if(typeof objectData.value === 'number') objectData.value = [objectData.value, objectData.value];
     objectData.value = Array.isArray(objectData.value) ? objectData.value : [1, 1];
     this.value = helpers.randomInteger(objectData.value[0], objectData.value[1]);
-    const radius = Math.min(500, 80 + this.value * 10);
+    const radius = Math.min(300, 80 + this.value * 10);
 
     this.shape = Circle.create(0, 0, radius);
     this.targets.push(Types.Entity.Player);

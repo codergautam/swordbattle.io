@@ -30,7 +30,7 @@ module.exports = {
       objects: [
         {
           type: Types.Entity.Rock,
-          amount: 30,
+          amount: 0,
           position: 'random',
           size: [200, 450],
         },
@@ -50,7 +50,7 @@ module.exports = {
       objects: [
         {
           type: Types.Entity.Rock,
-          amount: 30,
+          amount: 0,
           position: 'random',
           size: [200, 450],
         },
@@ -68,7 +68,7 @@ module.exports = {
       objects: [
         {
           type: Types.Entity.Rock,
-          amount: 30,
+          amount: 0,
           position: 'random',
           size: [200, 450],
         },
@@ -165,7 +165,7 @@ module.exports = {
       objects: [
         {
           type: Types.Entity.MossyRock,
-          amount: 50,
+          amount: 0,
           position: 'random',
           size: [250, 1250],
         },
@@ -223,7 +223,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Moose,
-          amount: 5,
+          amount: 0,
           position: 'random',
           respawnable: true,
           size: [170, 230],
@@ -250,7 +250,7 @@ module.exports = {
       objects: [
         {
           type: Types.Entity.LavaRock,
-          amount: 30,
+          amount: 0,
           position: 'random',
           size: [150, 650],
         },

@@ -70,6 +70,7 @@ class GameState {
   restart() {
     Socket.emit({ play: true });
     if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
+    if(!this.game.hud.evolutionSelect.minimized) this.game.hud.evolutionSelect.toggleMinimize();
   }
 
   spectate() {

@@ -228,6 +228,9 @@ class Player extends BaseEntity {
       this.swordLerpProgress -= swordLerpDt;
       if (this.swordLerpProgress <= 0) {
         this.swordLerpProgress = 0;
+        if(this.isMe && this.swordDecreaseStarted) {
+          this.game.controls.enableKeys([InputTypes.SwordThrow]);
+        }
         this.swordDecreaseStarted = false;
       }
     }
@@ -254,7 +257,10 @@ class Player extends BaseEntity {
 
     if (this.game.controls.isInputDown(InputTypes.SwordSwing)) {
       if (!(this.swordFlying || this.swordRaiseStarted || this.swordDecreaseStarted)) {
+        if(!this.swordRaiseStarted) {
         this.swordRaiseStarted = true;
+        this.game.controls.disableKeys([InputTypes.SwordThrow], true);
+        }
       }
     }
 

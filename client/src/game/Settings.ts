@@ -53,7 +53,7 @@ export const settingsList: Record<string, SettingType> = {
       { name: 'Mouse Only', value: 'mouse' },
       { name: 'Mouse + Keys', value: 'keys' },
     ],
-    default: 'mouse',
+    default: 'keys',
   },
   sound: {
     name: 'Sound',
@@ -98,7 +98,8 @@ class SettingsManager {
     let savedSettings: any = {};
 		try {
 			const data = JSON.parse(localStorage.getItem(this.key) as string);
-			if (data) {
+			console.log('Loaded Settings', data);
+      if (data) {
 				savedSettings = data;
 			}
 		} catch (e) {
@@ -113,6 +114,7 @@ class SettingsManager {
 		savedSettings[key] = value;
 		localStorage.setItem(this.key, JSON.stringify(savedSettings));
 
+    console.log('Saved Settings', savedSettings);
     if (settingsList[key].onChange) {
       settingsList[key].onChange(value);
     }

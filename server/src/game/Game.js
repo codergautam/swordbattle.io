@@ -220,6 +220,9 @@ class Game {
       client.player && client.player.name ? client.player.name
       : this.handleNickname(data.name || '')
     )
+    if(data?.name && data.name !== name) {
+      data.name = name;
+    }
 
     // if (this.isNameReserved(name)) return;
 

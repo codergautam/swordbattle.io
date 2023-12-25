@@ -66,13 +66,10 @@ export class Controls {
     });
     input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
       pointer.event.preventDefault();
-      if (pointer.leftButtonReleased()) {
         this.inputUp(InputTypes.SwordSwing);
-      }
-      if (pointer.rightButtonReleased()) {
         this.inputUp(InputTypes.SwordThrow);
-      }
     });
+
 
     window.addEventListener('blur', () => this.clear());
     this.disabledKeys = [];
@@ -112,8 +109,15 @@ export class Controls {
     this.disabled = true;
   }
 
-  disableKeys(keys: number[]) {
-    this.disabledKeys = keys;
+  disableKeys(keys: number[], append = false) {
+    if(!append) this.disabledKeys = keys;
+    else this.disabledKeys = this.disabledKeys.concat(keys);
+
+    this.disabledKeys = Array.from(new Set(this.disabledKeys));
+  }
+
+  enableKeys(keys: number[]) {
+    this.disabledKeys = this.disabledKeys.filter(key => !keys.includes(key));
   }
 
   enableAllKeys() {

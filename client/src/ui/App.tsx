@@ -55,7 +55,7 @@ function App() {
     if(gameStarted && firstGame) setFirstGame(false);
     if(gameStarted) return;
     setTimeout(() => {
-    api.get(`${api.endpoint}/auth/account`, (data) => {
+    api.get(`${api.endpoint}/auth/account?now=${Date.now()}`, (data) => {
       setAccountReady(true);
       if (data.account) {
         data.account.token = data.token;

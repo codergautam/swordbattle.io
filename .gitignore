@@ -1,0 +1,5 @@
+# DEPS
+node_modules/
+
+# Secrets
+.env

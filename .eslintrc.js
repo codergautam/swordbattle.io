@@ -27,8 +27,7 @@ module.exports = {
         'sourceType': 'module'
     },
     'plugins': [
-        '@typescript-eslint',
-        'react'
+        '@typescript-eslint'
     ],
     'rules': {
         'indent': [

@@ -1,1 +1,1 @@
-web: yarn && yarn build && node dist
+web: yarn start

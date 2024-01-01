@@ -1,1 +1,1 @@
-web: yarn start
+web: ls && node api/dist

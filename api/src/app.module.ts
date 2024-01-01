@@ -13,7 +13,7 @@ import { StatsModule } from './stats/stats.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: config.databaseURL,
-      ssl: config.useSSL,
+      ssl: config.useSSL ? { rejectUnauthorized: false } : false,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
       logging: true,

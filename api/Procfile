@@ -1,1 +1,1 @@
-web: ls && node api/dist
+web: ls && node dist/main.js

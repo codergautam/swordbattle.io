@@ -6,7 +6,7 @@ const GlobalEntities = require('./GlobalEntities');
 const Player = require('./entities/Player');
 const helpers = require('../helpers');
 const config = require('../config');
-
+const filter = require('leo-profanity')
 class Game {
   constructor() {
     this.entities = new Set();
@@ -218,11 +218,12 @@ class Game {
     //   : (client.account ? client.account.username : this.handleNickname(data.name || ''));
     const name = client.account && client.account.username ? client.account.username : (
       client.player && client.player.name ? client.player.name
-      : this.handleNickname(data.name || '')
+      : this.handleNickname(filter.clean(data.name) || '')
     )
     if(data?.name && data.name !== name) {
       data.name = name;
     }
+
 
     // if (this.isNameReserved(name)) return;
 

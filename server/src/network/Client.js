@@ -18,7 +18,7 @@ class Client {
     this.account = null;
     this.isReady = true;
     this.isSocketClosed = false;
-    this.fullSync = false;
+    this.fullSync = true;
 
     this.messages = [];
     this.pingTimer = 0;

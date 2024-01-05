@@ -112,7 +112,7 @@ export function GlobalLeaderboard() {
               )}
             </tr>
           </thead>
-          
+
           <tbody>
             {data.slice(3).map((row) => {
               const index = data.indexOf(row);
@@ -123,7 +123,7 @@ export function GlobalLeaderboard() {
                     <div className="d-flex align-items-center">
                       <div className="user-info__basic">
                         <h5 className="mb-0">
-                          <Link to={`/profile?username=${row.username}`} target="_blank" rel="noreferrer" style={{ color: 'black' }}>{row.username}</Link>
+                          <Link to={`/profile?username=${encodeURIComponent(row.username)}`} target="_blank" rel="noreferrer" style={{ color: 'black' }}>{row.username}</Link>
                         </h5>
                       </div>
                     </div>
@@ -168,7 +168,7 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
       <div className={clsx('leaderboard-card', isFirst && 'leaderboard-card--first')}>
         <div className="leaderboard-card__top">
           <h3 className="text-center">
-            #{index + 1} - <Link to={`/profile?username=${row.username}`} target="_blank" rel="noreferrer" style={{ color: isFirst ? 'white' : 'black' }}>
+            #{index + 1} - <Link to={`/profile?username=${encodeURIComponent(row.username)}`} target="_blank" rel="noreferrer" style={{ color: isFirst ? 'white' : 'black' }}>
               {row.username}
             </Link>
           </h3>

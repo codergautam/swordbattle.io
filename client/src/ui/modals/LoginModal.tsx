@@ -24,13 +24,14 @@ function LoginModal({ onSuccess }: any) {
 
   return (
     <div className="login-modal">
-      <h1>Login</h1>
+      <h1>Log in</h1>
       <input type="username" placeholder="Username"
         onChange={(e) => setUsername(e.target.value)}
       />
       <input type="password" placeholder="Password"
         onChange={(e) => setPassword(e.target.value)}
       />
+      <p style={{marginTop: 5, marginBottom: 0}}>Forgot your password? Email support@swordbattle.io</p>
       <button onClick={onLogin}>Login</button>
     </div>
   );

@@ -67,7 +67,7 @@ function App() {
   }, 1000);
 
   if(!firstGame) return;
-    setModal(<ChangelogModal />);
+    // setModal(<ChangelogModal />);
   }, [gameStarted]);
 
   const preloadImage = (url: string) => {
@@ -202,7 +202,7 @@ function App() {
                 <div className="auth-username"><FontAwesomeIcon icon={faUser} /> {account.username}</div>
                 <ul className="dropdown-menu">
                   <li>
-                    <Link to={`/profile?username=${account.username}`} target="_blank" className="dropdown-item">
+                    <Link to={`/profile?username=${encodeURIComponent(account.username)}`} target="_blank" className="dropdown-item">
                       <FontAwesomeIcon icon={faUser} /> Profile
                     </Link>
                   </li>

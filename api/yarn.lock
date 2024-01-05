@@ -992,14 +992,14 @@
 
 "@types/express-session@^1.17.9":
   version "1.17.9"
-  resolved "https://registry.yarnpkg.com/@types/express-session/-/express-session-1.17.9.tgz#2811b8c3f2e7efb5fd239e4cb0f26f58de8c0a62"
+  resolved "https://registry.npmjs.org/@types/express-session/-/express-session-1.17.9.tgz"
   integrity sha512-yIqficLlTPdloeEPhOVenpOUWILkdaXHUWhTOqFGx9JoSuTgeatNjb97k8VvJehbTk0kUSUAHy5r27PXMga89Q==
   dependencies:
     "@types/express" "*"
 
 "@types/express@*":
   version "4.17.20"
-  resolved "https://registry.yarnpkg.com/@types/express/-/express-4.17.20.tgz#e7c9b40276d29e38a4e3564d7a3d65911e2aa433"
+  resolved "https://registry.npmjs.org/@types/express/-/express-4.17.20.tgz"
   integrity sha512-rOaqlkgEvOW495xErXMsmyX3WKBInbhG5eqojXYi3cGUaLoRDlXa5d52fkfWZT963AZ3v2eZ4MbKE6WpDAGVsw==
   dependencies:
     "@types/body-parser" "*"
@@ -1563,7 +1563,7 @@ asynckit@^0.4.0:
 
 axios@^1.6.2:
   version "1.6.2"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.6.2.tgz#de67d42c755b571d3e698df1b6504cde9b0ee9f2"
+  resolved "https://registry.npmjs.org/axios/-/axios-1.6.2.tgz"
   integrity sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==
   dependencies:
     follow-redirects "^1.15.0"
@@ -2739,7 +2739,7 @@ flatted@^3.2.9:
 
 follow-redirects@^1.15.0:
   version "1.15.3"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.3.tgz#fe2f3ef2690afce7e82ed0b44db08165b207123a"
+  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.15.3.tgz"
   integrity sha512-1VzOtuEM8pC9SFU1E+8KfTjZyMztRsgEfwQl44z8A25uy13jSzTj6dyK2Df52iV0vgHCfBwLhDWevLn95w5v6Q==
 
 fork-ts-checker-webpack-plugin@8.0.0:
@@ -2786,7 +2786,7 @@ forwarded@0.2.0:
 
 french-badwords-list@^1.0.6:
   version "1.0.7"
-  resolved "https://registry.yarnpkg.com/french-badwords-list/-/french-badwords-list-1.0.7.tgz#8ed2442cb20fa2781c38b5a75c944f8e91a73c08"
+  resolved "https://registry.npmjs.org/french-badwords-list/-/french-badwords-list-1.0.7.tgz"
   integrity sha512-H1ziKs2PJh2+UXZ9oCGJ/rRQpsI9NBykGf2Sc7WaKaj1OnWFuBXfsvANTdRcfVmOghGQaUmRyZ1hJOPbDpy04Q==
 
 fresh@0.5.2:
@@ -3795,7 +3795,7 @@ kleur@^3.0.3:
 
 leo-profanity@^1.7.0:
   version "1.7.0"
-  resolved "https://registry.yarnpkg.com/leo-profanity/-/leo-profanity-1.7.0.tgz#4c7e77a0a1376afdff44a727235d08a489a57d93"
+  resolved "https://registry.npmjs.org/leo-profanity/-/leo-profanity-1.7.0.tgz"
   integrity sha512-88j1R08jrQzOib9Yxk4nxrzMlrHJi3DzFzAmv0L4APQ+ciGEfJ1rftVEvFjoqL0m+0KGFL3csQGRlxXGnYrA7w==
   optionalDependencies:
     french-badwords-list "^1.0.6"
@@ -4382,7 +4382,7 @@ passport-strategy@1.x.x, passport-strategy@^1.0.0:
 
 passport@^0.6.0:
   version "0.6.0"
-  resolved "https://registry.yarnpkg.com/passport/-/passport-0.6.0.tgz#e869579fab465b5c0b291e841e6cc95c005fac9d"
+  resolved "https://registry.npmjs.org/passport/-/passport-0.6.0.tgz"
   integrity sha512-0fe+p3ZnrWRW74fe8+SvCyf4a3Pb2/h7gFkQ8yTJpAO50gDzlfjZUZTO1k5Eg9kUct22OxHLqDZoKUWRHOh9ug==
   dependencies:
     passport-strategy "1.x.x"
@@ -4598,7 +4598,7 @@ proxy-addr@~2.0.7:
 
 proxy-from-env@^1.1.0:
   version "1.1.0"
-  resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-1.1.0.tgz#e102f16ca355424865755d2c9e8ea4f24d58c3e2"
+  resolved "https://registry.npmjs.org/proxy-from-env/-/proxy-from-env-1.1.0.tgz"
   integrity sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==
 
 pump@^3.0.0:
@@ -4815,7 +4815,7 @@ run-parallel@^1.1.9:
 
 russian-bad-words@^0.5.0:
   version "0.5.0"
-  resolved "https://registry.yarnpkg.com/russian-bad-words/-/russian-bad-words-0.5.0.tgz#d4abcdc55f7af37606cdbac44bcb9e0bde6c3855"
+  resolved "https://registry.npmjs.org/russian-bad-words/-/russian-bad-words-0.5.0.tgz"
   integrity sha512-euNvEYki6iYYpkNbeudW+lEMMYGEmN7EBwVF8ezlbv0bZoQpVYB7W10cCeUIGV7Ed50sJynLQ0c559q5iI0ejQ==
 
 rxjs@7.8.1, rxjs@^7.5.5, rxjs@^7.8.1:

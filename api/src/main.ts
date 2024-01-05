@@ -11,6 +11,7 @@ import * as fs from 'fs';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+
   app.use(cookieParser(config.appSecret));
   app.enableCors({
     origin: (origin, callback) => callback(null, true),
@@ -28,6 +29,6 @@ async function bootstrap() {
   app.use(passport.initialize());
 
   await app.listen(config.port);
-  console.log(`Server is running on: ${await app.getUrl()}`);
+  console.log(`Server is running on: ${await app.getUrl()}\nProduction mode ${config.isProduction ? 'enabled' : 'disabled'}`);
 }
 bootstrap();

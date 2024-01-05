@@ -89,7 +89,7 @@ export default function Profile() {
   if (isLoading) {
     return <h3>Loading...</h3>
   }
-  if (!data?.account) {
+  if (!data?.account || typeof username !== 'string') {
     return <h3 className="text-center">Account not found</h3>
   }
   return (

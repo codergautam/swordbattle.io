@@ -12,7 +12,7 @@ import { config } from '../config';
     PassportModule.register({ session: true }),
     JwtModule.register({
       secret: config.jwtSecret,
-      signOptions: { expiresIn: '100d' },
+      signOptions: { expiresIn: '1y' },
     }),
   ],
   providers: [AuthService],

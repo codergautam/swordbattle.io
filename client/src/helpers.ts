@@ -148,3 +148,12 @@ export function buyFormats(amount: number) {
 
   return values[values.length - 1];
 }
+
+export function getCookies() {
+  const cookies: any = {};
+  document.cookie.split(';').forEach((cookie) => {
+    const [key, value] = cookie.split('=');
+    cookies[key.trim()] = value;
+  });
+  return cookies;
+}

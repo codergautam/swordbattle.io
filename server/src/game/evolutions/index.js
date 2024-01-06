@@ -9,6 +9,8 @@ fs.readdirSync(__dirname).forEach((file) => {
   evolutions[EvolutionClass.type] = EvolutionClass;
 });
 
+evolutions[BasicEvolution.type] = BasicEvolution;
+
 console.log(`Loaded ${Object.keys(evolutions).length} evolutions`);
 
 class EvolutionSystem {
@@ -37,7 +39,8 @@ class EvolutionSystem {
   checkRequirements(evolution) {
     const Evol = evolutions[evolution];
     return Evol && Evol.level <= this.player.levels.level
-      && (Evol.biomes.length === 0 || Evol.biomes.includes(this.player.biome));
+      && (Evol.biomes.length === 0 || Evol.biomes.includes(this.player.biome))
+      && evolutions[this.evolution].level < Evol.level;
   }
 
   upgrade(evol) {

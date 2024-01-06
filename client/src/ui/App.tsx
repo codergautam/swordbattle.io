@@ -29,6 +29,7 @@ import GemCount from './GemCount';
 import ShopButton from './ShopButton';
 import ShopModal from './modals/ShopModal';
 import MigrationModal from './modals/MigrationModal';
+import { getCookies } from '../helpers';
 
 const preloadImages: string[] = [
   SettingsImg,
@@ -55,16 +56,41 @@ function App() {
     if(gameStarted && firstGame) setFirstGame(false);
     if(gameStarted) return;
     setTimeout(() => {
-    api.get(`${api.endpoint}/auth/account?now=${Date.now()}`, (data) => {
-      setAccountReady(true);
-      if (data.account) {
-        data.account.token = data.token;
-        dispatch(setAccount(data.account));
-      } else {
-        dispatch(clearAccount());
+      if(!getCookies().hasOwnProperty('auth-token') || !getCookies()['auth-token']) {
+        console.log('No auth token found, skipping account check');
+        setAccountReady(true);
+        return;
       }
-    });
-  }, 1000);
+      console.log('Checking account');
+    // api.get(`${api.endpoint}/auth/account?now=${Date.now()}`, (data) => {
+    //   console.log('Account data', data);
+    //   setAccountReady(true);
+    //   if (data.account) {
+    //     data.account.token = data.token;
+    //     dispatch(setAccount(data.account));
+    //   } else {
+    //     dispatch(clearAccount());
+    //   }
+    // });
+    fetch(`${api.endpoint}/auth/account?now=${Date.now()}`, {
+      method: 'GET',
+      credentials: 'include',
+    })
+      .then((resp) => resp.json())
+      .then((data) => {
+        console.log('Account data', data);
+        setAccountReady(true);
+        if (data.account) {
+          data.account.token = data.token;
+          dispatch(setAccount(data.account));
+        } else {
+          dispatch(clearAccount());
+        }
+      })
+      .catch((err) => {
+        console.log('Error getting account', err);
+      });
+  }, 10);
 
   if(!firstGame) return;
     // setModal(<ChangelogModal />);
@@ -107,7 +133,7 @@ function App() {
     }
   }, [gameStarted]);
   const onGameReady = () => {
-    console.log('Game ready');
+    console.log('Game ready', Date.now());
     setIsConnected(true);
   };
   const onStart = () => {

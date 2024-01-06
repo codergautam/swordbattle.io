@@ -69,7 +69,7 @@ export class AuthController {
 
   setCookie(res: Response, key: string, value: string) {
     return res.cookie(key, value, {
-      httpOnly: true,
+      // httpOnly: true,
       secure: config.isProduction,
       sameSite: config.isProduction ? 'none' : 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year

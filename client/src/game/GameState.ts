@@ -82,8 +82,8 @@ class GameState {
   }
 
   onServerOpen() {
-    Socket.emit({ spectate: true });
-    console.log('server connected');
+    // Socket.emit({ spectate: true });
+    console.log('server connected', Date.now());
   }
 
   onServerClose(event: CloseEvent, endpoint?: string) {

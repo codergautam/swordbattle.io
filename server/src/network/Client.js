@@ -45,6 +45,7 @@ class Client {
 
   send(data) {
     if (!data) return;
+    if(data.fullSync) console.log('sending fullsync to', this.player?.name ?? 'spectator');
 
     const packet = Protocol.encode(data);
     if (!this.isSocketClosed) {

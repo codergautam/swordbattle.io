@@ -17,7 +17,8 @@
   box-shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.25);
   padding: 20px;
   border-radius: 10px;
-  color: #ffffff; /* White text color for modal */
+  color: #ffffff;
+  /* White text color for modal */
 
 }
 
@@ -33,10 +34,20 @@
 }
 
 .shop-title {
-  font-size: 50px;
+  font-size: 30px;
   text-align: center;
-  color: #ffffff; /* Adjusting header color to fit modal style */
+  color: #ffffff;
+  /* Adjusting header color to fit modal style */
   margin: 0;
+}
+
+.shop-desc {
+  font-size: 20px;
+  text-align: center;
+  color: #ffffff;
+  /* Adjusting header color to fit modal style */
+  margin: 0;
+  margin-bottom: 10px;
 }
 
 .gem {
@@ -47,7 +58,8 @@
 .skin-card {
   margin: 10px;
   border-radius: 10px;
-  background-color: #272727; /* Dark background for cards */
+  background-color: #272727;
+  /* Dark background for cards */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -63,11 +75,9 @@
     font-weight: 700;
   }
 
-  .skin-image {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background-color: #fff;
+  .skin-img {
+    width: 150px;
+    height: 150px;
     background-size: cover;
     background-position: center;
   }
@@ -101,12 +111,58 @@
   }
 }
 
+// low height
+@media screen and (max-height: 600px) {
+
+  .skin-card {
+    margin: 5px;
+
+    .skin-img {
+      width: 50px;
+      height: 50px;
+      margin: 0;
+    }
+
+    .skin-name {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    .skin-count {
+      font-size: 15px;
+      margin: 0;
+    }
+
+    .buy-button {
+      font-size: 12px;
+      margin: 0;
+      margin-top: 5px;
+      padding: 0.2rem;
+    }
+
+    .skin-desc {
+      font-size: 12px;
+      margin: 0;
+    }
+
+  }
+
+  .shop-title {
+    font-size: 20px;
+  }
+
+  .shop-desc {
+    font-size: 15px;
+  }
+}
+
 /* General Styling Adjustments */
 h1 {
   font-size: 24px;
   font-weight: 400;
   text-align: center;
-  color: #ffffff; /* Adjusting header color to fit modal style */
+  color: #ffffff;
+  /* Adjusting header color to fit modal style */
 }
 
 .highlight {
@@ -116,12 +172,12 @@ h1 {
 .search-bar {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .search-bar input {
   width: 50%;
-  padding: 10px;
+  padding: 5px;
   border: none;
   border-radius: 20px;
   box-shadow: 0 0 15px 4px rgba(0, 0, 0, 0.06);
@@ -139,7 +195,7 @@ h1 {
 .badges {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .badges button {

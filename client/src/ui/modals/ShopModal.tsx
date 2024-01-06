@@ -125,9 +125,9 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       <h1 className='shop-title'>Shop</h1>
 
       {account?.isLoggedIn ? (
-      <h1>Balance: {account.gems}<img className={'gem'} src='/assets/game/gem.png' alt='Gems' width={30} height={30} /></h1>
+      <h1 className='shop-desc'>Balance: {account.gems}<img className={'gem'} src='/assets/game/gem.png' alt='Gems' width={30} height={30} /></h1>
       ) : (
-        <h1>Login or Signup to buy stuff from the shop!</h1>
+        <h1 className='shop-desc'>Login or Signup to buy stuff from the shop!</h1>
       )}
 
 <div className='search-bar'>
@@ -158,13 +158,11 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
             src={basePath + skin.bodyFileName}
             alt={skin.name}
             ref={(el) => assignRef(el as HTMLImageElement, index)}
-            width={150}
-            height={150}
             className='skin-img'
           />
           <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
           <br/>
-          <p>{skin.description}</p>
+          <p className='skin-desc'>{skin.description}</p>
           { (skin?.price ?? 0) > 0 ? (
             <>
           {skin.price} <img className={'gem'} src='/assets/game/gem.png' alt='Gems' width={30} height={30} />

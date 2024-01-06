@@ -20,6 +20,11 @@ if (config.isDev) {
 export async function updatePing() {
   for (const server of servers) {
     const start = Date.now();
+    if(!config.isDev && server.address.includes('localhost')) {
+      server.offline = true;
+      server.ping = Infinity;
+      continue;
+    }
     await fetch(`${window.location.protocol}//${server.address}/ping`, {
       method: 'GET',
       headers: {
@@ -39,7 +44,7 @@ export async function updatePing() {
 
 export async function getServerList() {
   await updatePing();
-  
+
   const autoServer = await getAutoServer();
   const list = [{
     ...autoServer,

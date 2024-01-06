@@ -2,7 +2,7 @@ import { Length, IsEmail } from 'class-validator';
 import { config } from 'src/config';
 
 export class RegisterDTO {
-  @IsEmail() email: string;
+  email: string;
 
   @Length(config.usernameLength[0], config.usernameLength[1]) username: string;
 

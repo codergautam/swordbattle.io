@@ -33,7 +33,7 @@ function SignupModal({ onSuccess }: any) {
       <input type="username" placeholder="Username"
         onChange={(e) => setUsername(e.target.value)}
       />
-      <input type="email" placeholder="Email"
+      <input type="email" placeholder="Email (optional)"
         onChange={(e) => setEmail(e.target.value)}
       />
       <input type="password" placeholder="Password"

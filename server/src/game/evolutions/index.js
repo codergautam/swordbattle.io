@@ -3,13 +3,11 @@ const BasicEvolution = require('./BasicEvolution');
 const evolutions = {};
 
 fs.readdirSync(__dirname).forEach((file) => {
-  if (file == 'index.js' || file == 'BasicEvolution.js') return;
+  if (file == 'index.js') return;
 
   const EvolutionClass = require(`${__dirname}/${file}`);
   evolutions[EvolutionClass.type] = EvolutionClass;
 });
-
-evolutions[BasicEvolution.type] = BasicEvolution;
 
 console.log(`Loaded ${Object.keys(evolutions).length} evolutions`);
 

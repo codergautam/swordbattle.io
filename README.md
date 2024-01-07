@@ -4,10 +4,10 @@ Swordbattle.io is a multiplayer game where players fight each other with diffren
 
 > Note: you are looking at the beta V2 version of the code. For the stable V1 version, go to the [v1 repo](https://github.com/codergautam/swordbattle.io-legacy)
 
-Play now at [swordbattle.io](http://swordbattle.io) and see the [leaderboard](https://www.swordbattle.io/leaderboard).
+Play now at [swordbattle.io](http://swordbattle.io) and see the [leaderboard](https://www.swordbattle.io/#/leaderboard).
 
 ## Community
-* [Forum (most active)](https://forum.codergautam.dev)
+* [Swordbattle.io on IOGames Forum](https://iogames.forum/swordbattle)
 * [Discord](https://discord.com/invite/BDG8AfkysZ)
 
 ## Run Locally

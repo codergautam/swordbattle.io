@@ -57,4 +57,51 @@ function start() {
     loop.entityCnt = game.entities.size;
   }
   loop.start();
+
+  function stop(reason) {
+    try {
+    console.log('Stopping game...', reason);
+    for (const client of server.clients.values()) {
+      console.log(`Disconnecting client ${client.id}`);
+      if (client.player) {
+        console.log(`Saving game for player ${client.player.id} (${client.player.name})`);
+        try {
+        const data = {
+          coins: client.player.levels?.coins,
+          kills: client.player.kills,
+          playtime: client.player.playtime,
+        };
+
+        client.saveGame(data);
+      } catch (err) {
+        console.error('Failed to save game for player', client.player.id, client.player.name, err);
+      }
+      }
+    }
+
+    console.log('All games saved. Exiting...');
+    process.exit(0);
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+  }
+
+  process.on('SIGTERM', () => {
+    stop('SIGTERM');
+  });
+
+  process.on('SIGINT', () => {
+    stop('SIGINT');
+  });
+
+  process.on('uncaughtException', (err) => {
+    console.error('Uncaught exception', err);
+    stop('uncaughtException');
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled rejection', reason, promise);
+    stop('unhandledRejection');
+  });
 }

@@ -5,7 +5,7 @@ import api from '../../api';
 import * as cosmetics from '../../game/cosmetics.json'
 
 import './ShopModal.scss'
-import { buyFormats } from '../../helpers';
+import { buyFormats, numberWithCommas } from '../../helpers';
 let { skins } = cosmetics;
 
 const basePath = '/assets/game/player/';
@@ -125,7 +125,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       <h1 className='shop-title'>Shop</h1>
 
       {account?.isLoggedIn ? (
-      <h1 className='shop-desc'>Balance: {account.gems}<img className={'gem'} src='/assets/game/gem.png' alt='Gems' width={30} height={30} /></h1>
+      <h1 className='shop-desc'>Balance: {numberWithCommas(account.gems)}<img className={'gem'} src='/assets/game/gem.png' alt='Gems' width={30} height={30} /></h1>
       ) : (
         <h1 className='shop-desc'>Login or Signup to buy stuff from the shop!</h1>
       )}

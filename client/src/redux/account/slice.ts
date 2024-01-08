@@ -28,6 +28,13 @@ export const logoutAsync = createAsyncThunk(
   'account/logout',
   async (_, { dispatch }) => {
     await api.post(`${api.endpoint}/auth/logout`, {});
+
+    try {
+      window.localStorage.removeItem('secret');
+    } catch (e) {
+      console.log('Failed to clear secret', e);
+    }
+
     dispatch(clearAccount());
   }
 );

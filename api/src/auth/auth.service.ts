@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AccountsService } from '../accounts/accounts.service';
-import { LoginDTO, RegisterDTO } from './auth.dto';
+import { LegacyLoginDTO, LoginDTO, RegisterDTO } from './auth.dto';
 import { JwtPayload } from './auth.interface';
 import { Account } from 'src/accounts/account.entity';
 import validateUsername from 'src/helpers/validateUsername';
@@ -25,6 +25,20 @@ export class AuthService {
       throw new UnauthorizedException('Email already exists');
     }
     const account = await this.accountsService.create(data);
+    const token = await this.getToken(account);
+    return { account: this.accountsService.sanitizeAccount(account), token };
+  }
+
+
+  async legacyLogin(data: LegacyLoginDTO) {
+    let account;
+    try {
+      account = await this.accountsService.findOne({ where: { secret: data.secret } });
+      console.log(account, 'account', data.secret);
+    } catch (e) {
+      throw new UnauthorizedException('User does not exists');
+    }
+
     const token = await this.getToken(account);
     return { account: this.accountsService.sanitizeAccount(account), token };
   }

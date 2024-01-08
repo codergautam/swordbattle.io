@@ -62,13 +62,39 @@ function App() {
       //   return;
       // }
       console.log('Checking account');
+      let secret: string | null = null;
+      try {
+       secret = window.localStorage.getItem('secret');
+      } catch(e) {
+        console.log('Error getting secret', e);
+      }
     api.get(`${api.endpoint}/auth/account?now=${Date.now()}`, (data) => {
       console.log('Account data', data);
       setAccountReady(true);
       if (data.account) {
         data.account.token = data.token;
+        // if(data.account.secret) {
+        //   try {
+        //     window.localStorage.setItem('secret', data.account.secret);
+        //   } catch(e) {
+        //     console.log('Error setting secret', e);
+        //   }
+        // }
         dispatch(setAccount(data.account));
       } else {
+        if(typeof secret === 'string' && secret.length > 0) {
+          // attempt legacy login with secret
+          console.log('Attempting legacy login with secret');
+          api.post(`${api.endpoint}/auth/legacyLogin`, { secret }, (data) => {
+            if (data.account) {
+              data.account.token = data.token;
+              dispatch(setAccount(data.account));
+            } else {
+              console.log('Error logging in with secret', data);
+              dispatch(clearAccount());
+            }
+          });
+        }
         dispatch(clearAccount());
       }
     });

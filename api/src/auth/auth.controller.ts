@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, UseGuards, Res, Req } from '@nestjs/common';
 import { Response } from 'express';
-import { RegisterDTO, LoginDTO } from './auth.dto';
+import { RegisterDTO, LoginDTO, LegacyLoginDTO } from './auth.dto';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ServerGuard } from './guards/server.guard';
@@ -27,7 +27,22 @@ export class AuthController {
     res.set('Authorization', `Bearer ${data.token}`);
     this.setCookie(res, 'auth-token', data.token);
     if (data.account.is_v1) {
-      // assume the migration screen has been shown
+      // assume the migration screen will be shown
+      data.account.is_v1 = false;
+      await this.authService.updateAccount(data.account);
+      data.account.is_v1 = true;
+    }
+    return data;
+  }
+
+  // legacy login using old secrets system
+  @Post('legacyLogin')
+  async legacyLogin(@Body() loginData: LegacyLoginDTO, @Res({ passthrough: true }) res: Response) {
+    const data = await this.authService.legacyLogin(loginData);
+    res.set('Authorization', `Bearer ${data.token}`);
+    this.setCookie(res, 'auth-token', data.token);
+    if(data.account.is_v1) {
+      // assume the migration screen will be shown
       data.account.is_v1 = false;
       await this.authService.updateAccount(data.account);
       data.account.is_v1 = true;

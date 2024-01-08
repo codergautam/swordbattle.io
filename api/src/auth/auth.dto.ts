@@ -14,3 +14,6 @@ export class LoginDTO {
 
   @Length(0, Infinity) password: string;
 }
+export class LegacyLoginDTO {
+  @Length(0, Infinity) secret: string;
+}

@@ -24,6 +24,9 @@ const sql = postgres(process.env.OLD_DB, {
 });
 
 const sql2 = !ignoreNewDb ? postgres(process.env.NEW_DB, {
+  ssl: {
+    rejectUnauthorized: false
+  },
 }) : () => {};
 
 if(!ignoreNewDb) {

@@ -47,6 +47,10 @@ export class Account {
   @Column({ type: 'jsonb', default: '{"equipped": 1, "owned": [1]}' })
   skins: { equipped: number; owned: number[] };
 
+  @Column({ type: 'uuid', unique: true })
+  @Generated('uuid')
+  secret: string;
+
   constructor(data: Partial<Account> = {}) {
     Object.assign(this, data);
   }

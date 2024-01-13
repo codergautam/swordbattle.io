@@ -228,6 +228,14 @@ class Game {
       data.name = name;
     }
 
+    if(client.account && client.account.id) {
+      // Make sure same account can't join twice
+      for (const player of this.players) {
+        if (player.account && player.account.id === client.account.id) {
+          return;
+        }
+      }
+    }
 
     // if (this.isNameReserved(name)) return;
 

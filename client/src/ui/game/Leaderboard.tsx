@@ -43,13 +43,13 @@ function Leaderboard({ game }: any) {
 }
 
 function getRankColor(rank: number) {
-  // #1 gold, #2 silver, #3 bronze, #4-10 green, #11-50 orange, #51-100 yellow
+  // #1 gold, #2 silver, #3 bronze, #4-10 green, #11-50 purple, #51-100 gray
   if (rank === 1) return '#ffd700';
-  if (rank === 2) return '#c0c0c0';
+  if (rank === 2) return '#000000';
   if (rank === 3) return '#cd7f32';
-  if (rank <= 10) return '#00ff00';
-  if (rank <= 50) return '#ffa500';
-  if (rank <= 100) return '#ffff00';
+  if (rank >= 4 && rank <= 10) return '#00ff00';
+  if (rank >= 11 && rank <= 50) return '#800080';
+  if (rank >= 51 && rank <= 100) return '#808080';
   return 'white';
 }
 

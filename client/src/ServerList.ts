@@ -12,6 +12,7 @@ interface Server {
 const servers: Server[] = [
   { value: 'eu', name: 'Europe', address: config.serverEU, ping: 0 },
   { value: 'us', name: 'USA', address: config.serverUS, ping: 0 },
+  { value: 'usbackup', name: 'USA Backup', address: config.serverUSBackup, ping: 0 },
 ];
 if (config.isDev) {
   servers.unshift({ value: 'dev', name: 'Development', address: config.serverDev, ping: 0 });

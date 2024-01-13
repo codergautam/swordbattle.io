@@ -2,9 +2,38 @@ import { config } from './config';
 import { load } from 'recaptcha-v3'
 
 const endpoint = `${window.location.protocol}//${config.apiEndpoint}`;
+const backupEndpoint = config.apiEndpointBackup ? `${window.location.protocol}//${config.apiEndpointBackup}` : null;
+let currentEndpoint: string | null = null;
+
 const unavialableMessage = 'Server is temporarily unavailable, try again later';
 
+async function checkEndpoint() {
+  if (!currentEndpoint) {
+    console.log('Checking endpoint');
+    currentEndpoint = endpoint;
+    await fetch(`${currentEndpoint}/games/ping`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+    })
+    .catch(() => {
+      console.log('Endpoint is not available, switching to backup');
+      currentEndpoint = backupEndpoint;
+    });
+  }
+}
+
 function get(url: string, callback = (data: any) => {}): any {
+  if(!currentEndpoint) {
+    checkEndpoint().then(() => {
+      call();
+    });
+  } else {
+    call();
+  }
+
+  function call() {
   fetch(url, {
     method: 'GET',
     mode: 'cors',
@@ -18,8 +47,19 @@ function get(url: string, callback = (data: any) => {}): any {
   .then(callback)
   .catch((err) => callback({ message: err }));
 }
+}
 
 function post(url: string, body: any, callback = (data: any) => {}, token?: string, useRecaptcha = false) {
+
+  if(!currentEndpoint) {
+    checkEndpoint().then(() => {
+      call();
+    });
+  } else {
+    call();
+  }
+
+  function call() {
   const recaptchaClientKey = config.recaptchaClientKey;
 
   const sendRequest = (recaptchaToken = '') => {
@@ -56,6 +96,7 @@ function post(url: string, body: any, callback = (data: any) => {}, token?: stri
   } else {
     sendRequest();
   }
+}
 }
 
 async function postAsync(url: string, body: any): Promise<any> {

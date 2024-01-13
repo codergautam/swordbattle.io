@@ -231,7 +231,7 @@ class Game {
     if(client.account && client.account.id) {
       // Make sure same account can't join twice
       for (const player of this.players) {
-        if (player.account && player.account.id === client.account.id) {
+        if (player?.client?.account && player.client.account?.id === client.account.id) {
           return;
         }
       }

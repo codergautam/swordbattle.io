@@ -65,7 +65,7 @@ class LevelSystem {
       },
       [Types.Buff.Damage]: {
         level: 0,
-        step: 0.1,
+        step: 0.06,
         max: 10,
         buyable: true,
       },

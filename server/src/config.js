@@ -15,7 +15,7 @@ module.exports = {
   player: {
     speed: 700,
     radius: 100,
-    maxHealth: 100,
+    maxHealth: 80,
     regeneration: 2,
     viewport: {
       width: 1500,
@@ -28,7 +28,7 @@ module.exports = {
     initialSwingDuration: 0.1,
     swingDurationIncrease: 1.15,
     maxSwingDuration: 3,
-    damage: 12,
+    damage: 15,
     knockback: 200,
   },
   saveGame: {

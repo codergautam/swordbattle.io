@@ -107,7 +107,7 @@ function App() {
   }, 10);
 
   if(!firstGame) return;
-    // setModal(<ChangelogModal />);
+    setModal(<ChangelogModal />);
   }, [gameStarted]);
 
   const preloadImage = (url: string) => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -51,6 +51,12 @@ function App() {
   const [firstGame, setFirstGame] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [accountReady, setAccountReady] = useState(false);
+  const [gameQueued, setGameQueued] = useState(false);
+  const gameQueuedRef = useRef(gameQueued);
+
+  useEffect(() => {
+    gameQueuedRef.current = gameQueued;
+  }, [gameQueued]);
 
   useEffect(() => {
     if(gameStarted && firstGame) setFirstGame(false);
@@ -141,12 +147,25 @@ function App() {
     }
   }, [gameStarted]);
   const onGameReady = () => {
-    console.log('Game ready', Date.now());
+    console.log('Game ready', Date.now(), gameQueued);
     setIsConnected(true);
+    if(gameQueuedRef.current) {
+      console.log('Game queued, starting game');
+      setGameStarted(true);
+      setGameQueued(false);
+      window.phaser_game?.events.emit('startGame', name);
+    }
   };
   const onStart = () => {
-    setGameStarted(true);
+    console.log('Starting game');
+    if(!isConnected) {
+      console.log('Not connected, cannot start game, queueing');
+      setGameQueued(true);
+    }
+    else  {
+      setGameStarted(true);
     window.phaser_game?.events.emit('startGame', name);
+    }
   };
   const openSettings = () => setModal(<SettingsModal />);
   const closeModal = () => setModal(null);
@@ -202,8 +221,11 @@ function App() {
               onChange={(e) => setName(e.target.value)}
               disabled={account.isLoggedIn}
             />
-            <button className="startButton" onClick={onStart} disabled={!isConnected || !accountReady}>
-              {isConnected && accountReady ? 'Play!' : 'Connecting...'}
+            <button className="startButton" onClick={onStart} disabled={!accountReady}>
+              {accountReady ?
+              (gameQueued && !isConnected) ? 'Joining...' : 'Play'
+              :
+              'Connecting...'}
             </button>
           </div>
 

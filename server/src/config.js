@@ -26,9 +26,9 @@ module.exports = {
   },
   sword: {
     initialSwingDuration: 0.1,
-    swingDurationIncrease: 1.075,
+    swingDurationIncrease: 1.15,
     maxSwingDuration: 3,
-    damage: 8,
+    damage: 12,
     knockback: 200,
   },
   saveGame: {

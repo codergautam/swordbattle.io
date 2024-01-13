@@ -6,7 +6,8 @@ const GlobalEntities = require('./GlobalEntities');
 const Player = require('./entities/Player');
 const helpers = require('../helpers');
 const config = require('../config');
-const filter = require('leo-profanity')
+const filter = require('leo-profanity');
+const Types = require('./Types');
 class Game {
   constructor() {
     this.entities = new Set();
@@ -31,6 +32,9 @@ class Game {
 
   tick(dt) {
     for (const entity of this.entities) {
+      // Not a sword
+      const entityType = entity.type;
+      if(entityType === Types.Entity.Sword) continue;
       entity.update(dt);
     }
 

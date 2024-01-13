@@ -111,6 +111,7 @@ class Player extends Entity {
   update(dt) {
     this.applyBiomeEffects();
     this.levels.applyBuffs();
+    this.sword.update(dt);
     this.effects.forEach(effect => effect.update(dt));
     this.health.update(dt);
     this.applyInputs(dt);

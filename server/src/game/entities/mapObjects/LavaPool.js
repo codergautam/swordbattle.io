@@ -34,7 +34,7 @@ class LavaPool extends Entity {
   }
 
   processTargetsCollision(player) {
-    player.addEffect(Types.Effect.Speed, 'lavaPool', { multiplier: 0.5 });
+    player.addEffect(Types.Effect.Speed, 'lavaPool', { multiplier: 0.8 });
     player.addEffect(Types.Effect.Burning, 'burning', { damage: Math.sqrt(this.size) / 2, entity: this });
   }
 

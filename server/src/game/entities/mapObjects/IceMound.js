@@ -19,7 +19,7 @@ class IceMound extends Entity {
   }
 
   processTargetsCollision(player) {
-    player.addEffect(Types.Effect.Speed, 'iceMound', { multiplier: 0.7 });
+    player.addEffect(Types.Effect.Speed, 'iceMound', { multiplier: 0.9 });
   }
 }
 

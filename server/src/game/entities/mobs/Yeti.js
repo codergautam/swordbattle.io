@@ -11,7 +11,7 @@ class YetiMob extends Entity {
   static defaultDefinition = {
     forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
     size: 70,
-    health: 50,
+    health: 25,
     regen: 2,
     speed: 35,
     damage: 2,

@@ -3,29 +3,29 @@ const { swingDurationIncrease, maxSwingDuration } = require('../../config').swor
 
 var levels = [
   {'coins': 0, 'scale': 0},
-  {'coins': 5, 'scale': 1},
-{'coins': 15, 'scale': 2},
-{'coins': 25, 'scale': 3},
-{'coins': 50, 'scale': 5},
-{'coins': 100, 'scale': 6},
-{'coins': 500, 'scale': 7},
-{'coins': 1000, 'scale': 8},
-{'coins': 1500, 'scale': 9},
-{'coins': 2000, 'scale': 10},
-{'coins': 3000, 'scale': 11},
-{'coins': 4000, 'scale': 12},
-{'coins': 5000, 'scale': 14},
-{'coins': 7500, 'scale': 15},
-{'coins': 9000, 'scale': 16},
-{'coins': 10000, 'scale': 17},
-{'coins': 15000, 'scale': 18},
-{'coins': 20000, 'scale': 19},
-{'coins': 30000, 'scale': 20},
-{'coins': 50000, 'scale': 21},
-{'coins': 100000, 'scale': 22},
-{'coins': 200000, 'scale': 23},
-{'coins': 300000, 'scale': 24},
-{'coins': 500000, 'scale': 25}
+  {'coins': 5, 'scale': 2},
+{'coins': 15, 'scale': 4},
+{'coins': 25, 'scale': 7},
+{'coins': 50, 'scale': 12},
+{'coins': 100, 'scale': 16},
+{'coins': 500, 'scale': 20},
+{'coins': 1000, 'scale': 26},
+{'coins': 1500, 'scale': 28},
+{'coins': 2000, 'scale': 30},
+{'coins': 3000, 'scale': 32},
+{'coins': 4000, 'scale': 36},
+{'coins': 5000, 'scale': 38},
+{'coins': 7500, 'scale': 40},
+{'coins': 9000, 'scale': 41},
+{'coins': 10000, 'scale': 42},
+{'coins': 15000, 'scale': 43},
+{'coins': 20000, 'scale': 44},
+{'coins': 30000, 'scale': 45},
+{'coins': 50000, 'scale': 46},
+{'coins': 100000, 'scale': 47},
+{'coins': 200000, 'scale': 48},
+{'coins': 300000, 'scale': 49},
+{'coins': 500000, 'scale': 50}
 ];
 
 class LevelSystem {
@@ -48,7 +48,7 @@ class LevelSystem {
       [Types.Buff.Size]: {
         level: 0,
         max: levels[this.maxLevel].scale,
-        step: 0.1,
+        step: 0.05,
         buyable: false,
       },
       [Types.Buff.Health]: {
@@ -119,7 +119,7 @@ class LevelSystem {
       }
     }
     this.player.sword.swingDuration.multiplier['level'] = Math.min(maxSwingDuration, Math.max(1, swingDurationIncrease * (this.level-1)));
-    this.player.sword.knockback.multiplier['level'] = 1 + (this.buffs[Types.Buff.Size].level * 0.01);
+    this.player.sword.knockback.multiplier['level'] = 1 + (this.buffs[Types.Buff.Size].level * 0.015);
   }
 
   levelUp() {

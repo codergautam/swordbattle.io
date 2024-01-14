@@ -53,6 +53,7 @@ class Coin extends BaseEntity {
 
   remove() {
     super.remove();
+    
     this.eatingTween?.destroy();
     this.game.gameState.removedEntities.delete(this);
   }

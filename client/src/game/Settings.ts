@@ -16,7 +16,7 @@ export const settingsList: Record<string, SettingType> = {
   useWebGL: {
     name: 'Use WebGL (requires reload)',
     type: 'toggle',
-    default: true,
+    default: false,
     onChange: (newValue: boolean) => {
       const saved = localStorage.getItem('swordbattle:WebGL');
       if (newValue) localStorage.setItem('swordbattle:WebGL', 'OK');

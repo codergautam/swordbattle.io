@@ -4,6 +4,7 @@ import * as cookieParser from 'cookie-parser';
 import * as passport from 'passport';
 
 import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ExcludeInterceptor } from './exclude.interceptor';
 import { config } from './config';
 import * as fs from 'fs';
@@ -11,6 +12,16 @@ import * as fs from 'fs';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Swagger Config
+  const config = new DocumentBuilder()
+    .setTitle('Swordbattle.io Api Documentation')
+    .setDescription('Api Documentation for Swordbattle.io')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  // set swagger Path to /api
+  // also sets raw schema path to /api-json
+  SwaggerModule.setup(config.swaggerRoute, app, document);
 
   app.use(cookieParser(config.appSecret));
   app.enableCors({

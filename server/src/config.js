@@ -1,22 +1,40 @@
+// Load environment variables from a .env file
 require('dotenv').config();
 
+// Export configuration object for the application
 module.exports = {
+  // Define the port to be used, default to 8000 if not specified in the environment
   port: process.env.PORT || 8000,
+
+  // Determine if SSL should be used based on the environment variable USE_SSL being set to 'TRUE'
   useSSL: process.env.USE_SSL === 'TRUE',
+
+  // SSL certificate data, using empty strings as defaults if not provided in the environment
   sslData: {
     key: process.env.SSL_KEY || '',
     cert: process.env.SSL_CERT || '',
   },
+
+  // Enable debugging
   debug: process.env.DEBUG === 'TRUE',
+
+  // Secret key for the server, defaulting to 'server-secret' if not specified in the environment
   serverSecret: process.env.SERVER_SECRET || 'server-secret',
+
+  // API endpoint URL, defaulting to 'http://localhost:8080' if not provided in the environment
   apiEndpoint: process.env.API_ENDPOINT || 'http://localhost:8080',
 
+  // Game configuration settings
   tickRate: 20,
+
+  // Player settings
   player: {
     speed: 700,
     radius: 100,
     maxHealth: 120,
     regeneration: 2,
+
+    // Player's viewport configuration
     viewport: {
       width: 1500,
       height: 1500,
@@ -24,6 +42,8 @@ module.exports = {
       spectateZoom: 0.9,
     },
   },
+
+  // Sword settings
   sword: {
     initialSwingDuration: 0.1,
     swingDurationIncrease: 1.15,
@@ -31,11 +51,15 @@ module.exports = {
     damage: 10,
     knockback: 200,
   },
+
+  // Game saving settings
   saveGame: {
     playtime: 30, // in minutes
     coins: 20000,
     kills: 50,
   },
+
+  // World settings
   world: {
     worldHeight: 30000,
     worldWidth: 30000,

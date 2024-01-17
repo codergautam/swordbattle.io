@@ -267,6 +267,7 @@ export class AccountsService {
 
   sanitizeAccount(account: Account) {
     delete account.password;
+    delete account.secret;
     return account;
   }
 }

@@ -2,9 +2,9 @@
   "name": "swordbattle.io-api",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Codergautam",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "npx nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

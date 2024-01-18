@@ -30,6 +30,7 @@ import ShopButton from './ShopButton';
 import ShopModal from './modals/ShopModal';
 import MigrationModal from './modals/MigrationModal';
 import { getCookies } from '../helpers';
+import Ad from './Ad';
 
 const preloadImages: string[] = [
   SettingsImg,
@@ -227,6 +228,12 @@ function App() {
               :
               'Connecting...'}
             </button>
+
+
+          {/* Ad Div */}
+          {
+           <Ad screenW={document.body.clientWidth} screenH={document.body.clientHeight} />
+          }
           </div>
 
           <div

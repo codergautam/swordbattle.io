@@ -23,18 +23,16 @@ class Sword extends Entity {
     this.flyCooldown = new Property(5);
     this.playerSpeedBoost = new Property(1.3);
 
-    this.swingTime = 0;
-    this.swingProgress = 0;
     this.isFlying = false;
     this.restrictFly = false;
-    this.isAnimationFinished = true;
     this.flyTime = 0;
     this.flyCooldownTime = 0;
     this.skin = player.skin;
 
-    this.focusTime = 200;
-    this.focusDamageMultiplier = 1;
-    this.lastSwordSwing = Date.now();
+    this.lastSwordSwing = 0;
+    this.lastSwordHeld = 0;
+    this.swung = false;
+    this.held = false;
 
     this.proportion = 0.7;
     this.shape = new Polygon(0, 0, [[0, 0]]);
@@ -42,7 +40,7 @@ class Sword extends Entity {
   }
 
   get angle() {
-    return this.swingAngle * this.swingProgress;
+    return this.swingAngle
   }
 
   get size() {
@@ -50,15 +48,29 @@ class Sword extends Entity {
   }
 
   canCollide(entity) {
-    return (this.isFlying || this.raiseAnimation)
+    return (this.isFlying || this.swung)
       && !this.collidedEntities.has(entity)
       && this.player.depth === entity.depth;
   }
 
-  canSwing() {
-    return !this.isFlying
+  swinging() {
+    return Date.now() - this.lastSwordSwing > this.swingDuration.value * 1000
       && this.player.inputs.isInputDown(Types.Input.SwordSwing)
-      && this.isAnimationFinished;
+      && !this.isFlying
+      && !this.held;
+  }
+
+  notSwinging() {
+    return Date.now() - this.lastSwordSwing > this.swingDuration.value * 1000
+    && Date.now() - this.lastSwordHeld > this.swingDuration.value * 1000;
+  }
+
+
+  isHeld() {
+    return (Date.now() - this.lastSwordSwing > this.swingDuration.value * 1000)
+      && ((Date.now() - this.lastSwordSwing < this.swingDuration.value * 2000) || this.player.inputs.isInputDown(Types.Input.SwordSwing))
+      && !this.isFlying
+      && !this.held;
   }
 
   canFly() {
@@ -124,52 +136,37 @@ class Sword extends Entity {
   }
 
   updateFlags(dt) {
-    if (this.canSwing()) {
-      this.raiseAnimation = true;
-      this.isAnimationFinished = false;
+    console.log(Date.now() - this.lastSwordSwing, Date.now() - this.lastSwordHeld, this.swingDuration.value * 1000, this.swung, this.held)
+    if (this.swinging()) {
+      console.log('start swing');
+      this.lastSwordSwing = Date.now();
+      this.swung = true;
       this.player.flags.set(Types.Flags.SwordSwing, true);
-
-      const elapsed = Date.now() - this.lastSwordSwing;
-      const multiplier = elapsed / this.focusTime;
-      this.focusDamageMultiplier = Math.max(0.5, Math.min(1.2, multiplier));
+    } else if(this.notSwinging() && this.player.flags.get(Types.Flags.SwordSwing)) {
+      console.log('notSwing');
+      this.player.flags.set(Types.Flags.SwordSwing, false);
+    }
+    if(this.isHeld()) {
+      console.log('isHeld');
+      this.lastSwordHeld = Date.now();
+      this.held = true;
+    } else if(this.held) {
+      console.log('notHeld');
+      this.held = false;
     }
     if (this.canFly()) {
+      console.log('canFly');
       this.isFlying = true;
       this.flyCooldownTime = this.flyCooldown.value;
       this.player.flags.set(Types.Flags.SwordThrow, true);
       this.player.inputs.inputUp(Types.Input.SwordThrow);
     }
 
-    if (!this.isAnimationFinished && !this.raiseAnimation && !this.player.inputs.isInputDown(Types.Input.SwordSwing)) {
-      this.decreaseAnimation = true;
-      this.focusDamageMultiplier = 1;
-      this.lastSwordSwing = Date.now();
-    }
-    this.damage.multiplier *= this.focusDamageMultiplier;
-
     this.flyCooldownTime -= dt;
     if (this.flyCooldownTime < 0) {
       this.flyCooldownTime = 0;
     }
 
-    if (this.raiseAnimation) {
-      this.swingTime += dt;
-      if (this.swingTime >= this.swingDuration.value) {
-        this.swingTime = this.swingDuration.value;
-        this.raiseAnimation = false;
-      }
-    }
-    if (this.decreaseAnimation) {
-      this.swingTime -= dt;
-      if (this.swingTime <= 0) {
-        this.swingTime = 0;
-        this.decreaseAnimation = false;
-        this.collidedEntities.clear();
-        this.isAnimationFinished = true;
-      }
-    }
-
-    this.swingProgress = this.swingTime / this.swingDuration.value;
     this.restrictFly = false;
   }
 

@@ -55,6 +55,8 @@ class Game {
   processCollisions(entity, response, dt) {
     const quadtreeSearch = this.entitiesQuadtree.get(entity.shape.boundary);
 
+    if(entity.type === Types.Entity.Sword && !entity.swung) return;
+
     let depth = 0;
     for (const { entity: targetEntity } of quadtreeSearch) {
       if (entity === targetEntity) continue;
@@ -75,6 +77,8 @@ class Game {
         entity.processTargetsCollision(targetEntity, response, dt);
       }
     }
+
+    entity.swung = false;
     entity.depth = depth;
   }
 

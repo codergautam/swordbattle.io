@@ -25,7 +25,7 @@ module.exports = {
     },
   },
   sword: {
-    initialSwingDuration: 0.1,
+    initialSwingDuration: 1,
     swingDurationIncrease: 1.15,
     maxSwingDuration: 3,
     damage: 10,

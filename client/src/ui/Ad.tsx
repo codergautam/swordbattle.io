@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 
 const types = [ // in order of least preferred to most preferred
-  [250, 250],
+  [300, 250],
   [970, 90],
   [970, 250],
 ]
@@ -28,7 +28,18 @@ export default function Ad({ screenW, screenH }: { screenW: number, screenH: num
     setType(findAdType(screenW, screenH));
   }, [screenW, screenH]);
 
-  
+  useEffect(() => {
+    // aiptag.cmd.display.push(function() { aipDisplayTag.display("swordbattle-io_970x90"); });
+    const windowAny = window as any;
+    if(windowAny.aiptag && windowAny.aiptag.cmd && windowAny.aiptag.cmd.display) {
+      console.log('ad type', type);
+      windowAny.aiptag.cmd.display.push(function() { windowAny.aipDisplayTag.display(`swordbattle-io_${types[type][0]}x${types[type][1]}`); });
+    } else {
+      console.log('no ad');
+    }
+  }, [type]);
+
+
   if(type === -1) return null;
 
   return (
@@ -36,9 +47,9 @@ export default function Ad({ screenW, screenH }: { screenW: number, screenH: num
       width: types[type][0],
       height: types[type][1],
       backgroundColor: 'gray',
-    }}>
-      <h1>Ad</h1>
-      <p>Ad size: {types[type][0]} x {types[type][1]}</p>
+    }} id={`swordbattle-io_${types[type][0]}x${types[type][1]}`}>
+      {/* <h1>Ad</h1>
+      <p>Ad size: {types[type][0]} x {types[type][1]}</p> */}
     </div>
   )
 }

@@ -216,6 +216,7 @@ function App() {
         onHome={onHome}
         onGameReady={onGameReady}
         onConnectionClosed={onConnectionClosed}
+        dimensions={dimensions}
         loggedIn={account.isLoggedIn}
       />
       {connectionError && (
@@ -244,7 +245,7 @@ function App() {
 
           {/* Ad Div */}
           {
-           <Ad screenW={dimensions.width} screenH={dimensions.height} />
+           <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} />
           }
           </div>
 

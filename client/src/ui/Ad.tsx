@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react"
 
-const types = [ // in order of least preferred to most preferred
-  [728, 90],
-  [970, 90],
-  [970, 250],
-]
 
-function findAdType(screenW: number, screenH: number) {
+function findAdType(screenW: number, screenH: number, types: [number, number][]): number {
   let type = 0;
   for (let i = 0; i < types.length; i++) {
     if (types[i][0] <= screenW*0.9 && types[i][1] <= screenH * 0.3) {
@@ -19,13 +14,13 @@ function findAdType(screenW: number, screenH: number) {
   return type;
 }
 
-export default function Ad({ screenW, screenH }: { screenW: number, screenH: number }) {
+export default function Ad({ screenW, screenH, types }: { screenW: number, screenH: number, types: [number, number][] }) {
   // just a div for now with optimal ad size, null if none are good
-  const [type, setType] = useState(findAdType(screenW, screenH));
+  const [type, setType] = useState(findAdType(screenW, screenH, types));
 
   useEffect(() => {
-    setType(findAdType(screenW, screenH));
-  }, [screenW, screenH]);
+    setType(findAdType(screenW, screenH, types));
+  }, [screenW, screenH, types]);
 
   useEffect(() => {
     // aiptag.cmd.display.push(function() { aipDisplayTag.display("swordbattle-io_970x90"); });
@@ -46,7 +41,7 @@ export default function Ad({ screenW, screenH }: { screenW: number, screenH: num
       windowAny.aiptag.cmd.display.push(function() { windowAny.aipDisplayTag.display(`swordbattle-io_${types[type][0]}x${types[type][1]}`); });
     } else {
     }
-  }, [type]);
+  }, [type, types]);
 
 
   if(type === -1) return null;

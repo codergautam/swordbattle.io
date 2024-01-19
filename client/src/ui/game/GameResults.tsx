@@ -7,7 +7,7 @@ import './GameResults.scss';
 import { DisconnectTypes } from '../../game/Types';
 import { calculateGemsXP } from '../../helpers';
 
-function GameResults({ onHome, results, game, isLoggedIn }: any) {
+function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
   const onHomeClick = () => {
     onHome();
     game.events.emit('setGameResults', null);
@@ -20,6 +20,7 @@ function GameResults({ onHome, results, game, isLoggedIn }: any) {
 
   return (
     <div className="results" style={useScale(true).styles}>
+      <div className='results-main'>
       <div className="results-title">
         {results.disconnectReason?.code === DisconnectTypes.Player ? 'You got stabbed' : results.disconnectReason?.code === DisconnectTypes.Mob ? 'You were destroyed' : 'You were disconnected'}
         <br />
@@ -98,7 +99,14 @@ function GameResults({ onHome, results, game, isLoggedIn }: any) {
           <img src={PlayAgainImg} alt="Play again" />
         </div>
         )}
+</div>
+
       </div>
+      { adElement ? (
+          <div className="ad">
+            {adElement}
+          </div>
+        ) : null}
     </div>
   )
 }

@@ -52,8 +52,8 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         game={game}
         results={gameResults}
         isLoggedIn={loggedIn}
+        adElement={<Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90]]} centerOnOverflow={600} horizThresh={0.2} />}
       />
-      <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90]]} />
       </>
       )}
     </div>

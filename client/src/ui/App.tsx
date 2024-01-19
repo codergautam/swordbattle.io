@@ -30,6 +30,7 @@ import ShopButton from './ShopButton';
 import ShopModal from './modals/ShopModal';
 import MigrationModal from './modals/MigrationModal';
 import { getCookies } from '../helpers';
+import Ad from './Ad';
 
 const preloadImages: string[] = [
   SettingsImg,
@@ -52,10 +53,22 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [accountReady, setAccountReady] = useState(false);
   const [gameQueued, setGameQueued] = useState(false);
+  const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
   const gameQueuedRef = useRef(gameQueued);
 
   useEffect(() => {
     gameQueuedRef.current = gameQueued;
+
+    // debounce resize
+    let timeout: any;
+    const onResize = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setDimensions({ width: window.innerWidth, height: window.innerHeight });
+      }, 100);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, [gameQueued]);
 
   useEffect(() => {
@@ -203,6 +216,7 @@ function App() {
         onHome={onHome}
         onGameReady={onGameReady}
         onConnectionClosed={onConnectionClosed}
+        dimensions={dimensions}
         loggedIn={account.isLoggedIn}
       />
       {connectionError && (
@@ -227,6 +241,12 @@ function App() {
               :
               'Connecting...'}
             </button>
+
+
+          {/* Ad Div */}
+          {
+           <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} />
+          }
           </div>
 
           <div

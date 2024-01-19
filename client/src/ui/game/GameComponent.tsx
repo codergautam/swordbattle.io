@@ -4,6 +4,7 @@ import config from '../../game/PhaserConfig';
 import Leaderboard from './Leaderboard';
 import GameResults from './GameResults';
 import './GameComponent.scss';
+import Ad from '../Ad';
 
 declare global {
   interface Window {
@@ -11,7 +12,7 @@ declare global {
   }
 }
 
-function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn }: any) {
+function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions }: any) {
   const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
   const [gameResults, setGameResults] = useState<any>(null);
   const [playing, setPlaying] = useState(false);
@@ -44,12 +45,17 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn }: an
     <div className="game">
       <div id="phaser-container" />
       { playing && <Leaderboard game={game} /> }
-      {gameResults && <GameResults
+      {gameResults && (
+      <>
+      <GameResults
         onHome={onHome}
         game={game}
         results={gameResults}
         isLoggedIn={loggedIn}
-      />}
+        adElement={<Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90]]} centerOnOverflow={600} horizThresh={0.2} />}
+      />
+      </>
+      )}
     </div>
   );
 }

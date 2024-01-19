@@ -43,7 +43,7 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
       windowAny.aiptag.cmd.display.push(function() { windowAny.aipDisplayTag.display(`swordbattle-io_${types[type][0]}x${types[type][1]}`); });
     } else {
     }
-  }, [type, types]);
+  }, [type]);
 
 
   if(type === -1) return null;

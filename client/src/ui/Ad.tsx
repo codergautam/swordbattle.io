@@ -9,7 +9,6 @@ const types = [ // in order of least preferred to most preferred
 function findAdType(screenW: number, screenH: number) {
   let type = 0;
   for (let i = 0; i < types.length; i++) {
-    console.log(types[i][0], types[i][1], screenW, screenH);
     if (types[i][0] <= screenW*0.9 && types[i][1] <= screenH * 0.3) {
       type = i;
     }
@@ -43,9 +42,9 @@ export default function Ad({ screenW, screenH }: { screenW: number, screenH: num
   }
   if(type === -1) return;
     if(windowAny.aiptag && windowAny.aiptag.cmd && windowAny.aiptag.cmd.display) {
+      console.log(`requesting swordbattle-io_${types[type][0]}x${types[type][1]}`);
       windowAny.aiptag.cmd.display.push(function() { windowAny.aipDisplayTag.display(`swordbattle-io_${types[type][0]}x${types[type][1]}`); });
     } else {
-      console.log('no ad');
     }
   }, [type]);
 
@@ -54,7 +53,6 @@ export default function Ad({ screenW, screenH }: { screenW: number, screenH: num
 
   return (
     <div style={{
-      height: types[type][1],
     }} id={`swordbattle-io_${types[type][0]}x${types[type][1]}`}>
       {/* <h1>Ad</h1>
       <p>Ad size: {types[type][0]} x {types[type][1]}</p> */}

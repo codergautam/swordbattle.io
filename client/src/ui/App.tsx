@@ -53,10 +53,22 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [accountReady, setAccountReady] = useState(false);
   const [gameQueued, setGameQueued] = useState(false);
+  const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
   const gameQueuedRef = useRef(gameQueued);
 
   useEffect(() => {
     gameQueuedRef.current = gameQueued;
+
+    // debounce resize
+    let timeout: any;
+    const onResize = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setDimensions({ width: window.innerWidth, height: window.innerHeight });
+      }, 100);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, [gameQueued]);
 
   useEffect(() => {
@@ -232,7 +244,7 @@ function App() {
 
           {/* Ad Div */}
           {
-           <Ad screenW={document.body.clientWidth} screenH={document.body.clientHeight} />
+           <Ad screenW={dimensions.width} screenH={dimensions.height} />
           }
           </div>
 

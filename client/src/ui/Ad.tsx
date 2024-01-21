@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { config } from "../config";
 
+const AD_REFRESH_MS = 30000; // refresh ad every 30 seconds
 const debug = config.isDev;
+
 function findAdType(screenW: number, screenH: number, types: [number, number][], horizThresh: number): number {
   let type = 0;
   for (let i = 0; i < types.length; i++) {
@@ -24,9 +26,9 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
   }, [screenW, screenH, types, horizThresh]);
 
   useEffect(() => {
-    // aiptag.cmd.display.push(function() { aipDisplayTag.display("swordbattle-io_970x90"); });
     const windowAny = window as any;
     // clear ads
+    const displayNewAd = () => {
     try {
     if(windowAny.aipDisplayTag && windowAny.aipDisplayTag.clear) {
       for(const type of types) {
@@ -43,6 +45,13 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
       windowAny.aiptag.cmd.display.push(function() { windowAny.aipDisplayTag.display(`swordbattle-io_${types[type][0]}x${types[type][1]}`); });
     } else {
     }
+    }
+
+    let timerId = setInterval(()=> {
+      displayNewAd();
+    }, AD_REFRESH_MS); 
+    displayNewAd();
+    return () => clearInterval(timerId);
   }, [type]);
 
 

@@ -44,6 +44,17 @@ function start() {
   game.initialize();
   const server = new Server(game);
   server.initialize(app);
+  app.get('/serverinfo', (res) => {
+    setCorsHeaders(res);
+    res.writeHeader('Content-Type', 'application/json');
+    res.writeStatus('200 OK');
+    res.end(JSON.stringify({
+      tps: game.tps,
+      entityCnt: game.entities.size,
+      playerCnt: game.players.size,
+      realPlayersCnt: [...game.players.values()].filter(p => !p.isBot).length,
+    }));
+  });
 
   // Gameloop
   const frameTime = 1000 / config.tickRate;

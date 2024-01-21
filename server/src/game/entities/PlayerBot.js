@@ -233,7 +233,11 @@ class PlayerAI extends Player {
   remove(reason) {
     super.remove(reason);
 
-    this.game.map.spawnPlayerBot();
+    // only spawn if total player count is less than game.aiPlayerCount
+    // if(this.game.players.size < this.game.aiPlayerCount) {
+    //   console.log('respawning AI bot');
+    //   this.game.map.spawnPlayerBot();
+    // }
   }
 }
 

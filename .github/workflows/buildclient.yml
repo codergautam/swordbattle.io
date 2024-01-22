@@ -37,3 +37,13 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./client/build
+  deploy-server:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm install -g @hathora/cli
+      - run: >
+          hathora-cloud deploy --appId app-18be24d2-4939-4030-9169-c412d9d9dc0c --token ${{ secrets.HATHORA_TOKEN }}

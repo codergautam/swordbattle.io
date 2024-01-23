@@ -10,6 +10,9 @@ class Client {
     this.game = game;
     this.socket = socket;
     this.id = socket.id;
+    this.ip = String.fromCharCode.apply(null, new Uint8Array(socket.getRemoteAddressAsText()));
+    
+    console.log(`Client ${this.id} connected from ${this.ip}.`);
     this.token = '';
 
     this.spectator = new Spectator(this.game, this);

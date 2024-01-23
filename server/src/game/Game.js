@@ -8,6 +8,7 @@ const helpers = require('../helpers');
 const config = require('../config');
 const filter = require('leo-profanity');
 const Types = require('./Types');
+const { getBannedIps } = require('../moderation');
 class Game {
   constructor() {
     this.entities = new Set();
@@ -86,6 +87,11 @@ class Game {
 
     let { player } = client;
     if (data.play && (!player || player.removed)) {
+      if(getBannedIps().includes(client.ip)) {
+        // close connection
+        client.socket.close();
+        return;
+      }
       player = this.addPlayer(client, data);
     }
 

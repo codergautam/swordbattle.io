@@ -21,6 +21,9 @@ module.exports = {
   // Secret key for the server, defaulting to 'server-secret' if not specified in the environment
   serverSecret: process.env.SERVER_SECRET || 'server-secret',
 
+  // Moderation secret
+  moderationSecret: process.env.MODERATION_SECRET || 'moderation-secret',
+
   // API endpoint URL, defaulting to 'http://localhost:8080' if not provided in the environment
   apiEndpoint: process.env.API_ENDPOINT || 'http://localhost:8080',
 
@@ -31,7 +34,7 @@ module.exports = {
   player: {
     speed: 700,
     radius: 100,
-    maxHealth: 120,
+    maxHealth: 80,
     regeneration: 2,
 
     // Player's viewport configuration

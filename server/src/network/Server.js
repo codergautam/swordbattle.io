@@ -2,6 +2,7 @@ const uws = require('uWebSockets.js');
 const { v4: uuidv4 } = require('uuid');
 const Protocol = require('./protocol/Protocol');
 const Client = require('./Client');
+const { getBannedIps } = require('../moderation');
 
 class Server {
   constructor(game) {
@@ -19,7 +20,7 @@ class Server {
       compression: uws.SHARED_COMPRESSOR,
       idleTimeout: 32,
       maxPayloadLength: 512,
-      upgrade:(res, req, context) => {
+      upgrade: (res, req, context) => {
         res.upgrade({ id: uuidv4() },
           req.getHeader('sec-websocket-key'),
           req.getHeader('sec-websocket-protocol'),
@@ -29,6 +30,10 @@ class Server {
       open: (socket) => {
         console.log(`Client ${socket.id} connected.`);
         const client = new Client(this.game, socket);
+        if (getBannedIps().includes(client.ip)) {
+          client.socket.close();
+          return;
+        }
         this.addClient(client);
       },
       message: (socket, message) => {
@@ -39,13 +44,16 @@ class Server {
         }
       },
       close: (socket, code) => {
-        const client = this.clients.get(socket.id);
-        client.isSocketClosed = true;
-        if (client.player && !client.player.removed) {
-          client.player.remove()
+        try {
+          const client = this.clients.get(socket.id);
+          client.isSocketClosed = true;
+          if (client.player && !client.player.removed) {
+            client.player.remove()
+          }
+          this.removeClient(client);
+          console.log(`Client disconnected with code ${code}.`);
+        } catch (e) {
         }
-        this.removeClient(client);
-        console.log(`Client disconnected with code ${code}.`);
       }
     });
   }

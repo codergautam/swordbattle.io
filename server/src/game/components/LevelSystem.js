@@ -53,7 +53,7 @@ class LevelSystem {
       },
       [Types.Buff.Health]: {
         level: 0,
-        step: 0.2,
+        step: 0.25,
         max: 10,
         buyable: true,
       },

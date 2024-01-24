@@ -42,7 +42,20 @@ class GameState {
     this.game = game;
     this.gameMap = new GameMap(this.game);
     this.spectator = new Spectator(this.game);
+    this.refreshSocket();
+  }
 
+  refreshSocket(unbind = false) {
+    // unbind
+    if(unbind) {
+    this.socket.removeEventListener('open', this.onServerOpen.bind(this));
+    this.socket.removeEventListener('message', this.onServerMessage.bind(this));
+    this.socket.removeEventListener('close', this.onServerClose.bind(this));
+
+    this.gameMap = new GameMap(this.game);
+    this.spectator = new Spectator(this.game);
+    }
+    // rebind
     getServer().then(server => {
       console.log('connecting to', server.address);
       this.socket = Socket.connect(

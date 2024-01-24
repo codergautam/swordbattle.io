@@ -31,6 +31,9 @@ import ShopModal from './modals/ShopModal';
 import MigrationModal from './modals/MigrationModal';
 import { getCookies } from '../helpers';
 import Ad from './Ad';
+import { Settings } from '../game/Settings';
+import { getServerList } from '../ServerList';
+// import Game from '../game/scenes/Game';
 
 const preloadImages: string[] = [
   SettingsImg,
@@ -53,6 +56,8 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [accountReady, setAccountReady] = useState(false);
   const [gameQueued, setGameQueued] = useState(false);
+  const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
+
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
   const gameQueuedRef = useRef(gameQueued);
 
@@ -122,6 +127,23 @@ function App() {
   if(!firstGame) return;
     setModal(<ChangelogModal />);
   }, [gameStarted]);
+
+    const [server, setServer] = useState(Settings.server);
+  const [servers, setServers] = useState<any[]>([]);
+
+  useEffect(() => {
+    console.log('Getting server list');
+    getServerList().then(setServers);
+  }, []);
+
+  const updateServer = (value: any) => {
+    setServer(value);
+    Settings.server = value;
+
+    // const gameState = (game?.scene.scenes[0] as Game).gameState;
+    // TODO: change server without reloading
+      window.location.reload();
+  }
 
   const preloadImage = (url: string) => {
     return new Promise<void>((resolve) => {
@@ -218,6 +240,8 @@ function App() {
         onConnectionClosed={onConnectionClosed}
         dimensions={dimensions}
         loggedIn={account.isLoggedIn}
+        game={game}
+        setGame={setGame}
       />
       {connectionError && (
         <Modal
@@ -325,16 +349,15 @@ function App() {
         //   </footer>
         // </div>
         <>
-        <div className={`main-ui ${isConnected && 'main-ui-loaded'}`} id="mainMenu">
+        <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`}>
           <div id="menuContainer">
             {/* <!-- GAME NAME --> */}
             <div id="gameName">Swordbattle.io</div>
 
             {/* <!-- LOADING TEXT --> */}
-            { !isConnected && <div id="loadingText">Connecting...</div> }
 
             {/* <!-- MENU CARDS --> */}
-            <div id="menuCardHolder" style={{ display: !isConnected ? 'none' : 'inline-block', height: 'auto !important' }}>
+            <div id="menuCardHolder" style={{ display: 'inline-block', height: 'auto !important' }}>
               <div className="menu">
                 <div className="accountCard menuCard panel">
                   <span id="logged-out">
@@ -356,23 +379,38 @@ function App() {
                       id="nameInput"
                       placeholder="Enter Name"
                       maxLength={16}
-                      value=""
+                      value={account.isLoggedIn ? account.username : name}
+                      onChange={(e) => setName(e.target.value)}
                       autoComplete="none"
                     />
-                    <select id="serverBrowser"></select>
+                    <select id="serverBrowser"
+                    value={servers.length === 0 ? 'loading' : server}
+                    onChange={(e) => updateServer(e.target.value)}
+                    >
+                    {servers.length === 0 && <option value="loading" disabled>Loading...</option>}
+        {servers.map((server) => <option key={server.value} value={server.value} disabled={server.offline}>
+          {server.name} ({server.offline ? 'OFFLINE' : `${server.ping}ms - ${server.playerCnt} players` })
+        </option>)}
+                    </select>
 
-                    <div id="enterGame" className="menuButton">Play!</div>
+                    <div id="enterGame" className="menuButton" onClick={onStart}>
+                    {accountReady ?
+            (gameQueued && !isConnected) ? 'Joining...' : 'Play'
+              :
+            'Connecting...'}
+            </div>
 
 
                   </div>
                 </div>
-                <div className="adCard menuCard panel">
-                  {/* <!-- Ad: right box --> */}
+                <div className="menuCard panel forumCard">
+                  {/* <!-- Forum: right box --> */}
                 </div>
               </div>
-              <div id="adBelow" className="panel">ADs
-
-              <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} />
+              <div className='fullWidth'>
+                <div id="adBelow">
+                 <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} />
+                </div>
               </div>
             </div>
 

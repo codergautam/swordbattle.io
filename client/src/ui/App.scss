@@ -98,12 +98,17 @@ span {
 }
 
 
-#mainMenu {
-  background-color: rgba(0, 0, 0, 0.5);
+.mainMenu {
+  background-color: rgb(44, 118, 22);
   position: absolute;
   width: 100%;
   height: 100%;
   z-index: 10;
+}
+
+.mainMenu.loaded {
+  background-color: rgba(0, 0, 0, 0.507);
+  display: block;
 }
 
 #menuContainer {
@@ -204,11 +209,17 @@ span {
   transform: scale(0.95);
 }
 
+.fullWidth {
+  width: 100%;
+}
+
 #menuCardHolder #adBelow {
   height: auto;
   position: absolute;
   bottom: auto;
-  width: auto;
+  // center the ad
+  left: 50%;
+  transform: translateX(-50%);
   box-sizing: border-box;
 }
 #menuCardHolder .menu {
@@ -237,7 +248,7 @@ span {
 #menuCardHolder .menu .accountCard {
   width: 310px;
 }
-#menuCardHolder .menu .adCard {
+#menuCardHolder .menu .forumCard {
   width: 310px;
 }
 
@@ -301,7 +312,7 @@ span {
 #serverBrowser {
   border: none;
   text-align: center;
-  font-size: 23px;
+  font-size: 16px;
   padding: 6px;
   box-sizing: border-box;
   color: rgb(70, 70, 70);
@@ -311,7 +322,7 @@ span {
   margin-bottom: 10px;
   cursor: pointer;
 }
-@media only screen and (max-width: 1080px) {
+@media only screen and (max-width: 1040px) {
   #menuCardHolder #adBelow {
     display: none;
   }
@@ -326,6 +337,9 @@ span {
   }
 }
 @media only screen and (max-width: 768px) {
+  #menuCardHolder #adBelow {
+    display: none;
+  }
   #loadingText {
     margin-top: 20px;
   }

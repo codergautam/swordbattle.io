@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSignOut, faICursor } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOut, faICursor,faGear } from '@fortawesome/free-solid-svg-icons';
 
 import clsx from 'clsx';
 import { useScale } from './Scale';
@@ -227,103 +227,180 @@ function App() {
       )}
 
       {!gameStarted && (
-        <div className={`main-ui ${isConnected && 'main-ui-loaded'}`}>
-          <div className={clsx('startGame', isLoaded && 'animation')} style={scale.styles}>
-            <div className='title'>Swordbattle.io</div>
-            <input type="text" maxLength={16} placeholder="Enter Name"
-              value={account.isLoggedIn ? account.username : name}
-              onChange={(e) => setName(e.target.value)}
-              disabled={account.isLoggedIn}
-            />
-            <button className="startButton" onClick={onStart} disabled={!accountReady}>
-              {accountReady ?
-              (gameQueued && !isConnected) ? 'Joining...' : 'Play'
-              :
-              'Connecting...'}
-            </button>
+        // <div className={`main-ui ${isConnected && 'main-ui-loaded'}`}>
+        //   <div className={clsx('startGame', isLoaded && 'animation')} style={scale.styles}>
+        //     <div className='title'>Swordbattle.io</div>
+        //     <input type="text" maxLength={16} placeholder="Enter Name"
+        //       value={account.isLoggedIn ? account.username : name}
+        //       onChange={(e) => setName(e.target.value)}
+        //       disabled={account.isLoggedIn}
+        //     />
+        //     <button className="startButton" onClick={onStart} disabled={!accountReady}>
+        //       {accountReady ?
+        //       (gameQueued && !isConnected) ? 'Joining...' : 'Play'
+        //       :
+        //       'Connecting...'}
+        //     </button>
 
 
-          {/* Ad Div */}
-          {
-           <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} />
-          }
-          </div>
+        //   {/* Ad Div */}
+        //   {
+        //    <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} />
+        //   }
+        //   </div>
 
-          <div
-            className="settings-button"
-            style={scale.styles}
-            role="button"
-            onClick={openSettings}
-            onKeyDown={event => event.key === 'Enter' && openSettings()}
-            tabIndex={0}
-          >
-            <img src={SettingsImg} alt="Settings" />
-          </div>
+        //   <div
+        //     className="settings-button"
+        //     style={scale.styles}
+        //     role="button"
+        //     onClick={openSettings}
+        //     onKeyDown={event => event.key === 'Enter' && openSettings()}
+        //     tabIndex={0}
+        //   >
+        //     <img src={SettingsImg} alt="Settings" />
+        //   </div>
 
-          {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal'} />}
+        //   {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal'} />}
 
-          {/* 'Shop' button and gem count */}
+        //   {/* 'Shop' button and gem count */}
 
-          {account.isLoggedIn && (
-            <>
-            <GemCount account={account} scale={scale.factor} />
-            </>
-          )}
+        //   {account.isLoggedIn && (
+        //     <>
+        //     <GemCount account={account} scale={scale.factor} />
+        //     </>
+        //   )}
 
-          <ShopButton account={account} scale={scale.factor} openShop={openShop} />
+        //   <ShopButton account={account} scale={scale.factor} openShop={openShop} />
 
-          <div className="auth-buttons" style={scale.styles}>
-            {account.isLoggedIn ? (
-              <div className="dropdown">
-                <div className="auth-username"><FontAwesomeIcon icon={faUser} /> {account.username}</div>
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link to={`/profile?username=${encodeURIComponent(account.username)}`} target="_blank" className="dropdown-item">
-                      <FontAwesomeIcon icon={faUser} /> Profile
-                    </Link>
-                  </li>
-                  <li>
-                  <a className="dropdown-item" href="#" onClick={onChangeName}>
-                    <FontAwesomeIcon icon={faICursor} /> Change Name
-                  </a>
-                  </li>
-                  <li><a className="dropdown-item" href="#" onClick={onLogout}>
-                    <FontAwesomeIcon icon={faSignOut} /> Logout
-                  </a></li>
-                </ul>
+        //   <div className="auth-buttons" style={scale.styles}>
+        //     {account.isLoggedIn ? (
+        //       <div className="dropdown">
+        //         <div className="auth-username"><FontAwesomeIcon icon={faUser} /> {account.username}</div>
+        //         <ul className="dropdown-menu">
+        //           <li>
+        //             <Link to={`/profile?username=${encodeURIComponent(account.username)}`} target="_blank" className="dropdown-item">
+        //               <FontAwesomeIcon icon={faUser} /> Profile
+        //             </Link>
+        //           </li>
+        //           <li>
+        //           <a className="dropdown-item" href="#" onClick={onChangeName}>
+        //             <FontAwesomeIcon icon={faICursor} /> Change Name
+        //           </a>
+        //           </li>
+        //           <li><a className="dropdown-item" href="#" onClick={onLogout}>
+        //             <FontAwesomeIcon icon={faSignOut} /> Logout
+        //           </a></li>
+        //         </ul>
+        //       </div>
+        //     ) : (
+        //       <>
+        //       <img src={LoginImg} alt="Login" role="button" className="auth-btn" onClick={onLogin} />
+        //       <img src={SignupImg} alt="Signup" role="button" className="auth-btn" onClick={onSignup} />
+        //       </>
+        //     )}
+        //   </div>
+
+        //   <footer className={clsx('links', isLoaded && 'animation')} style={scale.styles}>
+        //     <div>
+        //       <a href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="noreferrer">About</a>
+        //     </div>
+        //     <div>
+        //       <Link to="/leaderboard" target="_blank" rel="noreferrer">Leaderboard</Link>
+        //     </div>
+        //     <div>
+        //       <a href="https://iogames.forum/swordbattle" target="_blank" rel="noreferrer" className='forum'>
+        //         Forum
+        //       </a>
+        //     </div>
+        //     <div>
+        //       <a href="https://discord.com/invite/9A9dNTGWb9" target="_blank" rel="noreferrer" className='discord'>
+        //         Discord
+        //       </a>
+        //     </div>
+        //     <div>
+        //       <a href="https://iogames.forum/t/official-swordbattle-changelog/17400/last" target="_blank" rel="noreferrer" className='changelog'>
+        //         Changelog
+        //       </a>
+        //     </div>
+        //   </footer>
+        // </div>
+        <>
+        <div className={`main-ui ${isConnected && 'main-ui-loaded'}`} id="mainMenu">
+          <div id="menuContainer">
+            {/* <!-- GAME NAME --> */}
+            <div id="gameName">Swordbattle.io</div>
+
+            {/* <!-- LOADING TEXT --> */}
+            { !isConnected && <div id="loadingText">Connecting...</div> }
+
+            {/* <!-- MENU CARDS --> */}
+            <div id="menuCardHolder" style={{ display: !isConnected ? 'none' : 'inline-block', height: 'auto !important' }}>
+              <div className="menu">
+                <div className="accountCard menuCard panel">
+                  <span id="logged-out">
+                    {/* <div className="menuHeader">
+                      <span className="material-icons">person</span>
+                      Profile</div> */}
+                    <div className="menuText">
+                      <a data-micromodal-trigger="modal-account">Login</a> or
+                      <a data-micromodal-trigger="modal-account">Create an Account</a>.
+                    </div>
+                  </span>
+                </div>
+
+                {/* <!-- Play --> */}
+                <div className="joinCard menuCard panel" style={{ position: 'relative' }}>
+                  <div className="joinCardInput">
+                    <input
+                      type="text"
+                      id="nameInput"
+                      placeholder="Enter Name"
+                      maxLength={16}
+                      value=""
+                      autoComplete="none"
+                    />
+                    <select id="serverBrowser"></select>
+
+                    <div id="enterGame" className="menuButton">Play!</div>
+
+
+                  </div>
+                </div>
+                <div className="adCard menuCard panel">
+                  {/* <!-- Ad: right box --> */}
+                </div>
               </div>
-            ) : (
-              <>
-              <img src={LoginImg} alt="Login" role="button" className="auth-btn" onClick={onLogin} />
-              <img src={SignupImg} alt="Signup" role="button" className="auth-btn" onClick={onSignup} />
-              </>
-            )}
+              <div id="adBelow" className="panel">ADs
+
+              <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} />
+              </div>
+            </div>
+
+
           </div>
 
-          <footer className={clsx('links', isLoaded && 'animation')} style={scale.styles}>
-            <div>
-              <a href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="noreferrer">About</a>
-            </div>
-            <div>
-              <Link to="/leaderboard" target="_blank" rel="noreferrer">Leaderboard</Link>
-            </div>
-            <div>
-              <a href="https://iogames.forum/swordbattle" target="_blank" rel="noreferrer" className='forum'>
-                Forum
-              </a>
-            </div>
-            <div>
-              <a href="https://discord.com/invite/9A9dNTGWb9" target="_blank" rel="noreferrer" className='discord'>
-                Discord
-              </a>
-            </div>
-            <div>
-              <a href="https://iogames.forum/t/official-swordbattle-changelog/17400/last" target="_blank" rel="noreferrer" className='changelog'>
-                Changelog
-              </a>
-            </div>
-          </footer>
+          {/* <!-- SETTINGS --> */}
+          <div id="settingsButton" className="altLink panel"  onClick={openSettings}>
+            {/* <i className="material-icons ui-icon">&#xE8B8;</i> */}
+            <FontAwesomeIcon icon={faGear} className='ui-icon'/>
+          </div>
+          {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal'} />}
+          <div id="topRight1" className="inParty">
+            <span>top right stuff</span>
+          </div>
+
+           <div id="topRight2" className="altLink">
+            <span>more top right stuff</span>
+          </div>
+
+
+          {/* <!-- LINKS CONTAINERS --> */}
+          {/* <div id="linksContainer" className='panel'>
+            <a href="./docs/terms.txt" target="_blank">Policy</a> |
+            <a href="./docs/privacy.txt" target="_blank">Privacy</a>
+          </div> */}
         </div>
+        </>
       )}
     </div>
   );

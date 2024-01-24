@@ -3,7 +3,7 @@
   margin: 8px;
   border-radius: 10px;
   background-color: rgb(34, 34, 34) !important;
-  box-shadow: inset 0 -8px 0 #141414, 0 0 0 5px rgba(51, 51, 51, 0.98);
+  box-shadow:  0 0 0 5px rgba(51, 51, 51, 0.98);
   color: rgb(231, 231, 231);
   box-sizing: border-box;
 }
@@ -28,6 +28,10 @@
 *::-webkit-scrollbar-button {
   width: 0;
   height: 0;
+}
+
+.connectionErrorModal {
+  z-index: 100;
 }
 
 
@@ -162,7 +166,7 @@ span {
   padding: 6px;
   box-sizing: border-box;
   color: #fff;
-  background-color: #7ee559;
+  background-color: #286810;
   width: 100%;
   border-radius: 12px;
   cursor: pointer;

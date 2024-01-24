@@ -205,7 +205,10 @@ function App() {
   const openSettings = () => setModal(<SettingsModal />);
   const closeModal = () => setModal(null);
   const onHome = () => setGameStarted(false);
-  const onConnectionClosed = (reason: string) => setConnectionError(reason);
+  const onConnectionClosed = (reason: string) => {
+    console.log('Connection closed', reason);
+    setConnectionError(reason);
+  }
 
   const onSucessAuth = () => setModal(null);
   const onLogin = () => setModal(<LoginModal onSuccess={onSucessAuth} />);
@@ -395,7 +398,7 @@ function App() {
 
                     <div id="enterGame" className="menuButton" onClick={onStart}>
                     {accountReady ?
-            (gameQueued && !isConnected) ? 'Joining...' : 'Play'
+            (gameQueued && !isConnected) ? 'Joining...' : 'Play!'
               :
             'Connecting...'}
             </div>

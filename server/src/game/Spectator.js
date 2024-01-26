@@ -18,7 +18,7 @@ class Spectator {
 
     this.isSpectating = false;
     this.initialized = false;
-    this.duration = 25;
+    this.duration = 5;
     this.distance = 2000;
     this.timer = new Timer(0, this.duration, this.duration);
   }

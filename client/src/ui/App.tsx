@@ -125,7 +125,7 @@ function App() {
   }, 10);
 
   if(!firstGame) return;
-    setModal(<ChangelogModal />);
+    // setModal(<ChangelogModal />);
   }, [gameStarted]);
 
     const [server, setServer] = useState(Settings.server);
@@ -396,7 +396,7 @@ function App() {
         </option>)}
                     </select>
 
-                    <div id="enterGame" className="menuButton" onClick={onStart}>
+                    <div id="enterGame" className="menuButton" onClick={()=>accountReady && onStart()}>
                     {accountReady ?
             (gameQueued && !isConnected) ? 'Joining...' : 'Play!'
               :

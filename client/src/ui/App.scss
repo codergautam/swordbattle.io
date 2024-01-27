@@ -3,9 +3,114 @@
   margin: 8px;
   border-radius: 10px;
   background-color: rgb(34, 34, 34) !important;
-  box-shadow:  0 0 0 5px rgba(51, 51, 51, 0.98);
+  box-shadow:  0 0 0 3px rgba(51, 51, 51, 0.98);
   color: rgb(231, 231, 231);
   box-sizing: border-box;
+}
+
+.shop-btn{
+  position: absolute;
+
+
+  // left
+  left: 0%;
+  top: 0%;
+  transform-origin: left;
+  cursor: pointer;
+
+
+  img {
+    height: auto;
+    display: inline-block;
+    margin-left: 10px;
+    margin-top: 10px;
+    transition: transform 0.3s ease;
+  }
+
+  img:hover {
+    transform: scale(1.1);
+  }
+}
+
+footer {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  pointer-events: none;
+  height: 50px;
+  color: rgb(231, 231, 231);
+  text-align: center;
+  padding-top: 15px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  gap: 30px;
+
+  a {
+    font-size: 30px;
+    text-decoration: underline;
+    pointer-events: auto;
+  }
+
+}
+
+.auth-buttons {
+  position: absolute;
+  top:5px;
+  right: 5px;
+  display: flex;
+  flex-direction: column;
+  transform-origin: top right;
+
+  .dropdown {
+
+    .dropdown-menu {
+      background-color: #f9f9f9;
+      padding: 12px 16px;
+      border-radius: 10px;
+      right: 10px;
+      user-select: none;
+      display: none;
+
+      li {
+        list-style: none;
+      }
+
+      .dropdown-item {
+        font-size: 18px;
+        color: green;
+
+        &:active {
+          background-color: transparent;
+          color: unset;
+        }
+      }
+    }
+  }
+  .dropdown:hover .dropdown-menu {
+    display: block;
+  }
+
+  .auth-username {
+    font-size: 40px;
+    margin-top: 20px;
+    margin-right: 40px;
+    cursor: pointer;
+    color: white;
+  }
+  .auth-btn {
+    margin-bottom: 10px;
+    height: 70px;
+    margin-right: 5px;
+
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      cursor: pointer;
+      transform: scale(1.05);
+    }
+  }
 }
 
 *::-webkit-scrollbar, *::-webkit-scrollbar-button, *::-webkit-scrollbar-track, *::-webkit-scrollbar-track-piece, *::-webkit-scrollbar-thumb, *::-webkit-scrollbar-corner, *::-webkit-resizer {
@@ -36,6 +141,7 @@
 
 
 input[type=text],
+input[type=email],
 input[type=password] {
   -webkit-touch-callout: text;
   -webkit-user-select: text;
@@ -48,12 +154,20 @@ input[type=password] {
   box-sizing: border-box;
   color: #4a4a4a;
   background-color: #e5e3e3;
-  border-radius: 12px;
+  border-radius: 10px;
 }
 input[type=text][disabled],
+input[type=email][disabled],
 input[type=password][disabled] {
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+.login-modal,
+.signup-modal {
+input {
+  font-size: 20px;
+}
 }
 
 a {
@@ -122,6 +236,13 @@ span {
   position: absolute;
   top: 45%;
   transform: translateY(-50%);
+
+}
+
+#contentt {
+  transform: translateY(-50%);
+  height: 100%;
+  width: 100%;
 }
 
 .menuCard {
@@ -166,9 +287,9 @@ span {
   padding: 6px;
   box-sizing: border-box;
   color: #fff;
-  background-color: #378f17;
+    background-color: rgb(22, 143, 22);
   width: 100%;
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
   box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.2941176471);
   transition: transform cubic-bezier(0.77, 0, 0.175, 1) 0.2s;
@@ -218,13 +339,14 @@ span {
 }
 
 #menuCardHolder #adBelow {
-  height: auto;
+  height: auto !important;
   position: absolute;
   bottom: auto;
   // center the ad
   left: 50%;
   transform: translateX(-50%);
   box-sizing: border-box;
+  display: 'inline-block' !important;
 }
 #menuCardHolder .menu {
   display: flex;
@@ -254,6 +376,7 @@ span {
 }
 #menuCardHolder .menu .forumCard {
   width: 310px;
+  padding: 0;
 }
 
 #linksContainer {
@@ -322,12 +445,15 @@ span {
   color: rgb(70, 70, 70);
   background-color: #f7faf6;
   width: 100%;
-  border-radius: 12px;
+  border-radius: 10px;
   margin-bottom: 10px;
   cursor: pointer;
 }
 @media only screen and (max-width: 1040px) {
   #menuCardHolder #adBelow {
+    display: none;
+  }
+  .forumCard {
     display: none;
   }
   #menuCardHolder .menu {

@@ -20,10 +20,9 @@ if (config.isDev) {
 }
 
 export async function updatePing() {
-  // for (const server of servers) {
+  for (const server of servers) {
   // instead lets do it at the same time
-  const promises = servers.map((server2) => {
-    const fn = async (server: Server) => {
+  // const promises = servers.map((server2) => {
     const start = Date.now();
     if(!config.isDev && server.address.includes('localhost')) {
       server.offline = true;
@@ -37,7 +36,7 @@ export async function updatePing() {
     })
     .then((data) => {
       data.json().then((json) => {
-        console.log(json);
+        console.log(`pinged ${server.address} and got ${JSON.stringify(json)}`); // eslint-disable-line no-console
       server.offline = false;
       server.ping = Date.now() - start;
       server.playerCnt = json.playerCnt;
@@ -51,23 +50,24 @@ export async function updatePing() {
       server.ping = Infinity;
     });
   }
-};
 
-    return fn(server2);
-  });
+    // return fn(server2);
+  // });
 
-  await Promise.all(promises);
-  // }
+  // await Promise.all(promises);
+  }
+  return servers;
 }
 
 export async function getServerList() {
   await updatePing();
 
   const autoServer = await getAutoServer();
+  console.log(JSON.stringify(autoServer), 'es el servfer auto') // eslint-disable-line no-console
   const list = [{
     ...autoServer,
     value: 'auto',
-    name: `AUTO (${autoServer.name})`,
+    name: `AUTO (${autoServer.name})`
   }, ...servers];
 
   return list;
@@ -78,10 +78,12 @@ async function getAutoServer(): Promise<Server> {
 
   let server: Server = servers[0];
   for (let i = 1; i < servers.length; i++) {
+    console.log(servers[i])
     if (server.ping > servers[i].ping) {
       server = servers[i];
     }
   }
+  console.log(JSON.stringify(server), 'es el server auto') // eslint-disable-line no-console
   return server;
 }
 

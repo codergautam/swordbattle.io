@@ -25,7 +25,7 @@ import DiscordLogo from '../assets/img/discordLogo.png';
 import SignupImg from '../assets/img/signup.png';
 import LoginImg from '../assets/img/login.png';
 import './App.scss';
-import GemCount from './GemCount';
+import GemCount from './ValueCnt';
 import ShopButton from './ShopButton';
 import ShopModal from './modals/ShopModal';
 import MigrationModal from './modals/MigrationModal';
@@ -33,6 +33,8 @@ import { getCookies } from '../helpers';
 import Ad from './Ad';
 import { Settings } from '../game/Settings';
 import { getServerList } from '../ServerList';
+import AccountCard from './AccountCard';
+import ForumCard from './ForumCard';
 // import Game from '../game/scenes/Game';
 
 const preloadImages: string[] = [
@@ -353,7 +355,10 @@ function App() {
         // </div>
         <>
         <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`}>
-          <div id="menuContainer">
+        <ShopButton account={account} scale={scale.factor} openShop={openShop} />
+            <div id="contentt" style={scale.styles}>
+          <div id="menuContainer" >
+
             {/* <!-- GAME NAME --> */}
             <div id="gameName">Swordbattle.io</div>
 
@@ -363,15 +368,7 @@ function App() {
             <div id="menuCardHolder" style={{ display: 'inline-block', height: 'auto !important' }}>
               <div className="menu">
                 <div className="accountCard menuCard panel">
-                  <span id="logged-out">
-                    {/* <div className="menuHeader">
-                      <span className="material-icons">person</span>
-                      Profile</div> */}
-                    <div className="menuText">
-                      <a data-micromodal-trigger="modal-account">Login</a> or
-                      <a data-micromodal-trigger="modal-account">Create an Account</a>.
-                    </div>
-                  </span>
+                  <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} />
                 </div>
 
                 {/* <!-- Play --> */}
@@ -384,6 +381,8 @@ function App() {
                       maxLength={16}
                       value={account.isLoggedIn ? account.username : name}
                       onChange={(e) => setName(e.target.value)}
+                      style={{ cursor: account.isLoggedIn ? 'not-allowed' : 'text'}}
+                      disabled={account.isLoggedIn}
                       autoComplete="none"
                     />
                     <select id="serverBrowser"
@@ -407,7 +406,7 @@ function App() {
                   </div>
                 </div>
                 <div className="menuCard panel forumCard">
-                  {/* <!-- Forum: right box --> */}
+                  <ForumCard />
                 </div>
               </div>
               <div className='fullWidth'>
@@ -417,7 +416,7 @@ function App() {
               </div>
             </div>
 
-
+</div>
           </div>
 
           {/* <!-- SETTINGS --> */}
@@ -426,13 +425,36 @@ function App() {
             <FontAwesomeIcon icon={faGear} className='ui-icon'/>
           </div>
           {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal'} />}
-          <div id="topRight1" className="inParty">
+          {/* <div id="topRight1" className="inParty">
             <span>top right stuff</span>
-          </div>
+          </div> */}
 
-           <div id="topRight2" className="altLink">
+           {/* <div id="topRight2" className="altLink">
             <span>more top right stuff</span>
-          </div>
+          </div> */}
+
+<div className="auth-buttons" style={scale.styles}>
+             {account.isLoggedIn ? (
+               <div className="dropdown">
+                 <div className="auth-username"><FontAwesomeIcon icon={faUser} /> {account.username}</div>
+                 <ul className="dropdown-menu">
+                   <li>
+                   <a className="dropdown-item" href="#" onClick={onChangeName}>
+                     <FontAwesomeIcon icon={faICursor} /> Change Name
+                   </a>
+                   </li>
+                   <li><a className="dropdown-item" href="#" onClick={onLogout}>
+                     <FontAwesomeIcon icon={faSignOut} /> Logout
+                   </a></li>
+                 </ul>
+               </div>
+             ) : (
+               <>
+               <img src={LoginImg} alt="Login" role="button" className="auth-btn" onClick={onLogin} />
+               <img src={SignupImg} alt="Signup" role="button" className="auth-btn" onClick={onSignup} />
+               </>
+             )}
+           </div>
 
 
           {/* <!-- LINKS CONTAINERS --> */}
@@ -440,7 +462,31 @@ function App() {
             <a href="./docs/terms.txt" target="_blank">Policy</a> |
             <a href="./docs/privacy.txt" target="_blank">Privacy</a>
           </div> */}
+                 <footer className={clsx('links', isLoaded && 'animation')} style={scale.styles}>
+             <div>
+               <a href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="noreferrer">About</a>
+             </div>
+            <div>
+               <Link to="/leaderboard" target="_blank" rel="noreferrer">Leaderboard</Link>
+           </div>
+            <div>
+               <a href="https://iogames.forum/swordbattle" target="_blank" rel="noreferrer" className='forum'>
+                 Forum
+               </a>
+             </div>
+             <div>
+               <a href="https://discord.com/invite/9A9dNTGWb9" target="_blank" rel="noreferrer" className='discord'>
+                 Discord
+               </a>
+             </div>
+             <div>
+               <a href="https://iogames.forum/t/official-swordbattle-changelog/17400/last" target="_blank" rel="noreferrer" className='changelog' style={{color: 'yellow'}}>
+                Changelog
+              </a>
+             </div>
+           </footer>
         </div>
+
         </>
       )}
     </div>

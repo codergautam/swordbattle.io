@@ -30,7 +30,7 @@ function SignupModal({ onSuccess }: any) {
     <div className="signup-modal">
       <h1 style={{marginBottom: 0}}>Sign up</h1>
       <p style={{margin: 0, marginBottom: 10}}>Save your progress and unlock cool skins!</p>
-      <input type="username" placeholder="Username"
+      <input type="text" placeholder="Username"
         onChange={(e) => setUsername(e.target.value)}
       />
       <input type="email" placeholder="Email (optional)"
@@ -39,7 +39,7 @@ function SignupModal({ onSuccess }: any) {
       <input type="password" placeholder="Password"
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={onSignup}>
+      <button onClick={onSignup} disabled={isLoading}>
         {isLoading ? 'Loading..' : 'Signup'}
       </button>
     </div>

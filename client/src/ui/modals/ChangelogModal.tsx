@@ -15,7 +15,7 @@ function ChangelogModal() {
         </li>
         <hr />
       </ul>
-      <a className="primary-link" target="_blank" href="https://forum.codergautam.dev/t/how-to-make-your-own-swordbattle-io-skin/585">
+      <a className="primary-link" target="_blank" href="https://iogames.forum/t/how-to-make-your-own-swordbattle-io-skin/585">
     Create your own skins!</a>
     </div>
   );

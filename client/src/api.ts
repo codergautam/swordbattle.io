@@ -1,5 +1,4 @@
 import { config } from './config';
-import { load } from 'recaptcha-v3'
 
 const endpoint = `${window.location.protocol}//${config.apiEndpoint}`;
 const backupEndpoint = config.apiEndpointBackup ? `${window.location.protocol}//${config.apiEndpointBackup}` : null;
@@ -86,13 +85,11 @@ function post(url: string, body: any, callback = (data: any) => {}, token?: stri
     .catch(() => callback({ message: unavialableMessage }));
   };
 
-  if (useRecaptcha && recaptchaClientKey) {
-    load(recaptchaClientKey).then((recaptcha) => {
-      const endpointName = url.split('/').pop();
-      recaptcha.execute(endpointName).then((recaptchaToken) => {
+  if (useRecaptcha && recaptchaClientKey && window.grecaptcha) {
+      const endpointName = url.split('/').pop() as string;
+      window.grecaptcha.execute(endpointName, {}).then((recaptchaToken) => {
         sendRequest(recaptchaToken);
       });
-    });
   } else {
     sendRequest();
   }

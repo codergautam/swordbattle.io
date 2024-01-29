@@ -21,9 +21,10 @@ export class Spectator {
       const x = data.x !== undefined ? data.x : camera.centerX;
       const y = data.y !== undefined ? data.y : camera.centerY;
       if (this.initialized) {
-        camera.pan(x, y, 25000, Phaser.Math.Easing.Linear, true);
+        camera.pan(x, y, 10000, Phaser.Math.Easing.Linear, true);
       } else {
-        camera.centerOn(x, y);
+        camera.centerOn(0, 0);
+        camera.pan(x, y, 4000, Phaser.Math.Easing.Linear, true);
       }
       this.initialized = true;
     }

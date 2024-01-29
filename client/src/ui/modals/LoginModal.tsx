@@ -25,7 +25,7 @@ function LoginModal({ onSuccess }: any) {
   return (
     <div className="login-modal">
       <h1>Log in</h1>
-      <input type="username" placeholder="Username"
+      <input type="text" placeholder="Username"
         onChange={(e) => setUsername(e.target.value)}
       />
       <input type="password" placeholder="Password"

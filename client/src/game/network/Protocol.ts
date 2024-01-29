@@ -10,6 +10,10 @@ export interface ClientMessage {
   isPing?: boolean;
   token?: string;
   name?: string;
+  captchaP0?: string;
+  captchaP1?: string;
+  captchaP2?: string;
+  captchaP3?: string;
 }
 
 export function encodeClientMessage(message: ClientMessage): Uint8Array {
@@ -105,6 +109,34 @@ function _encodeClientMessage(message: ClientMessage, bb: ByteBuffer): void {
     writeVarint32(bb, 90);
     writeString(bb, $name);
   }
+
+  // optional string captchaP0 = 12;
+  let $captchaP0 = message.captchaP0;
+  if ($captchaP0 !== undefined) {
+    writeVarint32(bb, 98);
+    writeString(bb, $captchaP0);
+  }
+
+  // optional string captchaP1 = 13;
+  let $captchaP1 = message.captchaP1;
+  if ($captchaP1 !== undefined) {
+    writeVarint32(bb, 106);
+    writeString(bb, $captchaP1);
+  }
+
+  // optional string captchaP2 = 14;
+  let $captchaP2 = message.captchaP2;
+  if ($captchaP2 !== undefined) {
+    writeVarint32(bb, 114);
+    writeString(bb, $captchaP2);
+  }
+
+  // optional string captchaP3 = 15;
+  let $captchaP3 = message.captchaP3;
+  if ($captchaP3 !== undefined) {
+    writeVarint32(bb, 122);
+    writeString(bb, $captchaP3);
+  }
 }
 
 export function decodeClientMessage(binary: Uint8Array): ClientMessage {
@@ -189,6 +221,30 @@ function _decodeClientMessage(bb: ByteBuffer): ClientMessage {
       // optional string name = 11;
       case 11: {
         message.name = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string captchaP0 = 12;
+      case 12: {
+        message.captchaP0 = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string captchaP1 = 13;
+      case 13: {
+        message.captchaP1 = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string captchaP2 = 14;
+      case 14: {
+        message.captchaP2 = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string captchaP3 = 15;
+      case 15: {
+        message.captchaP3 = readString(bb, readVarint32(bb));
         break;
       }
 

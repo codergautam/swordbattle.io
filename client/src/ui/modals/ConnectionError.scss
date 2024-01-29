@@ -12,12 +12,9 @@
 
   .content {
     width: 400px;
-    background: #f6f6f6;
-    color: black;
     padding: 1rem 3rem;
     padding-top: 2rem;
-    border-radius: 20px;
-	  box-shadow: 0 5px 30px 0 rgb(0 0 0 / 10%);
+    border-radius: 10px;
     font-family: Poppins, sans-serif;
 
     h2 {
@@ -37,7 +34,7 @@
   }
 
   .reload-btn {
-    background: #f6f6f6;
+    background: green;
     color: black;
     border: 1px solid black;
     padding: 0.5rem 1rem;

@@ -8,6 +8,8 @@ import GlobalEntity from './entities/GlobalEntity';
 import { GetEntityClass } from './entities';
 import { Spectator } from './Spectator';
 import { getServer } from '../ServerList';
+import { config } from '../config';
+import exportCaptcha from './components/captchaEncoder';
 
 class GameState {
   game: Game;
@@ -42,7 +44,20 @@ class GameState {
     this.game = game;
     this.gameMap = new GameMap(this.game);
     this.spectator = new Spectator(this.game);
+    this.refreshSocket();
+  }
 
+  refreshSocket(unbind = false) {
+    // unbind
+    if(unbind) {
+    this.socket.removeEventListener('open', this.onServerOpen.bind(this));
+    this.socket.removeEventListener('message', this.onServerMessage.bind(this));
+    this.socket.removeEventListener('close', this.onServerClose.bind(this));
+
+    this.gameMap = new GameMap(this.game);
+    this.spectator = new Spectator(this.game);
+    }
+    // rebind
     getServer().then(server => {
       console.log('connecting to', server.address);
       this.socket = Socket.connect(
@@ -63,12 +78,32 @@ class GameState {
   }
 
   start(name: string) {
-    Socket.emit({ play: true, name });
+
+    const afterSent = () => {
     if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
+    }
+
+    if(config.recaptchaClientKey && window.grecaptcha) {
+        window.grecaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: string) => {
+
+          Socket.emit({ play: true, name, ...exportCaptcha(captcha) });
+          afterSent();
+        });
+    } else {
+    Socket.emit({ play: true, name });
+    afterSent();
+    }
   }
 
   restart() {
+    if(config.recaptchaClientKey && window.grecaptcha) {
+        window.grecaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: string) => {
+          const cData = exportCaptcha(captcha);
+          Socket.emit({ play: true, ...cData});
+        });
+    } else {
     Socket.emit({ play: true });
+    }
     if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
     if(!this.game.hud.evolutionSelect.minimized) this.game.hud.evolutionSelect.toggleMinimize();
   }

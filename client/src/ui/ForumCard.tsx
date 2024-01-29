@@ -7,7 +7,7 @@ export default function ForumCard() {
 
   useEffect(() => {
     api.get(`${api.endpoint}/stats/forum?now=${Date.now()}`, (data) => {
-      if (data.error) return alert(data.error);
+      if (data.error) return;
       setData(data);
     });
   }, []);

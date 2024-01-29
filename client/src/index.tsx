@@ -27,10 +27,12 @@ const router = createHashRouter([
   basename: config.basename,
 });
 
+if(config.recaptchaClientKey) {
 load(config.recaptchaClientKey).then((recaptcha) => {
   console.log('recaptcha loaded');
   window.grecaptcha = recaptcha as  any;
 });
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root') as Element);
 document.addEventListener('contextmenu',function(e) {

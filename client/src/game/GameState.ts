@@ -98,8 +98,8 @@ class GameState {
   restart() {
     if(config.recaptchaClientKey && window.grecaptcha) {
         window.grecaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: string) => {
-          const captchaBytes = new TextEncoder().encode(captcha);
-          Socket.emit({ play: true, captcha: captchaBytes});
+          const cData = exportCaptcha(captcha);
+          Socket.emit({ play: true, ...cData});
         });
     } else {
     Socket.emit({ play: true });

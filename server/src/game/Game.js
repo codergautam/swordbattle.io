@@ -188,8 +188,7 @@ class Game {
             'Content-Type': 'application/json',
           },
         }).then(res => res.json()).then(json => {
-          console.log(json);
-          if (json.success) {
+          if (json && json.success && json.score > 0.5) {
             player = this.addPlayer(client, data);
           } else {
             client.socket.close();

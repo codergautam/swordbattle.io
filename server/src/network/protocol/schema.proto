@@ -12,6 +12,10 @@ message ClientMessage {
   bool isPing = 9;
   string token = 10;
   string name = 11;
+  string captchaP0 = 12;
+  string captchaP1 = 13;
+  string captchaP2 = 14;
+  string captchaP3 = 15;
 }
 message InputData {
   int32 inputType = 1;

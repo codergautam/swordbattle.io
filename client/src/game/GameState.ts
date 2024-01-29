@@ -8,6 +8,8 @@ import GlobalEntity from './entities/GlobalEntity';
 import { GetEntityClass } from './entities';
 import { Spectator } from './Spectator';
 import { getServer } from '../ServerList';
+import { config } from '../config';
+import exportCaptcha from './components/captchaEncoder';
 
 class GameState {
   game: Game;
@@ -76,12 +78,32 @@ class GameState {
   }
 
   start(name: string) {
-    Socket.emit({ play: true, name });
+
+    const afterSent = () => {
     if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
+    }
+
+    if(config.recaptchaClientKey && window.grecaptcha) {
+        window.grecaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: string) => {
+
+          Socket.emit({ play: true, name, ...exportCaptcha(captcha) });
+          afterSent();
+        });
+    } else {
+    Socket.emit({ play: true, name });
+    afterSent();
+    }
   }
 
   restart() {
+    if(config.recaptchaClientKey && window.grecaptcha) {
+        window.grecaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: string) => {
+          const captchaBytes = new TextEncoder().encode(captcha);
+          Socket.emit({ play: true, captcha: captchaBytes});
+        });
+    } else {
     Socket.emit({ play: true });
+    }
     if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
     if(!this.game.hud.evolutionSelect.minimized) this.game.hud.evolutionSelect.toggleMinimize();
   }

@@ -6,6 +6,7 @@ import { GlobalLeaderboard } from './ui/GlobalLeaderboard';
 import Profile from './ui/Profile';
 import { store } from './redux/store';
 import { config } from './config';
+import { load } from 'recaptcha-v3'
 
 import './global.scss';
 
@@ -24,6 +25,11 @@ const router = createHashRouter([
   },
 ], {
   basename: config.basename,
+});
+
+load(config.recaptchaClientKey).then((recaptcha) => {
+  console.log('recaptcha loaded');
+  window.grecaptcha = recaptcha as  any;
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root') as Element);

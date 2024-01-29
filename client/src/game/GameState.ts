@@ -59,7 +59,7 @@ class GameState {
     }
     // rebind
     getServer().then(server => {
-      console.log('connecting to', server.address);
+      console.log('connecting to', server.address, Date.now());
       this.socket = Socket.connect(
         server.address,
         this.onServerOpen.bind(this),
@@ -216,6 +216,7 @@ class GameState {
       }
 
       if (!this.isReady) {
+        console.log('game ready', Date.now());
         this.isReady = true;
         this.game.game.events.emit('gameReady');
       }

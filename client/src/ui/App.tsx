@@ -391,7 +391,7 @@ function App() {
                     >
                     {servers.length === 0 && <option value="loading" disabled>Loading...</option>}
         {servers.map((server) => <option key={server.value} value={server.value} disabled={server.offline}>
-          {server.name} ({server.offline ? 'OFFLINE' : `${server.ping}ms - ${server.playerCnt} players` })
+          {server.name} ({server.offline ? 'OFFLINE' : `${server.playerCnt} players` })
         </option>)}
                     </select>
 

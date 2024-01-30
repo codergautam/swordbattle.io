@@ -13,7 +13,6 @@ interface Server {
 const servers: Server[] = [
   { value: 'eu', name: 'Europe', address: config.serverEU, ping: 0 },
   { value: 'us', name: 'USA', address: config.serverUS, ping: 0 },
-  { value: 'usbackup', name: 'USA Backup', address: config.serverUSBackup, ping: 0 },
 ];
 if (config.isDev) {
   servers.unshift({ value: 'dev', name: 'Development', address: config.serverDev, ping: 0 });
@@ -26,7 +25,6 @@ export async function updatePing() {
   const cache: Record<string, Server> = {};
   // Wait if update is already in progress
   while (isUpdating) {
-    console.log('waiting for update');
     await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100ms before checking again
   }
 

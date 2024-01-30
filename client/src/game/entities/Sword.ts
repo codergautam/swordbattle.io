@@ -28,11 +28,9 @@ class Sword extends BaseEntity {
 
     const publicPath = process.env.PUBLIC_URL as string;
     const basePath =  `${publicPath}/assets/game/player/${skinObj.swordFileName}`;
-    console.log('loading sword', skinName, basePath);
     this.game.load.image(skinName, basePath);
 
     this.game.load.once(Phaser.Loader.Events.COMPLETE, () => {
-      console.log('loaded sword', skinName);
       this.skinName = skinName;
       this.container.setTexture(this.skinName);
       resolve();

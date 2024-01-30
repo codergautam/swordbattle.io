@@ -8,7 +8,6 @@ const unavialableMessage = 'Server is temporarily unavailable, try again later';
 
 async function checkEndpoint() {
   if (!currentEndpoint) {
-    console.log('Checking endpoint');
     currentEndpoint = endpoint;
     await fetch(`${currentEndpoint}/games/ping`, {
       method: 'GET',

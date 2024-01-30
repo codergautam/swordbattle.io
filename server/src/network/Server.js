@@ -68,8 +68,6 @@ class Server {
   addClient(client) {
     client.server = this;
     this.clients.set(client.id, client);
-    client.spectator.isSpectating = true;
-    client.spectator.initialize();
   }
 
   removeClient(client) {

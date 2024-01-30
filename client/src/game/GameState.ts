@@ -39,12 +39,14 @@ class GameState {
   selectedEvolution: string | null = null;
   selectedBuff: any;
   chatMessage: string | null = null;
+  captchaVerified = false;
 
   constructor(game: Game) {
     this.game = game;
     this.gameMap = new GameMap(this.game);
     this.spectator = new Spectator(this.game);
     this.refreshSocket();
+    this.captchaVerified = false;
   }
 
   refreshSocket(unbind = false) {
@@ -82,34 +84,25 @@ class GameState {
     const afterSent = () => {
     if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
     }
-
-    if(config.recaptchaClientKey && window.grecaptcha) {
-        window.grecaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: string) => {
-
-          Socket.emit({ play: true, name, ...exportCaptcha(captcha) });
-          afterSent();
-        });
-    } else {
     Socket.emit({ play: true, name });
     afterSent();
-    }
   }
 
   restart() {
-    if(config.recaptchaClientKey && window.grecaptcha) {
-        window.grecaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: string) => {
-          const cData = exportCaptcha(captcha);
-          Socket.emit({ play: true, ...cData});
-        });
-    } else {
     Socket.emit({ play: true });
-    }
     if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
     if(!this.game.hud.evolutionSelect.minimized) this.game.hud.evolutionSelect.toggleMinimize();
   }
 
   spectate() {
+    if(config.recaptchaClientKey && window.grecaptcha && !this.captchaVerified) {
+      window.grecaptcha.execute(config.recaptchaClientKey, {action: 'spectate'}).then((captcha: string) => {
+        this.captchaVerified = true;
+        Socket.emit({ spectate: true, ...exportCaptcha(captcha) });
+      });
+    } else {
     Socket.emit({ spectate: true });
+    }
   }
 
   updateToken(token: string) {
@@ -117,7 +110,7 @@ class GameState {
   }
 
   onServerOpen() {
-    // Socket.emit({ spectate: true });
+    this.spectate();
     console.log('server connected', Date.now());
   }
 

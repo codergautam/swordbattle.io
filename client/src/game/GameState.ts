@@ -35,6 +35,7 @@ class GameState {
   tps = 0;
   ping = 0;
   pingStart = 0;
+  debugMode = false;
 
   selectedEvolution: string | null = null;
   selectedBuff: any;
@@ -47,6 +48,15 @@ class GameState {
     this.spectator = new Spectator(this.game);
     this.refreshSocket();
     this.captchaVerified = false;
+
+    this.debugMode = false;
+    try {
+    this.debugMode = window.location.search.includes("debugAlertMode");
+      if(this.debugMode) {
+        alert("Debug alert mode activated");
+      }
+    } catch(e) {}
+    
   }
 
   refreshSocket(unbind = false) {
@@ -61,6 +71,9 @@ class GameState {
     }
     // rebind
     getServer().then(server => {
+      if(this.debugMode) {
+        alert("Sending ws connection to "+server.address);
+      }
       console.log('connecting to', server.address, Date.now());
       this.socket = Socket.connect(
         server.address,
@@ -97,6 +110,7 @@ class GameState {
   spectate() {
     if(config.recaptchaClientKey && window.grecaptcha && !this.captchaVerified) {
       window.grecaptcha.execute(config.recaptchaClientKey, {action: 'spectate'}).then((captcha: string) => {
+        if(this.debugMode) alert("Received captcha of length "+captcha.length);
         this.captchaVerified = true;
         Socket.emit({ spectate: true, ...exportCaptcha(captcha) });
       });
@@ -111,6 +125,7 @@ class GameState {
 
   onServerOpen() {
     this.spectate();
+    if(this.debugMode) alert("Connection established");
     console.log('server connected', Date.now());
   }
 
@@ -132,6 +147,7 @@ class GameState {
     } else {
       if (this.payloadsQueue.length !== 0) {
         this.payloadsQueue.forEach(msg => this.processServerMessage(msg));
+        if(this.debugMode) alert("Clearing payload queue of "+this.payloadsQueue.length);
         this.payloadsQueue = [];
       }
       this.processServerMessage(data);
@@ -210,6 +226,8 @@ class GameState {
 
       if (!this.isReady) {
         console.log('game ready', Date.now());
+        if(this.debugMode) alert("Game ready-- fullsync");
+        
         this.isReady = true;
         this.game.game.events.emit('gameReady');
       }

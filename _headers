@@ -1,0 +1,12 @@
+/*.jpg
+  Cache-Control: max-age=604800
+/*.png
+  Cache-Control: max-age=604800
+/*.gif
+  Cache-Control: max-age=604800
+/*.svg
+  Cache-Control: max-age=604800
+/*.wav
+  Cache-Control: max-age=604800
+/*.mp3
+  Cache-Control: max-age=604800

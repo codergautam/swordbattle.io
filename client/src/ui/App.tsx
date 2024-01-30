@@ -32,7 +32,7 @@ import MigrationModal from './modals/MigrationModal';
 import { getCookies } from '../helpers';
 import Ad from './Ad';
 import { Settings } from '../game/Settings';
-import { getServerList } from '../ServerList';
+import { getServerList, updatePing } from '../ServerList';
 import AccountCard from './AccountCard';
 import ForumCard from './ForumCard';
 // import Game from '../game/scenes/Game';
@@ -147,25 +147,10 @@ function App() {
       window.location.reload();
   }
 
-  const preloadImage = (url: string) => {
-    return new Promise<void>((resolve) => {
-      fetch(url)
-        .then((resp) => resp.blob())
-        .then((blob) => {
-          let img = new Image();
-          img.onload = () => resolve();
-          img.src = URL.createObjectURL(blob);
-        });
-    });
-  };
-
   useEffect(() => {
-    let loadedImages = 0;
-    preloadImages.forEach((url) => {
-      preloadImage(url).then(() => {
-        loadedImages++;
-        setLoadingProgress((loadedImages / preloadImages.length) * 100);
-      });
+    updatePing();
+    window.addEventListener('assetsLoadProgress', (e: any) => {
+      setLoadingProgress(Math.floor(e.detail * 100));
     });
   }, []);
 
@@ -186,6 +171,7 @@ function App() {
   const onGameReady = () => {
     console.log('Game ready', Date.now(), gameQueued);
     setIsConnected(true);
+    setLoadingProgress(100);
     if(gameQueuedRef.current) {
       console.log('Game queued, starting game');
       setGameStarted(true);

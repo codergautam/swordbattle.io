@@ -55,6 +55,7 @@ class Client {
 
     const packet = Protocol.encode(data);
     if (!this.isSocketClosed) {
+      console.log('sending packet to', this.player?.name ?? 'spectator', Date.now());
       this.socket.send(packet, { binary: true, compress: true });
     }
   }

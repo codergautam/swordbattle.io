@@ -182,8 +182,8 @@ function App() {
   const onStart = () => {
     console.log('Starting game');
     if(!isConnected) {
-      console.log('Not connected, cannot start game, queueing');
-      setGameQueued(true);
+      alert('Not connected yet');
+      return;
     }
     else  {
       setGameStarted(true);
@@ -381,11 +381,8 @@ function App() {
         </option>)}
                     </select>
 
-                    <div id="enterGame" className="menuButton" onClick={()=>accountReady && onStart()}>
-                    {accountReady ?
-            (gameQueued && !isConnected) ? 'Joining...' : 'Play!'
-              :
-            'Connecting...'}
+                    <div id="enterGame" className="menuButton" onClick={()=>accountReady && isConnected && onStart()}>
+                    {(accountReady && isConnected)? 'Play!' : 'Connecting...'}
             </div>
 
 

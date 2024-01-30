@@ -90,9 +90,7 @@ export default class Game extends Phaser.Scene {
     // load skins
     const basePath =  `${publicPath}/assets/game/player/`;
     for (const skin of Object.values(skins)) {
-      console.log('loading', skin.name+'Body', basePath + skin.bodyFileName)
       this.load.image(skin.name+'Body', basePath + skin.bodyFileName);
-      console.log('loading', skin.name+'Sword', basePath + skin.swordFileName)
       this.load.image(skin.name+'Sword', basePath + skin.swordFileName);
     }
 

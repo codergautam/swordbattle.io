@@ -8,13 +8,45 @@ class Sword extends BaseEntity {
 
   createSprite() {
     if(this.skin) {
-      this.skinName = (Object.values(skins).find(skin => skin.id === this.skin)?.name ?? 'player')+'Sword';
+      const skinObj = Object.values(skins).find(skin => skin.id === this.skin)
+      this.skinName = (skinObj?.name ?? 'player')+ 'Sword';
+      if(!this.game.textures.exists(this.skinName)) {
+        if(skinObj?.swordFileName) this.dynamicLoadSword(skinObj as {swordFileName: string}, this.skinName+'');
+        this.skinName = 'playerSword';
+      }
     } else {
       this.skinName = 'playerSword';
     }
     this.container = this.game.add.sprite(this.shape.x, this.shape.y, this.skinName)
       .setOrigin(-0.2, 0.5);
     return this.container;
+  }
+
+  dynamicLoadSword(skinObj:{swordFileName: string}, skinName: string) {
+    return new Promise<void>((resolve, reject) => {
+      if(this.game.gameState.failedSkinLoads[this.skin]) return resolve();
+
+    const publicPath = process.env.PUBLIC_URL as string;
+    const basePath =  `${publicPath}/assets/game/player/${skinObj.swordFileName}`;
+    console.log('loading sword', skinName, basePath);
+    this.game.load.image(skinName, basePath);
+
+    this.game.load.once(Phaser.Loader.Events.COMPLETE, () => {
+      console.log('loaded sword', skinName);
+      this.skinName = skinName;
+      this.container.setTexture(this.skinName);
+      resolve();
+    });
+    this.game.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, () => {
+      // texture didnt load so use the placeholder
+      this.game.gameState.failedSkinLoads[this.skin] = true;
+      resolve();
+    });
+
+    this.game.load.start();
+
+    });
+
   }
 
   addAbilityParticles() {

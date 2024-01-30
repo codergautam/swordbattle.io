@@ -41,6 +41,7 @@ class GameState {
   selectedBuff: any;
   chatMessage: string | null = null;
   captchaVerified = false;
+  failedSkinLoads: Record<number, boolean> = {};
 
   constructor(game: Game) {
     this.game = game;

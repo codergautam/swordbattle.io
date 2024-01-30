@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "./static/css/main.5b3c0e37.css",
-    "main.js": "./static/js/main.3c3f2d25.js",
+    "main.css": "./static/css/main.06c14476.css",
+    "main.js": "./static/js/main.d2a2fcab.js",
     "static/media/settings.png": "./static/media/settings.7d59b39398b41a3652fc.png",
     "static/media/play-again.png": "./static/media/play-again.38923238033620c8ab00.png",
     "static/media/home.png": "./static/media/home.cbf4d9badcc4e56f2636.png",
@@ -12,11 +12,11 @@
     "static/media/discordLogo.png": "./static/media/discordLogo.54312c417c6887dc00f1.png",
     "static/media/cursor.cur": "./static/media/cursor.138cb2f1fcf8183aaa1b.cur",
     "index.html": "./index.html",
-    "main.5b3c0e37.css.map": "./static/css/main.5b3c0e37.css.map",
-    "main.3c3f2d25.js.map": "./static/js/main.3c3f2d25.js.map"
+    "main.06c14476.css.map": "./static/css/main.06c14476.css.map",
+    "main.d2a2fcab.js.map": "./static/js/main.d2a2fcab.js.map"
   },
   "entrypoints": [
-    "static/css/main.5b3c0e37.css",
-    "static/js/main.3c3f2d25.js"
+    "static/css/main.06c14476.css",
+    "static/js/main.d2a2fcab.js"
   ]
 }

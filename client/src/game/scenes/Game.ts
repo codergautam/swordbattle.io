@@ -103,7 +103,7 @@ export default class Game extends Phaser.Scene {
 
     // log progress on load
     this.load.on('progress', (value: number) => {
-      window.dispatchEvent(new CustomEvent('assetsLoadProgress', { detail: value }));
+      if(!this.isReady) window.dispatchEvent(new CustomEvent('assetsLoadProgress', { detail: value }));
     });
   }
 
@@ -172,6 +172,7 @@ export default class Game extends Phaser.Scene {
 	update(time: number, dt: number) {
     if (!this.isReady) {
       this.isReady = true;
+      window.dispatchEvent(new CustomEvent('assetsLoadProgress', { detail: 100 }));
       console.log('Game is ready');
     }
     this.soundManager.update(dt);

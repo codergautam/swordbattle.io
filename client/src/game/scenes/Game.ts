@@ -100,6 +100,11 @@ export default class Game extends Phaser.Scene {
     this.soundManager.load(publicPath);
     Safezone.createTexture(this);
     Biome.initialize(this);
+
+    // log progress on load
+    this.load.on('progress', (value: number) => {
+      window.dispatchEvent(new CustomEvent('assetsLoadProgress', { detail: value }));
+    });
   }
 
   create() {
@@ -167,6 +172,7 @@ export default class Game extends Phaser.Scene {
 	update(time: number, dt: number) {
     if (!this.isReady) {
       this.isReady = true;
+      console.log('Game is ready');
     }
     this.soundManager.update(dt);
     this.gameState.updateGraphics(dt);

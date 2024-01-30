@@ -208,7 +208,6 @@ class GameState {
       this.gameMap.updateMapData(data.mapData);
     }
 
-    console.log('game state', data);
     if (data.fullSync) {
       const selfEntity = this.entities[this.self.id];
       this.self.entity = selfEntity;

@@ -5,10 +5,12 @@
 	top: 50%;
 	width: 600px;
 	transform: translate(-50%, -50%);
+	.results-main {
   background-color: rgb(0, 0, 0, 0.7);
 	text-shadow: 1px 1px 1px rgb(0, 0, 0);
   border: 5px solid #111111;
 	border-radius: 10px;
+	}
 	animation: fadeIn 1s ease both;
 
 	.results-title {

@@ -10,6 +10,12 @@ class Client {
     this.game = game;
     this.socket = socket;
     this.id = socket.id;
+    // make sure to work for cf as well (headers['cf-connecting-ip'])
+    // this.ip = String.fromCharCode.apply(null, new Uint8Array(socket.getRemoteAddressAsText()));
+
+    this.ip = socket.ip || String.fromCharCode.apply(null, new Uint8Array(socket.getRemoteAddressAsText()));
+
+    console.log(`Client ${this.id} connected from ${this.ip} at ${Date.now()}`);
     this.token = '';
 
     this.spectator = new Spectator(this.game, this);
@@ -45,7 +51,7 @@ class Client {
 
   send(data) {
     if (!data) return;
-    if(data.fullSync) console.log('sending fullsync to', this.player?.name ?? 'spectator');
+    if(data.fullSync) console.log('sending fullsync to', this.player?.name ?? 'spectator', Date.now());
 
     const packet = Protocol.encode(data);
     if (!this.isSocketClosed) {

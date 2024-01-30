@@ -8,6 +8,7 @@ const helpers = require('../helpers');
 const config = require('../config');
 const filter = require('leo-profanity');
 const Types = require('./Types');
+const { getBannedIps } = require('../moderation');
 class Game {
   constructor() {
     this.entities = new Set();
@@ -34,7 +35,7 @@ class Game {
     for (const entity of this.entities) {
       // Not a sword
       const entityType = entity.type;
-      if(entityType === Types.Entity.Sword) continue;
+      if (entityType === Types.Entity.Sword) continue;
       entity.update(dt);
     }
 
@@ -82,6 +83,86 @@ class Game {
     entity.depth = depth;
   }
 
+  //   processClientMessage(client, data) {
+  //     if (data.spectate && !client.spectator.isSpectating) {
+  //       this.addSpectator(client, data);
+  //       return;
+  //     }
+
+  //     let { player } = client;
+
+
+
+  //     if (data.play && (!player || player.removed)) {
+  //       if(getBannedIps().includes(client.ip)) {
+  //         // close connection
+  //         client.socket.close();
+  //         return;
+  //       }
+
+
+
+  //       if(config.recaptchaSecretKey) {
+  //         // verify recaptcha
+  //         if(!data.captchaP1) return client.socket.close();
+  //         const captchaAsText = helpers.importCaptcha(data);
+  // const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${config.recaptchaSecretKey}&response=${captchaAsText}&remoteip=${client.ip}`;
+
+  //         fetch(verifyUrl, {
+  //           method: 'post',
+  //           headers: {
+  //             Accept: 'application/json',
+  //             'Content-Type': 'application/json',
+  //           },
+  //         }).then(res => res.json()).then(json => {
+  //           console.log(json);
+  //           if(json.success) {
+  //             player = this.addPlayer(client, data);
+  //           } else {
+  //             client.socket.close();
+  //           }
+  //         }).catch(err => {
+  //           console.log(err);
+  //           client.socket.close();
+  //         });
+  //       } else {
+  //       player = this.addPlayer(client, data);
+  //       }
+  //     } else {
+  //       if (!player) return;
+  //       if (data.inputs) {
+  //         for (const input of data.inputs) {
+  //           if (player.inputDown) {
+  //             player.inputs.inputDown(input.inputType);
+  //           } else {
+  //             player.inputs.inputUp(input.inputType);
+  //           }
+  //         }
+  //       }
+  //       if (data.angle && !isNaN(data.angle)) {
+  //         player.angle = Number(data.angle);
+  //       }
+  //       if (data.mouse) {
+  //         if (data.mouse.force === 0) {
+  //           player.mouse = null;
+  //         } else {
+  //           player.mouse = data.mouse;
+  //         }
+  //       }
+  //       if (data.selectedEvolution) {
+  //         player.evolutions.upgrade(data.selectedEvolution);
+  //       }
+  //       if (data.selectedBuff) {
+  //         player.levels.addBuff(data.selectedBuff);
+  //       }
+  //       if (data.chatMessage && typeof data.chatMessage === 'string') {
+  //         player.addChatMessage(data.chatMessage);
+  //       }
+  //     }
+
+
+  //   }
+
   processClientMessage(client, data) {
     if (data.spectate && !client.spectator.isSpectating) {
       this.addSpectator(client, data);
@@ -90,7 +171,37 @@ class Game {
 
     let { player } = client;
     if (data.play && (!player || player.removed)) {
-      player = this.addPlayer(client, data);
+      if (getBannedIps().includes(client.ip)) {
+        // close connection
+        client.socket.close();
+        return;
+      }
+      if (!config.recaptchaSecretKey) {
+        // add player without recaptcha verification
+        player = this.addPlayer(client, data);
+      } else {
+        // verify recaptcha
+        if (!data.captchaP1) return client.socket.close();
+        const captchaAsText = helpers.importCaptcha(data);
+        const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${config.recaptchaSecretKey}&response=${captchaAsText}&remoteip=${client.ip}`;
+
+        fetch(verifyUrl, {
+          method: 'post',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }).then(res => res.json()).then(json => {
+          if (json && json.success && json.score > 0.5) {
+            player = this.addPlayer(client, data);
+          } else {
+            client.socket.close();
+          }
+        }).catch(err => {
+          console.log(err);
+          client.socket.close();
+        });
+      }
     }
 
     if (!player) return;
@@ -124,7 +235,6 @@ class Game {
       player.addChatMessage(data.chatMessage);
     }
   }
-
   createPayload(client) {
     const { spectator } = client;
     const entity = spectator.isSpectating ? spectator : client.player;
@@ -199,13 +309,13 @@ class Game {
       // If player wasn't it previous viewport, it sends as new entity
       if (previousViewport.indexOf(entity) === -1) {
         changes[entity.id] = entity.state.get();
-      // If entity was in previous viewport but it's not in current, it counts as removed entity
+        // If entity was in previous viewport but it's not in current, it counts as removed entity
       } else if (currentViewport.indexOf(entity) === -1) {
         changes[entity.id] = {
           ...entity.state.getChanges(),
           removed: true,
         };
-      // If entity is in both viewports, just send changes
+        // If entity is in both viewports, just send changes
       } else {
         if (entity.state.hasChanged()) {
           changes[entity.id] = entity.state.getChanges();
@@ -226,13 +336,13 @@ class Game {
     //   : (client.account ? client.account.username : this.handleNickname(data.name || ''));
     const name = client.account && client.account.username ? client.account.username : (
       client.player && client.player.name ? client.player.name
-      : this.handleNickname(filter.clean(data.name) || '')
+        : this.handleNickname(filter.clean(data.name) || '')
     )
-    if(data?.name && data.name !== name) {
+    if (data?.name && data.name !== name) {
       data.name = name;
     }
 
-    if(client.account && client.account.id) {
+    if (client.account && client.account.id) {
       // Make sure same account can't join twice
       for (const player of this.players) {
         if (player?.client?.account && player.client.account?.id === client.account.id) {
@@ -248,13 +358,12 @@ class Game {
     client.fullSync = true;
     client.player = player;
     player.client = client;
-    if(client.account) {
-      const account=client.account;
-      if(account.skins && account.skins.equipped) {
+    if (client.account) {
+      const account = client.account;
+      if (account.skins && account.skins.equipped) {
         player.skin = account.skins.equipped;
         player.sword.skin = player.skin;
       } else {
-        console.log(account)
       }
     }
     this.players.add(player);

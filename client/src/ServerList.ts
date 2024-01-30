@@ -7,6 +7,7 @@ interface Server {
   address: string;
   ping: number;
   offline?: boolean;
+  playerCnt?: number;
 }
 
 const servers: Server[] = [
@@ -18,57 +19,104 @@ if (config.isDev) {
   servers.unshift({ value: 'dev', name: 'Development', address: config.serverDev, ping: 0 });
 }
 
+let lastPingUpdate = 0;
+let isUpdating = false;
+
 export async function updatePing() {
-  for (const server of servers) {
-    const start = Date.now();
-    if(!config.isDev && server.address.includes('localhost')) {
-      server.offline = true;
-      server.ping = Infinity;
-      continue;
-    }
-    await fetch(`${window.location.protocol}//${server.address}/ping`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'text/plain',
-      },
-    })
-    .then(() => {
-      server.offline = false;
-      server.ping = Date.now() - start;
-    })
-    .catch(() => {
-      server.offline = true;
-      server.ping = Infinity;
-    });
+  const cache: Record<string, Server> = {};
+  // Wait if update is already in progress
+  while (isUpdating) {
+    console.log('waiting for update');
+    await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100ms before checking again
   }
+
+  if (Date.now() - lastPingUpdate < 60000) {
+    return servers;
+  }
+
+  isUpdating = true; // Set flag to indicate update is in progress
+  lastPingUpdate = Date.now();
+
+  try {
+    for (const server of servers) {
+      console.log('updating ping for', server.address);
+      // instead lets do it at the same time
+      // const promises = servers.map((server2) => {
+      const start = Date.now();
+      if (!config.isDev && server.address.includes('localhost')) {
+        server.offline = true;
+        server.ping = Infinity;
+      } else {
+        if (cache[server.address]) {
+          server.offline = cache[server.address].offline;
+          server.ping = cache[server.address].ping;
+          server.playerCnt = cache[server.address].playerCnt;
+        } else {
+          try {
+            const data = await fetch(`${window.location.protocol}//${server.address}/serverinfo?${Date.now()}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'text/plain',
+              },
+            })
+            try {
+              const json = await data.json()
+              server.offline = false;
+              server.ping = Date.now() - start;
+              server.playerCnt = json.playerCnt;
+              cache[server.address] = server;
+            } catch (e) {
+
+              server.offline = true;
+              server.ping = Infinity;
+              cache[server.address] = server;
+            }
+
+          } catch (e) {
+            server.offline = true;
+            server.ping = Infinity;
+            cache[server.address] = server;
+          }
+        }
+      }
+    }
+
+
+  } finally {
+    isUpdating = false; // Reset flag whether update is successful or not
+  }
+
+  return servers;
 }
 
 export async function getServerList() {
   await updatePing();
-
   const autoServer = await getAutoServer();
   const list = [{
     ...autoServer,
     value: 'auto',
-    name: `AUTO (${autoServer.name})`,
+    name: `AUTO (${autoServer.name})`
   }, ...servers];
 
   return list;
 }
 
 async function getAutoServer(): Promise<Server> {
-  await updatePing();
 
   let server: Server = servers[0];
+
+  // pick server with lowest ping
   for (let i = 1; i < servers.length; i++) {
-    if (server.ping > servers[i].ping) {
+    if (servers[i].ping < server.ping) {
       server = servers[i];
     }
   }
+
   return server;
 }
 
 export async function getServer(): Promise<Server> {
+  await updatePing();
   if (Settings.server === 'auto') {
     return getAutoServer();
   }

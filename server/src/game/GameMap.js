@@ -47,7 +47,7 @@ class GameMap {
     this.entityTimers = new Set();
     this.coinsCount = map.coinsCount !== undefined ? map.coinsCount : 100;
     this.chestsCount = map.chestCount !== undefined ? map.chestsCount : 50;
-    this.aiPlayersCount = map.aiPlayersCount !== undefined ? map.aiPlayersCount : 10;
+    this.aiPlayersCount = map.aiPlayersCount !== undefined ? map.aiPlayersCount : 10; // contrary to the name, we want to make sure theres no more than this many AI players, goal is to maintain the game at this many players when low traffic
   }
 
   initialize() {
@@ -71,6 +71,7 @@ class GameMap {
         spawnZone: this.shape,
       });
     }
+    console.log('spawning', this.aiPlayersCount, 'AI bots');
     for (let i = 0; i < this.aiPlayersCount; i++) {
       this.spawnPlayerBot();
     }
@@ -86,6 +87,12 @@ class GameMap {
       if (spawner.timer.finished) {
         this.entityTimers.delete(spawner);
         this.addEntity(spawner.definition);
+      }
+    }
+
+    if(this.game.players.size < this.aiPlayersCount) {
+      for (let i = 0; i < this.aiPlayersCount - this.game.players.size; i++) {
+        this.spawnPlayerBot();
       }
     }
   }

@@ -217,10 +217,12 @@ class PlayerAI extends Player {
       // 40% chance of angry or run away
       if (Math.random() > 0.6) {
         // if health is less than 0.2, then run away
-        if (this.health.percent < 0.2) {
-          this.changeStage(BehaviourStages.RunAway);
-          this.target = entity;
-        } else if (this.stage !== BehaviourStages.RunAway) {
+        // if (this.health.percent < 0.2) {
+        //   this.changeStage(BehaviourStages.RunAway);
+        //   this.target = entity;
+        // } else
+
+        if (this.stage !== BehaviourStages.RunAway) {
           this.changeStage(BehaviourStages.TargetPlayer);
           this.target = entity;
         }
@@ -233,7 +235,11 @@ class PlayerAI extends Player {
   remove(reason) {
     super.remove(reason);
 
-    this.game.map.spawnPlayerBot();
+    // only spawn if total player count is less than game.aiPlayerCount
+    // if(this.game.players.size < this.game.aiPlayerCount) {
+    //   console.log('respawning AI bot');
+    //   this.game.map.spawnPlayerBot();
+    // }
   }
 }
 

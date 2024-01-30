@@ -1,8 +1,8 @@
 # Welcome!
 
-Swordbattle.io is a multiplayer game where players fight each other with diffrent 2D swords, and try to gain coins. The more coins you have, the bigger and powerful you get! Try to become the biggest of them all.
+Swordbattle.io is a multiplayer game where players fight each other with different 2D swords, and try to gain coins. The more coins you have, the bigger and powerful you get! Try to become the biggest of them all.
 
-> Note: you are looking at the beta V2 version of the code. For the stable V1 version, go to the [v1 repo](https://github.com/codergautam/swordbattle.io-legacy)
+> Note: you are looking at the V2 version of the code. For the old V1 version, go to the [v1 repo](https://github.com/codergautam/swordbattle.io-legacy)
 
 Play now at [swordbattle.io](http://swordbattle.io) and see the [leaderboard](https://www.swordbattle.io/leaderboard).
 
@@ -21,7 +21,7 @@ A more detailed guide will be released soon but for now, follow these instructio
 5. Go to `localhost:3000`
 
 ## License
-You can use this code as a base for your IO games, but please change it to a considerable amount to make it a different game. Under libaries and code you used, please add a link to this github respiratory. Furthermore, under the GPL License, your game **MUST** also be open source. You cannot just take this free code and make it proprietary.
+You can use this code as a base for your IO games, but please change it to a considerable amount to make it a different game. Under libraries and code you used, please add a link to this GitHub repository. Furthermore, under the GPL License, your game **MUST** also be open source. You cannot just take this free code and make it proprietary.
 
 Thanks.
 

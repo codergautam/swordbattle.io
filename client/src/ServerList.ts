@@ -10,6 +10,12 @@ interface Server {
   playerCnt?: number;
 }
 
+
+let debugMode = false;
+try {
+  debugMode = window.location.search.includes("debugAlertMode");
+  } catch(e) {}
+
 const servers: Server[] = [
   { value: 'eu', name: 'Europe', address: config.serverEU, ping: 0 },
   { value: 'us', name: 'USA', address: config.serverUS, ping: 0 },
@@ -99,7 +105,7 @@ export async function getServerList() {
   return list;
 }
 
-async function getAutoServer(): Promise<Server> {
+function getAutoServer(): Server {
 
   let server: Server = servers[0];
 
@@ -110,21 +116,33 @@ async function getAutoServer(): Promise<Server> {
     }
   }
 
+  if(server.offline) {
+    alert('All servers are offline, please try again later');
+  }
+
   return server;
 }
 
 export async function getServer(): Promise<Server> {
   await updatePing();
+  let server: Server = getAutoServer();
+
   if (Settings.server === 'auto') {
-    return getAutoServer();
+    return server;
   }
 
-  let server: Server = servers[0];
   for (let i = 1; i < servers.length; i++) {
-    if (Settings.server === servers[i].value) {
+    if (Settings.server === servers[i].value && !servers[i].offline) {
       server = servers[i];
       break;
     }
+  }
+  if(Settings.server !== server.value) {
+    if(debugMode) {
+      alert('changed server to ' + server.value+ ' because the previous one was offline, previous server: ' + Settings.server)
+    }
+    Settings.server = server.value;
+    window.location.reload();
   }
   return server;
 }

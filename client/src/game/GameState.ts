@@ -73,7 +73,7 @@ class GameState {
     // rebind
     getServer().then(server => {
       if(this.debugMode) {
-        alert("Sending ws connection to "+server.address);
+        alert("Sending ws connection to "+server.address+" name "+server.name);
       }
       console.log('connecting to', server.address, Date.now());
       this.socket = Socket.connect(

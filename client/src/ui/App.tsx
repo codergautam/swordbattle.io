@@ -29,7 +29,7 @@ import GemCount from './ValueCnt';
 import ShopButton from './ShopButton';
 import ShopModal from './modals/ShopModal';
 import MigrationModal from './modals/MigrationModal';
-import { getCookies } from '../helpers';
+import { getCookies, playVideoAd } from '../helpers';
 import Ad from './Ad';
 import { Settings } from '../game/Settings';
 import { getServerList, updatePing } from '../ServerList';
@@ -178,22 +178,6 @@ function App() {
       setLoadingProgress(100);
     }
   }, [isConnected, assetsLoaded]);
-
-  const playVideoAd = () => {
-    return new Promise<void>((resolve, reject) => {
-    if((window as any)?.adProvider === 'gamemonetize' && Date.now() - (window as any)?.lastVidAdTime > (window as any)?.vidAdDelay && typeof (window as any).sdk !== 'undefined' && (window as any).sdk.showBanner !== 'undefined') {
-      console.log('Playing video ad');
-      const sdk = (window as any).sdk;
-      sdk?.showBanner();
-      window.addEventListener('gamemonetize_event_SDK_GAME_START', (e: any) => {
-        console.log('Ad complete', e);
-        resolve();
-      });
-    } else {
-      resolve();
-    }
-  });
-  }
 
   const onStart = () => {
     console.log('Starting game');

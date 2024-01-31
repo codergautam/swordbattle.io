@@ -61,15 +61,7 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
     window.SDK_OPTIONS = {
       gameId: "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
       onEvent: function (a) {
-
-         if(a.name === "SDK_READY") {
-          if (typeof sdk !== 'undefined' && sdk.showBanner !== 'undefined') {
-sdk.showBanner();
-console.log("showing banner");
-}
-         }
         const windowEvent = new CustomEvent("gamemonetize_event_" + a.name, { detail: a });
-        console.log("dispatching event", windowEvent);
         window.dispatchEvent(windowEvent);
       }
    };

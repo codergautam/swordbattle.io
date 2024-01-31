@@ -79,6 +79,21 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
 })(document, "script", "gamemonetize-sdk");
   }
   </script>
+
+    <div id="gamemonetize-video"></div>
+<script type="text/javascript">
+   window.VIDEO_OPTIONS = {
+       gameid : "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
+       width  : "100%",
+       height : "480px",
+       color  : "#3f007e"
+   };
+   (function (a, b, c) {
+      var d = a.getElementsByTagName(b)[0];
+      a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://api.gamemonetize.com/video.js?v=" + Date.now(), d.parentNode.insertBefore(a, d))
+   })(document, "script", "gamemonetize-video-api"); 
+</script>  
+
   <script src="//api.adinplay.com/libs/aiptag/pub/SWT/swordbattle.io/tag.min.js"></script>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />

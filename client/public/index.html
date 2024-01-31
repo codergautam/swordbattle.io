@@ -62,12 +62,12 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
       gameId: "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
       onEvent: function (a) {
          
-//          if(a.name === "SDK_READY") {
-//           if (typeof sdk !== 'undefined' && sdk.showBanner !== 'undefined') {
-// sdk.showBanner();
-// console.log("showing banner");
-// }
-//          }
+         if(a.name === "SDK_READY") {
+          if (typeof sdk !== 'undefined' && sdk.showBanner !== 'undefined') {
+sdk.showBanner();
+console.log("showing banner");
+}
+         }
         const windowEvent = new CustomEvent("gamemonetize_event_" + a.name, { detail: a });
         console.log("dispatching event", windowEvent);
         window.dispatchEvent(windowEvent);
@@ -101,18 +101,5 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
         <div id="gamemonetize-video"></div>
-<script type="text/javascript">
-   window.VIDEO_OPTIONS = {
-       gameid : "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
-       width  : "100%",
-       height : "480px",
-       color  : "#3f007e"
-   };
-   (function (a, b, c) {
-      var d = a.getElementsByTagName(b)[0];
-      a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://api.gamemonetize.com/video.js?v=" + Date.now(), d.parentNode.insertBefore(a, d))
-   })(document, "script", "gamemonetize-video-api"); 
-</script>  
-
   </body>
 </html>

@@ -31,7 +31,7 @@ export async function updatePing() {
   const cache: Record<string, Server> = {};
   // Wait if update is already in progress
   while (isUpdating) {
-    await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100ms before checking again
+    await new Promise(resolve => setTimeout(resolve, 10)); // Wait for 10ms before checking again
   }
 
   if (Date.now() - lastPingUpdate < 60000) {
@@ -43,11 +43,10 @@ export async function updatePing() {
 
   try {
     for (const server of servers) {
-      console.log('updating ping for', server.address);
       // instead lets do it at the same time
       // const promises = servers.map((server2) => {
       const start = Date.now();
-      if (!config.isDev && server.address.includes('localhost')) {
+      if (!server.address || (!config.isDev && server.address.includes('localhost'))) {
         server.offline = true;
         server.ping = Infinity;
       } else {

@@ -49,13 +49,14 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
 
     let timerId = setInterval(()=> {
       displayNewAd();
-    }, AD_REFRESH_MS); 
+    }, AD_REFRESH_MS);
     displayNewAd();
     return () => clearInterval(timerId);
   }, [type]);
 
 
   if(type === -1) return null;
+  if((window as any).adprovider === "gamemonetize") return null;
 
   return (
     <div style={{

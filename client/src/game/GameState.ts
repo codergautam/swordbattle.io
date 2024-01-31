@@ -71,7 +71,9 @@ class GameState {
     this.spectator = new Spectator(this.game);
     }
     // rebind
+    console.time("getServer");
     getServer().then(server => {
+      console.timeEnd("getServer");
       if(this.debugMode) {
         alert("Sending ws connection to "+server.address+" name "+server.name);
       }

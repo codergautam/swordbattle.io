@@ -37,12 +37,10 @@ import AccountCard from './AccountCard';
 import ForumCard from './ForumCard';
 // import Game from '../game/scenes/Game';
 
-const preloadImages: string[] = [
-  SettingsImg,
-  DiscordLogo,
-  SignupImg,
-  LoginImg,
-];
+let debugMode = false;
+try {
+  debugMode = window.location.search.includes("debugAlertMode");
+  } catch(e) {}
 
 function App() {
   const dispatch = useDispatch();
@@ -58,7 +56,6 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [accountReady, setAccountReady] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
-  const [recaptchaLoaded, setRecaptchaLoaded] = useState<boolean>(false);
   const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
@@ -143,6 +140,7 @@ function App() {
 
     // const gameState = (game?.scene.scenes[0] as Game).gameState;
     // TODO: change server without reloading
+
       window.location.reload();
   }
 
@@ -173,16 +171,14 @@ function App() {
   };
 
   useEffect(() => {
-    window.addEventListener('recaptchaLoaded', () => {
-      setRecaptchaLoaded(true);
-    });
-  }, []);
-  useEffect(() => {
-    console.log('Checking if everything is ready. Connected:', isConnected, 'Recaptcha:', recaptchaLoaded, 'Assets:', assetsLoaded);
-    if(isConnected && recaptchaLoaded && assetsLoaded) {
+    console.log('Checking if everything is ready. Connected:', isConnected, 'Assets:', assetsLoaded);
+    if(debugMode) {
+      alert('check. Connected: ' + isConnected + ' Assets: ' + assetsLoaded);
+    }
+    if(isConnected && assetsLoaded) {
       setLoadingProgress(100);
     }
-  }, [isConnected, recaptchaLoaded, assetsLoaded]);
+  }, [isConnected, assetsLoaded]);
 
   const onStart = () => {
     console.log('Starting game');

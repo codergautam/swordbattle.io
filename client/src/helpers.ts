@@ -169,12 +169,15 @@ export const playVideoAd = () => {
       resolve();
       window.removeEventListener('gamemonetize_event_SDK_BANNER_COMPLETE', onComplete);
     };
-    const onImpression = () => {
-      (window as any).lastVidAdTime = Date.now();
-      window.localStorage.setItem('lastVidAdTime', (window as any).lastVidAdTime);
-      window.removeEventListener('gamemonetize_event_SDK_BANNER_IMPRESSION', onImpression);
-    };
-    window.addEventListener('gamemonetize_event_SDK_BANNER_IMPRESSION', onImpression);
+    // const onImpression = () => {
+
+    //   window.removeEventListener('gamemonetize_event_SDK_BANNER_IMPRESSION', onImpression);
+    // };
+
+    (window as any).lastVidAdTime = Date.now();
+    window.localStorage.setItem('lastVidAdTime', (window as any).lastVidAdTime);
+    
+    // window.addEventListener('gamemonetize_event_SDK_BANNER_IMPRESSION', onImpression);
     window.addEventListener('gamemonetize_event_SDK_GAME_START', (e: any) => {
       onComplete();
     });

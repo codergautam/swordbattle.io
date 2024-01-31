@@ -109,19 +109,13 @@ class GameState {
   }
 
   spectate() {
-    if(config.recaptchaClientKey && window.grecaptcha && !this.captchaVerified) {
+    if(config.recaptchaClientKey && (window as any).recaptcha && !this.captchaVerified) {
     if(this.debugMode) alert("Executing recaptcha");
-      // window.grecaptcha.execute(config.recaptchaClientKey, {action: 'spectate'}).then((captcha: string) => {
-      //   if(this.debugMode) alert("Received captcha of length "+captcha.length+", sending spectate");
-      //   this.captchaVerified = true;
-      //   Socket.emit({ spectate: true, ...exportCaptcha(captcha) });
-      // });
-
       const waitForRecaptcha = () => {
-        if (window.grecaptcha) {
+        if ((window as any).recaptcha) {
             // reCAPTCHA is available, execute your code
             if(this.debugMode) alert("Recaptcha available, executing");
-            window.grecaptcha.execute(config.recaptchaClientKey, { action: 'spectate' }).then((captcha) => {
+            (window as any).recaptcha.execute(config.recaptchaClientKey, { action: 'spectate' }).then((captcha: any) => {
                 if (this.debugMode) alert("Received captcha of length " + captcha.length + ", sending spectate");
                 this.captchaVerified = true;
                 Socket.emit({ spectate: true, ...exportCaptcha(captcha) });

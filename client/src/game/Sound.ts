@@ -21,7 +21,11 @@ export class Sound {
   initialize(scene: Phaser.Scene) {
     const options = { volume: this.volume };
     for (let i = 0; i < this.source.length; i++) {
+      try {
       this.sounds.push(scene.sound.add(this.id + i.toString(), options));
+      } catch(e) {
+        console.log("Failed to initialize sound", e);
+      }
     }
   }
 

@@ -26,10 +26,16 @@ const router = createHashRouter([
 ], {
   basename: config.basename,
 });
+let debugMode = false;
 
+try {
+  debugMode = window.location.search.includes("debugAlertMode");
+  } catch(e) {}
 if(config.recaptchaClientKey) {
 load(config.recaptchaClientKey).then((recaptcha) => {
   console.log('recaptcha loaded');
+  if(debugMode) alert('recaptcha loaded');
+
   window.grecaptcha = recaptcha as  any;
 });
 }

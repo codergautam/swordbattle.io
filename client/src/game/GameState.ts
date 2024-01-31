@@ -110,12 +110,14 @@ class GameState {
 
   spectate() {
     if(config.recaptchaClientKey && window.grecaptcha && !this.captchaVerified) {
+    if(this.debugMode) alert("Executing recaptcha");
       window.grecaptcha.execute(config.recaptchaClientKey, {action: 'spectate'}).then((captcha: string) => {
-        if(this.debugMode) alert("Received captcha of length "+captcha.length);
+        if(this.debugMode) alert("Received captcha of length "+captcha.length+", sending spectate");
         this.captchaVerified = true;
         Socket.emit({ spectate: true, ...exportCaptcha(captcha) });
       });
     } else {
+      if(this.debugMode) alert("No recaptcha, sending spectate");
     Socket.emit({ spectate: true });
     }
   }

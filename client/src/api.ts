@@ -6,6 +6,11 @@ let currentEndpoint: string | null = null;
 
 const unavialableMessage = 'Server is temporarily unavailable, try again later';
 
+let debugMode = false;
+try {
+  debugMode = window.location.search.includes("debugAlertMode");
+  } catch(e) {}
+
 async function checkEndpoint() {
   if (!currentEndpoint) {
     currentEndpoint = endpoint;
@@ -87,6 +92,7 @@ function post(url: string, body: any, callback = (data: any) => {}, token?: stri
   if (useRecaptcha && recaptchaClientKey && window.grecaptcha) {
       const endpointName = url.split('/').pop() as string;
       window.grecaptcha.execute(endpointName, {}).then((recaptchaToken) => {
+        if(debugMode) alert('got recaptcha of length '+recaptchaToken.length)
         sendRequest(recaptchaToken);
       });
   } else {

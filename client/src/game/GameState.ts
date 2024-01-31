@@ -126,6 +126,7 @@ class GameState {
 
   onServerOpen() {
     this.spectate();
+    if(this.debugMode) alert("dfg.");
     console.log('server connected', Date.now());
   }
 

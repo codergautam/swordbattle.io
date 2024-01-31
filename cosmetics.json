@@ -1786,6 +1786,66 @@
       "swordFileName": "dragonSword.png",
       "bodyFileName": "dragonPlayer.png",
       "description": "The king of the skies... and swords."
-    }
+    },
+    "seafire": {
+      "name": "seafire",
+      "displayName": "Seafire",
+      "id": 178,
+      "buyable": true,
+      "price": 400,
+      "swordFileName": "seafireSword.png",
+      "bodyFileName": "seafirePlayer.png",
+      "description": "When lava and water meet by the volcano’s side, the sea ignites."
+    },
+    "keyboard": {
+      "name": "keyboard",
+      "displayName": "Keyboard",
+      "id": 179,
+      "buyable": true,
+      "price": 300,
+      "swordFileName": "keyboardSword.png",
+      "bodyFileName": "keyboardPlayer.png",
+      "description": "Beethoven would be proud."
+    },
+    "ghost": {
+      "name": "ghost",
+      "displayName": "Ghost",
+      "id": 180,
+      "buyable": true,
+      "price": 150,
+      "swordFileName": "ghostSword.png",
+      "bodyFileName": "ghostPlayer.png",
+      "description": "Boo!"
+    },
+    "hypersphere": {
+      "name": "hypersphere",
+      "displayName": "Hypersphere",
+      "id": 181,
+      "buyable": true,
+      "price": 450,
+      "swordFileName": "hypersphereSword.png",
+      "bodyFileName": "hyperspherePlayer.png",
+      "description": "Enter the hyperverse..."
+    },
+    "crabby": {
+      "name": "crabby",
+      "displayName": "Crabby",
+      "id": 182,
+      "buyable": true,
+      "price": 250,
+      "swordFileName": "crabbySword.png",
+      "bodyFileName": "crabbyPlayer.png",
+      "description": "For players who are feeling a bit crabby."
+    },
+    "honeybee": {
+      "name": "honeybee",
+      "displayName": "Honeybee",
+      "id": 183,
+      "buyable": true,
+      "price": 350,
+      "swordFileName": "honeybeeSword.png",
+      "bodyFileName": "honeybeePlayer.png",
+      "description": "Victory has never been sweeter!"
+    },
   }
 }

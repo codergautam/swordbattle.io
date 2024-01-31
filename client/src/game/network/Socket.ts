@@ -29,7 +29,6 @@ class Socket {
     window.socket = this.socket;
 
     this.socket.addEventListener('open', () => {
-      if(this.debugMode) alert('Connection opened');
       this.onOpen();
       onOpen();
     });

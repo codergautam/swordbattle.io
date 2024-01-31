@@ -179,6 +179,22 @@ function App() {
     }
   }, [isConnected, assetsLoaded]);
 
+  const playVideoAd = () => {
+    return new Promise<void>((resolve, reject) => {
+    if((window as any)?.adProvider === 'gamemonetize' && Date.now() - (window as any)?.lastVidAdTime > (window as any)?.vidAdDelay && typeof (window as any).sdk !== 'undefined' && (window as any).sdk.showBanner !== 'undefined') {
+      console.log('Playing video ad');
+      const sdk = (window as any).sdk;
+      sdk?.showBanner();
+      window.addEventListener('gamemonetize_event_SDK_GAME_START', (e: any) => {
+        console.log('Ad complete', e);
+        resolve();
+      });
+    } else {
+      resolve();
+    }
+  });
+  }
+
   const onStart = () => {
     console.log('Starting game');
     if(!isConnected) {
@@ -186,8 +202,16 @@ function App() {
       return;
     }
     else  {
-      setGameStarted(true);
-    window.phaser_game?.events.emit('startGame', name);
+      const go = () => {
+        setGameStarted(true);
+        window.phaser_game?.events.emit('startGame', name);
+      }
+      playVideoAd().then(() => {
+        go();
+      }).catch((e) => {
+        console.log('Error playing video ad', e);
+        go();
+      });
     }
   };
   const openSettings = () => setModal(<SettingsModal />);

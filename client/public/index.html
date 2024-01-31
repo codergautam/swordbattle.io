@@ -66,7 +66,7 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
 // console.log("showing banner");
 // }
 //          }
-        const windowEvent = new CustomEvent("gamemonetize_event", { detail: a });
+        const windowEvent = new CustomEvent("gamemonetize_event_" + a.name, { detail: a });
         console.log("dispatching event", windowEvent);
         window.dispatchEvent(windowEvent);
       }

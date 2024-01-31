@@ -29,7 +29,7 @@ import GemCount from './ValueCnt';
 import ShopButton from './ShopButton';
 import ShopModal from './modals/ShopModal';
 import MigrationModal from './modals/MigrationModal';
-import { getCookies } from '../helpers';
+import { getCookies, playVideoAd } from '../helpers';
 import Ad from './Ad';
 import { Settings } from '../game/Settings';
 import { getServerList, updatePing } from '../ServerList';
@@ -186,8 +186,16 @@ function App() {
       return;
     }
     else  {
-      setGameStarted(true);
-    window.phaser_game?.events.emit('startGame', name);
+      const go = () => {
+        setGameStarted(true);
+        window.phaser_game?.events.emit('startGame', name);
+      }
+      playVideoAd().then(() => {
+        go();
+      }).catch((e) => {
+        console.log('Error playing video ad', e);
+        go();
+      });
     }
   };
   const openSettings = () => setModal(<SettingsModal />);

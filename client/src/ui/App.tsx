@@ -145,7 +145,8 @@ function App() {
   }
 
   useEffect(() => {
-    updatePing();
+    console.time('updatePing')
+    updatePing().then(() => console.timeEnd('updatePing')).catch(console.error);
     window.addEventListener('assetsLoadProgress', (e: any) => {
       setLoadingProgress(Math.floor(e.detail * 98));
       if(e.detail === 1) setAssetsLoaded(true);

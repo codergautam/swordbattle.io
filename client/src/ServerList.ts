@@ -94,8 +94,10 @@ export async function updatePing() {
 }
 
 export async function getServerList() {
+  console.time('updatePingServerList')
   await updatePing();
-  const autoServer = await getAutoServer();
+  console.timeEnd('updatePingServerList')
+  const autoServer = getAutoServer();
   const list = [{
     ...autoServer,
     value: 'auto',
@@ -124,7 +126,9 @@ function getAutoServer(): Server {
 }
 
 export async function getServer(): Promise<Server> {
+  console.time('updatePingServer')
   await updatePing();
+  console.timeEnd('updatePingServer')
   let server: Server = getAutoServer();
 
   if (Settings.server === 'auto') {

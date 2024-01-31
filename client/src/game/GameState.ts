@@ -57,7 +57,7 @@ class GameState {
         alert("Debug alert mode activated");
       }
     } catch(e) {}
-    
+
   }
 
   refreshSocket(unbind = false) {
@@ -126,7 +126,6 @@ class GameState {
 
   onServerOpen() {
     this.spectate();
-    if(this.debugMode) alert("Connection established");
     console.log('server connected', Date.now());
   }
 
@@ -228,7 +227,7 @@ class GameState {
       if (!this.isReady) {
         console.log('game ready', Date.now());
         if(this.debugMode) alert("Game ready-- fullsync");
-        
+
         this.isReady = true;
         this.game.game.events.emit('gameReady');
       }

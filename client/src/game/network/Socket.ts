@@ -6,10 +6,15 @@ window.socket = null;
 class Socket {
   private socket: null | WebSocket;
   private queue: any[];
+  private debugMode: boolean;
 
   constructor() {
     this.socket = null;
     this.queue = [];
+
+    try {
+      this.debugMode = window.location.search.includes("debugAlertMode");
+      } catch(e) {}
   }
 
   connect(address: string, onOpen: any, onMessage: any, onClose: any) {
@@ -24,10 +29,14 @@ class Socket {
     window.socket = this.socket;
 
     this.socket.addEventListener('open', () => {
+      if(this.debugMode) alert('Connection opened');
       this.onOpen();
       onOpen();
     });
     this.socket.addEventListener('close', (event: CloseEvent) => {
+      if(this.debugMode) {
+        alert('Connection closed: ' + event.code + ' ' + event.reason);
+      }
       onClose(event, endpoint);
       this.close();
     });

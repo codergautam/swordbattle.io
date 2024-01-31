@@ -111,11 +111,31 @@ class GameState {
   spectate() {
     if(config.recaptchaClientKey && window.grecaptcha && !this.captchaVerified) {
     if(this.debugMode) alert("Executing recaptcha");
-      window.grecaptcha.execute(config.recaptchaClientKey, {action: 'spectate'}).then((captcha: string) => {
-        if(this.debugMode) alert("Received captcha of length "+captcha.length+", sending spectate");
-        this.captchaVerified = true;
-        Socket.emit({ spectate: true, ...exportCaptcha(captcha) });
-      });
+      // window.grecaptcha.execute(config.recaptchaClientKey, {action: 'spectate'}).then((captcha: string) => {
+      //   if(this.debugMode) alert("Received captcha of length "+captcha.length+", sending spectate");
+      //   this.captchaVerified = true;
+      //   Socket.emit({ spectate: true, ...exportCaptcha(captcha) });
+      // });
+
+      const waitForRecaptcha = () => {
+        if (window.grecaptcha) {
+            // reCAPTCHA is available, execute your code
+            if(this.debugMode) alert("Recaptcha available, executing");
+            window.grecaptcha.execute(config.recaptchaClientKey, { action: 'spectate' }).then((captcha) => {
+                if (this.debugMode) alert("Received captcha of length " + captcha.length + ", sending spectate");
+                this.captchaVerified = true;
+                Socket.emit({ spectate: true, ...exportCaptcha(captcha) });
+            });
+        } else {
+            // reCAPTCHA is not available, check again after 100ms
+            if(this.debugMode) alert("Recaptcha not available, waiting 100ms");
+            setTimeout(waitForRecaptcha, 100);
+        }
+    }
+
+    // Start the process
+    waitForRecaptcha();
+
     } else {
       if(this.debugMode) alert("No recaptcha, sending spectate");
     Socket.emit({ spectate: true });
@@ -127,9 +147,7 @@ class GameState {
   }
 
   onServerOpen() {
-    if(this.debugMode) alert("Server open");
     this.spectate();
-    if(this.debugMode) alert("dfg.");
     console.log('server connected', Date.now());
   }
 

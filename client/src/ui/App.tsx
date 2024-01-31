@@ -57,14 +57,13 @@ function App() {
   const [firstGame, setFirstGame] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [accountReady, setAccountReady] = useState(false);
-  const [gameQueued, setGameQueued] = useState(false);
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState<boolean>(false);
   const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
-  const gameQueuedRef = useRef(gameQueued);
 
   useEffect(() => {
-    gameQueuedRef.current = gameQueued;
 
     // debounce resize
     let timeout: any;
@@ -76,7 +75,7 @@ function App() {
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, [gameQueued]);
+  }, []);
 
   useEffect(() => {
     if(gameStarted && firstGame) setFirstGame(false);
@@ -130,7 +129,7 @@ function App() {
     // setModal(<ChangelogModal />);
   }, [gameStarted]);
 
-    const [server, setServer] = useState(Settings.server);
+  const [server, setServer] = useState(Settings.server);
   const [servers, setServers] = useState<any[]>([]);
 
   useEffect(() => {
@@ -150,7 +149,8 @@ function App() {
   useEffect(() => {
     updatePing();
     window.addEventListener('assetsLoadProgress', (e: any) => {
-      setLoadingProgress(Math.floor(e.detail * 100));
+      setLoadingProgress(Math.floor(e.detail * 98));
+      if(e.detail === 1) setAssetsLoaded(true);
     });
   }, []);
 
@@ -169,16 +169,21 @@ function App() {
     }
   }, [gameStarted]);
   const onGameReady = () => {
-    console.log('Game ready', Date.now(), gameQueued);
     setIsConnected(true);
-    setLoadingProgress(100);
-    if(gameQueuedRef.current) {
-      console.log('Game queued, starting game');
-      setGameStarted(true);
-      setGameQueued(false);
-      window.phaser_game?.events.emit('startGame', name);
-    }
   };
+
+  useEffect(() => {
+    window.addEventListener('recaptchaLoaded', () => {
+      setRecaptchaLoaded(true);
+    });
+  }, []);
+  useEffect(() => {
+    console.log('Checking if everything is ready. Connected:', isConnected, 'Recaptcha:', recaptchaLoaded, 'Assets:', assetsLoaded);
+    if(isConnected && recaptchaLoaded && assetsLoaded) {
+      setLoadingProgress(100);
+    }
+  }, [isConnected, recaptchaLoaded, assetsLoaded]);
+
   const onStart = () => {
     console.log('Starting game');
     if(!isConnected) {
@@ -242,103 +247,6 @@ function App() {
       )}
 
       {!gameStarted && (
-        // <div className={`main-ui ${isConnected && 'main-ui-loaded'}`}>
-        //   <div className={clsx('startGame', isLoaded && 'animation')} style={scale.styles}>
-        //     <div className='title'>Swordbattle.io</div>
-        //     <input type="text" maxLength={16} placeholder="Enter Name"
-        //       value={account.isLoggedIn ? account.username : name}
-        //       onChange={(e) => setName(e.target.value)}
-        //       disabled={account.isLoggedIn}
-        //     />
-        //     <button className="startButton" onClick={onStart} disabled={!accountReady}>
-        //       {accountReady ?
-        //       (gameQueued && !isConnected) ? 'Joining...' : 'Play'
-        //       :
-        //       'Connecting...'}
-        //     </button>
-
-
-        //   {/* Ad Div */}
-        //   {
-        //    <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} />
-        //   }
-        //   </div>
-
-        //   <div
-        //     className="settings-button"
-        //     style={scale.styles}
-        //     role="button"
-        //     onClick={openSettings}
-        //     onKeyDown={event => event.key === 'Enter' && openSettings()}
-        //     tabIndex={0}
-        //   >
-        //     <img src={SettingsImg} alt="Settings" />
-        //   </div>
-
-        //   {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal'} />}
-
-        //   {/* 'Shop' button and gem count */}
-
-        //   {account.isLoggedIn && (
-        //     <>
-        //     <GemCount account={account} scale={scale.factor} />
-        //     </>
-        //   )}
-
-        //   <ShopButton account={account} scale={scale.factor} openShop={openShop} />
-
-        //   <div className="auth-buttons" style={scale.styles}>
-        //     {account.isLoggedIn ? (
-        //       <div className="dropdown">
-        //         <div className="auth-username"><FontAwesomeIcon icon={faUser} /> {account.username}</div>
-        //         <ul className="dropdown-menu">
-        //           <li>
-        //             <Link to={`/profile?username=${encodeURIComponent(account.username)}`} target="_blank" className="dropdown-item">
-        //               <FontAwesomeIcon icon={faUser} /> Profile
-        //             </Link>
-        //           </li>
-        //           <li>
-        //           <a className="dropdown-item" href="#" onClick={onChangeName}>
-        //             <FontAwesomeIcon icon={faICursor} /> Change Name
-        //           </a>
-        //           </li>
-        //           <li><a className="dropdown-item" href="#" onClick={onLogout}>
-        //             <FontAwesomeIcon icon={faSignOut} /> Logout
-        //           </a></li>
-        //         </ul>
-        //       </div>
-        //     ) : (
-        //       <>
-        //       <img src={LoginImg} alt="Login" role="button" className="auth-btn" onClick={onLogin} />
-        //       <img src={SignupImg} alt="Signup" role="button" className="auth-btn" onClick={onSignup} />
-        //       </>
-        //     )}
-        //   </div>
-
-        //   <footer className={clsx('links', isLoaded && 'animation')} style={scale.styles}>
-        //     <div>
-        //       <a href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="noreferrer">About</a>
-        //     </div>
-        //     <div>
-        //       <Link to="/leaderboard" target="_blank" rel="noreferrer">Leaderboard</Link>
-        //     </div>
-        //     <div>
-        //       <a href="https://iogames.forum/swordbattle" target="_blank" rel="noreferrer" className='forum'>
-        //         Forum
-        //       </a>
-        //     </div>
-        //     <div>
-        //       <a href="https://discord.com/invite/9A9dNTGWb9" target="_blank" rel="noreferrer" className='discord'>
-        //         Discord
-        //       </a>
-        //     </div>
-        //     <div>
-        //       <a href="https://iogames.forum/t/official-swordbattle-changelog/17400/last" target="_blank" rel="noreferrer" className='changelog'>
-        //         Changelog
-        //       </a>
-        //     </div>
-        //   </footer>
-        // </div>
         <>
         <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`}>
         <ShopButton account={account} scale={scale.factor} openShop={openShop} />

@@ -13,8 +13,22 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
 
   gtag('config', 'G-35EKK5X5R4');
 </script>
-  <!-- AdinPlay Ads -->
+  <!-- Ads -->
   <script>
+    function checkAdProvider() {
+      let adProvider = "adinplay";
+      // get query string in url check if other ad provider is set
+      const validAdProviders = ["adinplay", "gamemonetize"];
+      const urlParams = new URLSearchParams(window.location.search);
+      const adProviderParam = urlParams.get("adprovider");
+      if (adProviderParam && validAdProviders.includes(adProviderParam)) {
+        adProvider = adProviderParam;
+      }
+      return adProvider;
+    }
+    window.adProvider = checkAdProvider();
+
+    if(window.adProvider === "adinplay") {
     var aiptag = aiptag || {};
     aiptag.cmd = aiptag.cmd || [];
     aiptag.cmd.display = aiptag.cmd.display || [];
@@ -28,6 +42,25 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
       buttonText: "Privacy settings",
       buttonPosition: "bottom-left" //bottom-left, bottom-right, top-left, top-right
     }
+  } else if(window.adProvider === "gamemonetize") {
+    alert("loading gamemonetize")
+    window.SDK_OPTIONS = {
+      gameId: "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
+      onEvent: function (a) {
+         alert("event: " + a.name);
+         if(a.name === "SDK_READY") {
+          if (typeof sdk !== 'undefined' && sdk.showBanner !== 'undefined') {
+sdk.showBanner();
+console.log("showing banner");
+}
+         }
+      }
+   };
+(function (a, b, c) {
+   var d = a.getElementsByTagName(b)[0];
+   a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://api.gamemonetize.com/sdk.js", d.parentNode.insertBefore(a, d))
+})(document, "script", "gamemonetize-sdk");
+  }
   </script>
   <script src="//api.adinplay.com/libs/aiptag/pub/SWT/swordbattle.io/tag.min.js"></script>
     <meta charset="utf-8" />

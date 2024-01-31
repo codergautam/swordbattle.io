@@ -43,7 +43,7 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
     }
     } catch(e){};
 
-    if(window.adProvider === "adinplay") {
+
     var aiptag = aiptag || {};
     aiptag.cmd = aiptag.cmd || [];
     aiptag.cmd.display = aiptag.cmd.display || [];
@@ -57,7 +57,7 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
       buttonText: "Privacy settings",
       buttonPosition: "bottom-left" //bottom-left, bottom-right, top-left, top-right
     }
-  } else if(window.adProvider === "gamemonetize") {
+ if(window.adProvider === "gamemonetize") {
     window.SDK_OPTIONS = {
       gameId: "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
       onEvent: function (a) {

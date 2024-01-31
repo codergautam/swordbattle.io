@@ -56,7 +56,7 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
 
 
   if(type === -1) return null;
-  if((window as any).adProvider === "gamemonetize") return null;
+  // if((window as any).adProvider === "gamemonetize") return null;
 
   return (
     <div style={{

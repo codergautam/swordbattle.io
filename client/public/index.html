@@ -23,7 +23,7 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
     };
 
     function checkAdProvider() {
-      let adProvider = "adinplay";
+      let adProvider = "gamemonetize";
       // get query string in url check if other ad provider is set
       const validAdProviders = ["adinplay", "gamemonetize"];
       const urlParams = new URLSearchParams(window.location.search);
@@ -61,7 +61,7 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
     window.SDK_OPTIONS = {
       gameId: "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
       onEvent: function (a) {
-         
+
          if(a.name === "SDK_READY") {
           if (typeof sdk !== 'undefined' && sdk.showBanner !== 'undefined') {
 sdk.showBanner();
@@ -100,6 +100,5 @@ console.log("showing banner");
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-        <div id="gamemonetize-video"></div>
   </body>
 </html>

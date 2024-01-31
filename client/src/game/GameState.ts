@@ -109,8 +109,8 @@ class GameState {
   }
 
   spectate() {
-    if(config.recaptchaClientKey && (window as any).recaptcha && !this.captchaVerified) {
-    if(this.debugMode) alert("Executing recaptcha");
+    if(config.recaptchaClientKey && !this.captchaVerified) {
+    if(this.debugMode) alert("Attempting recaptcha");
       const waitForRecaptcha = () => {
         if ((window as any).recaptcha) {
             // reCAPTCHA is available, execute your code
@@ -131,7 +131,7 @@ class GameState {
     waitForRecaptcha();
 
     } else {
-      if(this.debugMode) alert("No recaptcha, sending spectate");
+      if(this.debugMode) alert("Sending spectate w/o recaptcha");
     Socket.emit({ spectate: true });
     }
   }

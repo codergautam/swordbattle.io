@@ -5,6 +5,7 @@
   "homepage": "./",
   "scripts": {
     "start": "react-scripts start",
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
     "build": "react-scripts build",
     "build-protocol": "npx pbjs --ts ./src/game/network/Protocol.ts ./src/game/network/schema.proto",
     "test": "react-scripts test",
@@ -30,6 +31,7 @@
     "react-scripts": "5.0.1",
     "recaptcha-v3": "^1.10.0",
     "sass": "^1.63.3",
+    "source-map-explorer": "^2.5.3",
     "typescript": "^5.1.3",
     "valtio": "^1.10.5"
   },

@@ -161,7 +161,7 @@ export function getCookies() {
 export const playVideoAd = () => {
   return new Promise<void>((resolve, reject) => {
   if((window as any)?.adProvider === 'gamemonetize' && Date.now() - (window as any)?.lastVidAdTime > (window as any)?.vidAdDelay && typeof (window as any).sdk !== 'undefined' && (window as any).sdk.showBanner !== 'undefined') {
-    console.log('Playing video ad');
+    console.log('Playing video ad from gamemonetize');
     const sdk = (window as any).sdk;
     sdk?.showBanner();
     const onComplete = () => {
@@ -176,12 +176,13 @@ export const playVideoAd = () => {
 
     (window as any).lastVidAdTime = Date.now();
     window.localStorage.setItem('lastVidAdTime', (window as any).lastVidAdTime);
-    
+
     // window.addEventListener('gamemonetize_event_SDK_BANNER_IMPRESSION', onImpression);
     window.addEventListener('gamemonetize_event_SDK_GAME_START', (e: any) => {
       onComplete();
     });
   } else {
+    console.log('Adprovider is', (window as any)?.adProvider, 'not playing video ad');
     resolve();
   }
 });

@@ -1,22 +1,20 @@
 {
   "files": {
     "main.css": "./static/css/main.06c14476.css",
-    "main.js": "./static/js/main.2bb69220.js",
-    "static/media/settings.png": "./static/media/settings.7d59b39398b41a3652fc.png",
+    "main.js": "./static/js/main.387902e0.js",
     "static/media/play-again.png": "./static/media/play-again.38923238033620c8ab00.png",
     "static/media/home.png": "./static/media/home.cbf4d9badcc4e56f2636.png",
     "static/media/login.png": "./static/media/login.d6892222d1bfefcefde6.png",
     "static/media/signup.png": "./static/media/signup.39ca30a7ede7373ec17a.png",
     "static/media/shop.png": "./static/media/shop.81f0deb56d878696ebbf.png",
     "static/media/gem.png": "./static/media/gem.b19d06f98a5cf6c31cbd.png",
-    "static/media/discordLogo.png": "./static/media/discordLogo.54312c417c6887dc00f1.png",
     "static/media/cursor.cur": "./static/media/cursor.138cb2f1fcf8183aaa1b.cur",
     "index.html": "./index.html",
     "main.06c14476.css.map": "./static/css/main.06c14476.css.map",
-    "main.2bb69220.js.map": "./static/js/main.2bb69220.js.map"
+    "main.387902e0.js.map": "./static/js/main.387902e0.js.map"
   },
   "entrypoints": [
     "static/css/main.06c14476.css",
-    "static/js/main.2bb69220.js"
+    "static/js/main.387902e0.js"
   ]
 }

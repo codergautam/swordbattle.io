@@ -9,12 +9,12 @@ function SettingsModal() {
   const [resolution, setResolution] = useState(Settings.resolution);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
   const [sound, setSound] = useState(Settings.sound);
-  const [server, setServer] = useState(Settings.server);
-  const [servers, setServers] = useState<any[]>([]);
+  // const [server, setServer] = useState(Settings.server);
+  // const [servers, setServers] = useState<any[]>([]);
 
-  useEffect(() => {
-    getServerList().then(setServers);
-  }, []);
+  // useEffect(() => {
+  //   getServerList().then(setServers);
+  // }, []);
 
   const updateUseWebGL = (value: any) => {
     setUseWebGL(value);
@@ -36,10 +36,10 @@ function SettingsModal() {
     setSound(value);
     Settings.sound = value;
   }
-  const updateServer = (value: any) => {
-    setServer(value);
-    Settings.server = value;
-  }
+  // const updateServer = (value: any) => {
+  //   setServer(value);
+  //   Settings.server = value;
+  // }
 
   return (
     <div className="settings">
@@ -90,8 +90,8 @@ function SettingsModal() {
         onChange={(e) => updateSound(e.target.value)}
       />
 
-      <label htmlFor="server">Server:</label>
-      <select name="server" id="server"
+      {/* <label htmlFor="server">Server:</label> */}
+      {/* <select name="server" id="server"
         value={servers.length === 0 ? 'loading' : server}
         onChange={(e) => updateServer(e.target.value)}
       >
@@ -99,7 +99,7 @@ function SettingsModal() {
         {servers.map((server) => <option key={server.value} value={server.value} disabled={server.offline}>
           {server.name} ({server.offline ? 'OFFLINE' : server.ping + 'ms' })
         </option>)}
-      </select>
+      </select> */}
     </div>
   )
 }

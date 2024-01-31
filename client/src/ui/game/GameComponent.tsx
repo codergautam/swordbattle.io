@@ -12,8 +12,7 @@ declare global {
   }
 }
 
-function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions }: any) {
-  const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
+function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame }: any) {
   const [gameResults, setGameResults] = useState<any>(null);
   const [playing, setPlaying] = useState(false);
 

@@ -64,7 +64,7 @@ export const settingsList: Record<string, SettingType> = {
   },
   server: {
     name: 'Server',
-    default: isDev ? 'dev' : 'auto',
+    default: 'auto',
   },
 };
 

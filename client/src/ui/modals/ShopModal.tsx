@@ -127,7 +127,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {account?.isLoggedIn ? (
       <h1 className='shop-desc'>Balance: {numberWithCommas(account.gems)}<img className={'gem'} src='/assets/game/gem.png' alt='Gems' width={30} height={30} /></h1>
       ) : (
-        <h1 className='shop-desc'>Login or Signup to buy stuff from the shop!</h1>
+        <h1 className='shop-desc'><b>Login or Signup</b> to buy stuff from the shop!<br/>Earn gems by stabbing players and collecting coins around the map!</h1>
       )}
 
 <div className='search-bar'>
@@ -140,9 +140,14 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
 </div>
 
 <div className="badges">
-<button onClick={() => setSelectedBadge('new')} className={selectedBadge === 'new' ? 'active' : ''}>New Skins</button>
+<button onClick={() => setSelectedBadge('new')} className={selectedBadge === 'new' ? 'active' : ''}>V2 Skins</button>
         <button onClick={() => setSelectedBadge('og')} className={selectedBadge === 'og' ? 'active' : ''}>OG Skins</button>
       </div>
+      <center>
+      {selectedBadge === 'og' && (
+          <p style={{marginTop: 0}}>OG skins are skins that were available in the original version of the game.<br/>They might be available again during limited time events.</p>
+        )}
+      </center>
       <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;

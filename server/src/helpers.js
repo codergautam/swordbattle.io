@@ -50,6 +50,26 @@ module.exports = {
       xp,
       gems: Math.floor(xp / 5)
     }
+  },
+
+  importCaptcha(captcha) {
+    const prefix = 'captchaP';
+    let output = '';
+    // const matchingKeys = Object.keys(captcha).filter(key => key.startsWith(prefix));
+    // for(let i = 0; i < matchingKeys.length; i++) {
+    //   const part = captcha[prefix + i];
+    //   if(!part) {
+    //     alert('Invalid captcha');
+    //     return;
+    //   }
+    //   output += part;
+    // }
+    Object.keys(captcha).forEach(key => {
+      if(key.startsWith(prefix)) {
+        output += captcha[key];
+      }
+    });
+    return output;
   }
 
 };

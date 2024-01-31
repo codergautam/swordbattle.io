@@ -1,0 +1,36 @@
+#logged-in {
+  .stats {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin: 0 0 0 1rem;
+    padding: 0.5rem 0.5rem 0.5rem 0;
+    border-left: 1px solid var(--color-border);
+    gap: 1rem;
+  }
+
+  h1 {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .profilebutton {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: rgb(22, 143, 22);
+    color: white;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+}

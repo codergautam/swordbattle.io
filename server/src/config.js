@@ -27,6 +27,9 @@ module.exports = {
   // API endpoint URL, defaulting to 'http://localhost:8080' if not provided in the environment
   apiEndpoint: process.env.API_ENDPOINT || 'http://localhost:8080',
 
+  // Recaptcha Secret key
+  recaptchaSecretKey: process.env.RECAPTCHA_SECRET_KEY || '',
+
   // Game configuration settings
   tickRate: 20,
 

@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import GemImg from '../assets/img/gem.png';
-import { AccountState } from '../redux/account/slice';
 import { addCommas } from '../helpers';
 
-export default function GemCount({account, scale}: {account: AccountState, scale: number}) {
-  const [displayGems, setDisplayGems] = useState(account.gems);
+export default function ValueCnt({scale, value, img}: {scale: number, value: number, img: string}) {
+  const [displayValue, setDisplayValue] = useState(value);
 
   useEffect(() => {
     const duration = 2000; // Animation duration in milliseconds
-    const startValue = displayGems;
-    const endValue = account.gems;
+    const startValue = displayValue;
+    const endValue = value;
 
     let startTime: number;
 
@@ -22,22 +20,22 @@ export default function GemCount({account, scale}: {account: AccountState, scale
       const timeElapsed = time - startTime;
       const updatedValue = easeInOutSine(timeElapsed, startValue, endValue - startValue, duration);
 
-      setDisplayGems(Math.round(updatedValue));
+      setDisplayValue(Math.round(updatedValue));
 
       if (timeElapsed < duration) {
         requestAnimationFrame(animate);
       } else {
-        setDisplayGems(endValue); // Ensure it ends exactly on the end value
+        setDisplayValue(endValue); // Ensure it ends exactly on the end value
       }
     };
 
     requestAnimationFrame(animate);
-  }, [account.gems]);
+  }, [value]);
 
   return (
     <div className="auth-stats">
-      <img src={GemImg} alt="Gems" width={86*scale} height={86*scale} />
-      <p style={{fontSize:`${Math.max(0.3,scale)*40}px`,margin: 0, lineHeight:1}}>{addCommas(displayGems)}</p>
+      <img src={img} alt="Gems" width={86*scale} height={86*scale} />
+      <p style={{fontSize:`${Math.max(0.3,scale)*40}px`,margin: 0, lineHeight:1}}>{addCommas(displayValue)}</p>
     </div>
   );
 }

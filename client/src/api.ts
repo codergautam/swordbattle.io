@@ -1,5 +1,4 @@
 import { config } from './config';
-import { load } from 'recaptcha-v3'
 
 const endpoint = `${window.location.protocol}//${config.apiEndpoint}`;
 const backupEndpoint = config.apiEndpointBackup ? `${window.location.protocol}//${config.apiEndpointBackup}` : null;
@@ -7,9 +6,13 @@ let currentEndpoint: string | null = null;
 
 const unavialableMessage = 'Server is temporarily unavailable, try again later';
 
+let debugMode = false;
+try {
+  debugMode = window.location.search.includes("debugAlertMode");
+  } catch(e) {}
+
 async function checkEndpoint() {
   if (!currentEndpoint) {
-    console.log('Checking endpoint');
     currentEndpoint = endpoint;
     await fetch(`${currentEndpoint}/games/ping`, {
       method: 'GET',
@@ -86,13 +89,12 @@ function post(url: string, body: any, callback = (data: any) => {}, token?: stri
     .catch(() => callback({ message: unavialableMessage }));
   };
 
-  if (useRecaptcha && recaptchaClientKey) {
-    load(recaptchaClientKey).then((recaptcha) => {
-      const endpointName = url.split('/').pop();
-      recaptcha.execute(endpointName).then((recaptchaToken) => {
+  if (useRecaptcha && recaptchaClientKey && (window as any).recaptcha) {
+      const endpointName = url.split('/').pop() as string;
+      (window as any).recaptcha.execute(endpointName, {}).then((recaptchaToken: string) => {
+        if(debugMode) alert('got recaptcha of length '+recaptchaToken.length)
         sendRequest(recaptchaToken);
       });
-    });
   } else {
     sendRequest();
   }

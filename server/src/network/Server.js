@@ -19,19 +19,20 @@ class Server {
     app.ws('/*', {
       compression: uws.SHARED_COMPRESSOR,
       idleTimeout: 32,
-      maxPayloadLength: 512,
+      maxPayloadLength: 2048,
       upgrade: (res, req, context) => {
-        res.upgrade({ id: uuidv4() },
+
+        res.upgrade({ id: uuidv4(), ip: req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '' },
           req.getHeader('sec-websocket-key'),
           req.getHeader('sec-websocket-protocol'),
           req.getHeader('sec-websocket-extensions'), context,
         );
       },
       open: (socket) => {
-        console.log(`Client ${socket.id} connected.`);
         const client = new Client(this.game, socket);
         if (getBannedIps().includes(client.ip)) {
           client.socket.close();
+          console.log(`Client ${client.id} (${client.ip}) tried to connect but is banned.`);
           return;
         }
         this.addClient(client);
@@ -67,8 +68,6 @@ class Server {
   addClient(client) {
     client.server = this;
     this.clients.set(client.id, client);
-    client.spectator.isSpectating = true;
-    client.spectator.initialize();
   }
 
   removeClient(client) {

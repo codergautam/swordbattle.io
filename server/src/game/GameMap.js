@@ -106,7 +106,7 @@ class GameMap {
     });
   }
 
-   spawnCoinsInShape(shape, totalCoinValue) {
+   spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
     const maxCoinsCount = 100;
     let remainingCoinValue = totalCoinValue;
     const coins = Math.min(Math.round(totalCoinValue / 5), maxCoinsCount);
@@ -131,6 +131,7 @@ class GameMap {
         type: Types.Entity.Coin,
         position: [center.x, center.y],
         value: coinValue,
+        droppedBy,
       });
 
       const randomPoint = shape.getRandomPoint();

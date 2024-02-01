@@ -19,6 +19,7 @@ class Coin extends Entity {
     this.shape = Circle.create(0, 0, radius);
     this.targets.push(Types.Entity.Player);
     this.hunterId = null;
+    this.droppedBy = objectData.droppedBy;
 
     // Despawn coin after 2 minutes
     this.despawnTime = Date.now() + (1000 * 60 * 2);
@@ -46,6 +47,21 @@ class Coin extends Entity {
   }
 
   processTargetsCollision(player) {
+    if(player.client?.account?.id == this.droppedBy) {
+      // bounce off the player
+      const dx = player.shape.x - this.shape.x;
+      const dy = player.shape.y - this.shape.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const overlap = (this.shape.radius*0.8) + player.shape.radius - distance;
+      if (overlap > 0) {
+        const angle = Math.atan2(dy, dx);
+        this.velocity.x -= Math.cos(angle) * overlap;
+        this.velocity.y -= Math.sin(angle) * overlap;
+      }
+
+
+      return;
+    }
     player.levels.addCoins(this.value);
     player.flags.set(Types.Flags.GetCoin, true);
     this.hunterId = player.id;

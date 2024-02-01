@@ -1802,7 +1802,7 @@
       "displayName": "Keyboard",
       "id": 179,
       "buyable": true,
-      "price": 250,
+      "price": 300,
       "swordFileName": "keyboardSword.png",
       "bodyFileName": "keyboardPlayer.png",
       "description": "Beethoven would be proud."
@@ -1822,10 +1822,10 @@
       "displayName": "Hypersphere",
       "id": 181,
       "buyable": true,
-      "price": 500,
+      "price": 450,
       "swordFileName": "hypersphereSword.png",
       "bodyFileName": "hyperspherePlayer.png",
-      "description": "Enter the metaverse..."
+      "description": "Enter the hyperverse..."
     },
     "crabby": {
       "name": "crabby",
@@ -1835,17 +1835,17 @@
       "price": 250,
       "swordFileName": "crabbySword.png",
       "bodyFileName": "crabbyPlayer.png",
-      "description": "For crabby players."
+      "description": "For players who are feeling a bit crabby."
     },
     "honeybee": {
       "name": "honeybee",
       "displayName": "Honeybee",
       "id": 183,
       "buyable": true,
-      "price": 450,
+      "price": 350,
       "swordFileName": "honeybeeSword.png",
       "bodyFileName": "honeybeePlayer.png",
-      "description": "Sweet!"
-    },
+      "description": "Victory has never been sweeter!"
+    }
   }
 }

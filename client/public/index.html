@@ -62,6 +62,7 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
       gameId: "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
       onEvent: function (a) {
         const windowEvent = new CustomEvent("gamemonetize_event_" + a.name, { detail: a });
+        console.log("gamemonetize_event_" + a.name, a);
         window.dispatchEvent(windowEvent);
       }
    };

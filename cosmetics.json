@@ -1846,6 +1846,56 @@
       "swordFileName": "honeybeeSword.png",
       "bodyFileName": "honeybeePlayer.png",
       "description": "Victory has never been sweeter!"
+    },
+    "udon": {
+      "name": "udon",
+      "displayName": "Udon",
+      "id": 184,
+      "buyable": true,
+      "price": 500,
+      "swordFileName": "UdonSword.png",
+      "bodyFileName": "UdonPlayer.png",
+      "description": "You can't fight on an empty stomach."
+    },
+    "gingerbread": {
+      "name": "gingerbread",
+      "displayName": "Gingerbread",
+      "id": 185,
+      "buyable": true,
+      "price": 200,
+      "swordFileName": "gingerbreadSword.png",
+      "bodyFileName": "gingerbreadPlayer.png",
+      "description": "Tis the season to eat gingerbread! Nom nom nom nom nom, Nom nom, Nom, Nom."
+    },
+    "sloth": {
+      "name": "sloth",
+      "displayName": "sloth",
+      "id": 186,
+      "buyable": true,
+      "price": 100,
+      "swordFileName": "slothSword.png",
+      "bodyFileName": "slothPlayer.png",
+      "description": "Move slowly and silently toward your enemies."
+    },
+    "corruption": {
+      "name": "corruption",
+      "displayName": "Corruption",
+      "id": 187,
+      "buyable": true,
+      "price": 200,
+      "swordFileName": "corruptionSword.png",
+      "bodyFileName": "corruptionPlayer.png",
+      "description": "The corruption spreads..."
+    },
+    "pawn": {
+      "name": "pawn",
+      "displayName": "Pawn",
+      "id": 188,
+      "buyable": true,
+      "price": 150,
+      "swordFileName": "pawnSword.png",
+      "bodyFileName": "pawnPlayer.png",
+      "description": "Checkmate!"
     }
   }
 }

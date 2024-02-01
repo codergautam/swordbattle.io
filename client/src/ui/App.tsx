@@ -373,6 +373,11 @@ function App() {
                  Discord
                </a>
              </div>
+              <div>
+               <a href="/partners.html" target="_blank" rel="noreferrer" className='partners'>
+                 Partners
+               </a>
+             </div>
              <div>
                <a href="https://iogames.forum/t/official-swordbattle-changelog/17400/last" target="_blank" rel="noreferrer" className='changelog' style={{color: 'yellow'}}>
                 Changelog

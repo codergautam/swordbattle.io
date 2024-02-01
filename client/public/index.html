@@ -61,11 +61,13 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
     window.SDK_OPTIONS = {
       gameId: "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
       onEvent: function (a) {
+        // dispatch event to game process
         const windowEvent = new CustomEvent("gamemonetize_event_" + a.name, { detail: a });
         console.log("gamemonetize_event_" + a.name, a);
         window.dispatchEvent(windowEvent);
       }
    };
+   // load sdk
 (function (a, b, c) {
    var d = a.getElementsByTagName(b)[0];
    a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://api.gamemonetize.com/sdk.js", d.parentNode.insertBefore(a, d))

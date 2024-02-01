@@ -160,6 +160,7 @@ export function getCookies() {
 
 export const playVideoAd = () => {
   return new Promise<void>((resolve, reject) => {
+    // checking if playing ad less than 2 minutes ago, gamemonetize exists and loaded
   if((window as any)?.adProvider === 'gamemonetize' && Date.now() - (window as any)?.lastVidAdTime > (window as any)?.vidAdDelay && typeof (window as any).sdk !== 'undefined' && (window as any).sdk.showBanner !== 'undefined') {
     console.log('Playing video ad from gamemonetize');
     const sdk = (window as any).sdk;

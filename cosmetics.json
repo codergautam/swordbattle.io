@@ -1786,6 +1786,116 @@
       "swordFileName": "dragonSword.png",
       "bodyFileName": "dragonPlayer.png",
       "description": "The king of the skies... and swords."
-    }
+    },
+    "seafire": {
+      "name": "seafire",
+      "displayName": "Seafire",
+      "id": 178,
+      "buyable": true,
+      "price": 400,
+      "swordFileName": "seafireSword.png",
+      "bodyFileName": "seafirePlayer.png",
+      "description": "When lava and water meet by the volcano’s side, the sea ignites."
+    },
+    "keyboard": {
+      "name": "keyboard",
+      "displayName": "Keyboard",
+      "id": 179,
+      "buyable": true,
+      "price": 300,
+      "swordFileName": "keyboardSword.png",
+      "bodyFileName": "keyboardPlayer.png",
+      "description": "Beethoven would be proud."
+    },
+    "ghost": {
+      "name": "ghost",
+      "displayName": "Ghost",
+      "id": 180,
+      "buyable": true,
+      "price": 150,
+      "swordFileName": "ghostSword.png",
+      "bodyFileName": "ghostPlayer.png",
+      "description": "Boo!"
+    },
+    "hypersphere": {
+      "name": "hypersphere",
+      "displayName": "Hypersphere",
+      "id": 181,
+      "buyable": true,
+      "price": 450,
+      "swordFileName": "hypersphereSword.png",
+      "bodyFileName": "hyperspherePlayer.png",
+      "description": "Enter the hyperverse..."
+    },
+    "crabby": {
+      "name": "crabby",
+      "displayName": "Crabby",
+      "id": 182,
+      "buyable": true,
+      "price": 250,
+      "swordFileName": "crabbySword.png",
+      "bodyFileName": "crabbyPlayer.png",
+      "description": "For players who are feeling a bit crabby."
+    },
+    "honeybee": {
+      "name": "honeybee",
+      "displayName": "Honeybee",
+      "id": 183,
+      "buyable": true,
+      "price": 350,
+      "swordFileName": "honeybeeSword.png",
+      "bodyFileName": "honeybeePlayer.png",
+      "description": "Victory has never been sweeter!"
+    },
+    "udon": {
+      "name": "udon",
+      "displayName": "Udon",
+      "id": 184,
+      "buyable": true,
+      "price": 500,
+      "swordFileName": "UdonSword.png",
+      "bodyFileName": "UdonPlayer.png",
+      "description": "You can't fight on an empty stomach."
+    },
+    "gingerbread": {
+      "name": "gingerbread",
+      "displayName": "Gingerbread",
+      "id": 185,
+      "buyable": true,
+      "price": 200,
+      "swordFileName": "gingerbreadSword.png",
+      "bodyFileName": "gingerbreadPlayer.png",
+      "description": "Tis the season to eat gingerbread! Nom nom nom nom nom, Nom nom, Nom, Nom."
+    },
+    "sloth": {
+      "name": "sloth",
+      "displayName": "sloth",
+      "id": 186,
+      "buyable": true,
+      "price": 100,
+      "swordFileName": "slothSword.png",
+      "bodyFileName": "slothPlayer.png",
+      "description": "Move slowly and silently toward your enemies."
+    },
+    "corruption": {
+      "name": "corruption",
+      "displayName": "Corruption",
+      "id": 187,
+      "buyable": true,
+      "price": 200,
+      "swordFileName": "corruptionSword.png",
+      "bodyFileName": "corruptionPlayer.png",
+      "description": "The corruption spreads..."
+    },
+    "pawn": {
+      "name": "pawn",
+      "displayName": "Pawn",
+      "id": 188,
+      "buyable": true,
+      "price": 150,
+      "swordFileName": "pawnSword.png",
+      "bodyFileName": "pawnPlayer.png",
+      "description": "Checkmate!"
+    },
   }
 }

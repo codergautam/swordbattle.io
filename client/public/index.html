@@ -61,6 +61,7 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
     window.SDK_OPTIONS = {
       gameId: "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
       onEvent: function (a) {
+        console.log("GameMonetize Event", a);
         const windowEvent = new CustomEvent("gamemonetize_event_" + a.name, { detail: a });
         window.dispatchEvent(windowEvent);
       }

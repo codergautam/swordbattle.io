@@ -47,7 +47,7 @@ class Coin extends Entity {
   }
 
   processTargetsCollision(player) {
-    if(player.client?.account?.id == this.droppedBy) {
+    if(this.droppedBy && player.client?.account && player.client?.account?.id == this.droppedBy) {
       // bounce off the player
       const dx = player.shape.x - this.shape.x;
       const dy = player.shape.y - this.shape.y;
@@ -58,8 +58,6 @@ class Coin extends Entity {
         this.velocity.x -= Math.cos(angle) * overlap;
         this.velocity.y -= Math.sin(angle) * overlap;
       }
-
-
       return;
     }
     player.levels.addCoins(this.value);

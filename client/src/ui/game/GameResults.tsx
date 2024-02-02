@@ -5,7 +5,7 @@ import PlayAgainImg from '../../assets/img/play-again.png';
 import HomeImg from '../../assets/img/home.png';
 import './GameResults.scss';
 import { DisconnectTypes } from '../../game/Types';
-import { calculateGemsXP } from '../../helpers';
+import { calculateGemsXP, playVideoAd } from '../../helpers';
 
 function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
   const onHomeClick = () => {
@@ -14,8 +14,10 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
     game.events.emit('startSpectate');
   };
   const onRestartClick = () => {
+    playVideoAd().then(() => {
     game.events.emit('setGameResults', null);
     game.events.emit('restartGame');
+    });
   };
 
   return (

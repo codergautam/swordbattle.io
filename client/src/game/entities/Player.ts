@@ -45,11 +45,11 @@ class Player extends BaseEntity {
     this.shape = Shape.create(this.shapeData);
     this.survivalStarted = Date.now();
     this.skinName = Object.values(skins).find(skin => skin.id === this.skin)?.name;
-    this.body = this.game.add.sprite(0, 0, this.skinName+'Body').setRotation(-Math.PI / 2);
+    this.body = this.game.add.sprite(0, 0, 'playerBody').setRotation(-Math.PI / 2);
     this.evolutionOverlay = this.game.add.sprite(0, 0, '').setRotation(-Math.PI / 2);
     this.updateEvolution();
 
-    this.sword = this.game.add.sprite(this.body.width / 2, this.body.height / 2, this.skinName+'Sword').setRotation(Math.PI / 4);
+    this.sword = this.game.add.sprite(this.body.width / 2, this.body.height / 2, 'playerSword').setRotation(Math.PI / 4);
     this.swordContainer = this.game.add.container(0, 0, [this.sword]);
 
     this.healthBar = new Health(this, {
@@ -71,7 +71,54 @@ class Player extends BaseEntity {
 
     this.bodyContainer = this.game.add.container(0, 0, [this.swordContainer, this.body, this.evolutionOverlay]);
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.bodyContainer, name, this.messageText]);
+
+    this.loadSkin(this.skin).then(() => {
+      this.body.setTexture(this.skinName+'Body');
+      this.sword.setTexture(this.skinName+'Sword');
+    }).catch(() => {
+      console.log('failed to load skin', this.skin);
+    });
+
     return this.container;
+  }
+
+  skinLoaded(id: number) {
+    return this.game.textures.exists(Object.values(skins).find(skin => skin.id === id)?.name+'Body');
+  }
+
+  loadSkin(id: number) {
+    return new Promise<void>((resolve, reject) => {
+      if(this.skinLoaded(id)) {
+        resolve();
+      } else {
+        if(this.game.gameState.failedSkinLoads[id]) reject();
+        else {
+        const skin = Object.values(skins).find(skin => skin.id === id);
+        const publicPath = process.env.PUBLIC_URL as string;
+        const basePath =  `${publicPath}/assets/game/player/`;
+
+        if(skin) {
+          console.log('loading skin', skin.name, basePath + skin.bodyFileName);
+        this.game.load.image(skin.name+'Body', basePath + skin.bodyFileName);
+        this.game.load.image(skin.name+'Sword', basePath + skin.swordFileName);
+
+        this.game.load.once(Phaser.Loader.Events.COMPLETE, () => {
+          resolve();
+        });
+        this.game.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, () => {
+          // texture didnt load so use the placeholder
+          this.game.gameState.failedSkinLoads[id] = true;
+          reject();
+        });
+
+        this.game.load.start();
+      } else {
+        this.game.gameState.failedSkinLoads[id] = true;
+          reject();
+        }
+      }
+      }
+    });
   }
 
   updateChatMessage() {

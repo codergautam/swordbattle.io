@@ -1,0 +1,29 @@
+.forum-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out; /* Smooth transition for transform */
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+
+.forum-card:hover {
+  transform: scale(1.05); /* Enlarge the card on hover */
+}
+
+.forum-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0px;
+  margin-top: 5px;
+}
+.forum-info {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 5px;
+  margin-top: 0px;
+}

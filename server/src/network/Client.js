@@ -21,6 +21,7 @@ class Client {
     this.spectator = new Spectator(this.game, this);
     this.server = null;
     this.player = null;
+    this.captchaVerified = false;
     this.account = null;
     this.isReady = true;
     this.isSocketClosed = false;

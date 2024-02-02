@@ -34,7 +34,6 @@ export class AuthService {
     let account;
     try {
       account = await this.accountsService.findOne({ where: { secret: data.secret } });
-      console.log(account, 'account', data.secret);
     } catch (e) {
       throw new UnauthorizedException('User does not exists');
     }

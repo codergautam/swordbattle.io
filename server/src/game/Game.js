@@ -165,23 +165,8 @@ class Game {
 
   processClientMessage(client, data) {
     if (data.spectate && !client.spectator.isSpectating) {
-      this.addSpectator(client, data);
-      return;
-    }
-
-    let { player } = client;
-    if (data.play && (!player || player.removed)) {
-      if (getBannedIps().includes(client.ip)) {
-        // close connection
-        client.socket.close();
-        return;
-      }
-      if (!config.recaptchaSecretKey) {
-        // add player without recaptcha verification
-        player = this.addPlayer(client, data);
-      } else {
-        // verify recaptcha
-        if (!data.captchaP1) return client.socket.close();
+    if(config.recaptchaSecretKey && !client.captchaVerified && !data.captchaP1) return client.socket.close();
+      if(config.recaptchaSecretKey && !client.captchaVerified) {
         const captchaAsText = helpers.importCaptcha(data);
         const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${config.recaptchaSecretKey}&response=${captchaAsText}&remoteip=${client.ip}`;
 
@@ -192,16 +177,37 @@ class Game {
             'Content-Type': 'application/json',
           },
         }).then(res => res.json()).then(json => {
-          if (json && json.success && json.score > 0.5) {
-            player = this.addPlayer(client, data);
+          if(json.success && json.score > 0.1) {
+            this.addSpectator(client);
+            client.captchaVerified = true;
           } else {
+            console.log('disconnected reason: invalid recaptcha', json);
             client.socket.close();
           }
         }).catch(err => {
           console.log(err);
           client.socket.close();
         });
+      } else if(!config.recaptchaSecretKey || client.captchaVerified) {
+        this.addSpectator(client);
       }
+
+      return;
+    }
+
+    let { player } = client;
+    if (data.play && (!player || player.removed)) {
+      if (getBannedIps().includes(client.ip)) {
+        // close connection
+        console.log('disconnected reason: banned ip', client.ip);
+        client.socket.close();
+        return;
+      }
+      if(config.recaptchaSecretKey && !client.captchaVerified) {
+        console.log('disconnected reason: joining without recaptcha verification', client.ip);
+        client.socket.close();
+      }
+        player = this.addPlayer(client, data);
     }
 
     if (!player) return;

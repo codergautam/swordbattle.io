@@ -89,10 +89,13 @@ export default class Game extends Phaser.Scene {
 
     // load skins
     const basePath =  `${publicPath}/assets/game/player/`;
-    for (const skin of Object.values(skins)) {
-      this.load.image(skin.name+'Body', basePath + skin.bodyFileName);
-      this.load.image(skin.name+'Sword', basePath + skin.swordFileName);
-    }
+    // for (const skin of Object.values(skins)) {
+    //   this.load.image(skin.name+'Body', basePath + skin.bodyFileName);
+    //   this.load.image(skin.name+'Sword', basePath + skin.swordFileName);
+    // }
+    this.load.image(skins.player.name+'Body', basePath + skins.player.bodyFileName);
+    this.load.image(skins.player.name+'Sword', basePath + skins.player.swordFileName);
+
 
 
     this.load.plugin('rexVirtualJoystick', VirtualJoyStickPlugin, true);
@@ -103,7 +106,7 @@ export default class Game extends Phaser.Scene {
 
     // log progress on load
     this.load.on('progress', (value: number) => {
-      window.dispatchEvent(new CustomEvent('assetsLoadProgress', { detail: value }));
+      if(!this.isReady) window.dispatchEvent(new CustomEvent('assetsLoadProgress', { detail: value }));
     });
   }
 
@@ -172,6 +175,7 @@ export default class Game extends Phaser.Scene {
 	update(time: number, dt: number) {
     if (!this.isReady) {
       this.isReady = true;
+      window.dispatchEvent(new CustomEvent('assetsLoadProgress', { detail: 1 }));
       console.log('Game is ready');
     }
     this.soundManager.update(dt);

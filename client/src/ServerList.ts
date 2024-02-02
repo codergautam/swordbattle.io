@@ -10,10 +10,15 @@ interface Server {
   playerCnt?: number;
 }
 
+
+let debugMode = false;
+try {
+  debugMode = window.location.search.includes("debugAlertMode");
+  } catch(e) {}
+
 const servers: Server[] = [
   { value: 'eu', name: 'Europe', address: config.serverEU, ping: 0 },
   { value: 'us', name: 'USA', address: config.serverUS, ping: 0 },
-  { value: 'usbackup', name: 'USA Backup', address: config.serverUSBackup, ping: 0 },
 ];
 if (config.isDev) {
   servers.unshift({ value: 'dev', name: 'Development', address: config.serverDev, ping: 0 });
@@ -26,8 +31,7 @@ export async function updatePing() {
   const cache: Record<string, Server> = {};
   // Wait if update is already in progress
   while (isUpdating) {
-    console.log('waiting for update');
-    await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100ms before checking again
+    await new Promise(resolve => setTimeout(resolve, 10)); // Wait for 10ms before checking again
   }
 
   if (Date.now() - lastPingUpdate < 60000) {
@@ -39,11 +43,10 @@ export async function updatePing() {
 
   try {
     for (const server of servers) {
-      console.log('updating ping for', server.address);
       // instead lets do it at the same time
       // const promises = servers.map((server2) => {
       const start = Date.now();
-      if (!config.isDev && server.address.includes('localhost')) {
+      if (!server.address || (!config.isDev && server.address.includes('localhost'))) {
         server.offline = true;
         server.ping = Infinity;
       } else {
@@ -90,8 +93,10 @@ export async function updatePing() {
 }
 
 export async function getServerList() {
+  console.time('updatePingServerList')
   await updatePing();
-  const autoServer = await getAutoServer();
+  console.timeEnd('updatePingServerList')
+  const autoServer = getAutoServer();
   const list = [{
     ...autoServer,
     value: 'auto',
@@ -101,7 +106,7 @@ export async function getServerList() {
   return list;
 }
 
-async function getAutoServer(): Promise<Server> {
+function getAutoServer(): Server {
 
   let server: Server = servers[0];
 
@@ -112,21 +117,35 @@ async function getAutoServer(): Promise<Server> {
     }
   }
 
+  if(server.offline) {
+    alert('All servers are offline, please try again later');
+  }
+
   return server;
 }
 
 export async function getServer(): Promise<Server> {
+  console.time('updatePingServer')
   await updatePing();
+  console.timeEnd('updatePingServer')
+  let server: Server = getAutoServer();
+
   if (Settings.server === 'auto') {
-    return getAutoServer();
+    return server;
   }
 
-  let server: Server = servers[0];
   for (let i = 1; i < servers.length; i++) {
-    if (Settings.server === servers[i].value) {
+    if (Settings.server === servers[i].value && !servers[i].offline) {
       server = servers[i];
       break;
     }
+  }
+  if(Settings.server !== server.value) {
+    if(debugMode) {
+      alert('changed server to ' + server.value+ ' because the previous one was offline, previous server: ' + Settings.server)
+    }
+    Settings.server = server.value;
+    window.location.reload();
   }
   return server;
 }

@@ -315,7 +315,7 @@ class Player extends Entity {
     }
     super.remove();
 
-    this.game.map.spawnCoinsInShape(this.shape, this.calculateDropAmount());
+    this.game.map.spawnCoinsInShape(this.shape, this.calculateDropAmount(), this.client?.account?.id);
   }
 
   calculateDropAmount() {

@@ -6,9 +6,13 @@ let currentEndpoint: string | null = null;
 
 const unavialableMessage = 'Server is temporarily unavailable, try again later';
 
+let debugMode = false;
+try {
+  debugMode = window.location.search.includes("debugAlertMode");
+  } catch(e) {}
+
 async function checkEndpoint() {
   if (!currentEndpoint) {
-    console.log('Checking endpoint');
     currentEndpoint = endpoint;
     await fetch(`${currentEndpoint}/games/ping`, {
       method: 'GET',
@@ -85,9 +89,10 @@ function post(url: string, body: any, callback = (data: any) => {}, token?: stri
     .catch(() => callback({ message: unavialableMessage }));
   };
 
-  if (useRecaptcha && recaptchaClientKey && window.grecaptcha) {
+  if (useRecaptcha && recaptchaClientKey && (window as any).recaptcha) {
       const endpointName = url.split('/').pop() as string;
-      window.grecaptcha.execute(endpointName, {}).then((recaptchaToken) => {
+      (window as any).recaptcha.execute(endpointName, {}).then((recaptchaToken: string) => {
+        if(debugMode) alert('got recaptcha of length '+recaptchaToken.length)
         sendRequest(recaptchaToken);
       });
   } else {

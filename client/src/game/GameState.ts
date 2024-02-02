@@ -35,16 +35,29 @@ class GameState {
   tps = 0;
   ping = 0;
   pingStart = 0;
+  debugMode = false;
 
   selectedEvolution: string | null = null;
   selectedBuff: any;
   chatMessage: string | null = null;
+  captchaVerified = false;
+  failedSkinLoads: Record<number, boolean> = {};
 
   constructor(game: Game) {
     this.game = game;
     this.gameMap = new GameMap(this.game);
     this.spectator = new Spectator(this.game);
     this.refreshSocket();
+    this.captchaVerified = false;
+
+    this.debugMode = false;
+    try {
+    this.debugMode = window.location.search.includes("debugAlertMode");
+      if(this.debugMode) {
+        alert("Debug alert mode activated");
+      }
+    } catch(e) {}
+
   }
 
   refreshSocket(unbind = false) {
@@ -58,7 +71,12 @@ class GameState {
     this.spectator = new Spectator(this.game);
     }
     // rebind
+    console.time("getServer");
     getServer().then(server => {
+      console.timeEnd("getServer");
+      if(this.debugMode) {
+        alert("Sending ws connection to "+server.address+" name "+server.name);
+      }
       console.log('connecting to', server.address, Date.now());
       this.socket = Socket.connect(
         server.address,
@@ -82,34 +100,42 @@ class GameState {
     const afterSent = () => {
     if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
     }
-
-    if(config.recaptchaClientKey && window.grecaptcha) {
-        window.grecaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: string) => {
-
-          Socket.emit({ play: true, name, ...exportCaptcha(captcha) });
-          afterSent();
-        });
-    } else {
     Socket.emit({ play: true, name });
     afterSent();
-    }
   }
 
   restart() {
-    if(config.recaptchaClientKey && window.grecaptcha) {
-        window.grecaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: string) => {
-          const cData = exportCaptcha(captcha);
-          Socket.emit({ play: true, ...cData});
-        });
-    } else {
     Socket.emit({ play: true });
-    }
     if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
     if(!this.game.hud.evolutionSelect.minimized) this.game.hud.evolutionSelect.toggleMinimize();
   }
 
   spectate() {
+    if(config.recaptchaClientKey && !this.captchaVerified) {
+    if(this.debugMode) alert("Attempting recaptcha");
+      const waitForRecaptcha = () => {
+        if ((window as any).recaptcha) {
+            // reCAPTCHA is available, execute your code
+            if(this.debugMode) alert("Recaptcha available, executing");
+            (window as any).recaptcha.execute(config.recaptchaClientKey, { action: 'spectate' }).then((captcha: any) => {
+                if (this.debugMode) alert("Received captcha of length " + captcha.length + ", sending spectate");
+                this.captchaVerified = true;
+                Socket.emit({ spectate: true, ...exportCaptcha(captcha) });
+            });
+        } else {
+            // reCAPTCHA is not available, check again after 100ms
+            if(this.debugMode) alert("Recaptcha not available, waiting 100ms");
+            setTimeout(waitForRecaptcha, 100);
+        }
+    }
+
+    // Start the process
+    waitForRecaptcha();
+
+    } else {
+      if(this.debugMode) alert("Sending spectate w/o recaptcha");
     Socket.emit({ spectate: true });
+    }
   }
 
   updateToken(token: string) {
@@ -117,7 +143,7 @@ class GameState {
   }
 
   onServerOpen() {
-    // Socket.emit({ spectate: true });
+    this.spectate();
     console.log('server connected', Date.now());
   }
 
@@ -139,6 +165,7 @@ class GameState {
     } else {
       if (this.payloadsQueue.length !== 0) {
         this.payloadsQueue.forEach(msg => this.processServerMessage(msg));
+        if(this.debugMode) alert("Clearing payload queue of "+this.payloadsQueue.length);
         this.payloadsQueue = [];
       }
       this.processServerMessage(data);
@@ -217,6 +244,8 @@ class GameState {
 
       if (!this.isReady) {
         console.log('game ready', Date.now());
+        if(this.debugMode) alert("Game ready-- fullsync");
+
         this.isReady = true;
         this.game.game.events.emit('gameReady');
       }

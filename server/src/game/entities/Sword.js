@@ -9,7 +9,7 @@ class Sword extends Entity {
   constructor(player) {
     super(player.game, Types.Entity.Sword);
     this.player = player;
-    this.swingAngle = -Math.PI / 3;
+    this.swingAngle =-1;
     this.raiseAnimation = false;
     this.decreaseAnimation = false;
     this.collidedEntities = new Set();
@@ -31,7 +31,9 @@ class Sword extends Entity {
 
     this.lastSwordSwing = 0;
     this.lastSwordHeld = 0;
+    this.lastStopHeld = 0;
     this.swung = false;
+    this.atStart = true;
     this.held = false;
 
     this.proportion = 0.7;
@@ -40,7 +42,8 @@ class Sword extends Entity {
   }
 
   get angle() {
-    return this.swingAngle
+    console.log((Date.now() - this.lastSwordSwing) / this.swingDuration.value)
+    return this.atStart ? 0 : (Date.now() - this.lastSwordSwing) / this.swingDuration.value * this.swingAngle;
   }
 
   get size() {
@@ -57,7 +60,8 @@ class Sword extends Entity {
     return Date.now() - this.lastSwordSwing > this.swingDuration.value * 1000
       && this.player.inputs.isInputDown(Types.Input.SwordSwing)
       && !this.isFlying
-      && !this.held;
+      && !this.held
+      && this.atStart;
   }
 
   notSwinging() {
@@ -68,9 +72,9 @@ class Sword extends Entity {
 
   isHeld() {
     return (Date.now() - this.lastSwordSwing > this.swingDuration.value * 1000)
-      && ((Date.now() - this.lastSwordSwing < this.swingDuration.value * 2000) || this.player.inputs.isInputDown(Types.Input.SwordSwing))
+      && (this.player.inputs.isInputDown(Types.Input.SwordSwing))
+      && Date.now() - this.lastStopHeld > this.swingDuration.value * 1000
       && !this.isFlying
-      && !this.held;
   }
 
   canFly() {
@@ -136,22 +140,24 @@ class Sword extends Entity {
   }
 
   updateFlags(dt) {
-    console.log(Date.now() - this.lastSwordSwing, Date.now() - this.lastSwordHeld, this.swingDuration.value * 1000, this.swung, this.held)
+    console.log('angle ',this.shape.angle*180/Math.PI);
     if (this.swinging()) {
-      console.log('start swing');
+      console.log('hit');
       this.lastSwordSwing = Date.now();
       this.swung = true;
+      this.lastSwordHeld = Date.now() + (this.swingDuration.value * 1000);
+      this.atStart = false;
       this.player.flags.set(Types.Flags.SwordSwing, true);
-    } else if(this.notSwinging() && this.player.flags.get(Types.Flags.SwordSwing)) {
-      console.log('notSwing');
+    } else if(this.notSwinging()) {
       this.player.flags.set(Types.Flags.SwordSwing, false);
+      this.atStart = true;
+      this.swung = false;
     }
     if(this.isHeld()) {
-      console.log('isHeld');
       this.lastSwordHeld = Date.now();
       this.held = true;
     } else if(this.held) {
-      console.log('notHeld');
+      this.lastStopHeld = Date.now();
       this.held = false;
     }
     if (this.canFly()) {

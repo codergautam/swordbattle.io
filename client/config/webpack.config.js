@@ -575,6 +575,7 @@ module.exports = function (webpackEnv) {
             inject: true,
             template: paths.appHtml,
           },
+          { adProvider: env.raw.AD_PROVIDER ?? 'adinplay' },
           isEnvProduction
             ? {
                 minify: {

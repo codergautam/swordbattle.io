@@ -140,8 +140,12 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
 </div>
 
 <div className="badges">
+  { Object.values(skins).filter((skinData: any) =>  skinData.og && account?.skins.owned.includes(skinData.id)).length > 0 && (
+    <>
 <button onClick={() => setSelectedBadge('new')} className={selectedBadge === 'new' ? 'active' : ''}>V2 Skins</button>
         <button onClick={() => setSelectedBadge('og')} className={selectedBadge === 'og' ? 'active' : ''}>OG Skins</button>
+        </>
+  )}
       </div>
       <center>
       {selectedBadge === 'og' && (
@@ -153,8 +157,10 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         const skin = skinData as Skin;
         if (selectedBadge === 'og' && !skin.og) return false;
         if (selectedBadge === 'new' && skin.og) return false;
+        if (selectedBadge === 'og' && !account?.skins.owned.includes(skin.id)) return false;
+
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
-      }).map((skinData: any, index) => {
+      }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
         const skin = skinData as Skin;
         return (
         <div className="skin-card" key={skin.name}>

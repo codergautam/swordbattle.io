@@ -1790,7 +1790,7 @@
     "seafire": {
       "name": "seafire",
       "displayName": "Seafire",
-      "id": 178,
+      "id": 186,
       "buyable": true,
       "price": 400,
       "swordFileName": "seafireSword.png",
@@ -1800,7 +1800,7 @@
     "keyboard": {
       "name": "keyboard",
       "displayName": "Keyboard",
-      "id": 179,
+      "id": 182,
       "buyable": true,
       "price": 300,
       "swordFileName": "keyboardSword.png",
@@ -1810,7 +1810,7 @@
     "ghost": {
       "name": "ghost",
       "displayName": "Ghost",
-      "id": 180,
+      "id": 183,
       "buyable": true,
       "price": 150,
       "swordFileName": "ghostSword.png",
@@ -1822,30 +1822,10 @@
       "displayName": "Hypersphere",
       "id": 181,
       "buyable": true,
-      "price": 450,
+      "price": 1000,
       "swordFileName": "hypersphereSword.png",
       "bodyFileName": "hyperspherePlayer.png",
       "description": "Enter the hyperverse..."
-    },
-    "crabby": {
-      "name": "crabby",
-      "displayName": "Crabby",
-      "id": 182,
-      "buyable": true,
-      "price": 250,
-      "swordFileName": "crabbySword.png",
-      "bodyFileName": "crabbyPlayer.png",
-      "description": "For players who are feeling a bit crabby."
-    },
-    "honeybee": {
-      "name": "honeybee",
-      "displayName": "Honeybee",
-      "id": 183,
-      "buyable": true,
-      "price": 350,
-      "swordFileName": "honeybeeSword.png",
-      "bodyFileName": "honeybeePlayer.png",
-      "description": "Victory has never been sweeter!"
     },
     "udon": {
       "name": "udon",
@@ -1866,16 +1846,6 @@
       "swordFileName": "gingerbreadSword.png",
       "bodyFileName": "gingerbreadPlayer.png",
       "description": "Tis the season to eat gingerbread! Nom nom nom nom nom, Nom nom, Nom, Nom."
-    },
-    "sloth": {
-      "name": "sloth",
-      "displayName": "sloth",
-      "id": 186,
-      "buyable": true,
-      "price": 100,
-      "swordFileName": "slothSword.png",
-      "bodyFileName": "slothPlayer.png",
-      "description": "Move slowly and silently toward your enemies."
     },
     "corruption": {
       "name": "corruption",

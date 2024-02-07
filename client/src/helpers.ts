@@ -185,7 +185,7 @@ export const playVideoAd = () => {
       onComplete();
     });
     // adinplay
-  } else if(windowAny?.adProvider === 'adinplay' && typeof windowAny?.aiptag?.adplayers !== 'undefined') {
+  } else if(windowAny?.adProvider === 'adinplay' && typeof windowAny?.aiptag?.adplayer !== 'undefined') {
     console.log('Playing video ad from adinplay');
 
     /* if (typeof aiptag.adplayer !== "undefined") {
@@ -268,7 +268,7 @@ export const playVideoAd = () => {
       console.log("starting preroll");
       windowAny.aiptag.adplayer.startPreRoll();
     });
-    
+
 
     // windowAny.lastVidAdTime = Date.now();
     window.localStorage.setItem('lastVidAdTime', windowAny.lastVidAdTime);

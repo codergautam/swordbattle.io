@@ -270,9 +270,15 @@ export const playVideoAd = () => {
     });
 
 
-    // windowAny.lastVidAdTime = Date.now();
-    window.localStorage.setItem('lastVidAdTime', windowAny.lastVidAdTime);
-    resolve();
+    // if debugAd = true, dont reset lastVidAdTime
+    const urlParams = new URLSearchParams(window.location.search);
+    const ad = urlParams.get('debugAd');
+    if(ad) {
+      console.log('debugAd=true, not resetting lastVidAdTime');
+    } else {
+      windowAny.lastVidAdTime = Date.now();
+      window.localStorage.setItem('lastVidAdTime', windowAny.lastVidAdTime);
+    }
   } else {
     console.log('Adprovider is', windowAny?.adProvider, 'not playing video ad');
     resolve();

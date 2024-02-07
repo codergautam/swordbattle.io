@@ -259,7 +259,6 @@ export const playVideoAd = () => {
         AIP_COMPLETE: (evt: any) => {
           console.log("preroll complete", evt);
           resolve();
-          windowAny.aiptag.adplayer.destroy();
         }
       });
     }

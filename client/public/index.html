@@ -24,7 +24,7 @@
   <!-- Ads -->
   <script>
     const vidAdDelay = {
-      adinplay: 1000 * 60 * 10, // 10 minutes
+      adinplay: 1000 * 60 * 5, // 5 minutes
       gamemonetize: 1000 * 60 * 2, // 2 minutes
     };
 
@@ -48,6 +48,7 @@
 
     try {
       if (window.localStorage.getItem("lastVidAdTime") && window.adProvider !== "gamemonetize") window.lastVidAdTime = parseInt(window.localStorage.getItem("lastVidAdTime"));
+      // if (window.adProvider === "adinplay") window.lastVidAdTime = Date.now(); // dont show immediate ad, to encourage return users
     } catch (e) { };
 
     if (window.adProvider === "gamemonetize") {
@@ -78,7 +79,7 @@
         position: "centered",  //centered or bottom
         button: true,
         buttonText: "Privacy settings",
-        buttonPosition: "bottom-left" //bottom-left, bottom-right, top-left, top-right
+        buttonPosition: "bottom-right" //bottom-left, bottom-right, top-left, top-right
       }
     }
   </script>
@@ -108,6 +109,7 @@
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
+  <div id="preroll"></div>
 </body>
 
 </html>

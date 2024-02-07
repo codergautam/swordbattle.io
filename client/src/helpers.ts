@@ -159,11 +159,13 @@ export function getCookies() {
 }
 
 export const playVideoAd = () => {
+  const windowAny = window as any;
   return new Promise<void>((resolve, reject) => {
     // checking if playing ad less than 2 minutes ago, gamemonetize exists and loaded
-  if((window as any)?.adProvider === 'gamemonetize' && Date.now() - (window as any)?.lastVidAdTime > (window as any)?.vidAdDelay && typeof (window as any).sdk !== 'undefined' && (window as any).sdk.showBanner !== 'undefined') {
+  if(Date.now() - windowAny?.lastVidAdTime > windowAny?.vidAdDelay) {
+    if(windowAny?.adProvider === 'gamemonetize' && typeof windowAny.sdk !== 'undefined' && windowAny.sdk.showBanner !== 'undefined') {
     console.log('Playing video ad from gamemonetize');
-    const sdk = (window as any).sdk;
+    const sdk = windowAny.sdk;
     sdk?.showBanner();
     const onComplete = () => {
       console.log('Ad complete');
@@ -175,16 +177,109 @@ export const playVideoAd = () => {
     //   window.removeEventListener('gamemonetize_event_SDK_BANNER_IMPRESSION', onImpression);
     // };
 
-    (window as any).lastVidAdTime = Date.now();
-    window.localStorage.setItem('lastVidAdTime', (window as any).lastVidAdTime);
+    windowAny.lastVidAdTime = Date.now();
+    window.localStorage.setItem('lastVidAdTime', windowAny.lastVidAdTime);
 
     // window.addEventListener('gamemonetize_event_SDK_BANNER_IMPRESSION', onImpression);
     window.addEventListener('gamemonetize_event_SDK_GAME_START', (e: any) => {
       onComplete();
     });
+    // adinplay
+  } else if(windowAny?.adProvider === 'adinplay' && typeof windowAny?.aiptag?.adplayers !== 'undefined') {
+    console.log('Playing video ad from adinplay');
+
+    /* if (typeof aiptag.adplayer !== "undefined") {
+            this.nameBox.getChildByName("btn").innerHTML = "Connecting..";
+            this.nameBox.getChildByName("btn").style.backgroundColor = "grey";
+            this.music.stop();
+
+            aiptag.cmd.player.push(() => {
+              aiptag.adplayer = new aipPlayer({
+                AD_WIDTH: 960,
+                AD_HEIGHT: 540,
+                AD_FULLSCREEN: true,
+                AD_CENTERPLAYER: false,
+                LOADING_TEXT: "loading advertisement",
+                PREROLL_ELEM: function() { return document.getElementById("preroll"); },
+                AIP_COMPLETE: (evt) => {
+                  // ******************
+                  //  ***** WARNING *****
+                  //  *******************
+                  //  Please do not remove the PREROLL_ELEM
+                  //  from the page, it will be hidden automaticly.
+                  //  If you do want to remove it use the AIP_REMOVE callback.
+
+                   console.log("preroll complete", evt);
+                   this.nameBox.destroy();
+                   document.getElementById("game").focus();
+                   let failed= false;
+                   try {
+                     const urlParams = new URLSearchParams(window.location.search);
+                     const ad = urlParams.get('debugAd');
+                     if(ad) {
+                       alert(evt+ " ad completed");
+                     }
+                   } catch (e) {
+                     console.log("failed to get url params");
+                   }
+                   if(evt == "video-ad-empty" || evt == "user-has-adblock") failed = true;
+                   // if(evt == "user-has-adblock") alert("Hi, we noticed you are using adblock on swordbattle.io.\n\n As a heavy adblock user myself, I understand the frustration of ads.\n However, as a free game we rely on ads for servers and development cost.\n If you would like to support us, please consider disabling adblock on swordbattle.io to remove this message.\n Thanks!\n- Gautam, lead dev @ swordbattle.io");
+                   this.callback(myName, this.music, this.secret, failed);
+ document.getElementById("90pxadstyle").innerHTML = `
+ #swordbattle-io_970x90 > div > iframe,
+ #swordbattle-io_970x90 > iframe {
+ bottom: 0px;
+     left: 50%;
+ transform: translateX(-50%);
+ }`;
+                   document.getElementById("swordbattle-io_970x250").style.display = "none";
+                   document.getElementById("swordbattle-io_970x90").style.display = "none";
+
+                   this.lastAdRef = Number.MAX_SAFE_INTEGER;
+
+                   console.log("Preroll Ad Completed: " + evt);
+                 }
+               });
+             });
+             aiptag.cmd.player.push(() => {
+               console.log("starting preroll");
+               aiptag.adplayer.startPreRoll();
+             });
+           }
+           */
+
+    windowAny.aiptag.cmd.player.push(() => {
+      windowAny.aiptag.adplayer = new windowAny.aipPlayer({
+        AD_WIDTH: 960,
+        AD_HEIGHT: 540,
+        AD_FULLSCREEN: true,
+        AD_CENTERPLAYER: false,
+        LOADING_TEXT: "loading advertisement",
+        PREROLL_ELEM: function() { return document.getElementById("preroll"); },
+        AIP_COMPLETE: (evt: any) => {
+          console.log("preroll complete", evt);
+          resolve();
+          windowAny.aiptag.adplayer.destroy();
+        }
+      });
+    }
+    );
+    windowAny.aiptag.cmd.player.push(() => {
+      console.log("starting preroll");
+      windowAny.aiptag.adplayer.startPreRoll();
+    });
+    
+
+    // windowAny.lastVidAdTime = Date.now();
+    window.localStorage.setItem('lastVidAdTime', windowAny.lastVidAdTime);
+    resolve();
   } else {
-    console.log('Adprovider is', (window as any)?.adProvider, 'not playing video ad');
+    console.log('Adprovider is', windowAny?.adProvider, 'not playing video ad');
     resolve();
   }
+} else {
+  console.log('Not playing video ad, last ad was', ((Date.now() - windowAny?.lastVidAdTime)/1000).toFixed(2), 's ago');
+  resolve();
+}
 });
 }

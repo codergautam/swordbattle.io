@@ -4,9 +4,8 @@ import { AccountsModule } from './accounts/accounts.module';
 import { AuthModule } from './auth/auth.module';
 import { config } from './config';
 import { GamesModule } from './games/games.module';
-import { JwtBodyStrategy } from './auth/strategies/jwt-body.strategy';
-import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { StatsModule } from './stats/stats.module';
+import { AuthService } from './auth/auth.service';
 
 @Module({
   imports: [
@@ -24,6 +23,6 @@ import { StatsModule } from './stats/stats.module';
     GamesModule,
     StatsModule,
   ],
-  providers: [JwtStrategy, JwtBodyStrategy],
+  providers: [AuthService],
 })
 export class AppModule {}

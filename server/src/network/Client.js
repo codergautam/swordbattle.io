@@ -87,7 +87,7 @@ class Client {
     }
 
     this.isReady = false;
-    api.post('/auth/verify', { token: this.token }, (data) => {
+    api.post('/auth/verify', { secret: this.token }, (data) => {
       if (data.account) {
         const username = data.account.username;
         this.account = new Account();
@@ -111,7 +111,7 @@ class Client {
       }
 
       this.isReady = false;
-      api.post('/auth/verify', { token: this.token }, (data) => {
+      api.post('/auth/verify', { secret: this.token }, (data) => {
         if (data.account) {
           this.account = new Account();
           this.account.update(data.account);

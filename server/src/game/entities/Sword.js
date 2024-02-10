@@ -42,8 +42,9 @@ class Sword extends Entity {
   }
 
   get angle() {
-    console.log((Date.now() - this.lastSwordSwing) / this.swingDuration.value)
-    return this.atStart ? 0 : (Date.now() - this.lastSwordSwing) / this.swingDuration.value * this.swingAngle;
+    // any angle from swinging
+    const maxRot = Math.PI / 2;
+    return this.atStart ? 0 : this.held ? maxRot : Math.min(maxRot, (Date.now() - this.lastSwordSwing) / (this.swingDuration.value * 1000) * maxRot);
   }
 
   get size() {
@@ -51,8 +52,7 @@ class Sword extends Entity {
   }
 
   canCollide(entity) {
-    return (this.isFlying || this.swung)
-      && !this.collidedEntities.has(entity)
+    return !this.collidedEntities.has(entity)
       && this.player.depth === entity.depth;
   }
 
@@ -113,7 +113,7 @@ class Sword extends Entity {
         this.stopFly();
       }
     } else {
-      const angle = player.angle + this.angle + Math.PI / 2;
+      const angle = player.angle + this.angle + Math.PI / (this.atStart ? 2 : 3);
       const offsetX = player.shape.radius - this.size / 2.5;
       const offsetY = -player.shape.radius + this.size / 1.7;
       const offset = new SAT.Vector(offsetX, offsetY);
@@ -140,7 +140,6 @@ class Sword extends Entity {
   }
 
   updateFlags(dt) {
-    console.log('angle ',this.shape.angle*180/Math.PI);
     if (this.swinging()) {
       console.log('hit');
       this.lastSwordSwing = Date.now();
@@ -151,6 +150,9 @@ class Sword extends Entity {
     } else if(this.notSwinging()) {
       this.player.flags.set(Types.Flags.SwordSwing, false);
       this.atStart = true;
+      if(this.collidedEntities.size > 0) {
+        this.collidedEntities.clear();
+      }
       this.swung = false;
     }
     if(this.isHeld()) {

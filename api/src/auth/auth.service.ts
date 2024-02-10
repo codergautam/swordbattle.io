@@ -1,36 +1,39 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { AccountsService } from '../accounts/accounts.service';
-import { LegacyLoginDTO, LoginDTO, RegisterDTO } from './auth.dto';
-import { JwtPayload } from './auth.interface';
+import { SecretLoginDTO, LoginDTO, RegisterDTO } from './auth.dto';
 import { Account } from 'src/accounts/account.entity';
 import validateUsername from 'src/helpers/validateUsername';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly jwtService: JwtService,
     private readonly accountsService: AccountsService,
   ) {}
 
   async register(data: RegisterDTO) {
-        // validate username
-        if(validateUsername(data.username)) {
-          throw new UnauthorizedException(validateUsername(data.username));
-        }
+    // validate username
+    if(validateUsername(data.username)) {
+      throw new UnauthorizedException(validateUsername(data.username));
+    }
+    // validate email
+    if(data.email && /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/.test(data.email) === false) {
+      throw new UnauthorizedException('Invalid email');
+    }
+
     if (await this.accountsService.findOneWithLowercase({ where: { username: data.username } })) {
       throw new UnauthorizedException('Username already exists');
     }
     if (data.email && await this.accountsService.findOneWithLowercase({ where: { email: data.email } })) {
       throw new UnauthorizedException('Email already exists');
     }
-    const account = await this.accountsService.create(data);
-    const token = await this.getToken(account);
-    return { account: this.accountsService.sanitizeAccount(account), token };
+    const secret = uuidv4();
+    const account = await this.accountsService.create({secret, ...data});
+    return { account: this.accountsService.sanitizeAccount(account), secret };
   }
 
 
-  async legacyLogin(data: LegacyLoginDTO) {
+  async secretLogin(data: SecretLoginDTO) {
     let account;
     try {
       account = await this.accountsService.findOne({ where: { secret: data.secret } });
@@ -38,8 +41,7 @@ export class AuthService {
       throw new UnauthorizedException('User does not exists');
     }
 
-    const token = await this.getToken(account);
-    return { account: this.accountsService.sanitizeAccount(account), token };
+    return { account: this.accountsService.sanitizeAccount(account), secret: data.secret };
   }
 
   async login(data: LoginDTO) {
@@ -57,19 +59,26 @@ export class AuthService {
       throw new UnauthorizedException('Wrong password');
     }
 
-    const token = await this.getToken(account);
-    return { account: this.accountsService.sanitizeAccount(account), token };
+    const secret = account.secret;
+    return { account: this.accountsService.sanitizeAccount(account), secret };
   }
 
   async getToken(account: Account) {
-    const payload = { sub: account.id };
-    const token = this.jwtService.sign(payload);
-    return token;
+    throw new Error('DEPRECATED, USE SECRET');
   }
 
   async getIdFromToken(token: string) {
-    const payload = this.jwtService.decode(token) as JwtPayload;
-    return payload.sub;
+    throw new Error('DEPRECATED, USE getIdFromSecret');
+  }
+
+  async getAccountFromSecret(secret: string) {
+    const account = await this.accountsService.findOne({ where: { secret } });
+    return account;
+  }
+
+  async getIdFromSecret(secret: string) {
+    const account = await this.getAccountFromSecret(secret);
+    return account.id;
   }
 
   async getAccountById(id: number) {
@@ -80,9 +89,7 @@ export class AuthService {
     try {
       let result = await this.accountsService.changeUsername(account.id, newUsername);
       if(result.success) {
-        // make new token
-        const token = await this.getToken(account);
-        (result as any).token = token;
+        (result as any).secret = account.secret;
       }
     return result;
     } catch (e) {
@@ -99,7 +106,7 @@ export class AuthService {
     return this.accountsService.getByUsername(username);
   }
 
-  async validateAccount(payload: JwtPayload) {
-    return this.accountsService.getById(payload.sub);
+  async validateAccount(payload: any) {
+    throw new Error('DEPRECATED');
   }
 }

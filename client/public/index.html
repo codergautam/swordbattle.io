@@ -1,29 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <script>
-console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/codergautam", "color: orange; font-size: 30px;", "color: red; font-size: 30px;", "color: green; font-size: 20px;", "color: cyan; font-size: 20px", "color: grey; font-size: 10px");
-    </script>
-    <!-- Phaser -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js" integrity="sha512-YQL0GVx/Too3vZjBl9plePRIYsRnd1s8N6QOvXPdZ+JMH2mtRTLQXGUDGjNW6zr1HUgcOIury67IvWe91oeEwQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-35EKK5X5R4"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+<head>
+  <!-- Swordbattle.io -->
+  <script>
+    console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/codergautam", "color: orange; font-size: 30px;", "color: red; font-size: 30px;", "color: green; font-size: 20px;", "color: cyan; font-size: 20px", "color: grey; font-size: 10px");
+  </script>
 
-  gtag('config', 'G-35EKK5X5R4');
-</script>
+  <!-- Phaser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"
+    integrity="sha512-YQL0GVx/Too3vZjBl9plePRIYsRnd1s8N6QOvXPdZ+JMH2mtRTLQXGUDGjNW6zr1HUgcOIury67IvWe91oeEwQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EKK5X5R4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-35EKK5X5R4');
+  </script>
+
   <!-- Ads -->
   <script>
     const vidAdDelay = {
-      adinplay: 1000 * 60 * 10, // 10 minutes
+      adinplay: 1000 * 60 * 5, // 5 minutes
       gamemonetize: 1000 * 60 * 2, // 2 minutes
     };
 
     function checkAdProvider() {
-      let adProvider = "adinplay";
+      let adProvider = '<%= htmlWebpackPlugin.options.adProvider %>' || "adinplay";
       // get query string in url check if other ad provider is set
       const validAdProviders = ["adinplay", "gamemonetize"];
       const urlParams = new URLSearchParams(window.location.search);
@@ -35,65 +41,75 @@ console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/code
     }
 
     window.adProvider = checkAdProvider();
+    console.log("Ad provider:", window.adProvider)
+
     window.vidAdDelay = vidAdDelay[window.adProvider];
     window.lastVidAdTime = 0;
+
     try {
-    if(window.localStorage.getItem("lastVidAdTime")) {
-      window.lastVidAdTime = parseInt(window.localStorage.getItem("lastVidAdTime"));
-    }
-    } catch(e){};
+      if (window.localStorage.getItem("lastVidAdTime") && window.adProvider !== "gamemonetize") window.lastVidAdTime = parseInt(window.localStorage.getItem("lastVidAdTime"));
+      if (window.adProvider === "adinplay") window.lastVidAdTime = Date.now(); // dont show immediate ad, to encourage return users
+    } catch (e) { };
 
+    if (window.adProvider === "gamemonetize") {
+      window.SDK_OPTIONS = {
+        gameId: "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
+        onEvent: function (a) {
+          // dispatch event to game process
+          const windowEvent = new CustomEvent("gamemonetize_event_" + a.name, { detail: a });
+          console.log("gamemonetize_event_" + a.name, a);
+          window.dispatchEvent(windowEvent);
+        }
+      };
+      // load sdk
+      (function (a, b, c) {
+        var d = a.getElementsByTagName(b)[0];
+        a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://api.gamemonetize.com/sdk.js", d.parentNode.insertBefore(a, d))
+      })(document, "script", "gamemonetize-sdk");
+    } else if(window.adProvider === "adinplay") {
+      // Adinplay settings
+      var aiptag = aiptag || {};
+      aiptag.cmd = aiptag.cmd || [];
+      aiptag.cmd.display = aiptag.cmd.display || [];
+      aiptag.cmd.player = aiptag.cmd.player || [];
 
-    var aiptag = aiptag || {};
-    aiptag.cmd = aiptag.cmd || [];
-    aiptag.cmd.display = aiptag.cmd.display || [];
-    aiptag.cmd.player = aiptag.cmd.player || [];
-
-    //CMP tool settings
-    aiptag.cmp = {
-      show: true,
-      position: "centered",  //centered or bottom
-      button: true,
-      buttonText: "Privacy settings",
-      buttonPosition: "bottom-left" //bottom-left, bottom-right, top-left, top-right
-    }
- if(window.adProvider === "gamemonetize") {
-    window.SDK_OPTIONS = {
-      gameId: "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
-      onEvent: function (a) {
-        // dispatch event to game process
-        const windowEvent = new CustomEvent("gamemonetize_event_" + a.name, { detail: a });
-        console.log("gamemonetize_event_" + a.name, a);
-        window.dispatchEvent(windowEvent);
+      //CMP tool settings
+      aiptag.cmp = {
+        show: true,
+        position: "centered",  //centered or bottom
+        button: true,
+        buttonText: "Privacy settings",
+        buttonPosition: "bottom-right" //bottom-left, bottom-right, top-left, top-right
       }
-   };
-   // load sdk
-(function (a, b, c) {
-   var d = a.getElementsByTagName(b)[0];
-   a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://api.gamemonetize.com/sdk.js", d.parentNode.insertBefore(a, d))
-})(document, "script", "gamemonetize-sdk");
-  }
+    }
   </script>
 
+  <% if (htmlWebpackPlugin.options.adProvider==="adinplay" ) { %>
+    <script src="//api.adinplay.com/libs/aiptag/pub/SWT/swordbattle.io/tag.min.js"></script>
+    <% } %>
 
+    <!-- End of Ads -->
 
-  <script src="//api.adinplay.com/libs/aiptag/pub/SWT/swordbattle.io/tag.min.js"></script>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <title>Swordbattle.io</title>
-    <meta name="description"
-      content="Swordbattle.io is an online sword fighting io game! Fight with friends and enemies in this multiplayer battle arena! Collect coins to be huge, rule the land and upgrade your character!" />
-    <meta name="keywords" content="IOGAME, swordbattle, codergautam, swordiogame, swordio" />
-    <meta property="og:image" content="/assets/game/player/sword.png" />
-    <meta name="author" content="CoderGautam" />
-    <meta name="viewport" id="viewport"
-      content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,initial-scale=1.0, user-scalable=0" />
-    <title>Swordbattle.io</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
+      <meta charset="utf-8" />
+      <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="theme-color" content="#000000" />
+      <title>Swordbattle.io</title>
+      <meta name="description"
+        content="Swordbattle.io is an online sword fighting io game! Fight with friends and enemies in this multiplayer battle arena! Collect coins to be huge, rule the land and upgrade your character!" />
+      <meta name="keywords" content="IOGAME, swordbattle, codergautam, swordiogame, swordio" />
+      <meta property="og:image" content="/assets/game/player/sword.png" />
+      <meta name="author" content="CoderGautam" />
+      <meta name="viewport" id="viewport"
+        content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,initial-scale=1.0, user-scalable=0" />
+      <title>Swordbattle.io</title>
+
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <div id="preroll"></div>
+</body>
+
 </html>

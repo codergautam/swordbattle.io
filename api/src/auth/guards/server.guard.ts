@@ -1,21 +1,24 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { ExtractJwt } from 'passport-jwt';
-import * as jwt from 'jsonwebtoken';
-
-import { ServerPayload } from '../auth.interface';
-import { config } from '../../config';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { AuthService } from '../auth.service';
+import { config } from 'src/config';
 
 @Injectable()
 export class ServerGuard implements CanActivate {
-  canActivate( context: ExecutionContext ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = ExtractJwt.fromAuthHeaderAsBearerToken()(request);
-    try {
-      const decoded = jwt.verify(token, config.serverSecret) as ServerPayload;
-      return decoded.isServer === true;
-    } catch (err) {
+    const authHeader = request.headers.authorization;
+
+    // Check if the Authorization header is present and formatted correctly
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return false;
     }
+
+    const secretKey = authHeader.split(' ')[1];
+
+    if(!secretKey || (secretKey !== config.serverSecret)) {
+      return false;
+    }
+
+    return true;
   }
 }

@@ -54,6 +54,14 @@ function get(url: string, callback = (data: any) => {}): any {
 
 function post(url: string, body: any, callback = (data: any) => {}, token?: string, useRecaptcha = false) {
 
+  if(!body) body = {};
+  
+      let secret: string | null = null;
+      try {
+       secret = window.localStorage.getItem('secret');
+      } catch(e) {
+        console.log('Error getting secret', e);
+      }
   if(!currentEndpoint) {
     checkEndpoint().then(() => {
       call();
@@ -75,6 +83,9 @@ function post(url: string, body: any, callback = (data: any) => {}, token?: stri
 
     if (recaptchaToken) {
       body.recaptchaToken = recaptchaToken;
+    }
+    if(secret) {
+      body.secret = secret;
     }
 
     fetch(url, {

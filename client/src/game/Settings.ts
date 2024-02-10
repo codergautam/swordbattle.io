@@ -98,12 +98,12 @@ class SettingsManager {
     let savedSettings: any = {};
 		try {
 			const data = JSON.parse(localStorage.getItem(this.key) as string);
-			console.log('Loaded Settings', data);
+			// console.log('Loaded Settings', data);
       if (data) {
 				savedSettings = data;
 			}
 		} catch (e) {
-			console.log('Corrupted Settings');
+			console.warn('Corrupted Settings');
 			localStorage.removeItem(this.key);
 		}
 		return savedSettings;
@@ -114,7 +114,7 @@ class SettingsManager {
 		savedSettings[key] = value;
 		localStorage.setItem(this.key, JSON.stringify(savedSettings));
 
-    console.log('Saved Settings', savedSettings);
+    // console.log('Saved Settings', savedSettings);
     if (settingsList[key].onChange) {
       settingsList[key].onChange(value);
     }

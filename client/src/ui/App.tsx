@@ -83,43 +83,63 @@ function App() {
       //   setAccountReady(true);
       //   return;
       // }
-      console.log('Checking account');
+      // console.log('Checking account');
+      // let secret: string | null = null;
+      // try {
+      //  secret = window.localStorage.getItem('secret');
+      // } catch(e) {
+      //   console.log('Error getting secret', e);
+      // }
+    // api.get(`${api.endpoint}/auth/account?now=${Date.now()}`, (data) => {
+    //   console.log('Account data', data);
+    //   setAccountReady(true);
+    //   if (data.account) {
+    //     data.account.token = data.token;
+    //     // if(data.account.secret) {
+    //     //   try {
+    //     //     window.localStorage.setItem('secret', data.account.secret);
+    //     //   } catch(e) {
+    //     //     console.log('Error setting secret', e);
+    //     //   }
+    //     // }
+    //     dispatch(setAccount(data.account));
+    //   } else {
+    //     if(typeof secret === 'string' && secret.length > 0) {
+    //       // attempt legacy login with secret
+    //       console.log('Attempting legacy login with secret');
+    //       api.post(`${api.endpoint}/auth/legacyLogin`, { secret }, (data) => {
+    //         if (data.account) {
+    //           data.account.token = data.token;
+    //           dispatch(setAccount(data.account));
+    //         } else {
+    //           console.log('Error logging in with secret', data);
+    //           dispatch(clearAccount());
+    //         }
+    //       });
+    //     }
+    //     dispatch(clearAccount());
+    //   }
+    // });
       let secret: string | null = null;
       try {
        secret = window.localStorage.getItem('secret');
       } catch(e) {
         console.log('Error getting secret', e);
       }
-    api.get(`${api.endpoint}/auth/account?now=${Date.now()}`, (data) => {
-      console.log('Account data', data);
+    if(!secret) {
+      dispatch(clearAccount());
       setAccountReady(true);
-      if (data.account) {
-        data.account.token = data.token;
-        // if(data.account.secret) {
-        //   try {
-        //     window.localStorage.setItem('secret', data.account.secret);
-        //   } catch(e) {
-        //     console.log('Error setting secret', e);
-        //   }
-        // }
-        dispatch(setAccount(data.account));
-      } else {
-        if(typeof secret === 'string' && secret.length > 0) {
-          // attempt legacy login with secret
-          console.log('Attempting legacy login with secret');
-          api.post(`${api.endpoint}/auth/legacyLogin`, { secret }, (data) => {
-            if (data.account) {
-              data.account.token = data.token;
-              dispatch(setAccount(data.account));
-            } else {
-              console.log('Error logging in with secret', data);
-              dispatch(clearAccount());
-            }
-          });
+    } else {
+      api.post(`${api.endpoint}/auth/loginWithSecret`, null, (data) => {
+        setAccountReady(true);
+        if (data.account) {
+          data.account.secret = data.secret;
+          dispatch(setAccount(data.account));
+        } else {
+          dispatch(clearAccount());
         }
-        dispatch(clearAccount());
-      }
-    });
+      });
+    }
   }, 10);
 
   if(!firstGame) return;
@@ -305,7 +325,7 @@ function App() {
               </div>
               <div className='fullWidth'>
                 <div id="adBelow">
-                 <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} />
+                 {/* <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} /> */}
                 </div>
               </div>
             </div>
@@ -361,7 +381,7 @@ function App() {
                <a href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="noreferrer">About</a>
              </div>
             <div>
-               <Link to="/leaderboard" target="_blank" rel="noreferrer">Leaderboard</Link>
+               <Link to="https://swordbattle.io/leaderboard" target="_blank" rel="noreferrer">Leaderboard</Link>
            </div>
             <div>
                <a href="https://iogames.forum/swordbattle" target="_blank" rel="noreferrer" className='forum'>
@@ -374,7 +394,7 @@ function App() {
                </a>
              </div>
               <div>
-               <a href="/partners.html" target="_blank" rel="noreferrer" className='partners'>
+               <a href="https://swordbattle.io/partners" target="_blank" rel="noreferrer" className='partners'>
                  Partners
                </a>
              </div>

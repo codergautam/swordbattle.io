@@ -1,8 +1,7 @@
-const jwt = require('jsonwebtoken');
 const config = require('../config');
 
 const endpoint = config.apiEndpoint;
-const token = jwt.sign({ isServer: true }, config.serverSecret);
+const token = config.serverSecret;
 
 function get(path, callback = (data) => {}) {
   fetch(endpoint + path, {

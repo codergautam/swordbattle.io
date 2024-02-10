@@ -19,6 +19,7 @@ try {
 const servers: Server[] = [
   { value: 'eu', name: 'Europe', address: config.serverEU, ping: 0 },
   { value: 'us', name: 'USA', address: config.serverUS, ping: 0 },
+  { value: 'usbackup', name: 'USA Unblocked', address: config.serverUSBackup, ping: 0 },
 ];
 if (config.isDev) {
   servers.unshift({ value: 'dev', name: 'Development', address: config.serverDev, ping: 0 });
@@ -118,7 +119,7 @@ function getAutoServer(): Server {
   }
 
   if(server.offline) {
-    alert('All servers are offline, please try again later');
+    alert('All servers are offline or blocked, please report this to support@swordbattle.io');
   }
 
   return server;

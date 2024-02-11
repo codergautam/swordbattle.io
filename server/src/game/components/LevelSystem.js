@@ -42,7 +42,7 @@ class LevelSystem {
       [Types.Buff.Speed]: {
         level: 0,
         max: 10,
-        step: 0.075,
+        step: 0.05,
         buyable: true,
       },
       [Types.Buff.Size]: {
@@ -53,7 +53,7 @@ class LevelSystem {
       },
       [Types.Buff.Health]: {
         level: 0,
-        step: 0.25,
+        step: 0.2,
         max: 10,
         buyable: true,
       },
@@ -92,6 +92,12 @@ class LevelSystem {
     if (buy && !this.buffs[type].buyable) return;
     this.buffs[type].level += 1;
     if(buy) this.upgradePoints -= 1;
+
+    // if health buff, increase current health
+    if (type === Types.Buff.Health) {
+      this.player.health.percent *= 1.5;
+      this.player.health.percent = Math.min(1, this.player.health.percent);
+    }
     }
   }
 

@@ -8,11 +8,11 @@ module.exports = class Tank extends Evolution {
   static abilityCooldown = 90;
 
   applyAbilityEffects() {
-    this.player.sword.damage.multiplier *= 2;
+    this.player.sword.damage.multiplier *= 1.5;
     this.player.sword.knockback.multiplier['ability'] = 1.5;
     this.player.knockbackResistance.multiplier *= 1.5;
     this.player.shape.setScale(1.75);
-    this.player.health.regen.multiplier *= 8;
+    this.player.health.regen.multiplier *= 12;
 
     this.player.health.regenWait.multiplier *= 0;
     this.player.sword.swingDuration.multiplier['ability'] = 0.5;

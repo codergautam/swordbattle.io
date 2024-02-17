@@ -140,7 +140,7 @@ class Client {
       if (data.message) {
         console.warn('Failed to save stats:', game, data.message);
       } else {
-        console.log('Stats saved', game);
+        console.log('Stats saved for', game.account_id);
       }
     });
 
@@ -149,7 +149,7 @@ class Client {
         if (data.message) {
           console.warn('Failed to save game:', game, data.message);
         } else {
-          console.log('Game saved', game);
+          console.log('Game saved for', game.account_id);
         }
       });
     }

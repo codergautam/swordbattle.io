@@ -173,7 +173,7 @@ class Game {
             'Content-Type': 'application/json',
           },
         }).then(res => res.json()).then(json => {
-          if(json.success && json.score > 0.1) {
+          if(json.success && json.score >= 0.1) {
             this.addSpectator(client);
             client.captchaVerified = true;
           } else {

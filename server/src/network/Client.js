@@ -139,6 +139,8 @@ class Client {
     api.post('/stats/update', game, (data) => {
       if (data.message) {
         console.warn('Failed to save stats:', game, data.message);
+      } else {
+        console.log('Stats saved for', game.account_id);
       }
     });
 
@@ -146,6 +148,8 @@ class Client {
       api.post('/games/save', game, (data) => {
         if (data.message) {
           console.warn('Failed to save game:', game, data.message);
+        } else {
+          console.log('Game saved for', game.account_id);
         }
       });
     }

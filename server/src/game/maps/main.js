@@ -28,12 +28,6 @@ module.exports = {
         [0, 0],
       ],
       objects: [
-        {
-          type: Types.Entity.Rock,
-          amount: 5,
-          position: 'random',
-          size: [300, 450],
-        },
       ],
     },
 
@@ -48,12 +42,6 @@ module.exports = {
         [0, 0],
       ],
       objects: [
-        {
-          type: Types.Entity.Rock,
-          amount: 5,
-          position: 'random',
-          size: [300, 450],
-        },
       ],
     },
     {
@@ -66,12 +54,6 @@ module.exports = {
         [-1500, 11500],
       ],
       objects: [
-        {
-          type: Types.Entity.Rock,
-          amount: 5,
-          position: 'random',
-          size: [300, 450],
-        },
       ],
     },
 
@@ -164,12 +146,6 @@ module.exports = {
       ],
       objects: [
         {
-          type: Types.Entity.MossyRock,
-          amount: 5,
-          position: 'random',
-          size: [400, 500],
-        },
-        {
           type: Types.Entity.Bush,
           amount: 100,
           position: 'random',
@@ -248,12 +224,6 @@ module.exports = {
         [-11500, 11500],
       ],
       objects: [
-        {
-          type: Types.Entity.LavaRock,
-          amount: 5,
-          position: 'random',
-          size: [300, 650],
-        },
         {
           type: Types.Entity.LavaPool,
           amount: 30,

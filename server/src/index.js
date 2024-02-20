@@ -97,7 +97,7 @@ function start() {
   // Gameloop
   const frameTime = 1000 / config.tickRate;
   const dt = frameTime / 1000;
-  const loop = new Loop(frameTime);
+  const loop = new Loop(frameTime, game);
   loop.setEventHandler(() => {
     server.tick(dt);
   });

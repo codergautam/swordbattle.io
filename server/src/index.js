@@ -6,6 +6,11 @@ const Loop = require('./utilities/Loop');
 const Server = require('./network/Server');
 const config = require('./config');
 const {initModeration} = require('./moderation');
+const { writeHeapSnapshot } = require('node:v8');
+const fs = require('fs');
+const util = require('util');
+
+const readFileAsync = util.promisify(fs.readFile);
 
 let app;
 if (config.useSSL) {
@@ -38,6 +43,37 @@ app.get('/ping', (res) => {
   res.writeHeader('Content-Type', 'text/plain');
   res.writeStatus('200 OK');
   res.end('pong');
+});
+
+app.get('/heapdump', async (res) => {
+  setCorsHeaders(res);
+
+  const filename = writeHeapSnapshot();
+
+  // Ensure cleanup in case of request abortion
+  res.onAborted(() => {
+    fs.unlinkSync(filename); // Clean up the file if the client aborts the connection
+  });
+
+  try {
+    // Read the file into memory - be cautious with large files
+    const data = await readFileAsync(filename);
+
+    res.writeHeader('Content-Type', 'application/octet-stream');
+    res.writeHeader('Content-Disposition', `attachment; filename="${path.basename(filename)}"`);
+    res.end(data);
+
+    // Clean up the file after sending
+    fs.unlinkSync(filename);
+  } catch (error) {
+    console.error('Failed to serve heap dump', error);
+    if (!res.aborted) {
+      res.writeStatus('500 Internal Server Error');
+      res.end('Failed to generate or serve heap dump');
+    }
+    // Attempt to clean up even in case of failure
+    fs.unlinkSync(filename);
+  }
 });
 
 function start() {

@@ -311,9 +311,18 @@ class Game {
     for (const entityId of allViewportEntities) {
       const entity = [...this.entities].find(e => e.id === entityId);
       if(!entity) {
+        const removedEntity = [...this.removedEntities].find(e => e.id === entityId);
         changes[entityId] = {
           removed: true,
         };
+        if(removedEntity && removedEntity.type === Types.Entity.Player) {
+          try {
+          changes[entityId].disconnectReasonMessage = removedEntity.client.disconnectReason.message;
+          changes[entityId].disconnectReasonType = removedEntity.client.disconnectReason.type;
+          } catch(e) {
+            console.log("failed to get disconnect reason", e);
+          }
+        }
         continue;
       }
       if (entity.isStatic) continue;

@@ -48,7 +48,7 @@ class Player extends Entity {
     this.inSafezone = true;
 
     this.viewport = new Viewport(this, viewport.width, viewport.height, viewport.zoom);
-    this.viewportEntities = [];
+    this.viewportEntityIds = [];
     this.effects = new Map();
     this.flags = new Map();
     this.sword = new Sword(this);
@@ -295,9 +295,9 @@ class Player extends Entity {
   }
 
   getEntitiesInViewport() {
-    this.viewportEntities = this.game.entitiesQuadtree.get(this.viewport.boundary)
-      .map(result => result.entity);
-    return this.viewportEntities;
+    this.viewportEntityIds = this.game.entitiesQuadtree.get(this.viewport.boundary)
+      .map(result => result.entity.id);
+      return this.viewportEntityIds;
   }
 
   remove(message = 'Server', type = Types.DisconnectReason.Server) {

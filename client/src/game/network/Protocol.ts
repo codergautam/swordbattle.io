@@ -1166,7 +1166,6 @@ export interface Entity {
   swordSwingDuration?: number;
   swordFlyingCooldown?: number;
   disconnectReasonMessage?: string;
-  hunterId?: number;
   rarity?: number;
   width?: number;
   height?: number;
@@ -1473,13 +1472,6 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
   if ($disconnectReasonMessage !== undefined) {
     writeVarint32(bb, 290);
     writeString(bb, $disconnectReasonMessage);
-  }
-
-  // optional int32 hunterId = 37;
-  let $hunterId = message.hunterId;
-  if ($hunterId !== undefined) {
-    writeVarint32(bb, 296);
-    writeVarint64(bb, intToLong($hunterId));
   }
 
   // optional int32 rarity = 38;
@@ -1823,12 +1815,6 @@ function _decodeEntity(bb: ByteBuffer): Entity {
       // optional string disconnectReasonMessage = 36;
       case 36: {
         message.disconnectReasonMessage = readString(bb, readVarint32(bb));
-        break;
-      }
-
-      // optional int32 hunterId = 37;
-      case 37: {
-        message.hunterId = readVarint32(bb);
         break;
       }
 

@@ -10,6 +10,7 @@ import { Spectator } from './Spectator';
 import { getServer } from '../ServerList';
 import { config } from '../config';
 import exportCaptcha from './components/captchaEncoder';
+import { findCoinCollector } from '../helpers';
 
 class GameState {
   game: Game;
@@ -194,7 +195,7 @@ class GameState {
       const id = Number(stringId);
 
       const entityData = data.entities[id];
-      if (!this.entities[id]) {
+      if (!this.entities[id] && !entityData.removed) {
         this.addEntity(id, entityData);
       }
 
@@ -336,7 +337,8 @@ class GameState {
 
     if (entity.type === EntityTypes.Coin) {
       entity.removed = true;
-      entity.hunter = this.entities[data.hunterId];
+      // entity.hunter = this.entities[data.hunterId];
+      entity.hunter = findCoinCollector(entity, Object.values(this.entities).filter((e: any) => e.type === EntityTypes.Player));
       this.removedEntities.add(entity);
     } else {
       entity.remove();

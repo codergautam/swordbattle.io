@@ -14,7 +14,7 @@ class Spectator {
 
     const { viewport } = config.player;
     this.viewport = new Viewport(this, viewport.width, viewport.height, viewport.spectateZoom);
-    this.viewportEntities = [];
+    this.viewportEntityIds = [];
 
     this.isSpectating = false;
     this.initialized = false;
@@ -67,9 +67,9 @@ class Spectator {
   }
 
   getEntitiesInViewport() {
-    this.viewportEntities = this.game.entitiesQuadtree.get(this.viewport.boundary)
-      .map(result => result.entity);
-    return this.viewportEntities;
+    this.viewportEntityIds = this.game.entitiesQuadtree.get(this.viewport.boundary)
+      .map(result => result.entity.id);
+    return this.viewportEntityIds;
   }
 
   cleanup() {

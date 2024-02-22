@@ -110,8 +110,6 @@ message Entity {
   float swordFlyingCooldown = 35;
   string disconnectReasonMessage = 36;
 
-  // Coin
-  int32 hunterId = 37;
   // Chest
   int32 rarity = 38;
   // Building

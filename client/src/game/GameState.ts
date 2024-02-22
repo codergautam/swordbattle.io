@@ -43,6 +43,7 @@ class GameState {
   chatMessage: string | null = null;
   captchaVerified = false;
   failedSkinLoads: Record<number, boolean> = {};
+  recentDeadPlayers: Record<number, { name: string, time: number }> = {};
 
   constructor(game: Game) {
     this.game = game;
@@ -341,6 +342,21 @@ class GameState {
       entity.hunter = findCoinCollector(entity, Object.values(this.entities).filter((e: any) => e.type === EntityTypes.Player));
       this.removedEntities.add(entity);
     } else {
+      if(entity.type === EntityTypes.Player) {
+        this.recentDeadPlayers[id] = { name: entity.name, time: Date.now() };
+        if(Object.keys(this.recentDeadPlayers).length > 10) {
+          // delete the oldest
+          let oldestTime = Infinity;
+          let oldestId = 0;
+          for(const id in this.recentDeadPlayers) {
+            if(this.recentDeadPlayers[id].time < oldestTime) {
+              oldestTime = this.recentDeadPlayers[id].time;
+              oldestId = Number(id);
+            }
+          }
+          delete this.recentDeadPlayers[oldestId];
+        }
+      }
       entity.remove();
     }
   }

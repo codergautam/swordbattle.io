@@ -180,14 +180,13 @@ class ProgressBar extends HudComponent {
     }
 
     const stabbedId = player.flags[FlagTypes.PlayerKill];
-    const stabbedEntity = this.game.gameState.entities[stabbedId];
+    if(!stabbedId) return;
+    const stabbedEntity = this.game.gameState.recentDeadPlayers[stabbedId] || this.game.gameState.entities[stabbedId];
     if (stabbedEntity && stabbedId !== this.lastEntityStabId) {
-
       this.showStabbedText(stabbedEntity.name);
       this.lastKillTime = Date.now();
       this.killStreak++;
       this.lastEntityStabId = stabbedId;
-
     }
   }
 }

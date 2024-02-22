@@ -1,3 +1,6 @@
+import Coin from "./game/entities/Coin";
+import Player from "./game/entities/Player";
+
 export function random(min: number, max: number) {
   return min + (Math.random() * (max - min));
 }
@@ -157,6 +160,26 @@ export function getCookies() {
   });
   return cookies;
 }
+
+export function findCoinCollector(coin: Coin, players: Player[]) {
+    const errorThreshold = 1.1;
+    const coinRadius = coin.shape.radius * coin.container.scale * errorThreshold;
+    const coinX = coin.shape.x;
+    const coinY = coin.shape.y;
+
+    let entity = null;
+    players.forEach((player: Player) => {
+      const playerRadius = player.shape.radius * 2 * errorThreshold;
+      if (playerRadius > coinRadius) {
+        const distance = Math.sqrt(Math.pow(player.shape.x - coinX, 2) + Math.pow(player.shape.y - coinY, 2));
+        if (distance < playerRadius) {
+          entity = player;
+        }
+      }
+    });
+    return entity;
+}
+
 
 export const playVideoAd = () => {
   const windowAny = window as any;

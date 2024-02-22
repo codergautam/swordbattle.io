@@ -291,8 +291,13 @@ class Game {
 
   getAllEntities(player) {
     const entities = {};
-    for (const entity of player.getEntitiesInViewport()) {
-      if (entity.isStatic) continue;
+    for (const entityId of player.getEntitiesInViewport()) {
+      const entity = [...this.entities].find(e => e.id === entityId);
+      if (!entity) continue;
+      if (entity.isStatic) {
+        entities[entity.id] = entity.state.get();
+        continue;
+      }
       entities[entity.id] = entity.state.get();
     }
     return entities;
@@ -300,19 +305,35 @@ class Game {
 
   getEntitiesChanges(player) {
     const changes = {};
-    const previousViewport = player.viewportEntities;
+    const previousViewport = player.viewportEntityIds;
     const currentViewport = player.getEntitiesInViewport();
     const allViewportEntities = currentViewport.concat(previousViewport);
-    for (const entity of allViewportEntities) {
+    for (const entityId of allViewportEntities) {
+      const entity = [...this.entities].find(e => e.id === entityId);
+      if(!entity) {
+        const removedEntity = [...this.removedEntities].find(e => e.id === entityId);
+        changes[entityId] = {
+          removed: true,
+        };
+        if(removedEntity && removedEntity.type === Types.Entity.Player) {
+          try {
+          changes[entityId].disconnectReasonMessage = removedEntity.client.disconnectReason.message;
+          changes[entityId].disconnectReasonType = removedEntity.client.disconnectReason.type;
+          } catch(e) {
+            console.log("failed to get disconnect reason", e);
+          }
+        }
+        continue;
+      }
       if (entity.isStatic) continue;
 
       entity.state.get(); // updates state
 
       // If player wasn't it previous viewport, it sends as new entity
-      if (previousViewport.indexOf(entity) === -1) {
+      if (previousViewport.findIndex(id => id === entity.id) === -1) {
         changes[entity.id] = entity.state.get();
         // If entity was in previous viewport but it's not in current, it counts as removed entity
-      } else if (currentViewport.indexOf(entity) === -1) {
+      } else if (currentViewport.findIndex(id => id === entity.id) === -1) {
         changes[entity.id] = {
           ...entity.state.getChanges(),
           removed: true,
@@ -324,7 +345,6 @@ class Game {
         }
       }
     }
-
     return changes;
   }
 

@@ -18,7 +18,6 @@ class Coin extends Entity {
 
     this.shape = Circle.create(0, 0, radius);
     this.targets.push(Types.Entity.Player);
-    this.hunterId = null;
     this.droppedBy = objectData.droppedBy;
 
     // Despawn coin after 2 minutes
@@ -40,9 +39,9 @@ class Coin extends Entity {
 
   createState() {
     const state = super.createState();
-    if (this.removed) {
-      state.hunterId = this.hunterId;
-    }
+    // if (this.removed) {
+    //   state.hunterId = this.hunterId;
+    // }
     return state;
   }
 
@@ -62,7 +61,6 @@ class Coin extends Entity {
     }
     player.levels.addCoins(this.value);
     player.flags.set(Types.Flags.GetCoin, true);
-    this.hunterId = player.id;
 
     if (this.respawnable) this.createInstance();
     this.remove();

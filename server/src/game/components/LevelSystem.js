@@ -53,19 +53,19 @@ class LevelSystem {
       },
       [Types.Buff.Health]: {
         level: 0,
-        step: 0.2,
+        step: 0.1,
         max: 10,
         buyable: true,
       },
       [Types.Buff.Regeneration]: {
         level: 0,
-        step: 0.2,
+        step: 0.15,
         max: 10,
         buyable: true,
       },
       [Types.Buff.Damage]: {
         level: 0,
-        step: 0.03,
+        step: 0.045,
         max: 10,
         buyable: true,
       },

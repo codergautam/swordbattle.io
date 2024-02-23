@@ -11,14 +11,13 @@ const Types = require('./Types');
 const { getBannedIps } = require('../moderation');
 class Game {
   constructor() {
-    this.entities = new Set();
+    this.entities = new Map();
     this.players = new Set();
     this.newEntities = new Set();
     this.removedEntities = new Set();
     this.idPool = new IdPool();
     this.map = new GameMap(this);
     this.globalEntities = new GlobalEntities(this);
-    this.leaderPlayer = null;
 
     this.entitiesQuadtree = null;
     this.tps = 0;
@@ -32,7 +31,7 @@ class Game {
   }
 
   tick(dt) {
-    for (const entity of this.entities) {
+    for (const [id, entity] of this.entities) {
       // Not a sword
       const entityType = entity.type;
       if (entityType === Types.Entity.Sword) continue;
@@ -41,11 +40,11 @@ class Game {
 
     this.updateQuadtree(this.entitiesQuadtree, this.entities);
     const response = new SAT.Response();
-    for (const entity of this.entities) {
+    for (const [id, entity] of this.entities) {
       if (entity.removed) continue;
 
       if (entity.isGlobal) {
-        this.globalEntities.entities.add(entity);
+        this.globalEntities.entities.set(entity.id, entity);
       }
 
       this.processCollisions(entity, response, dt);
@@ -282,7 +281,7 @@ class Game {
 
   updateQuadtree(quadtree, entities) {
     quadtree.clear();
-    for (const entity of entities) {
+    for (const [id, entity] of entities) {
       const collisionRect = entity.shape.boundary;
       collisionRect.entity = entity;
       quadtree.insert(collisionRect);
@@ -292,7 +291,8 @@ class Game {
   getAllEntities(player) {
     const entities = {};
     for (const entityId of player.getEntitiesInViewport()) {
-      const entity = [...this.entities].find(e => e.id === entityId);
+      // const entity = [...this.entities].find(e => e.id === entityId);
+      const entity = this.entities.get(entityId);
       if (!entity) continue;
       if (entity.isStatic) {
         entities[entity.id] = entity.state.get();
@@ -309,19 +309,15 @@ class Game {
     const currentViewport = player.getEntitiesInViewport();
     const allViewportEntities = currentViewport.concat(previousViewport);
     for (const entityId of allViewportEntities) {
-      const entity = [...this.entities].find(e => e.id === entityId);
+      const entity = this.entities.get(entityId);
       if(!entity) {
         const removedEntity = [...this.removedEntities].find(e => e.id === entityId);
         changes[entityId] = {
           removed: true,
         };
-        if(removedEntity && removedEntity?.client?.disconnectReason && removedEntity.type === Types.Entity.Player) {
-          try {
+        if(removedEntity?.type === Types.Entity.Player && removedEntity?.client?.disconnectReason) {
           changes[entityId].disconnectReasonMessage = removedEntity.client.disconnectReason.message;
           changes[entityId].disconnectReasonType = removedEntity.client.disconnectReason.type;
-          } catch(e) {
-            console.log("failed to get disconnect reason", e);
-          }
         }
         continue;
       }
@@ -414,12 +410,12 @@ class Game {
   }
 
   addEntity(entity) {
-    if (this.entities.has(entity)) return;
+    if (this.entities.has(entity?.id)) return;
 
     if (entity.id === null) {
       entity.id = this.idPool.take();
     }
-    this.entities.add(entity);
+    this.entities.set(entity.id, entity);
     this.newEntities.add(entity);
     return entity;
   }
@@ -431,10 +427,10 @@ class Game {
   }
 
   removeEntity(entity) {
-    if (!this.entities.has(entity)) return;
+    if (!this.entities.has(entity?.id)) return;
 
     if (entity.sword) this.removeEntity(entity.sword);
-    this.entities.delete(entity);
+    this.entities.delete(entity?.id);
     this.players.delete(entity);
     this.newEntities.delete(entity);
     this.removedEntities.add(entity);
@@ -447,7 +443,7 @@ class Game {
   }
 
   cleanup() {
-    for (const entity of this.entities) {
+    for (const [id, entity] of this.entities) {
       entity.cleanup();
     }
 

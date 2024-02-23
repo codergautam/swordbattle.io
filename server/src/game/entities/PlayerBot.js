@@ -97,8 +97,9 @@ class PlayerAI extends Player {
     if (!this.target) {
       if (this.stage === BehaviourStages.TargetLeader) {
         // this.target = this.game.leaderPlayer;
+        console.log('Targeting leader is not implemented yet');
       } else {
-        const targets = this.getEntitiesInViewport();
+        const targets = this.getEntitiesInViewport().map(id => this.game.entities.get(id)).filter(e => e);
         let minDistance = Infinity;
         for (const target of targets) {
           if (target === this) continue;

@@ -45,7 +45,7 @@ app.get('/ping', (res) => {
   res.end('pong');
 });
 
-app.get('/heapdump', async (res) => {
+/*app.get('/heapdump', async (res) => {
   setCorsHeaders(res);
 
   const filename = writeHeapSnapshot();
@@ -74,7 +74,7 @@ app.get('/heapdump', async (res) => {
     // Attempt to clean up even in case of failure
     fs.unlinkSync(filename);
   }
-});
+});*/
 
 function start() {
   const game = new Game();

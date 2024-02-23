@@ -7,7 +7,7 @@ class GlobalEntities {
     this.game = game;
     this.getAllCache = null;
     this.getChangesCache = null;
-    this.entities = new Set();
+    this.entities = new Map();
   }
 
   filterAndWrite(object, id, fields) {
@@ -28,9 +28,9 @@ class GlobalEntities {
   getAll() {
     if (!this.getAllCache) {
       this.getAllCache = {};
-      for (const entity of this.entities) {
-        this.filterAndWrite(this.getAllCache, entity.id, entity.state.get());
-      }
+      this.entities.forEach((entity, id) => {
+        this.filterAndWrite(this.getAllCache, id, entity.state.get());
+      });
     }
     return this.getAllCache;
   }
@@ -38,19 +38,19 @@ class GlobalEntities {
   getChanges() {
     if (!this.getChangesCache) {
       this.getChangesCache = {};
-      for (const entity of this.entities) {
+      this.entities.forEach((entity, id) => {
         const fields = entity.state.get(); // update state
-        if (this.game.newEntities.has(entity)) {
-          this.filterAndWrite(this.getChangesCache, entity.id, fields);
+        if (this.game.newEntities.has(entity.id)) {
+          this.filterAndWrite(this.getChangesCache, id, fields);
         } else {
-          this.filterAndWrite(this.getChangesCache, entity.id, entity.state.getChanges());
+          this.filterAndWrite(this.getChangesCache, id, entity.state.getChanges());
         }
-      }
-      for (const entity of this.game.removedEntities) {
-        if (!entity.isGlobal) continue;
+      });
+      this.game.removedEntities.forEach(entity => {
+        if (!entity.isGlobal) return;
 
         this.getChangesCache[entity.id] = { removed: true };
-      }
+      });
     }
     return this.getChangesCache;
   }
@@ -58,7 +58,19 @@ class GlobalEntities {
   cleanup() {
     this.getAllCache = null;
     this.getChangesCache = null;
-    this.entities.clear(); // Update globals every tick
+    this.entities.clear();
+  }
+
+  addEntity(entity) {
+    this.entities.set(entity.id, entity);
+  }
+
+  removeEntity(entityId) {
+    this.entities.delete(entityId);
+  }
+
+  getEntity(entityId) {
+    return this.entities.get(entityId);
   }
 }
 

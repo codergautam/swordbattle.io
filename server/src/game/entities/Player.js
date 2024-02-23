@@ -123,11 +123,6 @@ class Player extends Entity {
 
     this.viewport.zoom.multiplier /= this.shape.scaleRadius.multiplier;
 
-    const leader = this.game.leaderPlayer;
-    if (!leader || this.levels.coins > leader.levels.coins) {
-      this.game.leaderPlayer = this;
-    }
-
     if (this.chatMessage) {
       this.chatMessageTimer.update(dt);
       if (this.chatMessageTimer.finished) {

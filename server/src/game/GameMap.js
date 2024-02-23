@@ -78,7 +78,7 @@ class GameMap {
   }
 
   update(dt) {
-    for (const entity of this.game.entities) {
+    for (const [id, entity] of this.game.entities) {
       this.processBorderCollision(entity, dt);
     }
 

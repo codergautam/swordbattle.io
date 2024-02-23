@@ -301,6 +301,11 @@ export const playVideoAd = () => {
       windowAny.lastVidAdTime = Date.now();
       window.localStorage.setItem('lastVidAdTime', windowAny.lastVidAdTime);
     }
+  } else if(windowAny?.adProvider === 'gamepix' && windowAny?.GamePix) {
+    windowAny?.GamePix.interstitialAd().then(function (res: any) {
+      console.log('Ad closed', res);
+      resolve();
+    });
   } else {
     console.log('Adprovider is', windowAny?.adProvider, 'not playing video ad');
     resolve();

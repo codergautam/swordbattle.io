@@ -315,7 +315,7 @@ class Game {
         changes[entityId] = {
           removed: true,
         };
-        if(removedEntity && removedEntity.type === Types.Entity.Player) {
+        if(removedEntity && removedEntity?.client?.disconnectReason && removedEntity.type === Types.Entity.Player) {
           try {
           changes[entityId].disconnectReasonMessage = removedEntity.client.disconnectReason.message;
           changes[entityId].disconnectReasonType = removedEntity.client.disconnectReason.type;

@@ -30,6 +30,7 @@ module.exports = class Tank extends Evolution {
     this.player.knockbackResistance.multiplier *= 1.25;
     this.player.health.max.multiplier *= 1.25;
     this.player.health.regen.multiplier *= 1.25;
+    this.player.health.regenWait.multiplier *= 1;
     //TODO: Damagecooldown: 1.1
   }
 }

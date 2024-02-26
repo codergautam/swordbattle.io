@@ -121,7 +121,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Chest,
-          amount: 10,
+          amount: 20,
           position: 'random',
           respawnable: true,
         },
@@ -130,7 +130,13 @@ module.exports = {
           amount: 500,
           position: 'random',
           respawnable: true,
-        }
+        },
+        {
+          type: Types.Entity.Rock,
+          amount: 10,
+          position: 'random',
+          size: [200, 400],
+        },
       ],
     },
 
@@ -198,15 +204,21 @@ module.exports = {
           size: [40, 60],
         },
         {
+          type: Types.Entity.Rock,
+          amount: 10,
+          position: 'random',
+          size: [200, 400],
+        },
+        {
           type: Types.Entity.Moose,
-          amount: 0,
+          amount: 2,
           position: 'random',
           respawnable: true,
           size: [170, 230],
         },
         {
           type: Types.Entity.Chest,
-          amount: 10,
+          amount: 20,
           position: 'random',
           respawnable: true,
         },
@@ -257,8 +269,14 @@ module.exports = {
           fireballSize: 100,
         },
         {
-          type: Types.Entity.Chest,
+          type: Types.Entity.Rock,
           amount: 10,
+          position: 'random',
+          size: [200, 400],
+        },
+        {
+          type: Types.Entity.Chest,
+          amount: 20,
           position: 'random',
           respawnable: true,
         },

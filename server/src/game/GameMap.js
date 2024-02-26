@@ -107,7 +107,7 @@ class GameMap {
   }
 
    spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
-    const maxCoinsCount = 100;
+    const maxCoinsCount = 200;
     let remainingCoinValue = totalCoinValue;
     const coins = Math.min(Math.round(totalCoinValue / 5), maxCoinsCount);
 

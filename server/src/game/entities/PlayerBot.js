@@ -62,9 +62,16 @@ class PlayerAI extends Player {
     this.smartness = Math.random();
     this.stageTimer = new Timer(0, 0, 0);
     this.changeDirectionTimer = new Timer(0, 3, 5);
+    // give up on a target after 5-7 seconds
+    this.targetTimer = new Timer(0, 5, 7);
 
     this.game.map.shape.randomSpawnInside(this.shape);
     this.changeStage();
+  }
+
+  resetTargetTimer() {
+    this.targetTimer.renew();
+    this.targetTimer.active = false; // Initially set to inactive until a target is acquired
   }
 
   changeStage(stage) {
@@ -78,6 +85,7 @@ class PlayerAI extends Player {
     this.stageTimer.minTime = this.stageConfig.duration[0];
     this.stageTimer.maxTime = this.stageConfig.duration[1];
     this.stageTimer.renew();
+    this.resetTargetTimer();
     this.target = null;
   }
 
@@ -93,6 +101,23 @@ class PlayerAI extends Player {
     if (this.target && this.target.removed) {
       this.target = null;
     }
+
+        // Update and check the target timer
+        if (this.target) {
+          if (!this.targetTimer.active) {
+            this.targetTimer.active = true;
+            this.targetTimer.renew();
+          }
+          this.targetTimer.update(dt);
+          if (this.targetTimer.finished) {
+            this.target = null; // Give up on the target
+            // random movement after giving up on the target
+            this.changeStage(BehaviourStages.RandomMovement);
+            this.changeDirectionTimer.finished = true;
+
+            this.resetTargetTimer();
+          }
+        }
 
     if (!this.target) {
       if (this.stage === BehaviourStages.TargetLeader) {
@@ -215,8 +240,8 @@ class PlayerAI extends Player {
 
   damaged(damage, entity) {
     if (entity) {
-      // 40% chance of angry or run away
-      if (Math.random() > 0.6) {
+      // 20% chance of angry and fight back
+      if (Math.random() > 0.8) {
         // if health is less than 0.2, then run away
         // if (this.health.percent < 0.2) {
         //   this.changeStage(BehaviourStages.RunAway);

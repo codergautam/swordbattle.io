@@ -55,6 +55,7 @@ class Player extends Entity {
     this.game.addEntity(this.sword);
     this.levels = new LevelSystem(this);
     this.evolutions = new EvolutionSystem(this);
+    this.tamedWolves = new Set();
 
     this.chatMessage = '';
     this.chatMessageTimer = new Timer(0, 3);
@@ -129,6 +130,10 @@ class Player extends Entity {
         this.chatMessage = '';
       }
     }
+  }
+
+  tameWolf(wolf) {
+    this.tamedWolves.add(wolf.id);
   }
 
   applyBiomeEffects() {

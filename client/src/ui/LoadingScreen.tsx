@@ -8,6 +8,8 @@ function LoadingScreen({ progress }: any) {
   const scale = useScale();
   const isLoaded = progress === 100;
 
+  const instantStart = (window as any).instantStart;
+
   useEffect(() => {
     setIsFading(true);
     setOpacity(isLoaded ? 0 : 1);
@@ -20,7 +22,7 @@ function LoadingScreen({ progress }: any) {
   return (
     <div className="loading-screen" style={{opacity, backgroundColor: "#006400", zIndex: 1000}}>
       <div className="loading-container" style={scale.styles}>
-        <div className="loading-text">Loading... ({progress}%)</div>
+        <div className="loading-text">{instantStart ? 'Entering the arena' : 'Loading'}... ({progress}%)</div>
         <div className="progress-bar">
           <div className="progress" style={{ width: `${progress}%` }}></div>
         </div>

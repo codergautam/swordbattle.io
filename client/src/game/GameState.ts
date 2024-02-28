@@ -202,10 +202,12 @@ class GameState {
 
       if (entityData.removed) {
         if (id === this.self.id) {
+          if(typeof entityData.disconnectReasonType !== "undefined") {
           this.disconnectReason = {
             reason: entityData.disconnectReasonMessage,
             code: entityData.disconnectReasonType,
           }
+        }
           this.showGameResults();
         }
         this.removeEntity(id, entityData);

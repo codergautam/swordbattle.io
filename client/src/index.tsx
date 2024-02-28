@@ -43,6 +43,12 @@ load(config.recaptchaClientKey).then((recaptcha) => {
 });
 }
 
+// check if have queryparam called instantStart=true
+// if so, start the game instantly
+(window as any).instantStart = false;
+try {
+  (window as any).instantStart = window.location.search.includes("instantStart=true");
+} catch(e) {}
 const root = ReactDOM.createRoot(document.getElementById('root') as Element);
 document.addEventListener('contextmenu',function(e) {
   e.preventDefault();

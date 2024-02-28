@@ -249,6 +249,12 @@ function App() {
     }
   }, [account]);
 
+  useEffect(() => {
+    if(loadingProgress === 100 && (window as any).instantStart) {
+      (window as any).instantStart = false;
+      onStart();
+    }
+  }, [loadingProgress]);
   const isLoaded = loadingProgress === 100;
   return (
     <div className="App">

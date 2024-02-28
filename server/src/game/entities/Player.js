@@ -329,7 +329,7 @@ class Player extends Entity {
     this.sword.cleanup();
     this.flags.clear();
 
-    [this.speed, this.regeneration, this.friction, this.viewport.zoom, this.knockbackResistance].forEach((property) => property.reset());
+    [this.speed, this.regeneration, this.friction, this.viewport.zoom, this.knockbackResistance, this.health.regenWait].forEach((property) => property.reset());
   }
 }
 

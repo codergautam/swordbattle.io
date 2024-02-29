@@ -104,7 +104,7 @@ message Entity {
   bool isFlying = 30;
   bool swordFlying = 31;
   float swordSwingAngle = 32;
-  float swordSwingProgress = 33;
+  bool swordSwingDown = 33;
   float swordSwingDuration = 34;
   float swordFlyingCooldown = 35;
   string disconnectReasonMessage = 36;

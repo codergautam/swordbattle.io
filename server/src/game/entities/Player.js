@@ -97,7 +97,7 @@ class Player extends Entity {
     state.chatMessage = this.chatMessage;
 
     state.swordSwingAngle = this.sword.swingAngle;
-    state.swordSwingProgress = this.sword.swingProgress;
+    state.swordSwingDown = this.sword.downAnim;
     state.swordSwingDuration = this.sword.swingDuration.value;
     state.swordFlying = this.sword.isFlying;
     state.swordFlyingCooldown = this.sword.flyCooldownTime;

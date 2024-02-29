@@ -22,6 +22,7 @@ class Sword extends Entity {
     this.flyDuration = new Property(1.5);
     this.flyCooldown = new Property(5);
     this.playerSpeedBoost = new Property(1.3);
+    this.downAnim = false;
 
     this.isFlying = false;
     this.restrictFly = false;
@@ -103,6 +104,12 @@ class Sword extends Entity {
 
     this.updateFlags(dt);
 
+    // whether a swords angle is increasing or constant
+    const downAnimNew = (this.angle !== 0) && (this.held || Date.now() - this.lastSwordSwing < this.swingDuration.value * 1000);
+    if (this.downAnim !== downAnimNew) {
+      this.downAnim = downAnimNew;
+    }
+
     if (this.isFlying) {
       player.speed.multiplier *= this.playerSpeedBoost.value;
       this.shape.x += this.flySpeed.value * Math.cos(this.shape.angle - Math.PI / 2);
@@ -141,7 +148,6 @@ class Sword extends Entity {
 
   updateFlags(dt) {
     if (this.swinging()) {
-      console.log('hit');
       this.lastSwordSwing = Date.now();
       this.swung = true;
       this.lastSwordHeld = Date.now() + (this.swingDuration.value * 1000);
@@ -163,7 +169,6 @@ class Sword extends Entity {
       this.held = false;
     }
     if (this.canFly()) {
-      console.log('canFly');
       this.isFlying = true;
       this.flyCooldownTime = this.flyCooldown.value;
       this.player.flags.set(Types.Flags.SwordThrow, true);

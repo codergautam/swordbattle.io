@@ -13,7 +13,7 @@ class Player extends BaseEntity {
     'coins', 'nextLevelCoins', 'previousLevelCoins',
     'buffs', 'evolution', 'possibleEvolutions',
     'isAbilityAvailable', 'abilityActive', 'abilityDuration', 'abilityCooldown',
-    'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordFlying', 'swordFlyingCooldown',
+    'swordSwingAngle', 'swordSwingDown', 'swordSwingDuration', 'swordFlying', 'swordFlyingCooldown',
     'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account'
   ];
   static removeTransition = 500;
@@ -158,11 +158,11 @@ class Player extends BaseEntity {
   beforeStateUpdate(data: any): void {
     super.beforeStateUpdate(data);
 
-    if (!this.isMe && data.swordSwingProgress !== undefined) {
-      if (this.swordSwingProgress === 0 && data.swordSwingProgress !== 0) {
+    if (!this.isMe && data.swordSwingDown !== undefined) {
+      if (data.swordSwingDown) {
         this.swordRaiseStarted = true;
       }
-      if (this.swordSwingProgress === 1 && data.swordSwingProgress !== 1) {
+      if (!data.swordSwingDown) {
         this.swordDecreaseStarted = true;
       }
     }
@@ -267,7 +267,7 @@ class Player extends BaseEntity {
         this.swordLerpProgress = 1;
         this.swordRaiseStarted = false;
         // start decrease animation when the player is not holding it
-        if (this.game.controls.isInputUp(InputTypes.SwordSwing)) {
+        if (this.isMe && this.game.controls.isInputUp(InputTypes.SwordSwing)) {
           this.swordDecreaseStarted = true;
         }
       }

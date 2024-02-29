@@ -1148,7 +1148,7 @@ export interface Entity {
   isFlying?: boolean;
   swordFlying?: boolean;
   swordSwingAngle?: number;
-  swordSwingProgress?: number;
+  swordSwingDown?: boolean;
   swordSwingDuration?: number;
   swordFlyingCooldown?: number;
   disconnectReasonMessage?: string;
@@ -1433,11 +1433,11 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
     writeFloat(bb, $swordSwingAngle);
   }
 
-  // optional float swordSwingProgress = 33;
-  let $swordSwingProgress = message.swordSwingProgress;
-  if ($swordSwingProgress !== undefined) {
-    writeVarint32(bb, 269);
-    writeFloat(bb, $swordSwingProgress);
+  // optional bool swordSwingDown = 33;
+  let $swordSwingDown = message.swordSwingDown;
+  if ($swordSwingDown !== undefined) {
+    writeVarint32(bb, 264);
+    writeByte(bb, $swordSwingDown ? 1 : 0);
   }
 
   // optional float swordSwingDuration = 34;
@@ -1788,9 +1788,9 @@ function _decodeEntity(bb: ByteBuffer): Entity {
         break;
       }
 
-      // optional float swordSwingProgress = 33;
+      // optional bool swordSwingDown = 33;
       case 33: {
-        message.swordSwingProgress = readFloat(bb);
+        message.swordSwingDown = !!readByte(bb);
         break;
       }
 

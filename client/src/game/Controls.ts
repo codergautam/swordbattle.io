@@ -52,11 +52,7 @@ export class Controls {
             this.joystick.setVisible(true);
         }
     });
-
-
-    this.game.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-
-    });
+    
       input.addPointer(2);
     }
 

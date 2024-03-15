@@ -1866,6 +1866,26 @@
       "swordFileName": "pawnSword.png",
       "bodyFileName": "pawnPlayer.png",
       "description": "Checkmate!"
+    },
+    "miner": {
+      "name": "miner",
+      "displayName": "Miner",
+      "id": 189,
+      "buyable": true,
+      "price": 5000,
+      "swordFileName": "minerSword.png",
+      "bodyFileName": "minerPlayer.png",
+      "description": "Dig for gold!"
+    },
+    "snowglobe": {
+      "name": "snowglobe",
+      "displayName": "Snow Globe",
+      "id": 190,
+      "buyable": true,
+      "price": 500,
+      "swordFileName": "snowglobeSword.png",
+      "bodyFileName": "snowglobePlayer.png",
+      "description": "Let it snow!"
     }
   }
 }

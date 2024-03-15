@@ -85,7 +85,8 @@ export default class Game extends Phaser.Scene {
     this.load.image('vampireOverlay', publicPath + '/assets/game/player/vampire.png');
     this.load.image('knightOverlay', publicPath + '/assets/game/player/knight.png');
     this.load.image('samuraiOverlay', publicPath + '/assets/game/player/samurai.png');
-
+    this.load.image('rookOverlay', publicPath + '/assets/game/player/rook.png');
+    this.load.image('stalkerOverlay', publicPath + '/assets/game/player/stalker.png');
 
     this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');

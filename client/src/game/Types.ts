@@ -44,7 +44,9 @@ export enum EvolutionTypes {
   Berserker = 2,
   Vampire = 3,
   Knight = 4,
-  Samurai = 5
+  Samurai = 5,
+  Rook = 6,
+  Stalker = 7,
 }
 
 export enum BuffTypes {

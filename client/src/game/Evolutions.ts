@@ -7,4 +7,6 @@ export const Evolutions: Record<any, [string, string, number, [number, number]]>
   [EvolutionTypes.Vampire]: ['Vampire', 'vampireOverlay', 1.09, [0.5, 0.53]],
   [EvolutionTypes.Knight]: ['Knight', 'knightOverlay', 1.09, [0.5, 0.53]],
   [EvolutionTypes.Samurai]: ['Samurai', 'samuraiOverlay', 1.09, [0.5, 0.53]],
+  [EvolutionTypes.Rook]: ['Rook', 'rookOverlay', 1.09, [0.5, 0.53]],
+  [EvolutionTypes.Stalker]: ['Stalker', 'stalkerOverlay', 1.09, [0.5, 0.53]],
 };

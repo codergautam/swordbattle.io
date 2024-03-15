@@ -51,6 +51,8 @@ module.exports = {
     Vampire: 3,
     Knight: 4,
     Samurai: 5,
+    Rook: 6,
+    Stalker: 7,
   },
   Buff: {
     Speed: 1,

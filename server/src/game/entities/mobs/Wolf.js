@@ -9,7 +9,7 @@ const helpers = require('../../../helpers');
 
 class WolfMob extends Entity {
   static defaultDefinition = {
-    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+    forbiddenBiomes: [Types.Biome.Safezone],
     attackRadius: 1000,
   };
 
@@ -20,6 +20,8 @@ class WolfMob extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = this.size;
+
+    this.tamedBy = null;
 
     this.jumpTimer = new Timer(0, 2, 3);
     this.angryTimer = new Timer(0, 10, 20);
@@ -39,6 +41,33 @@ class WolfMob extends Entity {
     this.angryTimer.update(dt);
     if (this.angryTimer.finished || !this.target || this.target.removed) {
       this.target = null;
+    }
+
+    // if(!this.tamedBy) {
+    //   const realPlayer = [...this.game.players].find(player => !player.isBot);
+    //   if(realPlayer) {
+    //   this.tamedBy = realPlayer.id;
+    //   realPlayer.tameWolf(this);
+    //   }
+    // }
+
+    if(this.tamedBy) {
+      const tamer = this.game.entities.get(this.tamedBy);
+      if(!tamer || tamer?.removed) {
+        this.tamedBy = null;
+      } else {
+
+      // follow player around
+      const dist = helpers.distance(this.shape.x, this.shape.y, tamer.shape.x, tamer.shape.y);
+      const followRadius = this.target ? this.attackRadius : 500;
+      if(dist > followRadius) {
+        const angle = helpers.angle(this.shape.x, this.shape.y, tamer.shape.x, tamer.shape.y);
+        this.angle = angle;
+        this.velocity.add(new SAT.Vector(
+          this.speed.value * Math.cos(this.angle),
+          this.speed.value * Math.sin(this.angle)));
+      }
+    }
     }
 
     this.health.update(dt);
@@ -81,7 +110,7 @@ class WolfMob extends Entity {
     const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
 
     const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
-    if (this.target) {
+    if (this.target && entity.id === this.target.id) {
       entity.damaged(this.damage.value, this);
 
       this.velocity.scale(-0.5);
@@ -98,7 +127,9 @@ class WolfMob extends Entity {
 
   damaged(damage, entity) {
     this.health.damaged(damage);
+    if(this.tamedBy !== entity.id) {
     this.target = entity;
+    }
     this.angryTimer.renew();
 
     if (this.health.isDead) {
@@ -116,6 +147,10 @@ class WolfMob extends Entity {
   remove() {
     super.remove();
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
+    if(this.tamedBy) {
+      const tamer = this.game.entities.get(this.tamedBy);
+      tamer.tamedWolves.delete(this.id);
+    }
     this.createInstance();
   }
 

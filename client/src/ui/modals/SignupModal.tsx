@@ -19,7 +19,7 @@ function SignupModal({ onSuccess }: any) {
       if (data.message) {
         window.alert(Array.isArray(data.message) ? data.message.join('\n') : data.message);
       } else {
-        data.account.token = data.token;
+        data.account.secret = data.secret;
         dispatch(setAccount(data.account));
         onSuccess();
       }

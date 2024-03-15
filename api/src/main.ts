@@ -1,12 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, HttpStatus } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
-import * as passport from 'passport';
 
 import { AppModule } from './app.module';
 import { ExcludeInterceptor } from './exclude.interceptor';
 import { config } from './config';
-import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,7 +24,6 @@ async function bootstrap() {
     }),
   );
   app.useGlobalInterceptors(new ExcludeInterceptor());
-  app.use(passport.initialize());
 
   await app.listen(config.port);
   console.log(`Server is running on: ${await app.getUrl()}\nProduction mode ${config.isProduction ? 'enabled' : 'disabled'}`);

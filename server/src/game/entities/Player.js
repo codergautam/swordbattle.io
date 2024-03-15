@@ -80,13 +80,14 @@ class Player extends Entity {
     this.inSafezone = true;
 
     this.viewport = new Viewport(this, viewport.width, viewport.height, viewport.zoom);
-    this.viewportEntities = [];
+    this.viewportEntityIds = [];
     this.effects = new Map();
     this.flags = new Map();
     this.sword = new Sword(this);
     this.game.addEntity(this.sword);
     this.levels = new LevelSystem(this);
     this.evolutions = new EvolutionSystem(this);
+    this.tamedWolves = new Set();
 
     this.chatMessage = '';
     this.chatMessageTimer = new Timer(0, 3);
@@ -155,17 +156,16 @@ class Player extends Entity {
 
     this.viewport.zoom.multiplier /= this.shape.scaleRadius.multiplier;
 
-    const leader = this.game.leaderPlayer;
-    if (!leader || this.levels.coins > leader.levels.coins) {
-      this.game.leaderPlayer = this;
-    }
-
     if (this.chatMessage) {
       this.chatMessageTimer.update(dt);
       if (this.chatMessageTimer.finished) {
         this.chatMessage = '';
       }
     }
+  }
+
+  tameWolf(wolf) {
+    this.tamedWolves.add(wolf.id);
   }
 
   applyBiomeEffects() {
@@ -327,9 +327,9 @@ class Player extends Entity {
   }
 
   getEntitiesInViewport() {
-    this.viewportEntities = this.game.entitiesQuadtree.get(this.viewport.boundary)
-      .map(result => result.entity);
-    return this.viewportEntities;
+    this.viewportEntityIds = this.game.entitiesQuadtree.get(this.viewport.boundary)
+      .map(result => result.entity.id);
+      return this.viewportEntityIds;
   }
 
   remove(message = 'Server', type = Types.DisconnectReason.Server) {
@@ -361,7 +361,7 @@ class Player extends Entity {
     this.sword.cleanup();
     this.flags.clear();
 
-    [this.speed, this.regeneration, this.friction, this.viewport.zoom, this.knockbackResistance].forEach((property) => property.reset());
+    [this.speed, this.regeneration, this.friction, this.viewport.zoom, this.knockbackResistance, this.health.regenWait].forEach((property) => property.reset());
   }
 }
 

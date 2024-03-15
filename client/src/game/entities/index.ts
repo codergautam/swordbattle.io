@@ -30,22 +30,22 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.IceSpike]: 4,
   [EntityTypes.Coin]: 5,
   [EntityTypes.Chest]: 6,
-  
+
   [EntityTypes.Rock]: 10,
   [EntityTypes.LavaRock]: 10,
   [EntityTypes.MossyRock]: 10,
-  
+
   [EntityTypes.Wolf]: 11,
   [EntityTypes.Bunny]: 11,
   [EntityTypes.Moose]: 11,
-  
+
   [EntityTypes.Player]: 20,
   [EntityTypes.Sword]: 21,
   [EntityTypes.Fireball]: 22,
   [EntityTypes.Snowball]: 22,
   [EntityTypes.Roku]: 23,
   [EntityTypes.Yeti]: 23,
-  
+
   [EntityTypes.Bush]: 30,
   [EntityTypes.IceMound]: 30,
 
@@ -59,7 +59,7 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.House1: return House1;
     case EntityTypes.Chest: return Chest;
     case EntityTypes.Sword: return Sword;
-    
+
     case EntityTypes.Wolf: return WolfMob;
     case EntityTypes.Bunny: return BunnyMob;
     case EntityTypes.Moose: return MooseMob;
@@ -68,7 +68,7 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.Roku: return RokuMob;
     case EntityTypes.Fireball: return Fireball;
     case EntityTypes.Snowball: return Snowball;
-    
+
     case EntityTypes.Rock: return Rock;
     case EntityTypes.Bush: return Bush;
     case EntityTypes.Pond: return Pond;
@@ -78,9 +78,9 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.IceSpike: return IceSpike;
     case EntityTypes.LavaRock: return LavaRock;
     case EntityTypes.LavaPool: return LavaPool;
-    
+
     default:
-      console.warn('Unknown entity type: ', type);
+      console.trace('Unknown entity type: ', type);
       return BaseEntity;
   }
 }

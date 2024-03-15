@@ -10,6 +10,7 @@ import { Spectator } from './Spectator';
 import { getServer } from '../ServerList';
 import { config } from '../config';
 import exportCaptcha from './components/captchaEncoder';
+import { findCoinCollector } from '../helpers';
 
 class GameState {
   game: Game;
@@ -42,6 +43,7 @@ class GameState {
   chatMessage: string | null = null;
   captchaVerified = false;
   failedSkinLoads: Record<number, boolean> = {};
+  recentDeadPlayers: Record<number, { name: string, time: number }> = {};
 
   constructor(game: Game) {
     this.game = game;
@@ -194,16 +196,18 @@ class GameState {
       const id = Number(stringId);
 
       const entityData = data.entities[id];
-      if (!this.entities[id]) {
+      if (!this.entities[id] && !entityData.removed) {
         this.addEntity(id, entityData);
       }
 
       if (entityData.removed) {
         if (id === this.self.id) {
+          if(typeof entityData.disconnectReasonType !== "undefined") {
           this.disconnectReason = {
             reason: entityData.disconnectReasonMessage,
             code: entityData.disconnectReasonType,
           }
+        }
           this.showGameResults();
         }
         this.removeEntity(id, entityData);
@@ -336,9 +340,25 @@ class GameState {
 
     if (entity.type === EntityTypes.Coin) {
       entity.removed = true;
-      entity.hunter = this.entities[data.hunterId];
+      // entity.hunter = this.entities[data.hunterId];
+      entity.hunter = findCoinCollector(entity, Object.values(this.entities).filter((e: any) => e.type === EntityTypes.Player));
       this.removedEntities.add(entity);
     } else {
+      if(entity.type === EntityTypes.Player) {
+        this.recentDeadPlayers[id] = { name: entity.name, time: Date.now() };
+        if(Object.keys(this.recentDeadPlayers).length > 10) {
+          // delete the oldest
+          let oldestTime = Infinity;
+          let oldestId = 0;
+          for(const id in this.recentDeadPlayers) {
+            if(this.recentDeadPlayers[id].time < oldestTime) {
+              oldestTime = this.recentDeadPlayers[id].time;
+              oldestId = Number(id);
+            }
+          }
+          delete this.recentDeadPlayers[oldestId];
+        }
+      }
       entity.remove();
     }
   }

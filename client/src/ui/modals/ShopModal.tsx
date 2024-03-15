@@ -58,9 +58,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       setSkinStatus(prev => ({ ...prev, [id]: skinAction }));
 
       const apiPath = skinAction === 'Equipping...' ? '/equip/' : '/buy/';
-      api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${id}`, {
-        token: account.token,
-      }, (data) => {
+      api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${id}`, null, (data) => {
         if (data.error) alert(data.error);
         dispatch(updateAccountAsync() as any);
         setSkinStatus(prev => ({ ...prev, [id]: '' }));

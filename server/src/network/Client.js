@@ -87,7 +87,7 @@ class Client {
     }
 
     this.isReady = false;
-    api.post('/auth/verify', { token: this.token }, (data) => {
+    api.post('/auth/verify', { secret: this.token }, (data) => {
       if (data.account) {
         const username = data.account.username;
         this.account = new Account();
@@ -111,7 +111,7 @@ class Client {
       }
 
       this.isReady = false;
-      api.post('/auth/verify', { token: this.token }, (data) => {
+      api.post('/auth/verify', { secret: this.token }, (data) => {
         if (data.account) {
           this.account = new Account();
           this.account.update(data.account);
@@ -139,6 +139,8 @@ class Client {
     api.post('/stats/update', game, (data) => {
       if (data.message) {
         console.warn('Failed to save stats:', game, data.message);
+      } else {
+        console.log('Stats saved for', game.account_id);
       }
     });
 
@@ -146,6 +148,8 @@ class Client {
       api.post('/games/save', game, (data) => {
         if (data.message) {
           console.warn('Failed to save game:', game, data.message);
+        } else {
+          console.log('Game saved for', game.account_id);
         }
       });
     }

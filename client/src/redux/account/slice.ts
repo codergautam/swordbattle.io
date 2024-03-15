@@ -5,7 +5,7 @@ export type AccountState = {
   email: string;
   username: string;
   isLoggedIn: boolean;
-  token: string;
+  secret: string;
   gems: number;
   skins: { equipped: number; owned: number[] };
   is_v1: boolean;
@@ -15,7 +15,7 @@ export type AccountState = {
 const initialState: AccountState = {
   email: '',
   username: '',
-  token: '',
+  secret: '',
   isLoggedIn: false,
   gems: 0,
   skins: { equipped: 1, owned: [1] },
@@ -27,9 +27,9 @@ const initialState: AccountState = {
 export const logoutAsync = createAsyncThunk(
   'account/logout',
   async (_, { dispatch }) => {
-    await api.post(`${api.endpoint}/auth/logout`, {});
 
     try {
+      console.log('Clearing secret');
       window.localStorage.removeItem('secret');
     } catch (e) {
       console.log('Failed to clear secret', e);
@@ -49,12 +49,12 @@ export const updateAccountAsync = createAsyncThunk(
       alert(response.error);
       reject(response.error);
     } else if (response.account) {
-      response.account.token = state.account.token;
+      response.account.secret = state.account.secret;
       dispatch(setAccount(response.account));
-      window.phaser_game?.events.emit('tokenUpdate', state.account.token);
+      window.phaser_game?.events.emit('tokenUpdate', state.account.secret);
       resolve(response.account);
     }
-  }, state.account.token);
+  }, state.account.secret);
   });
   }
 );
@@ -62,11 +62,10 @@ export const updateAccountAsync = createAsyncThunk(
 export const changeNameAsync = createAsyncThunk(
   'account/changeName',
   async (newUsername: string, { getState, dispatch }) => {
-    const state: any = getState();
+    // const state: any = getState();
     try {
       const response = await api.postAsync(`${api.endpoint}/auth/change-username?now=${Date.now()}`, {
-        newUsername,
-        token: state.account.token
+        newUsername
       });
 
       if (response.error) {
@@ -75,7 +74,7 @@ export const changeNameAsync = createAsyncThunk(
         alert('Username changed successfully');
         // Dispatching actions to update name and token in the state
         dispatch(setName(newUsername));
-        dispatch(setToken(response.token));
+        dispatch(setSecret(response.secret));
       }
     } catch (error) {
       // Handle any other errors, such as network issues
@@ -93,7 +92,7 @@ const accountSlice = createSlice({
     clearAccount: (state) => {
       state.email = '';
       state.username = '';
-      state.token = '';
+      state.secret = '';
       state.gems = 0;
       state.isLoggedIn = false;
       state.skins = { equipped: 1, owned: [1] };
@@ -105,23 +104,38 @@ const accountSlice = createSlice({
       state.email = action.payload.email;
       state.username = action.payload.username;
       state.isLoggedIn = true;
-      const previousToken = state.token;
-      state.token = action.payload.token;
+      const previousToken = state.secret;
+      state.secret = action.payload.secret;
       state.gems = action.payload.gems;
       state.skins = action.payload.skins;
       state.is_v1 = action.payload.is_v1;
       state.xp = action.payload.xp;
-      if (previousToken !== state.token) {
-        window.phaser_game?.events.emit('tokenUpdate', state.token);
+      if (previousToken !== state.secret) {
+        console.log('Token updated');
+        window.phaser_game?.events.emit('tokenUpdate', state.secret);
+
+        try {
+          window.localStorage.setItem('secret', state.secret);
+        } catch (e) {
+          console.log('Error setting secret', e);
+        }
       }
     },
     setName: (state, action) => {
       state.username = action.payload;
     },
-    setToken: (state, action) => {
-      state.token = action.payload;
-      if (state.token) {
-        window.phaser_game?.events.emit('tokenUpdate', state.token);
+    setSecret: (state, action) => {
+      state.secret = action.payload;
+      console.log('Token updated');
+
+      if (state.secret) {
+        window.phaser_game?.events.emit('tokenUpdate', state.secret);
+      }
+
+      try {
+        window.localStorage.setItem('secret', state.secret);
+      } catch (e) {
+        console.log('Error setting secret', e);
       }
     },
   },
@@ -130,5 +144,5 @@ const accountSlice = createSlice({
   },
 });
 
-export const { setAccount, clearAccount, setName, setToken } = accountSlice.actions;
+export const { setAccount, clearAccount, setName, setSecret } = accountSlice.actions;
 export default accountSlice.reducer;

@@ -3,15 +3,15 @@ import './ChangelogModal.scss';
 function ChangelogModal() {
   return (
     <div className="changelog">
-      <h1>What's new?</h1>
+      <h1 style={{fontSize: 30}}>DEGRADED PERFORMANCE</h1>
       <ul>
         <li>
           <h3 style={{color: 'cyan', fontStyle: 'italic'}}>
-            PVP Improvements and bug fixes!
+            We are currently investigating a memory leak that is causing servers to crash. <br/>You might get disconnect more often than usual.<br/>We are sorry for the inconvenience and are working on a fix.
+
+            <br/>
+            - Gautam @ swordbattle.io
           </h3>
-          <p style={{color: 'cyan', fontStyle: 'italic'}}>
-            If you forgot your username or password email support@swordbattle.io
-            </p>
         </li>
         <hr />
       </ul>

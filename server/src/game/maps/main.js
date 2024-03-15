@@ -28,12 +28,6 @@ module.exports = {
         [0, 0],
       ],
       objects: [
-        {
-          type: Types.Entity.Rock,
-          amount: 5,
-          position: 'random',
-          size: [300, 450],
-        },
       ],
     },
 
@@ -48,12 +42,6 @@ module.exports = {
         [0, 0],
       ],
       objects: [
-        {
-          type: Types.Entity.Rock,
-          amount: 5,
-          position: 'random',
-          size: [300, 450],
-        },
       ],
     },
     {
@@ -66,12 +54,6 @@ module.exports = {
         [-1500, 11500],
       ],
       objects: [
-        {
-          type: Types.Entity.Rock,
-          amount: 5,
-          position: 'random',
-          size: [300, 450],
-        },
       ],
     },
 
@@ -139,7 +121,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Chest,
-          amount: 10,
+          amount: 20,
           position: 'random',
           respawnable: true,
         },
@@ -148,7 +130,13 @@ module.exports = {
           amount: 500,
           position: 'random',
           respawnable: true,
-        }
+        },
+        {
+          type: Types.Entity.Rock,
+          amount: 10,
+          position: 'random',
+          size: [200, 400],
+        },
       ],
     },
 
@@ -163,12 +151,6 @@ module.exports = {
         [0, 0],
       ],
       objects: [
-        {
-          type: Types.Entity.MossyRock,
-          amount: 5,
-          position: 'random',
-          size: [400, 500],
-        },
         {
           type: Types.Entity.Bush,
           amount: 100,
@@ -222,15 +204,21 @@ module.exports = {
           size: [40, 60],
         },
         {
+          type: Types.Entity.Rock,
+          amount: 10,
+          position: 'random',
+          size: [200, 400],
+        },
+        {
           type: Types.Entity.Moose,
-          amount: 0,
+          amount: 2,
           position: 'random',
           respawnable: true,
           size: [170, 230],
         },
         {
           type: Types.Entity.Chest,
-          amount: 10,
+          amount: 20,
           position: 'random',
           respawnable: true,
         },
@@ -248,12 +236,6 @@ module.exports = {
         [-11500, 11500],
       ],
       objects: [
-        {
-          type: Types.Entity.LavaRock,
-          amount: 5,
-          position: 'random',
-          size: [300, 650],
-        },
         {
           type: Types.Entity.LavaPool,
           amount: 30,
@@ -287,8 +269,14 @@ module.exports = {
           fireballSize: 100,
         },
         {
-          type: Types.Entity.Chest,
+          type: Types.Entity.Rock,
           amount: 10,
+          position: 'random',
+          size: [200, 400],
+        },
+        {
+          type: Types.Entity.Chest,
+          amount: 20,
           position: 'random',
           respawnable: true,
         },

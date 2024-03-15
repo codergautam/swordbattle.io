@@ -2,9 +2,9 @@ import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { AccountsService } from './accounts.service';
 import { StatsService } from 'src/stats/stats.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { AuthService } from 'src/auth/auth.service';
 import { ServerGuard } from 'src/auth/guards/server.guard';
+import { AccountGuard, AccountRequest } from 'src/auth/guards/account.guard';
 
 @Controller('profile')
 export class AccountsController {
@@ -21,12 +21,10 @@ export class AccountsController {
     return this.accountsService.getCosmeticCnts('skins');
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AccountGuard)
   @Post('cosmetics/:type/buy/:itemId')
-  async buySkin(@Req() request: Request) {
-    const { token } = request.body;
-    const id = await this.authService.getIdFromToken(token);
-    const account = await this.accountsService.getById(id);
+  async buySkin(@Req() request: AccountRequest) {
+    const id = request.account.id;
     const itemId = request.params.itemId;
     const type = request.params.type;
 
@@ -43,11 +41,11 @@ export class AccountsController {
     return await this.accountsService.buyCosmetic(id, itemIdNum, type);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AccountGuard)
   @Post('cosmetics/skins/equip/:skinId')
-  async equipSkin(@Req() request: Request) {
+  async equipSkin(@Req() request: AccountRequest) {
     const { token } = request.body;
-    const id = await this.authService.getIdFromToken(token);
+    const id = request.account.id;
     const skinId = request.params.skinId;
     if(!skinId || isNaN(Number(skinId))) {
       return { error: 'Invalid skin id' };
@@ -57,13 +55,10 @@ export class AccountsController {
     return await this.accountsService.equipSkin(id, skinIdNum);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AccountGuard)
   @Post('getPrivateUserInfo')
-  async getPrivateAccount(@Req() request: Request) {
-    // get token from auth header 'Bearer <token>'
-    const token = request.headers.authorization.split(' ')[1];
-
-    const id = await this.authService.getIdFromToken(token);
+  async getPrivateAccount(@Req() request: AccountRequest) {
+    const id = request.account.id;
     const account = await this.accountsService.getById(id);
 
     return { account: this.accountsService.sanitizeAccount(account) };

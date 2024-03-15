@@ -1,5 +1,5 @@
 class Loop {
-  constructor(interval = 50) {
+  constructor(interval = 50, game) {
     this.entityCnt = 0;
     this.interval = interval;
     this.isRunning = false;
@@ -7,6 +7,7 @@ class Loop {
     this.lastTickTime = process.hrtime();
     this.lastSecond = this.lastTickTime[0];
     this.tickTimeElapsed = 0;
+    this.game = game;
     this.eventHandler = () => {};
     this.onTpsUpdate = () => {};
   }
@@ -50,7 +51,8 @@ class Loop {
       this.tickTimeElapsed = Date.now() - now;
 
       if(this.tickTimeElapsed > this.interval * 2) {
-        console.log(`Server lagging severely... tick took ${this.tickTimeElapsed} ms. Expecting <${this.interval}, ms.`);
+        const realPlayersCnt = [...this.game.players.values()].filter(p => !p.isBot).length;
+        console.log(`Server lagging severely... tick took ${this.tickTimeElapsed} ms. Expecting <${this.interval}, ms.\nReal player count: ${realPlayersCnt}; Entities: ${this.entityCnt}; Memory usage: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`);
       }
     this.ticksThisSecond++;
     const delay = this.interval - this.tickTimeElapsed;

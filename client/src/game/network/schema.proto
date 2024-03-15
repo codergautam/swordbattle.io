@@ -16,6 +16,7 @@ message ClientMessage {
   string captchaP1 = 13;
   string captchaP2 = 14;
   string captchaP3 = 15;
+  string captchaP4 = 16;
 }
 message InputData {
   int32 inputType = 1;
@@ -109,8 +110,6 @@ message Entity {
   float swordFlyingCooldown = 35;
   string disconnectReasonMessage = 36;
 
-  // Coin
-  int32 hunterId = 37;
   // Chest
   int32 rarity = 38;
   // Building

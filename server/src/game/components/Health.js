@@ -1,7 +1,7 @@
 const Property = require('./Property');
 
 class Health {
-  constructor(max, regen = 1, regenWait = 2000) {
+  constructor(max, regen = 1, regenWait = 5000) {
     this.max = new Property(max);
     this.regen = new Property(regen);
     this.regenWait = new Property(regenWait);

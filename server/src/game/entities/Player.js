@@ -18,6 +18,38 @@ const config = require('../../config');
 const { clamp, calculateGemsXP } = require('../../helpers');
 const { skins } = require('../../cosmetics.json');
 
+// Check if any duplicate ids in cosmetics.json
+function checkForDuplicates() {
+  const ids = new Set();
+  for (const skin of Object.values(skins)) {
+    ids.add(skin.id);
+  }
+  if (ids.size !== Object.keys(skins).length) {
+    console.error('Duplicate skin ids found in cosmetics.json');
+
+    // Find specific duplicates
+    const duplicates = {};
+    for (const skin of Object.values(skins)) {
+      if (duplicates[skin.id]) {
+        duplicates[skin.id].push(skin);
+      } else {
+        duplicates[skin.id] = [skin];
+      }
+    }
+    for (const id in duplicates) {
+      if (duplicates[id].length > 1) {
+        console.error(`Duplicate id: ${id}`);
+        for (const skin of duplicates[id]) {
+          console.error(`  ${skin.name}`);
+        }
+      }
+    }
+    process.exit(1);
+  }
+}
+
+checkForDuplicates();
+
 const filter = require('leo-profanity');
 
 class Player extends Entity {

@@ -1802,7 +1802,7 @@
       "displayName": "Keyboard",
       "id": 182,
       "buyable": true,
-      "price": 300,
+      "price": 3000,
       "swordFileName": "keyboardSword.png",
       "bodyFileName": "keyboardPlayer.png",
       "description": "Beethoven would be proud."
@@ -1812,7 +1812,7 @@
       "displayName": "Ghost",
       "id": 183,
       "buyable": true,
-      "price": 150,
+      "price": 1500,
       "swordFileName": "ghostSword.png",
       "bodyFileName": "ghostPlayer.png",
       "description": "Boo!"
@@ -1852,7 +1852,7 @@
       "displayName": "Corruption",
       "id": 187,
       "buyable": true,
-      "price": 200,
+      "price": 2000,
       "swordFileName": "corruptionSword.png",
       "bodyFileName": "corruptionPlayer.png",
       "description": "The corruption spreads..."
@@ -1862,7 +1862,7 @@
       "displayName": "Pawn",
       "id": 188,
       "buyable": true,
-      "price": 150,
+      "price": 15000,
       "swordFileName": "pawnSword.png",
       "bodyFileName": "pawnPlayer.png",
       "description": "Checkmate!"
@@ -1872,7 +1872,7 @@
       "displayName": "Miner",
       "id": 189,
       "buyable": true,
-      "price": 5000,
+      "price": 1000000,
       "swordFileName": "minerSword.png",
       "bodyFileName": "minerPlayer.png",
       "description": "Dig for gold!"
@@ -1882,10 +1882,21 @@
       "displayName": "Snow Globe",
       "id": 190,
       "buyable": true,
-      "price": 500,
+      "price": 500000,
       "swordFileName": "snowglobeSword.png",
       "bodyFileName": "snowglobePlayer.png",
       "description": "Let it snow!"
+    }
+    ,
+    "maskedPhoenix": {
+      "name": "maskedPhoenix",
+      "displayName": "Masked Phoenix",
+      "id": 191,
+      "buyable": true,
+      "price": 20000,
+      "swordFileName": "maskedPhoenixSword.png",
+      "bodyFileName": "maskedPhoenixPlayer.png",
+      "description": "Rise from the ashes!"
     }
   }
 }

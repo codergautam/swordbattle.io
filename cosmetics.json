@@ -1872,7 +1872,7 @@
       "displayName": "Miner",
       "id": 189,
       "buyable": true,
-      "price": 1000000,
+      "price": 750000,
       "swordFileName": "minerSword.png",
       "bodyFileName": "minerPlayer.png",
       "description": "Dig for gold!"

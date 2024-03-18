@@ -1833,8 +1833,8 @@
       "id": 184,
       "buyable": true,
       "price": 500,
-      "swordFileName": "UdonSword.png",
-      "bodyFileName": "UdonPlayer.png",
+      "swordFileName": "udonSword.png",
+      "bodyFileName": "udonPlayer.png",
       "description": "You can't fight on an empty stomach."
     },
     "gingerbread": {

@@ -55,10 +55,14 @@ function getRankColor(rank: number) {
 
 function LeaderboardLine({ player }: any) {
   const balance = player.coins >= 1000 ? `${(player.coins / 1000).toFixed(1)}k` : player.coins;
+  const specialColors = {
+    codergautam: '#ff0000',
+    angel: '#acfffc'
+  }
   return (
     <div className="leaderboard-line">
       <span className="leaderboard-place">#{player.place}: </span>
-      <span className="leaderboard-name" style={player.account ? { color: player.name.toLowerCase() === 'codergautam' ? '#ff0000' : '#3333ff' } : {}}>{player.name}
+      <span className="leaderboard-name" style={player.account ? { color: specialColors[player.name.toLowerCase()] ? specialColors[player.name.toLowerCase()] : '#3333ff' } : {}}>{player.name}
       {player.account?.rank && <span style={{color: getRankColor(player.account.rank)}}> (#{player.account.rank})</span>}
        <span style={{color: 'white'}}>- </span></span>
       <span className="leaderboard-score">{balance}</span>

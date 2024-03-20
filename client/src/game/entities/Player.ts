@@ -61,11 +61,11 @@ class Player extends BaseEntity {
     name.setFontFamily('Arial');
     name.setFontSize(50);
     name.setOrigin(0.5, 1);
-    const specialColors = {
+    const specialColors: { [key: string]: string } = {
       codergautam: '#ff0000',
       angel: '#acfffc'
     }
-    name.setFill(this.account ? (specialColors[this.name?.toLowerCase() as any] ? specialColors[this.name?.toLowerCase() as any] : '#0000ff') : '#000000');
+    name.setFill(this.account ? (specialColors[this.name?.toLowerCase() as keyof typeof specialColors] ? specialColors[this.name?.toLowerCase() as keyof typeof specialColors] : '#0000ff') : '#000000');
 
     this.messageText = this.game.add.text(0, -this.body.height / 2 - 100, '')
       .setFontFamily('Arial')

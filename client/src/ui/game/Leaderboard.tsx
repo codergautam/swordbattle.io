@@ -62,7 +62,7 @@ function LeaderboardLine({ player }: any) {
   return (
     <div className="leaderboard-line">
       <span className="leaderboard-place">#{player.place}: </span>
-      <span className="leaderboard-name" style={player.account ? { color: specialColors[player.name.toLowerCase()] ? specialColors[player.name.toLowerCase()] : '#3333ff' } : {}}>{player.name}
+      <span className="leaderboard-name" style={player.account ? { color: specialColors[player.name.toLowerCase() as any] ? specialColors[player.name.toLowerCase() as any] : '#3333ff' } : {}}>{player.name}
       {player.account?.rank && <span style={{color: getRankColor(player.account.rank)}}> (#{player.account.rank})</span>}
        <span style={{color: 'white'}}>- </span></span>
       <span className="leaderboard-score">{balance}</span>

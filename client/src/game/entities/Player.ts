@@ -65,7 +65,7 @@ class Player extends BaseEntity {
       codergautam: '#ff0000',
       angel: '#acfffc'
     }
-    name.setFill(this.account ? (specialColors[this.name?.toLowerCase()] ? specialColors[this.name?.toLowerCase()] : '#0000ff') : '#000000');
+    name.setFill(this.account ? (specialColors[this.name?.toLowerCase() as any] ? specialColors[this.name?.toLowerCase() as any] : '#0000ff') : '#000000');
 
     this.messageText = this.game.add.text(0, -this.body.height / 2 - 100, '')
       .setFontFamily('Arial')

@@ -14,7 +14,7 @@ Play now at [swordbattle.io](http://swordbattle.io) and see the [leaderboard](ht
 
 A more detailed guide will be released soon but for now, follow these instructions:
 
-1. Install NodeJS v18 and Yarn (with npm `npm install -g yarn` or with corepack `corepack enable`)
+1. Install NodeJS v18 and Yarn (with npm `npm install -g yarn`)
 2. Clone this repo
 3. `cd client && yarn install && yarn start`
 4. At the same time on a new shell run `cd server && yarn install && yarn start`

@@ -12,13 +12,20 @@ Play now at [swordbattle.io](http://swordbattle.io) and see the [leaderboard](ht
 
 ## Run Locally
 
+### Video Tutorial (thanks to @Number1)
+
+https://www.youtube.com/watch?v=cCBdGGHIX-0&t=2s
+
 A more detailed guide will be released soon but for now, follow these instructions:
 
 1. Install NodeJS v18 and Yarn (with npm `npm install -g yarn`)
 2. Clone this repo
-3. `cd client && yarn install && yarn start`
-4. At the same time on a new shell run `cd server && yarn install && yarn start`
-5. Go to `localhost:3000`
+3. Open two Terminals/CMD in the directory with extracted source
+4. Run this command on one window to start the server: `cd server && yarn install && yarn start`
+5. Run this command on the second terminal to start the client: `cd client && yarn install && yarn start`
+6. Go to `localhost:8000` (server hosted at `localhost:3000`)
+
+If you face any issues, you can get help at https://iogames.forum/swordbattle !
 
 ## License
 You can use this code as a base for your IO games, but please change it to a considerable amount to make it a different game. Under libraries and code you used, please add a link to this GitHub repository. Furthermore, under the GPL License, your game **MUST** also be open source. You cannot just take this free code and make it proprietary.

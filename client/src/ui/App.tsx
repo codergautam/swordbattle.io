@@ -387,7 +387,7 @@ function App() {
                <a href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="noreferrer">About</a>
              </div>
             <div>
-               <Link to="https://swordbattle.io/leaderboard" target="_blank" rel="noreferrer">Leaderboard</Link>
+               <Link to="https://swordbattle.io/#leaderboard" target="_blank" rel="noreferrer">Leaderboard</Link>
            </div>
             <div>
                <a href="https://iogames.forum/swordbattle" target="_blank" rel="noreferrer" className='forum'>

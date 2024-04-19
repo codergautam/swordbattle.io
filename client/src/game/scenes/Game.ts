@@ -36,8 +36,8 @@ export default class Game extends Phaser.Scene {
 	init() {
     this.gameState.initialize();
     this.game.canvas.oncontextmenu = (e) => e.preventDefault();
-    // this.isMobile = this.game.device.os.android || this.game.device.os.iOS;
-    this.isMobile = true
+    this.isMobile = this.game.device.os.android || this.game.device.os.iOS;
+    // this.isMobile = true
   }
 
   preload() {

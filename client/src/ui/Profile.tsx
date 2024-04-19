@@ -123,7 +123,7 @@ export default function Profile() {
           <Card title="Skins Owned" text={data.account.skins.owned.length} />
         </div>
 
-        {data.dailyStats &&
+        {data.dailyStats && data.dailyStats.length &&
           <div className="xp-graph">
             <Line data={prepareGraphData(data.dailyStats)} options={{
               responsive: true,

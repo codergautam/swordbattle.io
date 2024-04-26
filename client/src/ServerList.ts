@@ -136,8 +136,10 @@ export async function getServer(): Promise<Server> {
   }
 
   for (let i = 1; i < servers.length; i++) {
+    console.log('Checking server:', servers[i], Settings.server);
     if (Settings.server === servers[i].value && !servers[i].offline) {
       server = servers[i];
+      console.log('Selected server:', server);
       break;
     }
   }

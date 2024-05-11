@@ -112,7 +112,7 @@ function getAutoServer(): Server {
   let server: Server = servers[0];
 
   // pick server with lowest ping
-  for (let i = 1; i < servers.length; i++) {
+  for (let i = 0; i < servers.length; i++) {
     if (servers[i].ping < server.ping) {
       server = servers[i];
     }
@@ -135,9 +135,10 @@ export async function getServer(): Promise<Server> {
     return server;
   }
 
-  for (let i = 1; i < servers.length; i++) {
+  for (let i = 0; i < servers.length; i++) {
     if (Settings.server === servers[i].value && !servers[i].offline) {
       server = servers[i];
+      console.log('Selected server:', server);
       break;
     }
   }

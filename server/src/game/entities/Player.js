@@ -89,6 +89,8 @@ class Player extends Entity {
     this.evolutions = new EvolutionSystem(this);
     this.tamedWolves = new Set();
 
+    this.modifiers = {};
+
     this.chatMessage = '';
     this.chatMessageTimer = new Timer(0, 3);
   }
@@ -221,6 +223,16 @@ class Player extends Entity {
       this.movementDirection = mouseAngle;
       dx = speed * Math.cos(this.movementDirection);
       dy = speed * Math.sin(this.movementDirection);
+
+      if(this.modifiers.disableDiagonalMovement) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+          dy = 0;
+          dx = dx > 0 ? speed : -speed;
+        } else {
+          dx = 0;
+          dy = dy > 0 ? speed : -speed;
+        }
+      }
     } else {
       let directionX = 0;
       let directionY = 0;
@@ -241,6 +253,13 @@ class Player extends Entity {
         this.movementDirection = Math.atan2(directionY, directionX);
         dx = speed * Math.cos(this.movementDirection);
         dy = speed * Math.sin(this.movementDirection);
+
+        if(this.modifiers.disableDiagonalMovement) {
+          if (directionX !== 0 && directionY !== 0) {
+            dy = directionY * speed;
+            dx = 0;
+          }
+        }
       } else {
         this.movementDirection = 0;
       }
@@ -360,6 +379,7 @@ class Player extends Entity {
     super.cleanup();
     this.sword.cleanup();
     this.flags.clear();
+    this.modifiers = {};
 
     [this.speed, this.regeneration, this.friction, this.viewport.zoom, this.knockbackResistance, this.health.regenWait].forEach((property) => property.reset());
   }

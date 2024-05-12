@@ -4,6 +4,7 @@ const evolutions = {};
 
 fs.readdirSync(__dirname).forEach((file) => {
   if (file == 'index.js') return;
+  if (!file.endsWith('.js')) return;
 
   const EvolutionClass = require(`${__dirname}/${file}`);
   evolutions[EvolutionClass.type] = EvolutionClass;

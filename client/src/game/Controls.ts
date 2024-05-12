@@ -44,15 +44,7 @@ export class Controls {
       });
       this.joystick.on('pointerup', () => {
         this.joystickPointer = null;
-        this.joystick.setVisible(false);
       })
-      this.game.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-        if (pointer.x < this.game.scale.width / 2 && !this.joystick.visible) {
-            this.joystick.setPosition(pointer.x, pointer.y);
-            this.joystick.setVisible(true);
-        }
-    });
-    
       input.addPointer(2);
     }
 

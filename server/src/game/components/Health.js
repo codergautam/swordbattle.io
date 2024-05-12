@@ -22,6 +22,10 @@ class Health {
     }
   }
 
+  gain(amount) {
+    this.percent = Math.min(this.percent + amount / this.max.value, 1);
+  }
+
   update(dt) {
     if(Date.now() - this.lastDamage < this.regenWait.value) return;
     const coef = this.regen.value / this.max.value * dt;

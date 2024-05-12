@@ -8,6 +8,7 @@ interface Server {
   ping: number;
   offline?: boolean;
   playerCnt?: number;
+  realPlayersCnt?: number;
 }
 
 
@@ -54,7 +55,7 @@ export async function updatePing() {
         if (cache[server.address]) {
           server.offline = cache[server.address].offline;
           server.ping = cache[server.address].ping;
-          server.playerCnt = cache[server.address].playerCnt;
+          server.playerCnt = cache[server.address].realPlayersCnt;
         } else {
           try {
             const data = await fetch(`${window.location.protocol}//${server.address}/serverinfo?${Date.now()}`, {
@@ -67,7 +68,7 @@ export async function updatePing() {
               const json = await data.json()
               server.offline = false;
               server.ping = Date.now() - start;
-              server.playerCnt = json.playerCnt;
+              server.playerCnt = json.realPlayersCnt;
               cache[server.address] = server;
             } catch (e) {
 

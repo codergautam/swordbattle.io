@@ -186,6 +186,10 @@ class Sword extends Entity {
     entity.velocity.y =  -1*yComp;
     entity.damaged(this.damage.value, this.player);
 
+    if(this.player.modifiers.leech) {
+      this.player.health.gain(this.damage.value * this.player.modifiers.leech);
+    }
+
     this.collidedEntities.add(entity);
     this.player.flags.set(Types.Flags.EnemyHit, entity.id);
 

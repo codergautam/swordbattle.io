@@ -37,6 +37,7 @@ export default class Game extends Phaser.Scene {
     this.gameState.initialize();
     this.game.canvas.oncontextmenu = (e) => e.preventDefault();
     this.isMobile = this.game.device.os.android || this.game.device.os.iOS;
+    // this.isMobile = true
   }
 
   preload() {
@@ -77,8 +78,15 @@ export default class Game extends Phaser.Scene {
     this.load.image('chest6', publicPath + '/assets/game/Chest6.png');
 
     this.load.image('crown', publicPath + '/assets/game/player/crown.png');
+
+    // evols
     this.load.image('tankOverlay', publicPath + '/assets/game/player/tank.png');
     this.load.image('berserkerOverlay', publicPath + '/assets/game/player/berserker.png');
+    this.load.image('vampireOverlay', publicPath + '/assets/game/player/vampire.png');
+    this.load.image('knightOverlay', publicPath + '/assets/game/player/knight.png');
+    this.load.image('samuraiOverlay', publicPath + '/assets/game/player/samurai.png');
+    this.load.image('rookOverlay', publicPath + '/assets/game/player/rook.png');
+    this.load.image('stalkerOverlay', publicPath + '/assets/game/player/stalker.png');
 
     this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');

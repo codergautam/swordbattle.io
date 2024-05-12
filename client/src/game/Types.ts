@@ -42,6 +42,11 @@ export enum EvolutionTypes {
   Default = 0,
   Tank = 1,
   Berserker = 2,
+  Vampire = 3,
+  Knight = 4,
+  Samurai = 5,
+  Rook = 6,
+  Stalker = 7,
 }
 
 export enum BuffTypes {

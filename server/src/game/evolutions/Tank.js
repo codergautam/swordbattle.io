@@ -3,7 +3,7 @@ const Types = require('../Types');
 
 module.exports = class Tank extends Evolution {
   static type = Types.Evolution.Tank;
-  static level = 10;
+  static level = 8;
   static abilityDuration = 6;
   static abilityCooldown = 90;
 

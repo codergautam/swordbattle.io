@@ -3,7 +3,7 @@ const Types = require('../Types');
 
 module.exports = class Vampire extends Evolution {
   static type = Types.Evolution.Vampire;
-  static level = 15;
+  static level = 13;
   static previousEvol = Types.Evolution.Knight;
   // static level = 1;
   static abilityDuration = 6;

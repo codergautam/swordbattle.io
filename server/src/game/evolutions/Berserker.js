@@ -5,7 +5,7 @@ module.exports = class Berserker extends Evolution {
   static type = Types.Evolution.Berserker;
   static level = 13;
   static previousEvol = Types.Evolution.Knight;
-  static abilityDuration = 7;
+  static abilityDuration = 8;
   static abilityCooldown = 60;
 
   applyAbilityEffects() {

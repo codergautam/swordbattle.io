@@ -6,7 +6,7 @@ module.exports = class Rook extends Evolution {
   static level = 13;
   static previousEvol = Types.Evolution.Tank;
   static abilityDuration = 0.1;
-  static abilityCooldown = 40;
+  static abilityCooldown = 60;
 
   applyAbilityEffects() {
     const downInputs = this.player.inputs?.downInputs;

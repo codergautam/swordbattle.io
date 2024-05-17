@@ -74,13 +74,17 @@ class EvolutionSelect extends HudComponent {
           duration: 1000,
           onComplete: () => this.container?.setVisible(false),
         });
-      } else if(count !== 0 && this.container && !this.container.visible) {
+      } else if(count !== 0 && this.container && (!this.container.visible || this.container.alpha < 1)) {
         this.container?.setVisible(true);
         this.container?.setAlpha(0);
         this.hud.scene!.tweens.add({
           targets: this.container,
           alpha: 1,
           duration: 1000,
+          onComplete: () => {
+            this.container?.setAlpha(1);
+            this.container?.setVisible(true);
+          }
         });
       }
 
@@ -91,13 +95,17 @@ class EvolutionSelect extends HudComponent {
           duration: 1000,
           onComplete: () => this.hideButton?.setVisible(false),
         });
-      } else if(count !== 0 && this.hideButton && !this.hideButton?.visible) {
+      } else if(count !== 0 && this.hideButton && (!this.hideButton.visible || this.hideButton.alpha < 1)) {
         this.hideButton?.setVisible(true);
         this.hideButton?.setAlpha(0);
         this.hud.scene!.tweens.add({
           targets: this.hideButton,
           alpha: 1,
           duration: 1000,
+          onComplete: () => {
+            this.hideButton?.setAlpha(1);
+            this.hideButton?.setVisible(true);
+          }
         });
       }
 

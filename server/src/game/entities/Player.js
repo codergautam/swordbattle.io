@@ -87,7 +87,7 @@ class Player extends Entity {
     this.game.addEntity(this.sword);
     this.levels = new LevelSystem(this);
     this.evolutions = new EvolutionSystem(this);
-    this.tamedWolves = new Set();
+    this.tamedEntities = new Set();
 
     this.modifiers = {};
 
@@ -167,7 +167,7 @@ class Player extends Entity {
   }
 
   tameWolf(wolf) {
-    this.tamedWolves.add(wolf.id);
+    this.tamedEntities.add(wolf.id);
   }
 
   applyBiomeEffects() {

@@ -20,6 +20,7 @@ export enum EntityTypes {
   Yeti = 18,
   Chimera = 19,
   Roku = 20,
+  Cat = 23,
 
   Fireball = 21,
   Snowball = 22,

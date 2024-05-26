@@ -1897,6 +1897,16 @@
       "swordFileName": "maskedPhoenixSword.png",
       "bodyFileName": "maskedPhoenixPlayer.png",
       "description": "Rise from the ashes!"
+    },
+    "blade": {
+      "name": "blade",
+      "displayName": "Blade",
+      "id": 192,
+      "buyable": true,
+      "price": 10000,
+      "swordFileName": "bladeSword.png",
+      "bodyFileName": "bladePlayer.png",
+      "description": "Technoblade never dies!"
     }
   }
 }

@@ -200,7 +200,7 @@ class Sword extends Entity {
         entity.flags.set(Types.Flags.PlayerDeath, true);
       } else {
         entity.flags.set(Types.Flags.Damaged, entity.id);
-        [...this.player.tamedWolves].forEach(wolf => {
+        [...this.player.tamedEntities].forEach(wolf => {
           const wolfObj = this.game.entities.get(wolf);
           if(wolfObj && !wolfObj.removed) {
             wolfObj.target = entity;

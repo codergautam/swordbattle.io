@@ -197,6 +197,13 @@ module.exports = {
           size: [70, 100],
         },
         {
+          type: Types.Entity.Cat,
+          amount: 15,
+          position: 'random',
+          respawnable: true,
+          size: [70, 100],
+        },
+        {
           type: Types.Entity.Bunny,
           amount: 25,
           position: 'random',

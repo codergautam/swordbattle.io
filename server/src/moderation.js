@@ -42,7 +42,21 @@ async function banIp(game, params) {
   };
 }
 
-
+async function giveCoins(game, params) {
+  if(!params.id) throw new Error('Missing id param');
+  if(!params.coins) throw new Error('Missing coins param');
+  for (const player of game.players.values()) {
+    if (player.id === parseInt(params.id)) {
+      player.levels.addCoins(parseInt(params.coins));
+      return {
+        coins: player.levels.coins,
+      };
+    }
+  }
+  return {
+    coins: 0,
+  };
+}
 
 module.exports = {
   initModeration: function (game, app) {
@@ -74,7 +88,7 @@ module.exports = {
         }
 
         const command = req.params.command;
-        const cmds = [['list', listCommand], ['banip', banIp]];
+        const cmds = [['list', listCommand], ['banip', banIp], ['givecoins', giveCoins]];
 
         if (!cmds.find(c => c[0] === command)) {
           res.writeStatus('400 Bad Request');

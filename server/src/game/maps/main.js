@@ -198,7 +198,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Cat,
-          amount: 200,
+          amount: 15,
           position: 'random',
           respawnable: true,
           size: [70, 100],

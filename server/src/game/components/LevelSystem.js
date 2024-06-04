@@ -144,7 +144,7 @@ class LevelSystem {
     this.upgradePoints += 1;
     this.player.evolutions.checkForEvolutions();
 
-    const sizeBuffsNeeded = levels[this.level].scale - levels[this.level-1].scale;
+    let sizeBuffsNeeded = levels[this.level].scale - levels[this.level-1].scale;
     if(!sizeBuffsNeeded) sizeBuffsNeeded = 0;
     this.addBuff(Types.Buff.Size, false, sizeBuffsNeeded);
   }

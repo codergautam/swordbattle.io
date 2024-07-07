@@ -384,28 +384,28 @@ function App() {
           </div> */}
                  <footer className={clsx('links', isLoaded && 'animation')} style={scale.styles}>
              <div>
-               <a href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="noreferrer">About</a>
+               <a href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="nofollow">About</a>
              </div>
             <div>
-               <Link to="https://swordbattle.io/#leaderboard" target="_blank" rel="noreferrer">Leaderboard</Link>
+               <Link to="https://swordbattle.io/#leaderboard" target="_blank" rel="nofollow">Leaderboard</Link>
            </div>
             <div>
-               <a href="https://iogames.forum/swordbattle" target="_blank" rel="noreferrer" className='forum'>
+               <a href="https://iogames.forum/swordbattle" target="_blank" className='forum' rel="nofollow">
                  Forum
                </a>
              </div>
              <div>
-               <a href="https://discord.com/invite/9A9dNTGWb9" target="_blank" rel="noreferrer" className='discord'>
+               <a href="https://discord.com/invite/9A9dNTGWb9" target="_blank" className='discord' rel="nofollow">
                  Discord
                </a>
              </div>
               <div>
-               <a href="https://swordbattle.io/partners" target="_blank" rel="noreferrer" className='partners'>
+               <a href="https://swordbattle.io/partners" target="_blank" className='partners' rel="nofollow">
                  Partners
                </a>
              </div>
              <div>
-               <a href="https://iogames.forum/t/official-swordbattle-changelog/17400/last" target="_blank" rel="noreferrer" className='changelog' style={{color: 'yellow'}}>
+               <a href="https://iogames.forum/t/official-swordbattle-changelog/17400/last" target="_blank" className='changelog' style={{color: 'yellow'}} rel="nofollow">
                 Changelog
               </a>
              </div>

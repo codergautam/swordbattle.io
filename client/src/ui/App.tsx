@@ -399,11 +399,11 @@ function App() {
                  Discord
                </a>
              </div>
-              <div>
+              {/* <div>
                <a href="https://swordbattle.io/partners" target="_blank" className='partners' rel="nofollow">
                  Partners
                </a>
-             </div>
+             </div> */}
              <div>
                <a href="https://iogames.forum/t/official-swordbattle-changelog/17400/last" target="_blank" className='changelog' style={{color: 'yellow'}} rel="nofollow">
                 Changelog

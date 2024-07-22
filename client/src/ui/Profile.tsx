@@ -96,10 +96,13 @@ export default function Profile() {
     <section className="main-content">
       <div className="container">
         <div className='statsContent'>
-      <button className="back-button" onClick={() => window.location.href = '/'}>X</button>
+      <button className="back-button" onClick={() =>{
+        // ../index.html
+        window.location.href = '../index.html';
+      }}>X</button>
           <center>
         <h1>
-        <img src={'/assets/game/player/'+Object.values(cosmetics.skins).find((skin: any) => skin.id === data.account.skins.equipped)?.bodyFileName} alt="Equipped skin" className="equipped-skin" />
+        <img src={'assets/game/player/'+Object.values(cosmetics.skins).find((skin: any) => skin.id === data.account.skins.equipped)?.bodyFileName} alt="Equipped skin" className="equipped-skin" />
 
           {data.account.username}</h1></center>
         <br />

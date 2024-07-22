@@ -43,6 +43,7 @@ class Client {
     if (message.isPing) {
       this.send({ isPong: true, tps: this.game.tps });
     } else if (message.token) {
+      console.log('Client', this.id, 'authenticated with token');
       this.token = message.token;
       this.getAccount();
     } else {
@@ -87,9 +88,11 @@ class Client {
     }
 
     this.isReady = false;
+    console.log('Client', this.id, 'authenticating with token POST /auth/verify');
     api.post('/auth/verify', { secret: this.token }, (data) => {
       if (data.account) {
         const username = data.account.username;
+        console.log('Client', this.id, 'authenticated as', username);
         this.account = new Account();
         api.post('/profile/getTop100Rank/' + username, {}, (rankData) => {
           if (rankData.rank) {

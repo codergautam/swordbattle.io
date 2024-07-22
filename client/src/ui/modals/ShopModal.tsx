@@ -8,7 +8,7 @@ import './ShopModal.scss'
 import { buyFormats, numberWithCommas } from '../../helpers';
 let { skins } = cosmetics;
 
-const basePath = '/assets/game/player/';
+const basePath = 'assets/game/player/';
 
 interface ShopModalProps {
   account: AccountState;
@@ -123,7 +123,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       <h1 className='shop-title'>Shop</h1>
 
       {account?.isLoggedIn ? (
-      <h1 className='shop-desc'>Balance: {numberWithCommas(account.gems)}<img className={'gem'} src='/assets/game/gem.png' alt='Gems' width={30} height={30} /></h1>
+      <h1 className='shop-desc'>Balance: {numberWithCommas(account.gems)}<img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} /></h1>
       ) : (
         <h1 className='shop-desc'><b>Login or Signup</b> to buy stuff from the shop!<br/>Earn gems by stabbing players and collecting coins around the map!</h1>
       )}
@@ -174,7 +174,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           <p className='skin-desc'>{skin.description}</p>
           { (skin?.price ?? 0) > 0 ? (
             <>
-          {skin.price} <img className={'gem'} src='/assets/game/gem.png' alt='Gems' width={30} height={30} />
+          {skin.price} <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} />
           </> ) : (
             <>
             <p style={{marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7}}>{skin.buyable ? 'Free' : ''}</p>

@@ -43,7 +43,7 @@ class Client {
     if (message.isPing) {
       this.send({ isPong: true, tps: this.game.tps });
     } else if (message.token) {
-      console.log('Client', this.id, 'authenticated with token');
+      // console.log('Client', this.id, 'authenticated with token');
       this.token = message.token;
       this.getAccount();
     } else {
@@ -101,7 +101,9 @@ class Client {
         this.account.update(data.account);
 
         });
-      }
+      } else if(
+        console.log("Failed to authenticate", data)
+      )
       this.isReady = true;
     });
   }

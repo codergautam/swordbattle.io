@@ -101,9 +101,9 @@ class Client {
         this.account.update(data.account);
 
         });
-      } else if(
+      } else {
         console.log("Failed to authenticate", data)
-      )
+      }
       this.isReady = true;
     });
   }

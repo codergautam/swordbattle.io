@@ -13,7 +13,7 @@ EOF
 echo "Installing dependencies & building..."
 cd api
 yarn install
-yarn build
+nest build
 
 cd ../server
 yarn install

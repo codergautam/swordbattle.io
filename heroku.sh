@@ -22,8 +22,8 @@ echo "Starting processes with PM2..."
 
 # Start API process
 cd api
-# run yarn start:prod in background
-pm2 start yarn --name api --interpreter bash -- start:prod
+# run node dist/main in background
+pm2 start node --name api -- dist/main
 
 # Start server process
 cd ../server

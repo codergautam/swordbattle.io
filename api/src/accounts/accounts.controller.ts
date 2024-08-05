@@ -23,7 +23,7 @@ export class AccountsController {
 
   @UseGuards(AccountGuard)
   @Post('cosmetics/:type/buy/:itemId')
-  async buySkin(@Req() request: AccountRequest) {
+  async buySkin(@Req() request: any) {
     const id = request.account.id;
     const itemId = request.params.itemId;
     const type = request.params.type;

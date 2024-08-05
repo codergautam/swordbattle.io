@@ -10,9 +10,10 @@ cat << "EOF"
 Heroku deployment script
 EOF
 
-echo "Installing dependencies..."
+echo "Installing dependencies & building..."
 cd api
 yarn install
+yarn build
 
 cd ../server
 yarn install
@@ -20,10 +21,14 @@ yarn install
 echo "Starting processes with PM2..."
 
 # Start API process
-pm2 start "yarn --cwd api start" --name api-process
+cd api
+# run yarn start:prod in background
+pm2 start yarn --name api --interpreter bash -- start:prod
 
-# Start game server process
-pm2 start "yarn --cwd server start" --name game-process
+# Start server process
+cd ../server
+# run yarn start in background
+pm2 start yarn --name server --interpreter bash -- start
 
 # Ensure pm2 keeps running
 pm2 logs

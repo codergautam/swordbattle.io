@@ -4,7 +4,7 @@ require('dotenv').config();
 // Export configuration object for the application
 module.exports = {
   // Define the port to be used, default to 8000 if not specified in the environment
-  port: process.env.PORT || 8000,
+  port: process.env.SERVER_PORT || process.env.PORT || 8000,
 
   // Determine if SSL should be used based on the environment variable USE_SSL being set to 'TRUE'
   useSSL: process.env.USE_SSL === 'TRUE',

@@ -1,0 +1,14 @@
+{
+  "name": "swordbattlev2",
+  "version": "1.0.0",
+  "description": "Swordbattle.io is a multiplayer game where players fight each other with different 2D swords, and try to gain coins. The more coins you have, the bigger and powerful you get! Try to become the biggest of them all.",
+  "scripts": {
+    "heroku-postbuild": "sh heroku.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pm2": "^5.4.2"
+  }
+}

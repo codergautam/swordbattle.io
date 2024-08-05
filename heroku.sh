@@ -21,11 +21,11 @@ cd ..
 
 # Start API process
 cd api
-echo "Building API..."
-yarn build
-# run node dist/main in background
-echo "Starting processes with PM2..."
-pm2 start node --name api -- dist/main
+# echo "Building API..."
+# yarn build
+# # run node dist/main in background
+# echo "Starting processes with PM2..."
+# pm2 start node --name api -- dist/main
 
 # Start server process
 cd ../server

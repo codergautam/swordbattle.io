@@ -10,19 +10,21 @@ cat << "EOF"
 Heroku deployment script
 EOF
 
-echo "Installing dependencies & building..."
+echo "Installing dependencies"
 cd api
 yarn install
-npx @nestjs/cli build
 
 cd ../server
 yarn install
 
-echo "Starting processes with PM2..."
+cd ..
 
 # Start API process
 cd api
+echo "Building API..."
+npx @nestjs/cli build
 # run node dist/main in background
+echo "Starting processes with PM2..."
 pm2 start node --name api -- dist/main
 
 # Start server process

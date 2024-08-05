@@ -43,7 +43,7 @@ export class AccountsController {
 
   @UseGuards(AccountGuard)
   @Post('cosmetics/skins/equip/:skinId')
-  async equipSkin(@Req() request: AccountRequest) {
+  async equipSkin(@Req() request: any) {
     const { token } = request.body;
     const id = request.account.id;
     const skinId = request.params.skinId;

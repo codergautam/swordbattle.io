@@ -3,7 +3,7 @@
 echo "Starting Heroku deployment"
 
 export API_PORT=3000
-export SERVER_PORT=/tmp/nginx.socket
+export SERVER_PORT=8080
 
 (
   cd api

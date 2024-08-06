@@ -1,2 +1,2 @@
-web: bin/start-nginx sh herokustart.sh
+web: sh herokustart.sh
 

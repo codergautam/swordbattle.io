@@ -13,11 +13,11 @@ jobs:
     env:
       CI: false
       REACT_APP_RECAPTCHA_CLIENT_KEY: 6LdVxgYdAAAAAPtvjrXLAzSd2ANyzIkiSqk_yFpt
-      REACT_APP_API: sb-api-fb48ef34a197.herokuapp.com
+      REACT_APP_API: api.swordbattle.io
       REACT_APP_ENDPOINT_US: na.swordbattle.io
       REACT_APP_ENDPOINT_EU: eu.swordbattle.io
       REACT_APP_API_BACKUP: api.swordbattle.io
-      REACT_APP_ENDPOINT_US_BACKUP: swordbattlev2-42256f2058d6.herokuapp.com
+      REACT_APP_ENDPOINT_US_BACKUP: na.swordbattle.io
 
     steps:
     - uses: actions/checkout@v3

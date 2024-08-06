@@ -22,5 +22,4 @@ echo "Starting proxy server..."
 
 # node prod-proxy.js
 pm2 start prod-proxy.js --name proxy
-
 pm2 logs

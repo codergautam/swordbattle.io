@@ -14,10 +14,12 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
     game.events.emit('startSpectate');
   };
   const onRestartClick = () => {
-    playVideoAd().then(() => {
+    // playVideoAd().then(() => {
+    // game.events.emit('setGameResults', null);
+    // game.events.emit('restartGame');
+    // });
     game.events.emit('setGameResults', null);
     game.events.emit('restartGame');
-    });
   };
 
   return (

@@ -210,12 +210,13 @@ function App() {
         setGameStarted(true);
         window.phaser_game?.events.emit('startGame', name);
       }
-      playVideoAd().then(() => {
-        go();
-      }).catch((e) => {
-        console.log('Error playing video ad', e);
-        go();
-      });
+      // playVideoAd().then(() => {
+      //   go();
+      // }).catch((e) => {
+      //   console.log('Error playing video ad', e);
+      //   go();
+      // });
+      go();
     }
   };
   const openSettings = () => setModal(<SettingsModal />);
@@ -331,7 +332,7 @@ function App() {
               </div>
               <div className='fullWidth'>
                 <div id="adBelow">
-                 {/* <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} /> */}
+                 <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} />
                 </div>
               </div>
             </div>

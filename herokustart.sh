@@ -17,8 +17,9 @@ export SERVER_PORT=8080
   pm2 start yarn --name server --interpreter bash -- start
 )
 
-# Touch /tmp/app-initialized when the backend is ready for traffic.
-# This is used by Heroku to determine if the app is ready.
-touch /tmp/app-initialized
+echo "Deployment complete"
+echo "Starting proxy server..."
+
+node prod-proxy.js
 
 pm2 logs

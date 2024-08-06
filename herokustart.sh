@@ -1,17 +1,20 @@
+#!/bin/bash
+
 echo "Starting Heroku deployment"
+
 export API_PORT=3000
 export SERVER_PORT=8080
-cd api
-echo "Building API..."
-yarn start
-# run node dist/main in background
-echo "Starting processes with PM2..."
-pm2 start node --name api -- dist/main
 
-# Start server process
-cd ../server
-# run yarn start in background
-pm2 start yarn --name server --interpreter bash -- start
+(
+  cd api
+  echo "Building API..."
+  echo "Starting processes with PM2..."
+  pm2 start node --name api -- dist/main
+)
 
-# Ensure pm2 keeps running
+(
+  cd server
+  pm2 start yarn --name server --interpreter bash -- start
+)
+
 pm2 logs

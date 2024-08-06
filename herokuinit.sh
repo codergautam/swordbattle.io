@@ -19,5 +19,4 @@ cd ../server
 yarn install
 
 cd ..
-
-
+chmod +x herokustart.sh

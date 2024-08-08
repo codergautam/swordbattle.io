@@ -118,6 +118,96 @@
       "bodyFileName": "icecreamPlayer.png",
       "description": "I scream, you scream, your enemies scream"
     },
+    "military grade": {
+      "name": "military grade",
+      "displayName": "Military Grade",
+      "id": 193,
+      "buyable": true,
+      "price": 5000,
+      "swordFileName": "militaryGradeSword.png",
+      "bodyFileName": "militaryGradePlayer.png",
+      "description": "“The greatest victory is that which requires no battle” - Sun Tzu"
+    },
+    "forest lurker": {
+      "name": "forest lurker",
+      "displayName": "Forest Lurker",
+      "id": 194,
+      "buyable": true,
+      "price": 6000,
+      "swordFileName": "forestLurkerSword.png",
+      "bodyFileName": "forestLurkerPlayer.png",
+      "description": "Ahora nadie puede verme"
+    },
+    "chai": {
+      "name": "chai",
+      "displayName": "Chai",
+      "id": 195,
+      "buyable": true,
+      "price": 250,
+      "swordFileName": "chaiSword.png",
+      "bodyFileName": "chaiPlayer.png",
+      "description": "Garam aur meethi chai :)"
+    },
+    "wasd": {
+      "name": "wasd",
+      "displayName": "WASD",
+      "id": 196,
+      "buyable": true,
+      "price": 50000 ,
+      "swordFileName": "wasdSword.png",
+      "bodyFileName": "wasdPlayer.png",
+      "description": "WASD to move, Space to jump"
+    },
+    "pi guy": {
+      "name": "pi guy",
+      "displayName": "Pi Guy",
+      "id": 197,
+      "buyable": true,
+      "price": 314159,
+      "swordFileName": "piGuySword.png",
+      "bodyFileName": "piGuyPlayer.png",
+      "description": "The ratio of a circle's circumference to its diameter"
+    },
+    "frost ninja": {
+      "name": "frost ninja",
+      "displayName": "Frost Ninja",
+      "id": 198,
+      "buyable": true,
+      "price": 10000,
+      "swordFileName": "frostNinjaSword.png",
+      "bodyFileName": "frostNinjaPlayer.png",
+      "description": "The cold never bothered me anyway"
+    },
+    "penguin": {
+      "name": "penguin",
+      "displayName": "Penguin",
+      "id": 199,
+      "buyable": true,
+      "price": 700,
+      "swordFileName": "penguinSword.png",
+      "bodyFileName": "penguinPlayer.png",
+      "description": "Waddle waddle"
+    },
+    "snowflake": {
+      "name": "snowflake",
+      "displayName": "Snowflake",
+      "id": 200,
+      "buyable": true,
+      "price": 1000,
+      "swordFileName": "snowflakeSword.png",
+      "bodyFileName": "snowflakePlayer.png",
+      "description": "Unique and beautiful"
+    },
+    "calculator": {
+      "name": "calculator",
+      "displayName": "Calculator",
+      "id": 201,
+      "buyable": true,
+      "price": 2000,
+      "swordFileName": "calculatorSword.png",
+      "bodyFileName": "calculatorPlayer.png",
+      "description": "Don't use this in math class..."
+    },
     "yinyang": {
       "name": "yinyang",
       "displayName": "Yin Yang OG",

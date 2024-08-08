@@ -9,17 +9,47 @@ import { calculateGemsXP, playVideoAd } from '../../helpers';
 
 function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
   const onHomeClick = () => {
-    onHome();
-    game.events.emit('setGameResults', null);
-    game.events.emit('startSpectate');
+
+    function go() {
+      onHome();
+      game.events.emit('setGameResults', null);
+      game.events.emit('startSpectate');
+      }
+
+    if((window as any).adBreak) {
+      console.log('adBreak');
+      (window as any).adBreak({
+        type: 'browse',
+        adBreakDone: (e: any) => {
+          console.log('adBreakDone', e);
+          go();
+        },  // always called, unblocks the game logic
+      });
+    } else go();
+
+
   };
   const onRestartClick = () => {
     // playVideoAd().then(() => {
     // game.events.emit('setGameResults', null);
     // game.events.emit('restartGame');
     // });
+
+    function go() {
     game.events.emit('setGameResults', null);
     game.events.emit('restartGame');
+    }
+
+    if((window as any).adBreak) {
+      console.log('adBreak');
+      (window as any).adBreak({
+        type: 'next',
+        adBreakDone: (e: any) => {
+          console.log('adBreakDone', e);
+          go();
+        },  // always called, unblocks the game logic
+      });
+    } else go();
   };
 
   return (

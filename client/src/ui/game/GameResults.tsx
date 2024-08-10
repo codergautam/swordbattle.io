@@ -16,16 +16,18 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
       game.events.emit('startSpectate');
       }
 
+      go();
+
     if((window as any).adBreak) {
       console.log('adBreak');
       (window as any).adBreak({
         type: 'browse',
         adBreakDone: (e: any) => {
           console.log('adBreakDone', e);
-          go();
+
         },  // always called, unblocks the game logic
       });
-    } else go();
+    }
 
 
   };
@@ -39,6 +41,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
     game.events.emit('setGameResults', null);
     game.events.emit('restartGame');
     }
+    go();
 
     if((window as any).adBreak) {
       console.log('adBreak');
@@ -46,10 +49,9 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
         type: 'next',
         adBreakDone: (e: any) => {
           console.log('adBreakDone', e);
-          go();
         },  // always called, unblocks the game logic
       });
-    } else go();
+    }
   };
 
   return (

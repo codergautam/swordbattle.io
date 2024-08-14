@@ -18,16 +18,16 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
 
       go();
 
-    if((window as any).adBreak) {
-      console.log('adBreak');
-      (window as any).adBreak({
-        type: 'browse',
-        adBreakDone: (e: any) => {
-          console.log('adBreakDone', e);
+    // if((window as any).adBreak) {
+    //   console.log('adBreak');
+    //   (window as any).adBreak({
+    //     type: 'browse',
+    //     adBreakDone: (e: any) => {
+    //       console.log('adBreakDone', e);
 
-        },  // always called, unblocks the game logic
-      });
-    }
+    //     },  // always called, unblocks the game logic
+    //   });
+    // }
 
 
   };
@@ -43,15 +43,15 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
     }
     go();
 
-    if((window as any).adBreak) {
-      console.log('adBreak');
-      (window as any).adBreak({
-        type: 'next',
-        adBreakDone: (e: any) => {
-          console.log('adBreakDone', e);
-        },  // always called, unblocks the game logic
-      });
-    }
+    // if((window as any).adBreak) {
+    //   console.log('adBreak');
+    //   (window as any).adBreak({
+    //     type: 'next',
+    //     adBreakDone: (e: any) => {
+    //       console.log('adBreakDone', e);
+    //     },  // always called, unblocks the game logic
+    //   });
+    // }
   };
 
   return (

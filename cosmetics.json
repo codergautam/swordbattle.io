@@ -2013,7 +2013,7 @@
       "displayName": "Aztec",
       "id": 194,
       "buyable": true,
-      "price": 5000,
+      "price": 50000,
       "swordFileName": "aztecSword.png",
       "bodyFileName": "aztecPlayer.png",
       "description": "Recommended by 9/10 archiologists!"
@@ -2063,7 +2063,7 @@
       "displayName": "Danger",
       "id": 199,
       "buyable": true,
-      "price": 1000,
+      "price": 10001,
       "swordFileName": "dangerSword.png",
       "bodyFileName": "dangerPlayer.png",
       "description": "I am the danger..."
@@ -2083,7 +2083,7 @@
       "displayName": "Lunar",
       "id": 201,
       "buyable": true,
-      "price": 365,
+      "price": 3650,
       "swordFileName": "lunarSword.png",
       "bodyFileName": "lunarPlayer.png",
       "description": "The moonlight shines down upon you."
@@ -2103,7 +2103,7 @@
       "displayName": "Pixel",
       "id": 203,
       "buyable": true,
-      "price": 350,
+      "price": 3500,
       "swordFileName": "pixelSword.png",
       "bodyFileName": "pixelPlayer.png",
       "description": "Pixel is better."
@@ -2123,7 +2123,7 @@
       "displayName": "Shell",
       "id": 205,
       "buyable": true,
-      "price": 2050,
+      "price": 20500,
       "swordFileName": "shellSword.png",
       "bodyFileName": "shellPlayer.png",
       "description": "Quick! Hide in your shell."
@@ -2133,7 +2133,7 @@
       "displayName": "Stained Glass",
       "id": 206,
       "buyable": true,
-      "price": 1050,
+      "price": 10500,
       "swordFileName": "stainedglassSword.png",
       "bodyFileName": "stainedglassPlayer.png",
       "description": "Shining lights, colors abound. I see through the glass window. Light fills the whole room."

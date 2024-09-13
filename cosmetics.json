@@ -2038,15 +2038,15 @@
       "bodyFileName": "bonedragonPlayer.png",
       "description": "Reawaken the beast..."
     },
-    "coolcarl": {
-      "name": "coolcarl",
-      "displayName": "Cool Carl",
+    "coolercarl": {
+      "name": "coolercarl",
+      "displayName": "Cooler Carl",
       "id": 197,
       "buyable": true,
       "price": 1000,
-      "swordFileName": "coolcarlSword.png",
-      "bodyFileName": "coolcarlPlayer.png",
-      "description": "He's just cool like that."
+      "swordFileName": "coolercarlSword.png",
+      "bodyFileName": "coolercarlPlayer.png",
+      "description": "He's just cooler."
     },
     "crabby": {
       "name": "crabby",

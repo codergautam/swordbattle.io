@@ -2134,7 +2134,7 @@
       "id": 206,
       "buyable": true,
       "price": 10500,
-      "swordFileName": "stainedglassSword.png",
+      "swordFileName": "stainedglassrevisedSword.png",
       "bodyFileName": "stainedglassPlayer.png",
       "description": "Shining lights, colors abound. I see through the glass window. Light fills the whole room."
     },

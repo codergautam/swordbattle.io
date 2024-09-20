@@ -1997,6 +1997,146 @@
       "swordFileName": "bladeSword.png",
       "bodyFileName": "bladePlayer.png",
       "description": "Technoblade never dies!"
-    }
+    },
+    "aerial": {
+      "name": "aerial",
+      "displayName": "Aerial",
+      "id": 193,
+      "buyable": true,
+      "price": 500,
+      "swordFileName": "arialSword.png",
+      "bodyFileName": "arialPlayer.png",
+      "description": "Light on your feet."
+    },
+    "aztec": {
+      "name": "aztec",
+      "displayName": "Aztec",
+      "id": 194,
+      "buyable": true,
+      "price": 50000,
+      "swordFileName": "aztecSword.png",
+      "bodyFileName": "aztecPlayer.png",
+      "description": "Recommended by 9/10 archiologists!"
+    },
+    "bombboy": {
+      "name": "bombboy",
+      "displayName": "Bomb Boy",
+      "id": 195,
+      "buyable": true,
+      "price": 650,
+      "swordFileName": "bombboySword.png",
+      "bodyFileName": "bombboyPlayer.png",
+      "description": "Explosive!"
+    },
+    "bonedragon": {
+      "name": "bonedragon",
+      "displayName": "Bone Dragon",
+      "id": 196,
+      "buyable": true,
+      "price": 100000,
+      "swordFileName": "bonedragonSword.png",
+      "bodyFileName": "bonedragonPlayer.png",
+      "description": "Reawaken the beast..."
+    },
+    "coolercarl": {
+      "name": "coolercarl",
+      "displayName": "Cooler Carl",
+      "id": 197,
+      "buyable": true,
+      "price": 1000,
+      "swordFileName": "coolercarlSword.png",
+      "bodyFileName": "coolercarlPlayer.png",
+      "description": "He's just cooler."
+    },
+    "crabby": {
+      "name": "crabby",
+      "displayName": "Crabby",
+      "id": 198,
+      "buyable": true,
+      "price": 3000,
+      "swordFileName": "crabbySword.png",
+      "bodyFileName": "crabbyPlayer.png",
+      "description": "For cranky grinders and crabby fighters."
+    },
+    "danger": {
+      "name": "danger",
+      "displayName": "Danger",
+      "id": 199,
+      "buyable": true,
+      "price": 10001,
+      "swordFileName": "dangerSword.png",
+      "bodyFileName": "dangerPlayer.png",
+      "description": "I am the danger..."
+    },
+    "dragonfly": {
+      "name": "dragonfly",
+      "displayName": "Dragonfly",
+      "id": 200,
+      "buyable": true,
+      "price": 7500,
+      "swordFileName": "dragonflySword.png",
+      "bodyFileName": "dragonflyPlayer.png",
+      "description": "As ferocious as a dragon, as strong as a fly."
+    },
+    "lunar": {
+      "name": "lunar",
+      "displayName": "Lunar",
+      "id": 201,
+      "buyable": true,
+      "price": 3650,
+      "swordFileName": "lunarSword.png",
+      "bodyFileName": "lunarPlayer.png",
+      "description": "The moonlight shines down upon you."
+    },
+    "neo": {
+      "name": "neo",
+      "displayName": "Neo",
+      "id": 202,
+      "buyable": true,
+      "price": 150,
+      "swordFileName": "neoSword.png",
+      "bodyFileName": "neoPlayer.png",
+      "description": "Next gen fighter."
+    },
+    "pixel": {
+      "name": "pixel",
+      "displayName": "Pixel",
+      "id": 203,
+      "buyable": true,
+      "price": 3500,
+      "swordFileName": "pixelSword.png",
+      "bodyFileName": "pixelPlayer.png",
+      "description": "Pixel is better."
+    },
+    "rose": {
+      "name": "rose",
+      "displayName": "Rose",
+      "id": 204,
+      "buyable": true,
+      "price": 5999,
+      "swordFileName": "roseSword.png",
+      "bodyFileName": "rosePlayer.png",
+      "description": "Flatter the competition."
+    },
+    "shell": {
+      "name": "shell",
+      "displayName": "Shell",
+      "id": 205,
+      "buyable": true,
+      "price": 20500,
+      "swordFileName": "shellSword.png",
+      "bodyFileName": "shellPlayer.png",
+      "description": "Quick! Hide in your shell."
+    },
+    "stainedglass": {
+      "name": "stainedglass",
+      "displayName": "Stained Glass",
+      "id": 206,
+      "buyable": true,
+      "price": 10500,
+      "swordFileName": "stainedglassrevisedSword.png",
+      "bodyFileName": "stainedglassPlayer.png",
+      "description": "Shining lights, colors abound. I see through the glass window. Light fills the whole room."
+    },
   }
 }

@@ -2078,22 +2078,22 @@
       "bodyFileName": "dragonflyPlayer.png",
       "description": "As ferocious as a dragon, as strong as a fly."
     },
-    "lunar": {
-      "name": "lunar",
-      "displayName": "Lunar",
+    "midnight": {
+      "name": "midnight",
+      "displayName": "Midnight",
       "id": 212,
       "buyable": true,
-      "price": 3650,
+      "price": 15000,
       "swordFileName": "lunarSword.png",
       "bodyFileName": "lunarPlayer.png",
-      "description": "The moonlight shines down upon you."
+      "description": "Swords are only silhouettes in the darkness."
     },
     "void": {
       "name": "void",
       "displayName": "Void",
       "id": 211,
       "buyable": true,
-      "price": 150,
+      "price": 14000,
       "swordFileName": "neoSword.png",
       "bodyFileName": "neoPlayer.png",
       "description": "The gateway between reality and oblivion."

@@ -2135,7 +2135,7 @@
       "buyable": true,
       "price": 10500,
       "swordFileName": "stainedglassrevisedSword.png",
-      "bodyFileName": "stainedglassPlayer.png",
+      "bodyFileName": "stainedglassnewPlayer.png",
       "description": "Shining lights, colors abound. I see through the glass window. Light fills the whole room."
     },
     "goldeneye": {

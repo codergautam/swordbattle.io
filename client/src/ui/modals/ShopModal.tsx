@@ -162,7 +162,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         const skin = skinData as Skin;
         return (
         <div className="skin-card" key={skin.name}>
-          <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}> - ID: {skin.id}</h2>
+          <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
           <img
             src={basePath + skin.bodyFileName}
             alt={skin.name}
@@ -171,7 +171,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           />
           <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
           <br/>
-          <p className='skin-desc'>{skin.description}</p>
+          <p className='skin-desc'>{skin.description}ID: {skin.id}</p>
           { (skin?.price ?? 0) > 0 ? (
             <>
           {skin.price} <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} />

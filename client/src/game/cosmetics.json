@@ -2088,15 +2088,15 @@
       "bodyFileName": "lunarPlayer.png",
       "description": "The moonlight shines down upon you."
     },
-    "neo": {
-      "name": "neo",
-      "displayName": "Neo",
+    "void": {
+      "name": "void",
+      "displayName": "Void",
       "id": 211,
       "buyable": true,
       "price": 150,
       "swordFileName": "neoSword.png",
       "bodyFileName": "neoPlayer.png",
-      "description": "Next gen fighter."
+      "description": "The gateway between reality and oblivion."
     },
     "pixel": {
       "name": "pixel",

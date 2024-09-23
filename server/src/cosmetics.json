@@ -2138,5 +2138,15 @@
       "bodyFileName": "stainedglassPlayer.png",
       "description": "Shining lights, colors abound. I see through the glass window. Light fills the whole room."
     },
+    "goldeneye": {
+      "name": "goldeneye",
+      "displayName": "Golden Eye",
+      "id": 207,
+      "buyable": true,
+      "price": 50000,
+      "swordFileName": "goldeneyeSword.png",
+      "bodyFileName": "goldeneyePlayer.png",
+      "description": "The eye of the beholder."
+    }
   }
 }

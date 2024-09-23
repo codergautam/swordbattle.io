@@ -2001,7 +2001,7 @@
     "aerial": {
       "name": "aerial",
       "displayName": "Aerial",
-      "id": 219,
+      "id": 220,
       "buyable": true,
       "price": 500,
       "swordFileName": "arialSword.png",
@@ -2011,7 +2011,7 @@
     "aztec": {
       "name": "aztec",
       "displayName": "Aztec",
-      "id": 218,
+      "id": 219,
       "buyable": true,
       "price": 50000,
       "swordFileName": "aztecSword.png",
@@ -2021,7 +2021,7 @@
     "bombboy": {
       "name": "bombboy",
       "displayName": "Bomb Boy",
-      "id": 217,
+      "id": 218,
       "buyable": true,
       "price": 650,
       "swordFileName": "bombboySword.png",
@@ -2031,7 +2031,7 @@
     "bonedragon": {
       "name": "bonedragon",
       "displayName": "Bone Dragon",
-      "id": 216,
+      "id": 217,
       "buyable": true,
       "price": 100000,
       "swordFileName": "bonedragonSword.png",
@@ -2041,7 +2041,7 @@
     "coolercarl": {
       "name": "coolercarl",
       "displayName": "Cooler Carl",
-      "id": 215,
+      "id": 216,
       "buyable": true,
       "price": 1000,
       "swordFileName": "coolercarlSword.png",
@@ -2051,7 +2051,7 @@
     "crabby": {
       "name": "crabby",
       "displayName": "Crabby",
-      "id": 214,
+      "id": 215,
       "buyable": true,
       "price": 3000,
       "swordFileName": "crabbySword.png",
@@ -2061,7 +2061,7 @@
     "danger": {
       "name": "danger",
       "displayName": "Danger",
-      "id": 213,
+      "id": 214,
       "buyable": true,
       "price": 10001,
       "swordFileName": "dangerSword.png",
@@ -2071,7 +2071,7 @@
     "dragonfly": {
       "name": "dragonfly",
       "displayName": "Dragonfly",
-      "id": 212,
+      "id": 213,
       "buyable": true,
       "price": 7500,
       "swordFileName": "dragonflySword.png",

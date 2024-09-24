@@ -1,11 +1,11 @@
-const SAT = require('sat');
-const Entity = require('../Entity');
-const Circle = require('../../shapes/Circle');
-const Timer = require('../../components/Timer');
-const Health = require('../../components/Health');
-const Property = require('../../components/Property');
-const Types = require('../../Types');
-const helpers = require('../../../helpers');
+const SAT = require("sat");
+const Entity = require("../Entity");
+const Circle = require("../../shapes/Circle");
+const Timer = require("../../components/Timer");
+const Health = require("../../components/Health");
+const Property = require("../../components/Property");
+const Types = require("../../Types");
+const helpers = require("../../../helpers");
 
 class MooseMob extends Entity {
   constructor(game, objectData) {
@@ -14,7 +14,7 @@ class MooseMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = this.size;
+    this.coinsDrop = this.size * 15;
 
     this.movementTimer = new Timer(0, 3, 4);
     this.stayTimer = new Timer(3, 2, 3);
@@ -58,18 +58,47 @@ class MooseMob extends Entity {
 
     if (this.isMoving) {
       if (this.target) {
-        const targetAngle = helpers.angle(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
-        this.angle = helpers.angleLerp(this.startAngle, targetAngle, this.movementTimer.progress);
-        this.velocity.add(new SAT.Vector(
-          this.speed.value * Math.cos(this.angle) * (this.movementTimer.progress * 5) * dt,
-          this.speed.value * Math.sin(this.angle) * (this.movementTimer.progress * 5) * dt,
-        ));
+        const targetAngle = helpers.angle(
+          this.shape.x,
+          this.shape.y,
+          this.target.shape.x,
+          this.target.shape.y
+        );
+        this.angle = helpers.angleLerp(
+          this.startAngle,
+          targetAngle,
+          this.movementTimer.progress
+        );
+        this.velocity.add(
+          new SAT.Vector(
+            this.speed.value *
+              Math.cos(this.angle) *
+              (this.movementTimer.progress * 5) *
+              dt,
+            this.speed.value *
+              Math.sin(this.angle) *
+              (this.movementTimer.progress * 5) *
+              dt
+          )
+        );
       } else {
-        this.angle = helpers.angleLerp(this.startAngle, this.targetAngle, this.movementTimer.progress);
-        this.velocity.add(new SAT.Vector(
-          this.speed.value * Math.cos(this.angle) * (this.movementTimer.progress * 2) * dt,
-          this.speed.value * Math.sin(this.angle) * (this.movementTimer.progress * 2) * dt,
-        ));
+        this.angle = helpers.angleLerp(
+          this.startAngle,
+          this.targetAngle,
+          this.movementTimer.progress
+        );
+        this.velocity.add(
+          new SAT.Vector(
+            this.speed.value *
+              Math.cos(this.angle) *
+              (this.movementTimer.progress * 2) *
+              dt,
+            this.speed.value *
+              Math.sin(this.angle) *
+              (this.movementTimer.progress * 2) *
+              dt
+          )
+        );
       }
     }
 
@@ -89,7 +118,7 @@ class MooseMob extends Entity {
 
     const mtv = this.shape.getCollisionOverlap(response);
     const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
-    const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
+    const targetMtv = mtv.clone().scale((selfWeight / totalWeight) * -1);
 
     entity.shape.applyCollision(targetMtv);
     this.shape.applyCollision(selfMtv);
@@ -97,8 +126,12 @@ class MooseMob extends Entity {
     if (entity === this.target) {
       const force = this.damage.value * this.movementTimer.progress;
       const knockback = force * 20;
-      entity.velocity.x -= knockback * Math.cos(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
-      entity.velocity.y -= knockback * Math.sin(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
+      entity.velocity.x -=
+        (knockback * Math.cos(this.angle - Math.PI)) /
+        (entity.knockbackResistance.value || 1);
+      entity.velocity.y -=
+        (knockback * Math.sin(this.angle - Math.PI)) /
+        (entity.knockbackResistance.value || 1);
       entity.damaged(force, this);
 
       // 50% chance of kicking off multiple times

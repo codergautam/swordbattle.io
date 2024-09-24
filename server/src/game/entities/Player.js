@@ -1,22 +1,22 @@
-const SAT = require('sat');
-const Inputs = require('../components/Inputs');
-const Entity = require('./Entity');
-const Circle = require('../shapes/Circle');
-const Sword = require('./Sword');
-const Effect = require('../effects/Effect');
-const SpeedEffect = require('../effects/SpeedEffect');
-const SlippingEffect = require('../effects/SlippingEffect');
-const BurningEffect = require('../effects/BurningEffect');
-const LevelSystem = require('../components/LevelSystem');
-const Property = require('../components/Property');
-const Viewport = require('../components/Viewport');
-const Health = require('../components/Health');
-const Timer = require('../components/Timer');
-const EvolutionSystem = require('../evolutions');
-const Types = require('../Types');
-const config = require('../../config');
-const { clamp, calculateGemsXP } = require('../../helpers');
-const { skins } = require('../../cosmetics.json');
+const SAT = require("sat");
+const Inputs = require("../components/Inputs");
+const Entity = require("./Entity");
+const Circle = require("../shapes/Circle");
+const Sword = require("./Sword");
+const Effect = require("../effects/Effect");
+const SpeedEffect = require("../effects/SpeedEffect");
+const SlippingEffect = require("../effects/SlippingEffect");
+const BurningEffect = require("../effects/BurningEffect");
+const LevelSystem = require("../components/LevelSystem");
+const Property = require("../components/Property");
+const Viewport = require("../components/Viewport");
+const Health = require("../components/Health");
+const Timer = require("../components/Timer");
+const EvolutionSystem = require("../evolutions");
+const Types = require("../Types");
+const config = require("../../config");
+const { clamp, calculateGemsXP } = require("../../helpers");
+const { skins } = require("../../cosmetics.json");
 
 // Check if any duplicate ids in cosmetics.json
 function checkForDuplicates() {
@@ -25,7 +25,7 @@ function checkForDuplicates() {
     ids.add(skin.id);
   }
   if (ids.size !== Object.keys(skins).length) {
-    console.error('Duplicate skin ids found in cosmetics.json');
+    console.error("Duplicate skin ids found in cosmetics.json");
 
     // Find specific duplicates
     const duplicates = {};
@@ -50,7 +50,7 @@ function checkForDuplicates() {
 
 checkForDuplicates();
 
-const filter = require('leo-profanity');
+const filter = require("leo-profanity");
 
 class Player extends Entity {
   constructor(game, name) {
@@ -79,7 +79,12 @@ class Player extends Entity {
     this.biome = 0;
     this.inSafezone = true;
 
-    this.viewport = new Viewport(this, viewport.width, viewport.height, viewport.zoom);
+    this.viewport = new Viewport(
+      this,
+      viewport.width,
+      viewport.height,
+      viewport.zoom
+    );
     this.viewportEntityIds = [];
     this.effects = new Map();
     this.flags = new Map();
@@ -91,7 +96,7 @@ class Player extends Entity {
 
     this.modifiers = {};
 
-    this.chatMessage = '';
+    this.chatMessage = "";
     this.chatMessageTimer = new Timer(0, 3);
   }
 
@@ -121,9 +126,12 @@ class Player extends Entity {
     state.buffs = structuredClone(this.levels.buffs);
     state.evolution = this.evolutions.evolution;
     state.possibleEvolutions = {};
-    this.evolutions.possibleEvols.forEach(evol => state.possibleEvolutions[evol] = true);
+    this.evolutions.possibleEvols.forEach(
+      (evol) => (state.possibleEvolutions[evol] = true)
+    );
 
-    state.isAbilityAvailable = this.evolutions.evolutionEffect.isAbilityAvailable;
+    state.isAbilityAvailable =
+      this.evolutions.evolutionEffect.isAbilityAvailable;
     state.abilityActive = this.evolutions.evolutionEffect.isAbilityActive;
     state.abilityDuration = this.evolutions.evolutionEffect.durationTime;
     state.abilityCooldown = this.evolutions.evolutionEffect.cooldownTime;
@@ -146,13 +154,16 @@ class Player extends Entity {
   update(dt) {
     this.applyBiomeEffects();
     this.levels.applyBuffs();
-    this.effects.forEach(effect => effect.update(dt));
+    this.effects.forEach((effect) => effect.update(dt));
     this.health.update(dt);
     this.applyInputs(dt);
     this.sword.flySpeed.value = clamp(this.speed.value / 10, 100, 200);
     this.sword.update(dt);
 
-    if (this.inputs.isInputDown(Types.Input.Ability) && this.evolutions.evolutionEffect.canActivateAbility) {
+    if (
+      this.inputs.isInputDown(Types.Input.Ability) &&
+      this.evolutions.evolutionEffect.canActivateAbility
+    ) {
       this.evolutions.evolutionEffect.activateAbility();
     }
 
@@ -161,7 +172,7 @@ class Player extends Entity {
     if (this.chatMessage) {
       this.chatMessageTimer.update(dt);
       if (this.chatMessageTimer.finished) {
-        this.chatMessage = '';
+        this.chatMessage = "";
       }
     }
   }
@@ -181,7 +192,10 @@ class Player extends Entity {
     }
 
     // excludes safezone if this.inSafezone is false
-    biomes = biomes.filter(([biome]) => biome.type !== Types.Biome.Safezone || this.inSafezone)
+    biomes = biomes
+      .filter(
+        ([biome]) => biome.type !== Types.Biome.Safezone || this.inSafezone
+      )
       .sort((a, b) => b.zIndex - a.zIndex);
     if (biomes[0]) {
       const biome = biomes[0][0];
@@ -202,7 +216,7 @@ class Player extends Entity {
 
     const mtv = this.shape.getCollisionOverlap(response);
     const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
-    const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
+    const targetMtv = mtv.clone().scale((selfWeight / totalWeight) * -1);
 
     this.shape.applyCollision(selfMtv);
     entity.shape.applyCollision(targetMtv);
@@ -218,13 +232,16 @@ class Player extends Entity {
     if (isMouseMovement) {
       const mouseDistanceFullStrength = 150;
       const mouseAngle = this.mouse.angle;
-      const mouseDistance = Math.min(this.mouse.force, mouseDistanceFullStrength);
+      const mouseDistance = Math.min(
+        this.mouse.force,
+        mouseDistanceFullStrength
+      );
       speed *= mouseDistance / mouseDistanceFullStrength;
       this.movementDirection = mouseAngle;
       dx = speed * Math.cos(this.movementDirection);
       dy = speed * Math.sin(this.movementDirection);
 
-      if(this.modifiers.disableDiagonalMovement) {
+      if (this.modifiers.disableDiagonalMovement) {
         if (Math.abs(dx) > Math.abs(dy)) {
           dy = 0;
           dx = dx > 0 ? speed : -speed;
@@ -254,7 +271,7 @@ class Player extends Entity {
         dx = speed * Math.cos(this.movementDirection);
         dy = speed * Math.sin(this.movementDirection);
 
-        if(this.modifiers.disableDiagonalMovement) {
+        if (this.modifiers.disableDiagonalMovement) {
           if (directionX !== 0 && directionY !== 0) {
             dy = directionY * speed;
             dx = 0;
@@ -293,38 +310,78 @@ class Player extends Entity {
     this.movedDistance.y = dy;
 
     // Clamp to map bounds
-    this.shape.x = clamp(this.shape.x, -this.game.map.width / 2, this.game.map.width / 2);
-    this.shape.y = clamp(this.shape.y, -this.game.map.height / 2, this.game.map.height / 2);
+    this.shape.x = clamp(
+      this.shape.x,
+      -this.game.map.width / 2,
+      this.game.map.width / 2
+    );
+    this.shape.y = clamp(
+      this.shape.y,
+      -this.game.map.height / 2,
+      this.game.map.height / 2
+    );
   }
 
   damaged(damage, entity = null) {
     this.health.damaged(damage);
 
     if (this.health.isDead) {
-      let reason = 'Unknown Entity';
+      let reason = "Unknown Entity";
       if (entity) {
         switch (entity.type) {
-          case Types.Entity.Player: reason = entity.name; break;
-          case Types.Entity.LavaPool: reason = 'Lava'; break;
-          case Types.Entity.Wolf: reason = 'A Wolf'; break;
-          case Types.Entity.Moose: reason = 'A Moose'; break;
-          case Types.Entity.Yeti: reason = 'A Yeti'; break;
-          case Types.Entity.Chimera: reason = 'A Chimera'; break;
-          case Types.Entity.Roku: reason = 'A Roku'; break;
-          case Types.Entity.Snowball: reason = 'Yeti Boss'; break; // the yeti boss throws snowballs
-          case Types.Entity.Fireball: reason = 'The Roku'; break; // the roku throws fireballs
+          case Types.Entity.Player:
+            reason = entity.name;
+            break;
+          case Types.Entity.LavaPool:
+            reason = "Lava";
+            break;
+          case Types.Entity.Wolf:
+            reason = "A Wolf";
+            break;
+          case Types.Entity.Moose:
+            reason = "A Moose";
+            break;
+          case Types.Entity.Yeti:
+            reason = "A Yeti";
+            break;
+          case Types.Entity.Chimera:
+            reason = "A Chimera";
+            break;
+          case Types.Entity.Roku:
+            reason = "A Roku";
+            break;
+          case Types.Entity.Cat:
+            reason = "A Cat";
+            break;
+          case Types.Entity.Snowball:
+            reason = "Yeti Boss";
+            break; // the yeti boss throws snowballs
+          case Types.Entity.Fireball:
+            reason = "The Roku";
+            break; // the roku throws fireballs
         }
       }
-      this.remove(reason, entity.type === Types.Entity.Player ? Types.DisconnectReason.Player : Types.DisconnectReason.Mob);
+      this.remove(
+        reason,
+        entity.type === Types.Entity.Player
+          ? Types.DisconnectReason.Player
+          : Types.DisconnectReason.Mob
+      );
     }
   }
 
   addEffect(type, id, config) {
     let EffectClass = Effect;
     switch (type) {
-      case Types.Effect.Speed: EffectClass = SpeedEffect; break;
-      case Types.Effect.Slipping: EffectClass = SlippingEffect; break;
-      case Types.Effect.Burning: EffectClass = BurningEffect; break;
+      case Types.Effect.Speed:
+        EffectClass = SpeedEffect;
+        break;
+      case Types.Effect.Slipping:
+        EffectClass = SlippingEffect;
+        break;
+      case Types.Effect.Burning:
+        EffectClass = BurningEffect;
+        break;
     }
 
     if (!id) id = Math.random();
@@ -337,7 +394,7 @@ class Player extends Entity {
   }
 
   addChatMessage(message) {
-    if (message.length === '') return;
+    if (message.length === "") return;
 
     message = message.slice(0, 35);
     message = filter.clean(message);
@@ -346,17 +403,18 @@ class Player extends Entity {
   }
 
   getEntitiesInViewport() {
-    this.viewportEntityIds = this.game.entitiesQuadtree.get(this.viewport.boundary)
-      .map(result => result.entity.id);
-      return this.viewportEntityIds;
+    this.viewportEntityIds = this.game.entitiesQuadtree
+      .get(this.viewport.boundary)
+      .map((result) => result.entity.id);
+    return this.viewportEntityIds;
   }
 
-  remove(message = 'Server', type = Types.DisconnectReason.Server) {
+  remove(message = "Server", type = Types.DisconnectReason.Server) {
     if (this.client) {
       this.client.disconnectReason = {
         message: message,
-        type: type
-      }
+        type: type,
+      };
       const game = {
         coins: this.levels.coins,
         kills: this.kills,
@@ -366,14 +424,23 @@ class Player extends Entity {
     }
     super.remove();
 
-    this.game.map.spawnCoinsInShape(this.shape, this.calculateDropAmount(), this.client?.account?.id);
+    this.game.map.spawnCoinsInShape(
+      this.shape,
+      this.calculateDropAmount(),
+      this.client?.account?.id
+    );
   }
 
   calculateDropAmount() {
     const coins = this.levels.coins;
-    return coins < 13 ? 10 : Math.round(coins < 25000 ? coins * 0.8 : Math.log10(coins) * 30000 - 111938.2002602);
+    return coins < 13
+      ? 10
+      : Math.round(
+          coins < 25000
+            ? coins * 0.8
+            : Math.log10(coins) * 30000 - 111938.2002602
+        );
   }
-
 
   cleanup() {
     super.cleanup();
@@ -381,7 +448,14 @@ class Player extends Entity {
     this.flags.clear();
     this.modifiers = {};
 
-    [this.speed, this.regeneration, this.friction, this.viewport.zoom, this.knockbackResistance, this.health.regenWait].forEach((property) => property.reset());
+    [
+      this.speed,
+      this.regeneration,
+      this.friction,
+      this.viewport.zoom,
+      this.knockbackResistance,
+      this.health.regenWait,
+    ].forEach((property) => property.reset());
   }
 }
 

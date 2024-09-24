@@ -1,4 +1,4 @@
-const Types = require('../Types');
+const Types = require("../Types");
 
 module.exports = {
   coinsCount: 0,
@@ -7,9 +7,8 @@ module.exports = {
     {
       type: Types.Biome.Safezone,
       pos: [0, 0],
-      radius: 2000,
-      objects: [
-      ],
+      radius: 1300,
+      objects: [],
     },
     {
       type: Types.Biome.River,
@@ -27,8 +26,7 @@ module.exports = {
         [0, 2000],
         [0, 0],
       ],
-      objects: [
-      ],
+      objects: [],
     },
 
     {
@@ -41,8 +39,7 @@ module.exports = {
         [-2000, 0],
         [0, 0],
       ],
-      objects: [
-      ],
+      objects: [],
     },
     {
       type: Types.Biome.River,
@@ -53,8 +50,7 @@ module.exports = {
         [1500, 11500],
         [-1500, 11500],
       ],
-      objects: [
-      ],
+      objects: [],
     },
 
     {
@@ -70,19 +66,19 @@ module.exports = {
         {
           type: Types.Entity.IceMound,
           amount: 20,
-          position: 'random',
+          position: "random",
           size: [300, 700],
         },
         {
           type: Types.Entity.IceSpike,
           amount: 20,
-          position: 'random',
+          position: "random",
           size: [200, 600],
         },
         {
           type: Types.Entity.IcePond,
           amount: 15,
-          position: 'random',
+          position: "random",
           size: [600, 900],
         },
         {
@@ -103,38 +99,38 @@ module.exports = {
         {
           type: Types.Entity.Yeti,
           amount: 5,
-          position: 'random',
+          position: "random",
           respawnable: true,
           size: [80, 110],
         },
         {
           type: Types.Entity.Yeti,
           amount: 1,
-          position: 'random',
+          position: "random",
           respawnable: true,
           respawnTime: [60 * 10, 60 * 30], // 10-30 minutes
           size: [300, 400],
-          health: 750,
+          health: 650,
           isBoss: true,
           damage: 4,
-          speed: 20,
+          speed: 15,
         },
         {
           type: Types.Entity.Chest,
-          amount: 20,
-          position: 'random',
+          amount: 30,
+          position: "random",
           respawnable: true,
         },
         {
           type: Types.Entity.Coin,
           amount: 500,
-          position: 'random',
+          position: "random",
           respawnable: true,
         },
         {
           type: Types.Entity.Rock,
           amount: 10,
-          position: 'random',
+          position: "random",
           size: [200, 400],
         },
       ],
@@ -154,7 +150,7 @@ module.exports = {
         {
           type: Types.Entity.Bush,
           amount: 100,
-          position: 'random',
+          position: "random",
           size: [100, 400],
         },
         {
@@ -180,53 +176,64 @@ module.exports = {
         {
           type: Types.Entity.Pond,
           amount: 20,
-          position: 'random',
+          position: "random",
           size: [400, 900],
         },
         {
           type: Types.Entity.Coin,
           amount: 500,
-          position: 'random',
+          position: "random",
           respawnable: true,
         },
         {
           type: Types.Entity.Wolf,
           amount: 15,
-          position: 'random',
+          position: "random",
           respawnable: true,
-          size: [70, 100],
+          size: 120,
+        },
+        {
+          type: Types.Entity.Wolf,
+          amount: 2,
+          position: "random",
+          respawnable: true,
+          respawnTime: [60 * 10, 60 * 30], // 10-30 minutes
+          size: [250, 300],
+          health: 350,
+          isBoss: true,
+          speed: 25,
         },
         {
           type: Types.Entity.Cat,
           amount: 15,
-          position: 'random',
+          position: "random",
           respawnable: true,
           size: [70, 100],
         },
         {
           type: Types.Entity.Bunny,
           amount: 25,
-          position: 'random',
+          position: "random",
           respawnable: true,
           size: [40, 60],
         },
         {
           type: Types.Entity.Rock,
           amount: 10,
-          position: 'random',
+          position: "random",
           size: [200, 400],
         },
         {
           type: Types.Entity.Moose,
           amount: 2,
-          position: 'random',
+          position: "random",
           respawnable: true,
           size: [170, 230],
         },
         {
           type: Types.Entity.Chest,
           amount: 20,
-          position: 'random',
+          position: "random",
           respawnable: true,
         },
       ],
@@ -246,7 +253,7 @@ module.exports = {
         {
           type: Types.Entity.LavaPool,
           amount: 30,
-          position: 'random',
+          position: "random",
           size: [200, 700],
         },
         {
@@ -258,41 +265,41 @@ module.exports = {
         {
           type: Types.Entity.Chimera,
           amount: 5,
-          position: 'random',
+          position: "random",
           respawnable: true,
           size: [70, 120],
         },
         {
           type: Types.Entity.Roku,
           amount: 1,
-          position: 'random',
+          position: "random",
           respawnable: true,
           respawnTime: [60 * 10, 60 * 30],
           size: [500, 600],
           health: 1000,
           isBoss: true,
-          damage: 20,
+          damage: 15,
           rotationSpeed: 5,
           fireballSize: 100,
         },
         {
           type: Types.Entity.Rock,
           amount: 10,
-          position: 'random',
+          position: "random",
           size: [200, 400],
         },
         {
           type: Types.Entity.Chest,
           amount: 20,
-          position: 'random',
+          position: "random",
           respawnable: true,
         },
         {
           type: Types.Entity.Coin,
           amount: 500,
-          position: 'random',
+          position: "random",
           respawnable: true,
-        }
+        },
       ],
     },
   ],

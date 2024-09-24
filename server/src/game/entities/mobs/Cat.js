@@ -1,15 +1,15 @@
-const SAT = require('sat');
-const Entity = require('../Entity');
-const Circle = require('../../shapes/Circle');
-const Timer = require('../../components/Timer');
-const Health = require('../../components/Health');
-const Property = require('../../components/Property');
-const Types = require('../../Types');
-const helpers = require('../../../helpers');
+const SAT = require("sat");
+const Entity = require("../Entity");
+const Circle = require("../../shapes/Circle");
+const Timer = require("../../components/Timer");
+const Health = require("../../components/Health");
+const Property = require("../../components/Property");
+const Types = require("../../Types");
+const helpers = require("../../../helpers");
 
 class CatMob extends Entity {
   static defaultDefinition = {
-    forbiddenBiomes: [Types.Biome.Safezone],
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
     attackRadius: 1000,
   };
 
@@ -19,7 +19,7 @@ class CatMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = this.size;
+    this.coinsDrop = this.size * 15;
 
     this.tamedBy = null;
 
@@ -51,23 +51,35 @@ class CatMob extends Entity {
     //   }
     // }
 
-    if(this.tamedBy) {
+    if (this.tamedBy) {
       const tamer = this.game.entities.get(this.tamedBy);
-      if(!tamer || tamer?.removed) {
+      if (!tamer || tamer?.removed) {
         this.tamedBy = null;
       } else {
-
-      // follow player around
-      const dist = helpers.distance(this.shape.x, this.shape.y, tamer.shape.x, tamer.shape.y);
-      const followRadius = this.target ? this.attackRadius : 500;
-      if(dist > followRadius) {
-        const angle = helpers.angle(this.shape.x, this.shape.y, tamer.shape.x, tamer.shape.y);
-        this.angle = angle;
-        this.velocity.add(new SAT.Vector(
-          this.speed.value * Math.cos(this.angle),
-          this.speed.value * Math.sin(this.angle)));
+        // follow player around
+        const dist = helpers.distance(
+          this.shape.x,
+          this.shape.y,
+          tamer.shape.x,
+          tamer.shape.y
+        );
+        const followRadius = this.target ? this.attackRadius : 500;
+        if (dist > followRadius) {
+          const angle = helpers.angle(
+            this.shape.x,
+            this.shape.y,
+            tamer.shape.x,
+            tamer.shape.y
+          );
+          this.angle = angle;
+          this.velocity.add(
+            new SAT.Vector(
+              this.speed.value * Math.cos(this.angle),
+              this.speed.value * Math.sin(this.angle)
+            )
+          );
+        }
       }
-    }
     }
 
     this.health.update(dt);
@@ -81,16 +93,24 @@ class CatMob extends Entity {
       this.jumpTimer.renew();
 
       if (this.target) {
-        const angle = helpers.angle(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
+        const angle = helpers.angle(
+          this.shape.x,
+          this.shape.y,
+          this.target.shape.x,
+          this.target.shape.y
+        );
         this.angle = angle;
         this.speed.multiplier *= 2;
       } else {
         this.angle += helpers.random(-Math.PI, Math.PI) / 2;
       }
 
-      this.velocity.add(new SAT.Vector(
-        this.speed.value * Math.cos(this.angle),
-        this.speed.value * Math.sin(this.angle)));
+      this.velocity.add(
+        new SAT.Vector(
+          this.speed.value * Math.cos(this.angle),
+          this.speed.value * Math.sin(this.angle)
+        )
+      );
     }
 
     this.velocity.scale(0.93);
@@ -107,9 +127,14 @@ class CatMob extends Entity {
 
     const mtv = this.shape.getCollisionOverlap(response);
     const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
-    const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
+    const targetMtv = mtv.clone().scale((selfWeight / totalWeight) * -1);
 
-    const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
+    const angle = helpers.angle(
+      this.shape.x,
+      this.shape.y,
+      entity.shape.x,
+      entity.shape.y
+    );
     if (this.target && entity.id === this.target.id) {
       entity.damaged(this.damage.value, this);
 
@@ -127,8 +152,8 @@ class CatMob extends Entity {
 
   damaged(damage, entity) {
     this.health.damaged(damage);
-    if(this.tamedBy !== entity.id) {
-    this.target = entity;
+    if (this.tamedBy !== entity.id) {
+      this.target = entity;
     }
     this.angryTimer.renew();
 
@@ -147,7 +172,7 @@ class CatMob extends Entity {
   remove() {
     super.remove();
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
-    if(this.tamedBy) {
+    if (this.tamedBy) {
       const tamer = this.game.entities.get(this.tamedBy);
       tamer.tamedEntities.delete(this.id);
     }

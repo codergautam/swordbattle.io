@@ -1,10 +1,10 @@
-const Entity = require('../Entity');
-const Circle = require('../../shapes/Circle');
-const Timer = require('../../components/Timer');
-const Health = require('../../components/Health');
-const Property = require('../../components/Property');
-const Types = require('../../Types');
-const helpers = require('../../../helpers');
+const Entity = require("../Entity");
+const Circle = require("../../shapes/Circle");
+const Timer = require("../../components/Timer");
+const Health = require("../../components/Health");
+const Property = require("../../components/Property");
+const Types = require("../../Types");
+const helpers = require("../../../helpers");
 
 class ChimeraMob extends Entity {
   static defaultDefinition = {
@@ -18,7 +18,7 @@ class ChimeraMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = this.size;
+    this.coinsDrop = this.size * 30;
 
     this.jumpTimer = new Timer(0, 4, 5);
     this.angryTimer = new Timer(0, 15, 20);
@@ -51,7 +51,12 @@ class ChimeraMob extends Entity {
         if (target === this) continue;
         if (target.type !== Types.Entity.Player) continue;
 
-        const distance = helpers.distance(this.shape.x, this.shape.y, target.shape.x, target.shape.y);
+        const distance = helpers.distance(
+          this.shape.x,
+          this.shape.y,
+          target.shape.x,
+          target.shape.y
+        );
         if (distance < searchRadius) {
           this.target = target;
           break;
@@ -63,10 +68,16 @@ class ChimeraMob extends Entity {
     this.jumpTimer.update(dt);
 
     if (this.target) {
-      const distance = helpers.distance(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
+      const distance = helpers.distance(
+        this.shape.x,
+        this.shape.y,
+        this.target.shape.x,
+        this.target.shape.y
+      );
       const progress = performance.now() / this.maneuverSpeed;
       const targetX = this.target.shape.x + distance * Math.cos(progress);
-      const targetY = this.target.shape.y + distance * Math.sin(2 * progress) / 2;
+      const targetY =
+        this.target.shape.y + (distance * Math.sin(2 * progress)) / 2;
 
       this.angle = Math.atan2(targetY - this.shape.y, targetX - this.shape.x);
       this.speed.multiplier *= 3;
@@ -92,9 +103,16 @@ class ChimeraMob extends Entity {
     if (this.target) {
       entity.damaged(this.damage.value, this);
 
-      const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
-      entity.velocity.x -= 2 * Math.cos(angle) / (entity.knockbackResistance.value || 1);
-      entity.velocity.y -= 2 * Math.sin(angle) / (entity.knockbackResistance.value || 1);
+      const angle = helpers.angle(
+        this.shape.x,
+        this.shape.y,
+        entity.shape.x,
+        entity.shape.y
+      );
+      entity.velocity.x -=
+        (2 * Math.cos(angle)) / (entity.knockbackResistance.value || 1);
+      entity.velocity.y -=
+        (2 * Math.sin(angle)) / (entity.knockbackResistance.value || 1);
     } else {
       const selfWeight = this.weight;
       const targetWeight = entity.weight;
@@ -102,7 +120,7 @@ class ChimeraMob extends Entity {
 
       const mtv = this.shape.getCollisionOverlap(response);
       const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
-      const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
+      const targetMtv = mtv.clone().scale((selfWeight / totalWeight) * -1);
       entity.shape.applyCollision(targetMtv);
       this.shape.applyCollision(selfMtv);
     }

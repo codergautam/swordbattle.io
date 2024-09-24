@@ -27,13 +27,26 @@ const Entity = {
 };
 
 const Mobs = [
-  Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Chimera, Entity.Roku, Entity.Cat,
+  Entity.Wolf,
+  Entity.Bunny,
+  Entity.Moose,
+  Entity.Yeti,
+  Entity.Chimera,
+  Entity.Roku,
+  Entity.Cat,
 ];
 const Groups = {
   Obstacles: [
-    Entity.Player, Entity.Sword, Entity.Coin,
-    Entity.IceSpike, Entity.Rock, Entity.MossyRock, Entity.LavaRock,
-    Entity.Fireball, Entity.Snowball, Entity.Chest,
+    Entity.Player,
+    Entity.Sword,
+    Entity.Coin,
+    Entity.IceSpike,
+    Entity.Rock,
+    Entity.MossyRock,
+    Entity.LavaRock,
+    Entity.Fireball,
+    Entity.Snowball,
+    Entity.Chest,
     ...Mobs,
   ],
   Mobs,
@@ -54,6 +67,8 @@ module.exports = {
     Samurai: 5,
     Rook: 6,
     Stalker: 7,
+    Warrior: 8,
+    Fisherman: 9,
   },
   Buff: {
     Speed: 1,
@@ -104,6 +119,6 @@ module.exports = {
   DisconnectReason: {
     Server: 1,
     Player: 2,
-    Mob: 3
-  }
-}
+    Mob: 3,
+  },
+};

@@ -37,7 +37,7 @@ class Pond extends Entity {
   }
 
   processTargetsCollision(player) {
-    player.addEffect(Types.Effect.Speed, 'pond', { multiplier: 0.7 });
+    player.addEffect(Types.Effect.Speed, 'pond', { multiplier: 1.1 });
   }
 
   createState() {

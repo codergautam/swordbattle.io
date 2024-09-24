@@ -1,20 +1,41 @@
-import { BaseEntity } from './BaseEntity';
-import { Shape } from '../physics/Shape';
-import { Evolutions } from '../Evolutions';
-import { Health } from '../components/Health';
-import { BiomeTypes, EntityTypes, FlagTypes, InputTypes } from '../Types';
-import { random } from '../../helpers';
-import * as cosmetics from '../cosmetics.json';
-const {skins} = cosmetics;
+import { BaseEntity } from "./BaseEntity";
+import { Shape } from "../physics/Shape";
+import { Evolutions } from "../Evolutions";
+import { Health } from "../components/Health";
+import { BiomeTypes, EntityTypes, FlagTypes, InputTypes } from "../Types";
+import { random } from "../../helpers";
+import * as cosmetics from "../cosmetics.json";
+const { skins } = cosmetics;
 class Player extends BaseEntity {
   static stateFields = [
-    ...BaseEntity.stateFields, 'name', 'angle',
-    'kills', 'flags', 'biome', 'level', 'upgradePoints',
-    'coins', 'nextLevelCoins', 'previousLevelCoins',
-    'buffs', 'evolution', 'possibleEvolutions',
-    'isAbilityAvailable', 'abilityActive', 'abilityDuration', 'abilityCooldown',
-    'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordFlying', 'swordFlyingCooldown',
-    'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account'
+    ...BaseEntity.stateFields,
+    "name",
+    "angle",
+    "kills",
+    "flags",
+    "biome",
+    "level",
+    "upgradePoints",
+    "coins",
+    "nextLevelCoins",
+    "previousLevelCoins",
+    "buffs",
+    "evolution",
+    "possibleEvolutions",
+    "isAbilityAvailable",
+    "abilityActive",
+    "abilityDuration",
+    "abilityCooldown",
+    "swordSwingAngle",
+    "swordSwingProgress",
+    "swordSwingDuration",
+    "swordFlying",
+    "swordFlyingCooldown",
+    "viewportZoom",
+    "chatMessage",
+    "skin",
+    "skinName",
+    "account",
   ];
   static removeTransition = 500;
 
@@ -44,12 +65,20 @@ class Player extends BaseEntity {
 
     this.shape = Shape.create(this.shapeData);
     this.survivalStarted = Date.now();
-    this.skinName = Object.values(skins).find(skin => skin.id === this.skin)?.name;
-    this.body = this.game.add.sprite(0, 0, 'playerBody').setRotation(-Math.PI / 2);
-    this.evolutionOverlay = this.game.add.sprite(0, 0, '').setRotation(-Math.PI / 2);
+    this.skinName = Object.values(skins).find(
+      (skin) => skin.id === this.skin
+    )?.name;
+    this.body = this.game.add
+      .sprite(0, 0, "playerBody")
+      .setRotation(-Math.PI / 2);
+    this.evolutionOverlay = this.game.add
+      .sprite(0, 0, "")
+      .setRotation(-Math.PI / 2);
     this.updateEvolution();
 
-    this.sword = this.game.add.sprite(this.body.width / 2, this.body.height / 2, 'playerSword').setRotation(Math.PI / 4);
+    this.sword = this.game.add
+      .sprite(this.body.width / 2, this.body.height / 2, "playerSword")
+      .setRotation(Math.PI / 4);
     this.swordContainer = this.game.add.container(0, 0, [this.sword]);
 
     this.healthBar = new Health(this, {
@@ -58,69 +87,100 @@ class Player extends BaseEntity {
     });
 
     const name = this.game.add.text(0, -this.body.height / 2 - 50, this.name);
-    name.setFontFamily('Arial');
+    name.setFontFamily("Arial");
     name.setFontSize(50);
     name.setOrigin(0.5, 1);
     const specialColors: { [key: string]: string } = {
-      codergautam: '#ff0000',
-      angel: '#acfffc'
-    }
-    name.setFill(this.account ? (specialColors[this.name?.toLowerCase() as keyof typeof specialColors] ? specialColors[this.name?.toLowerCase() as keyof typeof specialColors] : '#0000ff') : '#000000');
+      codergautam: "#ff0000",
+      angel: "#acfffc",
+    };
+    name.setFill(
+      this.account
+        ? specialColors[this.name?.toLowerCase() as keyof typeof specialColors]
+          ? specialColors[
+              this.name?.toLowerCase() as keyof typeof specialColors
+            ]
+          : "#0000ff"
+        : "#000000"
+    );
 
-    this.messageText = this.game.add.text(0, -this.body.height / 2 - 100, '')
-      .setFontFamily('Arial')
+    this.messageText = this.game.add
+      .text(0, -this.body.height / 2 - 100, "")
+      .setFontFamily("Arial")
       .setFontSize(75)
       .setOrigin(0.5, 1)
-      .setFill('#ffffff');
+      .setFill("#ffffff");
 
-    this.bodyContainer = this.game.add.container(0, 0, [this.swordContainer, this.body, this.evolutionOverlay]);
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.bodyContainer, name, this.messageText]);
+    this.bodyContainer = this.game.add.container(0, 0, [
+      this.swordContainer,
+      this.body,
+      this.evolutionOverlay,
+    ]);
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [
+      this.bodyContainer,
+      name,
+      this.messageText,
+    ]);
 
-    this.loadSkin(this.skin).then(() => {
-      this.body.setTexture(this.skinName+'Body');
-      this.sword.setTexture(this.skinName+'Sword');
-    }).catch(() => {
-      console.log('failed to load skin', this.skin);
-    });
+    this.loadSkin(this.skin)
+      .then(() => {
+        this.body.setTexture(this.skinName + "Body");
+        this.sword.setTexture(this.skinName + "Sword");
+      })
+      .catch(() => {
+        console.log("failed to load skin", this.skin);
+      });
 
     return this.container;
   }
 
   skinLoaded(id: number) {
-    return this.game.textures.exists(Object.values(skins).find(skin => skin.id === id)?.name+'Body');
+    return this.game.textures.exists(
+      Object.values(skins).find((skin) => skin.id === id)?.name + "Body"
+    );
   }
 
   loadSkin(id: number) {
     return new Promise<void>((resolve, reject) => {
-      if(this.skinLoaded(id)) {
+      if (this.skinLoaded(id)) {
         resolve();
       } else {
-        if(this.game.gameState.failedSkinLoads[id]) reject();
+        if (this.game.gameState.failedSkinLoads[id]) reject();
         else {
-        const skin = Object.values(skins).find(skin => skin.id === id);
-        const publicPath = process.env.PUBLIC_URL as string;
-        const basePath =  `${publicPath}/assets/game/player/`;
+          const skin = Object.values(skins).find((skin) => skin.id === id);
+          const publicPath = process.env.PUBLIC_URL as string;
+          const basePath = `${publicPath}/assets/game/player/`;
 
-        if(skin) {
-          console.log('loading skin', skin.name, basePath + skin.bodyFileName);
-        this.game.load.image(skin.name+'Body', basePath + skin.bodyFileName);
-        this.game.load.image(skin.name+'Sword', basePath + skin.swordFileName);
+          if (skin) {
+            console.log(
+              "loading skin",
+              skin.name,
+              basePath + skin.bodyFileName
+            );
+            this.game.load.image(
+              skin.name + "Body",
+              basePath + skin.bodyFileName
+            );
+            this.game.load.image(
+              skin.name + "Sword",
+              basePath + skin.swordFileName
+            );
 
-        this.game.load.once(Phaser.Loader.Events.COMPLETE, () => {
-          resolve();
-        });
-        this.game.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, () => {
-          // texture didnt load so use the placeholder
-          this.game.gameState.failedSkinLoads[id] = true;
-          reject();
-        });
+            this.game.load.once(Phaser.Loader.Events.COMPLETE, () => {
+              resolve();
+            });
+            this.game.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, () => {
+              // texture didnt load so use the placeholder
+              this.game.gameState.failedSkinLoads[id] = true;
+              reject();
+            });
 
-        this.game.load.start();
-      } else {
-        this.game.gameState.failedSkinLoads[id] = true;
-          reject();
+            this.game.load.start();
+          } else {
+            this.game.gameState.failedSkinLoads[id] = true;
+            reject();
+          }
         }
-      }
       }
     });
   }
@@ -149,7 +209,7 @@ class Player extends BaseEntity {
           onComplete: () => {
             this.messageText.text = this.chatMessage;
             toggle(true);
-          }
+          },
         });
       } else {
         // Either just show message
@@ -193,12 +253,14 @@ class Player extends BaseEntity {
     }
     if (data.biome !== undefined) {
       const isTextBlack = data.biome !== BiomeTypes.Fire;
-      this.messageText?.setFill(isTextBlack ? '#000000' : '#ffffff');
+      this.messageText?.setFill(isTextBlack ? "#000000" : "#ffffff");
     }
     if (data.flags) {
       if (data.flags[FlagTypes.EnemyHit]) {
-        const entity = this.game.gameState.entities[data.flags[FlagTypes.EnemyHit]];
-        if (entity && entity.type !== EntityTypes.Player) this.addHitParticles(entity);
+        const entity =
+          this.game.gameState.entities[data.flags[FlagTypes.EnemyHit]];
+        if (entity && entity.type !== EntityTypes.Player)
+          this.addHitParticles(entity);
       }
       if (data.flags[FlagTypes.Damaged]) {
         this.addDamagedParticles();
@@ -209,11 +271,16 @@ class Player extends BaseEntity {
   addHitParticles(entity: BaseEntity) {
     if (this.game.game.loop.actualFps < 30) return;
 
-    const particles = this.game.add.particles(entity.container.x, entity.container.y, 'starParticle', {
-      maxParticles: 5,
-      scale: 0.1,
-      speed: 200,
-    });
+    const particles = this.game.add.particles(
+      entity.container.x,
+      entity.container.y,
+      "starParticle",
+      {
+        maxParticles: 5,
+        scale: 0.1,
+        speed: 200,
+      }
+    );
     particles.setDepth(45);
     particles.setBlendMode(Phaser.BlendModes.ADD);
   }
@@ -221,29 +288,36 @@ class Player extends BaseEntity {
   addDamagedParticles() {
     if (this.game.game.loop.actualFps < 30) return;
     try {
-    const particles = this.game.add.particles(this.container.x, this.container.y, 'hitParticle', {
-      maxParticles: 5,
-      scale: 0.01,
-      speed: 200,
-    });
-    particles.setDepth(45);
-    particles.setBlendMode(Phaser.BlendModes.ADD);
-  } catch (e) {
-    console.log(e);
-  }
+      const particles = this.game.add.particles(
+        this.container.x,
+        this.container.y,
+        "hitParticle",
+        {
+          maxParticles: 5,
+          scale: 0.01,
+          speed: 200,
+        }
+      );
+      particles.setDepth(45);
+      particles.setBlendMode(Phaser.BlendModes.ADD);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   addAbilityParticles() {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
     try {
-    const particles = this.game.add.particles(
-      this.container.x + random(-this.body.displayWidth, this.body.displayWidth) * 0.5,
-      this.container.y + random(-this.body.displayHeight, this.body.displayHeight) * 0.5,
-      'starParticle',
-      { scale: 0.05, speed: 200, maxParticles: 1 },
-    );
-    particles.setDepth(45);
+      const particles = this.game.add.particles(
+        this.container.x +
+          random(-this.body.displayWidth, this.body.displayWidth) * 0.5,
+        this.container.y +
+          random(-this.body.displayHeight, this.body.displayHeight) * 0.5,
+        "starParticle",
+        { scale: 0.05, speed: 200, maxParticles: 1 }
+      );
+      particles.setDepth(45);
     } catch (e) {
       console.log(e);
     }
@@ -258,8 +332,13 @@ class Player extends BaseEntity {
     } else {
       this.evolutionOverlay.setVisible(true);
       this.evolutionOverlay.setTexture(evolutionClass[1]);
-      this.evolutionOverlay.setOrigin(evolutionClass[3][0], evolutionClass[3][1]);
-      this.evolutionOverlay.setScale(this.body.width / this.evolutionOverlay.width * evolutionClass[2]);
+      this.evolutionOverlay.setOrigin(
+        evolutionClass[3][0],
+        evolutionClass[3][1]
+      );
+      this.evolutionOverlay.setScale(
+        (this.body.width / this.evolutionOverlay.width) * evolutionClass[2]
+      );
     }
   }
 
@@ -279,7 +358,7 @@ class Player extends BaseEntity {
       this.swordLerpProgress -= swordLerpDt;
       if (this.swordLerpProgress <= 0) {
         this.swordLerpProgress = 0;
-        if(this.isMe && this.swordDecreaseStarted) {
+        if (this.isMe && this.swordDecreaseStarted) {
           this.game.controls.enableKeys([InputTypes.SwordThrow]);
         }
         this.swordDecreaseStarted = false;
@@ -287,7 +366,13 @@ class Player extends BaseEntity {
     }
     if (!this.isMe) {
       this.angleLerp = Math.min(this.angleLerp + dt / 120, 1);
-      this.rotateBody(Phaser.Math.Angle.RotateTo(this.previousAngle, this.angle, this.angleLerp));
+      this.rotateBody(
+        Phaser.Math.Angle.RotateTo(
+          this.previousAngle,
+          this.angle,
+          this.angleLerp
+        )
+      );
     }
   }
 
@@ -300,22 +385,32 @@ class Player extends BaseEntity {
   updatePrediction() {
     let pointer = this.game.input.activePointer;
     if (this.game.isMobile) {
-      pointer = this.game.controls.joystickPointer === this.game.input.pointer1
-        ? this.game.input.pointer2
-        : this.game.input.pointer1;
+      pointer =
+        this.game.controls.joystickPointer === this.game.input.pointer1
+          ? this.game.input.pointer2
+          : this.game.input.pointer1;
     }
     pointer.updateWorldPoint(this.game.cameras.main);
 
     if (this.game.controls.isInputDown(InputTypes.SwordSwing)) {
-      if (!(this.swordFlying || this.swordRaiseStarted || this.swordDecreaseStarted)) {
-        if(!this.swordRaiseStarted) {
-        this.swordRaiseStarted = true;
-        this.game.controls.disableKeys([InputTypes.SwordThrow], true);
+      if (
+        !(
+          this.swordFlying ||
+          this.swordRaiseStarted ||
+          this.swordDecreaseStarted
+        )
+      ) {
+        if (!this.swordRaiseStarted) {
+          this.swordRaiseStarted = true;
+          this.game.controls.disableKeys([InputTypes.SwordThrow], true);
         }
       }
     }
 
-    const cursorWorldPos = new Phaser.Geom.Point(pointer.worldX, pointer.worldY);
+    const cursorWorldPos = new Phaser.Geom.Point(
+      pointer.worldX,
+      pointer.worldY
+    );
     let angle = Phaser.Math.Angle.BetweenPoints(this.container, cursorWorldPos);
     // Round to 2 decimal places
     angle = Math.round(angle * 100) / 100;

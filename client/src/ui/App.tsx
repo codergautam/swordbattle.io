@@ -326,9 +326,6 @@ function App() {
 
                   </div>
                 </div>
-                <div className="menuCard panel forumCard">
-                  <ForumCard />
-                </div>
               </div>
               <div className='fullWidth'>
                 <div id="adBelow">
@@ -390,11 +387,6 @@ function App() {
             <div>
                <Link to="https://swordbattle.io/#leaderboard" target="_blank" rel="nofollow">Leaderboard</Link>
            </div>
-            <div>
-               <a href="https://iogames.forum/swordbattle" target="_blank" className='forum' rel="nofollow">
-                 Forum
-               </a>
-             </div>
              <div>
                <a href="https://discord.com/invite/9A9dNTGWb9" target="_blank" className='discord' rel="nofollow">
                  Discord

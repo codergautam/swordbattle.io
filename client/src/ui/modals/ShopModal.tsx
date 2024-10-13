@@ -171,7 +171,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           />
           <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
           <br/>
-          <p className='skin-desc'>{skin.description}ID: {skin.id}</p>
+          <p className='skin-desc'>{skin.description}</p>
           { (skin?.price ?? 0) > 0 ? (
             <>
           {skin.price} <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} />

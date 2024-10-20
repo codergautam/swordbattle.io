@@ -12,7 +12,7 @@ Play now at [swordbattle.io](http://swordbattle.io) and see the [leaderboard](ht
 
 ## Run Locally
 
-### Video Tutorial (thanks to @Number1)
+### Windows Video Tutorial (thanks to @Number1)
 
 https://www.youtube.com/watch?v=cCBdGGHIX-0&t=2s
 

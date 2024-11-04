@@ -5,6 +5,9 @@
   "scripts": {
     "heroku-postbuild": "sh herokuinit.sh"
   },
+  "engines": {
+  "node": "16.16.0"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",

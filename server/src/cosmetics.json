@@ -2090,7 +2090,7 @@
     },
     "void": {
       "name": "void",
-      "displayName": "void",
+      "displayName": "Void",
       "id": 211,
       "buyable": true,
       "price": 14000,

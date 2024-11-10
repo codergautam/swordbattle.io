@@ -173,9 +173,9 @@
       "displayName": "Frost Ninja",
       "id": 198,
       "buyable": true,
-      "price": 10000,
-      "swordFileName": "frostNinjaSword.png",
-      "bodyFileName": "frostNinjaPlayer.png",
+      "price": 11111,
+      "swordFileName": "frostninjaSword.png",
+      "bodyFileName": "frostninjaPlayer.png",
       "description": "The cold never bothered me anyway"
     },
     "penguin": {
@@ -203,10 +203,10 @@
       "displayName": "Calculator",
       "id": 201,
       "buyable": true,
-      "price": 2000,
+      "price": 1750,
       "swordFileName": "calculatorSword.png",
       "bodyFileName": "calculatorPlayer.png",
-      "description": "Don't use this in math class..."
+      "description": "Enemy HP × 0 = 0"
     },
     "yinyang": {
       "name": "yinyang",
@@ -2003,9 +2003,9 @@
       "displayName": "Aerial",
       "id": 220,
       "buyable": true,
-      "price": 500,
-      "swordFileName": "arialSword.png",
-      "bodyFileName": "arialPlayer.png",
+      "price": 555,
+      "swordFileName": "aerialSword.png",
+      "bodyFileName": "aerialPlayer.png",
       "description": "Light on your feet."
     },
     "aztec": {
@@ -2013,10 +2013,10 @@
       "displayName": "Aztec",
       "id": 219,
       "buyable": true,
-      "price": 50000,
+      "price": 70000,
       "swordFileName": "aztecSword.png",
       "bodyFileName": "aztecPlayer.png",
-      "description": "Recommended by 9/10 archiologists!"
+      "description": "Recommended by 9/10 archeologists!"
     },
     "bombboy": {
       "name": "bombboy",
@@ -2038,15 +2038,15 @@
       "bodyFileName": "bonedragonPlayer.png",
       "description": "Reawaken the beast..."
     },
-    "coolercarl": {
-      "name": "coolercarl",
-      "displayName": "Cooler Carl",
+    "coolcarl": {
+      "name": "coolcarl",
+      "displayName": "Cool Carl",
       "id": 216,
       "buyable": true,
-      "price": 1000,
-      "swordFileName": "coolercarlSword.png",
-      "bodyFileName": "coolercarlPlayer.png",
-      "description": "He's just cooler."
+      "price": 1250,
+      "swordFileName": "coolcarlSword.png",
+      "bodyFileName": "coolcarlPlayer.png",
+      "description": "He's just cool like that."
     },
     "crabby": {
       "name": "crabby",
@@ -2063,7 +2063,7 @@
       "displayName": "Danger",
       "id": 214,
       "buyable": true,
-      "price": 10001,
+      "price": 12500,
       "swordFileName": "dangerSword.png",
       "bodyFileName": "dangerPlayer.png",
       "description": "I am the danger..."
@@ -2076,27 +2076,27 @@
       "price": 7500,
       "swordFileName": "dragonflySword.png",
       "bodyFileName": "dragonflyPlayer.png",
-      "description": "As ferocious as a dragon, as strong as a fly."
+      "description": "As ferocious as a dragon, as fast as a fly."
     },
-    "lunar": {
-      "name": "lunar",
-      "displayName": "Lunar",
+    "midnight": {
+      "name": "midnight",
+      "displayName": "Midnight",
       "id": 212,
       "buyable": true,
-      "price": 3650,
-      "swordFileName": "lunarSword.png",
-      "bodyFileName": "lunarPlayer.png",
-      "description": "The moonlight shines down upon you."
+      "price": 14500,
+      "swordFileName": "midnightSword.png",
+      "bodyFileName": "midnightPlayer.png",
+      "description": "Swords are only silhouettes in the darkness..."
     },
-    "neo": {
-      "name": "neo",
-      "displayName": "Neo",
+    "void": {
+      "name": "void",
+      "displayName": "void",
       "id": 211,
       "buyable": true,
-      "price": 150,
-      "swordFileName": "neoSword.png",
-      "bodyFileName": "neoPlayer.png",
-      "description": "Next gen fighter."
+      "price": 14000,
+      "swordFileName": "voidSword.png",
+      "bodyFileName": "voidPlayer.png",
+      "description": "The gateway between reality and oblivion..."
     },
     "pixel": {
       "name": "pixel",
@@ -2123,7 +2123,7 @@
       "displayName": "Shell",
       "id": 208,
       "buyable": true,
-      "price": 20500,
+      "price": 26000,
       "swordFileName": "shellSword.png",
       "bodyFileName": "shellPlayer.png",
       "description": "Quick! Hide in your shell."
@@ -2134,9 +2134,9 @@
       "id": 206,
       "buyable": true,
       "price": 10500,
-      "swordFileName": "stainedglassrevisedSword.png",
+      "swordFileName": "stainedglassSword.png",
       "bodyFileName": "stainedglassPlayer.png",
-      "description": "Shining lights, colors abound. I see through the glass window. Light fills the whole room."
+      "description": "Too cool to be normal glass, yet too opaque to bee seen through"
     },
     "goldeneye": {
       "name": "goldeneye",

@@ -6,7 +6,7 @@
     "heroku-postbuild": "sh herokuinit.sh"
   },
   "engines": {
-  "node": "18.20.3"
+  "node": "21.7.3"
 },
   "keywords": [],
   "author": "",

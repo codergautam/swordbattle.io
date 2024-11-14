@@ -118,9 +118,9 @@ sat@^0.9.0:
   resolved "https://registry.yarnpkg.com/sat/-/sat-0.9.0.tgz#02091260513c8f2482da7db9377ddfeca80f5982"
   integrity sha512-mxdv5RZJO4tdMnUURGU3gAMcnDUEwcNJwE+lPO0/V+rBeDvFLH3wEZEOR0fH7cTN0zQaNxBEbHnyQL9DzupwQQ==
 
-uWebSockets.js@uNetworking/uWebSockets.js#v20.33.0:
-  version "20.33.0"
-  resolved "https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/c10b47c350cc97c299c6b4a07a98abb628704c71"
+uWebSockets.js@uNetworking/uWebSockets.js#v20.49.0:
+  version "20.49.0"
+  resolved "https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/442087c0a01bf146acb7386910739ec81df06700"
 
 undici-types@~5.26.4:
   version "5.26.5"

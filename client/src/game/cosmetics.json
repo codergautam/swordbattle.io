@@ -2176,7 +2176,7 @@
       "price": 900,
       "swordFileName": "auroraborealisSword.png",
       "bodyFileName": "auroraborealisPlayer.png",
-      "description": "Distract your opponents with a magnificent sight to see"
+      "description": "Distract your opponents with a magnificent sight to see."
     },
     "autumn": {
       "name": "autumn",
@@ -2346,11 +2346,11 @@
       "price": 4500,
       "swordFileName": "glassv2Sword.png",
       "bodyFileName": "glassv2Player.png",
-      "description": "Now, let me be clear..."
+      "description": "Let me be clear..."
     },
     "golden": {
       "name": "golden",
-      "displayName": "golden",
+      "displayName": "Golden",
       "id": 241,
       "buyable": true,
       "price": 50000,
@@ -2386,11 +2386,11 @@
       "price": 88888,
       "swordFileName": "infinitySword.png",
       "bodyFileName": "infinityPlayer.png",
-      "description": "Once bound by limits, and now truly infinite..."
+      "description": "No longer bound by limits..."
     },
     "light": {
       "name": "light",
-      "displayName": "light",
+      "displayName": "Light",
       "id": 245,
       "buyable": true,
       "price": 550,
@@ -2500,7 +2500,7 @@
     },
     "shield": {
       "name": "shield",
-      "displayName": "shield",
+      "displayName": "Shield",
       "id": 256,
       "buyable": true,
       "price": 45000,
@@ -2510,7 +2510,7 @@
     },
     "steampunk": {
       "name": "steampunk",
-      "displayName": "steampunk",
+      "displayName": "Steampunk",
       "id": 257,
       "buyable": true,
       "price": 525525,
@@ -2526,7 +2526,7 @@
       "price": 3333,
       "swordFileName": "sunsetv2Sword.png",
       "bodyFileName": "sunsetv2Player.png",
-      "description": "The last light your enemies will see before darkness"
+      "description": "The last light your enemies will see before darkness..."
     },
     "thedivider": {
       "name": "thedivider",
@@ -2540,7 +2540,7 @@
     },
     "unknown": {
       "name": "unknown",
-      "displayName": "unknown",
+      "displayName": "Unknown",
       "id": 260,
       "buyable": true,
       "price": 75,

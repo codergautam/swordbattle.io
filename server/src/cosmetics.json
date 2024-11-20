@@ -74,7 +74,7 @@
       "displayName": "Witch",
       "id": 178,
       "buyable": true,
-      "price": 200,
+      "price": 175,
       "swordFileName": "witchSword.png",
       "bodyFileName": "witchPlayer.png",
       "description": "Cast a spell on your enemies"
@@ -84,7 +84,7 @@
       "displayName": "Lion",
       "id": 179,
       "buyable": true,
-      "price": 200,
+      "price": 225,
       "swordFileName": "lionSword.png",
       "bodyFileName": "lionPlayer.png",
       "description": "Roar!"
@@ -153,7 +153,7 @@
       "displayName": "WASD",
       "id": 196,
       "buyable": true,
-      "price": 50000 ,
+      "price": 50000,
       "swordFileName": "wasdSword.png",
       "bodyFileName": "wasdPlayer.png",
       "description": "WASD to move, Space to jump"
@@ -193,7 +193,7 @@
       "displayName": "Snowflake",
       "id": 200,
       "buyable": true,
-      "price": 1000,
+      "price": 950,
       "swordFileName": "snowflakeSword.png",
       "bodyFileName": "snowflakePlayer.png",
       "description": "Unique and beautiful"
@@ -1740,7 +1740,7 @@
     },
     "predator": {
       "name": "predator",
-      "displayName": "predator OG",
+      "displayName": "Predator OG",
       "id": 164,
       "buyable": false,
       "og": true,
@@ -1912,7 +1912,7 @@
       "displayName": "Hypersphere",
       "id": 181,
       "buyable": true,
-      "price": 1000,
+      "price": 1111,
       "swordFileName": "hypersphereSword.png",
       "bodyFileName": "hyperspherePlayer.png",
       "description": "Enter the hyperverse..."
@@ -1972,7 +1972,7 @@
       "displayName": "Snow Globe",
       "id": 190,
       "buyable": true,
-      "price": 500000,
+      "price": 450000,
       "swordFileName": "snowglobeSword.png",
       "bodyFileName": "snowglobePlayer.png",
       "description": "Let it snow!"
@@ -2006,17 +2006,17 @@
       "price": 555,
       "swordFileName": "aerialSword.png",
       "bodyFileName": "aerialPlayer.png",
-      "description": "Light on your feet."
+      "description": "Strike from the skies!"
     },
     "aztec": {
       "name": "aztec",
       "displayName": "Aztec",
       "id": 219,
       "buyable": true,
-      "price": 70000,
+      "price": 150000,
       "swordFileName": "aztecSword.png",
       "bodyFileName": "aztecPlayer.png",
-      "description": "Recommended by 9/10 archeologists!"
+      "description": "A lost artifact that has finally been found..."
     },
     "bombboy": {
       "name": "bombboy",
@@ -2133,7 +2133,7 @@
       "displayName": "Stained Glass",
       "id": 206,
       "buyable": true,
-      "price": 10500,
+      "price": 13000,
       "swordFileName": "stainedglassSword.png",
       "bodyFileName": "stainedglassPlayer.png",
       "description": "Too cool to be normal glass, yet too opaque to bee seen through"
@@ -2143,10 +2143,540 @@
       "displayName": "Golden Eye",
       "id": 207,
       "buyable": true,
-      "price": 50000,
+      "price": 62500,
       "swordFileName": "goldeneyeSword.png",
       "bodyFileName": "goldeneyePlayer.png",
       "description": "The eye of the beholder."
+    },
+    "ancientcoin": {
+      "name": "ancientcoin",
+      "displayName": "Ancient Coin",
+      "id": 221,
+      "buyable": true,
+      "price": 75000,
+      "swordFileName": "ancientcoinSword.png",
+      "bodyFileName": "ancientcoinPlayer.png",
+      "description": "Once a simple coin, now a relic worth thousands"
+    },
+    "apple": {
+      "name": "apple",
+      "displayName": "Apple",
+      "id": 222,
+      "buyable": true,
+      "price": 125,
+      "swordFileName": "appleSword.png",
+      "bodyFileName": "applePlayer.png",
+      "description": "An apple a day keeps The Roku away!"
+    },
+"auroraborealis": {
+      "name": "auroraborealis",
+      "displayName": "Aurora Borealis",
+      "id": 223,
+      "buyable": true,
+      "price": 900,
+      "swordFileName": "auroraborealisSword.png",
+      "bodyFileName": "auroraborealisPlayer.png",
+      "description": "Distract your opponents with a magnificent sight to see"
+    },
+    "autumn": {
+      "name": "autumn",
+      "displayName": "Autumn",
+      "id": 224,
+      "buyable": true,
+      "price": 150,
+      "swordFileName": "autumnSword.png",
+      "bodyFileName": "autumnPlayer.png",
+      "description": "Autumn is here!"
+    },
+    "beachv2": {
+      "name": "beachv2",
+      "displayName": "Beach",
+      "id": 225,
+      "buyable": true,
+      "price": 2500,
+      "swordFileName": "beachv2Sword.png",
+      "bodyFileName": "beachv2Player.png",
+      "description": "As I see it, summer never ends!"
+    },
+    "blackandwhite": {
+      "name": "blackandwhite",
+      "displayName": "Black & White",
+      "id": 226,
+      "buyable": true,
+      "price": 12000,
+      "swordFileName": "blackandwhiteSword.png",
+      "bodyFileName": "blackandwhitePlayer.png",
+      "description": "A warrior of true balance"
+    },
+    "blueberryv2": {
+      "name": "blueberryv2",
+      "displayName": "Blueberry",
+      "id": 227,
+      "buyable": true,
+      "price": 80,
+      "swordFileName": "blueberryv2Sword.png",
+      "bodyFileName": "blueberryv2Player.png",
+      "description": "Embrace the sweet taste of victory!"
+    },
+    "brick": {
+      "name": "brick",
+      "displayName": "Brick",
+      "id": 228,
+      "buyable": true,
+      "price": 800,
+      "swordFileName": "brickSword.png",
+      "bodyFileName": "brickPlayer.png",
+      "description": "Smack your enemies with the force of a thousand bricks!"
+    },
+    "broken": {
+      "name": "broken",
+      "displayName": "Broken",
+      "id": 229,
+      "buyable": true,
+      "price": 8500,
+      "swordFileName": "brokenSword.png",
+      "bodyFileName": "brokenPlayer.png",
+      "description": "Something that was never meant to be seen..."
+    },
+    "chest": {
+      "name": "chest",
+      "displayName": "Chest",
+      "id": 230,
+      "buyable": true,
+      "price": 22500,
+      "swordFileName": "chestSword.png",
+      "bodyFileName": "chestPlayer.png",
+      "description": "You have become the very thing you swore to destroy!"
+    },
+    "chroma": {
+      "name": "chroma",
+      "displayName": "Chroma",
+      "id": 231,
+      "buyable": true,
+      "price": 255255,
+      "swordFileName": "chromaSword.png",
+      "bodyFileName": "chromaPlayer.png",
+      "description": "A prismatic amalgamation..."
+    },
+    "cowboy": {
+      "name": "cowboy",
+      "displayName": "Cowboy",
+      "id": 232,
+      "buyable": true,
+      "price": 600,
+      "swordFileName": "cowboySword.png",
+      "bodyFileName": "cowboyPlayer.png",
+      "description": "Yeehaw!"
+    },
+    "crosshair": {
+      "name": "crosshair",
+      "displayName": "Crosshair",
+      "id": 233,
+      "buyable": true,
+      "price": 35000,
+      "swordFileName": "crosshairSword.png",
+      "bodyFileName": "crosshairPlayer.png",
+      "description": "This might come as a surprise, but I'm pretty good at throwing swords"
+    },
+    "cybernetic": {
+      "name": "cybernetic",
+      "displayName": "Cybernetic",
+      "id": 234,
+      "buyable": true,
+      "price": 600000,
+      "swordFileName": "cyberneticSword.png",
+      "bodyFileName": "cyberneticPlayer.png",
+      "description": "The final advancement in technology..."
+    },
+    "digital": {
+      "name": "digital",
+      "displayName": "Digital",
+      "id": 235,
+      "buyable": true,
+      "price": 10101,
+      "swordFileName": "digitalSword.png",
+      "bodyFileName": "digitalPlayer.png",
+      "description": "01110011 01110111 01101111 01110010 01100100"
+    },
+    "disguised": {
+      "name": "disguised",
+      "displayName": "Disguised",
+      "id": 236,
+      "buyable": true,
+      "price": 9000,
+      "swordFileName": "disguisedSword.png",
+      "bodyFileName": "disguisedPlayer.png",
+      "description": "Who's behind the disguise?"
+    },
+    "donutv2": {
+      "name": "donutv2",
+      "displayName": "Donut",
+      "id": 237,
+      "buyable": true,
+      "price": 8000,
+      "swordFileName": "donutv2Sword.png",
+      "bodyFileName": "donutv2Player.png",
+      "description": "SUGAR RUSH!!!"
+    },
+    "fireandwater": {
+      "name": "fireandwater",
+      "displayName": "Fire & Water",
+      "id": 238,
+      "buyable": true,
+      "price": 5566,
+      "swordFileName": "fireandwaterSword.png",
+      "bodyFileName": "fireandwaterPlayer.png",
+      "description": "An equilibrium of elements."
+    },
+    "firework": {
+      "name": "firework",
+      "displayName": "Firework",
+      "id": 239,
+      "buyable": true,
+      "price": 6500,
+      "swordFileName": "fireworkSword.png",
+      "bodyFileName": "fireworkPlayer.png",
+      "description": "Beautiful to watch until the fireworks start going after you..."
+    },
+    "glassv2": {
+      "name": "glassv2",
+      "displayName": "Glass",
+      "id": 240,
+      "buyable": true,
+      "price": 4500,
+      "swordFileName": "glassv2Sword.png",
+      "bodyFileName": "glassv2Player.png",
+      "description": "Now, let me be clear..."
+    },
+    "golden": {
+      "name": "golden",
+      "displayName": "golden",
+      "id": 241,
+      "buyable": true,
+      "price": 50000,
+      "swordFileName": "goldenSword.png",
+      "bodyFileName": "goldenPlayer.png",
+      "description": "I'm made of coins, both metaphorically and literally!"
+    },
+    "hologram": {
+      "name": "hologram",
+      "displayName": "Hologram",
+      "id": 242,
+      "buyable": true,
+      "price": 40000,
+      "swordFileName": "hologramSword.png",
+      "bodyFileName": "hologramPlayer.png",
+      "description": "The thing you're fighting is no longer physical..."
+    },
+    "hotairballoon": {
+      "name": "hotairballoon",
+      "displayName": "Hot Air Balloon",
+      "id": 243,
+      "buyable": true,
+      "price": 450,
+      "swordFileName": "hotairballoonSword.png",
+      "bodyFileName": "hotairballoonPlayer.png",
+      "description": "Send your opponents sailing into the sky!"
+    },
+    "infinity": {
+      "name": "infinity",
+      "displayName": "Infinity",
+      "id": 244,
+      "buyable": true,
+      "price": 88888,
+      "swordFileName": "infinitySword.png",
+      "bodyFileName": "infinityPlayer.png",
+      "description": "Once bound by limits, and now truly infinite..."
+    },
+    "light": {
+      "name": "light",
+      "displayName": "light",
+      "id": 245,
+      "buyable": true,
+      "price": 550,
+      "swordFileName": "lightSword.png",
+      "bodyFileName": "lightPlayer.png",
+      "description": "Too bright!"
+    },
+    "lightningconjurer": {
+      "name": "lightningconjurer",
+      "displayName": "Lightning Conjurer",
+      "id": 246,
+      "buyable": true,
+      "price": 17500,
+      "swordFileName": "lightningconjurerSword.png",
+      "bodyFileName": "lightningconjurerPlayer.png",
+      "description": "Strike down your opponents (literally)"
+    },
+    "luminous": {
+      "name": "luminous",
+      "displayName": "Luminous",
+      "id": 247,
+      "buyable": true,
+      "price": 750,
+      "swordFileName": "luminousSword.png",
+      "bodyFileName": "luminousPlayer.png",
+      "description": "Light up the arena!"
+    },
+    "mace": {
+      "name": "mace",
+      "displayName": "Mace",
+      "id": 248,
+      "buyable": true,
+      "price": 7000,
+      "swordFileName": "maceSword.png",
+      "bodyFileName": "macePlayer.png",
+      "description": "Why slice your enemies when you can simply whack them?"
+    },
+    "magmatic": {
+      "name": "magmatic",
+      "displayName": "Magmatic Conjurer",
+      "id": 249,
+      "buyable": true,
+      "price": 30000,
+      "swordFileName": "magmaticSword.png",
+      "bodyFileName": "magmaticPlayer.png",
+      "description": "Conjure magma from deep in the mantle..."
+    },
+    "metal": {
+      "name": "metal",
+      "displayName": "Metal",
+      "id": 250,
+      "buyable": true,
+      "price": 275,
+      "swordFileName": "metalSword.png",
+      "bodyFileName": "metalPlayer.png",
+      "description": "Great for both swords and armor!"
+    },
+    "orange": {
+      "name": "orange",
+      "displayName": "Orange",
+      "id": 251,
+      "buyable": true,
+      "price": 2250,
+      "swordFileName": "orangeSword.png",
+      "bodyFileName": "orangePlayer.png",
+      "description": "Can you handle the tang?"
+    },
+    "radar": {
+      "name": "radar",
+      "displayName": "Radar",
+      "id": 252,
+      "buyable": true,
+      "price": 27500,
+      "swordFileName": "radarSword.png",
+      "bodyFileName": "radarPlayer.png",
+      "description": "You can't hide from me!"
+    },
+    "redux": {
+      "name": "redux",
+      "displayName": "Redux",
+      "id": 253,
+      "buyable": true,
+      "price": 1000,
+      "swordFileName": "reduxSword.png",
+      "bodyFileName": "reduxPlayer.png",
+      "description": "The same original skin in a modern, polished style!"
+    },
+    "refusal": {
+      "name": "refusal",
+      "displayName": "Refusal",
+      "id": 254,
+      "buyable": true,
+      "price": 350,
+      "swordFileName": "refusalSword.png",
+      "bodyFileName": "refusalPlayer.png",
+      "description": "Never accept defeat!"
+    },
+    "robo": {
+      "name": "robo",
+      "displayName": "Robo",
+      "id": 255,
+      "buyable": true,
+      "price": 2750,
+      "swordFileName": "roboSword.png",
+      "bodyFileName": "roboPlayer.png",
+      "description": "Battle mode activated!"
+    },
+    "shield": {
+      "name": "shield",
+      "displayName": "shield",
+      "id": 256,
+      "buyable": true,
+      "price": 45000,
+      "swordFileName": "shieldSword.png",
+      "bodyFileName": "shieldPlayer.png",
+      "description": "The best defense!"
+    },
+    "steampunk": {
+      "name": "steampunk",
+      "displayName": "steampunk",
+      "id": 257,
+      "buyable": true,
+      "price": 525525,
+      "swordFileName": "steampunkSword.png",
+      "bodyFileName": "steampunkPlayer.png",
+      "description": "Killin' like clockwork"
+    },
+    "sunsetv2": {
+      "name": "sunsetv2",
+      "displayName": "Sunset",
+      "id": 258,
+      "buyable": true,
+      "price": 3333,
+      "swordFileName": "sunsetv2Sword.png",
+      "bodyFileName": "sunsetv2Player.png",
+      "description": "The last light your enemies will see before darkness"
+    },
+    "thedivider": {
+      "name": "thedivider",
+      "displayName": "The Divider",
+      "id": 259,
+      "buyable": true,
+      "price": 200200,
+      "swordFileName": "thedividerSword.png",
+      "bodyFileName": "thedividerPlayer.png",
+      "description": "A single slice will divide anything into two..."
+    },
+    "unknown": {
+      "name": "unknown",
+      "displayName": "unknown",
+      "id": 260,
+      "buyable": true,
+      "price": 75,
+      "swordFileName": "unknownSword.png",
+      "bodyFileName": "unknownPlayer.png",
+      "description": "Who knows?"
+    },
+    "world": {
+      "name": "world",
+      "displayName": "World",
+      "id": 261,
+      "buyable": true,
+      "price": 4250,
+      "swordFileName": "worldSword.png",
+      "bodyFileName": "worldPlayer.png",
+      "description": "Swing swords across the globe!"
+    },
+    "desertninja": {
+      "name": "desertninja",
+      "displayName": "Desert Ninja",
+      "id": 262,
+      "buyable": true,
+      "price": 22222,
+      "swordFileName": "desertninjaSword.png",
+      "bodyFileName": "desertninjaPlayer.png",
+      "description": "Just another grain of sand throughout the endless dunes..."
+    },
+    "lavaninja": {
+      "name": "lavaninja",
+      "displayName": "Lava Ninja",
+      "id": 263,
+      "buyable": true,
+      "price": 33333,
+      "swordFileName": "lavaninjaSword.png",
+      "bodyFileName": "lavaninjaPlayer.png",
+      "description": "You can probably guess what this guy's favorite biome is"
+    },
+    "thundercloudninja": {
+      "name": "thundercloudninja",
+      "displayName": "Thundercloud Ninja",
+      "id": 264,
+      "buyable": true,
+      "price": 44444,
+      "swordFileName": "thundercloudninjaSword.png",
+      "bodyFileName": "thundercloudninjaPlayer.png",
+      "description": "Hide in the clouds and strike from above!"
+    },
+    "summitninja": {
+      "name": "summitninja",
+      "displayName": "Summit Ninja",
+      "id": 265,
+      "buyable": true,
+      "price": 55555,
+      "swordFileName": "summitninjaSword.png",
+      "bodyFileName": "summitninjaPlayer.png",
+      "description": "There are always challenges to face before you reach the summit..."
+    },
+    "nightmareninja": {
+      "name": "nightmareninja",
+      "displayName": "Nightmare Ninja",
+      "id": 266,
+      "buyable": true,
+      "price": 66666,
+      "swordFileName": "nightmareninjaSword.png",
+      "bodyFileName": "nightmareninjaPlayer.png",
+      "description": "There's always a reason why people become evil..."
+    },
+    "forestninja": {
+      "name": "forestninja",
+      "displayName": "Forest Ninja",
+      "id": 267,
+      "buyable": true,
+      "price": 9999,
+      "swordFileName": "forestninjaSword.png",
+      "bodyFileName": "forestninjaPlayer.png",
+      "description": "A rogue soldier who travels alone."
+    },
+    "ninjav2": {
+      "name": "ninjav2",
+      "displayName": "Ninja",
+      "id": 268,
+      "buyable": true,
+      "price": 111,
+      "swordFileName": "ninjav2Sword.png",
+      "bodyFileName": "ninjav2Player.png",
+      "description": "A warrior with swiftness and stealth..."
+    },
+    "ash": {
+      "name": "ash",
+      "displayName": "Ash",
+      "id": 269,
+      "buyable": true,
+      "price": 850,
+      "swordFileName": "ashSword.png",
+      "bodyFileName": "ashPlayer.png",
+      "description": "The last thing remaining after everything else has burned down..."
+    },
+    "empyrean": {
+      "name": "empyrean",
+      "displayName": "Empyrean",
+      "id": 270,
+      "buyable": true,
+      "price": 13500,
+      "swordFileName": "empyreanSword.png",
+      "bodyFileName": "empyreanPlayer.png",
+      "description": "Ward off the evil energy of the void"
+    },
+    "fade": {
+      "name": "fade",
+      "displayName": "Fade",
+      "id": 271,
+      "buyable": true,
+      "price": 4321,
+      "swordFileName": "fadeSword.png",
+      "bodyFileName": "fadePlayer.png",
+      "description": "Make your enemies fade away..."
+    },
+    "nightlurker": {
+      "name": "nightlurker",
+      "displayName": "Night Lurker",
+      "id": 272,
+      "buyable": true,
+      "price": 60000,
+      "swordFileName": "nightlurkerSword.png",
+      "bodyFileName": "nightlurkerPlayer.png",
+      "description": "Still remains to be seen..."
+    },
+    "obliterator": {
+      "name": "obliterator",
+      "displayName": "The Obliterator",
+      "id": 273,
+      "buyable": true,
+      "price": 1000000,
+      "swordFileName": "obliteratorSword.png",
+      "bodyFileName": "obliteratorPlayer.png",
+      "description": "Death is inevitable."
     }
   }
 }

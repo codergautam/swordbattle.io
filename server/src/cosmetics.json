@@ -2677,6 +2677,76 @@
       "swordFileName": "obliteratorSword.png",
       "bodyFileName": "obliteratorPlayer.png",
       "description": "Death is inevitable."
+    },
+    "frostconjurer": {
+      "name": "frostconjurer",
+      "displayName": "Frost Conjurer",
+      "id": 274,
+      "buyable": true,
+      "price": 25000,
+      "swordFileName": "frostconjurerSword.png",
+      "bodyFileName": "frostconjurerPlayer.png",
+      "description": "It's a cold world out there"
+    },
+    "basketballv2": {
+      "name": "basketballv2",
+      "displayName": "Basketball",
+      "id": 275,
+      "buyable": true,
+      "price": 65,
+      "swordFileName": "basketballv2Sword.png",
+      "bodyFileName": "basketballv2Player.png",
+      "description": "Shoot some hoops and stab some enemies!"
+    },
+    "bit": {
+      "name": "bit",
+      "displayName": "8-Bit",
+      "id": 276,
+      "buyable": true,
+      "price": 825,
+      "swordFileName": "bitSword.png",
+      "bodyFileName": "bitPlayer.png",
+      "description": "Keeping it retro!"
+    },
+    "leafpile": {
+      "name": "leafpile",
+      "displayName": "Leafpile",
+      "id": 277,
+      "buyable": true,
+      "price": 525,
+      "swordFileName": "leafpileSword.png",
+      "bodyFileName": "leafpilePlayer.png",
+      "description": "A portable alternative to hiding in trees!"
+    },
+    "necromancer": {
+      "name": "necromancer",
+      "displayName": "Necromancer",
+      "id": 278,
+      "buyable": true,
+      "price": 4000,
+      "swordFileName": "necromancerSword.png",
+      "bodyFileName": "necromancerPlayer.png",
+      "description": "I can never die!"
+    },
+    "flameconjurer": {
+      "name": "flameconjurer",
+      "displayName": "Flame Conjurer",
+      "id": 279,
+      "buyable": true,
+      "price": 5250,
+      "swordFileName": "flameconjurerSword.png",
+      "bodyFileName": "flameconjurerPlayer.png",
+      "description": "The flame never stops burning..."
+    },
+    "steel": {
+      "name": "steel",
+      "displayName": "Steel",
+      "id": 280,
+      "buyable": true,
+      "price": 999,
+      "swordFileName": "steelSword.png",
+      "bodyFileName": "steelPlayer.png",
+      "description": "Shiny and polished!"
     }
   }
 }

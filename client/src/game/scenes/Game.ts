@@ -60,9 +60,9 @@ export default class Game extends Phaser.Scene {
     this.load.image('lavaRock', publicPath + '/assets/game/Lava_Rock.png');
     this.load.image('lavaPool', publicPath + '/assets/game/Lava_Pool.png');
 
-    this.load.image('wolfMobPassive', publicPath + '/assets/game/mobs/wolfPassive.png');
-    this.load.image('wolfMobAggressive', publicPath + '/assets/game/mobs/wolfAggressive.png');
-    this.load.image('catMobPassive', publicPath + '/assets/game/mobs/cat.png');
+    this.load.image('wolfMobPassive', publicPath + '/assets/game/mobs/wolfPassiveWinter.png');
+    this.load.image('wolfMobAggressive', publicPath + '/assets/game/mobs/wolfAggressiveWinter.png');
+    this.load.image('catMobPassive', publicPath + '/assets/game/mobs/catsbwinter.png');
     this.load.image('fish', publicPath + '/assets/game/mobs/fish.png');
     this.load.image('bunny', publicPath + '/assets/game/mobs/bunny.png');
     this.load.image('moose', publicPath + '/assets/game/mobs/moose.png');

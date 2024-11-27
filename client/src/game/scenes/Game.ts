@@ -42,7 +42,7 @@ export default class Game extends Phaser.Scene {
 
   preload() {
     this.load.image('fireTile', publicPath + '/assets/game/tiles/fire-winter.jpg');
-    this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
+    this.load.image('earthTile', publicPath + '/assets/game/tiles/grass-winter.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice.png');
     this.load.image('river', publicPath + '/assets/game/tiles/river-winter.png');
 

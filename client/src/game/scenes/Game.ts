@@ -42,7 +42,7 @@ export default class Game extends Phaser.Scene {
 
   preload() {
     this.load.image('fireTile', publicPath + '/assets/game/tiles/fire-winter.jpg');
-    this.load.image('earthTile', publicPath + '/assets/game/tiles/grass-winter.jpg');
+    this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice.png');
     this.load.image('river', publicPath + '/assets/game/tiles/river-winter.png');
 
@@ -52,7 +52,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('house1roof', publicPath + '/assets/game/house1roof.png');
     this.load.image('mossyRock', publicPath + '/assets/game/Mossy_Rock.png');
     this.load.image('pond', publicPath + '/assets/game/Pond_Earth.png');
-    this.load.image('bush', publicPath + '/assets/game/grass.png');
+    this.load.image('bush', publicPath + '/assets/game/grass-winter.png');
     this.load.image('iceMound', publicPath + '/assets/game/Ice_Mound.png');
     this.load.image('iceSpike', publicPath + '/assets/game/Ice_Spike-winter.png');
     this.load.image('icePond', publicPath + '/assets/game/Ice_Pond.png');

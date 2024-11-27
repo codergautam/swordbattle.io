@@ -42,12 +42,12 @@ export default class Game extends Phaser.Scene {
 
   preload() {
     this.load.image('fireTile', publicPath + '/assets/game/tiles/fire-winter.jpg');
-    this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
+    this.load.image('earthTile', publicPath + '/assets/game/tiles/grass-winter.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice.png');
     this.load.image('river', publicPath + '/assets/game/tiles/river-winter.png');
 
-    this.load.image('coin', publicPath + '/assets/game/coin.png');
-    this.load.image('kill', publicPath + '/assets/game/ui/kill.png');
+    this.load.image('coin', publicPath + '/assets/game/coin-winter.png');
+    this.load.image('kill', publicPath + '/assets/game/ui/kill-winter.png');
     this.load.image('house1', publicPath + '/assets/game/house1.png');
     this.load.image('house1roof', publicPath + '/assets/game/house1roof.png');
     this.load.image('mossyRock', publicPath + '/assets/game/Mossy_Rock.png');
@@ -94,7 +94,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');
 
     this.load.image('chatButton', publicPath + '/assets/game/ui/chat.png');
-    this.load.image('abilityButton', publicPath + '/assets/game/ui/ability.png');
+    this.load.image('abilityButton', publicPath + '/assets/game/ui/ability-winter.png');
     this.load.image('swordThrowButton', publicPath + '/assets/game/ui/swordThrow.png');
 
     // load skins

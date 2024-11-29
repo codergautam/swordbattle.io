@@ -312,7 +312,7 @@ class Player extends Entity {
           case Types.Entity.Chimera: reason = 'A Chimera'; break;
           case Types.Entity.Roku: reason = 'A Roku'; break;
           case Types.Entity.Snowball: reason = 'Yeti Boss'; break; // the yeti boss throws snowballs
-          case Types.Entity.Fireball: reason = 'Pudding Monster Roku'; break; // the roku throws fireballs
+          case Types.Entity.Fireball: reason = 'The Roku'; break; // the roku throws fireballs
         }
       }
       this.remove(reason, entity.type === Types.Entity.Player ? Types.DisconnectReason.Player : Types.DisconnectReason.Mob);

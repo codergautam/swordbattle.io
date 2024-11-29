@@ -284,7 +284,7 @@ function App() {
           <div id="menuContainer" >
 
             {/* <!-- GAME NAME --> */}
-            <div id="gameName">Swordbattle.io</div>
+            <div id="gameName" style={{color: "#8CDCFF"}}>Swordbattle.io</div>
 
             {/* <!-- LOADING TEXT --> */}
 

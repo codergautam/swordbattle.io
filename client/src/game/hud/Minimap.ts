@@ -43,7 +43,7 @@ class Minimap extends HudComponent {
       .on('pointerdown', () => this.toggleMinimize());
 
     this.mapBackground = this.game.add.graphics()
-    this.mapBackground.lineStyle(2, 0x96e398);
+    this.mapBackground.lineStyle(2, 0xA2DCFF);
     this.mapBackground.strokeRect(0, 0, this.width, this.height);
 
     this.crown = this.game.add.sprite(0, 0, 'crown').setScale(0.3);

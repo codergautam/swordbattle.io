@@ -1,7 +1,7 @@
 import { BaseEntity } from '../BaseEntity';
 import { Health } from '../../components/Health';
 
-class YetiMob extends BaseEntity {
+class SantaMob extends BaseEntity {
   static stateFields = [...BaseEntity.stateFields, 'angle', 'isAngry'];
   static basicAngle = -Math.PI / 2;
   static removeTransition = 500;

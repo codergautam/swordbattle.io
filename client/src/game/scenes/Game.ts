@@ -71,7 +71,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('santa', publicPath + '/assets/game/mobs/santa.png');
     this.load.image('roku', publicPath + '/assets/game/mobs/roku-winter.png');
     this.load.image('fireball', publicPath + '/assets/game/mobs/fireball-winter.png');
-    this.load.image('snowball', publicPath + '/assets/game/mobs/santapresent.png');
+    this.load.image('snowball', publicPath + '/assets/game/mobs/snowball-winter.png');
 
     this.load.image('chest1', publicPath + '/assets/game/Chest1.png');
     this.load.image('chest2', publicPath + '/assets/game/Chest2.png');

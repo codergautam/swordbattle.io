@@ -10,7 +10,7 @@ function ChangelogModal() {
     <ul>- Higher chances of rarer chests!</ul>
     <ul>- Faster-spawning bosses!</ul>
     <ul>- SKIN SALE! Save hundreds to thousands of gems on winter-themed skins! (Search OFF in the shop to quickly find these skins!)</ul>
-    <ul>- STRONGER MOBS! All mobs have increased health, damage or speed and drop much more coins!</ul>
+    <ul>- STRONGER MOBS! All mobs have increased health, damage or speed and drop more coins!</ul>
     <li>- EVENT SKINS! Buy limited-time winter skins before they go offsale! (Search WINTER EVENT in the shop to quickly find these skins!)</li>
     <br></br>
     <ul>(Credit to A-Bot, cool guy 53, and Battleship)</ul>

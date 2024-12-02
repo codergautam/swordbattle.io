@@ -26,8 +26,8 @@ class CatMob extends Entity {
     this.jumpTimer = new Timer(1.75, 2, 3.5);
     this.angryTimer = new Timer(0, 6, 11);
 
-    this.health = new Health(175, 30);
-    this.speed = new Property(30);
+    this.health = new Health(140, 30);
+    this.speed = new Property(30``);
     this.damage = new Property(17);
     this.target = null;
     this.targets.push(Types.Entity.Player);

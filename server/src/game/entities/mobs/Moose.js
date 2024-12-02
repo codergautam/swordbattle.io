@@ -24,7 +24,7 @@ class MooseMob extends Entity {
     this.targetAngle = this.angle;
     this.startAngle = this.angle;
 
-    this.health = new Health(500, 5);
+    this.health = new Health(375, 5);
     this.speed = new Property(8);
     this.target = null;
     this.targets.push(Types.Entity.Player);

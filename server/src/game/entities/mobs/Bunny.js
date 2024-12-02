@@ -23,7 +23,7 @@ class BunnyMob extends Entity {
     this.jumpTimer = new Timer(0, 2, 3);
     this.runawayTimer = new Timer(0, 10, 15);
 
-    this.health = new Health(150, 4);
+    this.health = new Health(120, 4);
     this.speed = new Property(37);
     this.target = null;
     this.targets.push(Types.Entity.Player);

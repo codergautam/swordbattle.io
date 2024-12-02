@@ -25,6 +25,7 @@ const BunnyMob = require('./entities/mobs/Bunny');
 const MooseMob = require('./entities/mobs/Moose');
 const ChimeraMob = require('./entities/mobs/Chimera');
 const YetiMob = require('./entities/mobs/Yeti');
+const SantaMob = require('./entities/mobs/Santa');
 const RokuMob = require('./entities/mobs/Roku');
 const Fireball = require('./entities/Fireball');
 const Snowball = require('./entities/Snowball');
@@ -181,6 +182,7 @@ class GameMap {
       case Types.Entity.Moose: ObjectClass = MooseMob; break;
       case Types.Entity.Chimera: ObjectClass = ChimeraMob; break;
       case Types.Entity.Yeti: ObjectClass = YetiMob; break;
+      case Types.Entity.Santa: ObjectClass = SantaMob; break;
       case Types.Entity.Roku: ObjectClass = RokuMob; break;
       case Types.Entity.Fireball: ObjectClass = Fireball; break;
       case Types.Entity.Snowball: ObjectClass = Snowball; break;

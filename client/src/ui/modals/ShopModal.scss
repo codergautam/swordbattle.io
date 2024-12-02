@@ -13,7 +13,7 @@
   width: calc(100vw - 100px);
   max-width: 1000px;
   margin: 20px auto;
-  background: linear-gradient(to bottom left, #0a3e0a 5%, green 100%);
+  background: linear-gradient(to top left, #092e49 5%, rgb(7, 122, 168) 100%);
   box-shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.25);
   padding: 20px;
   border-radius: 10px;
@@ -58,7 +58,7 @@
 .skin-card {
   margin: 10px;
   border-radius: 10px;
-  background-color: #272727;
+  background-color: #09182f;
   /* Dark background for cards */
   display: flex;
   flex-direction: column;

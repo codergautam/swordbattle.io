@@ -21,13 +21,14 @@ const Entity = {
   Chimera: 19,
   Roku: 20,
   Cat: 23,
+  Santa: 24,
 
   Fireball: 21,
   Snowball: 22,
 };
 
 const Mobs = [
-  Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Chimera, Entity.Roku, Entity.Cat,
+  Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Santa, Entity.Chimera, Entity.Roku, Entity.Cat,
 ];
 const Groups = {
   Obstacles: [

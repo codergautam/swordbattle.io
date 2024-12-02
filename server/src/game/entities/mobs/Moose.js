@@ -9,25 +9,27 @@ const helpers = require('../../../helpers');
 
 class MooseMob extends Entity {
   constructor(game, objectData) {
-    objectData = Object.assign({ size: 70 }, objectData);
+    objectData = Object.assign({ size: 125 }, objectData);
     super(game, Types.Entity.Moose, objectData);
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = this.size;
+    this.coinsDrop = 3000;
 
     this.movementTimer = new Timer(0, 3, 4);
     this.stayTimer = new Timer(3, 2, 3);
-    this.angryTimer = new Timer(0, 6, 8);
-    this.damage = new Property(this.size / 20);
+    this.angryTimer = new Timer(0, 12, 17);
+    this.damage = new Property(25);
     this.isMoving = false;
     this.targetAngle = this.angle;
     this.startAngle = this.angle;
 
-    this.health = new Health(50, 2);
-    this.speed = new Property(10);
+    this.health = new Health(375, 5);
+    this.speed = new Property(8);
     this.target = null;
     this.targets.push(Types.Entity.Player);
+
+    this.knockbackResistance = new Property(999);
 
     this.spawn();
   }

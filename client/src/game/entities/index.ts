@@ -23,6 +23,7 @@ import RokuMob from './mobs/Roku';
 import WolfMob from './mobs/Wolf';
 import CatMob from './mobs/Cat';
 import YetiMob from './mobs/Yeti';
+import SantaMob from './mobs/Santa';
 
 export const EntityDepth: Record<any, number> = {
   [EntityTypes.Pond]: 1,
@@ -47,6 +48,7 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.Snowball]: 22,
   [EntityTypes.Roku]: 23,
   [EntityTypes.Yeti]: 23,
+  [EntityTypes.Santa]: 23,
 
   [EntityTypes.Bush]: 30,
   [EntityTypes.IceMound]: 30,
@@ -68,6 +70,7 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.Moose: return MooseMob;
     case EntityTypes.Chimera: return ChimeraMob;
     case EntityTypes.Yeti: return YetiMob;
+    case EntityTypes.Santa: return SantaMob;
     case EntityTypes.Roku: return RokuMob;
     case EntityTypes.Fireball: return Fireball;
     case EntityTypes.Snowball: return Snowball;

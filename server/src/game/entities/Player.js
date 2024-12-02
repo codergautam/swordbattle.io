@@ -307,12 +307,13 @@ class Player extends Entity {
           case Types.Entity.Player: reason = entity.name; break;
           case Types.Entity.LavaPool: reason = 'Lava'; break;
           case Types.Entity.Wolf: reason = 'A Wolf'; break;
+          case Types.Entity.Cat: reason = 'A Cat'; break;
           case Types.Entity.Moose: reason = 'A Moose'; break;
           case Types.Entity.Yeti: reason = 'A Yeti'; break;
           case Types.Entity.Chimera: reason = 'A Chimera'; break;
-          case Types.Entity.Roku: reason = 'A Roku'; break;
-          case Types.Entity.Snowball: reason = 'Yeti Boss'; break; // the yeti boss throws snowballs
-          case Types.Entity.Fireball: reason = 'The Roku'; break; // the roku throws fireballs
+          case Types.Entity.Roku: reason = 'Pudding Monster Roku'; break;
+          case Types.Entity.Snowball: reason = 'Santa Claus'; break; // the yeti boss throws snowballs
+          case Types.Entity.Fireball: reason = 'Pudding Monster Roku'; break; // the roku throws fireballs
         }
       }
       this.remove(reason, entity.type === Types.Entity.Player ? Types.DisconnectReason.Player : Types.DisconnectReason.Mob);

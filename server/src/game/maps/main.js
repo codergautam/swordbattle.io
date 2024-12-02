@@ -69,19 +69,19 @@ module.exports = {
       objects: [
         {
           type: Types.Entity.IceMound,
-          amount: 20,
+          amount: 40,
           position: 'random',
           size: [300, 700],
         },
         {
           type: Types.Entity.IceSpike,
-          amount: 20,
+          amount: 25,
           position: 'random',
           size: [200, 600],
         },
         {
           type: Types.Entity.IcePond,
-          amount: 15,
+          amount: 13,
           position: 'random',
           size: [600, 900],
         },
@@ -102,7 +102,7 @@ module.exports = {
         */
         {
           type: Types.Entity.Yeti,
-          amount: 5,
+          amount: 6,
           position: 'random',
           respawnable: true,
           size: [80, 110],
@@ -153,7 +153,7 @@ module.exports = {
       objects: [
         {
           type: Types.Entity.Bush,
-          amount: 100,
+          amount: 160,
           position: 'random',
           size: [100, 400],
         },
@@ -191,41 +191,41 @@ module.exports = {
         },
         {
           type: Types.Entity.Wolf,
-          amount: 15,
+          amount: 9,
           position: 'random',
           respawnable: true,
-          size: [70, 100],
+          size: [85, 105],
         },
         {
           type: Types.Entity.Cat,
-          amount: 15,
+          amount: 11,
           position: 'random',
           respawnable: true,
-          size: [70, 100],
+          size: [70, 90],
         },
         {
           type: Types.Entity.Bunny,
-          amount: 25,
+          amount: 18,
           position: 'random',
           respawnable: true,
           size: [40, 60],
         },
         {
           type: Types.Entity.Rock,
-          amount: 10,
+          amount: 20,
           position: 'random',
           size: [200, 400],
         },
         {
           type: Types.Entity.Moose,
-          amount: 2,
+          amount: 5,
           position: 'random',
           respawnable: true,
-          size: [170, 230],
+          size: [190, 250],
         },
         {
           type: Types.Entity.Chest,
-          amount: 20,
+          amount: 18,
           position: 'random',
           respawnable: true,
         },
@@ -257,7 +257,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Chimera,
-          amount: 5,
+          amount: 7,
           position: 'random',
           respawnable: true,
           size: [70, 120],

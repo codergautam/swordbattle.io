@@ -31,7 +31,7 @@ class SantaMob extends Entity {
     this.isGlobal = this.definition.isBoss;
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 52500;
+    this.coinsDrop = 42500;
     this.density = 3;
 
     this.snowballTimer = new Timer(0, this.definition.snowballCooldown[0], this.definition.snowballCooldown[1]);

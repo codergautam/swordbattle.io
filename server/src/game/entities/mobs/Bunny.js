@@ -18,13 +18,13 @@ class BunnyMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = this.size*10;
+    this.coinsDrop = 1500;
 
     this.jumpTimer = new Timer(0, 2, 3);
-    this.runawayTimer = new Timer(0, 5, 10);
+    this.runawayTimer = new Timer(0, 10, 15);
 
-    this.health = new Health(20, 2);
-    this.speed = new Property(25);
+    this.health = new Health(150, 4);
+    this.speed = new Property(37);
     this.target = null;
     this.targets.push(Types.Entity.Player);
 

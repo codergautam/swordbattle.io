@@ -398,9 +398,9 @@ function App() {
                </a>
              </div> */}
              <div>
-               <a href="https://iogames.forum/t/official-swordbattle-changelog/17400/last" target="_blank" className='changelog' style={{color: 'yellow'}} rel="nofollow">
+               {/* <a href="https://iogames.forum/t/official-swordbattle-changelog/17400/last" target="_blank" className='changelog' style={{color: 'yellow'}} rel="nofollow">
                 Changelog
-              </a>
+              </a> */}
              </div>
            </footer>
         </div>

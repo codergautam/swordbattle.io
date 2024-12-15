@@ -143,7 +143,7 @@ function App() {
   }, 10);
 
   if(!firstGame) return;
-  setModal(<ChangelogModal />);
+  // setModal(<ChangelogModal />);
   }, [gameStarted]);
 
   const [server, setServer] = useState(Settings.server);
@@ -398,8 +398,8 @@ function App() {
                </a>
              </div> */}
              <div>
-               <a href="https://iogames.forum/t/official-swordbattle-changelog/17400/last" target="_blank" className='changelog' style={{color: 'yellow'}} rel="nofollow">
-                Changelog
+               <a href="https://worldguessr.com" target="_blank" className='changelog' style={{color: 'green'}}>
+                Play WorldGuessr (free geoguessr)
               </a>
              </div>
            </footer>

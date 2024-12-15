@@ -11,9 +11,14 @@ function ChangelogModal() {
     <ul>- Faster-spawning bosses!</ul>
     <ul>- SKIN SALE! Save hundreds to thousands of gems on winter-themed skins! (Search OFF in the shop to quickly find these skins!)</ul>
     <ul>- STRONGER MOBS! All mobs have increased health, damage or speed and drop more coins!</ul>
-    <li>- EVENT SKINS! Buy limited-time winter skins before they go offsale! (Search WINTER EVENT in the shop to quickly find these skins!)</li>
+    <ul>- EVENT SKINS! Buy limited-time winter skins before they go offsale! (Search WINTER EVENT in the shop to quickly find these skins!)</ul>
     <br></br>
     <ul>(Credit to A-Bot, cool guy 53, and Battleship)</ul>
+    <hr></hr>
+    <h1 style={{fontSize: 25}}>Anniversary Event (Part 1)</h1>
+    <ul>- 12 New Skins! (7 are event skins!)</ul>
+    <ul>- Even better sales for the Skin Sale!</ul>
+    <ul>- Updated shop UI!</ul>
 </div>
 
   );

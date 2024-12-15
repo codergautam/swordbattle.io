@@ -110,10 +110,10 @@
     },
     "ice cream": {
       "name": "ice cream",
-      "displayName": "Ice Cream (75% OFF)",
+      "displayName": "Ice Cream (90% OFF)",
       "id": 145,
       "buyable": true,
-      "price": 75,
+      "price": 35,
       "swordFileName": "icecreamSword.png",
       "bodyFileName": "icecreamPlayer.png",
       "description": "I scream, you scream, your enemies scream"
@@ -138,15 +138,15 @@
       "bodyFileName": "forestLurkerPlayer.png",
       "description": "Ahora nadie puede verme"
     },
-    "chai": {
-      "name": "chai",
-      "displayName": "Chai",
+    "tea": {
+      "name": "tea",
+      "displayName": "Tea",
       "id": 195,
       "buyable": true,
       "price": 250,
-      "swordFileName": "chaiSword.png",
-      "bodyFileName": "chaiPlayer.png",
-      "description": "Garam aur meethi chai :)"
+      "swordFileName": "teaSword.png",
+      "bodyFileName": "teaPlayer.png",
+      "description": "Sip while you stab"
     },
     "wasd": {
       "name": "wasd",
@@ -163,37 +163,37 @@
       "displayName": "Pi Guy (20% OFF)",
       "id": 197,
       "buyable": true,
-      "price": 251327,
+      "price": 265358,
       "swordFileName": "piGuySword.png",
       "bodyFileName": "piGuyPlayer.png",
       "description": "The ratio of a circle's circumference to its diameter"
     },
     "frost ninja": {
       "name": "frost ninja",
-      "displayName": "Frost Ninja (40% OFF)",
+      "displayName": "Frost Ninja (60% OFF)",
       "id": 198,
       "buyable": true,
-      "price": 6666,
+      "price": 4444,
       "swordFileName": "frostninjaSword.png",
       "bodyFileName": "frostninjaPlayer.png",
       "description": "The cold never bothered me anyway"
     },
     "penguin": {
       "name": "penguin",
-      "displayName": "Penguin (70% OFF)",
+      "displayName": "Penguin (80% OFF)",
       "id": 199,
       "buyable": true,
-      "price": 210,
+      "price": 140,
       "swordFileName": "penguinSword.png",
       "bodyFileName": "penguinPlayer.png",
       "description": "Waddle waddle"
     },
     "snowflake": {
       "name": "snowflake",
-      "displayName": "Snowflake (50% OFF)",
+      "displayName": "Snowflake (70% OFF)",
       "id": 200,
       "buyable": true,
-      "price": 475,
+      "price": 255,
       "swordFileName": "snowflakeSword.png",
       "bodyFileName": "snowflakePlayer.png",
       "description": "Unique and beautiful"
@@ -1929,10 +1929,10 @@
     },
     "gingerbread": {
       "name": "gingerbread",
-      "displayName": "Gingerbread (80% OFF)",
+      "displayName": "Gingerbread (99% OFF)",
       "id": 185,
       "buyable": true,
-      "price": 40,
+      "price": 1,
       "swordFileName": "gingerbreadSword.png",
       "bodyFileName": "gingerbreadPlayer.png",
       "description": "Tis the season to eat gingerbread! Nom nom nom nom nom, Nom nom, Nom, Nom."
@@ -2153,7 +2153,7 @@
       "displayName": "Ancient Coin",
       "id": 221,
       "buyable": true,
-      "price": 75000,
+      "price": 35000,
       "swordFileName": "ancientcoinSword.png",
       "bodyFileName": "ancientcoinPlayer.png",
       "description": "Once a simple coin, now a relic worth thousands"
@@ -2273,7 +2273,7 @@
       "displayName": "Crosshair",
       "id": 233,
       "buyable": true,
-      "price": 35000,
+      "price": 27500,
       "swordFileName": "crosshairSword.png",
       "bodyFileName": "crosshairPlayer.png",
       "description": "This might come as a surprise, but I'm pretty good at throwing swords"
@@ -2336,7 +2336,7 @@
       "price": 6500,
       "swordFileName": "fireworkSword.png",
       "bodyFileName": "fireworkPlayer.png",
-      "description": "Beautiful to watch until the fireworks start going after you..."
+      "description": "Beautiful to watch until the fireworks start going after you!"
     },
     "glassv2": {
       "name": "glassv2",
@@ -2353,7 +2353,7 @@
       "displayName": "Golden",
       "id": 241,
       "buyable": true,
-      "price": 50000,
+      "price": 25000,
       "swordFileName": "goldenSword.png",
       "bodyFileName": "goldenPlayer.png",
       "description": "I'm made of coins, both metaphorically and literally!"
@@ -2363,7 +2363,7 @@
       "displayName": "Hologram",
       "id": 242,
       "buyable": true,
-      "price": 40000,
+      "price": 3250,
       "swordFileName": "hologramSword.png",
       "bodyFileName": "hologramPlayer.png",
       "description": "The thing you're fighting is no longer physical..."
@@ -2463,7 +2463,7 @@
       "displayName": "Radar",
       "id": 252,
       "buyable": true,
-      "price": 27500,
+      "price": 5750,
       "swordFileName": "radarSword.png",
       "bodyFileName": "radarPlayer.png",
       "description": "You can't hide from me!"
@@ -2590,10 +2590,10 @@
     },
     "summitninja": {
       "name": "summitninja",
-      "displayName": "Summit Ninja (20% OFF)",
+      "displayName": "Summit Ninja (60% OFF)",
       "id": 265,
       "buyable": true,
-      "price": 44444,
+      "price": 22222,
       "swordFileName": "summitninjaSword.png",
       "bodyFileName": "summitninjaPlayer.png",
       "description": "There are always challenges to face before you reach the summit..."
@@ -2680,10 +2680,10 @@
     },
     "frostconjurer": {
       "name": "frostconjurer",
-      "displayName": "Frost Conjurer (30% OFF)",
+      "displayName": "Frost Conjurer (70% OFF)",
       "id": 274,
       "buyable": true,
-      "price": 17500,
+      "price": 6825,
       "swordFileName": "frostconjurerSword.png",
       "bodyFileName": "frostconjurerPlayer.png",
       "description": "It's a cold world out there"
@@ -2753,7 +2753,7 @@
       "displayName": "Frost Hologram (WINTER EVENT)",
       "id": 281,
       "buyable": true,
-      "price": 40000,
+      "price": 3250,
       "swordFileName": "winterHologramSword.png",
       "bodyFileName": "winterHologramPlayer.png",
       "description": "Perhaps nothing more than a hallucination from the frigidness..."
@@ -2867,6 +2867,126 @@
       "swordFileName": "winterSharpshooterSword.png",
       "bodyFileName": "winterSharpshooterPlayer.png",
       "description": "Oh, you said “sword” battle?"
+    },
+    "scythev2": {
+      "name": "scythev2",
+      "displayName": "Scythe",
+      "id": 293,
+      "buyable": true,
+      "price": 40000,
+      "swordFileName": "scythev2Sword.png",
+      "bodyFileName": "scythev2Player.png",
+      "description": "Scythes are always better than swords..."
+    },
+    "yetiscythe": {
+      "name": "yetiscythe",
+      "displayName": "Yeti Scythe (WINTER EVENT)",
+      "id": 294,
+      "buyable": true,
+      "price": 40000,
+      "swordFileName": "winterScytheSword.png",
+      "bodyFileName": "winterScythePlayer.png",
+      "description": "I guess yetis aren't a myth..."
+    },
+    "pinetreecamo": {
+      "name": "pinetreecamo",
+      "displayName": "Pine Tree Camo (WINTER EVENT)",
+      "id": 295,
+      "buyable": true,
+      "price": 7777,
+      "swordFileName": "winterCamoSword.png",
+      "bodyFileName": "winterCamoPlayer.png",
+      "description": "“Why is that tree moving?”"
+    },
+    "fire": {
+      "name": "fire",
+      "displayName": "Fire",
+      "id": 296,
+      "buyable": true,
+      "price": 700,
+      "swordFileName": "fireSword.png",
+      "bodyFileName": "firePlayer.png",
+      "description": "🔥🔥🔥🔥🔥"
+    },
+    "cryofire": {
+      "name": "cryofire",
+      "displayName": "Cryofire (WINTER EVENT)",
+      "id": 297,
+      "buyable": true,
+      "price": 700,
+      "swordFileName": "winterFireSword.png",
+      "bodyFileName": "winterFIrePlayer.png",
+      "description": "Burn and freeze your enemies at the same time!"
+    },
+    "waterconjurer": {
+      "name": "waterconjurer",
+      "displayName": "Water Conjurer",
+      "id": 298,
+      "buyable": true,
+      "price": 675,
+      "swordFileName": "waterSword.png",
+      "bodyFileName": "waterPlayer.png",
+      "description": "💧💧💧💧💧"
+    },
+    "iceconjurer": {
+      "name": "iceconjurer",
+      "displayName": "Ice Conjurer (WINTER EVENT)",
+      "id": 299,
+      "buyable": true,
+      "price": 675,
+      "swordFileName": "winterWaterSword.png",
+      "bodyFileName": "winterWaterPlayer.png",
+      "description": "🧊🧊🧊🧊🧊"
+    },
+    "hotchocolate": {
+      "name": "hotchocolate",
+      "displayName": "Hot Chocolate (WINTER EVENT)",
+      "id": 300,
+      "buyable": true,
+      "price": 250,
+      "swordFileName": "winterTeaSword.png",
+      "bodyFileName": "winterTeaPlayer.png",
+      "description": "Great for cold days!"
+    },
+    "emoticon": {
+      "name": "emoticon",
+      "displayName": "Emoticon",
+      "id": 301,
+      "buyable": true,
+      "price": 300,
+      "swordFileName": "emoticonSword.png",
+      "bodyFileName": "emoticonPlayer.png",
+      "description": ":v"
+    },
+    "unknownrune": {
+      "name": "unknownrune",
+      "displayName": "Unknown Rune (WINTER EVENT)",
+      "id": 302,
+      "buyable": true,
+      "price": 75,
+      "swordFileName": "winterUnknownSword.png",
+      "bodyFileName": "winterUnknownPlayer.png",
+      "description": "Who snows?"
+    },
+    "candycane": {
+      "name": "candycane",
+      "displayName": "Candy Cane (WINTER EVENT)",
+      "id": 303,
+      "buyable": true,
+      "price": 900,
+      "swordFileName": "winterCandycaneSword.png",
+      "bodyFileName": "winterCandycanePlayer.png",
+      "description": "Stab with stripes!"
+    },
+    "ornament": {
+      "name": "ornament",
+      "displayName": "Ornament (WINTER EVENT)",
+      "id": 304,
+      "buyable": true,
+      "price": 2345,
+      "swordFileName": "winterOrnamentSword.png",
+      "bodyFileName": "winterOrnamentPlayer.png",
+      "description": "Don't drop it!"
     }
   }
 }

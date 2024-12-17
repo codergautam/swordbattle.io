@@ -18,7 +18,7 @@ class ChimeraMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 850;
+    this.coinsDrop = 1250;
 
     this.jumpTimer = new Timer(0, 4, 5);
     this.angryTimer = new Timer(0, 15, 20);
@@ -30,7 +30,7 @@ class ChimeraMob extends Entity {
     this.target = null;
     this.targets.push(Types.Entity.Player);
 
-    this.knockbackResistance = new Property(5);
+    this.knockbackResistance = new Property(2);
 
     this.spawn();
   }

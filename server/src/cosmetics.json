@@ -2915,7 +2915,7 @@
       "buyable": true,
       "price": 700,
       "swordFileName": "winterFireSword.png",
-      "bodyFileName": "winterFIrePlayer.png",
+      "bodyFileName": "winterFirePlayer.png",
       "description": "Burn and freeze your enemies at the same time!"
     },
     "waterconjurer": {

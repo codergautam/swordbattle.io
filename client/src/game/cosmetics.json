@@ -2974,8 +2974,8 @@
       "id": 303,
       "buyable": true,
       "price": 900,
-      "swordFileName": "winterCandycaneSword.png",
-      "bodyFileName": "winterCandycanePlayer.png",
+      "swordFileName": "winterCaneSword.png",
+      "bodyFileName": "winterCanePlayer.png",
       "description": "Stab with stripes!"
     },
     "ornament": {

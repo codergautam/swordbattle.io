@@ -63,7 +63,8 @@ class Player extends BaseEntity {
     name.setOrigin(0.5, 1);
     const specialColors: { [key: string]: string } = {
       codergautam: '#ff0000',
-      angel: '#acfffc'
+      angel: '#acfffc',
+      "cool guy 53": '#0099ff'
     }
     name.setFill(this.account ? (specialColors[this.name?.toLowerCase() as keyof typeof specialColors] ? specialColors[this.name?.toLowerCase() as keyof typeof specialColors] : '#0000ff') : '#000000');
 

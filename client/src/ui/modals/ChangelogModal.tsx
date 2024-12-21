@@ -16,7 +16,7 @@ function ChangelogModal() {
     <h1 style={{fontSize: 25}}>Winter Event (Part 2)</h1>
     <ul>- 12 New Skins! (7 are event skins!)</ul>
     <ul>- Even better sales for the Skin Sale!</ul>
-    <ul>- Updated shop UI!</ul>
+    <ul>- New shop UI + better buy counters!</ul>
 </div>
 
   );

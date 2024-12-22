@@ -6,17 +6,23 @@ module.exports = class Vampire extends Evolution {
   static level = 22;
   static previousEvol = Types.Evolution.Knight;
   // static level = 1;
-  static abilityDuration = 6;
-  static abilityCooldown = 90;
+  static abilityDuration = 4;
+  static abilityCooldown = 75;
 
   applyAbilityEffects() {
+    this.player.shape.setScale(0.75);
     this.player.modifiers.leech = 2;
     this.player.sword.knockback.multiplier['ability'] = 1.8;
-    this.player.speed.multiplier *= 1.5;
+    this.player.speed.multiplier *= 1.55;
+    this.player.sword.damage.multiplier *= 1.1;
+    this.player.sword.swingDuration.multiplier['ability'] = 2;
+    this.player.health.max.multiplier *= 0.5;
   }
 
   update(dt) {
-    this.player.modifiers.leech = 0.5;
+    this.player.modifiers.leech = 0.35;
+    this.player.sword.damage.multiplier *= 0.9;
+    this.player.health.max.multiplier *= 0.9;
     super.update(dt);
   }
 }

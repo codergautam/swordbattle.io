@@ -13,10 +13,9 @@ function ChangelogModal() {
     <br></br>
     <ul>(Credit to A-Bot, cool guy 53, and Battleship)</ul>
     <hr></hr>
-    <h1 style={{fontSize: 25}}>Winter Event (Part 2)</h1>
-    <ul>- 12 New Skins! (7 are event skins!)</ul>
-    <ul>- Even better sales for the Skin Sale!</ul>
-    <ul>- New shop UI + better buy counters!</ul>
+    <h1 style={{fontSize: 25}}>Winter Event (Part 3)</h1>
+    <li>- Reworked Evolutions! (P.S. - you can also press G to use your ability!)</li>
+    <a className="primary-link" target="_blank" href="https://discord.com/invite/9A9dNTGWb9">- Join the Swordbattle Discord to give feedback on this update and help us improve it!</a>
 </div>
 
   );

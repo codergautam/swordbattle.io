@@ -11,10 +11,10 @@ module.exports = class Vampire extends Evolution {
 
   applyAbilityEffects() {
     this.player.shape.setScale(0.75);
-    this.player.modifiers.leech = 2;
+    this.player.modifiers.leech = 1.5;
     this.player.sword.knockback.multiplier['ability'] = 1.8;
     this.player.speed.multiplier *= 1.55;
-    this.player.sword.damage.multiplier *= 1.1;
+    this.player.sword.damage.multiplier *= 1.5;
     this.player.sword.swingDuration.multiplier['ability'] = 2;
     this.player.health.max.multiplier *= 0.5;
   }

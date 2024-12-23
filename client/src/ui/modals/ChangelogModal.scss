@@ -21,21 +21,22 @@
     margin: 0;
     padding: 0;
     line-height: normal;
+    font-size: 15px;
   }
 
   li {
     font-weight: bold;
     list-style: none;
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .primary-link {
-    color: rgb(91, 80, 255);
+    color: rgb(128, 119, 255);
+    text-decoration: underline;
     font-size: 120%;
     font-weight: bold;
-    display: inline-block;
     margin: 20px auto;
-    font-size: 15px;
+    font-size: 18px;
   }
   
 }

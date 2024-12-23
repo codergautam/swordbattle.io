@@ -15,6 +15,8 @@ function ChangelogModal() {
     <hr></hr>
     <h1 style={{fontSize: 25}}>Winter Event (Part 3)</h1>
     <li>- Reworked Evolutions! (P.S. - you can also press G to use your ability!)</li>
+    <ul>- Balanced upgrades and levels!</ul>
+    <br></br>
     <a className="primary-link" target="_blank" href="https://discord.com/invite/9A9dNTGWb9">- Join the Swordbattle Discord to give feedback on this update and help us improve it!</a>
 </div>
 

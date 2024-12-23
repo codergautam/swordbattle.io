@@ -31,10 +31,18 @@ var levels = [
 {'coins': 20000, 'scale': 44},
 {'coins': 30000, 'scale': 45},
 {'coins': 50000, 'scale': 46},
-{'coins': 100000, 'scale': 47},
-{'coins': 200000, 'scale': 48},
-{'coins': 300000, 'scale': 49},
-{'coins': 500000, 'scale': 50}
+{'coins': 75000, 'scale': 47},
+{'coins': 100000, 'scale': 48},
+{'coins': 150000, 'scale': 49},
+{'coins': 200000, 'scale': 49},
+{'coins': 300000, 'scale': 50},
+{'coins': 400000, 'scale': 51},
+{'coins': 500000, 'scale': 51},
+{'coins': 650000, 'scale': 52},
+{'coins': 800000, 'scale': 53},
+{'coins': 1000000, 'scale': 54},
+{'coins': 1500000, 'scale': 55},
+{'coins': 2000000, 'scale': 55}
 ];
 
 class LevelSystem {
@@ -101,6 +109,11 @@ class LevelSystem {
     if (buy && !this.buffs[type].buyable) return;
     this.buffs[type].level += 1;
     if(buy) this.upgradePoints -= 1;
+
+    // if health buff, increase current health
+    if (type === Types.Buff.Health) {
+      this.player.health.percent *= 1.25;
+    }
     }
   }
 

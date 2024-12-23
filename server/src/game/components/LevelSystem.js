@@ -110,10 +110,11 @@ class LevelSystem {
     this.buffs[type].level += 1;
     if(buy) this.upgradePoints -= 1;
 
-    // if health buff, increase current health
-    if (type === Types.Buff.Health) {
-      this.player.health.percent *= 1.25;
-    }
+    // if health buff, increase current health (DISABLED FOR BUGFIXING)
+    // if (type === Types.Buff.Health) {
+    //   this.player.health.percent *= 1.25;
+    //   this.player.health.percent = Math.min(this.player.health.percent);
+    // }
     }
   }
 

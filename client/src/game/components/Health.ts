@@ -35,7 +35,7 @@ export class Health {
     this.game = entity.game;
     this.entity = entity;
     this.value = entity.healthPercent;
-    this.bar = this.game.add.graphics().setDepth(100);
+    this.bar = this.game.add.graphics().setDepth(29);
     this.game.add.existing(this.bar);
     this.alwaysHide = this.options.alwaysHide;
   }

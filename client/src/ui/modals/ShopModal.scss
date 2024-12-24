@@ -210,6 +210,23 @@ h1 {
 }
 
 .badges button.active {
-  background-color: yellow;
+  background-color: gray;
   border: 3px solid #000;
+}
+
+.badges button[data-selected-badge="og"]:not(.active) {
+  background-color: #ff0000;
+}
+
+.badges button[data-selected-badge="event"]:not(.active) {
+  background-color: #00ffff;
+}
+
+.badges button[data-selected-badge="own"]:not(.active) {
+  background-color: #00ff00;
+}
+
+
+.badges button[data-selected-badge="sale"]:not(.active) {
+  background-color: #ffff00;
 }

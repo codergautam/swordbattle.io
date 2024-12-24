@@ -20,6 +20,9 @@ interface Skin {
   id: number;
   buyable: boolean;
   og: boolean;
+  event: boolean;
+  sale: boolean;
+  freebie: boolean;
   swordFileName: string;
   bodyFileName: string;
   price?: number;
@@ -138,16 +141,32 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
 </div>
 
 <div className="badges">
+<button onClick={() => setSelectedBadge('new')} className={selectedBadge === 'new' ? 'active' : ''} data-selected-badge="new">All Skins</button>
+<button onClick={() => setSelectedBadge('norm')} className={selectedBadge === 'norm' ? 'active' : ''}>Normal Skins</button>
+<button onClick={() => setSelectedBadge('sale')} className={selectedBadge === 'sale' ? 'active' : ''} data-selected-badge="sale">Skins On Sale</button>
+<button onClick={() => setSelectedBadge('event')} className={selectedBadge === 'event' ? 'active' : ''} data-selected-badge="event">Event Skins</button>
+{account?.isLoggedIn && (
+          <button onClick={() => setSelectedBadge('own')} className={selectedBadge === 'own' ? 'active' : ''} data-selected-badge="own">Owned Skins</button>
+          )}
+        
   { Object.values(skins).filter((skinData: any) =>  skinData.og && account?.skins.owned.includes(skinData.id)).length > 0 && (
     <>
-<button onClick={() => setSelectedBadge('new')} className={selectedBadge === 'new' ? 'active' : ''}>V2 Skins</button>
-        <button onClick={() => setSelectedBadge('og')} className={selectedBadge === 'og' ? 'active' : ''}>OG Skins</button>
+        <button onClick={() => setSelectedBadge('og')} className={selectedBadge === 'og' ? 'active' : ''} data-selected-badge="og">OG Skins</button>
         </>
   )}
       </div>
       <center>
+      {selectedBadge === 'new' && (
+          <p style={{marginTop: 0}}>You're currently looking at every obtainable skin. Use the tabs above to find specific skins faster!</p>
+        )}
       {selectedBadge === 'og' && (
-          <p style={{marginTop: 0}}>OG skins are skins that were available in the original version of the game.<br/>They might be available again during limited time events.</p>
+          <p style={{marginTop: 0}}>OG skins are skins that were available in the original version of the game before 2024.<br/>They are no longer obtainable, but can still be equipped from this menu.</p>
+        )}
+        {selectedBadge === 'event' && (
+          <p style={{marginTop: 0}}>Event skins are available from holidays or seasonal events that happen annually, and can no longer be bought once the event ends.<br></br> They'll never be unbuyable permanently, so make sure to drop by during these events to claim them!</p>
+        )}
+      {selectedBadge === 'own' && (
+          <p style={{marginTop: 0}}>Skins you own can still be equipped from other menus, but using this menu will make it much easier to find them.</p>
         )}
       </center>
       <div className='skins'>
@@ -155,6 +174,14 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         const skin = skinData as Skin;
         if (selectedBadge === 'og' && !skin.og) return false;
         if (selectedBadge === 'new' && skin.og) return false;
+        if (selectedBadge === 'norm' && skin.freebie) return false;
+        if (selectedBadge === 'norm' && skin.event) return false;
+        if (selectedBadge === 'norm' && skin.og) return false;
+        if (selectedBadge === 'sale' && !skin.sale) return false;
+        if (selectedBadge === 'event' && skin.freebie) return true;
+        if (selectedBadge === 'event' && !skin.event) return false;
+        if (selectedBadge === 'own' && skin.og) return false;
+        if (selectedBadge === 'own' && !account?.skins.owned.includes(skin.id)) return false;
         if (selectedBadge === 'og' && !account?.skins.owned.includes(skin.id)) return false;
 
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());

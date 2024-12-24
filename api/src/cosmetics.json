@@ -109,6 +109,7 @@
       "price": 200
     },
     "ice cream": {
+      "sale": true,
       "name": "ice cream",
       "displayName": "Ice Cream (90% OFF)",
       "id": 145,
@@ -159,6 +160,7 @@
       "description": "WASD to move, Space to jump"
     },
     "pi guy": {
+      "sale": true,
       "name": "pi guy",
       "displayName": "Pi Guy (20% OFF)",
       "id": 197,
@@ -169,6 +171,7 @@
       "description": "The ratio of a circle's circumference to its diameter"
     },
     "frost ninja": {
+      "sale": true,
       "name": "frost ninja",
       "displayName": "Frost Ninja (60% OFF)",
       "id": 198,
@@ -179,6 +182,7 @@
       "description": "The cold never bothered me anyway"
     },
     "penguin": {
+      "sale": true,
       "name": "penguin",
       "displayName": "Penguin (80% OFF)",
       "id": 199,
@@ -189,6 +193,7 @@
       "description": "Waddle waddle"
     },
     "snowflake": {
+      "sale": true,
       "name": "snowflake",
       "displayName": "Snowflake (70% OFF)",
       "id": 200,
@@ -1928,6 +1933,7 @@
       "description": "You can't fight on an empty stomach."
     },
     "gingerbread": {
+      "sale": true,
       "name": "gingerbread",
       "displayName": "Gingerbread (99% OFF)",
       "id": 185,
@@ -1968,6 +1974,7 @@
       "description": "Dig for gold!"
     },
     "snowglobe": {
+      "sale": true,
       "name": "snowglobe",
       "displayName": "Snow Globe (20% OFF)",
       "id": 190,
@@ -2169,6 +2176,7 @@
       "description": "An apple a day keeps The Roku away!"
     },
 "auroraborealis": {
+      "sale": true,
       "name": "auroraborealis",
       "displayName": "Aurora Borealis (50% OFF)",
       "id": 223,
@@ -2589,6 +2597,7 @@
       "description": "Hide in the clouds and strike from above!"
     },
     "summitninja": {
+      "sale": true,
       "name": "summitninja",
       "displayName": "Summit Ninja (60% OFF)",
       "id": 265,
@@ -2679,6 +2688,7 @@
       "description": "Death is inevitable."
     },
     "frostconjurer": {
+      "sale": true,
       "name": "frostconjurer",
       "displayName": "Frost Conjurer (70% OFF)",
       "id": 274,
@@ -2749,6 +2759,7 @@
       "description": "Shiny and polished!"
     },
     "frosthologram": {
+      "event": true,
       "name": "frosthologram",
       "displayName": "Frost Hologram (WINTER EVENT)",
       "id": 281,
@@ -2759,6 +2770,7 @@
       "description": "Perhaps nothing more than a hallucination from the frigidness..."
     },
     "ultrafrostninja": {
+      "event": true,
       "name": "ultrafrostninja",
       "displayName": "Ultra Frost Ninja (WINTER EVENT)",
       "id": 282,
@@ -2769,6 +2781,7 @@
       "description": "Stab with frostbite..."
     },
     "frozenvoid": {
+      "event": true,
       "name": "frozenvoid",
       "displayName": "Frozen Void (WINTER EVENT)",
       "id": 283,
@@ -2779,6 +2792,7 @@
       "description": "A vast emptiness of ice and frigid winds..."
     },
     "blueandwhite": {
+      "event": true,
       "name": "blueandwhite",
       "displayName": "Blue & White (WINTER EVENT)",
       "id": 284,
@@ -2789,6 +2803,7 @@
       "description": "A balance between ice and snow"
     },
     "icicle": {
+      "event": true,
       "name": "icicle",
       "displayName": "Icicle (WINTER EVENT)",
       "id": 285,
@@ -2799,6 +2814,7 @@
       "description": "I think it's a bit cold outside"
     },
     "icelord": {
+      "event": true,
       "name": "icelord",
       "displayName": "Ice Lord (WINTER EVENT)",
       "id": 286,
@@ -2809,6 +2825,7 @@
       "description": "The freezer of necromancers, summoner of glaciers, and hoarder of coins."
     },
     "cryonecromancer": {
+      "event": true,
       "name": "cryonecromancer",
       "displayName": "Cryorock Necromancer (WINTER EVENT)",
       "id": 287,
@@ -2819,6 +2836,7 @@
       "description": "When a magic force freezes something multiple times, cryorock is formed."
     },
     "coldcarl": {
+      "event": true,
       "name": "coldcarl",
       "displayName": "Cold Carl (WINTER EVENT)",
       "id": 288,
@@ -2829,6 +2847,7 @@
       "description": "He's just cold like that."
     },
     "frozen": {
+      "event": true,
       "name": "frozen",
       "displayName": "Frozen (WINTER EVENT)",
       "id": 289,
@@ -2839,6 +2858,7 @@
       "description": "At least I'm well-preserved!"
     },
     "winterv2": {
+      "event": true,
       "name": "winterv2",
       "displayName": "Winter (WINTER EVENT)",
       "id": 290,
@@ -2849,6 +2869,7 @@
       "description": "Winter is here!"
     },
     "festive": {
+      "freebie": true,
       "name": "festive",
       "displayName": "Festive (WINTER EVENT)",
       "id": 291,
@@ -2859,6 +2880,7 @@
       "description": "Freebie skin for playing during the winter event!"
     },
     "snowfieldsharpshooter": {
+      "event": true,
       "name": "snowfieldsharpshooter",
       "displayName": "Snowfield Sharpshooter (WINTER EVENT)",
       "id": 292,
@@ -2879,6 +2901,7 @@
       "description": "Scythes are always better than swords..."
     },
     "yetiscythe": {
+      "event": true,
       "name": "yetiscythe",
       "displayName": "Yeti Scythe (WINTER EVENT)",
       "id": 294,
@@ -2889,6 +2912,7 @@
       "description": "I guess yetis aren't a myth..."
     },
     "pinetreecamo": {
+      "event": true,
       "name": "pinetreecamo",
       "displayName": "Pine Tree Camo (WINTER EVENT)",
       "id": 295,
@@ -2909,6 +2933,7 @@
       "description": "🔥🔥🔥🔥🔥"
     },
     "cryofire": {
+      "event": true,
       "name": "cryofire",
       "displayName": "Cryofire (WINTER EVENT)",
       "id": 297,
@@ -2929,6 +2954,7 @@
       "description": "💧💧💧💧💧"
     },
     "iceconjurer": {
+      "event": true,
       "name": "iceconjurer",
       "displayName": "Ice Conjurer (WINTER EVENT)",
       "id": 299,
@@ -2939,6 +2965,7 @@
       "description": "🧊🧊🧊🧊🧊"
     },
     "hotchocolate": {
+      "event": true,
       "name": "hotchocolate",
       "displayName": "Hot Chocolate (WINTER EVENT)",
       "id": 300,
@@ -2959,6 +2986,7 @@
       "description": ":v"
     },
     "unknownrune": {
+      "event": true,
       "name": "unknownrune",
       "displayName": "Unknown Rune (WINTER EVENT)",
       "id": 302,
@@ -2969,6 +2997,7 @@
       "description": "Who snows?"
     },
     "candycane": {
+      "event": true,
       "name": "candycane",
       "displayName": "Candy Cane (WINTER EVENT)",
       "id": 303,
@@ -2979,6 +3008,7 @@
       "description": "Stab with stripes!"
     },
     "ornament": {
+      "event": true,
       "name": "ornament",
       "displayName": "Ornament (WINTER EVENT)",
       "id": 304,

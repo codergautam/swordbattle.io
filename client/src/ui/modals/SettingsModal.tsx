@@ -5,6 +5,7 @@ import './SettingsModal.scss';
 
 function SettingsModal() {
   const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
+  const [swords, setSwords] = useState(Settings.swords);
   const [antialiasing, setAntialiasing] = useState(Settings.antialiasing);
   const [resolution, setResolution] = useState(Settings.resolution);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
@@ -19,6 +20,10 @@ function SettingsModal() {
   const updateUseWebGL = (value: any) => {
     setUseWebGL(value);
     Settings.useWebGL = value;
+  }
+  const updateSwords = (value: any) => {
+    setSwords(value);
+    Settings.swords = value;
   }
   const updateAntialiasing = (value: any) => {
     setAntialiasing(value);
@@ -45,6 +50,18 @@ function SettingsModal() {
     <div className="settings">
       <div className="settings-title">Settings</div>
 
+      <h3 className="section">Visual</h3>
+      <div className="settings-line">
+        <label htmlFor="swords">Show skins' swords in shop: </label>
+        <label className="switch">
+          <input type="checkbox" name="swords" id="swords"
+            checked={swords}
+            onChange={(e) => updateSwords(e.target.checked)}
+          />
+          <span className="slider round"></span>
+        </label>
+      </div>
+    <br></br><h3 className="section">Performance</h3>
       <div className="settings-line">
         <label htmlFor="useWebGL">Use WebGL (requires reload):</label>
         <label className="switch">
@@ -74,6 +91,8 @@ function SettingsModal() {
         onChange={(e) => updateResolution(e.target.value)}
       />
 
+
+    <br></br><h3 className="section">Gameplay</h3>
       <label htmlFor="movement">Movement mode:</label>
       <select name="movement" id="movement"
         value={movementMode}

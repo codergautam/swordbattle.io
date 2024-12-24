@@ -1,7 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AccountState, setAccount, updateAccountAsync } from '../../redux/account/slice';
-import { Settings } from '../../game/Settings';
 import api from '../../api';
 import * as cosmetics from '../../game/cosmetics.json'
 
@@ -196,17 +195,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
             alt={skin.name}
             ref={(el) => assignRef(el as HTMLImageElement, index)}
             className='skin-img'
-            data-selected='skin'
           />
-          {Settings.swords && (
-          <img
-          src={basePath + skin.swordFileName}
-          alt={skin.name}
-          ref={(el) => assignRef(el as HTMLImageElement, index)}
-          className='skin-sword'
-          data-selected='skin'
-        />
-          )}
           <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
           <br/>
           <p className='skin-desc'>{skin.description}</p>

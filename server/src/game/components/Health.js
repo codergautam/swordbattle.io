@@ -13,7 +13,7 @@ class Health {
 
   damaged(damage) {
     const coef = damage / this.max.value;
-    this.percent -= coef;
+    this.percent -= coef; 
     this.lastDamage = Date.now();
 
     if (this.percent <= 0) {

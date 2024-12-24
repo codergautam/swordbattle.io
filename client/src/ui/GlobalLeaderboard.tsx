@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import { numberWithCommas, secondsToTime } from '../helpers';
 import api from '../api';
+import { Settings } from '../game/Settings';
 
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './GlobalLeaderboard.scss';
@@ -123,7 +124,28 @@ export function GlobalLeaderboard() {
                     <div className="d-flex align-items-center">
                       <div className="user-info__basic">
                         <h5 className="mb-0">
-                          <Link to={`/profile?username=${encodeURIComponent(row.username)}`} target="_blank" rel="noreferrer" style={{ color: 'black' }}>{row.username}</Link>
+                            {Settings.darkmode 
+                            ? (
+                              <Link 
+                                to={`/profile?username=${encodeURIComponent(row.username)}`} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                style={{ color: 'white' }}
+                              >
+                                {row.username}
+                              </Link>
+                            ) 
+                            : (
+                              <Link 
+                                to={`/profile?username=${encodeURIComponent(row.username)}`} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                style={{ color: 'black' }}
+                              >
+                                {row.username}
+                              </Link>
+                            )
+                          }
                         </h5>
                       </div>
                     </div>

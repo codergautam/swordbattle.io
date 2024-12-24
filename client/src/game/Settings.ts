@@ -13,6 +13,16 @@ interface SettingType {
 let isLoaded = false;
 
 export const settingsList: Record<string, SettingType> = {
+  swords: {
+    name: 'Show skins swords in shop',
+    type: 'toggle',
+    default: false,
+    },
+    darkmode: {
+      name: 'Use dark-mode leaderboard',
+      type: 'toggle',
+      default: false,
+      },
   useWebGL: {
     name: 'Use WebGL (requires reload)',
     type: 'toggle',

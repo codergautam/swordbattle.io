@@ -36,14 +36,14 @@
 		padding-bottom: 100px;
 
 		.leaderboard-card {
-			background: #fff;
+			background: #191a1f;
 			margin-bottom: 30px;
 			border-radius: 5px;
 			overflow: hidden;
 			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 
 			&__top {
-				background: #f9f6ff;
+				background: #343846;
 				padding: 20px 0 10px 0;
 			}
 
@@ -56,7 +56,7 @@
 				transform: scale(1.05);
 
 				.leaderboard-card__top {
-					background: linear-gradient(45deg, #7e57c2, #ab47bc);
+					background: linear-gradient(45deg, #576bc2, #475cbc);
 					color: #fff;
 				}
 			}
@@ -82,7 +82,7 @@
 				border-radius: 5px;
 
 				td {
-					background: #fff;
+					background: #121418;
 
 					&:nth-child(1) {
 						border-radius: 5px 0 0 5px;

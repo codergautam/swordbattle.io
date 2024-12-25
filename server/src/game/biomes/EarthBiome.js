@@ -8,7 +8,7 @@ class EarthBiome extends Biome {
   }
 
   applyEffects(player) {
-    player.speed.multiplier *= 1;
+    player.speed.multiplier *= 1.05;
     player.sword.damage.multiplier *= 0.85;
   }
 }

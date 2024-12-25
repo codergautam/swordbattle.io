@@ -36,6 +36,7 @@ import { getServerList, updatePing } from '../ServerList';
 import AccountCard from './AccountCard';
 import ForumCard from './ForumCard';
 // import Game from '../game/scenes/Game';
+import titleImg from '../assets/img/final.png';
 
 let debugMode = false;
 try {
@@ -280,14 +281,23 @@ function App() {
         <>
         <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`}>
         <ShopButton account={account} scale={scale.factor} openShop={openShop} />
+        <br></br><br></br>
             <div id="contentt" style={scale.styles}>
+              
           <div id="menuContainer" >
-
+          
             {/* <!-- GAME NAME --> */}
-            <div id="gameName" style={{color: "#8CDCFF"}}>Swordbattle.io</div>
-
+            <div id="gameName" style={{ color: "#8CDCFF" }}><img src={titleImg} alt="Swordbattle.io" width={750} height={250} style={{ 
+    position: 'fixed', // or 'fixed'
+    top: '-50%', 
+    left: '50%',
+    transform: 'translateX(-50%)' 
+    // Adjust top and left values as needed
+  }} /> 
+</div>
+          
             {/* <!-- LOADING TEXT --> */}
-
+            <br></br><br></br><br></br><br></br><br></br>
             {/* <!-- MENU CARDS --> */}
             <div id="menuCardHolder" style={{ display: 'inline-block', height: 'auto !important' }}>
               <div className="menu">

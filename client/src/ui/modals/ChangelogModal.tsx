@@ -13,10 +13,12 @@ function ChangelogModal() {
     <br></br>
     <ul>(Credit to A-Bot, cool guy 53, and Battleship)</ul>
     <hr></hr>
-    <h1 style={{fontSize: 25}}>Winter Event (Part 3)</h1>
-    <li>- Reworked Evolutions! (P.S. - you can also press G to use your ability!)</li>
+    <h1 style={{fontSize: 25}}>Winter Event (Part 4)</h1>
+    <li className='important'>- CHRISTMAS SKIN! GET THE SKIN FOR FREE BEFORE IT GOES OFFSALE!</li>
+    <ul>- Reworked Evolutions! (P.S. - you can also press G to use your ability!)</ul>
     <ul>- Balanced upgrades and levels!</ul>
     <ul>- New shop organization!</ul>
+    <ul>- New logo!</ul>
     <br></br>
     <a className="primary-link" target="_blank" href="https://discord.com/invite/9A9dNTGWb9">- Join the Swordbattle Discord to give feedback on this update and help us improve it!</a>
 </div>

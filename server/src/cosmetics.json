@@ -3017,6 +3017,17 @@
       "swordFileName": "winterOrnamentSword.png",
       "bodyFileName": "winterOrnamentPlayer.png",
       "description": "Don't drop it!"
+    },
+    "christmas": {
+      "freebie": true,
+      "name": "christmas",
+      "displayName": "Christmas Warrior (WINTER EVENT)",
+      "id": 305,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "winterChristmasSword.png",
+      "bodyFileName": "winterChristmasPlayer.png",
+      "description": "Freebie skin for playing on Christmas!"
     }
   }
 }

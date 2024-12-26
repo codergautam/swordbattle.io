@@ -24,6 +24,7 @@ export enum TimeRange {
 
 export enum StatsSortType {
   XP = 'xp',
+  Ultimacy = 'ultimacy',
   TotalCoins = 'coins',
   TotalKills = 'kills',
   TotalPlaytime = 'playtime',

@@ -127,7 +127,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       <h1 className='shop-title'>Shop</h1>
 
       {account?.isLoggedIn ? (
-      <h1 className='shop-desc'>Balance: {numberWithCommas(account.gems)}<img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} /></h1>
+      <h1 className='shop-desc'>Gems: {numberWithCommas(account.gems)}<img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} />            Ultimacy: {numberWithCommas(account.ultimacy)}<img className={'gem'} src='assets/game/ultimacy.png' alt='Gems' width={30} height={30} /></h1>
       ) : (
         <h1 className='shop-desc'><b>Login or Signup</b> to buy stuff from the shop!<br/>Earn gems by stabbing players and collecting coins around the map!</h1>
       )}

@@ -288,11 +288,10 @@ function App() {
           
             {/* <!-- GAME NAME --> */}
             <div id="gameName" style={{ color: "#8CDCFF" }}><img src={titleImg} alt="Swordbattle.io" width={750} height={250} style={{ 
-    position: 'fixed', // or 'fixed'
+    position: 'fixed',
     top: '-50%', 
     left: '50%',
     transform: 'translateX(-50%)' 
-    // Adjust top and left values as needed
   }} /> 
 </div>
           

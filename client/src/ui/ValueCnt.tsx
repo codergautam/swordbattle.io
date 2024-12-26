@@ -34,8 +34,12 @@ export default function ValueCnt({scale, value, img}: {scale: number, value: num
 
   return (
     <div className="auth-stats">
-      <img src={img} alt="Gems" width={86*scale} height={86*scale} />
-      <p style={{fontSize:`${Math.max(0.3,scale)*40}px`,margin: 0, lineHeight:1}}>{addCommas(displayValue)}</p>
+      <img src={img} alt="Gems" width={86*scale} height={86*scale} style={{ 
+    position: 'fixed', // or 'fixed'
+    left: '50%',
+    transform: 'translate(-625%, -25%)' 
+      }}/>
+      <p style={{fontSize:`${Math.max(0.3,scale)*40}px`,margin: 0, lineHeight:1,}}>{addCommas(displayValue)}</p>
     </div>
   );
 }

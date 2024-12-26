@@ -192,6 +192,22 @@ export class AccountsService {
     return account;
   }
 
+  async addUltimacy(account: Account, ultimacy: number, reason = "server") {
+    if(ultimacy === 0) return account;
+    account.ultimacy += ultimacy;
+    await this.accountsRepository.save(account);
+    // add to transactions table
+    const transaction = this.transactionsRepository.create({
+      account: account,
+      amount: ultimacy,
+      description: reason,
+      transaction_id: "ultimacy",
+    });
+    await this.transactionsRepository.save(transaction);
+
+    return account;
+  }
+
   async addXp(account: Account, xp: number) {
     if(xp === 0) return account;
     account.xp += xp;

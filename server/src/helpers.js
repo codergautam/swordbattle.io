@@ -46,10 +46,18 @@ module.exports = {
 
  calculateGemsXP(coins, kills) {
     const xp = Math.floor(coins / 20) + kills
-    return {
-      xp,
-      gems: Math.floor(xp / 5),
-      ultimacy: 1000
+    if (coins >= 1250000) {
+      return {
+        xp,
+        gems: Math.floor(xp / 5),
+        ultimacy: Math.floor((coins ** 1.3 / 3200) * 2), 
+      };
+    } else {
+      return {
+        xp,
+        gems: Math.floor(xp / 5),
+        ultimacy: Math.floor((coins ** 2.5 / 10 ** 11) * 3),
+      };
     }
   },
 

@@ -90,7 +90,7 @@ export function GlobalLeaderboard() {
         <br />
 
         <div className="row">
-          {data.length > 2 ? (<>
+          {data.length > -1 ? (<>
             <LeaderboardCard type={type} row={data[0]} index={0} />
             <LeaderboardCard type={type} row={data[1]} index={1} />
             <LeaderboardCard type={type} row={data[2]} index={2} />

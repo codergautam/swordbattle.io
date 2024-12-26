@@ -108,6 +108,13 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
             duration={3}
           />
         </div>
+        <div className="info">
+          <div className="title">TEST TEST TEST</div>
+          <CountUp
+            end={calculateGemsXP(results.coins, results.kills).ultimacy}
+            duration={3}
+          />
+        </div>
         </>
         )}
       </div>

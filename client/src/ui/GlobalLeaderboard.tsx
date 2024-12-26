@@ -12,7 +12,7 @@ const types: Record<string, string> = {
   'coins': 'Coins',
   'playtime': 'Survived',
   'xp': 'XP',
-  'ultimacy': 'Total A',
+  'ultimacy': 'Ultimacy',
   'total-coins': 'Total Coins',
   'total-kills': 'Total Stabs',
   'total-playtime': 'Total Playtime',
@@ -104,7 +104,7 @@ export function GlobalLeaderboard() {
             <tr>
               <th>Rank</th>
               <th>Name</th>
-              {type !== 'xp' && !type.startsWith('total') && ? (<>
+              {type !== 'xp' && type !== 'ultimacy' && !type.startsWith('total') ? (<>
                 <th>Coins</th>
                 <th>Kills</th>
                 <th>Survived</th>
@@ -178,7 +178,7 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
         <div className="leaderboard-card__body">
           <div className="text-center">
             <br />
-            {type !== 'xp' && !type.startsWith('total') ? (<>
+            {type !== 'xp' && type !== 'ultimacy' && !type.startsWith('total') ? (<>
               <h5 className="mb-0">{numberWithCommas(row.coins)} coins</h5>
               <p className="text-muted mb-0">
                 Kills: {row.kills}, Survived: {secondsToTime(row.playtime)}

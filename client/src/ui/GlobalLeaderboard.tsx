@@ -109,7 +109,7 @@ export function GlobalLeaderboard() {
                 <th>Kills</th>
                 <th>Survived</th>
               </>) : (
-                <th>{type === 'xp' ? 'xp' : type.slice(6)}</th>
+                <th>{type === 'xp' ? 'XP' : type === 'ultimacy' ? 'Ultimacy' : type.slice(6)}</th>
               )}
             </tr>
           </thead>

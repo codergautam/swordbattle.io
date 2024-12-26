@@ -22,5 +22,5 @@ export class FetchGamesDTO {
 
   @IsEnum(TimeRange) timeRange: TimeRange;
 
-  @Min(0) @Max(100) limit: number;
+  @Min(0) @Max(200) limit: number;
 }

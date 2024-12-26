@@ -129,7 +129,7 @@ export function GlobalLeaderboard() {
                       </div>
                     </div>
                   </td>
-                  {type !== 'xp' && !type.startsWith('total') ? (
+                  {type !== 'xp' && type !== 'ultimacy' && !type.startsWith('total') ? (
                     <>
                       <td>
                         <div className="d-flex align-items-baseline">

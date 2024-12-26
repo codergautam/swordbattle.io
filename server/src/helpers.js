@@ -48,7 +48,8 @@ module.exports = {
     const xp = Math.floor(coins / 20) + kills
     return {
       xp,
-      gems: Math.floor(xp / 5)
+      gems: Math.floor(xp / 5),
+      ultimacy: 1000
     }
   },
 

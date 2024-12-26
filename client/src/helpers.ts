@@ -125,7 +125,7 @@ export function calculateGemsXP(coins: number, kills: number) {
   return {
     xp,
     gems: Math.floor(xp / 5),
-    ultimacy: Math.floor(xp / 2)
+    ultimacy: 1000
   }
 }
 

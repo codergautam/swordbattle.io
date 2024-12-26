@@ -7,6 +7,7 @@ export type AccountState = {
   isLoggedIn: boolean;
   secret: string;
   gems: number;
+  ultimacy: number;
   skins: { equipped: number; owned: number[] };
   is_v1: boolean;
   xp: number;
@@ -18,6 +19,7 @@ const initialState: AccountState = {
   secret: '',
   isLoggedIn: false,
   gems: 0,
+  ultimacy: 0,
   skins: { equipped: 1, owned: [1] },
   is_v1: false,
   xp: 0,
@@ -94,6 +96,7 @@ const accountSlice = createSlice({
       state.username = '';
       state.secret = '';
       state.gems = 0;
+      state.ultimacy = 0;
       state.isLoggedIn = false;
       state.skins = { equipped: 1, owned: [1] };
       window.phaser_game?.events.emit('tokenUpdate', '');
@@ -107,6 +110,7 @@ const accountSlice = createSlice({
       const previousToken = state.secret;
       state.secret = action.payload.secret;
       state.gems = action.payload.gems;
+      state.ultimacy = action.payload.ultimacy;
       state.skins = action.payload.skins;
       state.is_v1 = action.payload.is_v1;
       state.xp = action.payload.xp;

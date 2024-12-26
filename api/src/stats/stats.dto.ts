@@ -7,6 +7,8 @@ export class SaveGameDTO {
 
   @IsInt() kills: number;
 
+  @IsInt() ultimacy: number;
+
   @IsInt() coins: number;
 
   @IsNumber() playtime: number;

@@ -164,6 +164,7 @@ export class StatsService {
           'total_stats.xp as xp',
           'total_stats.coins as coins',
           'total_stats.kills as kills',
+          'total_stats.ultimacy as ultimacy',
           'total_stats.playtime as playtime',
         ])
         .limit(limit)
@@ -178,6 +179,7 @@ export class StatsService {
           'SUM(daily_stats.xp) as xp',
           'SUM(daily_stats.coins) as coins',
           'SUM(daily_stats.kills) as kills',
+          'SUM(daily_stats.ultimacy) as ultimacy',
           'SUM(daily_stats.playtime) as playtime',
         ])
         .where(where)
@@ -193,6 +195,7 @@ export class StatsService {
     row.xp += data.xp;
     row.coins += data.coins;
     row.kills += data.kills;
+    row.ultimacy += data.ultimacy;
     row.playtime += data.playtime;
     row.games += 1;
     return row;

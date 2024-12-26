@@ -12,8 +12,7 @@ interface Stats {
   xp: number;
   kills: number;
   games: number;
-  coins: number;
-  totaldiamonds: number;
+  coins: number
   playtime: number;
 }
 interface AccountData {
@@ -125,7 +124,6 @@ export default function Profile() {
           <Card title="Total Playtime" text={data.totalStats ? secondsToTime(data.totalStats.playtime) : 0} />
           <Card title="Stabs" text={data.totalStats ? numberWithCommas(data.totalStats.kills) : 0} />
           <Card title="Skins Owned" text={data.account.skins.owned.length} />
-          <Card title="Skins Owned" text={data.totalStats ? numberWithCommas(data.totalStats.totaldiamonds) : 0} />
         </div>
 
         {data.dailyStats && data.dailyStats.length &&

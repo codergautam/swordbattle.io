@@ -35,7 +35,7 @@ export function GlobalLeaderboard() {
     api.post(url, {
       sortBy: type.startsWith('total') ? type.slice(6) : type,
       timeRange: range,
-      limit: 250,
+      limit: 100,
     }, (data: any) => setData(!data.message ? data : []));
   };
   const changeType = (type: string) => {

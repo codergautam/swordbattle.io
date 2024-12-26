@@ -24,6 +24,7 @@ interface Skin {
   event: boolean;
   sale: boolean;
   freebie: boolean;
+  eventoffsale: boolean;
   swordFileName: string;
   bodyFileName: string;
   price?: number;
@@ -175,11 +176,14 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         const skin = skinData as Skin;
         if (selectedBadge === 'og' && !skin.og) return false;
         if (selectedBadge === 'new' && skin.og) return false;
+        if (selectedBadge === 'new' && skin.eventoffsale) return false;
         if (selectedBadge === 'norm' && skin.freebie) return false;
+        if (selectedBadge === 'norm' && skin.eventoffsale) return false;
         if (selectedBadge === 'norm' && skin.event) return false;
         if (selectedBadge === 'norm' && skin.og) return false;
         if (selectedBadge === 'sale' && !skin.sale) return false;
         if (selectedBadge === 'event' && skin.freebie) return true;
+        if (selectedBadge === 'event' && skin.eventoffsale) return true;
         if (selectedBadge === 'event' && !skin.event) return false;
         if (selectedBadge === 'own' && skin.og) return false;
         if (selectedBadge === 'own' && !account?.skins.owned.includes(skin.id)) return false;

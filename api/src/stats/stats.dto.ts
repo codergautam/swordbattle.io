@@ -35,5 +35,5 @@ export class FetchStatsDTO {
 
   @IsEnum(TimeRange) timeRange: TimeRange;
 
-  @Min(0) @Max(1000) limit: number;
+  @Min(0) @Max(200) limit: number;
 }

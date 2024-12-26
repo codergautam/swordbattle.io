@@ -14,6 +14,8 @@ function ChangelogModal() {
     <ul>(Credit to A-Bot, cool guy 53, and Battleship)</ul>
     <hr></hr>
     <h1 style={{fontSize: 25}}>Winter Event (Part 4)</h1>
+    <li className='announcement'>NOTE: The game is currently being tested for an update. Expect the possibility of some disconnects/server restarts.</li>
+    <br></br>
     <li className='important'>- CHRISTMAS SKIN! GET THE SKIN FOR FREE BEFORE IT GOES OFFSALE!</li>
     <ul>- Reworked Evolutions! (P.S. - you can also press G to use your ability!)</ul>
     <ul>- Balanced upgrades and levels!</ul>

@@ -12,7 +12,7 @@ const types: Record<string, string> = {
   'coins': 'Coins',
   'playtime': 'Survived',
   'xp': 'XP',
-  'ultimacy': 'Super good points',
+  'ultimacy': 'Total A',
   'total-coins': 'Total Coins',
   'total-kills': 'Total Stabs',
   'total-playtime': 'Total Playtime',
@@ -104,7 +104,7 @@ export function GlobalLeaderboard() {
             <tr>
               <th>Rank</th>
               <th>Name</th>
-              {type !== 'xp' && !type.startsWith('total') && !== 'ultimacy' ? (<>
+              {type !== 'xp' && !type.startsWith('total') && ? (<>
                 <th>Coins</th>
                 <th>Kills</th>
                 <th>Survived</th>

@@ -3029,16 +3029,53 @@
       "bodyFileName": "winterChristmasPlayer.png",
       "description": "Freebie skin for playing on Christmas!"
     },
-    "ultimate": {
+    "pharaoh": {
       "ultimate": true,
-      "name": "ultimate",
-      "displayName": "Ultimate",
+      "tag": "Ultimate Mummy",
+      "name": "pharaoh",
+      "displayName": "Pharaoh",
       "id": 306,
       "buyable": true,
-      "price": 3001231231231230,
-      "swordFileName": "ultimateSword.png",
-      "bodyFileName": "ultimatePlayer.png",
-      "description": "Ultimate version of the Default skin"
+      "price": 1000,
+      "swordFileName": "ultimateMummySword.png",
+      "bodyFileName": "ultimateMummyPlayer.png",
+      "description": "Reincarnated only to be fighting peasants..."
+    },
+    "mechamystery": {
+      "ultimate": true,
+      "tag": "Ultimate Unknown",
+      "name": "mechamystery",
+      "displayName": "Mecha-Mystery",
+      "id": 307,
+      "buyable": true,
+      "price": 5000,
+      "swordFileName": "ultimateUnknownSword.png",
+      "bodyFileName": "ultimateUnknownPlayer.png",
+      "description": "Error: unexpected character '?'"
+    },
+    "cyberlight": {
+      "ultimate": true,
+      "tag": "Ultimate Ninja",
+      "name": "cyberlight",
+      "displayName": "Cyberlight Ninja",
+      "id": 308,
+      "buyable": true,
+      "price": 10000,
+      "swordFileName": "ultimateNinjaSword.png",
+      "bodyFileName": "ultimateNinjaPlayer.png",
+      "description": "Camouflage isn't needed when you're enemies are too scared to attack you..."
+    },
+    "megamoticon": {
+      "ultimate": true,
+      "tag": "Ultimate Emoticon",
+      "name": "megamoticon",
+      "displayName": "Megamoticon",
+      "id": 309,
+      "buyable": true,
+      "price": 300000,
+      "swordFileName": "ultimateEmoticonSword.png",
+      "bodyFileName": "ultimateEmoticonPlayer.png",
+      "description": ">:V"
     }
   }
 }

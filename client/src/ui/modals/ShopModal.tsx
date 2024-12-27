@@ -22,6 +22,7 @@ interface Skin {
   buyable: boolean;
   og: boolean;
   event: boolean;
+  tag: string;
   sale: boolean;
   freebie: boolean;
   eventoffsale: boolean;
@@ -176,7 +177,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           <p style={{marginTop: 0}}>Skins you own can still be equipped from other menus, but using this menu will make it much easier to find them.</p>
         )}
       {selectedBadge === 'ultimate' && (
-          <p style={{marginTop: 0}}>Ultimate skins are obtained by earning ultimacy instead of spending gems. <br></br>(UNLOCKING ULTIMATE SKINS DOES NOT TAKE AWAY ANY ULTIMACY)</p>
+          <p style={{marginTop: 0}}>Ultimate skins are remakes of normal skins and are obtained by earning ultimacy instead of spending gems. <br></br>(UNLOCKING ULTIMATE SKINS DOES NOT TAKE AWAY ANY ULTIMACY)</p>
         )}
       </center>
       <div className='skins'>
@@ -206,6 +207,9 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         return (
         <div className="skin-card" key={skin.name}>
           <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          {skin.ultimate && (
+            <p className='skin-tag'>{skin.tag}</p>
+          )}
           <img
             src={basePath + skin.bodyFileName}
             alt={skin.name}

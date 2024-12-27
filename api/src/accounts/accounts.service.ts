@@ -150,15 +150,23 @@ export class AccountsService {
 
     // Check if the user has enough gems
     const skinPrice = cosmetic.price;
-    if (user.gems < skinPrice) {
-      return { error: 'Not enough gems' };
+    if (cosmetic.ultimate) {
+      if (user.ultimacy < skinPrice) {
+        return { error: 'Not enough ultimacy' };
+      }
+    } else {
+      if (user.gems < skinPrice) {
+        return { error: 'Not enough gems' };
+      }
     }
 
     // Update the 'owned' field
     skinsData.owned.push(itemId);
 
     // Deduct the gems from the user's account
-    user.gems -= skinPrice;
+    if (!cosmetic.ultimate) {
+      user.gems -= skinPrice;
+    }
 
     // Save the updated skins data and gems back to the user's account
     user.skins = skinsData;

@@ -4,15 +4,13 @@ function ChangelogModal() {
   return (
     <div className="changelog">
     <h1 style={{fontSize: 30}}>What's new? (December 2024)</h1>
-    <li>WINTER UPDATE! Enjoy these additions to the game during this event:</li>
+    <li className='important'>WINTER UPDATE! Enjoy these additions to the game during this event:</li>
     <br></br>
     <ul>- New biomes and faster-spawning bosses!</ul>
     <ul>- Stronger mobs that drop more coins!</ul>
     <ul>- Winter-themed skins are on sale for much cheaper!</ul>
     <ul>- Limited-time event skins that will go offsale after the winter event!</ul>
-    <li className='important'>- CHRISTMAS SKIN! GET THE SKIN FOR FREE BEFORE IT GOES OFFSALE!</li>
-    <br></br>
-    <ul>(Credit to A-Bot, cool guy 53, and Battleship)</ul>
+    <ul>- Christmas + festive freebie skins! (The christmas skin is now offsale, but may return temporarily for gems)</ul>
     <hr></hr>
     <h1 style={{fontSize: 30, color: 'black'}} className='rainbow'>New feature: Ultimacy</h1>
     <ul style={{fontSize: 27, color: 'red'}}>- Make an account to start earning ULTIMACY!</ul>

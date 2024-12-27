@@ -3019,7 +3019,7 @@
       "description": "Don't drop it!"
     },
     "christmas": {
-      "freebie": true,
+      "eventoffsale": true,
       "name": "christmas",
       "displayName": "Christmas Warrior (WINTER EVENT)",
       "id": 305,

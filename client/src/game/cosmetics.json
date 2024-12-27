@@ -3060,7 +3060,7 @@
       "displayName": "Cyberlight Ninja",
       "id": 308,
       "buyable": true,
-      "price": 10000,
+      "price": 15000,
       "swordFileName": "ultimateNinjaSword.png",
       "bodyFileName": "ultimateNinjaPlayer.png",
       "description": "Camouflage isn't needed when your enemies are too scared to attack you..."
@@ -3084,7 +3084,7 @@
       "displayName": "Rainbow Void",
       "id": 310,
       "buyable": true,
-      "price": 15000,
+      "price": 25000,
       "swordFileName": "ultimateVoidSword.png",
       "bodyFileName": "ultimateVoidPlayer.png",
       "description": "Wanted to be dark and depressing but instead became part of someone's gaming setup"

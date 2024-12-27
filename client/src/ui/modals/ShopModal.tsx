@@ -247,12 +247,12 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   )
 }
           </h4>
-          account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
+          {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
   <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
     {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
       account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
   </button>
-)
+))}
         </div>
       )
       }

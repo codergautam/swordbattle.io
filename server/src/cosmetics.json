@@ -3035,7 +3035,7 @@
       "displayName": "Ultimate",
       "id": 306,
       "buyable": true,
-      "price": 1000000000,
+      "price": 0,
       "swordFileName": "ultimateSword.png",
       "bodyFileName": "ultimatePlayer.png",
       "description": "Ultimate version of the Default skin"

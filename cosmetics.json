@@ -3028,6 +3028,17 @@
       "swordFileName": "winterChristmasSword.png",
       "bodyFileName": "winterChristmasPlayer.png",
       "description": "Freebie skin for playing on Christmas!"
+    },
+    "ultimate": {
+      "ultimate": true,
+      "name": "ultimate",
+      "displayName": "Ultimate",
+      "id": 306,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "ultimateSword.png",
+      "bodyFileName": "ultimatePlayer.png",
+      "description": "Ultimate version of the Default skin"
     }
   }
 }

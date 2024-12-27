@@ -281,7 +281,6 @@ function App() {
         <>
         <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`}>
         <ShopButton account={account} scale={scale.factor} openShop={openShop} />
-        <br></br><br></br>
             <div id="contentt" style={scale.styles}>
               
           <div id="menuContainer" >
@@ -291,14 +290,16 @@ function App() {
     position: 'fixed',
     top: '-50%', 
     left: '50%',
-    transform: 'translateX(-50%)' 
+    transform: 'translate(-50%, -100%)' 
   }} /> 
 </div>
           
             {/* <!-- LOADING TEXT --> */}
-            <br></br><br></br><br></br><br></br><br></br>
             {/* <!-- MENU CARDS --> */}
-            <div id="menuCardHolder" style={{ display: 'inline-block', height: 'auto !important' }}>
+            <div id="menuCardHolder" style={{ display: 'inline-block', height: 'auto !important', position: 'fixed',
+    top: '-50%', 
+    left: '50%',
+    transform: 'translate(-50%, -5%)' }} >
               <div className="menu">
                 <div className="accountCard menuCard panel">
                   <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} />

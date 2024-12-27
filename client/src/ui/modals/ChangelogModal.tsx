@@ -19,7 +19,7 @@ function ChangelogModal() {
     <ul style={{fontSize: 17, color: 'yellow'}}>- Get tons of coins in a single game to get more and more ultimacy! More coins = EXPONENTIALLY more ultimacy!</ul>
     <ul style={{fontSize: 17, color: 'lime'}}>(You might also get some good scores on the coins leaderboard while doing this too!)</ul>
     <ul style={{fontSize: 19, color: 'cyan'}}>- Climb the brand-new Ultimacy Leaderboard and become the ultimate swordbattler!</ul>
-    <ul style={{fontSize: 19, color: 'rgb(37, 142, 255)'}}>- Use your ultimacy in the near future to unlock Ultimate Skins!</ul>
+    <ul style={{fontSize: 19, color: 'rgb(37, 142, 255)'}}>- Use your ultimacy to unlock the new Ultimate Skins in the shop!</ul>
     <br></br>
     <ul style={{fontSize: 12, color: 'magenta'}}>- (P.S. Changelog will also be reorganized soon, join the Discord to see the full changelog when it comes out!)</ul>
 </div>

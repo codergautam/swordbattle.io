@@ -3,6 +3,7 @@ import './ChangelogModal.scss';
 function ChangelogModal() {
   return (
     <div className="changelog">
+       <li className='announcement'>NOTE: The game is currently being tested for bugfixes. Expect the possibility disconnects/server restarts.</li>
     <h1 style={{fontSize: 30}}>What's new? (December 2024)</h1>
     <li>WINTER UPDATE! Enjoy these additions to the game during this event:</li>
     <br></br>

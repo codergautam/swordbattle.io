@@ -11,7 +11,6 @@ function ChangelogModal() {
     <ul>- Stronger mobs that drop more coins!</ul>
     <ul>- Winter-themed skins are on sale for much cheaper!</ul>
     <ul>- Limited-time event skins that will go offsale after the winter event!</ul>
-    <li className='important'>- CHRISTMAS SKIN! GET THE SKIN FOR FREE BEFORE IT GOES OFFSALE!</li>
     <br></br>
     <ul>(Credit to A-Bot, cool guy 53, and Battleship)</ul>
     <hr></hr>
@@ -30,6 +29,9 @@ function ChangelogModal() {
 
 /* <a className="primary-link" target="_blank" href="https://iogames.forum/t/how-to-make-your-own-swordbattle-io-skin/585">
 Create your own skins to be added in the game!
-</a> */
+</a>
+
+    <li className='important'>- CHRISTMAS SKIN! GET THE SKIN FOR FREE BEFORE IT GOES OFFSALE!</li>
+*/
 
 export default ChangelogModal;

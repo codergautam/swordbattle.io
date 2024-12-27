@@ -9,6 +9,8 @@ export class Transaction {
 
   @Column() transaction_id: string;
 
+  @Column() ultimate: boolean;
+
   @Column() description: string;
 
   @Column() amount: number;

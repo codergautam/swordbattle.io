@@ -58,7 +58,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
     if (skinStatus[id]) return;
 
     const skinAction = account.skins.equipped === id ? null :
-                      account.skins.owned.includes(id) ? 'Equipping...' : 'Buying...';
+                      account.skins.owned.includes(id) ? 'Equipping...' : 'Getting...';
 
     if (skinAction) {
       setSkinStatus(prev => ({ ...prev, [id]: skinAction }));
@@ -149,8 +149,12 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
 <button onClick={() => setSelectedBadge('sale')} className={selectedBadge === 'sale' ? 'active' : ''} data-selected-badge="sale">Skins On Sale</button>
 <button onClick={() => setSelectedBadge('event')} className={selectedBadge === 'event' ? 'active' : ''} data-selected-badge="event">Event Skins</button>
 {account?.isLoggedIn && (
+          <button onClick={() => setSelectedBadge('ultimate')} className={selectedBadge === 'ultimate' ? 'active' : ''} data-selected-badge="ultimate">Ultimate Skins</button>
+          )}
+{account?.isLoggedIn && (
           <button onClick={() => setSelectedBadge('own')} className={selectedBadge === 'own' ? 'active' : ''} data-selected-badge="own">Owned Skins</button>
           )}
+
         
   { Object.values(skins).filter((skinData: any) =>  skinData.og && account?.skins.owned.includes(skinData.id)).length > 0 && (
     <>
@@ -171,6 +175,9 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {selectedBadge === 'own' && (
           <p style={{marginTop: 0}}>Skins you own can still be equipped from other menus, but using this menu will make it much easier to find them.</p>
         )}
+      {selectedBadge === 'ultimate' && (
+          <p style={{marginTop: 0}}>Ultimate skins are obtained by earning ultimacy instead of spending gems. <br></br>(UNLOCKING ULTIMATE SKINS DOES NOT TAKE AWAY ANY ULTIMACY)</p>
+        )}
       </center>
       <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
@@ -179,6 +186,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         if (selectedBadge === 'new' && skin.og) return false;
         if (selectedBadge === 'new' && skin.ultimate) return false;
         if (selectedBadge === 'norm' && skin.ultimate) return false;
+        if (selectedBadge === 'ultimate' && !skin.ultimate) return false;
         if (selectedBadge === 'new' && skin.eventoffsale) return false;
         if (selectedBadge === 'norm' && skin.freebie) return false;
         if (selectedBadge === 'norm' && skin.eventoffsale) return false;
@@ -217,21 +225,31 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
           <br/>
           <p className='skin-desc'>{skin.description}</p>
-          { (skin?.price ?? 0) > 0 ? (
-            <>
-          {skin.price} <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} />
-          </> ) : (
-            <>
-            <p style={{marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7}}>{skin.buyable ? 'Free' : ''}</p>
-            </>
-          )}
+          {
+  (skin?.price ?? 0) > 0 ? (
+    <>
+      {skin?.price} 
+      {skin?.ultimate 
+        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Ultimacy' width={30} height={30} />
+        : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} />
+      }
+    </>
+  ) : (
+    <>
+      <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
+        {skin.buyable ? 'Free' : ''}
+      </p>
+    </>
+  )
+}
           </h4>
           {account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
-          <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
-            {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
-            account.skins.owned.includes(skin.id) ? 'Equip' : 'Buy')}
-            </button>
-          )}
+  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
+    {skin.ultimate
+      ? skinStatus[skin.id] || (account.skins.owned.includes(skin.id) ? 'Equip' : 'Unlock')
+      : skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' : 'Buy')}
+  </button>
+)}
         </div>
       )
       }

@@ -3076,6 +3076,18 @@
       "swordFileName": "ultimateEmoticonSword.png",
       "bodyFileName": "ultimateEmoticonPlayer.png",
       "description": ">:V"
+    },
+    "rainbowvoid": {
+      "ultimate": true,
+      "tag": "Ultimate Void",
+      "name": "rainbowvoid",
+      "displayName": "Rainbow Void",
+      "id": 310,
+      "buyable": true,
+      "price": 15000,
+      "swordFileName": "ultimateVoidSword.png",
+      "bodyFileName": "ultimateVoidPlayer.png",
+      "description": "Wanted to be dark and depressing but instead became part of someone's gaming setup"
     }
   }
 }

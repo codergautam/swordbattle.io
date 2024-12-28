@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "./static/css/main.f6f46e63.css",
+    "main.css": "./static/css/main.ff9ae12b.css",
     "main.js": "./static/js/main.9347b498.js",
     "static/media/final.png": "./static/media/final.67c8267a4b9ff73d40cd.png",
     "static/media/play-again.png": "./static/media/play-again.38923238033620c8ab00.png",
@@ -12,11 +12,11 @@
     "static/media/ultimacy.png": "./static/media/ultimacy.f026313487251eb963d0.png",
     "static/media/cursor.cur": "./static/media/cursor.138cb2f1fcf8183aaa1b.cur",
     "index.html": "./index.html",
-    "main.f6f46e63.css.map": "./static/css/main.f6f46e63.css.map",
+    "main.ff9ae12b.css.map": "./static/css/main.ff9ae12b.css.map",
     "main.9347b498.js.map": "./static/js/main.9347b498.js.map"
   },
   "entrypoints": [
-    "static/css/main.f6f46e63.css",
+    "static/css/main.ff9ae12b.css",
     "static/js/main.9347b498.js"
   ]
 }

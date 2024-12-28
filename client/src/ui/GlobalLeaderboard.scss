@@ -3,21 +3,21 @@
 .global-leaderboard-body {
 
 	.back-button {
-		position: absolute;
-  top: 10px;
-  left: 50%; /* Center horizontally */
-  transform: translate(-1200%, 50%); /* Adjust for button's width */
-    z-index: 100;
-    background: rgb(210 210 210);
-    border-radius: 25px;
+		background: #d2d2d2;
     border-color: gray;
-    padding: 10px;
-    font-size: 20px;
-    font-weight: bold;
-    color: #000000;
+    border-radius: 25px;
+    color: #000;
     cursor: pointer;
-    width: 50px;
+    font-size: 20px;
+    font-weight: 700;
     height: 50px;
+    left: 50%;
+    padding: 10px;
+    position: absolute;
+    top: 10px;
+    transform: translate(-1200%,50%);
+    width: 50px;
+    z-index: 100
 	  }
 
 	@import '~bootstrap/scss/bootstrap';

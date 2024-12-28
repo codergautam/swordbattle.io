@@ -128,7 +128,7 @@ export function GlobalLeaderboard() {
                     <div className="d-flex align-items-center">
                       <div className="user-info__basic">
                         <h5 className="mb-0">
-                          <Link to={`/profile?username=${encodeURIComponent(row.username)}`} target="_blank" rel="noreferrer" style={{ color: 'black' }}>{row.username}</Link>
+                          <Link to={`/profile?username=${encodeURIComponent(row.username)}`} rel="noreferrer" style={{ color: 'black' }}>{row.username}</Link>
                         </h5>
                       </div>
                     </div>

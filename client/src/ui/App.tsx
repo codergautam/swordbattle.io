@@ -395,7 +395,7 @@ function App() {
                <a href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="nofollow">About</a>
              </div>
             <div>
-               <Link to="https://swordbattle.io/#leaderboard" rel="nofollow">Leaderboard</Link>
+               <Link to="https://swordbattle.io/#leaderboard" target="_self" rel="nofollow">Leaderboard</Link>
            </div>
              <div>
                <a href="https://discord.com/invite/9A9dNTGWb9" target="_blank" className='discord' rel="nofollow">

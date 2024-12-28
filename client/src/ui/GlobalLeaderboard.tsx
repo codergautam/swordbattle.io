@@ -59,7 +59,7 @@ export function GlobalLeaderboard() {
       <button className="back-button" onClick={() =>{
         // ../index.html
         window.location.href = '../index.html';
-      }}>X</button>
+      }}>Back to Game</button>
       <div className="container">
         <h1>{types[type]} Leaderboard</h1>
         <br />

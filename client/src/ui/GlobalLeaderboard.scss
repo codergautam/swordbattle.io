@@ -1,6 +1,22 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap");
 
 .global-leaderboard-body {
+
+	.back-button {
+		top: 10px;
+		right: 10px;
+		z-index: 100;
+		background: rgb(1, 61, 0);
+		border-radius: 25px;
+		padding: 10px;
+		font-size: 20px;
+		font-weight: bold;
+		color: white;
+		cursor: pointer;
+		width: 50px;
+		height: 50px;
+	  }
+	  
 	@import '~bootstrap/scss/bootstrap';
 
 	--bs-table-bg: transparent;

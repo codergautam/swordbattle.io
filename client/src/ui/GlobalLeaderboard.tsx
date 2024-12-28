@@ -56,6 +56,10 @@ export function GlobalLeaderboard() {
 
   return (
     <section className="main-content">
+      <button className="back-button" onClick={() =>{
+        // ../index.html
+        window.location.href = '../index.html';
+      }}>X</button>
       <div className="container">
         <h1>{types[type]} Leaderboard</h1>
         <br />

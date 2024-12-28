@@ -174,7 +174,7 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
       <div className={clsx('leaderboard-card', isFirst && 'leaderboard-card--first')}>
         <div className="leaderboard-card__top">
           <h3 className="text-center">
-            #{index + 1} - <Link to={`/profile?username=${encodeURIComponent(row.username)}`} target="_blank" rel="noreferrer" style={{ color: isFirst ? 'white' : 'black' }}>
+            #{index + 1} - <Link to={`/profile?username=${encodeURIComponent(row.username)}`} rel="noreferrer" style={{ color: isFirst ? 'white' : 'black' }}>
               {row.username}
             </Link>
           </h3>

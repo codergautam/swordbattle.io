@@ -3061,7 +3061,7 @@
       "id": 308,
       "buyable": true,
       "price": 15000,
-      "swordFileName": "ultimatenewNinjaSword.png",
+      "swordFileName": "ultimateNinjaSword.png",
       "bodyFileName": "ultimatenewNinjaPlayer.png",
       "description": "Camouflage isn't needed when your enemies are too scared to attack you..."
     },

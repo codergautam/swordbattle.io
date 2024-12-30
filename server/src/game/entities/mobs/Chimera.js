@@ -18,13 +18,13 @@ class ChimeraMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 1250;
+    this.coinsDrop = 500;
 
     this.jumpTimer = new Timer(0, 4, 5);
     this.angryTimer = new Timer(0, 15, 20);
     this.maneuverSpeed = helpers.random(1000, 2000);
 
-    this.health = new Health(160, 5);
+    this.health = new Health(40, 1);
     this.speed = new Property(7);
     this.damage = new Property(1);
     this.target = null;

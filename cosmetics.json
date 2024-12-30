@@ -3061,7 +3061,7 @@
       "id": 308,
       "buyable": true,
       "price": 15000,
-      "swordFileName": "ultimateNinjaSword.png",
+      "swordFileName": "ultimatenewNinjaSword.png",
       "bodyFileName": "ultimatenewNinjaPlayer.png",
       "description": "Camouflage isn't needed when your enemies are too scared to attack you..."
     },
@@ -3088,6 +3088,30 @@
       "swordFileName": "ultimateVoidSword.png",
       "bodyFileName": "ultimateVoidPlayer.png",
       "description": "Wanted to be dark and depressing but instead became part of someone's gaming setup"
+    },
+    "nightberry": {
+      "ultimate": true,
+      "tag": "Ultimate Blueberry",
+      "name": "nightberry",
+      "displayName": "Nightberry",
+      "id": 311,
+      "buyable": true,
+      "price": 250,
+      "swordFileName": "ultimateBlueberrySword.png",
+      "bodyFileName": "ultimateBlueberryPlayer.png",
+      "description": "You probably shouldn't eat this one"
+    },
+    "truebit": {
+      "ultimate": true,
+      "tag": "Ultimate 8-Bit",
+      "name": "truebit",
+      "displayName": "True 8-Bit",
+      "id": 312,
+      "buyable": true,
+      "price": 500,
+      "swordFileName": "ultimateBitSword.png",
+      "bodyFileName": "ultimateBitPlayer.png",
+      "description": "Now with 3300% less pixels!"
     }
   }
 }

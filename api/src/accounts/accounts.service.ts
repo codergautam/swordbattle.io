@@ -152,7 +152,7 @@ export class AccountsService {
     const skinPrice = cosmetic.price;
     if (cosmetic.ultimate) {
       if (user.ultimacy < skinPrice) {
-        return { error: 'Not enough ultimacy' };
+        return { error: 'Not enough mastery' };
       }
     } else {
       if (user.gems < skinPrice) {

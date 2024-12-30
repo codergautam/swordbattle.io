@@ -19,14 +19,14 @@ class WolfMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 2000;
+    this.coinsDrop = 750;
 
     this.tamedBy = null;
 
     this.jumpTimer = new Timer(0, 2, 3);
     this.angryTimer = new Timer(0, 12, 21);
 
-    this.health = new Health(275, 5);
+    this.health = new Health(75, 1);
     this.speed = new Property(22);
     this.damage = new Property(16.5);
     this.target = null;

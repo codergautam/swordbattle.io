@@ -8,11 +8,11 @@ module.exports = class Knight extends Evolution {
   static abilityCooldown = 90;
 
   applyAbilityEffects() {
-    this.player.shape.setScale(1.45);
+    this.player.shape.setScale(1.1);
     this.player.sword.damage.multiplier *= 1.25;
     this.player.sword.knockback.multiplier['ability'] = 1.4;
-    this.player.speed.multiplier *= 0.75;
-     this.player.sword.swingDuration.multiplier['ability'] = 0.5;
+    this.player.speed.multiplier *= 1.25;
+     this.player.sword.swingDuration.multiplier['ability'] = 0.7;
      this.player.knockbackResistance.multiplier *= 1.3;
   }
 

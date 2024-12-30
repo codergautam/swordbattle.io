@@ -130,7 +130,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       <h1 className='shop-title'>Shop</h1>
 
       {account?.isLoggedIn ? (
-      <h1 className='shop-desc'>Gems: {numberWithCommas(account.gems)}<img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} />            Ultimacy: {numberWithCommas(account.ultimacy)}<img className={'gem'} src='assets/game/ultimacy.png' alt='Gems' width={30} height={30} /></h1>
+      <h1 className='shop-desc'>Gems: {numberWithCommas(account.gems)}<img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} />            Mastery: {numberWithCommas(account.ultimacy)}<img className={'gem'} src='assets/game/ultimacy.png' alt='Gems' width={30} height={30} /></h1>
       ) : (
         <h1 className='shop-desc'><b>Login or Signup</b> to buy stuff from the shop!<br/>Earn gems by stabbing players and collecting coins around the map!</h1>
       )}
@@ -177,7 +177,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           <p style={{marginTop: 0}}>Skins you own can still be equipped from other menus, but using this menu will make it much easier to find them.</p>
         )}
       {selectedBadge === 'ultimate' && (
-          <p style={{marginTop: 0}}>Ultimate skins are remakes of normal skins and are obtained by earning ultimacy instead of spending gems. <br></br>(UNLOCKING ULTIMATE SKINS DOES NOT TAKE AWAY ANY ULTIMACY)</p>
+          <p style={{marginTop: 0}}>Ultimate skins are remakes of normal skins and are obtained by earning mastery instead of spending gems. <br></br>(UNLOCKING ULTIMATE SKINS DOES NOT TAKE AWAY ANY MASTERY)</p>
         )}
       </center>
       <div className='skins'>
@@ -234,7 +234,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
     <>
       {skin?.price} 
       {skin?.ultimate 
-        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Ultimacy' width={30} height={30} />
+        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={30} height={30} />
         : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} />
       }
     </>

@@ -14,7 +14,7 @@ class MooseMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 3000;
+    this.coinsDrop = 1200;
 
     this.movementTimer = new Timer(0, 3, 4);
     this.stayTimer = new Timer(3, 2, 3);
@@ -24,7 +24,7 @@ class MooseMob extends Entity {
     this.targetAngle = this.angle;
     this.startAngle = this.angle;
 
-    this.health = new Health(375, 5);
+    this.health = new Health(100, 1);
     this.speed = new Property(8);
     this.target = null;
     this.targets.push(Types.Entity.Player);

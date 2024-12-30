@@ -12,7 +12,7 @@ const types: Record<string, string> = {
   'coins': 'Coins',
   'playtime': 'Survived',
   'xp': 'XP',
-  'ultimacy': 'Ultimacy',
+  'ultimacy': 'Mastery',
   'total-coins': 'Total Coins',
   'total-kills': 'Total Stabs',
   'total-playtime': 'Total Playtime',
@@ -113,7 +113,7 @@ export function GlobalLeaderboard() {
                 <th>Kills</th>
                 <th>Survived</th>
               </>) : (
-                <th>{type === 'xp' ? 'XP' : type === 'ultimacy' ? 'Ultimacy' : type.slice(6)}</th>
+                <th>{type === 'xp' ? 'XP' : type === 'ultimacy' ? 'Mastery' : type.slice(6)}</th>
               )}
             </tr>
           </thead>
@@ -190,7 +190,7 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
             </>) : (
               <h5 className="mb-0">
                 {type === 'xp' && numberWithCommas(row.xp) + ' XP'}
-                {type === 'ultimacy' && numberWithCommas(row.ultimacy) + '  ultimacy'}
+                {type === 'ultimacy' && numberWithCommas(row.ultimacy) + '  mastery'}
                 {type === 'total-coins' && numberWithCommas(row.coins) + ' coins'}
                 {type === 'total-kills' && numberWithCommas(row.kills) + ' stabs'}
                 {type === 'total-playtime' && secondsToTime(row.playtime) + ' played'}

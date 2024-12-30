@@ -19,14 +19,14 @@ class CatMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 1750;
+    this.coinsDrop = 600;
 
     this.tamedBy = null;
 
     this.jumpTimer = new Timer(1.75, 2, 3.5);
     this.angryTimer = new Timer(0, 6, 11);
 
-    this.health = new Health(140, 30);
+    this.health = new Health(35, 7);
     this.speed = new Property(30);
     this.damage = new Property(17);
     this.target = null;

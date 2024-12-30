@@ -14,7 +14,7 @@ module.exports = class Berserker extends Evolution {
     this.player.sword.knockback.multiplier['ability'] = 1.8;
     this.player.speed.multiplier *= 1.45;
      this.player.sword.swingDuration.multiplier['ability'] = 0.7;
-     this.player.health.max.multiplier *= 0.775;
+     this.player.health.max.multiplier *= 0.875;
      this.player.health.regenWait.multiplier *= 2;
      this.player.health.regen.multiplier *= 2;
   }
@@ -24,9 +24,9 @@ module.exports = class Berserker extends Evolution {
     this.player.sword.damage.multiplier *= 1.25;
     this.player.knockbackResistance.multiplier *= 1.1;
     this.player.speed.multiplier *= 1.1;
-    this.player.health.max.multiplier *= 0.85;
+    this.player.health.max.multiplier *= 0.925;
     this.player.health.regenWait.multiplier *= 1.25;
-    this.player.health.regen.multiplier *= 1.2;
+    this.player.health.regen.multiplier *= 1.35;
   }
 }
 

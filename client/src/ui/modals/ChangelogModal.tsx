@@ -7,10 +7,8 @@ function ChangelogModal() {
     <li className='important'>WINTER UPDATE! Enjoy these additions to the game during this event:</li>
     <br></br>
     <ul>- New biomes and faster-spawning bosses!</ul>
-    <ul>- Stronger mobs that drop more coins!</ul>
     <ul>- Winter-themed skins are on sale for much cheaper!</ul>
     <ul>- Limited-time event skins that will go offsale after the winter event!</ul>
-    <ul>- Christmas + festive freebie skins! (The christmas skin is now offsale, but may return temporarily for gems)</ul>
     <hr></hr>
     <h1 style={{fontSize: 30, color: 'black'}} className='golden'>New feature: Mastery</h1>
     <ul style={{fontSize: 27, color: 'yellow'}}>(Make an account to start earning MASTERY!)</ul>

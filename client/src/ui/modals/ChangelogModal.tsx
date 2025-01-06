@@ -3,20 +3,14 @@ import './ChangelogModal.scss';
 function ChangelogModal() {
   return (
     <div className="changelog">
-    <h1 style={{fontSize: 30}}>What's new? (December 2024)</h1>
-    <li className='important'>WINTER UPDATE! Enjoy these additions to the game during this event:</li>
-    <br></br>
-    <ul>- New biomes and faster-spawning bosses!</ul>
-    <ul>- Winter-themed skins are on sale for much cheaper!</ul>
-    <ul>- Limited-time event skins that will go offsale after the winter event!</ul>
+    <h1 style={{fontSize: 30}}>What's new? (Jan 2025)</h1>
+    <li className='important'>WINTER UPDATE! Event skins, skin sale and more!</li>
     <hr></hr>
     <h1 style={{fontSize: 30, color: 'black'}} className='golden'>New feature: Mastery</h1>
     <ul style={{fontSize: 27, color: 'yellow'}}>(Make an account to start earning MASTERY!)</ul>
-    <br></br>
-    <ul style={{fontSize: 17, color: 'orange'}}>- Get tons of coins in a single life to get more and more mastery! (This is the ONLY efficient way to earn mastery, and it may get you some scores on the Coins Leaderboard too!)</ul>
+    <ul style={{fontSize: 19, color: 'orange'}}>- Get high coin runs to earn more mastery!</ul>
     <br></br>
     <ul style={{fontSize: 19, color: 'yellow'}}>- Climb the brand-new Mastery Leaderboard and become the master swordbattler!</ul>
-    <br></br>
     <ul style={{fontSize: 19, color: 'orange'}}>- Use your mastery to unlock the new Ultimate Skins in the shop!</ul>
 </div>
 

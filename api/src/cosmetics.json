@@ -3062,7 +3062,7 @@
       "eventtag": "WINTER EVENT",
       "displayName": "Christmas Warrior",
       "id": 305,
-      "buyable": true,
+      "buyable": false,
       "price": 0,
       "swordFileName": "winterChristmasSword.png",
       "bodyFileName": "winterChristmasPlayer.png",

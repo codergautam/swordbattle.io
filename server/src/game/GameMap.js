@@ -20,6 +20,7 @@ const Chest = require('./entities/Chest');
 const Coin = require('./entities/Coin');
 const PlayerAI = require('./entities/PlayerBot');
 const WolfMob = require('./entities/mobs/Wolf');
+const WolfMob = require('./entities/mobs/Fox');
 const CatMob = require('./entities/mobs/Cat');
 const BunnyMob = require('./entities/mobs/Bunny');
 const MooseMob = require('./entities/mobs/Moose');
@@ -177,6 +178,7 @@ class GameMap {
       case Types.Entity.Chest: ObjectClass = Chest; break;
       case Types.Entity.Coin: ObjectClass = Coin; break;
       case Types.Entity.Wolf: ObjectClass = WolfMob; break;
+      case Types.Entity.Fox: ObjectClass = FoxMob; break;
       case Types.Entity.Cat: ObjectClass = CatMob; break;
       case Types.Entity.Bunny: ObjectClass = BunnyMob; break;
       case Types.Entity.Moose: ObjectClass = MooseMob; break;

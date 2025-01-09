@@ -25,7 +25,7 @@ class FoxMob extends BaseEntity {
   updateSprite() {
     if (!this.body) return;
 
-    const texture = this.isAngry ? 'foxMobAggressive' : 'foxMobPassive';
+    const texture = this.isAngry ? 'foxMobPassive' : 'foxMobPassive';
     this.body.setTexture(texture).setScale((this.shape.radius * 6) / this.body.height);
   }
 }

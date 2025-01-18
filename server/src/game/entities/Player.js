@@ -307,6 +307,7 @@ class Player extends Entity {
           case Types.Entity.Player: reason = entity.name; break;
           case Types.Entity.LavaPool: reason = 'Lava'; break;
           case Types.Entity.Wolf: reason = 'A Wolf'; break;
+          case Types.Entity.Fox: reason = 'A Fox'; break;
           case Types.Entity.Cat: reason = 'A Cat'; break;
           case Types.Entity.Moose: reason = 'A Moose'; break;
           case Types.Entity.Yeti: reason = 'A Yeti'; break;

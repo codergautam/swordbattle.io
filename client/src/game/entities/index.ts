@@ -24,6 +24,7 @@ import WolfMob from './mobs/Wolf';
 import CatMob from './mobs/Cat';
 import YetiMob from './mobs/Yeti';
 import SantaMob from './mobs/Santa';
+import FoxMob from './mobs/Fox';
 
 export const EntityDepth: Record<any, number> = {
   [EntityTypes.Pond]: 1,
@@ -38,6 +39,7 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.MossyRock]: 10,
 
   [EntityTypes.Wolf]: 11,
+  [EntityTypes.Fox]: 11,
   [EntityTypes.Cat]: 11,
   [EntityTypes.Bunny]: 11,
   [EntityTypes.Moose]: 11,
@@ -65,6 +67,7 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.Sword: return Sword;
 
     case EntityTypes.Wolf: return WolfMob;
+    case EntityTypes.Fox: return FoxMob;
     case EntityTypes.Cat: return CatMob;
     case EntityTypes.Bunny: return BunnyMob;
     case EntityTypes.Moose: return MooseMob;

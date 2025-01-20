@@ -23,12 +23,15 @@ interface Skin {
   og: boolean;
   event: boolean;
   tag: string;
+  saletag: string;
+  eventtag: string;
   sale: boolean;
   freebie: boolean;
   eventoffsale: boolean;
   ultimate: boolean;
   swordFileName: string;
   bodyFileName: string;
+  ogprice?: number;
   price?: number;
   description?: string;
 }
@@ -210,6 +213,18 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           {skin.ultimate && (
             <p className='skin-tag'>{skin.tag}</p>
           )}
+          {skin.sale && (
+            <p className='skin-saletag'>{skin.saletag}</p>
+          )}
+          {skin.event && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+          {skin.eventoffsale && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+          {skin.freebie && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
           <img
             src={basePath + skin.bodyFileName}
             alt={skin.name}
@@ -232,6 +247,11 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           {
   (skin?.price ?? 0) > 0 ? (
     <>
+      {skin?.sale 
+        && <> <span className="sale">
+        {skin?.ogprice}
+      </span><span>‎ ‎ ‎</span> </>
+      }
       {skin?.price} 
       {skin?.ultimate 
         ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={30} height={30} />

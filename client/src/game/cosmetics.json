@@ -111,7 +111,9 @@
     "ice cream": {
       "sale": true,
       "name": "ice cream",
-      "displayName": "Ice Cream (90% OFF)",
+      "ogprice": 300,
+      "saletag": "90% OFF",
+      "displayName": "Ice Cream",
       "id": 145,
       "buyable": true,
       "price": 35,
@@ -162,7 +164,9 @@
     "pi guy": {
       "sale": true,
       "name": "pi guy",
-      "displayName": "Pi Guy (20% OFF)",
+      "ogprice": 314159,
+      "saletag": "20% OFF",
+      "displayName": "Pi Guy",
       "id": 197,
       "buyable": true,
       "price": 265358,
@@ -173,7 +177,9 @@
     "frost ninja": {
       "sale": true,
       "name": "frost ninja",
-      "displayName": "Frost Ninja (60% OFF)",
+      "ogprice": 11111,
+      "saletag": "60% OFF",
+      "displayName": "Frost Ninja",
       "id": 198,
       "buyable": true,
       "price": 4444,
@@ -184,7 +190,9 @@
     "penguin": {
       "sale": true,
       "name": "penguin",
-      "displayName": "Penguin (80% OFF)",
+      "ogprice": 700,
+      "saletag": "80% OFF",
+      "displayName": "Penguin",
       "id": 199,
       "buyable": true,
       "price": 140,
@@ -195,7 +203,9 @@
     "snowflake": {
       "sale": true,
       "name": "snowflake",
-      "displayName": "Snowflake (70% OFF)",
+      "ogprice": 950,
+      "saletag": "70% OFF",
+      "displayName": "Snowflake",
       "id": 200,
       "buyable": true,
       "price": 255,
@@ -1935,7 +1945,9 @@
     "gingerbread": {
       "sale": true,
       "name": "gingerbread",
-      "displayName": "Gingerbread (99% OFF)",
+      "ogprice": 200,
+      "saletag": "99% OFF",
+      "displayName": "Gingerbread",
       "id": 185,
       "buyable": true,
       "price": 1,
@@ -1974,9 +1986,8 @@
       "description": "Dig for gold!"
     },
     "snowglobe": {
-      "sale": true,
       "name": "snowglobe",
-      "displayName": "Snow Globe (20% OFF)",
+      "displayName": "Snow Globe",
       "id": 190,
       "buyable": true,
       "price": 360000,
@@ -2178,7 +2189,9 @@
 "auroraborealis": {
       "sale": true,
       "name": "auroraborealis",
-      "displayName": "Aurora Borealis (50% OFF)",
+      "ogprice": 900,
+      "saletag": "50% OFF",
+      "displayName": "Aurora Borealis",
       "id": 223,
       "buyable": true,
       "price": 450,
@@ -2599,7 +2612,9 @@
     "summitninja": {
       "sale": true,
       "name": "summitninja",
-      "displayName": "Summit Ninja (60% OFF)",
+      "ogprice": 55555,
+      "saletag": "60% OFF",
+      "displayName": "Summit Ninja",
       "id": 265,
       "buyable": true,
       "price": 22222,
@@ -2690,7 +2705,9 @@
     "frostconjurer": {
       "sale": true,
       "name": "frostconjurer",
-      "displayName": "Frost Conjurer (70% OFF)",
+      "ogprice": 23750,
+      "saletag": "70% OFF",
+      "displayName": "Frost Conjurer",
       "id": 274,
       "buyable": true,
       "price": 6825,
@@ -2761,7 +2778,8 @@
     "frosthologram": {
       "event": true,
       "name": "frosthologram",
-      "displayName": "Frost Hologram (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Frost Hologram",
       "id": 281,
       "buyable": true,
       "price": 3250,
@@ -2772,7 +2790,8 @@
     "ultrafrostninja": {
       "event": true,
       "name": "ultrafrostninja",
-      "displayName": "Ultra Frost Ninja (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Ultra Frost Ninja",
       "id": 282,
       "buyable": true,
       "price": 27777,
@@ -2783,7 +2802,8 @@
     "frozenvoid": {
       "event": true,
       "name": "frozenvoid",
-      "displayName": "Frozen Void (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Frozen Void",
       "id": 283,
       "buyable": true,
       "price": 18400,
@@ -2794,7 +2814,8 @@
     "blueandwhite": {
       "event": true,
       "name": "blueandwhite",
-      "displayName": "Blue & White (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Blue & White",
       "id": 284,
       "buyable": true,
       "price": 12000,
@@ -2805,7 +2826,8 @@
     "icicle": {
       "event": true,
       "name": "icicle",
-      "displayName": "Icicle (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Icicle",
       "id": 285,
       "buyable": true,
       "price": 9500,
@@ -2816,7 +2838,8 @@
     "icelord": {
       "event": true,
       "name": "icelord",
-      "displayName": "Ice Lord (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Ice Lord",
       "id": 286,
       "buyable": true,
       "price": 5500,
@@ -2827,7 +2850,8 @@
     "cryonecromancer": {
       "event": true,
       "name": "cryonecromancer",
-      "displayName": "Cryorock Necromancer (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Cryorock Necromancer",
       "id": 287,
       "buyable": true,
       "price": 4000,
@@ -2838,7 +2862,8 @@
     "coldcarl": {
       "event": true,
       "name": "coldcarl",
-      "displayName": "Cold Carl (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Cold Carl",
       "id": 288,
       "buyable": true,
       "price": 1250,
@@ -2849,7 +2874,8 @@
     "frozen": {
       "event": true,
       "name": "frozen",
-      "displayName": "Frozen (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Frozen",
       "id": 289,
       "buyable": true,
       "price": 725,
@@ -2858,12 +2884,14 @@
       "description": "At least I'm well-preserved!"
     },
     "winterv2": {
-      "event": true,
+      "sale": true,
       "name": "winterv2",
-      "displayName": "Winter (WINTER EVENT)",
+      "ogprice": 150,
+      "saletag": "99% OFF",
+      "displayName": "Winter",
       "id": 290,
       "buyable": true,
-      "price": 150,
+      "price": 1,
       "swordFileName": "winterWinterSword.png",
       "bodyFileName": "winterWinterPlayer.png",
       "description": "Winter is here!"
@@ -2871,7 +2899,8 @@
     "festive": {
       "freebie": true,
       "name": "festive",
-      "displayName": "Festive (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Festive",
       "id": 291,
       "buyable": true,
       "price": 0,
@@ -2882,7 +2911,8 @@
     "snowfieldsharpshooter": {
       "event": true,
       "name": "snowfieldsharpshooter",
-      "displayName": "Snowfield Sharpshooter (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Snowfield Sharpshooter",
       "id": 292,
       "buyable": true,
       "price": 111111,
@@ -2903,7 +2933,8 @@
     "yetiscythe": {
       "event": true,
       "name": "yetiscythe",
-      "displayName": "Yeti Scythe (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Yeti Scythe",
       "id": 294,
       "buyable": true,
       "price": 40000,
@@ -2914,7 +2945,8 @@
     "pinetreecamo": {
       "event": true,
       "name": "pinetreecamo",
-      "displayName": "Pine Tree Camo (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Pine Tree Camo",
       "id": 295,
       "buyable": true,
       "price": 7777,
@@ -2935,7 +2967,8 @@
     "cryofire": {
       "event": true,
       "name": "cryofire",
-      "displayName": "Cryofire (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Cryofire",
       "id": 297,
       "buyable": true,
       "price": 700,
@@ -2956,7 +2989,8 @@
     "iceconjurer": {
       "event": true,
       "name": "iceconjurer",
-      "displayName": "Ice Conjurer (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Ice Conjurer",
       "id": 299,
       "buyable": true,
       "price": 675,
@@ -2967,7 +3001,8 @@
     "hotchocolate": {
       "event": true,
       "name": "hotchocolate",
-      "displayName": "Hot Chocolate (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Hot Chocolate",
       "id": 300,
       "buyable": true,
       "price": 250,
@@ -2988,7 +3023,8 @@
     "unknownrune": {
       "event": true,
       "name": "unknownrune",
-      "displayName": "Unknown Rune (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Unknown Rune",
       "id": 302,
       "buyable": true,
       "price": 75,
@@ -2999,7 +3035,8 @@
     "candycane": {
       "event": true,
       "name": "candycane",
-      "displayName": "Candy Cane (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Candy Cane",
       "id": 303,
       "buyable": true,
       "price": 900,
@@ -3010,7 +3047,8 @@
     "ornament": {
       "event": true,
       "name": "ornament",
-      "displayName": "Ornament (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Ornament",
       "id": 304,
       "buyable": true,
       "price": 2345,
@@ -3021,9 +3059,10 @@
     "christmas": {
       "eventoffsale": true,
       "name": "christmas",
-      "displayName": "Christmas Warrior (WINTER EVENT)",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Christmas Warrior",
       "id": 305,
-      "buyable": true,
+      "buyable": false,
       "price": 0,
       "swordFileName": "winterChristmasSword.png",
       "bodyFileName": "winterChristmasPlayer.png",
@@ -3112,6 +3151,16 @@
       "swordFileName": "ultimateBitSword.png",
       "bodyFileName": "ultimateBitPlayer.png",
       "description": "Now with 3300% less pixels!"
+    },
+    "egg": {
+      "name": "egg",
+      "displayName": "Egg",
+      "id": 313,
+      "buyable": true,
+      "price": 90,
+      "swordFileName": "eggSword.png",
+      "bodyFileName": "eggPlayer.png",
+      "description": "“You better scramble like an egg before you get folded like an omelet”"
     }
   }
 }

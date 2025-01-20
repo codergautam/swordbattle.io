@@ -15,6 +15,7 @@ export interface ClientMessage {
   captchaP2?: string;
   captchaP3?: string;
   captchaP4?: string;
+  captchaP5?: string;
 }
 
 export function encodeClientMessage(message: ClientMessage): Uint8Array {
@@ -145,6 +146,13 @@ function _encodeClientMessage(message: ClientMessage, bb: ByteBuffer): void {
     writeVarint32(bb, 130);
     writeString(bb, $captchaP4);
   }
+
+  // optional string captchaP5 = 43;
+  let $captchaP5 = message.captchaP5;
+  if ($captchaP5 !== undefined) {
+    writeVarint32(bb, 346);
+    writeString(bb, $captchaP5);
+  }
 }
 
 export function decodeClientMessage(binary: Uint8Array): ClientMessage {
@@ -259,6 +267,12 @@ function _decodeClientMessage(bb: ByteBuffer): ClientMessage {
       // optional string captchaP4 = 16;
       case 16: {
         message.captchaP4 = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string captchaP5 = 43;
+      case 43: {
+        message.captchaP5 = readString(bb, readVarint32(bb));
         break;
       }
 

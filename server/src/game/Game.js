@@ -160,7 +160,13 @@ class Game {
 
   processClientMessage(client, data) {
     if (data.spectate && !client.spectator.isSpectating) {
-    if(config.recaptchaSecretKey && !client.captchaVerified && !data.captchaP1) return client.socket.close();
+      try {
+
+        if(config.recaptchaSecretKey && !client.captchaVerified && !data.captchaP1) return client.socket.close();
+        
+        } catch(e) {
+        console.log(e)
+        }
       if(config.recaptchaSecretKey && !client.captchaVerified) {
         const captchaAsText = helpers.importCaptcha(data);
         const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${config.recaptchaSecretKey}&response=${captchaAsText}&remoteip=${client.ip}`;

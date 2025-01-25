@@ -17,6 +17,7 @@ message ClientMessage {
   string captchaP2 = 14;
   string captchaP3 = 15;
   string captchaP4 = 16;
+  string captchaP5 = 43;
 }
 message InputData {
   int32 inputType = 1;

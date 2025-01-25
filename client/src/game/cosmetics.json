@@ -3151,6 +3151,16 @@
       "swordFileName": "ultimateBitSword.png",
       "bodyFileName": "ultimateBitPlayer.png",
       "description": "Now with 3300% less pixels!"
+    },
+    "egg": {
+      "name": "egg",
+      "displayName": "Egg",
+      "id": 313,
+      "buyable": true,
+      "price": 90,
+      "swordFileName": "eggSword.png",
+      "bodyFileName": "eggPlayer.png",
+      "description": "“You better scramble like an egg before you get folded like an omelet”"
     }
   }
 }

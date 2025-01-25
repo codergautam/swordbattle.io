@@ -160,8 +160,16 @@ class Game {
 
   processClientMessage(client, data) {
     if (data.spectate && !client.spectator.isSpectating) {
-    if(config.recaptchaSecretKey && !client.captchaVerified && !data.captchaP1) return client.socket.close();
-      if(config.recaptchaSecretKey && !client.captchaVerified) {
+      if(config.recaptchaSecretKey && !client.captchaVerified && !data.captchaP1) {
+      try {
+
+          client.socket.close();
+
+        } catch(e) {
+        console.log(e)
+        }
+        return;
+      } else if(config.recaptchaSecretKey && !client.captchaVerified && data.captchaP1) {
         const captchaAsText = helpers.importCaptcha(data);
         const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${config.recaptchaSecretKey}&response=${captchaAsText}&remoteip=${client.ip}`;
 
@@ -177,7 +185,11 @@ class Game {
             client.captchaVerified = true;
           } else {
             console.log('disconnected reason: invalid recaptcha', json);
+            try {
             client.socket.close();
+            } catch(e) {
+              console.log(e);
+            }
           }
         }).catch(err => {
           console.log(err);

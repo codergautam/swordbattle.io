@@ -113,7 +113,7 @@
       "displayName": "Ice Cream",
       "id": 145,
       "buyable": true,
-      "price": 35,
+      "price": 300,
       "swordFileName": "icecreamSword.png",
       "bodyFileName": "icecreamPlayer.png",
       "description": "I scream, you scream, your enemies scream"
@@ -163,7 +163,7 @@
       "displayName": "Pi Guy",
       "id": 197,
       "buyable": true,
-      "price": 265358,
+      "price": 314159,
       "swordFileName": "piGuySword.png",
       "bodyFileName": "piGuyPlayer.png",
       "description": "The ratio of a circle's circumference to its diameter"
@@ -173,7 +173,7 @@
       "displayName": "Frost Ninja",
       "id": 198,
       "buyable": true,
-      "price": 4444,
+      "price": 11111,
       "swordFileName": "frostninjaSword.png",
       "bodyFileName": "frostninjaPlayer.png",
       "description": "The cold never bothered me anyway"
@@ -183,7 +183,7 @@
       "displayName": "Penguin",
       "id": 199,
       "buyable": true,
-      "price": 140,
+      "price": 700,
       "swordFileName": "penguinSword.png",
       "bodyFileName": "penguinPlayer.png",
       "description": "Waddle waddle"
@@ -193,7 +193,7 @@
       "displayName": "Snowflake",
       "id": 200,
       "buyable": true,
-      "price": 255,
+      "price": 950,
       "swordFileName": "snowflakeSword.png",
       "bodyFileName": "snowflakePlayer.png",
       "description": "Unique and beautiful"
@@ -1932,7 +1932,7 @@
       "displayName": "Gingerbread",
       "id": 185,
       "buyable": true,
-      "price": 1,
+      "price": 200,
       "swordFileName": "gingerbreadSword.png",
       "bodyFileName": "gingerbreadPlayer.png",
       "description": "Tis the season to eat gingerbread! Nom nom nom nom nom, Nom nom, Nom, Nom."
@@ -2173,7 +2173,7 @@
       "displayName": "Aurora Borealis",
       "id": 223,
       "buyable": true,
-      "price": 450,
+      "price": 900,
       "swordFileName": "auroraborealisSword.png",
       "bodyFileName": "auroraborealisPlayer.png",
       "description": "Distract your opponents with a magnificent sight to see."
@@ -2593,7 +2593,7 @@
       "displayName": "Summit Ninja",
       "id": 265,
       "buyable": true,
-      "price": 22222,
+      "price": 55555,
       "swordFileName": "summitninjaSword.png",
       "bodyFileName": "summitninjaPlayer.png",
       "description": "There are always challenges to face before you reach the summit..."
@@ -2683,7 +2683,7 @@
       "displayName": "Frost Conjurer",
       "id": 274,
       "buyable": true,
-      "price": 6825,
+      "price": 23750,
       "swordFileName": "frostconjurerSword.png",
       "bodyFileName": "frostconjurerPlayer.png",
       "description": "It's a cold world out there"
@@ -2861,7 +2861,7 @@
       "displayName": "Winter",
       "id": 290,
       "buyable": true,
-      "price": 1,
+      "price": 150,
       "swordFileName": "winterWinterSword.png",
       "bodyFileName": "winterWinterPlayer.png",
       "description": "Winter is here!"

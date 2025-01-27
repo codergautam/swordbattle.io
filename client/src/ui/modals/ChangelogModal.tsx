@@ -6,6 +6,7 @@ function ChangelogModal() {
     <h1 style={{fontSize: 30}}>What's new? (January 27, 2025)</h1>
     <li>- Winter update has ended! All winter event skins are now exclusive!</li>
     <li>- 3 new ultimate skins! <li className='important'>(GET THE ULTIMATE LUMINOUS SKIN FOR FREE BEFORE 2/3!)</li></li>
+    <ul>(Note: Fixed bug with winter sale skins still being available for a discount)</ul>
     <br></br>
     <hr></hr>
     <h1 style={{fontSize: 30, color: 'black'}} className='golden'>New feature: Mastery</h1>

@@ -84,7 +84,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('chest5', publicPath + '/assets/game/Chest5.png');
     this.load.image('chest6', publicPath + '/assets/game/Chest6.png');
 
-    this.load.image('crown', publicPath + '/assets/game/player/crown.png');
+    this.load.image('crown', publicPath + '/assets/game/player/crown-new.png');
 
     // evols
     this.load.image('tankOverlay', publicPath + '/assets/game/player/tank.png');

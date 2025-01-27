@@ -108,7 +108,7 @@ module.exports = {
           size: [80, 110],
         },
         {
-          type: Types.Entity.Santa,
+          type: Types.Entity.Yeti,
           amount: 1,
           position: 'random',
           respawnable: true,

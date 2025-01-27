@@ -109,10 +109,7 @@
       "price": 200
     },
     "ice cream": {
-      "sale": true,
       "name": "ice cream",
-      "ogprice": 300,
-      "saletag": "90% OFF",
       "displayName": "Ice Cream",
       "id": 145,
       "buyable": true,
@@ -162,10 +159,7 @@
       "description": "WASD to move, Space to jump"
     },
     "pi guy": {
-      "sale": true,
       "name": "pi guy",
-      "ogprice": 314159,
-      "saletag": "20% OFF",
       "displayName": "Pi Guy",
       "id": 197,
       "buyable": true,
@@ -175,10 +169,7 @@
       "description": "The ratio of a circle's circumference to its diameter"
     },
     "frost ninja": {
-      "sale": true,
       "name": "frost ninja",
-      "ogprice": 11111,
-      "saletag": "60% OFF",
       "displayName": "Frost Ninja",
       "id": 198,
       "buyable": true,
@@ -188,10 +179,7 @@
       "description": "The cold never bothered me anyway"
     },
     "penguin": {
-      "sale": true,
       "name": "penguin",
-      "ogprice": 700,
-      "saletag": "80% OFF",
       "displayName": "Penguin",
       "id": 199,
       "buyable": true,
@@ -201,10 +189,7 @@
       "description": "Waddle waddle"
     },
     "snowflake": {
-      "sale": true,
       "name": "snowflake",
-      "ogprice": 950,
-      "saletag": "70% OFF",
       "displayName": "Snowflake",
       "id": 200,
       "buyable": true,
@@ -1943,10 +1928,7 @@
       "description": "You can't fight on an empty stomach."
     },
     "gingerbread": {
-      "sale": true,
       "name": "gingerbread",
-      "ogprice": 200,
-      "saletag": "99% OFF",
       "displayName": "Gingerbread",
       "id": 185,
       "buyable": true,
@@ -2187,10 +2169,7 @@
       "description": "An apple a day keeps The Roku away!"
     },
 "auroraborealis": {
-      "sale": true,
       "name": "auroraborealis",
-      "ogprice": 900,
-      "saletag": "50% OFF",
       "displayName": "Aurora Borealis",
       "id": 223,
       "buyable": true,
@@ -2610,10 +2589,7 @@
       "description": "Hide in the clouds and strike from above!"
     },
     "summitninja": {
-      "sale": true,
       "name": "summitninja",
-      "ogprice": 55555,
-      "saletag": "60% OFF",
       "displayName": "Summit Ninja",
       "id": 265,
       "buyable": true,
@@ -2703,10 +2679,7 @@
       "description": "Death is inevitable."
     },
     "frostconjurer": {
-      "sale": true,
       "name": "frostconjurer",
-      "ogprice": 23750,
-      "saletag": "70% OFF",
       "displayName": "Frost Conjurer",
       "id": 274,
       "buyable": true,
@@ -2776,118 +2749,115 @@
       "description": "Shiny and polished!"
     },
     "frosthologram": {
-      "event": true,
+      "eventoffsale": true,
       "name": "frosthologram",
       "eventtag": "WINTER EVENT",
       "displayName": "Frost Hologram",
       "id": 281,
-      "buyable": true,
+      "buyable": false,
       "price": 3250,
       "swordFileName": "winterHologramSword.png",
       "bodyFileName": "winterHologramPlayer.png",
       "description": "Perhaps nothing more than a hallucination from the frigidness..."
     },
     "ultrafrostninja": {
-      "event": true,
+      "eventoffsale": true,
       "name": "ultrafrostninja",
       "eventtag": "WINTER EVENT",
       "displayName": "Ultra Frost Ninja",
       "id": 282,
-      "buyable": true,
+      "buyable": false,
       "price": 27777,
       "swordFileName": "winterFrostninjaSword.png",
       "bodyFileName": "winterFrostninjaPlayer.png",
       "description": "Stab with frostbite..."
     },
     "frozenvoid": {
-      "event": true,
+      "eventoffsale": true,
       "name": "frozenvoid",
       "eventtag": "WINTER EVENT",
       "displayName": "Frozen Void",
       "id": 283,
-      "buyable": true,
+      "buyable": false,
       "price": 18400,
       "swordFileName": "winterVoidSword.png",
       "bodyFileName": "winterVoidPlayer.png",
       "description": "A vast emptiness of ice and frigid winds..."
     },
     "blueandwhite": {
-      "event": true,
+      "eventoffsale": true,
       "name": "blueandwhite",
       "eventtag": "WINTER EVENT",
       "displayName": "Blue & White",
       "id": 284,
-      "buyable": true,
+      "buyable": false,
       "price": 12000,
       "swordFileName": "winterBlackandwhiteSword.png",
       "bodyFileName": "winterBlackandwhitePlayer.png",
       "description": "A balance between ice and snow"
     },
     "icicle": {
-      "event": true,
+      "eventoffsale": true,
       "name": "icicle",
       "eventtag": "WINTER EVENT",
       "displayName": "Icicle",
       "id": 285,
-      "buyable": true,
+      "buyable": false,
       "price": 9500,
       "swordFileName": "winterIcicleSword.png",
       "bodyFileName": "winterIciclePlayer.png",
       "description": "I think it's a bit cold outside"
     },
     "icelord": {
-      "event": true,
+      "eventoffsale": true,
       "name": "icelord",
       "eventtag": "WINTER EVENT",
       "displayName": "Ice Lord",
       "id": 286,
-      "buyable": true,
+      "buyable": false,
       "price": 5500,
       "swordFileName": "winterIcelordSword.png",
       "bodyFileName": "winterIcelordPlayer.png",
       "description": "The freezer of necromancers, summoner of glaciers, and hoarder of coins."
     },
     "cryonecromancer": {
-      "event": true,
+      "eventoffsale": true,
       "name": "cryonecromancer",
       "eventtag": "WINTER EVENT",
       "displayName": "Cryorock Necromancer",
       "id": 287,
-      "buyable": true,
+      "buyable": false,
       "price": 4000,
       "swordFileName": "winterNecromancerSword.png",
       "bodyFileName": "winterNecromancerPlayer.png",
       "description": "When a magic force freezes something multiple times, cryorock is formed."
     },
     "coldcarl": {
-      "event": true,
+      "eventoffsale": true,
       "name": "coldcarl",
       "eventtag": "WINTER EVENT",
       "displayName": "Cold Carl",
       "id": 288,
-      "buyable": true,
+      "buyable": false,
       "price": 1250,
       "swordFileName": "winterCoolcarlSword.png",
       "bodyFileName": "winterCoolcarlPlayer.png",
       "description": "He's just cold like that."
     },
     "frozen": {
-      "event": true,
+      "eventoffsale": true,
       "name": "frozen",
       "eventtag": "WINTER EVENT",
       "displayName": "Frozen",
       "id": 289,
-      "buyable": true,
+      "buyable": false,
       "price": 725,
       "swordFileName": "winterFrozenSword.png",
       "bodyFileName": "winterFrozenPlayer.png",
       "description": "At least I'm well-preserved!"
     },
     "winterv2": {
-      "sale": true,
       "name": "winterv2",
-      "ogprice": 150,
-      "saletag": "99% OFF",
       "displayName": "Winter",
       "id": 290,
       "buyable": true,
@@ -2897,24 +2867,24 @@
       "description": "Winter is here!"
     },
     "festive": {
-      "freebie": true,
+      "eventoffsale": true,
       "name": "festive",
       "eventtag": "WINTER EVENT",
       "displayName": "Festive",
       "id": 291,
-      "buyable": true,
+      "buyable": false,
       "price": 0,
       "swordFileName": "winterFestiveSword.png",
       "bodyFileName": "winterFestivePlayer.png",
       "description": "Freebie skin for playing during the winter event!"
     },
     "snowfieldsharpshooter": {
-      "event": true,
+      "eventoffsale": true,
       "name": "snowfieldsharpshooter",
       "eventtag": "WINTER EVENT",
       "displayName": "Snowfield Sharpshooter",
       "id": 292,
-      "buyable": true,
+      "buyable": false,
       "price": 111111,
       "swordFileName": "winterSharpshooterSword.png",
       "bodyFileName": "winterSharpshooterPlayer.png",
@@ -2931,24 +2901,24 @@
       "description": "Scythes are always better than swords..."
     },
     "yetiscythe": {
-      "event": true,
+      "eventoffsale": true,
       "name": "yetiscythe",
       "eventtag": "WINTER EVENT",
       "displayName": "Yeti Scythe",
       "id": 294,
-      "buyable": true,
+      "buyable": false,
       "price": 40000,
       "swordFileName": "winterScytheSword.png",
       "bodyFileName": "winterScythePlayer.png",
       "description": "I guess yetis aren't a myth..."
     },
     "pinetreecamo": {
-      "event": true,
+      "eventoffsale": true,
       "name": "pinetreecamo",
       "eventtag": "WINTER EVENT",
       "displayName": "Pine Tree Camo",
       "id": 295,
-      "buyable": true,
+      "buyable": false,
       "price": 7777,
       "swordFileName": "winterCamoSword.png",
       "bodyFileName": "winterCamoPlayer.png",
@@ -2965,12 +2935,12 @@
       "description": "🔥🔥🔥🔥🔥"
     },
     "cryofire": {
-      "event": true,
+      "eventoffsale": true,
       "name": "cryofire",
       "eventtag": "WINTER EVENT",
       "displayName": "Cryofire",
       "id": 297,
-      "buyable": true,
+      "buyable": false,
       "price": 700,
       "swordFileName": "winterFireSword.png",
       "bodyFileName": "winterFirePlayer.png",
@@ -2987,24 +2957,24 @@
       "description": "💧💧💧💧💧"
     },
     "iceconjurer": {
-      "event": true,
+      "eventoffsale": true,
       "name": "iceconjurer",
       "eventtag": "WINTER EVENT",
       "displayName": "Ice Conjurer",
       "id": 299,
-      "buyable": true,
+      "buyable": false,
       "price": 675,
       "swordFileName": "winterWaterSword.png",
       "bodyFileName": "winterWaterPlayer.png",
       "description": "🧊🧊🧊🧊🧊"
     },
     "hotchocolate": {
-      "event": true,
+      "eventoffsale": true,
       "name": "hotchocolate",
       "eventtag": "WINTER EVENT",
       "displayName": "Hot Chocolate",
       "id": 300,
-      "buyable": true,
+      "buyable": false,
       "price": 250,
       "swordFileName": "winterTeaSword.png",
       "bodyFileName": "winterTeaPlayer.png",
@@ -3021,36 +2991,36 @@
       "description": ":v"
     },
     "unknownrune": {
-      "event": true,
+      "eventoffsale": true,
       "name": "unknownrune",
       "eventtag": "WINTER EVENT",
       "displayName": "Unknown Rune",
       "id": 302,
-      "buyable": true,
+      "buyable": false,
       "price": 75,
       "swordFileName": "winterUnknownSword.png",
       "bodyFileName": "winterUnknownPlayer.png",
       "description": "Who snows?"
     },
     "candycane": {
-      "event": true,
+      "eventoffsale": true,
       "name": "candycane",
       "eventtag": "WINTER EVENT",
       "displayName": "Candy Cane",
       "id": 303,
-      "buyable": true,
+      "buyable": false,
       "price": 900,
       "swordFileName": "winterCaneSword.png",
       "bodyFileName": "winterCanePlayer.png",
       "description": "Stab with stripes!"
     },
     "ornament": {
-      "event": true,
+      "eventoffsale": true,
       "name": "ornament",
       "eventtag": "WINTER EVENT",
       "displayName": "Ornament",
       "id": 304,
-      "buyable": true,
+      "buyable": false,
       "price": 2345,
       "swordFileName": "winterOrnamentSword.png",
       "bodyFileName": "winterOrnamentPlayer.png",
@@ -3123,7 +3093,7 @@
       "displayName": "Rainbow Void",
       "id": 310,
       "buyable": true,
-      "price": 25000,
+      "price": 30000,
       "swordFileName": "ultimateVoidSword.png",
       "bodyFileName": "ultimateVoidPlayer.png",
       "description": "Wanted to be dark and depressing but instead became part of someone's gaming setup"
@@ -3161,6 +3131,33 @@
       "swordFileName": "eggSword.png",
       "bodyFileName": "eggPlayer.png",
       "description": "“You better scramble like an egg before you get folded like an omelet”"
+    },
+    "rainbowluminous": {
+      "ultimate": true,
+      "sale": true,
+      "ogprice": 25000,
+      "saletag": "100% OFF",
+      "tag": "Ultimate Luminous",
+      "name": "rainbowluminous",
+      "displayName": "Rainbow Luminous",
+      "id": 314,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "ultimateLuminousSword.png",
+      "bodyFileName": "ultimateLuminousPlayer.png",
+      "description": "Even brighter than before!"
+    },
+    "rainbowfire": {
+      "ultimate": true,
+      "tag": "Ultimate Fire",
+      "name": "rainbowfire",
+      "displayName": "Rainbow Fire",
+      "id": 315,
+      "buyable": true,
+      "price": 50000,
+      "swordFileName": "ultimateFireSword.png",
+      "bodyFileName": "ultimateFirePlayer.png",
+      "description": "Every color burns hotter than the last..."
     }
   }
 }

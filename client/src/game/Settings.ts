@@ -18,6 +18,16 @@ export const settingsList: Record<string, SettingType> = {
     type: 'toggle',
     default: false,
     },
+  coins: {
+      name: 'Use legacy coin images (requires reload)',
+      type: 'toggle',
+      default: false,
+      onChange: () => {
+        if (isLoaded) {
+          window.location.reload();
+        }
+      },
+      },
   useWebGL: {
     name: 'Use WebGL (requires reload)',
     type: 'toggle',

@@ -5,8 +5,8 @@ module.exports = class Samurai extends Evolution {
   static type = Types.Evolution.Samurai;
   static level = 22;
   static previousEvol = Types.Evolution.Tank;
-  static abilityDuration = 8.5;
-  static abilityCooldown = 55;
+  static abilityDuration = 6;
+  static abilityCooldown = 60;
 
   applyAbilityEffects() {
     this.player.shape.setScale(1.1);

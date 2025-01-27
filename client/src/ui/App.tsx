@@ -286,7 +286,7 @@ function App() {
           <div id="menuContainer" >
           
             {/* <!-- GAME NAME --> */}
-            <div id="gameName" style={{ color: "#8CDCFF" }}><img src={titleImg} alt="Swordbattle.io" width={750} height={250} style={{ 
+            <div id="gameName"><img src={titleImg} alt="Swordbattle.io" width={750} height={250} style={{ 
     position: 'fixed',
     top: '-50%', 
     left: '50%',

@@ -6,6 +6,7 @@ import './SettingsModal.scss';
 function SettingsModal() {
   const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
   const [swords, setSwords] = useState(Settings.swords);
+  const [coins, setCoins] = useState(Settings.coins);
   const [antialiasing, setAntialiasing] = useState(Settings.antialiasing);
   const [resolution, setResolution] = useState(Settings.resolution);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
@@ -24,6 +25,10 @@ function SettingsModal() {
   const updateSwords = (value: any) => {
     setSwords(value);
     Settings.swords = value;
+  }
+  const updateCoins = (value: any) => {
+    setCoins(value);
+    Settings.coins = value;
   }
   const updateAntialiasing = (value: any) => {
     setAntialiasing(value);
@@ -57,6 +62,16 @@ function SettingsModal() {
           <input type="checkbox" name="swords" id="swords"
             checked={swords}
             onChange={(e) => updateSwords(e.target.checked)}
+          />
+          <span className="slider round"></span>
+        </label>
+      </div>
+      <div className="settings-line">
+        <label htmlFor="coins">Use legacy coin images (requires reload): </label>
+        <label className="switch">
+          <input type="checkbox" name="coins" id="coins"
+            checked={coins}
+            onChange={(e) => updateCoins(e.target.checked)}
           />
           <span className="slider round"></span>
         </label>

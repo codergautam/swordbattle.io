@@ -43,7 +43,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   const [skinStatus, setSkinStatus] = useState<{ [id: number]: string }>({});
   const [skinCounts, setSkinCounts] = useState<{ [id: number]: number }>({});
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBadge, setSelectedBadge] = useState('new');
+  const [selectedBadge, setSelectedBadge] = useState('norm');
 
   const skinRefs = useRef<(HTMLImageElement | null)[]>(new Array(Object.keys(skins).length).fill(null));
   // const swordRefs = useRef<(HTMLImageElement | null)[]>(new Array(Object.keys(skins).length).fill(null));
@@ -148,7 +148,6 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
 </div>
 
 <div className="badges">
-<button onClick={() => setSelectedBadge('new')} className={selectedBadge === 'new' ? 'active' : ''} data-selected-badge="new">All Skins</button>
 <button onClick={() => setSelectedBadge('norm')} className={selectedBadge === 'norm' ? 'active' : ''}>Normal Skins</button>
 <button onClick={() => setSelectedBadge('sale')} className={selectedBadge === 'sale' ? 'active' : ''} data-selected-badge="sale">Skins On Sale</button>
 <button onClick={() => setSelectedBadge('event')} className={selectedBadge === 'event' ? 'active' : ''} data-selected-badge="event">Event Skins</button>
@@ -167,9 +166,6 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   )}
       </div>
       <center>
-      {selectedBadge === 'new' && (
-          <p style={{marginTop: 0}}>You're currently looking at every obtainable skin. Use the tabs above to find specific skins faster!</p>
-        )}
       {selectedBadge === 'og' && (
           <p style={{marginTop: 0}}>OG skins are skins that were available in the original version of the game before 2024.<br/>They are no longer obtainable, but can still be equipped from this menu.</p>
         )}
@@ -261,7 +257,16 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   ) : (
     <>
       <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
-        {skin.buyable ? 'Free' : ''}
+      {skin?.sale 
+        && <> <span className="sale">
+        {skin?.ogprice}
+      </span><span>‎ ‎ ‎</span> </>
+      }
+        {skin.buyable ? '0' : ''}
+        {skin?.ultimate 
+        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={30} height={30} />
+        : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} />
+      }
       </p>
     </>
   )

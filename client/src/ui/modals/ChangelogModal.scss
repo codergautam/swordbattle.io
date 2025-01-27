@@ -13,11 +13,11 @@
   h1, h2 {
     margin: 0 0 20px;
     font-family: 'courier new', courier;
-    color: #44bafa;
+    color: #fff;
   }
 
   ul, li {
-    color: #9dd3ff;
+    color: #fff;
     margin: 0;
     padding: 0;
     line-height: normal;
@@ -31,8 +31,7 @@
   }
 
   .important {
-    font-size: 25px;
-    color: rgb(0, 255, 255);
+    color: rgb(255, 0, 0);
   }
 
   .golden {

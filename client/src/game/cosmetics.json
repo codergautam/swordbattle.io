@@ -3158,6 +3158,18 @@
       "swordFileName": "ultimateFireSword.png",
       "bodyFileName": "ultimateFirePlayer.png",
       "description": "Every color burns hotter than the last..."
+    },
+    "deadpixel": {
+      "ultimate": true,
+      "tag": "Ultimate Pixel",
+      "name": "deadpixel",
+      "displayName": "Dead Pixel",
+      "id": 316,
+      "buyable": true,
+      "price": 2500,
+      "swordFileName": "ultimatePixelSword.png",
+      "bodyFileName": "ultimatePixelPlayer.png",
+      "description": "A dark pixel in a world of light ones"
     }
   }
 }

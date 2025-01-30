@@ -5,8 +5,8 @@ import { config } from '../../config';
 class EvolutionSelect extends HudComponent {
   spritesContainer: Phaser.GameObjects.Container | null = null;
   hideButton: Phaser.GameObjects.Text | null = null;
-  spriteSize = 125;
-  indent = 50;
+  spriteSize = 90;
+  indent = 30;
   minimized = false;
   updateList = false;
 

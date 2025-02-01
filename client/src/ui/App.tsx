@@ -305,7 +305,7 @@ function App() {
                   <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} />
                 </div>
 
-                <div className="menu">
+                <div className="announcementCard menuCard panel">
                     <div>
                     <span className="announcedate">
                       (January 27th): 

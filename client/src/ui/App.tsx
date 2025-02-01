@@ -34,7 +34,6 @@ import Ad from './Ad';
 import { Settings } from '../game/Settings';
 import { getServerList, updatePing } from '../ServerList';
 import AccountCard from './AccountCard';
-import AnnouncementCard from './AnnouncementCard';
 import ForumCard from './ForumCard';
 // import Game from '../game/scenes/Game';
 import titleImg from '../assets/img/final.png';

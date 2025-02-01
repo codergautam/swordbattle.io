@@ -305,7 +305,14 @@ function App() {
                   <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} />
                 </div>
 
-
+                <div className="menu">
+                    <div>
+                    <span className="announcedate">
+                      (January 27th): 
+                    </span>
+                       {} 3 new ultimate skins! + <span className="announceimportant">GET THE ULTIMATE LUMINOUS SKIN FOR FREE BEFORE 2/3!</span>
+                    </div>
+                  </div>
                 {/* <!-- Play --> */}
                 <div className="joinCard menuCard panel" style={{ position: 'relative' }}>
                   <div className="joinCardInput">

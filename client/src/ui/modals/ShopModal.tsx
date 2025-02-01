@@ -166,6 +166,9 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   )}
       </div>
       <center>
+      {selectedBadge === 'norm' && (
+          <p style={{marginTop: 0}}>ULTIMATE SKIN SALE! GET THE ULTIMATE LUMINOUS SKIN FOR FREE BEFORE 2/3!</p>
+        )}
       {selectedBadge === 'og' && (
           <p style={{marginTop: 0}}>OG skins are skins that were available in the original version of the game before 2024.<br/>They are no longer obtainable, but can still be equipped from this menu.</p>
         )}

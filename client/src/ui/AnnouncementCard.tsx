@@ -10,7 +10,6 @@ export default function AccountCard({account, onLogin, onSignup,}: {account: Acc
                        {} 3 new ultimate skins! + <span className="announceimportant">GET THE ULTIMATE LUMINOUS SKIN FOR FREE BEFORE 2/3!</span>
                     </div>
                   </span>
-    )
   } else return (
     <span id="logged-out">
                     <div>

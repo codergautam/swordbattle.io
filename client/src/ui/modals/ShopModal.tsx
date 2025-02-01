@@ -265,11 +265,14 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         {skin?.ogprice}
       </span><span>‎ ‎ ‎</span> </>
       }
-        {skin.buyable ? '0' : ''}
-        {skin?.ultimate 
-        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={30} height={30} />
-        : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} />
-      }
+        {skin?.ultimate ? (
+  <>
+    {skin.buyable ? '0' : ''}
+    <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
+  </>
+) : (
+  skin?.buyable ? 'Free' : ''
+)}
       </p>
     </>
   )

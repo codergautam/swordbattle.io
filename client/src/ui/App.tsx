@@ -34,6 +34,7 @@ import Ad from './Ad';
 import { Settings } from '../game/Settings';
 import { getServerList, updatePing } from '../ServerList';
 import AccountCard from './AccountCard';
+import AnnouncementCard from './AnnouncementCard';
 import ForumCard from './ForumCard';
 // import Game from '../game/scenes/Game';
 import titleImg from '../assets/img/final.png';
@@ -290,7 +291,7 @@ function App() {
     position: 'fixed',
     top: '-50%', 
     left: '50%',
-    transform: 'translate(-50%, -100%)' 
+    transform: 'translate(-50%, -125%)' 
   }} /> 
 </div>
           
@@ -303,6 +304,10 @@ function App() {
               <div className="menu">
                 <div className="accountCard menuCard panel">
                   <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} />
+                </div>
+
+                <div className="announcementCard menuCard panel">
+                  <AnnouncementCard account={account} onLogin={onLogin} onSignup={onSignup}/>
                 </div>
 
                 {/* <!-- Play --> */}

@@ -372,6 +372,25 @@ span {
 #menuCardHolder .menu .accountCard {
   width: 310px;
 }
+#menuCardHolder .menu .announcementCard {
+  color: white;
+  text-align: center;
+  font-size: 19px;
+  width: 1000px;
+  height: 58px;
+  position: fixed;
+    top: -6%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+}
+#menuCardHolder .menu .announcementCard .announcedate {
+  color: #999999;
+  font-size: 17px;
+}
+
+#menuCardHolder .menu .announcementCard .announceimportant {
+  color: yellow;
+}
 #menuCardHolder .menu .forumCard {
   width: 310px;
   padding: 0;

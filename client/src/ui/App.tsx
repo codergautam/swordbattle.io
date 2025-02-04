@@ -307,10 +307,11 @@ function App() {
 
                 <div className="announcementCard menuCard panel">
                     <div>
-                    <span className="announcedate">
+                    {/* <!-- <span className="announcedate">
                       (January 27th): 
                     </span>
-                       {} 3 new ultimate skins! + <span className="announceimportant">GET THE ULTIMATE LUMINOUS SKIN FOR FREE BEFORE 2/3!</span>
+                       {} --!> */}Tip: On computers, you can press G or R to activate your ability, and C or Shift to throw your sword! {/* <!-- <span className="announceimportant">GET THE ULTIMATE LUMINOUS SKIN FOR FREE BEFORE 2/3!</span>
+                       {} --!> */}
                     </div>
                   </div>
                 {/* <!-- Play --> */}

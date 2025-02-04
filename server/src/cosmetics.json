@@ -3134,15 +3134,12 @@
     },
     "rainbowluminous": {
       "ultimate": true,
-      "sale": true,
-      "ogprice": 25000,
-      "saletag": "100% OFF",
       "tag": "Ultimate Luminous",
       "name": "rainbowluminous",
       "displayName": "Rainbow Luminous",
       "id": 314,
       "buyable": true,
-      "price": 0,
+      "price": 25000,
       "swordFileName": "ultimateLuminousSword.png",
       "bodyFileName": "ultimateLuminousPlayer.png",
       "description": "Even brighter than before!"

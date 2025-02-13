@@ -129,7 +129,6 @@ export function GlobalLeaderboard() {
                     <div className="d-flex align-items-center">
                       <div className="user-info__basic">
                         <h5 className="mb-0">
-                        <img src={'assets/game/player/'+Object.values(cosmetics.skins).find((skin: any) => skin.id === row.skins.equipped)?.bodyFileName}/>
                           <Link to={`/profile?username=${encodeURIComponent(row.username)}`} rel="noreferrer" style={{ color: 'black' }}>{row.username}</Link>
                         </h5>
                       </div>

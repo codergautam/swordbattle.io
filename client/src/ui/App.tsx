@@ -310,7 +310,7 @@ function App() {
                     {/* <!-- <span className="announcedate">
                       (January 27th): 
                     </span>
-                       {} --!> */}Tip: On computers, you can press G or R to activate your ability, and C or Shift to throw your sword! {/* <!-- <span className="announceimportant">GET THE ULTIMATE LUMINOUS SKIN FOR FREE BEFORE 2/3!</span>
+                       {} --!> */}Tip: Be careful! When you die, you can't pick your own coins back up until someone else does! {/* <!-- <span className="announceimportant">GET THE ULTIMATE LUMINOUS SKIN FOR FREE BEFORE 2/3!</span>
                        {} --!> */}
                     </div>
                   </div>

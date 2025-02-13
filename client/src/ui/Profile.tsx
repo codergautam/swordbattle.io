@@ -125,7 +125,7 @@ export default function Profile() {
           <Card title="Total Playtime" text={data.totalStats ? secondsToTime(data.totalStats.playtime) : 0} />
           <Card title="Stabs" text={data.totalStats ? numberWithCommas(data.totalStats.kills) : 0} />
           <Card title="Skins Owned" text={data.account.skins.owned.length} />
-          <Card title="Ultimacy" text={data.totalStats ? numberWithCommas(data.totalStats.ultimacy) : 0} />
+          <Card title="Mastery" text={data.totalStats ? numberWithCommas(data.totalStats.ultimacy) : 0} />
         </div>
 
         {data.dailyStats && data.dailyStats.length &&

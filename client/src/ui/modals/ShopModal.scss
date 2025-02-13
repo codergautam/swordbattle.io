@@ -9,32 +9,67 @@
 .shop-modal {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 140px);
   width: calc(100vw - 100px);
   max-width: 1000px;
   margin: 20px auto;
-  background: linear-gradient(to top left, #001101 5%, rgb(3, 51, 5) 100%);
+  background: linear-gradient(to top left, #011702 5%, rgb(5, 63, 7) 100%);
   box-shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.25);
   padding: 20px;
   border-radius: 10px;
   color: #ffffff;
+  flex-grow: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  overflow: hidden;
   /* White text color for modal */
 
 }
 
+.label {
+  margin-left: 10px;
+  font-size: 30px;
+}
+
+.label hr {
+  margin-top: 0;
+  border-color: #000;
+}
+
+.label p {
+  margin-top: -7px; 
+  font-size: 13px;
+  color: lightgray;
+}
+.shop-extra {
+  width: 20%;
+  max-width: 300px;
+  min-width: 100px;
+  font-size: 10%;
+  margin-right: 10px;
+}
 /* Skins Container Styles */
+.scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 82%;
+  background-color: #00000068;
+  margin-top: -20px;
+  padding-top: 20px;
+  margin-bottom: -20px;
+  padding-bottom: 20px;
+}
 .skins {
   flex-grow: 1;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
-  overflow-y: auto;
-  overflow-x: hidden;
   align-content: flex-start;
 }
 
 .shop-title {
-  font-size: 30px;
+  font-size: 50px;
   text-align: center;
   color: #ffffff;
   /* Adjusting header color to fit modal style */
@@ -42,7 +77,7 @@
 }
 
 .shop-desc {
-  font-size: 20px;
+  font-size: 15px;
   text-align: center;
   color: #ffffff;
   /* Adjusting header color to fit modal style */
@@ -65,11 +100,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.25);
-  width: 200px;
+  width: 130px;
 
   .skin-name {
-    font-size: 25px;
+    font-size: 17.5px;
     color: white;
     text-align: center;
     font-weight: 700;
@@ -77,14 +111,16 @@
 
   .skin-tag {
     color: magenta;
-    font-size: 20px;
-    margin-top: -20px
+    font-size: 14px;
+    margin-top: -10px;
+    text-align: center;
   }
 
   .skin-saletag {
     color: yellow;
-    font-size: 30px;
-    margin-top: -20px
+    font-size: 20px;
+    margin-top: -10px;
+    text-align: center;
   }
 
   .sale {
@@ -93,45 +129,46 @@
 
   .skin-eventtag {
     color: cyan;
-    font-size: 23px;
-    margin-top: -20px
+    font-size: 16px;
+    margin-top: -10px;
+    text-align: center;
   }
 
   .skin-img {
-    width: 150px;
-    height: 150px;
+    width: 110px;
+    height: 110px;
     background-size: cover;
     background-position: center;
   }
 
   .skin-sword {
-    width: 156px;
-    height: 168px;
+    width: 104px;
+    height: 112px;
     background-size: cover;
     background-position: center;
   }
 
   .skin-count {
-    font-size: 20px;
+    font-size: 14px;
     color: white;
     text-align: center;
     font-weight: normal;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
   }
 
   .buy-button {
     color: #ffffff;
     padding: 0.8rem;
-    margin-top: 5px;
-    font-size: 14px;
+    margin-top: 2.5px;
+    font-size: 10px;
     text-transform: uppercase;
-    border-radius: 4px;
+    border-radius: 2px;
     font-weight: 400;
     display: block;
     width: 100%;
     cursor: pointer;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 0.5px solid rgba(255, 255, 255, 0.2);
     background: transparent;
 
     &:hover {
@@ -210,6 +247,8 @@ h1 {
   display: flex;
   justify-content: center;
   margin-bottom: 10px;
+  margin-left: -50%;
+  margin-right: -50%;
 }
 
 .search-bar input {
@@ -232,15 +271,17 @@ h1 {
 
 .badges {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 5px;
 }
 
 .badges button {
-  margin: 0 10px;
-  padding: 5px 10px;
+  margin: 5px;
+  padding: 10px 10px;
   border: none;
-  border-radius: 20px;
+  border-radius: 10px;
   background-color: #ddd;
   cursor: pointer;
   transition: background-color 0.3s ease;

@@ -307,11 +307,11 @@ function App() {
 
                 <div className="announcementCard menuCard panel">
                     <div>
-                    {/* <!-- <span className="announcedate">
-                      (January 27th): 
+                    <span className="announcedate">
+                      (February 13th): 
                     </span>
-                       {} --!> */}Tip: Be careful! When you die, you can't pick your own coins back up until someone else does! {/* <!-- <span className="announceimportant">GET THE ULTIMATE LUMINOUS SKIN FOR FREE BEFORE 2/3!</span>
-                       {} --!> */}
+                       {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span>
+                  
                     </div>
                   </div>
                 {/* <!-- Play --> */}

@@ -2153,7 +2153,10 @@
       "displayName": "Ancient Coin",
       "id": 221,
       "buyable": true,
-      "price": 35000,
+      "ogprice": 35000,
+      "saletag": "25% OFF",
+      "sale": true,
+      "price": 26250,
       "swordFileName": "ancientcoinSword.png",
       "bodyFileName": "ancientcoinPlayer.png",
       "description": "Once a simple coin, now a relic worth thousands"
@@ -2243,7 +2246,10 @@
       "displayName": "Chest",
       "id": 230,
       "buyable": true,
-      "price": 22500,
+      "ogprice": 22500,
+      "saletag": "75% OFF",
+      "sale": true,
+      "price": 5625,
       "swordFileName": "chestSword.png",
       "bodyFileName": "chestPlayer.png",
       "description": "You have become the very thing you swore to destroy!"
@@ -2253,7 +2259,7 @@
       "displayName": "Chroma",
       "id": 231,
       "buyable": true,
-      "price": 255255,
+      "price": 2555255,
       "swordFileName": "chromaSword.png",
       "bodyFileName": "chromaPlayer.png",
       "description": "A prismatic amalgamation..."
@@ -2353,7 +2359,10 @@
       "displayName": "Golden",
       "id": 241,
       "buyable": true,
-      "price": 25000,
+      "ogprice": 25000,
+      "saletag": "60% OFF",
+      "sale": true,
+      "price": 10000,
       "swordFileName": "goldenSword.png",
       "bodyFileName": "goldenPlayer.png",
       "description": "I'm made of coins, both metaphorically and literally!"
@@ -2383,7 +2392,10 @@
       "displayName": "Infinity",
       "id": 244,
       "buyable": true,
-      "price": 88888,
+      "ogprice": 88888,
+      "saletag": "75% OFF",
+      "sale": true,
+      "price": 22222,
       "swordFileName": "infinitySword.png",
       "bodyFileName": "infinityPlayer.png",
       "description": "No longer bound by limits..."
@@ -2463,7 +2475,10 @@
       "displayName": "Radar",
       "id": 252,
       "buyable": true,
-      "price": 5750,
+      "ogprice": 5750,
+      "saletag": "90% OFF",
+      "sale": true,
+      "price": 575,
       "swordFileName": "radarSword.png",
       "bodyFileName": "radarPlayer.png",
       "description": "You can't hide from me!"
@@ -2503,7 +2518,10 @@
       "displayName": "Shield",
       "id": 256,
       "buyable": true,
-      "price": 45000,
+      "ogprice": 45000,
+      "saletag": "55% OFF",
+      "sale": true,
+      "price": 20000,
       "swordFileName": "shieldSword.png",
       "bodyFileName": "shieldPlayer.png",
       "description": "The best defense!"
@@ -2513,7 +2531,10 @@
       "displayName": "Steampunk",
       "id": 257,
       "buyable": true,
-      "price": 525525,
+      "ogprice": 525525,
+      "saletag": "90% OFF",
+      "sale": true,
+      "price": 52552,
       "swordFileName": "steampunkSword.png",
       "bodyFileName": "steampunkPlayer.png",
       "description": "Killin' like clockwork"
@@ -2533,7 +2554,10 @@
       "displayName": "The Divider",
       "id": 259,
       "buyable": true,
-      "price": 200200,
+      "ogprice": 200200,
+      "saletag": "50% OFF",
+      "sale": true,
+      "price": 100100,
       "swordFileName": "thedividerSword.png",
       "bodyFileName": "thedividerPlayer.png",
       "description": "A single slice will divide anything into two..."
@@ -2573,7 +2597,10 @@
       "displayName": "Lava Ninja",
       "id": 263,
       "buyable": true,
-      "price": 33333,
+      "ogprice": 33333,
+      "saletag": "66% OFF",
+      "sale": true,
+      "price": 11111,
       "swordFileName": "lavaninjaSword.png",
       "bodyFileName": "lavaninjaPlayer.png",
       "description": "You can probably guess what this guy's favorite biome is"
@@ -2583,7 +2610,10 @@
       "displayName": "Thundercloud Ninja",
       "id": 264,
       "buyable": true,
-      "price": 44444,
+      "ogprice": 44444,
+      "saletag": "50% OFF",
+      "sale": true,
+      "price": 22222,
       "swordFileName": "thundercloudninjaSword.png",
       "bodyFileName": "thundercloudninjaPlayer.png",
       "description": "Hide in the clouds and strike from above!"
@@ -3151,7 +3181,7 @@
       "displayName": "Rainbow Fire",
       "id": 315,
       "buyable": true,
-      "price": 50000,
+      "price": 27500,
       "swordFileName": "ultimateFireSword.png",
       "bodyFileName": "ultimateFirePlayer.png",
       "description": "Every color burns hotter than the last..."
@@ -3167,6 +3197,18 @@
       "swordFileName": "ultimatePixelSword.png",
       "bodyFileName": "ultimatePixelPlayer.png",
       "description": "A dark pixel in a world of light ones"
+    },
+    "shattermech": {
+      "ultimate": true,
+      "tag": "Ultimate Broken",
+      "name": "shattermech",
+      "displayName": "Shattermech",
+      "id": 317,
+      "buyable": true,
+      "price": 100000,
+      "swordFileName": "ultimateBrokenSword.png",
+      "bodyFileName": "ultimateBrokenPlayer.png",
+      "description": "Once shattered by others, and now the shatterer of others..."
     }
   }
 }

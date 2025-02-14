@@ -378,7 +378,7 @@ function App() {
 <div className="auth-buttons" style={scale.styles}>
              {account.isLoggedIn ? (
                <div className="dropdown">
-                 <div className="auth-username"><FontAwesomeIcon icon={faUser} /> {account.username}{account.clan}</div>
+                 <div className="auth-username"><FontAwesomeIcon icon={faUser} /> {account.username}</div>
                  <ul className="dropdown-menu">
                    <li>
                    <a className="dropdown-item" href="#" onClick={onChangeName}>

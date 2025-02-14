@@ -62,6 +62,7 @@ function LeaderboardLine({ player }: any) {
   }
   return (
     <div className="leaderboard-line">
+       {player.account?.clan && <span className="leaderboard-clan">[{player.account.clan.toUpperCase()}] &nbsp;</span>}
       <span className="leaderboard-place">#{player.place}: </span>
       <span className="leaderboard-name" style={player.account ? { color: specialColors[player.name.toLowerCase() as any] ? specialColors[player.name.toLowerCase() as any] : '#3333ff' } : {}}>{player.name}
       {player.account?.rank && <span style={{color: getRankColor(player.account.rank)}}> (#{player.account.rank})</span>}

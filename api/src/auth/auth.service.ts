@@ -88,9 +88,6 @@ export class AuthService {
   async changeUsername(account: Account, newUsername: string) {
     try {
       let result = await this.accountsService.changeUsername(account.id, newUsername);
-      if(result.success) {
-        (result as any).secret = account.secret;
-      }
     return result;
     } catch (e) {
       console.log(e);

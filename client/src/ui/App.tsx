@@ -202,6 +202,7 @@ function App() {
 
   const onStart = () => {
     console.log('Starting game');
+    console.log(account.clan);
     if(!isConnected) {
       alert('Not connected yet');
       return;

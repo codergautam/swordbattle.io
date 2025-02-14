@@ -102,6 +102,7 @@ export const changeClanAsync = createAsyncThunk(
         alert('Clan changed successfully');
         // Dispatching actions to update name and token in the state
         dispatch(setClan(newClan));
+        dispatch(setSecret(response.secret));
       }
     } catch (error) {
       // Handle any other errors, such as network issues

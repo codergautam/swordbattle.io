@@ -16,7 +16,7 @@ import LoginModal from './modals/LoginModal';
 import SignupModal from './modals/SignupModal';
 import ConnectionError from './modals/ConnectionError';
 
-import { clearAccount, setAccount, logoutAsync, changeNameAsync, changeClanAsync } from '../redux/account/slice';
+import { clearAccount, setAccount, logoutAsync, changeNameAsync } from '../redux/account/slice';
 import { selectAccount } from '../redux/account/selector';
 import api from '../api';
 
@@ -235,12 +235,8 @@ function App() {
   const onChangeName = () => {
     const newName = prompt('What do you want to change your name to? Please note that you can only change your name once every 7 days.');
     if (!newName) return;
+
     dispatch(changeNameAsync(newName) as any);
-  }
-    const onChangeClan = () => {
-      const newClan = prompt('What do you want to change your clan to? Clans can only contain letters, numbers, and up to 4 characters.');
-      if (!newClan) return;
-    dispatch(changeClanAsync(newClan) as any);
   }
   const openShop = () => {
     setModal(<ShopModal account={account} />);
@@ -382,11 +378,6 @@ function App() {
                    <li>
                    <a className="dropdown-item" href="#" onClick={onChangeName}>
                      <FontAwesomeIcon icon={faICursor} /> Change Name
-                   </a>
-                   </li>
-                   <li>
-                   <a className="dropdown-item" href="#" onClick={onChangeClan}>
-                     <FontAwesomeIcon icon={faICursor} /> Change Clan
                    </a>
                    </li>
                    <li><a className="dropdown-item" href="#" onClick={onLogout}>

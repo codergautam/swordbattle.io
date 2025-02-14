@@ -70,11 +70,6 @@ export class AuthController {
     let result = await this.authService.changeUsername(request.account, request.body.newUsername);
     return result;
   }
-  @Post('change-clan')
-  async changeClan(@Req() request) {
-    let result = await this.authService.changeClan(request.account, request.body.newClan);
-    return result;
-  }
 
   setCookie(res: Response, key: string, value: string) {
     return res.cookie(key, value, {

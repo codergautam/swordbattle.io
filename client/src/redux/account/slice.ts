@@ -4,7 +4,6 @@ import api from '../../api';
 export type AccountState = {
   email: string;
   username: string;
-  clan: string;
   isLoggedIn: boolean;
   secret: string;
   gems: number;
@@ -17,7 +16,6 @@ export type AccountState = {
 const initialState: AccountState = {
   email: '',
   username: '',
-  clan: '',
   secret: '',
   isLoggedIn: false,
   gems: 0,
@@ -87,30 +85,7 @@ export const changeNameAsync = createAsyncThunk(
     }
   }
 );
-export const changeClanAsync = createAsyncThunk(
-  'account/changeClan',
-  async (newClan: string, { getState, dispatch }) => {
-    // const state: any = getState();
-    try {
-      const response = await api.postAsync(`${api.endpoint}/auth/change-clan?now=${Date.now()}`, {
-        newClan
-      });
 
-      if (response.error) {
-        alert(response.error);
-      } else if (response.success) {
-        alert('Clan changed successfully');
-        // Dispatching actions to update name and token in the state
-        dispatch(setClan(newClan));
-        dispatch(setSecret(response.secret));
-      }
-    } catch (error) {
-      // Handle any other errors, such as network issues
-      console.error(error);
-      alert('An error occurred while changing the clan.');
-    }
-  }
-);
 
 const accountSlice = createSlice({
   name: 'account',
@@ -119,7 +94,6 @@ const accountSlice = createSlice({
     clearAccount: (state) => {
       state.email = '';
       state.username = '';
-      state.clan = '';
       state.secret = '';
       state.gems = 0;
       state.ultimacy = 0;
@@ -132,7 +106,6 @@ const accountSlice = createSlice({
     setAccount: (state, action) => {
       state.email = action.payload.email;
       state.username = action.payload.username;
-      state.clan = action.payload.clan;
       state.isLoggedIn = true;
       const previousToken = state.secret;
       state.secret = action.payload.secret;
@@ -155,9 +128,6 @@ const accountSlice = createSlice({
     setName: (state, action) => {
       state.username = action.payload;
     },
-    setClan: (state, action) => {
-      state.clan = action.payload;
-    },
     setSecret: (state, action) => {
       state.secret = action.payload;
       console.log('Token updated');
@@ -178,5 +148,5 @@ const accountSlice = createSlice({
   },
 });
 
-export const { setAccount, clearAccount, setName, setSecret, setClan } = accountSlice.actions;
+export const { setAccount, clearAccount, setName, setSecret } = accountSlice.actions;
 export default accountSlice.reducer;

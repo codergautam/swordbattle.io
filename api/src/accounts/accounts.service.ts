@@ -4,7 +4,6 @@ import { FindOneOptions, Repository } from 'typeorm';
 import { Account } from './account.entity';
 import * as config from '../config';
 import validateUsername from 'src/helpers/validateUsername';
-import validateClan from 'src/helpers/validateClan';
 import { Transaction } from 'src/transactions/transactions.entity';
 import * as cosmetics from '../cosmetics.json';
 import CacheObj from 'src/Cache';
@@ -273,23 +272,6 @@ export class AccountsService {
     return {success: true};
     } catch(e) {
       return {error: 'Failed to update name, '+ e.message};
-    }
-  }
-
-  async changeClan(id: number, clan: string) {
-    // validate clan
-    if(validateClan(clan)) {
-      return {error: validateClan(clan)};
-    }
-    const account = await this.getById(id);
-
-    account.clan = clan;
-    account.lastClanChange = new Date();
-    try {
-    await this.accountsRepository.save(account);
-    return {success: true};
-    } catch(e) {
-      return {error: 'Failed to update clan, '+ e.message};
     }
   }
 

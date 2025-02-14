@@ -38,7 +38,7 @@ export class AuthService {
     try {
       account = await this.accountsService.findOne({ where: { secret: data.secret } });
     } catch (e) {
-      throw new UnauthorizedException('User does not exist');
+      throw new UnauthorizedException('User does not exists');
     }
 
     return { account: this.accountsService.sanitizeAccount(account), secret: data.secret };
@@ -53,7 +53,7 @@ export class AuthService {
     }
 
     if (!account) {
-      throw new UnauthorizedException('User does not exist');
+      throw new UnauthorizedException('User does not exists');
     }
     if (!(await account.checkPassword(data.password))) {
       throw new UnauthorizedException('Wrong password');
@@ -88,18 +88,6 @@ export class AuthService {
   async changeUsername(account: Account, newUsername: string) {
     try {
       let result = await this.accountsService.changeUsername(account.id, newUsername);
-      if(result.success) {
-        (result as any).secret = account.secret;
-      }
-    return result;
-    } catch (e) {
-      console.log(e);
-      return {error: e.message};
-    }
-  }
-  async changeClan(account: Account, newClan: string) {
-    try {
-      let result = await this.accountsService.changeClan(account.id, newClan);
       if(result.success) {
         (result as any).secret = account.secret;
       }

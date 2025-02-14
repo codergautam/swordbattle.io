@@ -17,7 +17,7 @@ export type AccountState = {
 const initialState: AccountState = {
   email: '',
   username: '',
-  clan: '',
+  clan: 'TEST',
   secret: '',
   isLoggedIn: false,
   gems: 0,
@@ -119,7 +119,7 @@ const accountSlice = createSlice({
     clearAccount: (state) => {
       state.email = '';
       state.username = '';
-      state.clan = '';
+      state.clan = 'TEST';
       state.secret = '';
       state.gems = 0;
       state.ultimacy = 0;

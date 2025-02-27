@@ -18,7 +18,7 @@ class BunnyMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 900;
+    this.coinsDrop = 300;
 
     this.jumpTimer = new Timer(0, 2, 3);
     this.runawayTimer = new Timer(0, 10, 15);

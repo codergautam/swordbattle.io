@@ -19,7 +19,7 @@ class CatMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 1800;
+    this.coinsDrop = 600;
 
     this.tamedBy = null;
 

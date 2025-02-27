@@ -21,5 +21,5 @@ export const config: ConfigProps = {
   serverSecret: process.env.SERVER_SECRET || 'server-secret',
 
   usernameWaitTime: 7 * 24 * 60 * 60 * 1000, // 7 days
-  usernameLength: [1, 16]
+  usernameLength: [1, 22]
 };

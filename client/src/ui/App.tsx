@@ -307,10 +307,10 @@ function App() {
 
                 <div className="announcementCard menuCard panel">
                     <div>
-                    <span className="announcedate">
-                      (February 13th): 
+                    <span className="">
+                      Tip: Having trouble finding chests? Mobs can give you a good amount of coins, too!
                     </span>
-                       {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span>
+                      {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> */}
                   
                     </div>
                   </div>

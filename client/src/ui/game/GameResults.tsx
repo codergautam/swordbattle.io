@@ -6,6 +6,8 @@ import HomeImg from '../../assets/img/home.png';
 import './GameResults.scss';
 import { DisconnectTypes } from '../../game/Types';
 import { calculateGemsXP, playVideoAd } from '../../helpers';
+import cosmetics from '../../game/cosmetics.json';
+import Player from '../../game/entities/Player';
 
 function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
   const onHomeClick = () => {
@@ -66,6 +68,55 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
         <div className="info">
           <div className="title">{results.disconnectReason?.code === DisconnectTypes.Player ? 'Stabbed by' : results.disconnectReason?.code === DisconnectTypes.Mob ? 'By' : 'Disconnect reason:'}</div>
           {results.disconnectReason?.reason}
+          {results.disconnectReason?.code === DisconnectTypes.Player && isLoggedIn && (
+          <> <p className='skin-owner'>Stabber's skin</p>
+          <div className='skin'>
+          {results.disconnectReason?.reason.account
+        ? <p className='skin-name'>{results.disconnectReason?.reason.account?.skins.equipped.displayName}</p>
+        : <p className='skin-name'>Default</p>
+      }
+      {results.disconnectReason?.reason?.account?.skins?.equipped?.event && (
+  <p className='skin-tag-event'>Event Skin</p>
+)}
+      {results.disconnectReason?.reason?.account?.skins?.equipped?.og && (
+  <p className='skin-tag-og'>Exclusive Skin</p>
+)}
+      {results.disconnectReason?.reason?.account?.skins?.equipped?.ultimate && (
+  <p className='skin-tag-ultimate'>Ultimate Skin</p>
+)}
+      {!results.disconnectReason?.reason?.account?.skins?.equipped?.event && !results.disconnectReason?.reason?.account?.skins?.equipped?.og && !results.disconnectReason?.reason?.account?.skins?.equipped?.ultimate && (
+  <br></br>
+)}
+          {results.disconnectReason?.reason.account
+        ? <img src={'assets/game/player/'+Object.values(cosmetics.skins).find((skin: any) => skin.id === results.disconnectReason?.reason.account?.skins.equipped)?.bodyFileName} alt="Equipped skin" className="equipped-skin" />
+        : <img src={'assets/game/player/player.png'} alt="Equipped skin" className="equipped-skin" />
+      }
+        {results.disconnectReason?.reason.account? (
+  <>
+    <div className="skin-info">
+    {results.disconnectReason?.reason.account?.skins.equipped.ultimate? (
+      <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
+    ): (
+      <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
+    )}
+    {results.disconnectReason?.reason.account?.skins.equipped.og? (
+      <p className='skin-info-og'>Unobtainable</p>
+    ): (
+      <p className='skin-info'>{results.disconnectReason?.reason.account?.skins.equipped.price}</p>
+    )}
+    </div>
+  </>
+): (
+  <>
+  <br></br>
+  <div className="skin-info">
+    <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
+    <p className='skin-info'>Free</p>
+  </div>
+  </>
+)}
+          </div>  
+          </>)}
         </div>
 
         <div className="info">
@@ -115,13 +166,15 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
             duration={3}
           />
         </div>
+      
         </>
         )}
       </div>
 
 
-
-      <div className="results-buttons">
+      {results.disconnectReason?.code === DisconnectTypes.Player && isLoggedIn ? (
+          <>
+          <div className="results-buttons">
         <div
           className="to-home"
           role="button"
@@ -143,6 +196,34 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
         </div>
         )}
 </div>
+          </>)
+          
+        : (
+<div className="results-buttons-def">
+        <div
+          className="to-home-def"
+          role="button"
+          onClick={onHomeClick}
+          onKeyDown={event => event.key === 'Enter' && onHomeClick()}
+          tabIndex={0}
+        >
+          <img src={HomeImg} alt="Home" />
+        </div>
+        { results.disconnectReason?.type !== DisconnectTypes.Server && (
+        <div
+          className="play-again-def"
+          role="button"
+          onClick={onRestartClick}
+          onKeyDown={event => event.key === 'Enter' && onRestartClick()}
+          tabIndex={0}
+        >
+          <img src={PlayAgainImg} alt="Play again" />
+        </div>
+        )}
+</div>
+        )
+      }
+      
 
       </div>
       { adElement ? (

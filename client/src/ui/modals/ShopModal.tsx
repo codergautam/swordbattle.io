@@ -241,108 +241,6 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       </center>
       </div>
       <div className='scroll' ref={targetParentRef}>
-        <div ref={targetElementRef1}></div>
-        <div className='label'>
-        <span>Skins on Sale</span><hr></hr>
-        <p style={{color: 'yellow'}}>Save tons of gems on skins with little/no buys until 2/26!</p>
-        </div>
-        <div className='skins'>
-      {Object.values(skins).filter((skinData: any) => {
-        const skin = skinData as Skin;
-        if (skin.ultimate) return false;
-        if (skin.freebie) return false;
-        if (skin.eventoffsale) return false;
-        if (skin.event) return false;
-        if (skin.og) return false;
-        if (!skin.sale) return false;
-        
-        return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
-      }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
-        const skin = skinData as Skin;
-        return (
-        <div className="skin-card" key={skin.name}>
-          <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
-          {skin.ultimate && (
-            <p className='skin-tag'>{skin.tag}</p>
-          )}
-          {skin.sale && (
-            <p className='skin-saletag'>{skin.saletag}</p>
-          )}
-          {skin.event && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-          {skin.eventoffsale && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-          {skin.freebie && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-
-          <img
-            src={basePath + skin.bodyFileName}
-            alt={skin.name}
-            ref={(el) => assignRef(el as HTMLImageElement, index)}
-            className='skin-img'
-            data-selected='skin'
-          />
-          {Settings.swords && (
-          <img
-          src={basePath + skin.swordFileName}
-          alt={skin.name}
-          ref={(el) => assignRef(el as HTMLImageElement, index)}
-          className='skin-sword'
-          data-selected='skin'
-        />
-          )}
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-          <br/>
-          <p className='skin-desc'>{skin.description}</p>
-          {
-  (skin?.price ?? 0) > 0 ? (
-    <>
-      {skin?.sale 
-        && <> <span className="sale">
-        {skin?.ogprice}
-      </span><span>‎ ‎ ‎</span> </>
-      }
-      {skin?.price} 
-      {skin?.ultimate 
-        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
-        : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
-      }
-    </>
-  ) : (
-    <>
-      <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
-      {skin?.sale 
-        && <> <span className="sale">
-        {skin?.ogprice}
-      </span><span>‎ ‎ ‎</span> </>
-      }
-        {skin?.ultimate ? (
-  <>
-    {skin.buyable ? '0' : ''}
-    <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
-  </>
-) : (
-  skin?.buyable ? 'Free' : ''
-)}
-      </p>
-    </>
-  )
-}
-          </h4>
-          {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
-  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
-    {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
-      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
-  </button>
-))}
-        </div>
-      )
-      }
-      )}
-      </div>
         <div className='label'>
         <div ref={targetElementRef2}></div>
         <span>Normal Skins</span><hr></hr>
@@ -642,8 +540,10 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       )}
       </div>
       <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      {account?.isLoggedIn && (
+        <>
+          <div className='label'>
         <div ref={targetElementRef5}></div>
-        <div className='label'>
         <span>Owned Skins</span><hr></hr>
         <p>Skins you own can still be equipped from other menus, but using this menu will make it much easier to find them.</p>
         </div>
@@ -740,6 +640,8 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       }
       )}
       </div>
+          </>
+          )}
         { Object.values(skins).filter((skinData: any) =>  skinData.og && account?.skins.owned.includes(skinData.id)).length > 0 && (
     <>
     <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
@@ -756,6 +658,109 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         const skin = skinData as Skin;
         if (!skin.og) return false;
         if (!account?.skins.owned.includes(skin.id)) return false;
+        
+        return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+      }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
+        const skin = skinData as Skin;
+        return (
+        <div className="skin-card" key={skin.name}>
+          <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          {skin.ultimate && (
+            <p className='skin-tag'>{skin.tag}</p>
+          )}
+          {skin.sale && (
+            <p className='skin-saletag'>{skin.saletag}</p>
+          )}
+          {skin.event && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+          {skin.eventoffsale && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+          {skin.freebie && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+
+          <img
+            src={basePath + skin.bodyFileName}
+            alt={skin.name}
+            ref={(el) => assignRef(el as HTMLImageElement, index)}
+            className='skin-img'
+            data-selected='skin'
+          />
+          {Settings.swords && (
+          <img
+          src={basePath + skin.swordFileName}
+          alt={skin.name}
+          ref={(el) => assignRef(el as HTMLImageElement, index)}
+          className='skin-sword'
+          data-selected='skin'
+        />
+          )}
+          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
+          <br/>
+          <p className='skin-desc'>{skin.description}</p>
+          {
+  (skin?.price ?? 0) > 0 ? (
+    <>
+      {skin?.sale 
+        && <> <span className="sale">
+        {skin?.ogprice}
+      </span><span>‎ ‎ ‎</span> </>
+      }
+      {skin?.price} 
+      {skin?.ultimate 
+        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
+        : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
+      }
+    </>
+  ) : (
+    <>
+      <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
+      {skin?.sale 
+        && <> <span className="sale">
+        {skin?.ogprice}
+      </span><span>‎ ‎ ‎</span> </>
+      }
+        {skin?.ultimate ? (
+  <>
+    {skin.buyable ? '0' : ''}
+    <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
+  </>
+) : (
+  skin?.buyable ? 'Free' : ''
+)}
+      </p>
+    </>
+  )
+}
+          </h4>
+          {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
+  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
+    {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
+      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
+  </button>
+))}
+<br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+        </div>
+      )
+      }
+      )}
+      </div>
+        <div className='label'>
+        <div ref={targetElementRef1}></div>
+        <span>Skins on Sale</span><hr></hr>
+        <p style={{color: 'gray'}}>No sales are currently active. Check again soon!</p>
+        </div>
+        <div className='skins'>
+      {Object.values(skins).filter((skinData: any) => {
+        const skin = skinData as Skin;
+        if (skin.ultimate) return false;
+        if (skin.freebie) return false;
+        if (skin.eventoffsale) return false;
+        if (skin.event) return false;
+        if (skin.og) return false;
+        if (!skin.sale) return false;
         
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
       }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {

@@ -27,7 +27,7 @@ const BehaviourConfig = {
   [BehaviourStages.TargetPlayer]: {
     duration: [10, 15],
     actions: ['target', 'attack'],
-    targets: [Types.Entity.Player],
+    targets: [Types.Entity.PlayerAI],
   },
   // [BehaviourStages.TargetLeader]: {
   //   duration: [25, 35],

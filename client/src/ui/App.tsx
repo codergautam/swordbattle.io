@@ -308,7 +308,7 @@ function App() {
                 <div className="announcementCard menuCard panel">
                     <div>
                     <span className="">
-                      Tip: Having trouble finding chests? Mobs can give you a good amount of coins, too!
+                      Tip: Using the health upgrade heals you a bit, too! (More HP = more heal!)
                     </span>
                       {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> */}
                   

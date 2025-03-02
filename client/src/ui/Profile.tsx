@@ -99,7 +99,7 @@ export default function Profile() {
         <div className='statsContent'>
       <button className="back-button" onClick={() =>{
         // ../index.html
-        window.location.href = '../index.html';
+        window.location.href = '../leaderboard';
       }}>X</button>
           <center>
         <h1>

@@ -26,6 +26,7 @@ function LoadingScreen({ progress }: any) {
         <div className="progress-bar">
           <div className="progress" style={{ width: `${progress}%`}}></div>
         </div>
+        <p>Stuck at 98%? Try refreshing or interacting with the page</p>
       </div>
     </div>
   );

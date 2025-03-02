@@ -27,7 +27,14 @@ const BehaviourConfig = {
   [BehaviourStages.TargetPlayer]: {
     duration: [10, 15],
     actions: ['target', 'attack'],
-    targets: [Types.Entity.PlayerAI],
+    targets: [
+      {
+        type: Types.Entity.Player,
+        filter: {
+          isBot: true
+        }
+      }
+    ]
   },
   // [BehaviourStages.TargetLeader]: {
   //   duration: [25, 35],
@@ -240,8 +247,8 @@ class PlayerAI extends Player {
 
   damaged(damage, entity) {
     if (entity) {
-      // 20% chance of angry and fight back
-      if (Math.random() > 0.8) {
+      // 50% chance of angry and fight back
+      if (Math.random() > 0.5) {
         // if health is less than 0.2, then run away
         // if (this.health.percent < 0.2) {
         //   this.changeStage(BehaviourStages.RunAway);

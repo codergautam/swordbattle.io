@@ -66,6 +66,7 @@ class Player extends BaseEntity {
       angel: '#acfffc',
       "cool guy 53": '#0055ff',
       "update testing account": '#00ff00'
+      "{UN} LordBob": '#ffc0cb'
     }
     name.setFill(this.account ? (specialColors[this.name?.toLowerCase() as keyof typeof specialColors] ? specialColors[this.name?.toLowerCase() as keyof typeof specialColors] : '#0000ff') : '#000000');
 

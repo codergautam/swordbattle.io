@@ -170,31 +170,31 @@ class Game {
         }
         return;
       } else if(config.recaptchaSecretKey && !client.captchaVerified && data.captchaP1) {
-        const captchaAsText = helpers.importCaptcha(data);
-        const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${config.recaptchaSecretKey}&response=${captchaAsText}&remoteip=${client.ip}`;
+        // const captchaAsText = helpers.importCaptcha(data);
+        // const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${config.recaptchaSecretKey}&response=${captchaAsText}&remoteip=${client.ip}`;
 
-        fetch(verifyUrl, {
-          method: 'post',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }).then(res => res.json()).then(json => {
-          if(json.success && json.score >= 0.1) {
+        // fetch(verifyUrl, {
+        //   method: 'post',
+        //   headers: {
+        //     Accept: 'application/json',
+        //     'Content-Type': 'application/json',
+        //   },
+        // }).then(res => res.json()).then(json => {
+        //   if(json.success && json.score >= 0.1) {
             this.addSpectator(client);
             client.captchaVerified = true;
-          } else {
-            console.log('disconnected reason: invalid recaptcha', json);
-            try {
-            client.socket.close();
-            } catch(e) {
-              console.log(e);
-            }
-          }
-        }).catch(err => {
-          console.log(err);
-          client.socket.close();
-        });
+        //   } else {
+        //     console.log('disconnected reason: invalid recaptcha', json);
+        //     try {
+        //     client.socket.close();
+        //     } catch(e) {
+        //       console.log(e);
+        //     }
+        //   }
+        // }).catch(err => {
+        //   console.log(err);
+        //   client.socket.close();
+        // });
       } else if(!config.recaptchaSecretKey || client.captchaVerified) {
         this.addSpectator(client);
       }

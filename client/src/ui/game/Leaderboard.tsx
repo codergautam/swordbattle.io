@@ -59,7 +59,7 @@ function getRankColor(rank: number) {
 function LeaderboardLine({ player }: any) {
   const balance = player.coins >= 1000 ? `${(player.coins / 1000).toFixed(1)}k` : player.coins;
   const specialColors: { [key: string]: string } = {
-    codergautam: '#ff0000',
+    "[apc] codergautam": '#ff0000',
     angel: '#acfffc',
     "cool guy 53": '#0099ff',
     "update testing account": '#00ff00'

@@ -13,7 +13,6 @@ Swordbattle.io is a multiplayer game where players fight each other with differe
 Play now at [swordbattle.io](http://swordbattle.io) and see the [leaderboard](https://www.swordbattle.io/leaderboard).
 
 ## Community
-* [Forum (most active)](https://forum.codergautam.dev)
 * [Discord](https://discord.com/invite/BDG8AfkysZ)
 
 ## Run Locally

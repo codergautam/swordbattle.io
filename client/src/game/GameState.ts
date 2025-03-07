@@ -119,11 +119,11 @@ class GameState {
         if ((window as any).recaptcha) {
             // reCAPTCHA is available, execute your code
             if(this.debugMode) alert("Recaptcha available, executing");
-            (window as any).recaptcha.execute(config.recaptchaClientKey, { action: 'spectate' }).then((captcha: any) => {
+            // (window as any).recaptcha.execute(config.recaptchaClientKey, { action: 'spectate' }).then((captcha: any) => {
                 if (this.debugMode) alert("Received captcha of length " + captcha.length + ", sending spectate");
                 this.captchaVerified = true;
-                Socket.emit({ spectate: true, ...exportCaptcha(captcha) });
-            });
+                Socket.emit({ spectate: true });
+            // });
         } else {
             // reCAPTCHA is not available, check again after 100ms
             if(this.debugMode) alert("Recaptcha not available, waiting 100ms");

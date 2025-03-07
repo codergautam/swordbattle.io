@@ -308,7 +308,7 @@ function App() {
                 <div className="announcementCard menuCard panel">
                     <div>
                     <span className="">
-                      If you see <b>MrR</b> kill him thanks
+                      Subscribe to coder gautam on YT
                     </span>
                       {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> */}
                   

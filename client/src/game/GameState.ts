@@ -120,7 +120,7 @@ class GameState {
             // reCAPTCHA is available, execute your code
             if(this.debugMode) alert("Recaptcha available, executing");
             // (window as any).recaptcha.execute(config.recaptchaClientKey, { action: 'spectate' }).then((captcha: any) => {
-                if (this.debugMode) alert("Received captcha of length " + captcha.length + ", sending spectate");
+                // if (this.debugMode) alert("Received captcha of length " + captcha.length + ", sending spectate");
                 this.captchaVerified = true;
                 Socket.emit({ spectate: true });
             // });

@@ -308,7 +308,7 @@ function App() {
                 <div className="announcementCard menuCard panel">
                     <div>
                     <span className="">
-                      Tip: Using the health upgrade heals you a bit, too! (More HP = more heal!)
+                      If you see <b>MrR</b> kill him thanks
                     </span>
                       {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> */}
                   

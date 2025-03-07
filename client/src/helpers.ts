@@ -121,18 +121,18 @@ export function addCommas(num: number) {
 }
 
 export function calculateGemsXP(coins: number, kills: number) {
-  const xp = Math.floor(coins / 20) + kills * 200
+  const xp = Math.floor(coins / 20) + kills
   if (coins >= 1250000) {
     return {
       xp,
       gems: Math.floor(xp / 5),
-      ultimacy: Math.floor((coins ** 1.3 / 3200) * 2), 
+      ultimacy: Math.floor((coins / 5000) ** 2), 
     };
   } else {
     return {
       xp,
       gems: Math.floor(xp / 5),
-      ultimacy: Math.floor((coins ** 2.5 / 10 ** 11) * 3),
+      ultimacy: Math.floor((coins / 794) ** 1.5),
     };
   }
 }

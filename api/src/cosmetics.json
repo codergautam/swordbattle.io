@@ -3045,7 +3045,7 @@
       "displayName": "Pharaoh",
       "id": 306,
       "buyable": true,
-      "price": 1000,
+      "price": 3000,
       "swordFileName": "ultimateMummySword.png",
       "bodyFileName": "ultimateMummyPlayer.png",
       "description": "Reincarnated only to be fighting peasants..."
@@ -3057,7 +3057,7 @@
       "displayName": "Mecha-Mystery",
       "id": 307,
       "buyable": true,
-      "price": 5000,
+      "price": 15000,
       "swordFileName": "ultimateUnknownSword.png",
       "bodyFileName": "ultimateUnknownPlayer.png",
       "description": "Error: unexpected character '?'"
@@ -3069,7 +3069,7 @@
       "displayName": "Cyberlight Ninja",
       "id": 308,
       "buyable": true,
-      "price": 15000,
+      "price": 45000,
       "swordFileName": "ultimatenewNinjaSword.png",
       "bodyFileName": "ultimatenewNinjaPlayer.png",
       "description": "Camouflage isn't needed when your enemies are too scared to attack you..."
@@ -3081,7 +3081,7 @@
       "displayName": "Megamoticon",
       "id": 309,
       "buyable": true,
-      "price": 300000,
+      "price": 750000,
       "swordFileName": "ultimateEmoticonSword.png",
       "bodyFileName": "ultimateEmoticonPlayer.png",
       "description": ">:V"
@@ -3093,7 +3093,7 @@
       "displayName": "Rainbow Void",
       "id": 310,
       "buyable": true,
-      "price": 30000,
+      "price": 90000,
       "swordFileName": "ultimateVoidSword.png",
       "bodyFileName": "ultimateVoidPlayer.png",
       "description": "Wanted to be dark and depressing but instead became part of someone's gaming setup"
@@ -3105,7 +3105,7 @@
       "displayName": "Nightberry",
       "id": 311,
       "buyable": true,
-      "price": 250,
+      "price": 750,
       "swordFileName": "ultimateBlueberrySword.png",
       "bodyFileName": "ultimateBlueberryPlayer.png",
       "description": "You probably shouldn't eat this one"
@@ -3117,7 +3117,7 @@
       "displayName": "True 8-Bit",
       "id": 312,
       "buyable": true,
-      "price": 500,
+      "price": 1500,
       "swordFileName": "ultimateBitSword.png",
       "bodyFileName": "ultimateBitPlayer.png",
       "description": "Now with 3300% less pixels!"
@@ -3139,7 +3139,7 @@
       "displayName": "Rainbow Luminous",
       "id": 314,
       "buyable": true,
-      "price": 25000,
+      "price": 75000,
       "swordFileName": "ultimateLuminousSword.png",
       "bodyFileName": "ultimateLuminousPlayer.png",
       "description": "Even brighter than before!"
@@ -3151,7 +3151,7 @@
       "displayName": "Rainbow Fire",
       "id": 315,
       "buyable": true,
-      "price": 27500,
+      "price": 82500,
       "swordFileName": "ultimateFireSword.png",
       "bodyFileName": "ultimateFirePlayer.png",
       "description": "Every color burns hotter than the last..."
@@ -3163,7 +3163,7 @@
       "displayName": "Dead Pixel",
       "id": 316,
       "buyable": true,
-      "price": 2500,
+      "price": 7500,
       "swordFileName": "ultimatePixelSword.png",
       "bodyFileName": "ultimatePixelPlayer.png",
       "description": "A dark pixel in a world of light ones"
@@ -3175,7 +3175,7 @@
       "displayName": "Shattermech",
       "id": 317,
       "buyable": true,
-      "price": 100000,
+      "price": 300000,
       "swordFileName": "ultimateBrokenSword.png",
       "bodyFileName": "ultimateBrokenPlayer.png",
       "description": "Once shattered by others, and now the shatterer of others..."

@@ -62,7 +62,7 @@ class Player extends BaseEntity {
     name.setFontSize(50);
     name.setOrigin(0.5, 1);
     const specialColors: { [key: string]: string } = {
-      codergautam: '#ff0000',
+      "[apc] codergautam": '#ff0000',
       angel: '#acfffc',
       "cool guy 53": '#0055ff',
       "update testing account": '#00ff00'

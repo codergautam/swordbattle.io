@@ -307,10 +307,10 @@ function App() {
 
                 <div className="announcementCard menuCard panel">
                     <div>
-                    <span className="announcewarning">
-                      NOTE: The game is currently being tested for bugfixes. Expect the possibility disconnects/server restarts.
+                    <span className="">
+                      Tip: Using the health upgrade heals you a bit, too! (More HP = more heal!)
                     </span>
-                      {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> Tip: Using the health upgrade heals you a bit, too! (More HP = more heal!) */}
+                      {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> */}
                   
                     </div>
                   </div>

@@ -47,7 +47,7 @@ class GameMap {
     this.safezone = null;
     this.shape = null;
     this.entityTimers = new Set();
-    this.coinsCount = map.coinsCount !== undefined ? map.coinsCount : 100;
+    this.coinsCount = map.coinsCount !== undefined ? map.coinsCount : 40;
     this.chestsCount = map.chestCount !== undefined ? map.chestsCount : 50;
     this.aiPlayersCount = map.aiPlayersCount !== undefined ? map.aiPlayersCount : 10; // contrary to the name, we want to make sure theres no more than this many AI players, goal is to maintain the game at this many players when low traffic
   }

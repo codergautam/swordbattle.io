@@ -426,7 +426,7 @@ function App() {
                </a>
              </div>
              <div>
-               <a href="https://worldguessr.com" target="_blank" className='discord' rel="nofollow">
+               <a href="https://worldguessr.com" target="_blank" rel="dofollow">
                  Free Geoguessr
                </a>
              </div>

@@ -282,22 +282,22 @@ function App() {
         <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`}>
         <ShopButton account={account} scale={scale.factor} openShop={openShop} />
             <div id="contentt" style={scale.styles}>
-              
+
           <div id="menuContainer" >
-          
+
             {/* <!-- GAME NAME --> */}
-            <div id="gameName"><img src={titleImg} alt="Swordbattle.io" width={750} height={250} style={{ 
+            <div id="gameName"><img src={titleImg} alt="Swordbattle.io" width={750} height={250} style={{
     position: 'fixed',
-    top: '-50%', 
+    top: '-50%',
     left: '50%',
-    transform: 'translate(-50%, -125%)' 
-  }} /> 
+    transform: 'translate(-50%, -125%)'
+  }} />
 </div>
-          
+
             {/* <!-- LOADING TEXT --> */}
             {/* <!-- MENU CARDS --> */}
             <div id="menuCardHolder" style={{ display: 'inline-block', height: 'auto !important', position: 'fixed',
-    top: '-50%', 
+    top: '-50%',
     left: '50%',
     transform: 'translate(-50%, -5%)' }} >
               <div className="menu">
@@ -311,7 +311,7 @@ function App() {
                       Tip: Using the health upgrade heals you a bit, too! (More HP = more heal!)
                     </span>
                       {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> */}
-                  
+
                     </div>
                   </div>
                 {/* <!-- Play --> */}
@@ -411,6 +411,21 @@ function App() {
                  Discord
                </a>
              </div>
+
+             <div>
+               <a href="#"
+                onClick={() => {
+                  try {
+                      (window as any)?.showPlaylight()
+                  } catch(e) {
+                      console.log('Error showing playlight', e);
+                  }
+                }}
+               rel="nofollow">
+                 More Games
+               </a>
+             </div>
+             
               {/* <div>
                <a href="https://swordbattle.io/partners" target="_blank" className='partners' rel="nofollow">
                  Partners

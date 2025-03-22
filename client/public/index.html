@@ -14,7 +14,28 @@
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <!-- Google tag (gtag.js) -->
-
+  <link rel="stylesheet" href="https://sdk.playlight.dev/playlight-sdk.css">
+  <script type="module">
+    try {
+      const module = await import("https://sdk.playlight.dev/playlight-sdk.es.js");
+      const playlightSDK = module.default;
+      await playlightSDK.init({
+        button: {
+        position: 'bottom-right',
+        visible: false
+      },
+      exitIntent: {
+        enabled: true
+      }
+      });
+      window.showPlaylight = async (visible = true) => {
+        await playlightSDK.setDiscovery(visible)
+      };
+    } catch (error) {
+      console.error("Error loading the Playlight SDK:", error);
+    }
+  </script>
+  
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EKK5X5R4"></script>
   <script>
     window.dataLayer = window.dataLayer || [];

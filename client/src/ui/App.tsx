@@ -425,7 +425,11 @@ function App() {
                  More Games
                </a>
              </div>
-             
+             <div>
+               <a href="https://worldguessr.com" target="_blank" className='discord' rel="nofollow">
+                 Free Geoguessr
+               </a>
+             </div>
               {/* <div>
                <a href="https://swordbattle.io/partners" target="_blank" className='partners' rel="nofollow">
                  Partners

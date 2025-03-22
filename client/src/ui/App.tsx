@@ -27,6 +27,7 @@ import LoginImg from '../assets/img/login.png';
 import './App.scss';
 import GemCount from './ValueCnt';
 import ShopButton from './ShopButton';
+import LeaderboardButton from './LeaderboardButton';
 import ShopModal from './modals/ShopModal';
 import MigrationModal from './modals/MigrationModal';
 import { getCookies, playVideoAd } from '../helpers';
@@ -37,6 +38,7 @@ import AccountCard from './AccountCard';
 import ForumCard from './ForumCard';
 // import Game from '../game/scenes/Game';
 import titleImg from '../assets/img/final.png';
+import Leaderboard from './game/Leaderboard';
 
 let debugMode = false;
 try {
@@ -242,6 +244,10 @@ function App() {
     setModal(<ShopModal account={account} />);
   }
 
+  const openLeaderboard = () => {
+    window.location.href = "https://swordbattle.io/leaderboard";
+  };
+
   useEffect(() => {
     if (modal?.type?.displayName === 'ShopModal') {
       setModal(<ShopModal account={account} />);
@@ -281,6 +287,7 @@ function App() {
         <>
         <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`}>
         <ShopButton account={account} scale={scale.factor} openShop={openShop} />
+        <LeaderboardButton scale={scale.factor} openLeaderboard={openLeaderboard} />
             <div id="contentt" style={scale.styles}>
 
           <div id="menuContainer" >
@@ -307,8 +314,8 @@ function App() {
 
                 <div className="announcementCard menuCard panel">
                     <div>
-                    <span className="">
-                      Tip: Using the health upgrade heals you a bit, too! (More HP = more heal!)
+                    <span style={{fontSize: 16}}>
+                      Tip: The Rook ability dashes in the direction you're currently moving in. Good for both ambushing and running!
                     </span>
                       {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> */}
 
@@ -403,9 +410,6 @@ function App() {
              <div>
                <a href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="nofollow">About</a>
              </div>
-            <div>
-               <Link to="https://swordbattle.io/leaderboard">Leaderboards</Link>
-           </div>
              <div>
                <a href="https://discord.com/invite/9A9dNTGWb9" target="_blank" className='discord' rel="nofollow">
                  Discord
@@ -423,11 +427,6 @@ function App() {
                 }}
                rel="nofollow">
                  More Games
-               </a>
-             </div>
-             <div>
-               <a href="https://worldguessr.com" target="_blank" rel="dofollow">
-                 Free Geoguessr
                </a>
              </div>
               {/* <div>

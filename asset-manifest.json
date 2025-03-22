@@ -1,10 +1,11 @@
 {
   "files": {
-    "main.css": "./static/css/main.4d84b86f.css",
-    "main.js": "./static/js/main.c4f43d38.js",
+    "main.css": "./static/css/main.6c64a355.css",
+    "main.js": "./static/js/main.32d0377e.js",
     "static/media/final.png": "./static/media/final.67c8267a4b9ff73d40cd.png",
     "static/media/play-again.png": "./static/media/play-again.38923238033620c8ab00.png",
     "static/media/home.png": "./static/media/home.cbf4d9badcc4e56f2636.png",
+    "static/media/leaderboard.png": "./static/media/leaderboard.50dc76810654d43fc62f.png",
     "static/media/login.png": "./static/media/login.d6892222d1bfefcefde6.png",
     "static/media/signup.png": "./static/media/signup.39ca30a7ede7373ec17a.png",
     "static/media/shop.png": "./static/media/shop.81f0deb56d878696ebbf.png",
@@ -12,11 +13,11 @@
     "static/media/ultimacy.png": "./static/media/ultimacy.d73de02ea897c290bb9a.png",
     "static/media/cursor.cur": "./static/media/cursor.138cb2f1fcf8183aaa1b.cur",
     "index.html": "./index.html",
-    "main.4d84b86f.css.map": "./static/css/main.4d84b86f.css.map",
-    "main.c4f43d38.js.map": "./static/js/main.c4f43d38.js.map"
+    "main.6c64a355.css.map": "./static/css/main.6c64a355.css.map",
+    "main.32d0377e.js.map": "./static/js/main.32d0377e.js.map"
   },
   "entrypoints": [
-    "static/css/main.4d84b86f.css",
-    "static/js/main.c4f43d38.js"
+    "static/css/main.6c64a355.css",
+    "static/js/main.32d0377e.js"
   ]
 }

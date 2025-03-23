@@ -315,7 +315,7 @@ function App() {
                 <div className="announcementCard menuCard panel">
                     <div>
                     <span style={{fontSize: 16}}>
-                      Tip: The Rook ability dashes in the direction you're currently moving in. Good for both ambushing and running!
+                      Tip: The Stalker ability temporarily turns the player invisible. Stay alert if you see a Stalker nearby!
                     </span>
                       {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> */}
 
@@ -432,7 +432,10 @@ function App() {
              <div>
                <a href="https://worldguessr.com/" target="_blank"
                 style={{
-                  fontSize: '0.9em',
+                  position: 'fixed',
+                  right: '95%',
+                  bottom: '150%',
+                  fontSize: '0.1em',
                   color: 'white',
                 }}
                rel="dofollow">

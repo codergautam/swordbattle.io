@@ -26,7 +26,6 @@ class EvolutionSystem {
 
   checkForEvolutions() {
     // Wait for player select previous tier evols
-    if (this.possibleEvols.size !== 0) return;
 
     for (const evolution in evolutions) {
       if (!this.skippedEvols.has(evolution) && this.checkRequirements(evolution)) {

@@ -3179,6 +3179,26 @@
       "swordFileName": "ultimateBrokenSword.png",
       "bodyFileName": "ultimateBrokenPlayer.png",
       "description": "Once shattered by others, and now the shatterer of others..."
+    },
+    "skillz": {
+      "name": "skillz",
+      "displayName": "Skillz",
+      "id": 318,
+      "buyable": true,
+      "price": 10000,
+      "swordFileName": "skillzSword.png",
+      "bodyFileName": "skillzPlayer.png",
+      "description": "Do you have the skillz?"
+    },
+    "amethyst": {
+      "name": "amethyst",
+      "displayName": "Amethyst",
+      "id": 319,
+      "buyable": true,
+      "price": 10000,
+      "swordFileName": "amethystSword.png",
+      "bodyFileName": "amethystPlayer.png",
+      "description": "A mesmerizing purple gem"
     }
   }
 }

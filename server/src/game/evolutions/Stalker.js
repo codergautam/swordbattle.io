@@ -3,7 +3,7 @@ const Types = require('../Types');
 
 module.exports = class Stalker extends Evolution {
   static type = Types.Evolution.Stalker;
-  static level = 16;
+  static level = 25;
   static previousEvol = "secret";
   static abilityDuration = 6.5;
   static abilityCooldown = 72;

@@ -162,10 +162,11 @@
       "displayName": "WASD",
       "id": 196,
       "buyable": true,
-      "price": 50000,
-      "swordFileName": "wasdSword.png",
-      "bodyFileName": "wasdPlayer.png",
-      "description": "WASD to move, Space to jump"
+      "player": true,
+      "price": 100000,
+      "swordFileName": "vipWasdSword.png",
+      "bodyFileName": "vipWasdPlayer.png",
+      "description": "Given to Wasd for contributing to the community and Swordbattle as a whole. May also be on sale during special player events."
     },
     "pi guy": {
       "name": "pi guy",
@@ -3215,20 +3216,44 @@
       "displayName": "Skillz",
       "id": 318,
       "buyable": true,
-      "price": 10000,
-      "swordFileName": "skillzSword.png",
-      "bodyFileName": "skillzPlayer.png",
-      "description": "Do you have the skillz?"
+      "player": true,
+      "price": 100000,
+      "swordFileName": "vipSkillzSword.png",
+      "bodyFileName": "vipSkillzPlayer.png",
+      "description": "Given to Skillz for becoming a #5 all time player. May also be on sale during special player events."
     },
     "amethyst": {
       "name": "amethyst",
       "displayName": "Amethyst",
       "id": 319,
       "buyable": true,
-      "price": 10000,
-      "swordFileName": "amethystSword.png",
-      "bodyFileName": "amethystPlayer.png",
-      "description": "A mesmerizing purple gem"
+      "player": true,
+      "price": 100000,
+      "swordFileName": "vipAmethystSword.png",
+      "bodyFileName": "vipAmethystPlayer.png",
+      "description": "Given to Amethyst for becoming a #5 all time player. May also be on sale during special player events."
+    },
+    "frager": {
+      "name": "frager",
+      "displayName": "Frager",
+      "id": 320,
+      "buyable": true,
+      "player": true,
+      "price": 100000,
+      "swordFileName": "vipFragerSword.png",
+      "bodyFileName": "vipFragerPlayer.png",
+      "description": "Given to Frager for contributing to the community and Swordbattle as a whole. May also be on sale during special player events."
+    },
+    "oyoyoy": {
+      "name": "oyoyoy",
+      "displayName": "OYOYOY",
+      "id": 319,
+      "buyable": true,
+      "player": true,
+      "price": 100000,
+      "swordFileName": "vipOyoyoySword.png",
+      "bodyFileName": "vipOyoyoyPlayer.png",
+      "description": "Given to Oyoyoy for becoming the #1 player of all time! May also be on sale during special player events."
     }
   }
 }

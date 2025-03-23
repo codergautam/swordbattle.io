@@ -34,6 +34,7 @@ interface Skin {
   ogprice?: number;
   price?: number;
   description?: string;
+  player: boolean;
 }
 
 const rotate = false;
@@ -189,6 +190,17 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
     }
   };
 
+  const targetElementRef7 = useRef<HTMLDivElement>(null);
+
+  const scrollToTarget7 = () => {
+    if (targetParentRef.current && targetElementRef7.current) {
+      targetElementRef7.current.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      console.error("Target element not found");
+    }
+  };
+
+
   return (
     <div className="shop-modal">
       <div className="shop-extra">
@@ -213,6 +225,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
 <button onClick={scrollToTarget2}>Normal Skins</button>
 <button onClick={scrollToTarget3} data-selected-badge="ultimate">Ultimate Skins</button>
 <button onClick={scrollToTarget4} data-selected-badge="event">Event Skins</button>
+<button onClick={scrollToTarget7} data-selected-badge="player">Special Skins</button>
 
 {account?.isLoggedIn && (
           <button onClick={scrollToTarget5} data-selected-badge="own">Owned Skins</button>
@@ -351,6 +364,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
         if (skin.ultimate) return false;
+        if (skin.player) return false;
         if (skin.freebie) return false;
         if (skin.eventoffsale) return false;
         if (skin.event) return false;
@@ -642,6 +656,103 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       )}
       </div>
       <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      <div className='label'>
+        <div ref={targetElementRef7}></div>
+        <span style={{color: 'blue'}}>Special Skins (Player Event Active!)</span><hr></hr>
+        <p style={{color: 'white'}}>Special Skins are skins that are either obtained through different means other than Gems or Mastery, can only be bought during random & limited-time events, or are temporary skins that may or may not get fully added to the game.</p>
+        </div>
+        <div className='skins'>
+      {Object.values(skins).filter((skinData: any) => {
+        const skin = skinData as Skin;
+        if (!skin.player) return false;
+        
+        return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+      }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
+        const skin = skinData as Skin;
+        return (
+        <div className="skin-card" key={skin.name}>
+          <h2 className="skin-name-blue" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          {skin.ultimate && (
+            <p className='skin-tag'>{skin.tag}</p>
+          )}
+          {skin.sale && (
+            <p className='skin-saletag'>{skin.saletag}</p>
+          )}
+          {skin.event && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+          {skin.eventoffsale && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+          {skin.freebie && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+
+          <img
+            src={basePath + skin.bodyFileName}
+            alt={skin.name}
+            ref={(el) => assignRef(el as HTMLImageElement, index)}
+            className='skin-img'
+            data-selected='skin'
+          />
+          {Settings.swords && (
+          <img
+          src={basePath + skin.swordFileName}
+          alt={skin.name}
+          ref={(el) => assignRef(el as HTMLImageElement, index)}
+          className='skin-sword'
+          data-selected='skin'
+        />
+          )}
+          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
+          <br/>
+          <p className='skin-desc'>{skin.description}</p>
+          {
+  (skin?.price ?? 0) > 0 ? (
+    <>
+      {skin?.sale 
+        && <> <span className="sale">
+        {skin?.ogprice}
+      </span><span>‎ ‎ ‎</span> </>
+      }
+      {skin?.price} 
+      {skin?.ultimate 
+        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
+        : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
+      }
+    </>
+  ) : (
+    <>
+      <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
+      {skin?.sale 
+        && <> <span className="sale">
+        {skin?.ogprice}
+      </span><span>‎ ‎ ‎</span> </>
+      }
+        {skin?.ultimate ? (
+  <>
+    {skin.buyable ? '0' : ''}
+    <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
+  </>
+) : (
+  skin?.buyable ? 'Free' : ''
+)}
+      </p>
+    </>
+  )
+}
+          </h4>
+          {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
+  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
+    {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
+      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
+  </button>
+))}
+        </div>
+      )
+      }
+      )}
+      </div>
       {account?.isLoggedIn && (
         <>
           <div className='label'>

@@ -52,7 +52,6 @@ class BasicEvolution extends Effect {
   }
 
   update(dt) {
-    this.player.modifiers.invisible = false;
     this.abilityCooldownTimer.update(dt);
     this.abilityDurationTimer.update(dt);
 

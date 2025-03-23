@@ -8,7 +8,6 @@ interface HealthOptions {
   offsetY: number;
   hideWhenFull: boolean;
   alwaysHide: boolean;
-  line: number;
 }
 
 const defaultOptions: HealthOptions = {
@@ -17,8 +16,7 @@ const defaultOptions: HealthOptions = {
   hideWhenFull: true,
   offsetX: 0,
   offsetY: 0,
-  alwaysHide: false,
-  line: 4
+  alwaysHide: false
 };
 
 export class Health {
@@ -61,7 +59,6 @@ export class Health {
     const scale = this.entity.container.scale;
     const width = this.options.width * scale;
     const height = this.options.height * scale;
-    const line = this.options.line
 
     this.bar.setPosition(
       (this.entity.container.x - width / 2) + this.options.offsetX * scale,
@@ -78,7 +75,7 @@ export class Health {
     }
 
     this.bar.clear();
-    this.bar.lineStyle(line, 0x000000);
+    this.bar.lineStyle(4, 0x000000);
     this.bar.strokeRect(0, 0, width, height);
     this.bar.fillStyle(healthColor);
     this.bar.fillRect(0, 0, width * this.value, height);

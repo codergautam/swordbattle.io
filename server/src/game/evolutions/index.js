@@ -39,7 +39,7 @@ class EvolutionSystem {
     return Evol && Evol.level <= this.player.levels.level
       && (Evol.biomes.length === 0 || Evol.biomes.includes(this.player.biome))
       && evolutions[this.evolution].level < Evol.level
-      && (Evol.previousEvol === undefined || this.evolution === Evol.previousEvol);
+      && (Evol.previousEvol === undefined || this.evolution === Evol.previousEvol || (Evol.previousEvol === "secret" && this.evolution === 0));
   }
 
   upgrade(evol) {

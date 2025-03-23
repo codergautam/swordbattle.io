@@ -61,7 +61,7 @@ function LeaderboardLine({ player }: any) {
   const specialColors: { [key: string]: string } = {
     "[apc] codergautam": '#ff0000',
     angel: '#acfffc',
-    "cool guy 53": '#0099ff',
+    "[apc] cool guy 53": '#0099ff',
     "update testing account": '#00ff00'
   }
   return (

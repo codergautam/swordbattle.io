@@ -13,7 +13,7 @@ class Chest extends BaseEntity {
     this.healthBar = new Health(this, {
       hideWhenFull: false,
       width: this.sprite.width,
-      height: 20,
+      height: this.sprite.width / 17.6,
       offsetX: this.sprite.width / 2,
       offsetY: -30,
       alwaysHide: this.rarity === 0

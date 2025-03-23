@@ -54,6 +54,7 @@ class Player extends BaseEntity {
 
     this.healthBar = new Health(this, {
       hideWhenFull: false,
+      line: 0,
       offsetY: -this.body.height / 2 - 40,
     });
 
@@ -341,8 +342,11 @@ class Player extends BaseEntity {
     this.interpolate(dt);
 
     if (this.abilityActive) {
-      this.addAbilityParticles();
-    }
+      const evolutionClass = Evolutions[this.evolution];
+      if (evolutionClass[0] !== 'Stalker') {
+        this.addAbilityParticles();
+      }
+     }
     if (this.following) {
       this.game.cameras.main.centerOn(this.container.x, this.container.y);
     }

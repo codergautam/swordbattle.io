@@ -108,40 +108,27 @@ class GameMap {
     });
   }
 
-   spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
-    const maxCoinsCount = 200;
-    let remainingCoinValue = totalCoinValue;
-    const coins = Math.min(Math.round(totalCoinValue / 5), maxCoinsCount);
+spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
+  const maxCoinsCount = 200;
+  let remainingCoinValue = totalCoinValue;
+  const coins = Math.min(Math.round(totalCoinValue / 5), maxCoinsCount);
+  const coinValue = totalCoinValue / coins;
 
-    for (let i = 0; i < coins; i++) {
-      const center = shape.center;
-
-      // Adjust coin value for the last coin to match the remaining total value
-      let coinValue;
-      if (i === coins - 1) {
-        coinValue = remainingCoinValue;
-      } else {
-        // Randomly determine the value of each coin, ensuring it's not more than the remaining value
-        const maxCoinValue = Math.min(remainingCoinValue, totalCoinValue / coins / 2);
-        coinValue = Math.random() * maxCoinValue;
-        coinValue = Math.max(coinValue, totalCoinValue / coins / 3); // Ensuring it's not less than the minimum value
-      }
-
-      remainingCoinValue -= coinValue;
-
-      const coin = this.game.map.addEntity({
-        type: Types.Entity.Coin,
-        position: [center.x, center.y],
-        value: coinValue,
-        droppedBy,
-      });
-
-      const randomPoint = shape.getRandomPoint();
-      coin.velocity.add(new SAT.Vector(
-        randomPoint.x - center.x,
-        randomPoint.y - center.y,
-      ).scale(0.5));
-    }
+  for (let i = 0; i < coins; i++) {
+    // Get a random point within the shape for the coin's position
+    const randomPoint = shape.getRandomPoint();
+    const coin = this.game.map.addEntity({
+      type: Types.Entity.Coin,
+      position: [randomPoint.x, randomPoint.y], // Spawn directly at the random point
+      value: coinValue,
+      droppedBy,
+    });
+    //Remove the velocity application.
+    //coin.velocity.add(new SAT.Vector(
+    //  randomPoint.x - center.x,
+    //  randomPoint.y - center.y,
+    //).scale(0.5));
+  }
 }
 
 

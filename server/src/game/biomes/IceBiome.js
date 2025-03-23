@@ -8,7 +8,7 @@ class IceBiome extends Biome {
   }
 
   applyEffects(player) {
-    player.speed.multiplier *= 1.1;
+    player.speed.multiplier *= 1;
     player.sword.swingDuration.multiplier['biome'] = 1.1;
     player.addEffect(Types.Effect.Slipping, 'iceBiome', { friction: 0.3, duration: 0.2 });
   }

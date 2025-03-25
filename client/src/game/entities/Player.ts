@@ -342,10 +342,12 @@ class Player extends BaseEntity {
     this.interpolate(dt);
 
     if (this.abilityActive) {
-      const evolutionClass = Evolutions[this.evolution];
-      if (evolutionClass[0] !== 'Stalker') {
-        this.addAbilityParticles();
-      }
+      if (this.evolution) {
+        const evolutionClass = Evolutions[this.evolution];
+        if (evolutionClass[0] !== 'Stalker') {
+          this.addAbilityParticles();
+        }
+      } 
      }
     if (this.following) {
       this.game.cameras.main.centerOn(this.container.x, this.container.y);

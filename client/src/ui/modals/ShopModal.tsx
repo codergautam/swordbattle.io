@@ -7,6 +7,7 @@ import * as cosmetics from '../../game/cosmetics.json'
 
 import './ShopModal.scss'
 import { buyFormats, numberWithCommas } from '../../helpers';
+import { Id } from '@reduxjs/toolkit/dist/tsHelpers';
 let { skins } = cosmetics;
 
 const basePath = 'assets/game/player/';
@@ -29,6 +30,9 @@ interface Skin {
   freebie: boolean;
   eventoffsale: boolean;
   ultimate: boolean;
+  special: boolean;
+  obl: boolean;
+  wip: boolean;
   swordFileName: string;
   bodyFileName: string;
   ogprice?: number;
@@ -467,6 +471,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
         if (!skin.ultimate) return false;
+        if (skin.special) return false;
         
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
       }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
@@ -659,19 +664,27 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       <div className='label'>
         <div ref={targetElementRef7}></div>
         <span style={{color: 'blue'}}>Special Skins (Player Event Active!)</span><hr></hr>
-        <p style={{color: 'white'}}>Special Skins are skins that are either obtained through different means other than Gems or Mastery, can only be bought during random & limited-time events, or are temporary skins that may or may not get fully added to the game.</p>
+        <p style={{color: 'white'}}>Special skins are miscellaneous skins that are (currently) either skins for random skin events or are temporary skins that may or may not be fully added to the game.</p>
         </div>
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
-        if (!skin.player) return false;
+        if (!skin.special) return false;
         
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
-      }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
+      }).sort((a: any, b: any) => a.id - b.id).map((skinData: any, index) => {
         const skin = skinData as Skin;
         return (
         <div className="skin-card" key={skin.name}>
-          <h2 className="skin-name-blue" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          {skin.player && (
+            <h2 className="skin-name" style={{color: '#00aaff'}} dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          )}
+          {skin.obl && (
+            <h2 className="skin-name" style={{color: 'yellow'}} dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          )}
+          {skin.wip && (
+            <h2 className="skin-name" style={{color: 'red'}} dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          )}
           {skin.ultimate && (
             <p className='skin-tag'>{skin.tag}</p>
           )}
@@ -704,6 +717,15 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           data-selected='skin'
         />
           )}
+          {skin.wip && (
+            <>
+            <h4 className='skin-count'>
+            <p className='skin-desc'>{skin.description}</p>
+            </h4>
+            </>
+          )}
+          {!skin.wip && (
+            <>
           <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
           <br/>
           <p className='skin-desc'>{skin.description}</p>
@@ -742,6 +764,8 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   )
 }
           </h4>
+          </>
+          )}
           {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
   <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
     {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :

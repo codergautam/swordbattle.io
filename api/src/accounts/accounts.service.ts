@@ -164,7 +164,7 @@ export class AccountsService {
     skinsData.owned.push(itemId);
 
     // Deduct the gems from the user's account
-    if (!cosmetic.ultimate) {
+    if (!cosmetic.ultimate && !cosmetic.currency) {
       user.gems -= skinPrice;
     }
 

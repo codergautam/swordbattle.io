@@ -69,7 +69,7 @@ module.exports = {
       objects: [
         {
           type: Types.Entity.Bush,
-          amount: 250,
+          amount: 150,
           position: 'random',
           size: [100, 400],
         },

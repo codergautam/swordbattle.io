@@ -10,11 +10,11 @@ module.exports = class Samurai extends Evolution {
 
   applyAbilityEffects() {
     this.player.shape.setScale(1.1);
-    this.player.sword.damage.multiplier *= 1.2;
+    this.player.sword.damage.multiplier *= 1;
     this.player.knockbackResistance.multiplier *= 2;
-    this.player.health.regen.multiplier *= 5;
+    this.player.health.regen.multiplier *= 3;
     this.player.speed.multiplier *= 1.25;
-    this.player.sword.swingDuration.multiplier['ability'] = 0.5;
+    this.player.sword.swingDuration.multiplier['ability'] = 0.7;
     this.player.sword.knockback.multiplier['ability'] = 1.5;
 
     this.player.health.regenWait.multiplier = 0;

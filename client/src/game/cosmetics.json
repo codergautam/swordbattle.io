@@ -3393,8 +3393,8 @@
       "event": true,
       "eventtag": "APRIL FOOLS",
       "price": 0,
-      "swordFileName": "aprilSquareSword.png",
-      "bodyFileName": "aprilSquarePlayer.png",
+      "swordFileName": "squareSword.png",
+      "bodyFileName": "squarePlayer.png",
       "description": "Freebie skin for playing during the April Fools event!"
     }
   }

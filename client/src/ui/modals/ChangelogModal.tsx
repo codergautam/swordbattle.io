@@ -3,13 +3,16 @@ import './ChangelogModal.scss';
 function ChangelogModal() {
   return (
     <div className="changelog">
-    <h1 style={{fontSize: 30, color: 'white'}}>What's new? <span style={{color: '#ff00ff'}}>(April 1st, 2025)</span></h1>
-    <h1 style={{fontSize: 15, color: 'red'}}>A catastrophic error occurred within Swordbattle, and some features have been shrunken down temporarily while we fix the problem. The changes are as follows:</h1>
-    <ul style={{fontSize: 19, color: 'white'}}>- The map is now 50% smaller</ul>
-    <ul style={{fontSize: 19, color: 'white'}}>- The entire map is now the forest biome</ul>
-    <ul style={{fontSize: 19, color: 'white'}}>- All chests are now completely random (may be chaotic)</ul>
+    <h1 style={{fontSize: 30, color: 'white'}}>What's new? (March 2025)</h1>
+    <h1 style={{fontSize: 30, color: 'lime'}}>Spring Update (Part 1)</h1>
+    <ul style={{fontSize: 19, color: '#55ff55'}}>- New Flower Forest and Acid Rock biomes!</ul>
+    <ul style={{fontSize: 19, color: '#55ff55'}}>- Green chests are now giant and drop up to 20k coins!</ul>
+    <ul style={{fontSize: 19, color: '#55ff55'}}>- Being under trees now speeds you up, and all evolutions have been balanced!</ul>
+    <ul style={{fontSize: 19, color: '#55ff55'}}>- SPRING SKIN SALE! Save thousands of gems on spring skins during the event!</ul>
+    <ul style={{fontSize: 19, color: '#aaffaa'}}>- New "secret" evolution: Stalker! (Hint: to get it, don't pick any other evolutions)</ul>
     <br></br>
-    <p style={{fontSize: 17, color: 'lightblue'}}>Join the <a href="https://discord.com/invite/9A9dNTGWb9" className="primary-link" target="_blank" rel="nofollow">Swordbattle.io Discord Server</a> to learn more about why this happened.</p>
+    <ul style={{fontSize: 19, color: 'yellow'}}>- Part 2 coming soon, bringing even bigger event changes!</ul>
+    <p style={{fontSize: 17, color: 'lightblue'}}>Join the <a href="https://discord.com/invite/9A9dNTGWb9" className="primary-link" target="_blank" rel="nofollow">Swordbattle.io Discord Server</a> to learn more about the spring event on the full changelog!</p>
 </div>
 
   );

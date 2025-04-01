@@ -27,14 +27,14 @@ class Chest extends Entity {
     super(game, Types.Entity.Chest, objectData);
 
     let rand = helpers.randomInteger(0, totalWeight - 1);
-   // this.rarity = rarities.findIndex(rarity => {
-   //   rand -= rarity[3];
-   //   return rand < 0;
-   // });
-    this.rarity = 1;
-    this.size = Math.floor(Math.random() * (1350 - 200 + 1)) + 200;
-    this.coins = this.size * (Math.floor(Math.random() * 4) + 0.5);
-    this.health = new Health(this.size * (Math.random() * (0.9 - 0.5) + 0.4), 0);
+    this.rarity = rarities.findIndex(rarity => {
+      rand -= rarity[3];
+      return rand < 0;
+    });
+
+    this.size = rarities[this.rarity][0];
+    this.coins = rarities[this.rarity][1];
+    this.health = new Health(rarities[this.rarity][2], 0);
 
     this.shape = Polygon.createFromRectangle(0, 0, this.size, this.size * 0.6);
     this.targets.push(Types.Entity.Sword);

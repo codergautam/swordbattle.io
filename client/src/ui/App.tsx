@@ -315,7 +315,7 @@ function App() {
                 <div className="announcementCard menuCard panel">
                     <div>
                     <span style={{fontSize: 16}}>
-                      Tip: The Stalker ability temporarily turns the player invisible. Stay alert if you see a Stalker nearby!
+                      Don't check the shop
                     </span>
                       {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> */}
 

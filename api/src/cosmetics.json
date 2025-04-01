@@ -3384,6 +3384,18 @@
       "swordFileName": "cyberfrostninjaSword.png",
       "bodyFileName": "cyberfrostninjanewPlayer.png",
       "description": "Not available for sale."
+    },
+    "square": {
+      "name": "square",
+      "displayName": "Square",
+      "id": 332,
+      "buyable": true,
+      "event": true,
+      "eventtag": "APRIL FOOLS",
+      "price": 0,
+      "swordFileName": "aprilSquareSword.png",
+      "bodyFileName": "aprilSquarePlayer.png",
+      "description": "Freebie skin for playing during the April Fools event!"
     }
   }
 }

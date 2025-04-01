@@ -67,7 +67,7 @@ module.exports = {
 
   // World settings
   world: {
-    worldHeight: 30000,
-    worldWidth: 30000,
+    worldHeight: 15000,
+    worldWidth: 15000,
   }
 };

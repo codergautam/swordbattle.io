@@ -173,15 +173,29 @@ export class AccountsService {
     await this.accountsRepository.save(user);
 
     // Add to transactions table
-    const transaction = this.transactionsRepository.create({
-      account: user,
-      amount: -skinPrice,
-      description: "buy-" + type + "-" + itemId,
-      transaction_id: "gems",
-    });
-    await this.transactionsRepository.save(transaction);
+    if (cosmetic.currency) {
+      const transaction = this.transactionsRepository.create({
+        account: user,
+        amount: skinPrice,
+        description: "buy-" + type + "-" + itemId,
+        transaction_id: "gems",
+      });
 
-    return { success: true };
+      await this.transactionsRepository.save(transaction);
+
+       return { success: true };
+    } else {
+      const transaction = this.transactionsRepository.create({
+        account: user,
+        amount: -skinPrice,
+        description: "buy-" + type + "-" + itemId,
+        transaction_id: "gems",
+      });
+
+      await this.transactionsRepository.save(transaction);
+
+      return { success: true };
+    }
   }
 
   async addGems(account: Account, gems: number, reason = "server") {

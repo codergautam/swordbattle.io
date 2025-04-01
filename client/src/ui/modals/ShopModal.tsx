@@ -39,6 +39,7 @@ interface Skin {
   price?: number;
   description?: string;
   player: boolean;
+  currency: boolean;
 }
 
 const rotate = false;
@@ -289,13 +290,59 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           {skin.freebie && (
             <p className='skin-eventtag'>{skin.eventtag}</p>
           )}
+          {skin.currency ? (
+            <>
+            <img
+            src="assets/game/gem.png"
+            alt={skin.name}
+            ref={(el) => assignRef(el as HTMLImageElement, index)}
+            className='skin-img'
+            data-selected='skin' 
+          />
+          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
+          <br/>
+          <p className='skin-desc'>{skin.description}</p>
+          {
+  (skin?.price ?? 0) > 0 ? (
+    <>
+      {skin?.sale 
+        && <> <span className="sale">
+        {skin?.ogprice}
+      </span><span>‎ ‎ ‎</span> </>
+      }
+    </>
+  ) : (
+    <>
+      <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
+        {skin?.ultimate ? (
+  <>
+    {skin.buyable ? '0' : ''}
+    <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
+  </>
+) : (
+  skin?.buyable ? '' : ''
+)}
+      </p>
+    </>
+  )
+}
 
-          <img
+{(account?.isLoggedIn && (skin.buyable && !account.skins.owned.includes(skin.id)) && (
+  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
+    {skinStatus[skin.id] || (account.skins.equipped === skin.id ? '' :
+      account.skins.owned.includes(skin.id) ? '' : skin.ultimate ? '' : 'Get')}
+  </button>
+))}
+          </h4>
+            </>
+          ) : (
+            <>
+              <img
             src={basePath + skin.bodyFileName}
             alt={skin.name}
             ref={(el) => assignRef(el as HTMLImageElement, index)}
             className='skin-img'
-            data-selected='skin'
+            data-selected='skin' 
           />
           {Settings.swords && (
           <img
@@ -343,13 +390,17 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
     </>
   )
 }
-          </h4>
-          {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
+
+{(account?.isLoggedIn && (skin.buyable && !account.skins.owned.includes(skin.id)) && (
   <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
     {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
-      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
+      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? '' : 'Buy')}
   </button>
 ))}
+          </h4>
+            </>
+          )}
+
         </div>
         )
       }
@@ -673,6 +724,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         if (skin.freebie) return true;
         if (skin.eventoffsale) return true;
         if (!skin.event) return false;
+        if (skin.currency) return false;
         
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
       }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
@@ -889,6 +941,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
         if (skin.og) return false;
+        if (skin.currency)
         if (!account?.skins.owned.includes(skin.id)) return false;
         
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());

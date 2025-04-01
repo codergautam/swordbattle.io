@@ -3396,6 +3396,19 @@
       "swordFileName": "squareSword.png",
       "bodyFileName": "squarePlayer.png",
       "description": "Freebie skin for playing during the April Fools event!"
+    },
+    "freegem": {
+      "name": "freegem",
+      "displayName": "25000 Free Gems",
+      "buyable": true,
+      "currency": true,
+      "event": true,
+      "id": 333,
+      "swordFileName": "sword.png",
+      "bodyFileName": "player.png",
+      "eventtag": "Compensation",
+      "price": 25000,
+      "description": "This isn't an april fools joke"
     }
   }
 }

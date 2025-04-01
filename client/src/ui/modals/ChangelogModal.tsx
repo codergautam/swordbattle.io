@@ -5,7 +5,7 @@ function ChangelogModal() {
     <div className="changelog">
     <h1 style={{fontSize: 30, color: 'white'}}>What's new? (April 2025)</h1>
     <h1 style={{fontSize: 15, color: 'red'}}>A catastrophic error occurred within Swordbattle, and some features have been shrunken down temporarily while we fix the problem. The changes are as follows:</h1>
-    <ul style={{fontSize: 19, color: 'white'}}>- The map is now 75% smaller</ul>
+    <ul style={{fontSize: 19, color: 'white'}}>- The map is now 50% smaller</ul>
     <ul style={{fontSize: 19, color: 'white'}}>- The entire map is now the forest biome</ul>
     <ul style={{fontSize: 19, color: 'white'}}>- All chests are now completely random (may be chaotic)</ul>
     <br></br>

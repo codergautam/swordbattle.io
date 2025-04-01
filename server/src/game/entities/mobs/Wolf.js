@@ -24,7 +24,7 @@ class WolfMob extends Entity {
     this.tamedBy = null;
 
     this.jumpTimer = new Timer(0, 2, 3);
-    this.angryTimer = new Timer(0, 12, 21);
+    this.angryTimer = new Timer(0, 5, 10);
 
     this.health = new Health(75, 1);
     this.speed = new Property(22);

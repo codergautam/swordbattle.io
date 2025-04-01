@@ -101,14 +101,14 @@ module.exports = {
         },
         {
           type: Types.Entity.Wolf,
-          amount: 12,
+          amount: 11,
           position: 'random',
           respawnable: true,
           size: [85, 105],
         },
         {
           type: Types.Entity.Cat,
-          amount: 12,
+          amount: 11,
           position: 'random',
           respawnable: true,
           size: [70, 90],
@@ -128,7 +128,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Moose,
-          amount: 10,
+          amount: 9,
           position: 'random',
           respawnable: true,
           size: [190, 250],

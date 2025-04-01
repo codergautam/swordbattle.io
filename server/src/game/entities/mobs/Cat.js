@@ -24,7 +24,7 @@ class CatMob extends Entity {
     this.tamedBy = null;
 
     this.jumpTimer = new Timer(1.75, 2, 3.5);
-    this.angryTimer = new Timer(0, 6, 11);
+    this.angryTimer = new Timer(0, 3, 6);
 
     this.health = new Health(35, 7);
     this.speed = new Property(30);

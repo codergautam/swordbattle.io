@@ -315,7 +315,7 @@ function App() {
                 <div className="announcementCard menuCard panel">
                     <div>
                     <span style={{fontSize: 16}}>
-                      Don't check the shop
+                    Tip: The Rook ability dashes in the direction you're currently moving in, making it good for both ambushing and running!
                     </span>
                       {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> */}
 

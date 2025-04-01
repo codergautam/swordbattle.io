@@ -168,6 +168,10 @@ export class AccountsService {
       user.gems -= skinPrice;
     }
 
+    if (cosmetic.currency) {
+      user.gems += skinPrice;
+    }
+
     // Save the updated skins data and gems back to the user's account
     user.skins = skinsData;
     await this.accountsRepository.save(user);

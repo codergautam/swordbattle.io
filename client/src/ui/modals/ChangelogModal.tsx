@@ -3,7 +3,7 @@ import './ChangelogModal.scss';
 function ChangelogModal() {
   return (
     <div className="changelog">
-    <h1 style={{fontSize: 30, color: 'white'}}>What's new? (April 2025)</h1>
+    <h1 style={{fontSize: 30, color: 'white'}}>What's new? <span style={{color: '#ff00ff'}}>(April 1st, 2025)</span></h1>
     <h1 style={{fontSize: 15, color: 'red'}}>A catastrophic error occurred within Swordbattle, and some features have been shrunken down temporarily while we fix the problem. The changes are as follows:</h1>
     <ul style={{fontSize: 19, color: 'white'}}>- The map is now 50% smaller</ul>
     <ul style={{fontSize: 19, color: 'white'}}>- The entire map is now the forest biome</ul>

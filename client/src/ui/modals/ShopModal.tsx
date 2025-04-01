@@ -118,7 +118,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
     if (!modal) return;
     if(rotate) {
     modal.addEventListener('mousemove', handleMouseMove);
-    }n
+    }
 
     // Fetch skin counts
     api.get(`${api.endpoint}/profile/skins/buys`, (data) => {

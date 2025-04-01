@@ -268,6 +268,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
         if (!skin.event) return false;
+        if (skin.currency && account.skins.owned.includes(skin.id)) return false;
 
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
       }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {

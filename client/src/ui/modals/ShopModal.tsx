@@ -369,6 +369,8 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
+        if (skin.special) return false;
+        if (skin.wip) return false;
         if (skin.ultimate) return false;
         if (skin.player) return false;
         if (skin.freebie) return false;

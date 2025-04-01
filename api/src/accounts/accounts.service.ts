@@ -155,7 +155,7 @@ export class AccountsService {
         return { error: 'Not enough mastery' };
       }
     } else {
-      if (user.gems < skinPrice) {
+      if (user.gems < skinPrice && !cosmetic.currency) {
         return { error: 'Not enough gems' };
       }
     }

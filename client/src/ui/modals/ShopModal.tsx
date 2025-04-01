@@ -299,7 +299,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
             className='skin-img'
             data-selected='skin' 
           />
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
+          <h4 className='skin-count'>
           <br/>
           <p className='skin-desc'>{skin.description}</p>
           {

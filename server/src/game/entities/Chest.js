@@ -33,8 +33,8 @@ class Chest extends Entity {
    // });
     this.rarity = 1;
     this.size = Math.floor(Math.random() * (1350 - 200 + 1)) + 200;
-    this.coins = this.size * (Math.floor(Math.random() * 4.5) + 1);
-    this.health = new Health(this.size * (Math.random() * (1.3 - 0.7) + 0.4), 0);
+    this.coins = this.size * (Math.floor(Math.random() * 3.5) + 1);
+    this.health = new Health(this.size * (Math.random() * (1.5 - 0.9) + 0.4), 0);
 
     this.shape = Polygon.createFromRectangle(0, 0, this.size, this.size * 0.6);
     this.targets.push(Types.Entity.Sword);

@@ -4,7 +4,7 @@ function ChangelogModal() {
   return (
     <div className="changelog">
     <h1 style={{fontSize: 40, color: 'yellow'}}>Notice</h1>
-    <ul style={{fontSize: 19, color: 'white'}}>We're sorry for releasing the April Fools event in an unfinished and glitchy state (kind of ironic). <br></br><br></br>As a result, an offer for <span style={{color: 'yellow'}}>25,000 free gems</span> has now opened up in the shop, and both this offer and the event skin will be available for an extended time.<br></br>(also this isn't an april fools joke)</ul>
+    <ul style={{fontSize: 19, color: 'white'}}>We're sorry for releasing the April Fools event in an unfinished and glitchy state (kind of ironic). <br></br><br></br>As a result, an offer for <span style={{color: 'yellow'}}>25,000 free gems</span> has now opened up in the shop, and both this offer and the event skin will be available for an extended time.<br></br><br></br>(also this isn't an april fools joke)</ul>
 </div>
 
   );

@@ -3389,8 +3389,8 @@
       "name": "square",
       "displayName": "Square",
       "id": 332,
-      "buyable": true,
-      "event": true,
+      "buyable": false,
+      "eventoffsale": true,
       "eventtag": "APRIL FOOLS",
       "price": 0,
       "swordFileName": "squareSword.png",
@@ -3399,16 +3399,14 @@
     },
     "freegem": {
       "name": "freegem",
-      "displayName": "25000 Free Gems",
-      "buyable": true,
+      "displayName": "",
+      "buyable": false,
       "currency": true,
-      "event": true,
       "id": 333,
       "swordFileName": "sword.png",
       "bodyFileName": "player.png",
-      "eventtag": "Compensation",
-      "price": 25000,
-      "description": "This isn't an april fools joke"
+      "price": 0,
+      "description": ""
     }
   }
 }

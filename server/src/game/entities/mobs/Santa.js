@@ -20,7 +20,7 @@ class SantaMob extends Entity {
     snowballDuration: [2, 3],
     snowballSpeed: 90,
     snowballSize: 80,
-    attackRadius: 2000,
+    attackRadius: 2200,
     density: 5,
     isBoss: false,
   };

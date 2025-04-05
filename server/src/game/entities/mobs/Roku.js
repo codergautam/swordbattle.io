@@ -11,18 +11,18 @@ class RokuMob extends Entity {
   static defaultDefinition = {
     forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
     size: 100,
-    health: 5,
+    health: 7,
     regen: 2,
     speed: 20,
     damage: 2,
     jumpCooldown: [2, 3],
     fireballCooldown: [1, 2],
     fireballDuration: [1, 2],
-    fireballCount: [1, 3, 5],
-    fireballSpeed: 50,
+    fireballCount: [1, 2, 3, 5, 7],
+    fireballSpeed: 60,
     fireballSize: 50,
     fireballsSpread: Math.PI / 6,
-    attackRadius: 1500,
+    attackRadius: 1600,
     rotationSpeed: 1,
     density: 5,
     isBoss: false,
@@ -34,7 +34,7 @@ class RokuMob extends Entity {
     this.isGlobal = this.definition.isBoss;
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 35000;
+    this.coinsDrop = 38500;
 
     this.jumpTimer = new Timer(0, this.definition.jumpCooldown[0], this.definition.jumpCooldown[1]);
     this.fireballTimer = new Timer(0, this.definition.fireballCooldown[0], this.definition.fireballCooldown[1]);

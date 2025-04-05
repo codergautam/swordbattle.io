@@ -14,7 +14,7 @@ class CatMob extends Entity {
   };
 
   constructor(game, objectData) {
-    objectData = Object.assign({ size: 70 }, objectData);
+    objectData = Object.assign({ size: 55 }, objectData);
     super(game, Types.Entity.Cat, objectData);
 
     this.shape = Circle.create(0, 0, this.size);

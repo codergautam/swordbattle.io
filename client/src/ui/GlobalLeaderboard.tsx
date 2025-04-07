@@ -144,7 +144,7 @@ export function GlobalLeaderboard() {
                         </div>
                       </td>
                       <td>{row.kills}</td>
-                      <td>{secondsToTime(row.time)}</td>
+                      <td>{secondsToTime(row.playtime)}</td>
                     </>
                   ) : (
                     <td>

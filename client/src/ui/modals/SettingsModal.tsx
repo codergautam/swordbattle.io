@@ -6,7 +6,6 @@ import './SettingsModal.scss';
 function SettingsModal() {
   const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
   const [swords, setSwords] = useState(Settings.swords);
-  const [moreboard, setMoreboard] = useState(Settings.moreboard);
   const [coins, setCoins] = useState(Settings.coins);
   const [antialiasing, setAntialiasing] = useState(Settings.antialiasing);
   const [resolution, setResolution] = useState(Settings.resolution);
@@ -30,10 +29,6 @@ function SettingsModal() {
   const updateCoins = (value: any) => {
     setCoins(value);
     Settings.coins = value;
-  }
-  const updateMoreboard = (value: any) => {
-    setMoreboard(value);
-    Settings.moreboard = value;
   }
   const updateAntialiasing = (value: any) => {
     setAntialiasing(value);
@@ -77,16 +72,6 @@ function SettingsModal() {
           <input type="checkbox" name="coins" id="coins"
             checked={coins}
             onChange={(e) => updateCoins(e.target.checked)}
-          />
-          <span className="slider round"></span>
-        </label>
-      </div>
-      <div className="settings-line">
-        <label htmlFor="moreboard">(TEST) Increase leaderboards to #200: </label>
-        <label className="switch">
-          <input type="checkbox" name="moreboard" id="moreboard"
-            checked={moreboard}
-            onChange={(e) => updateMoreboard(e.target.checked)}
           />
           <span className="slider round"></span>
         </label>

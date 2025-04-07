@@ -28,11 +28,6 @@ export const settingsList: Record<string, SettingType> = {
         }
       },
       },
-  moreboard: {
-    name: '(TEST) Increase leaderboards to #200',
-    type: 'toggle',
-    default: false,
-    },
   useWebGL: {
     name: 'Use WebGL (requires reload)',
     type: 'toggle',

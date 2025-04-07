@@ -36,7 +36,7 @@ export function GlobalLeaderboard() {
     api.post(url, {
       sortBy: type.startsWith('total') ? type.slice(6) : type,
       timeRange: range,
-      limit: 200,
+      limit: 100,
     }, (data: any) => setData(!data.message ? data : []));
   };
   const changeType = (type: string) => {
@@ -100,7 +100,7 @@ export function GlobalLeaderboard() {
             <LeaderboardCard type={type} row={data[1]} index={1} />
             <LeaderboardCard type={type} row={data[2]} index={2} />
           </>) : (
-            <>Not enough data</>
+            <>Loading...</>
           )}
         </div>
 
@@ -144,7 +144,7 @@ export function GlobalLeaderboard() {
                         </div>
                       </td>
                       <td>{row.kills}</td>
-                      <td>{secondsToTime(row.playtime)}</td>
+                      <td>{secondsToTime(row.time)}</td>
                     </>
                   ) : (
                     <td>

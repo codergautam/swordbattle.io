@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import { numberWithCommas, secondsToTime } from '../helpers';
 import api from '../api';
+import { Settings } from '../game/Settings';
 
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './GlobalLeaderboard.scss';
@@ -36,7 +37,7 @@ export function GlobalLeaderboard() {
     api.post(url, {
       sortBy: type.startsWith('total') ? type.slice(6) : type,
       timeRange: range,
-      limit: 1000,
+      limit: Settings.moreboard ? 200 : 100,
     }, (data: any) => setData(!data.message ? data : []));
   };
   const changeType = (type: string) => {

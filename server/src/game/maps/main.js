@@ -211,6 +211,20 @@ module.exports = {
           size: [40, 60],
         },
         {
+          type: Types.Entity.Fox,
+          amount: 11,
+          position: 'random',
+          respawnable: true,
+          size: [80, 100],
+        },
+        {
+          type: Types.Entity.Scorpion,
+          amount: 18,
+          position: 'random',
+          respawnable: true,
+          size: [40, 60],
+        },
+        {
           type: Types.Entity.Rock,
           amount: 20,
           position: 'random',
@@ -218,6 +232,13 @@ module.exports = {
         },
         {
           type: Types.Entity.Moose,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [190, 250],
+        },
+        {
+          type: Types.Entity.Camel,
           amount: 5,
           position: 'random',
           respawnable: true,

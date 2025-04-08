@@ -14,7 +14,7 @@ class FoxMob extends Entity {
   };
 
   constructor(game, objectData) {
-    objectData = Object.assign({ size: 65 }, objectData);
+    objectData = Object.assign({ size: 70 }, objectData);
     super(game, Types.Entity.Fox, objectData);
 
     this.shape = Circle.create(0, 0, this.size);

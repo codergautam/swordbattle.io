@@ -466,6 +466,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       </div>
         <div className='label'>
         <div ref={targetElementRef2}></div>
+        <span>Normal Skins</span><hr></hr>
         </div>
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {

@@ -8,6 +8,9 @@ const Types = require('../../Types');
 const helpers = require('../../../helpers');
 // All Comments are alterations from the Moose mob
 class CamelMob extends Entity {
+  static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+  };
   constructor(game, objectData) {
     objectData = Object.assign({ size: 125 }, objectData);
     super(game, Types.Entity.Camel, objectData);

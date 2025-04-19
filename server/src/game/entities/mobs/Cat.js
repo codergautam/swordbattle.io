@@ -9,7 +9,7 @@ const helpers = require('../../../helpers');
 
 class CatMob extends Entity {
   static defaultDefinition = {
-    forbiddenBiomes: [Types.Biome.Safezone],
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
     attackRadius: 1000,
   };
 

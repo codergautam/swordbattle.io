@@ -155,7 +155,7 @@ export class AccountsService {
         return { error: 'Not enough mastery' };
       }
     } else {
-      if (user.gems < skinPrice) {
+      if (user.gems < skinPrice && !cosmetic.currency) {
         return { error: 'Not enough gems' };
       }
     }
@@ -164,8 +164,12 @@ export class AccountsService {
     skinsData.owned.push(itemId);
 
     // Deduct the gems from the user's account
-    if (!cosmetic.ultimate) {
+    if (!cosmetic.ultimate && !cosmetic.currency) {
       user.gems -= skinPrice;
+    }
+
+    if (cosmetic.currency) {
+      user.gems += skinPrice;
     }
 
     // Save the updated skins data and gems back to the user's account
@@ -173,15 +177,29 @@ export class AccountsService {
     await this.accountsRepository.save(user);
 
     // Add to transactions table
-    const transaction = this.transactionsRepository.create({
-      account: user,
-      amount: -skinPrice,
-      description: "buy-" + type + "-" + itemId,
-      transaction_id: "gems",
-    });
-    await this.transactionsRepository.save(transaction);
+    if (cosmetic.currency) {
+      const transaction = this.transactionsRepository.create({
+        account: user,
+        amount: skinPrice,
+        description: "buy-" + type + "-" + itemId,
+        transaction_id: "gems",
+      });
 
-    return { success: true };
+      await this.transactionsRepository.save(transaction);
+
+       return { success: true };
+    } else {
+      const transaction = this.transactionsRepository.create({
+        account: user,
+        amount: -skinPrice,
+        description: "buy-" + type + "-" + itemId,
+        transaction_id: "gems",
+      });
+
+      await this.transactionsRepository.save(transaction);
+
+      return { success: true };
+    }
   }
 
   async addGems(account: Account, gems: number, reason = "server") {

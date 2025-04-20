@@ -315,7 +315,7 @@ function App() {
                 <div className="announcementCard menuCard panel">
                     <div>
                     <span style={{fontSize: 16}}>
-                      Tip: The Rook ability dashes in the direction you're currently moving in. Good for both ambushing and running!
+                    Note: Even though some skins may "feel" more powerful than others, skins do not affect the hitbox or range of swords.
                     </span>
                       {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> */}
 
@@ -328,7 +328,7 @@ function App() {
                       type="text"
                       id="nameInput"
                       placeholder="Enter Name"
-                      maxLength={16}
+                      maxLength={20}
                       value={account.isLoggedIn ? account.username : name}
                       onChange={(e) => setName(e.target.value)}
                       style={{ cursor: account.isLoggedIn ? 'not-allowed' : 'text'}}
@@ -432,7 +432,10 @@ function App() {
              <div>
                <a href="https://worldguessr.com/" target="_blank"
                 style={{
-                  fontSize: '0.9em',
+                  position: 'fixed',
+                  right: '95%',
+                  bottom: '150%',
+                  fontSize: '0.1em',
                   color: 'white',
                 }}
                rel="dofollow">

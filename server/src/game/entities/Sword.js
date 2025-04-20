@@ -58,13 +58,15 @@ class Sword extends Entity {
   canSwing() {
     return !this.isFlying
       && this.player.inputs.isInputDown(Types.Input.SwordSwing)
-      && this.isAnimationFinished;
+      && this.isAnimationFinished
+      && this.player.modifiers.invisible == false;
   }
 
   canFly() {
     return !this.isFlying && !this.restrictFly
       && this.player.inputs.isInputDown(Types.Input.SwordThrow)
-      && this.flyCooldownTime <= 0;
+      && this.flyCooldownTime <= 0
+      && this.player.modifiers.invisible == false;
   }
 
   stopFly() {

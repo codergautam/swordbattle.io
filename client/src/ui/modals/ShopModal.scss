@@ -300,6 +300,10 @@ h1 {
   background-color: #00ffff;
 }
 
+.badges button[data-selected-badge="player"]:not(.active) {
+  background-color: #0000ff;
+}
+
 .badges button[data-selected-badge="own"]:not(.active) {
   background-color: #00ff00;
 }

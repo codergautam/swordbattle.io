@@ -7,6 +7,7 @@ import * as cosmetics from '../../game/cosmetics.json'
 
 import './ShopModal.scss'
 import { buyFormats, numberWithCommas } from '../../helpers';
+import { Id } from '@reduxjs/toolkit/dist/tsHelpers';
 let { skins } = cosmetics;
 
 const basePath = 'assets/game/player/';
@@ -29,11 +30,16 @@ interface Skin {
   freebie: boolean;
   eventoffsale: boolean;
   ultimate: boolean;
+  special: boolean;
+  obl: boolean;
+  wip: boolean;
   swordFileName: string;
   bodyFileName: string;
   ogprice?: number;
   price?: number;
   description?: string;
+  player: boolean;
+  currency: boolean;
 }
 
 const rotate = false;
@@ -189,6 +195,17 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
     }
   };
 
+  const targetElementRef7 = useRef<HTMLDivElement>(null);
+
+  const scrollToTarget7 = () => {
+    if (targetParentRef.current && targetElementRef7.current) {
+      targetElementRef7.current.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      console.error("Target element not found");
+    }
+  };
+
+
   return (
     <div className="shop-modal">
       <div className="shop-extra">
@@ -213,6 +230,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
 <button onClick={scrollToTarget2}>Normal Skins</button>
 <button onClick={scrollToTarget3} data-selected-badge="ultimate">Ultimate Skins</button>
 <button onClick={scrollToTarget4} data-selected-badge="event">Event Skins</button>
+<button onClick={scrollToTarget7} data-selected-badge="player">Special Skins</button>
 
 {account?.isLoggedIn && (
           <button onClick={scrollToTarget5} data-selected-badge="own">Owned Skins</button>
@@ -240,7 +258,108 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         )}
       </center>
       </div>
-      <div className='scroll' ref={targetParentRef}>
+      {searchTerm && (
+        <>
+        <div className='scroll' ref={targetParentRef}>
+        <div className='skins'>
+      {Object.values(skins).filter((skinData: any) => {
+        const skin = skinData as Skin;
+        if (skin.og) return false;
+        
+        return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+      }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
+        const skin = skinData as Skin;
+        return (
+        <div className="skin-card" key={skin.name}>
+          <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          {skin.ultimate && (
+            <p className='skin-tag'>{skin.tag}</p>
+          )}
+          {skin.sale && (
+            <p className='skin-saletag'>{skin.saletag}</p>
+          )}
+          {skin.event && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+          {skin.eventoffsale && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+          {skin.freebie && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+
+          <img
+            src={basePath + skin.bodyFileName}
+            alt={skin.name}
+            ref={(el) => assignRef(el as HTMLImageElement, index)}
+            className='skin-img'
+            data-selected='skin'
+          />
+          {Settings.swords && (
+          <img
+          src={basePath + skin.swordFileName}
+          alt={skin.name}
+          ref={(el) => assignRef(el as HTMLImageElement, index)}
+          className='skin-sword'
+          data-selected='skin'
+        />
+          )}
+          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
+          <br/>
+          <p className='skin-desc'>{skin.description}</p>
+          {
+  (skin?.price ?? 0) > 0 ? (
+    <>
+      {skin?.sale 
+        && <> <span className="sale">
+        {skin?.ogprice}
+      </span><span>‎ ‎ ‎</span> </>
+      }
+      {skin?.price} 
+      {skin?.ultimate 
+        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
+        : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
+      }
+    </>
+  ) : (
+    <>
+      <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
+      {skin?.sale 
+        && <> <span className="sale">
+        {skin?.ogprice}
+      </span><span>‎ ‎ ‎</span> </>
+      }
+        {skin?.ultimate ? (
+  <>
+    {skin.buyable ? '0' : ''}
+    <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
+  </>
+) : (
+  skin?.buyable ? 'Free' : ''
+)}
+      </p>
+    </>
+  )
+}
+          </h4>
+          {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
+  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
+    {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
+      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
+  </button>
+))}
+        </div>
+      )
+      }
+      )}
+      </div>
+      <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      </div>
+        </>
+      )}
+      {!searchTerm && (
+          <>
+          <div className='scroll' ref={targetParentRef}>
       <div className='label'>
         <div ref={targetElementRef1}></div>
         <span style={{color: 'lime'}}>Spring Skin Sale</span><hr></hr>
@@ -249,6 +368,8 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
+        if (skin.special) return false;
+        if (skin.wip) return false;
         if (skin.ultimate) return false;
         if (skin.freebie) return false;
         if (skin.eventoffsale) return false;
@@ -350,12 +471,15 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
+        if (skin.special) return false;
+        if (skin.wip) return false;
         if (skin.ultimate) return false;
+        if (skin.player) return false;
         if (skin.freebie) return false;
         if (skin.eventoffsale) return false;
         if (skin.event) return false;
         if (skin.og) return false;
-        
+        if (skin.currency) return false;
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
       }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
         const skin = skinData as Skin;
@@ -453,6 +577,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
         if (!skin.ultimate) return false;
+        if (skin.special) return false;
         
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
       }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
@@ -550,9 +675,8 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
-        if (skin.freebie) return true;
-        if (skin.eventoffsale) return true;
-        if (!skin.event) return false;
+        if (!skin.eventoffsale) return false;
+        if (skin.currency) return false;
         
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
       }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
@@ -642,6 +766,122 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       )}
       </div>
       <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      <div className='label'>
+        <div ref={targetElementRef7}></div>
+        <span style={{color: 'blue'}}>Special Skins (Player Event Active!)</span><hr></hr>
+        <p style={{color: 'white'}}>Special skins are miscellaneous skins that are (currently) either skins for random skin events or are temporary skins that may or may not be fully added to the game.</p>
+        </div>
+        <div className='skins'>
+      {Object.values(skins).filter((skinData: any) => {
+        const skin = skinData as Skin;
+        if (!skin.special) return false;
+        
+        return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+      }).sort((a: any, b: any) => a.id - b.id).map((skinData: any, index) => {
+        const skin = skinData as Skin;
+        return (
+        <div className="skin-card" key={skin.name}>
+          {skin.player && (
+            <h2 className="skin-name" style={{color: '#00aaff'}} dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          )}
+          {skin.obl && (
+            <h2 className="skin-name" style={{color: 'yellow'}} dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          )}
+          {skin.wip && (
+            <h2 className="skin-name" style={{color: 'red'}} dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          )}
+          {skin.ultimate && (
+            <p className='skin-tag'>{skin.tag}</p>
+          )}
+          {skin.sale && (
+            <p className='skin-saletag'>{skin.saletag}</p>
+          )}
+          {skin.event && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+          {skin.eventoffsale && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+          {skin.freebie && (
+            <p className='skin-eventtag'>{skin.eventtag}</p>
+          )}
+
+          <img
+            src={basePath + skin.bodyFileName}
+            alt={skin.name}
+            ref={(el) => assignRef(el as HTMLImageElement, index)}
+            className='skin-img'
+            data-selected='skin'
+          />
+          {Settings.swords && (
+          <img
+          src={basePath + skin.swordFileName}
+          alt={skin.name}
+          ref={(el) => assignRef(el as HTMLImageElement, index)}
+          className='skin-sword'
+          data-selected='skin'
+        />
+          )}
+          {skin.wip && (
+            <>
+            <h4 className='skin-count'>
+            <p className='skin-desc'>{skin.description}</p>
+            </h4>
+            </>
+          )}
+          {!skin.wip && (
+            <>
+          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
+          <br/>
+          <p className='skin-desc'>{skin.description}</p>
+          {
+  (skin?.price ?? 0) > 0 ? (
+    <>
+      {skin?.sale 
+        && <> <span className="sale">
+        {skin?.ogprice}
+      </span><span>‎ ‎ ‎</span> </>
+      }
+      {skin?.price} 
+      {skin?.ultimate 
+        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
+        : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
+      }
+    </>
+  ) : (
+    <>
+      <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
+      {skin?.sale 
+        && <> <span className="sale">
+        {skin?.ogprice}
+      </span><span>‎ ‎ ‎</span> </>
+      }
+        {skin?.ultimate ? (
+  <>
+    {skin.buyable ? '0' : ''}
+    <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
+  </>
+) : (
+  skin?.buyable ? 'Free' : ''
+)}
+      </p>
+    </>
+  )
+}
+          </h4>
+          </>
+          )}
+          {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
+  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
+    {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
+      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
+  </button>
+))}
+        </div>
+      )
+      }
+      )}
+      </div>
       {account?.isLoggedIn && (
         <>
           <div className='label'>
@@ -653,6 +893,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
         if (skin.og) return false;
+        if (skin.currency) return false;
         if (!account?.skins.owned.includes(skin.id)) return false;
         
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -849,7 +1090,10 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       }
       )}
       </div>
-    </div>
+      </div>
+          </>
+        )}
+      
     </div>
   );
 }

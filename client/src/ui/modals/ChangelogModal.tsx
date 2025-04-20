@@ -9,6 +9,7 @@ function ChangelogModal() {
     <ul style={{fontSize: 19, color: '#55ff55'}}>- Green chests are now giant and drop up to 20k coins!</ul>
     <ul style={{fontSize: 19, color: '#55ff55'}}>- Being under trees now speeds you up, and all evolutions have been balanced!</ul>
     <ul style={{fontSize: 19, color: '#55ff55'}}>- SPRING SKIN SALE! Save thousands of gems on spring skins during the event!</ul>
+    <ul style={{fontSize: 19, color: '#aaffaa'}}>- New "secret" evolution: Stalker! (Hint: to get it, don't pick any other evolutions)</ul>
     <br></br>
     <ul style={{fontSize: 19, color: 'yellow'}}>- Part 2 coming soon, bringing even bigger event changes!</ul>
     <p style={{fontSize: 17, color: 'lightblue'}}>Join the <a href="https://discord.com/invite/9A9dNTGWb9" className="primary-link" target="_blank" rel="nofollow">Swordbattle.io Discord Server</a> to learn more about the spring event on the full changelog!</p>

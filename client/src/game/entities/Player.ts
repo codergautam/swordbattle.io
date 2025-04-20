@@ -54,6 +54,7 @@ class Player extends BaseEntity {
 
     this.healthBar = new Health(this, {
       hideWhenFull: false,
+      line: 0,
       offsetY: -this.body.height / 2 - 40,
     });
 
@@ -64,7 +65,7 @@ class Player extends BaseEntity {
     const specialColors: { [key: string]: string } = {
       "[apc] codergautam": '#ff0000',
       angel: '#acfffc',
-      "cool guy 53": '#0055ff',
+      "[apc] cool guy 53": '#0055ff',
       "update testing account": '#00ff00'
     }
     name.setFill(this.account ? (specialColors[this.name?.toLowerCase() as keyof typeof specialColors] ? specialColors[this.name?.toLowerCase() as keyof typeof specialColors] : '#0000ff') : '#000000');
@@ -341,8 +342,13 @@ class Player extends BaseEntity {
     this.interpolate(dt);
 
     if (this.abilityActive) {
-      this.addAbilityParticles();
-    }
+      if (this.evolution) {
+        const evolutionClass = Evolutions[this.evolution];
+        if (evolutionClass[0] !== 'Stalker') {
+          this.addAbilityParticles();
+        }
+      } 
+     }
     if (this.following) {
       this.game.cameras.main.centerOn(this.container.x, this.container.y);
     }

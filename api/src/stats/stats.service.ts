@@ -28,8 +28,10 @@ export class StatsService {
 
     // Update gems
     let gems = data.gems;
+    let gempoints = data.gempoints;
     let ultimacy = data.ultimacy;
     await this.accountsService.addGems(account, gems, "game");
+    await this.accountsService.addGempoints(account, gempoints, "game");
     await this.accountsService.addUltimacy(account, ultimacy, "game");
     await this.accountsService.addXp(account, data.xp);
 

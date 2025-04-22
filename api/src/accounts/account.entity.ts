@@ -20,6 +20,7 @@ export class Account {
   @Column({ default: '' }) email: string;
 
   @Column({ default: 0 }) gems: number;
+  @Column({ default: 0 }) gempoints: number;
   @Column({ default: 0 }) xp: number;
   @Column({ default: 0 }) ultimacy: number;
 

@@ -218,6 +218,22 @@ export class AccountsService {
     return account;
   }
 
+  async addGempoints(account: Account, gempoints: number, reason = "server") {
+    if(gempoints === 0) return account;
+    account.gempoints += gempoints;
+    await this.accountsRepository.save(account);
+    // add to transactions table
+    const transaction = this.transactionsRepository.create({
+      account: account,
+      amount: gempoints,
+      description: reason,
+      transaction_id: "gempoints",
+    });
+    await this.transactionsRepository.save(transaction);
+
+    return account;
+  }
+
   async addUltimacy(account: Account, ultimacy: number, reason = "server") {
     if(ultimacy === 0) return account;
     account.ultimacy += ultimacy;

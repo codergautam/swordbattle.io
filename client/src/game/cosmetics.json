@@ -2986,7 +2986,8 @@
       "price": 675,
       "swordFileName": "waterSword.png",
       "bodyFileName": "waterPlayer.png",
-      "description": "💧💧💧💧💧"
+      "description": "💧💧💧💧💧",
+      "crates": [1, 2]
     },
     "iceconjurer": {
       "eventoffsale": true,
@@ -3407,6 +3408,26 @@
       "bodyFileName": "player.png",
       "price": 0,
       "description": ""
+    }
+  },
+  "crates": {
+    "crate1": {
+      "name": "crate1",
+      "displayName": "Test crate",
+      "buyable": true,
+      "id": 1,
+      "price": 1000,
+      "crateFileName": "crate1.png",
+      "description": "hola me llamo crate1"
+    },
+    "crate2": {
+      "name": "crate2",
+      "displayName": "test crate the 2nd",
+      "buyable": true,
+      "id": 2,
+      "price": 2000,
+      "crateFileName": "crate1.png",
+      "description": "hola me llamo crate2"
     }
   }
 }

@@ -62,6 +62,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   const [skinCounts, setSkinCounts] = useState<{ [id: number]: number }>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBadge, setSelectedBadge] = useState('norm');
+  const [badgeID, setBadgeID] = useState<number>(0);
 
   const skinRefs = useRef<(HTMLImageElement | null)[]>(new Array(Object.keys(skins).length).fill(null));
   // const swordRefs = useRef<(HTMLImageElement | null)[]>(new Array(Object.keys(skins).length).fill(null));
@@ -415,7 +416,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       }
                 </h4>
           {(account?.isLoggedIn && crate.buyable && (
-            <button onClick={() => setSelectedBadge('crate')} className='buy-button'>Open</button>
+            <button onClick={() => { setSelectedBadge('crate'); setBadgeID(crate.id); }} className='buy-button'>Open</button>
 ))}
       </div>
       )
@@ -1059,15 +1060,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
-        if (skin.special) return false;
-        if (skin.wip) return false;
-        if (skin.ultimate) return false;
-        if (skin.player) return false;
-        if (skin.freebie) return false;
-        if (skin.eventoffsale) return false;
-        if (skin.event) return false;
-        if (skin.og) return false;
-        if (skin.currency) return false;
+        if (!skin.crates || !(skin.crates as number[]).includes(badgeID)) return false;
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
       }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
         const skin = skinData as Skin;

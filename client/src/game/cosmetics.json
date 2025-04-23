@@ -2987,7 +2987,7 @@
       "swordFileName": "waterSword.png",
       "bodyFileName": "waterPlayer.png",
       "description": "💧💧💧💧💧",
-      "crates": [1, 2]
+      "crates": [1]
     },
     "iceconjurer": {
       "eventoffsale": true,

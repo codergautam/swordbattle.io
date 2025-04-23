@@ -227,7 +227,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       ) : (
         <h1 className='shop-desc'><b>Login or Signup</b> to buy stuff from the shop!<br/>Earn gems by stabbing players and collecting coins around the map!</h1>
       )}
-
+{/*
 <div className='search-bar'>
 <input
         type="text"
@@ -236,6 +236,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 </div>
+*/}
 
 <div className="badges">
 <button onClick={scrollToTarget} data-selected-badge="sale">Skins On Sale</button>

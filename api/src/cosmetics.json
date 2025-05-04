@@ -3077,7 +3077,7 @@
       "displayName": "Pharaoh",
       "id": 306,
       "buyable": true,
-      "price": 2000,
+      "price": 3500,
       "swordFileName": "ultimateMummySword.png",
       "bodyFileName": "ultimateMummyPlayer.png",
       "description": "Reincarnated only to be fighting peasants...",
@@ -3635,15 +3635,17 @@
       "description": "Not available for sale."
     },
     "skullv2": {
+      "ultimate": true,
+      "tag": "Ultimate Skeleton",
       "name": "skullv2",
       "displayName": "Skull",
       "id": 355,
-      "buyable": false,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedSkullSword.png",
-      "bodyFileName": "unreleasedSkullPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 7500,
+      "swordFileName": "ultimateSkeletonSword.png",
+      "bodyFileName": "ultimateSkeletonPlayer.png",
+      "description": "Sends shivers down your spine",
+      "original": 180
     },
     "turtle": {
       "name": "turtle",
@@ -3676,6 +3678,56 @@
       "price": 0,
       "swordFileName": "unreleasedWaveSword.png",
       "bodyFileName": "unreleasedWavePlayer.png",
+      "description": "Not available for sale."
+    },
+    "clockwork": {
+      "ultimate": true,
+      "tag": "Ultimate Steampunk",
+      "name": "clockwork",
+      "displayName": "Clockwork",
+      "id": 359,
+      "buyable": true,
+      "price": 750000,
+      "swordFileName": "ultimateSteampunkSword.png",
+      "bodyFileName": "ultimateSteampunkPlayer.png",
+      "description": "Time is running out.",
+      "original": 257
+    },
+    "gingerbreadman": {
+      "ultimate": true,
+      "tag": "Ultimate Gingerbread",
+      "name": "gingerbreadman",
+      "displayName": "Gingerbread Man",
+      "id": 360,
+      "buyable": true,
+      "price": 2000,
+      "swordFileName": "ultimateGingerbreadSword.png",
+      "bodyFileName": "ultimateGingerbreadPlayer.png",
+      "description": "Don't get eaten!",
+      "original": 185
+    },
+    "deathdragon": {
+      "ultimate": true,
+      "tag": "Ultimate Bone Dragon",
+      "name": "deathdragon",
+      "displayName": "Death Dragon",
+      "id": 361,
+      "buyable": true,
+      "price": 1000000,
+      "swordFileName": "ultimateBonedragonSword.png",
+      "bodyFileName": "ultimateBonedragonPlayer.png",
+      "description": "A beast with the power of all that have fallen...",
+      "original": 217
+    },
+    "cryolightning": {
+      "name": "cryolightning",
+      "displayName": "Cryolightning",
+      "id": 362,
+      "buyable": false,
+      "wip": true,
+      "price": 0,
+      "swordFileName": "unreleasedCryolightningSword.png",
+      "bodyFileName": "unreleasedCryolightningPlayer.png",
       "description": "Not available for sale."
     }
   }

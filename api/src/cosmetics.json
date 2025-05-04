@@ -2569,7 +2569,7 @@
       "displayName": "Unknown",
       "id": 260,
       "buyable": true,
-      "price": 75,
+      "price": 70,
       "swordFileName": "unknownSword.png",
       "bodyFileName": "unknownPlayer.png",
       "description": "Who knows?"
@@ -2725,7 +2725,7 @@
       "displayName": "Basketball",
       "id": 275,
       "buyable": true,
-      "price": 65,
+      "price": 75,
       "swordFileName": "basketballv2Sword.png",
       "bodyFileName": "basketballv2Player.png",
       "description": "Shoot some hoops and stab some enemies!"
@@ -3404,15 +3404,17 @@
       "description": ""
     },
     "thorn": {
+      "ultimate": true,
+      "tag": "Ultimate Spring",
       "name": "thorn",
       "displayName": "Thorn",
       "id": 334,
-      "buyable": false,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedThornSword.png",
-      "bodyFileName": "unreleasedThornPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 15000,
+      "swordFileName": "ultimateSpringSword.png",
+      "bodyFileName": "ultimateSpringPlayer.png",
+      "description": "Really sharp!",
+      "original": 12
     },
     "dystopian": {
       "name": "dystopian",
@@ -3429,23 +3431,24 @@
       "name": "firepattern",
       "displayName": "Firepattern",
       "id": 336,
-      "buyable": false,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedFirepatternSword.png",
-      "bodyFileName": "unreleasedFirepatternPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 1313,
+      "swordFileName": "firepatternSword.png",
+      "bodyFileName": "firepatternPlayer.png",
+      "description": "A symmetrical formation made of magma and flames."
     },
     "waterpattern": {
+      "ultimate": true,
+      "tag": "Ultimate Firepattern",
       "name": "waterpattern",
       "displayName": "Waterpattern",
       "id": 337,
-      "buyable": false,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedWaterpatternSword.png",
-      "bodyFileName": "unreleasedWaterpatternPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 6500,
+      "swordFileName": "ultimateFirepatternSword.png",
+      "bodyFileName": "ultimateFirepatternPlayer.png",
+      "description": "An entire ocean crystallized and shrunk into this gemstone.",
+      "original": 336
     },
     "jagged": {
       "name": "jagged",
@@ -3591,26 +3594,27 @@
       "description": "Not available for sale."
     },
     "haunted": {
+      "ultimate": true,
+      "tag": "Ultimate Possessed",
       "name": "haunted",
       "displayName": "Haunted",
       "id": 351,
-      "buyable": false,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedHauntedSword.png",
-      "bodyFileName": "unreleasedHauntedPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 20000,
+      "swordFileName": "ultimatePossessedSword.png",
+      "bodyFileName": "ultimatePossessedPlayer.png",
+      "description": "The spirits are ready to fight back.",
+      "original": 363
     },
-    "vibrant": {
-      "name": "vibrant",
-      "displayName": "Vibrant",
+    "colorful": {
+      "name": "colorful",
+      "displayName": "Colorful",
       "id": 352,
-      "buyable": false,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedVibrantSword.png",
-      "bodyFileName": "unreleasedVibrantPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 65,
+      "swordFileName": "colorfulSword.png",
+      "bodyFileName": "colorfulPlayer.png",
+      "description": "Very vibrant"
     },
     "flaming": {
       "name": "flaming",
@@ -3641,7 +3645,7 @@
       "displayName": "Skull",
       "id": 355,
       "buyable": true,
-      "price": 7500,
+      "price": 8500,
       "swordFileName": "ultimateSkeletonSword.png",
       "bodyFileName": "ultimateSkeletonPlayer.png",
       "description": "Sends shivers down your spine",
@@ -3729,6 +3733,75 @@
       "swordFileName": "unreleasedCryolightningSword.png",
       "bodyFileName": "unreleasedCryolightningPlayer.png",
       "description": "Not available for sale."
+    },
+    "possessed": {
+      "name": "possessed",
+      "displayName": "Possessed",
+      "id": 363,
+      "buyable": true,
+      "price": 3210,
+      "swordFileName": "possessedSword.png",
+      "bodyFileName": "possessedPlayer.png",
+      "description": "Overtaken by something spectral..."
+    },
+    "arachnev2": {
+      "name": "arachnev2",
+      "displayName": "Arachne",
+      "id": 364,
+      "buyable": true,
+      "price": 18500,
+      "swordFileName": "arachnev2Sword.png",
+      "bodyFileName": "arachnev2Player.png",
+      "description": "A simple creature turned into a neon monster"
+    },
+    "emeraldwater": {
+      "name": "emeraldwater",
+      "displayName": "Emeraldwater",
+      "id": 365,
+      "buyable": true,
+      "price": 6350,
+      "swordFileName": "emeraldwaterSword.png",
+      "bodyFileName": "emeraldwaterPlayer.png",
+      "description": "A mixture of water and dissolved gems"
+    },
+    "vibrant": {
+      "ultimate": true,
+      "tag": "Ultimate Colorful",
+      "name": "vibrant",
+      "displayName": "Vibrant",
+      "id": 366,
+      "buyable": true,
+      "price": 750,
+      "swordFileName": "ultimateColorfulSword.png",
+      "bodyFileName": "ultimateColorfulPlayer.png",
+      "description": "Very colorful",
+      "original": 352
+    },
+    "vanguard": {
+      "ultimate": true,
+      "tag": "Ultimate Arachne",
+      "name": "vanguard",
+      "displayName": "Vanguard",
+      "id": 367,
+      "buyable": true,
+      "price": 100000,
+      "swordFileName": "ultimateArachneSword.png",
+      "bodyFileName": "ultimateArachnePlayer.png",
+      "description": "The creator of all things neon!",
+      "original": 364
+    },
+    "emeraldwarrior": {
+      "ultimate": true,
+      "tag": "Ultimate Emeraldwater",
+      "name": "emeraldwarrior",
+      "displayName": "Emerald Warrior",
+      "id": 368,
+      "buyable": true,
+      "price": 350000,
+      "swordFileName": "ultimateEmeraldwaterSword.png",
+      "bodyFileName": "ultimateEmeraldwaterPlayer.png",
+      "description": "Forged from emeraldwater.",
+      "original": 365
     }
   }
 }

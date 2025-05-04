@@ -314,11 +314,10 @@ function App() {
 
                 <div className="announcementCard menuCard panel">
                     <div>
-                    <span style={{fontSize: 16}}>
-                    Note: Even though some skins may "feel" more powerful than others, skins do not affect the hitbox or range of swords.
+                    <span className="announcedate">
+                      (May 3rd): 
                     </span>
-                      {/* {} New ultimate skin! + <span className="announceimportant">Huge skin sale until 2/26!</span> */}
-
+                       {} <span className="announceimportant">4 new ultimate skins!</span> More coming soon!
                     </div>
                   </div>
                 {/* <!-- Play --> */}

@@ -3647,7 +3647,7 @@
     },
     "leader": {
       "name": "leader",
-      "displayName": "leader",
+      "displayName": "Leader",
       "id": 357,
       "buyable": false,
       "wip": true,
@@ -3658,7 +3658,7 @@
     },
     "wave": {
       "name": "wave",
-      "displayName": "wave",
+      "displayName": "Wave",
       "id": 358,
       "buyable": false,
       "wip": true,

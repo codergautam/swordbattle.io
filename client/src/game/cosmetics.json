@@ -3141,7 +3141,8 @@
       "price": 500,
       "swordFileName": "ultimateBlueberrySword.png",
       "bodyFileName": "ultimateBlueberryPlayer.png",
-      "description": "You probably shouldn't eat this one"
+      "description": "You probably shouldn't eat this one",
+      "prerequisite": 227
     },
     "truebit": {
       "ultimate": true,

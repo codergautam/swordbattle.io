@@ -40,6 +40,7 @@ interface Skin {
   description?: string;
   player: boolean;
   currency: boolean;
+  prerequisite?: number;
 }
 
 const rotate = false;

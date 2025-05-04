@@ -3104,7 +3104,8 @@
       "price": 30000,
       "swordFileName": "ultimatenewNinjaSword.png",
       "bodyFileName": "ultimatenewNinjaPlayer.png",
-      "description": "Camouflage isn't needed when your enemies are too scared to attack you..."
+      "description": "Camouflage isn't needed when your enemies are too scared to attack you...",
+      "prerequisite": 268
     },
     "megamoticon": {
       "ultimate": true,

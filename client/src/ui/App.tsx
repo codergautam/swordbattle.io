@@ -315,9 +315,9 @@ function App() {
                 <div className="announcementCard menuCard panel">
                     <div>
                     <span className="announcedate">
-                      (May 3rd): 
+                      (May 4th): 
                     </span>
-                       {} <span className="announceimportant">4 new ultimate skins!</span> More coming soon!
+                       {} 5 new skins! + <span className="announceimportant">10 new ultimate skins!</span> More coming soon!
                     </div>
                   </div>
                 {/* <!-- Play --> */}

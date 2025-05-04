@@ -3080,7 +3080,8 @@
       "price": 2000,
       "swordFileName": "ultimateMummySword.png",
       "bodyFileName": "ultimateMummyPlayer.png",
-      "description": "Reincarnated only to be fighting peasants..."
+      "description": "Reincarnated only to be fighting peasants...",
+      "original": 111
     },
     "mechamystery": {
       "ultimate": true,
@@ -3092,7 +3093,8 @@
       "price": 10000,
       "swordFileName": "ultimateUnknownSword.png",
       "bodyFileName": "ultimateUnknownPlayer.png",
-      "description": "Error: unexpected character '?'"
+      "description": "Error: unexpected character '?'",
+      "original": 260
     },
     "cyberlight": {
       "ultimate": true,
@@ -3105,7 +3107,7 @@
       "swordFileName": "ultimatenewNinjaSword.png",
       "bodyFileName": "ultimatenewNinjaPlayer.png",
       "description": "Camouflage isn't needed when your enemies are too scared to attack you...",
-      "prerequisite": 268
+      "original": 268
     },
     "megamoticon": {
       "ultimate": true,
@@ -3117,7 +3119,8 @@
       "price": 500000,
       "swordFileName": "ultimateEmoticonSword.png",
       "bodyFileName": "ultimateEmoticonPlayer.png",
-      "description": ">:V"
+      "description": ">:V",
+      "original": 301
     },
     "rainbowvoid": {
       "ultimate": true,
@@ -3129,7 +3132,8 @@
       "price": 50000,
       "swordFileName": "ultimateVoidSword.png",
       "bodyFileName": "ultimateVoidPlayer.png",
-      "description": "Wanted to be dark and depressing but instead became part of someone's gaming setup"
+      "description": "Wanted to be dark and depressing but instead became part of someone's gaming setup",
+      "original": 211
     },
     "nightberry": {
       "ultimate": true,
@@ -3142,7 +3146,7 @@
       "swordFileName": "ultimateBlueberrySword.png",
       "bodyFileName": "ultimateBlueberryPlayer.png",
       "description": "You probably shouldn't eat this one",
-      "prerequisite": 227
+      "original": 227
     },
     "truebit": {
       "ultimate": true,
@@ -3154,7 +3158,8 @@
       "price": 1000,
       "swordFileName": "ultimateBitSword.png",
       "bodyFileName": "ultimateBitPlayer.png",
-      "description": "Now with 3300% less pixels!"
+      "description": "Now with 3300% less pixels!",
+      "original": 276
     },
     "egg": {
       "name": "egg",
@@ -3176,7 +3181,8 @@
       "price": 40000,
       "swordFileName": "ultimateLuminousSword.png",
       "bodyFileName": "ultimateLuminousPlayer.png",
-      "description": "Even brighter than before!"
+      "description": "Even brighter than before!",
+      "original": 247
     },
     "rainbowfire": {
       "ultimate": true,
@@ -3188,7 +3194,8 @@
       "price": 45000,
       "swordFileName": "ultimateFireSword.png",
       "bodyFileName": "ultimateFirePlayer.png",
-      "description": "Every color burns hotter than the last..."
+      "description": "Every color burns hotter than the last...",
+      "original": 296
     },
     "deadpixel": {
       "ultimate": true,
@@ -3200,7 +3207,8 @@
       "price": 5000,
       "swordFileName": "ultimatePixelSword.png",
       "bodyFileName": "ultimatePixelPlayer.png",
-      "description": "A dark pixel in a world of light ones"
+      "description": "A dark pixel in a world of light ones",
+      "original": 210
     },
     "shattermech": {
       "ultimate": true,
@@ -3212,7 +3220,8 @@
       "price": 200000,
       "swordFileName": "ultimateBrokenSword.png",
       "bodyFileName": "ultimateBrokenPlayer.png",
-      "description": "Once shattered by others, and now the shatterer of others..."
+      "description": "Once shattered by others, and now the shatterer of others...",
+      "original": 229
     },
     "skillz": {
       "name": "skillz",

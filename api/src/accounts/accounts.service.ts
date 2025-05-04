@@ -161,9 +161,9 @@ export class AccountsService {
     }
 
     // Check if prerequisite skins are bought
-    if (cosmetic.prerequisite) {
-        if (!skinsData.owned.includes(cosmetic.prerequisite)) {
-          return { error: 'You need to buy the prerequisite skin first' };
+    if (cosmetic.original) {
+        if (!skinsData.owned.includes(cosmetic.original)) {
+          return { error: 'You need to buy the original version of this skin first' };
         }
       }
 

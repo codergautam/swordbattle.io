@@ -40,7 +40,7 @@ interface Skin {
   description?: string;
   player: boolean;
   currency: boolean;
-  prerequisite?: number;
+  original?: number;
 }
 
 const rotate = false;
@@ -572,7 +572,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         <div ref={targetElementRef3}></div>
         <div className='label'>
         <span>Ultimate Skins</span><hr></hr>
-        <p>Ultimate skins are remakes of normal skins and are obtained by earning mastery instead of spending gems. <br></br>(UNLOCKING ULTIMATE SKINS DOES NOT TAKE AWAY ANY MASTERY)</p>
+        <p>Ultimate skins are remakes of normal skins and are obtained by earning mastery instead of spending gems. <br></br><span style={{color: 'red'}}>Unlocking ultimate skins DOES NOT take away any mastery. The original skin must be owned before unlocking the ultimate version.</span></p>
         </div>
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {

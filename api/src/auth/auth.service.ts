@@ -38,7 +38,7 @@ export class AuthService {
     try {
       account = await this.accountsService.findOne({ where: { secret: data.secret } });
     } catch (e) {
-      throw new UnauthorizedException('User does not exists');
+      throw new UnauthorizedException('User does not exist');
     }
 
     return { account: this.accountsService.sanitizeAccount(account), secret: data.secret };
@@ -53,7 +53,7 @@ export class AuthService {
     }
 
     if (!account) {
-      throw new UnauthorizedException('User does not exists');
+      throw new UnauthorizedException('User does not exist');
     }
     if (!(await account.checkPassword(data.password))) {
       throw new UnauthorizedException('Wrong password');

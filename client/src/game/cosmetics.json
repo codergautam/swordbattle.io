@@ -411,7 +411,7 @@
     },
     "cursed": {
       "name": "cursed",
-      "displayName": "Cursde OG",
+      "displayName": "Cursed OG",
       "id": 25,
       "buyable": false,
       "og": true,
@@ -1721,7 +1721,7 @@
     },
     "solarsystem": {
       "name": "solarsystem",
-      "displayName": "Solar Sytem OG",
+      "displayName": "Solar System OG",
       "id": 161,
       "buyable": false,
       "og": true,
@@ -3341,7 +3341,7 @@
       "displayName": "Corrupted",
       "id": 327,
       "buyable": false,
-      "og": true,
+      "wip": true,
       "price": 0,
       "swordFileName": "corruptedSword.png",
       "bodyFileName": "corruptedPlayer.png",
@@ -3575,12 +3575,11 @@
       "name": "snowball",
       "displayName": "Snowball",
       "id": 349,
-      "buyable": false,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedSnowballSword.png",
-      "bodyFileName": "unreleasedSnowballPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 1400,
+      "swordFileName": "snowballSword.png",
+      "bodyFileName": "snowballPlayer.png",
+      "description": "Throw snowballs and swords at the same time!"
     },
     "blackhole": {
       "name": "blackhole",
@@ -3802,6 +3801,78 @@
       "bodyFileName": "ultimateEmeraldwaterPlayer.png",
       "description": "Forged from emeraldwater.",
       "original": 365
+    },
+    "grass": {
+      "name": "grass",
+      "displayName": "Grass",
+      "id": 369,
+      "buyable": true,
+      "price": 7777,
+      "swordFileName": "grassSword.png",
+      "bodyFileName": "grassPlayer.png",
+      "description": "Well, well, well..."
+    },
+    "truegrass": {
+      "ultimate": true,
+      "tag": "Ultimate Grass",
+      "name": "truegrass",
+      "displayName": "True Grass",
+      "id": 370,
+      "buyable": true,
+      "price": 75000,
+      "swordFileName": "tileEarthSword-spring.png",
+      "bodyFileName": "tileEarthPlayer-spring.png",
+      "description": "Dynamically changes with the current grass texture.",
+      "original": 369
+    },
+    "truesnow": {
+      "ultimate": true,
+      "tag": "Ultimate Snowball",
+      "name": "truesnow",
+      "displayName": "True Snow",
+      "id": 371,
+      "buyable": true,
+      "price": 75000,
+      "swordFileName": "tileIceSword.png",
+      "bodyFileName": "tileIcePlayer.png",
+      "description": "Dynamically changes with the current snow texture.",
+      "original": 349
+    },
+    "magma": {
+      "name": "magma",
+      "displayName": "Magma",
+      "id": 372,
+      "buyable": true,
+      "price": 3750,
+      "swordFileName": "magmaSword.png",
+      "bodyFileName": "magmaPlayer.png",
+      "description": "Molten rock material within the earth from which igneous rock is formed on cooling"
+    },
+    "truelava": {
+      "ultimate": true,
+      "tag": "Ultimate Magma",
+      "name": "truelava",
+      "displayName": "True Lava",
+      "id": 373,
+      "buyable": true,
+      "price": 75000,
+      "swordFileName": "tileFireSword-spring.png",
+      "bodyFileName": "tileFirePlayer-spring.png",
+      "description": "Dynamically changes with the current lava texture.",
+      "original": 372
+    },
+    "truewater": {
+      "ultimate": true,
+      "tag": "Ultimate Water Conjurer",
+      "name": "truewater",
+      "displayName": "True Water",
+      "id": 374,
+      "buyable": true,
+      "price": 75000,
+      "swordFileName": "tileWaterSword-spring.png",
+      "bodyFileName": "tileWaterPlayer-spring.png",
+      "description": "Dynamically changes with the current water texture.",
+      "original": 298
     }
   }
 }

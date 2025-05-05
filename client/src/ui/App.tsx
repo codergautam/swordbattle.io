@@ -317,7 +317,7 @@ function App() {
                     <span className="announcedate">
                       (May 4th): 
                     </span>
-                       {} <span style={{color: '#aaaaff'}}>5 new skins!</span> + <span className="announceimportant">10 new ultimate skins!</span>
+                       {} <span style={{color: '#aaaaff'}}>7 new skins</span> + <span className="announceimportant">14 new ultimate skins!</span> More coming soon!
                     </div>
                   </div>
                 {/* <!-- Play --> */}

@@ -160,6 +160,15 @@ export class AccountsService {
       }
     }
 
+    // Check if prerequisite skins are bought
+    if (cosmetic.original) {
+        if (!skinsData.owned.includes(cosmetic.original)) {
+          return { error: 'You need to buy the original version of this skin first' };
+        }
+      }
+
+
+
     // Update the 'owned' field
     skinsData.owned.push(itemId);
 

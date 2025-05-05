@@ -411,7 +411,7 @@
     },
     "cursed": {
       "name": "cursed",
-      "displayName": "Cursde OG",
+      "displayName": "Cursed OG",
       "id": 25,
       "buyable": false,
       "og": true,
@@ -1721,7 +1721,7 @@
     },
     "solarsystem": {
       "name": "solarsystem",
-      "displayName": "Solar Sytem OG",
+      "displayName": "Solar System OG",
       "id": 161,
       "buyable": false,
       "og": true,
@@ -2569,7 +2569,7 @@
       "displayName": "Unknown",
       "id": 260,
       "buyable": true,
-      "price": 75,
+      "price": 70,
       "swordFileName": "unknownSword.png",
       "bodyFileName": "unknownPlayer.png",
       "description": "Who knows?"
@@ -2725,7 +2725,7 @@
       "displayName": "Basketball",
       "id": 275,
       "buyable": true,
-      "price": 65,
+      "price": 75,
       "swordFileName": "basketballv2Sword.png",
       "bodyFileName": "basketballv2Player.png",
       "description": "Shoot some hoops and stab some enemies!"
@@ -3077,10 +3077,11 @@
       "displayName": "Pharaoh",
       "id": 306,
       "buyable": true,
-      "price": 2000,
+      "price": 3500,
       "swordFileName": "ultimateMummySword.png",
       "bodyFileName": "ultimateMummyPlayer.png",
-      "description": "Reincarnated only to be fighting peasants..."
+      "description": "Reincarnated only to be fighting peasants...",
+      "original": 111
     },
     "mechamystery": {
       "ultimate": true,
@@ -3092,7 +3093,8 @@
       "price": 10000,
       "swordFileName": "ultimateUnknownSword.png",
       "bodyFileName": "ultimateUnknownPlayer.png",
-      "description": "Error: unexpected character '?'"
+      "description": "Error: unexpected character '?'",
+      "original": 260
     },
     "cyberlight": {
       "ultimate": true,
@@ -3104,7 +3106,8 @@
       "price": 30000,
       "swordFileName": "ultimatenewNinjaSword.png",
       "bodyFileName": "ultimatenewNinjaPlayer.png",
-      "description": "Camouflage isn't needed when your enemies are too scared to attack you..."
+      "description": "Camouflage isn't needed when your enemies are too scared to attack you...",
+      "original": 268
     },
     "megamoticon": {
       "ultimate": true,
@@ -3116,7 +3119,8 @@
       "price": 500000,
       "swordFileName": "ultimateEmoticonSword.png",
       "bodyFileName": "ultimateEmoticonPlayer.png",
-      "description": ">:V"
+      "description": ">:V",
+      "original": 301
     },
     "rainbowvoid": {
       "ultimate": true,
@@ -3128,7 +3132,8 @@
       "price": 50000,
       "swordFileName": "ultimateVoidSword.png",
       "bodyFileName": "ultimateVoidPlayer.png",
-      "description": "Wanted to be dark and depressing but instead became part of someone's gaming setup"
+      "description": "Wanted to be dark and depressing but instead became part of someone's gaming setup",
+      "original": 211
     },
     "nightberry": {
       "ultimate": true,
@@ -3140,7 +3145,8 @@
       "price": 500,
       "swordFileName": "ultimateBlueberrySword.png",
       "bodyFileName": "ultimateBlueberryPlayer.png",
-      "description": "You probably shouldn't eat this one"
+      "description": "You probably shouldn't eat this one",
+      "original": 227
     },
     "truebit": {
       "ultimate": true,
@@ -3152,7 +3158,8 @@
       "price": 1000,
       "swordFileName": "ultimateBitSword.png",
       "bodyFileName": "ultimateBitPlayer.png",
-      "description": "Now with 3300% less pixels!"
+      "description": "Now with 3300% less pixels!",
+      "original": 276
     },
     "egg": {
       "name": "egg",
@@ -3174,7 +3181,8 @@
       "price": 40000,
       "swordFileName": "ultimateLuminousSword.png",
       "bodyFileName": "ultimateLuminousPlayer.png",
-      "description": "Even brighter than before!"
+      "description": "Even brighter than before!",
+      "original": 247
     },
     "rainbowfire": {
       "ultimate": true,
@@ -3186,7 +3194,8 @@
       "price": 45000,
       "swordFileName": "ultimateFireSword.png",
       "bodyFileName": "ultimateFirePlayer.png",
-      "description": "Every color burns hotter than the last..."
+      "description": "Every color burns hotter than the last...",
+      "original": 296
     },
     "deadpixel": {
       "ultimate": true,
@@ -3198,7 +3207,8 @@
       "price": 5000,
       "swordFileName": "ultimatePixelSword.png",
       "bodyFileName": "ultimatePixelPlayer.png",
-      "description": "A dark pixel in a world of light ones"
+      "description": "A dark pixel in a world of light ones",
+      "original": 210
     },
     "shattermech": {
       "ultimate": true,
@@ -3210,7 +3220,8 @@
       "price": 200000,
       "swordFileName": "ultimateBrokenSword.png",
       "bodyFileName": "ultimateBrokenPlayer.png",
-      "description": "Once shattered by others, and now the shatterer of others..."
+      "description": "Once shattered by others, and now the shatterer of others...",
+      "original": 229
     },
     "skillz": {
       "name": "skillz",
@@ -3330,10 +3341,10 @@
       "displayName": "Corrupted",
       "id": 327,
       "buyable": false,
-      "og": true,
+      "wip": true,
       "price": 0,
-      "swordFileName": "corruptedSword.png",
-      "bodyFileName": "corruptedPlayer.png",
+      "swordFileName": "unreleasedCorruptedSword.png",
+      "bodyFileName": "unreleasedCorruptedPlayer.png",
       "description": "Not available for sale."
     },
     "antimagma": {
@@ -3393,23 +3404,23 @@
       "description": ""
     },
     "thorn": {
+      "ultimate": true,
+      "tag": "Ultimate Spring",
       "name": "thorn",
       "displayName": "Thorn",
       "id": 334,
-      "buyable": false,
-      "special": true,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedThornSword.png",
-      "bodyFileName": "unreleasedThornPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 15000,
+      "swordFileName": "ultimateSpringSword.png",
+      "bodyFileName": "ultimateSpringPlayer.png",
+      "description": "Really sharp!",
+      "original": 12
     },
     "dystopian": {
       "name": "dystopian",
       "displayName": "Dystopian",
       "id": 335,
       "buyable": false,
-      "special": true,
       "wip": true,
       "price": 0,
       "swordFileName": "unreleasedDystopianSword.png",
@@ -3420,32 +3431,30 @@
       "name": "firepattern",
       "displayName": "Firepattern",
       "id": 336,
-      "buyable": false,
-      "special": true,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedFirepatternSword.png",
-      "bodyFileName": "unreleasedFirepatternPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 1313,
+      "swordFileName": "firepatternSword.png",
+      "bodyFileName": "firepatternPlayer.png",
+      "description": "A symmetrical formation made of magma and flames."
     },
     "waterpattern": {
+      "ultimate": true,
+      "tag": "Ultimate Firepattern",
       "name": "waterpattern",
       "displayName": "Waterpattern",
       "id": 337,
-      "buyable": false,
-      "special": true,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedWaterpatternSword.png",
-      "bodyFileName": "unreleasedWaterpatternPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 6500,
+      "swordFileName": "ultimateFirepatternSword.png",
+      "bodyFileName": "ultimateFirepatternPlayer.png",
+      "description": "An entire ocean crystallized and shrunk into this gemstone.",
+      "original": 336
     },
     "jagged": {
       "name": "jagged",
       "displayName": "Jagged",
       "id": 338,
       "buyable": false,
-      "special": true,
       "wip": true,
       "price": 0,
       "swordFileName": "unreleasedJaggedSword.png",
@@ -3457,7 +3466,6 @@
       "displayName": "Nugget",
       "id": 339,
       "buyable": false,
-      "special": true,
       "wip": true,
       "price": 0,
       "swordFileName": "unreleasedNuggetSword.png",
@@ -3469,7 +3477,6 @@
       "displayName": "Bamboo",
       "id": 340,
       "buyable": false,
-      "special": true,
       "wip": true,
       "price": 0,
       "swordFileName": "unreleasedBambooSword.png",
@@ -3481,7 +3488,6 @@
       "displayName": "Soda",
       "id": 341,
       "buyable": false,
-      "special": true,
       "wip": true,
       "price": 0,
       "swordFileName": "unreleasedSodaSword.png",
@@ -3493,7 +3499,6 @@
       "displayName": "Mage",
       "id": 342,
       "buyable": false,
-      "special": true,
       "wip": true,
       "price": 0,
       "swordFileName": "unreleasedMageSword.png",
@@ -3505,7 +3510,6 @@
       "displayName": "Tumbleweed",
       "id": 343,
       "buyable": false,
-      "special": true,
       "wip": true,
       "price": 0,
       "swordFileName": "unreleasedTumbleweedSword.png",
@@ -3517,7 +3521,6 @@
       "displayName": "Sugar",
       "id": 344,
       "buyable": false,
-      "special": true,
       "wip": true,
       "price": 0,
       "swordFileName": "unreleasedSugarSword.png",
@@ -3529,7 +3532,6 @@
       "displayName": "Bolt",
       "id": 345,
       "buyable": false,
-      "special": true,
       "wip": true,
       "price": 0,
       "swordFileName": "unreleasedBoltSword.png",
@@ -3541,7 +3543,6 @@
       "displayName": "Sloth",
       "id": 346,
       "buyable": false,
-      "special": true,
       "wip": true,
       "price": 0,
       "swordFileName": "unreleasedSlothSword.png",
@@ -3553,7 +3554,6 @@
       "displayName": "Stick",
       "id": 347,
       "buyable": false,
-      "special": true,
       "wip": true,
       "price": 0,
       "swordFileName": "unreleasedStickSword.png",
@@ -3565,12 +3565,314 @@
       "displayName": "Arctic Soldier",
       "id": 348,
       "buyable": false,
-      "special": true,
       "wip": true,
       "price": 0,
       "swordFileName": "unreleasedArcticsoldierSword.png",
       "bodyFileName": "unreleasedArcticsoldierPlayer.png",
       "description": "Not available for sale."
+    },
+    "snowball": {
+      "name": "snowball",
+      "displayName": "Snowball",
+      "id": 349,
+      "buyable": true,
+      "price": 1400,
+      "swordFileName": "snowballSword.png",
+      "bodyFileName": "snowballPlayer.png",
+      "description": "Throw snowballs and swords at the same time!"
+    },
+    "blackhole": {
+      "name": "blackhole",
+      "displayName": "Black Hole",
+      "id": 350,
+      "buyable": false,
+      "wip": true,
+      "price": 0,
+      "swordFileName": "unreleasedBlackholeSword.png",
+      "bodyFileName": "unreleasedBlackholePlayer.png",
+      "description": "Not available for sale."
+    },
+    "haunted": {
+      "ultimate": true,
+      "tag": "Ultimate Possessed",
+      "name": "haunted",
+      "displayName": "Haunted",
+      "id": 351,
+      "buyable": true,
+      "price": 20000,
+      "swordFileName": "ultimatePossessedSword.png",
+      "bodyFileName": "ultimatePossessedPlayer.png",
+      "description": "The spirits are ready to fight back.",
+      "original": 363
+    },
+    "colorful": {
+      "name": "colorful",
+      "displayName": "Colorful",
+      "id": 352,
+      "buyable": true,
+      "price": 65,
+      "swordFileName": "colorfulSword.png",
+      "bodyFileName": "colorfulPlayer.png",
+      "description": "Very vibrant"
+    },
+    "flaming": {
+      "name": "flaming",
+      "displayName": "Flaming",
+      "id": 353,
+      "buyable": false,
+      "wip": true,
+      "price": 0,
+      "swordFileName": "unreleasedFlamingSword.png",
+      "bodyFileName": "unreleasedFlamingPlayer.png",
+      "description": "Not available for sale."
+    },
+    "fragment": {
+      "name": "fragment",
+      "displayName": "Fragment",
+      "id": 354,
+      "buyable": false,
+      "wip": true,
+      "price": 0,
+      "swordFileName": "unreleasedFragmentSword.png",
+      "bodyFileName": "unreleasedFragmentPlayer.png",
+      "description": "Not available for sale."
+    },
+    "skullv2": {
+      "ultimate": true,
+      "tag": "Ultimate Skeleton",
+      "name": "skullv2",
+      "displayName": "Skull",
+      "id": 355,
+      "buyable": true,
+      "price": 8500,
+      "swordFileName": "ultimateSkeletonSword.png",
+      "bodyFileName": "ultimateSkeletonPlayer.png",
+      "description": "Sends shivers down your spine",
+      "original": 180
+    },
+    "turtle": {
+      "name": "turtle",
+      "displayName": "Turtle",
+      "id": 356,
+      "buyable": false,
+      "wip": true,
+      "price": 0,
+      "swordFileName": "unreleasedTurtleSword.png",
+      "bodyFileName": "unreleasedTurtlePlayer.png",
+      "description": "Not available for sale."
+    },
+    "leader": {
+      "name": "leader",
+      "displayName": "Leader",
+      "id": 357,
+      "buyable": false,
+      "wip": true,
+      "price": 0,
+      "swordFileName": "unreleasedLeaderSword.png",
+      "bodyFileName": "unreleasedLeaderPlayer.png",
+      "description": "Not available for sale."
+    },
+    "wave": {
+      "name": "wave",
+      "displayName": "Wave",
+      "id": 358,
+      "buyable": false,
+      "wip": true,
+      "price": 0,
+      "swordFileName": "unreleasedWaveSword.png",
+      "bodyFileName": "unreleasedWavePlayer.png",
+      "description": "Not available for sale."
+    },
+    "clockwork": {
+      "ultimate": true,
+      "tag": "Ultimate Steampunk",
+      "name": "clockwork",
+      "displayName": "Clockwork",
+      "id": 359,
+      "buyable": true,
+      "price": 750000,
+      "swordFileName": "ultimateSteampunkSword.png",
+      "bodyFileName": "ultimateSteampunkPlayer.png",
+      "description": "Time is running out.",
+      "original": 257
+    },
+    "gingerbreadman": {
+      "ultimate": true,
+      "tag": "Ultimate Gingerbread",
+      "name": "gingerbreadman",
+      "displayName": "Gingerbread Man",
+      "id": 360,
+      "buyable": true,
+      "price": 2000,
+      "swordFileName": "ultimateGingerbreadSword.png",
+      "bodyFileName": "ultimateGingerbreadPlayer.png",
+      "description": "Don't get eaten!",
+      "original": 185
+    },
+    "deathdragon": {
+      "ultimate": true,
+      "tag": "Ultimate Bone Dragon",
+      "name": "deathdragon",
+      "displayName": "Death Dragon",
+      "id": 361,
+      "buyable": true,
+      "price": 1000000,
+      "swordFileName": "ultimateBonedragonSword.png",
+      "bodyFileName": "ultimateBonedragonPlayer.png",
+      "description": "A beast with the power of all that have fallen...",
+      "original": 217
+    },
+    "cryolightning": {
+      "name": "cryolightning",
+      "displayName": "Cryolightning",
+      "id": 362,
+      "buyable": false,
+      "wip": true,
+      "price": 0,
+      "swordFileName": "unreleasedCryolightningSword.png",
+      "bodyFileName": "unreleasedCryolightningPlayer.png",
+      "description": "Not available for sale."
+    },
+    "possessed": {
+      "name": "possessed",
+      "displayName": "Possessed",
+      "id": 363,
+      "buyable": true,
+      "price": 3210,
+      "swordFileName": "possessedSword.png",
+      "bodyFileName": "possessedPlayer.png",
+      "description": "Overtaken by something spectral..."
+    },
+    "arachnev2": {
+      "name": "arachnev2",
+      "displayName": "Arachne",
+      "id": 364,
+      "buyable": true,
+      "price": 18500,
+      "swordFileName": "arachnev2Sword.png",
+      "bodyFileName": "arachnev2Player.png",
+      "description": "A simple creature turned into a neon monster"
+    },
+    "emeraldwater": {
+      "name": "emeraldwater",
+      "displayName": "Emeraldwater",
+      "id": 365,
+      "buyable": true,
+      "price": 6350,
+      "swordFileName": "emeraldwaterSword.png",
+      "bodyFileName": "emeraldwaterPlayer.png",
+      "description": "A mixture of water and dissolved gems"
+    },
+    "vibrant": {
+      "ultimate": true,
+      "tag": "Ultimate Colorful",
+      "name": "vibrant",
+      "displayName": "Vibrant",
+      "id": 366,
+      "buyable": true,
+      "price": 750,
+      "swordFileName": "ultimateColorfulSword.png",
+      "bodyFileName": "ultimateColorfulPlayer.png",
+      "description": "Very colorful",
+      "original": 352
+    },
+    "vanguard": {
+      "ultimate": true,
+      "tag": "Ultimate Arachne",
+      "name": "vanguard",
+      "displayName": "Vanguard",
+      "id": 367,
+      "buyable": true,
+      "price": 100000,
+      "swordFileName": "ultimateArachneSword.png",
+      "bodyFileName": "ultimateArachnePlayer.png",
+      "description": "The creator of all things neon!",
+      "original": 364
+    },
+    "emeraldwarrior": {
+      "ultimate": true,
+      "tag": "Ultimate Emeraldwater",
+      "name": "emeraldwarrior",
+      "displayName": "Emerald Warrior",
+      "id": 368,
+      "buyable": true,
+      "price": 350000,
+      "swordFileName": "ultimateEmeraldwaterSword.png",
+      "bodyFileName": "ultimatenewEmeraldwaterPlayer.png",
+      "description": "Forged from emeraldwater.",
+      "original": 365
+    },
+    "grass": {
+      "name": "grass",
+      "displayName": "Grass",
+      "id": 369,
+      "buyable": true,
+      "price": 7777,
+      "swordFileName": "grassSword.png",
+      "bodyFileName": "grassPlayer.png",
+      "description": "Well, well, well..."
+    },
+    "truegrass": {
+      "ultimate": true,
+      "tag": "Ultimate Grass",
+      "name": "truegrass",
+      "displayName": "True Grass",
+      "id": 370,
+      "buyable": true,
+      "price": 75000,
+      "swordFileName": "tileEarthSword-spring.png",
+      "bodyFileName": "tileEarthPlayer-spring.png",
+      "description": "Dynamically changes with the current grass texture.",
+      "original": 369
+    },
+    "truesnow": {
+      "ultimate": true,
+      "tag": "Ultimate Snowball",
+      "name": "truesnow",
+      "displayName": "True Snow",
+      "id": 371,
+      "buyable": true,
+      "price": 75000,
+      "swordFileName": "tileIceSword.png",
+      "bodyFileName": "tileIcePlayer.png",
+      "description": "Dynamically changes with the current snow texture.",
+      "original": 349
+    },
+    "magma": {
+      "name": "magma",
+      "displayName": "Magma",
+      "id": 372,
+      "buyable": true,
+      "price": 3750,
+      "swordFileName": "magmaSword.png",
+      "bodyFileName": "magmaPlayer.png",
+      "description": "Molten rock material within the earth from which igneous rock is formed on cooling"
+    },
+    "truelava": {
+      "ultimate": true,
+      "tag": "Ultimate Magma",
+      "name": "truelava",
+      "displayName": "True Lava",
+      "id": 373,
+      "buyable": true,
+      "price": 75000,
+      "swordFileName": "tileFireSword-spring.png",
+      "bodyFileName": "tileFirePlayer-spring.png",
+      "description": "Dynamically changes with the current lava texture.",
+      "original": 372
+    },
+    "truewater": {
+      "ultimate": true,
+      "tag": "Ultimate Water Conjurer",
+      "name": "truewater",
+      "displayName": "True Water",
+      "id": 374,
+      "buyable": true,
+      "price": 75000,
+      "swordFileName": "tileWaterSword-spring.png",
+      "bodyFileName": "tileWaterPlayer-spring.png",
+      "description": "Dynamically changes with the current water texture.",
+      "original": 298
     }
   }
 }

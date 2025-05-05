@@ -3343,8 +3343,8 @@
       "buyable": false,
       "wip": true,
       "price": 0,
-      "swordFileName": "corruptedSword.png",
-      "bodyFileName": "corruptedPlayer.png",
+      "swordFileName": "unreleasedCorruptedSword.png",
+      "bodyFileName": "unreleasedCorruptedPlayer.png",
       "description": "Not available for sale."
     },
     "antimagma": {

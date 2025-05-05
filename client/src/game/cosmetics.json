@@ -3798,7 +3798,7 @@
       "buyable": true,
       "price": 350000,
       "swordFileName": "ultimateEmeraldwaterSword.png",
-      "bodyFileName": "ultimateEmeraldwaterPlayer.png",
+      "bodyFileName": "ultimatenewEmeraldwaterPlayer.png",
       "description": "Forged from emeraldwater.",
       "original": 365
     },

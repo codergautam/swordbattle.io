@@ -311,8 +311,14 @@ class Player extends Entity {
           case Types.Entity.Moose: reason = 'A Moose'; break;
           case Types.Entity.Yeti: reason = 'A Yeti'; break;
           case Types.Entity.Chimera: reason = 'A Chimera'; break;
+          case Types.Entity.Fox: reason = 'A Fox'; break;
+          case Types.Entity.Camel: reason = 'A Camel'; break;
+          case Types.Entity.Scorpion: reason = 'A Scorpion'; break;
+          case Types.Entity.Flameling: reason = 'A Flameling'; break;
           case Types.Entity.Roku: reason = 'Acid Statue Roku'; break;
-          case Types.Entity.Snowball: reason = 'Big Yeti'; break; // the yeti boss throws snowballs
+          case Types.Entity.Sphinx: reason = 'The Sphinx'; break;
+          case Types.Entity.Eldertusk: reason = 'The Eldertusk'; break;
+          case Types.Entity.Snowball: reason = 'The Big Yeti'; break; // the yeti boss throws snowballs
           case Types.Entity.Fireball: reason = 'Acid Statue Roku'; break; // the roku throws fireballs
         }
       }

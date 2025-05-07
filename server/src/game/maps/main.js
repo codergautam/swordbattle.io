@@ -81,9 +81,9 @@ module.exports = {
         },
         {
           type: Types.Entity.IcePond,
-          amount: 13,
+          amount: 7,
           position: 'random',
-          size: [600, 900],
+          size: [800, 1200],
         },
         {
           type: Types.Entity.IcePond,
@@ -106,6 +106,13 @@ module.exports = {
           position: 'random',
           respawnable: true,
           size: [80, 110],
+        },
+        {
+          type: Types.Entity.Wolf,
+          amount: 9,
+          position: 'random',
+          respawnable: true,
+          size: [85, 105],
         },
         {
           type: Types.Entity.Yeti,
@@ -179,22 +186,15 @@ module.exports = {
         */
         {
           type: Types.Entity.Pond,
-          amount: 20,
+          amount: 7,
           position: 'random',
-          size: [400, 900],
+          size: [800, 1200],
         },
         {
           type: Types.Entity.Coin,
           amount: 500,
           position: 'random',
           respawnable: true,
-        },
-        {
-          type: Types.Entity.Wolf,
-          amount: 9,
-          position: 'random',
-          respawnable: true,
-          size: [85, 105],
         },
         {
           type: Types.Entity.Cat,
@@ -246,7 +246,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Chest,
-          amount: 18,
+          amount: 20,
           position: 'random',
           respawnable: true,
         },
@@ -266,9 +266,9 @@ module.exports = {
       objects: [
         {
           type: Types.Entity.LavaPool,
-          amount: 30,
+          amount: 10,
           position: 'random',
-          size: [200, 700],
+          size: [400, 1400],
         },
         {
           type: Types.Entity.LavaPool,
@@ -314,6 +314,63 @@ module.exports = {
           position: 'random',
           respawnable: true,
         }
+      ],
+    },
+    {
+      type: Types.Biome.Desert, //EDIT
+      pos: [-15000, -13000],
+      points: [
+        [11500, 11500],
+        [13500, 16500],
+        [13500, 28000],
+        [0, 28000],
+        [0, 0],
+      ],
+      objects: [
+        {
+          type: Types.Entity.Cactus,
+          amount: 15,
+          position: 'random',
+          size: [100, 400],
+        },
+        {
+          type: Types.Entity.Oasis,
+          amount: 1,
+          position: [-10000, 5000],
+          size: 4500,
+        },
+        {
+          type: Types.Entity.Coin,
+          amount: 500,
+          position: 'random',
+          respawnable: true,
+        },
+        {
+          type: Types.Entity.Scorpion,
+          amount: 18,
+          position: 'random',
+          respawnable: true,
+          size: [40, 60],
+        },
+        {
+          type: Types.Entity.Rock,
+          amount: 20,
+          position: 'random',
+          size: [200, 400],
+        },
+        {
+          type: Types.Entity.Camel,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [190, 250],
+        },
+        {
+          type: Types.Entity.Chest,
+          amount: 20,
+          position: 'random',
+          respawnable: true,
+        },
       ],
     },
   ],

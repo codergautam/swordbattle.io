@@ -27,6 +27,9 @@ import SantaMob from './mobs/Santa';
 import CamelMob from './mobs/Camel';
 import ScorpionMob from './mobs/Scorpion';
 import FoxMob from './mobs/Fox';
+import FlamelingMob from './mobs/Flameling';
+import SphinxMob from './mobs/Sphinx';
+import EldertuskMob from './mobs/Eldertusk';
 
 export const EntityDepth: Record<any, number> = {
   [EntityTypes.Pond]: 1,
@@ -47,6 +50,7 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.Camel]: 11,
   [EntityTypes.Scorpion]: 11,
   [EntityTypes.Fox]: 11,
+  [EntityTypes.Flameling]: 11,
 
   [EntityTypes.Player]: 20,
   [EntityTypes.Sword]: 21,
@@ -55,6 +59,8 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.Roku]: 23,
   [EntityTypes.Yeti]: 23,
   [EntityTypes.Santa]: 23,
+  [EntityTypes.Sphinx]: 23,
+  [EntityTypes.Eldertusk]: 23,
 
   [EntityTypes.Bush]: 30,
   [EntityTypes.IceMound]: 30,
@@ -81,6 +87,8 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.Yeti: return YetiMob;
     case EntityTypes.Santa: return SantaMob;
     case EntityTypes.Roku: return RokuMob;
+    case EntityTypes.Sphinx: return SphinxMob;
+    case EntityTypes.Eldertusk: return EldertuskMob;
     case EntityTypes.Fireball: return Fireball;
     case EntityTypes.Snowball: return Snowball;
 

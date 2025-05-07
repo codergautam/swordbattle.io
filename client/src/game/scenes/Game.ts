@@ -67,16 +67,19 @@ export default class Game extends Phaser.Scene {
     this.load.image('wolfMobPassive', publicPath + '/assets/game/mobs/wolfPassive.png');
     this.load.image('wolfMobAggressive', publicPath + '/assets/game/mobs/wolfAggressive.png');
     this.load.image('catMobPassive', publicPath + '/assets/game/mobs/cat.png');
-    this.load.image('foxMobPassive', publicPath + '/assets/game/mobs/cat-winter.png.png');
-    this.load.image('scorpionMobPassive', publicPath + '/assets/game/mobs/wolfPassive-winter.png');
+    this.load.image('foxMobPassive', publicPath + '/assets/game/mobs/fox.png');
+    this.load.image('scorpionMobPassive', publicPath + '/assets/game/mobs/scorpion.png');
     this.load.image('fish', publicPath + '/assets/game/mobs/fish.png');
     this.load.image('bunny', publicPath + '/assets/game/mobs/bunny.png');
     this.load.image('moose', publicPath + '/assets/game/mobs/moose.png');
-    this.load.image('camel', publicPath + '/assets/game/mobs/moose-winter.png');
+    this.load.image('camel', publicPath + '/assets/game/mobs/camel.png');
     this.load.image('chimera', publicPath + '/assets/game/mobs/chimera.png');
+    this.load.image('flameling', publicPath + '/assets/game/mobs/flameling.png');
     this.load.image('yeti', publicPath + '/assets/game/mobs/yeti.png');
     this.load.image('santa', publicPath + '/assets/game/mobs/santa.png');
     this.load.image('roku', publicPath + '/assets/game/mobs/roku-spring.png');
+    this.load.image('sphinx', publicPath + '/assets/game/mobs/sphinx.png');
+    this.load.image('eldertusk', publicPath + '/assets/game/mobs/eldertusk.png');
     this.load.image('fireball', publicPath + '/assets/game/mobs/fireball-spring.png');
     this.load.image('snowball', publicPath + '/assets/game/mobs/snowball.png');
 

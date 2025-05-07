@@ -25,6 +25,9 @@ export enum EntityTypes {
   Camel = 25,
   Scorpion = 26,
   Fox = 27,
+  Flameling = 25,
+  Sphinx = 26,
+  Eldertusk = 27,
 
   Fireball = 21,
   Snowball = 22,

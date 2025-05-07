@@ -26,10 +26,13 @@ const BunnyMob = require('./entities/mobs/Bunny');
 const ScorpionMob = require('./entities/mobs/Scorpion');
 const MooseMob = require('./entities/mobs/Moose');
 const CamelMob = require('./entities/mobs/Camel');
+const FlamelingMob = require('./entities/mobs/Flameling');
 const ChimeraMob = require('./entities/mobs/Chimera');
 const YetiMob = require('./entities/mobs/Yeti');
 const SantaMob = require('./entities/mobs/Santa');
 const RokuMob = require('./entities/mobs/Roku');
+const SphinxMob = require('./entities/mobs/Sphinx');
+const EldertuskMob = require('./entities/mobs/Eldertusk');
 const Fireball = require('./entities/Fireball');
 const Snowball = require('./entities/Snowball');
 const Timer = require('./components/Timer');
@@ -174,9 +177,12 @@ spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
       case Types.Entity.Moose: ObjectClass = MooseMob; break;
       case Types.Entity.Camel: ObjectClass = CamelMob; break;
       case Types.Entity.Chimera: ObjectClass = ChimeraMob; break;
+      case Types.Entity.Flameling: ObjectClass = FlamelingMob; break;
       case Types.Entity.Yeti: ObjectClass = YetiMob; break;
       case Types.Entity.Santa: ObjectClass = SantaMob; break;
       case Types.Entity.Roku: ObjectClass = RokuMob; break;
+      case Types.Entity.Sphinx: ObjectClass = SphinxMob; break;
+      case Types.Entity.Eldertusk: ObjectClass = EldertuskMob; break;
       case Types.Entity.Fireball: ObjectClass = Fireball; break;
       case Types.Entity.Snowball: ObjectClass = Snowball; break;
     }

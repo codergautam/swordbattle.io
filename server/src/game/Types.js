@@ -23,15 +23,18 @@ const Entity = {
   Cat: 23,
   Santa: 24,
   Camel: 25,
-  Scorpion: 26
+  Scorpion: 26,
   Fox: 27
+  Flameling: 28,
+  Sphinx: 29,
+  Eldertusk: 30,
 
   Fireball: 21,
   Snowball: 22,
 };
 
 const Mobs = [
-  Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Santa, Entity.Chimera, Entity.Roku, Entity.Cat,
+  Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Santa, Entity.Chimera, Entity.Roku, Entity.Cat, Entity.Flameling, Entity.Sphinx, Entity.Fox, Entity.Camel, Entity.Eldertusk, Entity.Scorpion,
 ];
 const Groups = {
   Obstacles: [

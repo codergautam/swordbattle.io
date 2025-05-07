@@ -7,75 +7,40 @@ const Property = require('../../components/Property');
 const Types = require('../../Types');
 const helpers = require('../../../helpers');
 
-class SantaMob extends Entity {
+class MooseMob extends Entity {
   static defaultDefinition = {
     forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
-    size: 70,
-    health: 25,
-    regen: 2,
-    speed: 35,
-    damage: 2,
-    bossDamage: 15,
-    snowballCooldown: [0.2, 0.4],
-    snowballDuration: [2, 3],
-    snowballSpeed: 90,
-    snowballSize: 80,
-    attackRadius: 2200,
-    density: 5,
-    isBoss: false,
   };
+  constructor(game, objectData) {
+    objectData = Object.assign({ size: 125 }, objectData);
+    super(game, Types.Entity.Moose, objectData);
 
-  constructor(game, definition) {
-    super(game, Types.Entity.Santa, definition);
-
-    this.isGlobal = this.definition.isBoss;
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = 40000;
-    this.density = 3;
 
-    this.snowballTimer = new Timer(0, this.definition.snowballCooldown[0], this.definition.snowballCooldown[1]);
     this.movementTimer = new Timer(0, 3, 4);
     this.stayTimer = new Timer(3, 2, 3);
+    this.angryTimer = new Timer(0, 12, 17);
+    this.damage = new Property(55);
     this.isMoving = false;
     this.targetAngle = this.angle;
     this.startAngle = this.angle;
 
-    this.health = new Health(this.definition.health, this.definition.regen);
-    this.speed = new Property(this.definition.speed);
-    this.damage = new Property(this.definition.isBoss ? this.definition.bossDamage : this.definition.damage);
+    this.health = new Health(5000, 3);
+    this.speed = new Property(12);
     this.target = null;
     this.targets.push(Types.Entity.Player);
 
-    this.knockbackResistance = new Property(5);
+    this.knockbackResistance = new Property(999);
 
     this.spawn();
   }
 
   update(dt) {
-    if (!this.target || this.target.removed) {
+    this.angryTimer.update(dt);
+    if (this.angryTimer.finished || !this.target || this.target.removed) {
       this.target = null;
-    }
-
-    if (!this.target) {
-      const searchRadius = this.definition.attackRadius;
-      const searchZone = this.shape.boundary;
-      searchZone.x -= searchRadius;
-      searchZone.y -= searchRadius;
-      searchZone.width += searchRadius;
-      searchZone.height += searchRadius;
-
-      const targets = this.game.entitiesQuadtree.get(searchZone);
-      for (const { entity: target } of targets) {
-        if (target === this) continue;
-        if (target.type !== Types.Entity.Player) continue;
-
-        const distance = helpers.distance(this.shape.x, this.shape.y, target.shape.x, target.shape.y);
-        if (distance < searchRadius) {
-          this.target = target;
-          break;
-        }
-      }
     }
 
     if (this.isMoving) {
@@ -101,31 +66,15 @@ class SantaMob extends Entity {
         const targetAngle = helpers.angle(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
         this.angle = helpers.angleLerp(this.startAngle, targetAngle, this.movementTimer.progress);
         this.velocity.add(new SAT.Vector(
-          this.speed.value * Math.cos(this.angle) * (this.movementTimer.progress * 3) * dt,
-          this.speed.value * Math.sin(this.angle) * (this.movementTimer.progress * 3) * dt,
+          this.speed.value * Math.cos(this.angle) * (this.movementTimer.progress * 5) * dt,
+          this.speed.value * Math.sin(this.angle) * (this.movementTimer.progress * 5) * dt,
         ));
       } else {
-        this.angle = this.targetAngle;
+        this.angle = helpers.angleLerp(this.startAngle, this.targetAngle, this.movementTimer.progress);
         this.velocity.add(new SAT.Vector(
-          this.speed.value * Math.cos(this.angle) * dt,
-          this.speed.value * Math.sin(this.angle) * dt,
+          this.speed.value * Math.cos(this.angle) * (this.movementTimer.progress * 2) * dt,
+          this.speed.value * Math.sin(this.angle) * (this.movementTimer.progress * 2) * dt,
         ));
-      }
-    }
-
-    if (this.definition.isBoss) {
-      this.snowballTimer.update(dt);
-      if (this.snowballTimer.finished) {
-        this.snowballTimer.renew();
-        this.game.map.addEntity({
-          type: Types.Entity.Snowball,
-          size: this.definition.snowballSize,
-          speed: this.definition.snowballSpeed,
-          angle: this.angle,
-          damage: this.damage.value,
-          duration: [this.definition.snowballDuration[0], this.definition.snowballDuration[1]],
-          position: [this.shape.x, this.shape.y],
-        });
       }
     }
 
@@ -152,11 +101,15 @@ class SantaMob extends Entity {
 
     if (entity === this.target) {
       const force = this.damage.value * this.movementTimer.progress;
-      const knockback = force * 7;
+      const knockback = force * 30;
       entity.velocity.x -= knockback * Math.cos(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
       entity.velocity.y -= knockback * Math.sin(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
       entity.damaged(force, this);
-      this.velocity.scale(0);
+
+      // 50% chance of kicking off multiple times
+      if (Math.random() > 0.5) {
+        this.target = null;
+      }
     }
   }
 
@@ -167,6 +120,7 @@ class SantaMob extends Entity {
       this.movementTimer.renew();
     }
     this.isMoving = true;
+    this.angryTimer.renew();
 
     if (this.health.isDead) {
       this.remove();
@@ -191,4 +145,4 @@ class SantaMob extends Entity {
   }
 }
 
-module.exports = SantaMob;
+module.exports = MooseMob;

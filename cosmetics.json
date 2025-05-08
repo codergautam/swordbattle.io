@@ -3103,7 +3103,7 @@
       "displayName": "Cyberlight Ninja",
       "id": 308,
       "buyable": true,
-      "price": 30000,
+      "price": 35000,
       "swordFileName": "ultimatenewNinjaSword.png",
       "bodyFileName": "ultimatenewNinjaPlayer.png",
       "description": "Camouflage isn't needed when your enemies are too scared to attack you...",
@@ -3129,7 +3129,7 @@
       "displayName": "Rainbow Void",
       "id": 310,
       "buyable": true,
-      "price": 50000,
+      "price": 55000,
       "swordFileName": "ultimateVoidSword.png",
       "bodyFileName": "ultimateVoidPlayer.png",
       "description": "Wanted to be dark and depressing but instead became part of someone's gaming setup",
@@ -3178,7 +3178,7 @@
       "displayName": "Rainbow Luminous",
       "id": 314,
       "buyable": true,
-      "price": 40000,
+      "price": 45000,
       "swordFileName": "ultimateLuminousSword.png",
       "bodyFileName": "ultimateLuminousPlayer.png",
       "description": "Even brighter than before!",
@@ -3191,7 +3191,7 @@
       "displayName": "Rainbow Fire",
       "id": 315,
       "buyable": true,
-      "price": 45000,
+      "price": 50000,
       "swordFileName": "ultimateFireSword.png",
       "bodyFileName": "ultimateFirePlayer.png",
       "description": "Every color burns hotter than the last...",
@@ -3337,25 +3337,27 @@
       "description": "Amethyst??? 🤨🤨"
     },
     "corrupted": {
+      "ultimate": true,
+      "tag": "Ultimate Corruption",
       "name": "corrupted",
       "displayName": "Corrupted",
       "id": 327,
-      "buyable": false,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedCorruptedSword.png",
-      "bodyFileName": "unreleasedCorruptedPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 17500,
+      "swordFileName": "ultimateCorruptionSword.png",
+      "bodyFileName": "ultimateCorruptionPlayer.png",
+      "description": "Some battles may still be won, but the war has been lost...",
+      "original": 187
     },
     "antimagma": {
       "name": "antimagma",
       "displayName": "Anti-Magma",
       "id": 328,
       "buyable": false,
-      "og": true,
+      "wip": true,
       "price": 0,
-      "swordFileName": "antimagmaSword.png",
-      "bodyFileName": "antimagmaPlayer.png",
+      "swordFileName": "unreleasedAntimagmaSword.png",
+      "bodyFileName": "unreleasedAntimagmaPlayer.png",
       "description": "Not available for sale."
     },
     "fractal": {
@@ -3599,7 +3601,7 @@
       "displayName": "Haunted",
       "id": 351,
       "buyable": true,
-      "price": 20000,
+      "price": 25000,
       "swordFileName": "ultimatePossessedSword.png",
       "bodyFileName": "ultimatePossessedPlayer.png",
       "description": "The spirits are ready to fight back.",
@@ -3744,14 +3746,17 @@
       "description": "Overtaken by something spectral..."
     },
     "arachnev2": {
+      "ultimate": true,
+      "tag": "Ultimate Aphid",
       "name": "arachnev2",
       "displayName": "Arachne",
       "id": 364,
       "buyable": true,
-      "price": 18500,
-      "swordFileName": "arachnev2Sword.png",
-      "bodyFileName": "arachnev2Player.png",
-      "description": "A simple creature turned into a neon monster"
+      "price": 20000,
+      "swordFileName": "ultimateAphidSword.png",
+      "bodyFileName": "ultimateAphidPlayer.png",
+      "description": "A deadly spider turned into a vicious neon monster",
+      "original": 377
     },
     "emeraldwater": {
       "name": "emeraldwater",
@@ -3778,16 +3783,16 @@
     },
     "vanguard": {
       "ultimate": true,
-      "tag": "Ultimate Arachne",
+      "tag": "Ultimate Eliminator",
       "name": "vanguard",
       "displayName": "Vanguard",
       "id": 367,
       "buyable": true,
       "price": 100000,
-      "swordFileName": "ultimateArachneSword.png",
-      "bodyFileName": "ultimateArachnePlayer.png",
+      "swordFileName": "ultimateEliminatorSword.png",
+      "bodyFileName": "ultimateEliminatorPlayer.png",
       "description": "The creator of all things neon!",
-      "original": 364
+      "original": 378
     },
     "emeraldwarrior": {
       "ultimate": true,
@@ -3873,6 +3878,52 @@
       "bodyFileName": "tileWaterPlayer-spring.png",
       "description": "Dynamically changes with the current water texture.",
       "original": 298
+    },
+    "virtual": {
+      "ultimate": true,
+      "tag": "Ultimate Digital",
+      "name": "virtual",
+      "displayName": "Virtual",
+      "id": 375,
+      "buyable": true,
+      "price": 65000,
+      "swordFileName": "ultimateDigitalSword.png",
+      "bodyFileName": "ultimateDigitalPlayer.png",
+      "description": "Enter a new reality",
+      "original": 235
+    },
+    "cloaked": {
+      "ultimate": true,
+      "tag": "Ultimate Disguised",
+      "name": "cloaked",
+      "displayName": "Cloaked",
+      "id": 376,
+      "buyable": true,
+      "price": 12500,
+      "swordFileName": "ultimateDisguisedSword.png",
+      "bodyFileName": "ultimateDisguisedPlayer.png",
+      "description": "Become impossible to identify while under the cloak.",
+      "original": 236
+    },
+    "aphid": {
+      "name": "aphid",
+      "displayName": "Aphid",
+      "id": 377,
+      "buyable": true,
+      "price": 11500,
+      "swordFileName": "aphidSword.png",
+      "bodyFileName": "aphidNewPlayer.png",
+      "description": "A simple creature turned into a neon anomaly"
+    },
+    "eliminator": {
+      "name": "eliminator",
+      "displayName": "Eliminator",
+      "id": 378,
+      "buyable": true,
+      "price": 18500,
+      "swordFileName": "eliminatorSword.png",
+      "bodyFileName": "eliminatorPlayer.png",
+      "description": "The only thing left behind by the eliminator is the faint glow of neon."
     }
   }
 }

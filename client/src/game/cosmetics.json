@@ -3921,7 +3921,7 @@
       "id": 378,
       "buyable": true,
       "price": 18500,
-      "swordFileName": "eliminatorSword2.png",
+      "swordFileName": "eliminatorSword.png",
       "bodyFileName": "eliminatorPlayer.png",
       "description": "The only thing left behind by the eliminator is the faint glow of neon."
     }

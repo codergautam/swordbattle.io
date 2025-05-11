@@ -315,9 +315,9 @@ function App() {
                 <div className="announcementCard menuCard panel">
                     <div>
                     <span className="announcedate">
-                      (May 7th): 
+                      (May 10th): 
                     </span>
-                       {} <span style={{color: '#00ffff'}}>9 new skins</span> + <span className="announceimportant">18 new ultimate skins!</span> More coming soon!
+                       {} <span style={{color: '#00ff00'}}>9 new skins & 18 new ultimate skins!</span> + <span className="announceimportant"> Huge ultimate skin sale! </span> Check in often for new skins!
                     </div>
                   </div>
                 {/* <!-- Play --> */}

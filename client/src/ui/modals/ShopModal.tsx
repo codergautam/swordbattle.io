@@ -363,15 +363,14 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           <div className='scroll' ref={targetParentRef}>
       <div className='label'>
         <div ref={targetElementRef1}></div>
-        <span style={{color: 'lime'}}>Spring Skin Sale</span><hr></hr>
-        <p style={{color: '#55ff55'}}>Save up to thousands of gems on these skins during the Spring Event!</p>
+        <span style={{color: 'magenta'}}>Ultimate Skin Sale</span><hr></hr>
+        <p style={{color: '#ff99ff'}}>Unlock ultimate skins for less mastery, and save gems on original versions of ultimates! ENDS 5/24!</p>
         </div>
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
         if (skin.special) return false;
         if (skin.wip) return false;
-        if (skin.ultimate) return false;
         if (skin.freebie) return false;
         if (skin.eventoffsale) return false;
         if (skin.event) return false;
@@ -678,6 +677,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         const skin = skinData as Skin;
         if (!skin.eventoffsale) return false;
         if (skin.currency) return false;
+        if (skin.wip) return false;
         
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
       }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {

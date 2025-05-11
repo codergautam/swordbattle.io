@@ -3759,8 +3759,8 @@
       "id": 364,
       "buyable": true,
       "price": 20000,
-      "swordFileName": "ultimateAphidSword.png",
-      "bodyFileName": "ultimateAphidPlayer.png",
+      "swordFileName": "ultimateAphidnewSword.png",
+      "bodyFileName": "ultimateAphidnewPlayer.png",
       "description": "A deadly spider turned into a vicious neon monster",
       "original": 377
     },
@@ -3801,8 +3801,8 @@
       "id": 367,
       "buyable": true,
       "price": 75000,
-      "swordFileName": "ultimateEliminatorSword.png",
-      "bodyFileName": "ultimateEliminatorPlayer.png",
+      "swordFileName": "ultimateEliminatornewSword.png",
+      "bodyFileName": "ultimateEliminatornewPlayer.png",
       "description": "The creator of all things neon!"
     },
     "emeraldwarrior": {
@@ -3936,8 +3936,8 @@
       "id": 377,
       "buyable": true,
       "price": 9775,
-      "swordFileName": "aphidSword.png",
-      "bodyFileName": "aphidNewPlayer.png",
+      "swordFileName": "aphidNewSword.png",
+      "bodyFileName": "aphidNewNewNewNewPlayer.png",
       "description": "A simple creature turned into a neon anomaly"
     },
     "eliminator": {

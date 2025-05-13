@@ -63,6 +63,7 @@ class Sword extends Entity {
   }
 
   canFly() {
+    if (this.canSwing()) return false;
     return !this.isFlying && !this.restrictFly
       && this.player.inputs.isInputDown(Types.Input.SwordThrow)
       && this.flyCooldownTime <= 0

@@ -13,8 +13,8 @@ class BasicEvolution extends Effect {
     super(player, 'evolution');
     const cooldown = this.constructor.abilityCooldown;
     const duration = this.constructor.abilityDuration;
-    this.abilityCooldownTimer = new Timer(cooldown, cooldown, cooldown);
-    this.abilityCooldownTimer.finished = true;
+    this.abilityCooldownTimer = new Timer(0, 5.1, 5.1);
+    this.abilityCooldownTimer.finished = false;
     this.abilityDurationTimer = new Timer(duration, duration, duration);
     this.abilityDurationTimer.finished = true;
     this.isAbilityActive = false;
@@ -44,6 +44,10 @@ class BasicEvolution extends Effect {
   }
 
   deactivateAbility() {
+    if (this.abilityCooldownTimer.maxTime === 5.1) {
+      const cooldown = this.constructor.abilityCooldown;
+      this.abilityCooldownTimer = new Timer(cooldown, cooldown, cooldown);
+    }
     this.abilityCooldownTimer.renew();
     this.isAbilityActive = false;
   }

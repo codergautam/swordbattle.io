@@ -452,7 +452,7 @@ class Game {
   }
 
   handleNickname(nickname) {
-    const nicknameLength = nickname.length >= 1 && nickname.length <= 16;
+    const nicknameLength = nickname.length >= 1 && nickname.length <= 20;
     return nicknameLength ? nickname : 'Player'
   }
 

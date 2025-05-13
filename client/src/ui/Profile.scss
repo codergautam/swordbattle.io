@@ -5,7 +5,18 @@
 	font-family: "Roboto", sans-serif;;
   overflow-y: auto;
 
-  .back-button {
+}
+
+.profile-blue {
+  @import '~bootstrap/scss/bootstrap';
+
+	background: blue;
+	font-family: "Roboto", sans-serif;;
+  overflow-y: auto;
+
+}
+
+.back-button {
     top: 10px;
     right: 10px;
     z-index: 100;
@@ -99,6 +110,4 @@
       }
     }
   }
-}
-
 

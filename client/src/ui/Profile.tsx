@@ -48,9 +48,16 @@ export default function Profile() {
   useEffect(() => fetchAccount(), []);
 
   useEffect(() => {
-    document.body.classList.add('profile-body');
-    return () => document.body.classList.remove('profile-body');
-  }, []);
+    if (data?.account.skins.equipped === 243) {
+      document.body.classList.add('profile-blue');
+    } else {
+      document.body.classList.add('profile-body');
+    }
+    return () => {
+      document.body.classList.remove('profile-blue');
+      document.body.classList.remove('profile-body');
+    };
+  }, [data]);
 
   const prepareGraphData = (dailyStats: Stats[]) => {
     // Sort the stats by date

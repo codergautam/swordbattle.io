@@ -48,7 +48,7 @@ export default function Profile() {
   useEffect(() => fetchAccount(), []);
 
   useEffect(() => {
-    if (data?.account.skins.equipped === 243) {
+    if (data?.account.username === "Update Testing Account") {
       document.body.classList.add('profile-blue');
     } else {
       document.body.classList.add('profile-body');

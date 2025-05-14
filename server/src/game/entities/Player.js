@@ -373,7 +373,7 @@ class Player extends Entity {
     }
     super.remove();
 
-    if (this.name !== "Update1") {
+    if (this.name !== "Update Testing Account") {
       this.game.map.spawnCoinsInShape(this.shape, this.calculateDropAmount(), this.client?.account?.id);
     }
   }

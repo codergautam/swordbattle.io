@@ -187,7 +187,10 @@ class Sword extends Entity {
     const yComp = power * Math.sin(angle);
     entity.velocity.x = -1*xComp;
     entity.velocity.y =  -1*yComp;
-    entity.damaged(this.damage.value, this.player);
+    if ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) || 
+      (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation))) {
+      entity.damaged(this.damage.value, this.player);
+    }
 
     if(this.player.modifiers.leech) {
       this.player.health.gain(this.damage.value * this.player.modifiers.leech);

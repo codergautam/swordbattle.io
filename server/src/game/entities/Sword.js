@@ -128,7 +128,6 @@ class Sword extends Entity {
 
   updateFlags(dt) {
     if (this.canSwing()) {
-      this.stopFly()
       this.raiseAnimation = true;
       this.isAnimationFinished = false;
       this.player.flags.set(Types.Flags.SwordSwing, true);
@@ -157,7 +156,6 @@ class Sword extends Entity {
     }
 
     if (this.raiseAnimation) {
-      this.stopFly()
       this.swingTime += dt;
       if (this.swingTime >= this.swingDuration.value) {
         this.swingTime = this.swingDuration.value;
@@ -165,7 +163,6 @@ class Sword extends Entity {
       }
     }
     if (this.decreaseAnimation) {
-      this.stopFly()
       this.swingTime -= dt;
       if (this.swingTime <= 0) {
         this.swingTime = 0;
@@ -180,16 +177,8 @@ class Sword extends Entity {
   }
 
   processTargetsCollision(entity) {
-     if (entity === this.player) return;
+    if (entity === this.player) return;
     if (!this.canCollide(entity)) return;
-
-    const isFlyingCollision = this.isFlying && !this.raiseAnimation && !this.decreaseAnimation;
-    const isSwingingCollision = !this.isFlying && (this.raiseAnimation || this.decreaseAnimation);
-
-    if (isFlyingCollision || isSwingingCollision) {
-        if (this.collidedEntities.has(entity)) return; // Prevent duplicate hits
-        this.collidedEntities.add(entity);
-    }
 
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
     let power = (this.knockback.value / (entity.knockbackResistance?.value || 1));

@@ -128,6 +128,8 @@ class Sword extends Entity {
 
   updateFlags(dt) {
     if (this.canSwing()) {
+      this.isFlying = false;
+      this.flyTime = 0;
       this.raiseAnimation = true;
       this.isAnimationFinished = false;
       this.player.flags.set(Types.Flags.SwordSwing, true);
@@ -156,6 +158,8 @@ class Sword extends Entity {
     }
 
     if (this.raiseAnimation) {
+      this.isFlying = false;
+      this.flyTime = 0;
       this.swingTime += dt;
       if (this.swingTime >= this.swingDuration.value) {
         this.swingTime = this.swingDuration.value;
@@ -163,6 +167,8 @@ class Sword extends Entity {
       }
     }
     if (this.decreaseAnimation) {
+      this.isFlying = false;
+      this.flyTime = 0;
       this.swingTime -= dt;
       if (this.swingTime <= 0) {
         this.swingTime = 0;

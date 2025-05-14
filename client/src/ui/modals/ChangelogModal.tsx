@@ -4,7 +4,7 @@ function ChangelogModal() {
   return (
     <div className="changelog">
     <h1 style={{fontSize: 30, color: 'white'}}>What's new? (May 2025)</h1>
-    <ul style={{fontSize: 17, color: 'white'}}>- (Hopefully) Fixed bug where thrown swords could damage people twice</ul>
+    <ul style={{fontSize: 17, color: 'white'}}>- (HOPEFULLY) Fixed bug where thrown swords could damage people twice (SORRY IF YOU WERE PLAYING DURING THE MASS DISCONNECTING)</ul>
     <ul style={{fontSize: 17, color: '#00ffff'}}>- Evolutions now start with a 5-second ability cooldown when first evolved</ul>
     <ul style={{fontSize: 15, color: 'white'}}>- Replaced C & SHIFT throwing keybinds with C & E, and replaced G & R ability keybinds with G & Q</ul>
     <ul style={{fontSize: 14, color: '#bbbbbb'}}>- Other various bugfixes and shop changes</ul>

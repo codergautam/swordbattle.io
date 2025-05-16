@@ -4037,7 +4037,7 @@
       "swordFileName": "ultimateLightningconjurerSword.png",
       "bodyFileName": "ultimateLightningconjurerPlayer.png",
       "description": "A conjurer than can freeze lightning, able to strike at any moment.",
-      "original": 250
+      "original": 246
     },
     "eradicator": {
       "eventoffsale": true,

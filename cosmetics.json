@@ -54,10 +54,7 @@
       "displayName": "Spring",
       "id": 12,
       "buyable": true,
-      "sale": true,
-      "ogprice": 150,
-      "saletag": "100% OFF",
-      "price": 1,
+      "price": 150,
       "swordFileName": "springSword.png",
       "bodyFileName": "springPlayer.png",
       "description": "Spring is here!"
@@ -136,10 +133,7 @@
       "displayName": "Forest Lurker",
       "id": 194,
       "buyable": true,
-      "sale": true,
-      "ogprice": 6000,
-      "saletag": "30% OFF",
-      "price": 4200,
+      "price": 6000,
       "swordFileName": "forestLurkerSword.png",
       "bodyFileName": "forestLurkerPlayer.png",
       "description": "Ahora nadie puede verme"
@@ -149,10 +143,7 @@
       "displayName": "Tea",
       "id": 195,
       "buyable": true,
-      "sale": true,
-      "ogprice": 250,
-      "saletag": "80% OFF",
-      "price": 50,
+      "price": 250,
       "swordFileName": "teaSword.png",
       "bodyFileName": "teaPlayer.png",
       "description": "Garam aur meethi chai :)"
@@ -1959,11 +1950,15 @@
       "description": "The corruption spreads..."
     },
     "pawn": {
+      "sale": true,
+      "saletag": "35% OFF",
+      "ogprice": 15000,
+
       "name": "pawn",
       "displayName": "Pawn",
       "id": 188,
       "buyable": true,
-      "price": 15000,
+      "price": 9750,
       "swordFileName": "pawnSword.png",
       "bodyFileName": "pawnPlayer.png",
       "description": "Checkmate!"
@@ -2024,10 +2019,7 @@
       "displayName": "Aztec",
       "id": 219,
       "buyable": true,
-      "sale": true,
-      "ogprice": 150000,
-      "saletag": "50% OFF",
-      "price": 75000,
+      "price": 150000,
       "swordFileName": "aztecSword.png",
       "bodyFileName": "aztecPlayer.png",
       "description": "A lost artifact that has finally been found..."
@@ -2043,11 +2035,15 @@
       "description": "Explosive!"
     },
     "bonedragon": {
+      "sale": true,
+      "saletag": "20% OFF",
+      "ogprice": 100000,
+
       "name": "bonedragon",
       "displayName": "Bone Dragon",
       "id": 217,
       "buyable": true,
-      "price": 100000,
+      "price": 80000,
       "swordFileName": "bonedragonSword.png",
       "bodyFileName": "bonedragonPlayer.png",
       "description": "Reawaken the beast..."
@@ -2087,10 +2083,7 @@
       "displayName": "Dragonfly",
       "id": 213,
       "buyable": true,
-      "sale": true,
-      "ogprice": 7500,
-      "saletag": "55% OFF",
-      "price": 3375,
+      "price": 7500,
       "swordFileName": "dragonflySword.png",
       "bodyFileName": "dragonflyPlayer.png",
       "description": "As ferocious as a dragon, as fast as a fly."
@@ -2106,11 +2099,15 @@
       "description": "Swords are only silhouettes in the darkness..."
     },
     "void": {
+      "sale": true,
+      "saletag": "75% OFF",
+      "ogprice": 14000,
+
       "name": "void",
       "displayName": "Void",
       "id": 211,
       "buyable": true,
-      "price": 14000,
+      "price": 3500,
       "swordFileName": "voidSword.png",
       "bodyFileName": "voidPlayer.png",
       "description": "The gateway between reality and oblivion..."
@@ -2130,10 +2127,7 @@
       "displayName": "Rose",
       "id": 209,
       "buyable": true,
-      "sale": true,
-      "ogprice": 5999,
-      "saletag": "60% OFF",
-      "price": 2444,
+      "price": 5999,
       "swordFileName": "roseSword.png",
       "bodyFileName": "rosePlayer.png",
       "description": "Flatter the competition."
@@ -2249,11 +2243,15 @@
       "description": "Smack your enemies with the force of a thousand bricks!"
     },
     "broken": {
+      "sale": true,
+      "saletag": "60% OFF",
+      "ogprice": 8500,
+
       "name": "broken",
       "displayName": "Broken",
       "id": 229,
       "buyable": true,
-      "price": 8500,
+      "price": 3400,
       "swordFileName": "brokenSword.png",
       "bodyFileName": "brokenPlayer.png",
       "description": "Something that was never meant to be seen..."
@@ -2313,20 +2311,21 @@
       "displayName": "Digital",
       "id": 235,
       "buyable": true,
-      "sale": true,
-      "ogprice": 10101,
-      "saletag": "45% OFF",
-      "price": 5555,
+      "price": 10101,
       "swordFileName": "digitalSword.png",
       "bodyFileName": "digitalPlayer.png",
       "description": "01110011 01110111 01101111 01110010 01100100"
     },
     "disguised": {
+      "sale": true,
+      "saletag": "70% OFF",
+      "ogprice": 9000,
+
       "name": "disguised",
       "displayName": "Disguised",
       "id": 236,
       "buyable": true,
-      "price": 9000,
+      "price": 2700,
       "swordFileName": "disguisedSword.png",
       "bodyFileName": "disguisedPlayer.png",
       "description": "Who's behind the disguise?"
@@ -2386,10 +2385,7 @@
       "displayName": "Hologram",
       "id": 242,
       "buyable": true,
-      "sale": true,
-      "ogprice": 3250,
-      "saletag": "40% OFF",
-      "price": 1950,
+      "price": 3250,
       "swordFileName": "hologramSword.png",
       "bodyFileName": "hologramPlayer.png",
       "description": "The thing you're fighting is no longer physical..."
@@ -2425,11 +2421,15 @@
       "description": "Too bright!"
     },
     "lightningconjurer": {
+      "sale": true,
+      "saletag": "40% OFF",
+      "ogprice": 17500,
+
       "name": "lightningconjurer",
       "displayName": "Lightning Conjurer",
       "id": 246,
       "buyable": true,
-      "price": 17500,
+      "price": 10500,
       "swordFileName": "lightningconjurerSword.png",
       "bodyFileName": "lightningconjurerPlayer.png",
       "description": "Strike down your opponents (literally)"
@@ -2535,11 +2535,15 @@
       "description": "The best defense!"
     },
     "steampunk": {
+      "sale": true,
+      "saletag": "70% OFF",
+      "ogprice": 525525,
+
       "name": "steampunk",
       "displayName": "Steampunk",
       "id": 257,
       "buyable": true,
-      "price": 525525,
+      "price": 151151,
       "swordFileName": "steampunkSword.png",
       "bodyFileName": "steampunkPlayer.png",
       "description": "Killin' like clockwork"
@@ -2639,10 +2643,7 @@
       "displayName": "Forest Ninja",
       "id": 267,
       "buyable": true,
-      "sale": true,
-      "ogprice": 9999,
-      "saletag": "50% OFF",
-      "price": 4999,
+      "price": 9999,
       "swordFileName": "forestninjaSword.png",
       "bodyFileName": "forestninjaPlayer.png",
       "description": "A rogue soldier who travels alone."
@@ -2672,10 +2673,7 @@
       "displayName": "Empyrean",
       "id": 270,
       "buyable": true,
-      "sale": true,
-      "ogprice": 13500,
-      "saletag": "75% OFF",
-      "price": 3375,
+      "price": 13500,
       "swordFileName": "empyreanSword.png",
       "bodyFileName": "empyreanPlayer.png",
       "description": "Ward off the evil energy of the void"
@@ -3013,11 +3011,15 @@
       "description": "Great for cold days!"
     },
     "emoticon": {
+      "sale": true,
+      "saletag": "90% OFF",
+      "ogprice": 300,
+
       "name": "emoticon",
       "displayName": "Emoticon",
       "id": 301,
       "buyable": true,
-      "price": 300,
+      "price": 30,
       "swordFileName": "emoticonSword.png",
       "bodyFileName": "emoticonPlayer.png",
       "description": ":v"
@@ -3077,7 +3079,7 @@
       "displayName": "Pharaoh",
       "id": 306,
       "buyable": true,
-      "price": 3500,
+      "price": 3000,
       "swordFileName": "ultimateMummySword.png",
       "bodyFileName": "ultimateMummyPlayer.png",
       "description": "Reincarnated only to be fighting peasants...",
@@ -3110,17 +3112,22 @@
       "original": 268
     },
     "megamoticon": {
+      "sale": true,
+      "saletag": "10% OFF",
+      "ogprice": 500000,
+
       "ultimate": true,
       "tag": "Ultimate Emoticon",
+      "original": 301,
+
       "name": "megamoticon",
       "displayName": "Megamoticon",
       "id": 309,
       "buyable": true,
-      "price": 500000,
+      "price": 450000,
       "swordFileName": "ultimateEmoticonSword.png",
       "bodyFileName": "ultimateEmoticonPlayer.png",
-      "description": ">:V",
-      "original": 301
+      "description": ">:V"
     },
     "rainbowvoid": {
       "ultimate": true,
@@ -3211,17 +3218,22 @@
       "original": 210
     },
     "shattermech": {
+      "sale": true,
+      "saletag": "30% OFF",
+      "ogprice": 200000,
+
       "ultimate": true,
       "tag": "Ultimate Broken",
+      "original": 229,
+
       "name": "shattermech",
       "displayName": "Shattermech",
       "id": 317,
       "buyable": true,
-      "price": 200000,
+      "price": 140000,
       "swordFileName": "ultimateBrokenSword.png",
       "bodyFileName": "ultimateBrokenPlayer.png",
-      "description": "Once shattered by others, and now the shatterer of others...",
-      "original": 229
+      "description": "Once shattered by others, and now the shatterer of others..."
     },
     "skillz": {
       "name": "skillz",
@@ -3551,17 +3563,6 @@
       "bodyFileName": "unreleasedSlothPlayer.png",
       "description": "Not available for sale."
     },
-    "stick": {
-      "name": "stick",
-      "displayName": "Stick",
-      "id": 347,
-      "buyable": false,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedStickSword.png",
-      "bodyFileName": "unreleasedStickPlayer.png",
-      "description": "Not available for sale."
-    },
     "arcticsoldier": {
       "name": "arcticsoldier",
       "displayName": "Arctic Soldier",
@@ -3595,17 +3596,22 @@
       "description": "Not available for sale."
     },
     "haunted": {
+      "sale": true,
+      "saletag": "80% OFF",
+      "ogprice": 25000,
+
       "ultimate": true,
       "tag": "Ultimate Possessed",
+      "original": 363,
+
       "name": "haunted",
       "displayName": "Haunted",
       "id": 351,
       "buyable": true,
-      "price": 25000,
+      "price": 5000,
       "swordFileName": "ultimatePossessedSword.png",
       "bodyFileName": "ultimatePossessedPlayer.png",
-      "description": "The spirits are ready to fight back.",
-      "original": 363
+      "description": "The spirits are ready to fight back."
     },
     "colorful": {
       "name": "colorful",
@@ -3686,21 +3692,28 @@
       "description": "Not available for sale."
     },
     "clockwork": {
+      "sale": true,
+      "saletag": "10% OFF",
+      "ogprice": 750000,
+
       "ultimate": true,
       "tag": "Ultimate Steampunk",
+      "original": 257,
+
       "name": "clockwork",
       "displayName": "Clockwork",
       "id": 359,
       "buyable": true,
-      "price": 750000,
+      "price": 675000,
       "swordFileName": "ultimateSteampunkSword.png",
       "bodyFileName": "ultimateSteampunkPlayer.png",
-      "description": "Time is running out.",
-      "original": 257
+      "description": "Time is running out."
     },
     "gingerbreadman": {
       "ultimate": true,
       "tag": "Ultimate Gingerbread",
+      "original": 185,
+
       "name": "gingerbreadman",
       "displayName": "Gingerbread Man",
       "id": 360,
@@ -3708,32 +3721,25 @@
       "price": 2000,
       "swordFileName": "ultimateGingerbreadSword.png",
       "bodyFileName": "ultimateGingerbreadPlayer.png",
-      "description": "Don't get eaten!",
-      "original": 185
+      "description": "Don't get eaten!"
     },
     "deathdragon": {
+      "sale": true,
+      "saletag": "10% OFF",
+      "ogprice": 1000000,
+
       "ultimate": true,
       "tag": "Ultimate Bone Dragon",
+      "original": 217,
+
       "name": "deathdragon",
       "displayName": "Death Dragon",
       "id": 361,
       "buyable": true,
-      "price": 1000000,
+      "price": 900000,
       "swordFileName": "ultimateBonedragonSword.png",
       "bodyFileName": "ultimateBonedragonPlayer.png",
-      "description": "A beast with the power of all that have fallen...",
-      "original": 217
-    },
-    "cryolightning": {
-      "name": "cryolightning",
-      "displayName": "Cryolightning",
-      "id": 362,
-      "buyable": false,
-      "wip": true,
-      "price": 0,
-      "swordFileName": "unreleasedCryolightningSword.png",
-      "bodyFileName": "unreleasedCryolightningPlayer.png",
-      "description": "Not available for sale."
+      "description": "A beast with the power of all that have fallen..."
     },
     "possessed": {
       "name": "possessed",
@@ -3753,8 +3759,8 @@
       "id": 364,
       "buyable": true,
       "price": 20000,
-      "swordFileName": "ultimateAphidSword.png",
-      "bodyFileName": "ultimateAphidPlayer.png",
+      "swordFileName": "ultimateAphidnewSword.png",
+      "bodyFileName": "ultimateAphidnewPlayer.png",
       "description": "A deadly spider turned into a vicious neon monster",
       "original": 377
     },
@@ -3782,30 +3788,40 @@
       "original": 352
     },
     "vanguard": {
+      "sale": true,
+      "saletag": "25% OFF",
+      "ogprice": 100000,
+
       "ultimate": true,
       "tag": "Ultimate Eliminator",
+      "original": 378,
+
       "name": "vanguard",
       "displayName": "Vanguard",
       "id": 367,
       "buyable": true,
-      "price": 100000,
-      "swordFileName": "ultimateEliminatorSword.png",
-      "bodyFileName": "ultimateEliminatorPlayer.png",
-      "description": "The creator of all things neon!",
-      "original": 378
+      "price": 75000,
+      "swordFileName": "ultimateEliminatornewSword.png",
+      "bodyFileName": "ultimateEliminatornewPlayer.png",
+      "description": "The creator of all things neon!"
     },
     "emeraldwarrior": {
+      "sale": true,
+      "saletag": "10% OFF",
+      "ogprice": 350000,
+
       "ultimate": true,
       "tag": "Ultimate Emeraldwater",
+      "original": 365,
+
       "name": "emeraldwarrior",
       "displayName": "Emerald Warrior",
       "id": 368,
       "buyable": true,
-      "price": 350000,
+      "price": 315000,
       "swordFileName": "ultimateEmeraldwaterSword.png",
       "bodyFileName": "ultimatenewEmeraldwaterPlayer.png",
-      "description": "Forged from emeraldwater.",
-      "original": 365
+      "description": "Forged from emeraldwater."
     },
     "grass": {
       "name": "grass",
@@ -3880,17 +3896,22 @@
       "original": 298
     },
     "virtual": {
+      "sale": true,
+      "saletag": "20% OFF",
+      "ogprice": 65000,
+
       "ultimate": true,
       "tag": "Ultimate Digital",
+      "original": 235,
+
       "name": "virtual",
       "displayName": "Virtual",
       "id": 375,
       "buyable": true,
-      "price": 65000,
+      "price": 52000,
       "swordFileName": "ultimateDigitalSword.png",
       "bodyFileName": "ultimateDigitalPlayer.png",
-      "description": "Enter a new reality",
-      "original": 235
+      "description": "Enter a new reality"
     },
     "cloaked": {
       "ultimate": true,
@@ -3906,24 +3927,143 @@
       "original": 236
     },
     "aphid": {
+      "sale": true,
+      "saletag": "15% OFF",
+      "ogprice": 11500,
+
       "name": "aphid",
       "displayName": "Aphid",
       "id": 377,
       "buyable": true,
-      "price": 11500,
-      "swordFileName": "aphidSword.png",
-      "bodyFileName": "aphidNewPlayer.png",
+      "price": 9775,
+      "swordFileName": "aphidNewSword.png",
+      "bodyFileName": "aphidNewNewNewNewPlayer.png",
       "description": "A simple creature turned into a neon anomaly"
     },
     "eliminator": {
+      "sale": true,
+      "saletag": "50% OFF",
+      "ogprice": 18500,
+
       "name": "eliminator",
       "displayName": "Eliminator",
       "id": 378,
       "buyable": true,
-      "price": 18500,
+      "price": 9250,
       "swordFileName": "eliminatorSword.png",
       "bodyFileName": "eliminatorPlayer.png",
       "description": "The only thing left behind by the eliminator is the faint glow of neon."
+    },
+    "wood": {
+      "name": "wood",
+      "displayName": "Wood",
+      "id": 379,
+      "buyable": true,
+      "price": 975,
+      "swordFileName": "woodSword.png",
+      "bodyFileName": "woodPlayer.png",
+      "description": "Does this skin really need an explanation?"
+    },
+    "darkness": {
+      "sale": true,
+      "saletag": "90% OFF",
+      "ogprice": 1500,
+
+      "ultimate": true,
+      "tag": "Ultimate Ash",
+      "original": 269,
+
+      "name": "darkness",
+      "displayName": "Darkness",
+      "id": 380,
+      "buyable": true,
+      "price": 150,
+      "swordFileName": "ultimateAshSword.png",
+      "bodyFileName": "ultimateAshPlayer.png",
+      "description": "Nothing to see here! Literally"
+    },
+    "bishopv2": {
+      "ultimate": true,
+      "tag": "Ultimate Pawn",
+      "name": "bishopv2",
+      "displayName": "Bishop",
+      "id": 381,
+      "buyable": true,
+      "price": 7500,
+      "swordFileName": "ultimatePawnSword.png",
+      "bodyFileName": "ultimatePawnPlayer.png",
+      "description": "Deliver the final checkmate to your opponent.",
+      "original": 188
+    },
+    "stick": {
+      "ultimate": true,
+      "tag": "Ultimate Wood",
+      "name": "stick",
+      "displayName": "Stick",
+      "id": 347,
+      "buyable": true,
+      "price": 4000,
+      "swordFileName": "ultimateWoodSword.png",
+      "bodyFileName": "ultimateWoodPlayer.png",
+      "description": "Deader than a dead bush",
+      "original": 379
+    },
+    "scrapper": {
+      "sale": true,
+      "saletag": "25% OFF",
+      "ogprice": 60000,
+
+      "ultimate": true,
+      "tag": "Ultimate Metal",
+      "original": 250,
+
+      "name": "scrapper",
+      "displayName": "Scrapper",
+      "id": 382,
+      "buyable": true,
+      "price": 45000,
+      "swordFileName": "ultimateMetalSword.png",
+      "bodyFileName": "ultimateMetalPlayer.png",
+      "description": "Composed of all the metal from \"scrapped\" swords..."
+    },
+    "cryolightning": {
+      "ultimate": true,
+      "tag": "Ultimate Lightning Conjurer",
+      "name": "cryolightning",
+      "displayName": "Cryolightning Conjurer",
+      "id": 362,
+      "buyable": true,
+      "price": 22500,
+      "swordFileName": "ultimateLightningconjurerSword.png",
+      "bodyFileName": "ultimateLightningconjurerPlayer.png",
+      "description": "A conjurer than can freeze lightning, able to strike at any moment.",
+      "original": 250
+    },
+    "eradicator": {
+      "eventoffsale": true,
+      "wip": true,
+      "name": "eradicator",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Eradicator",
+      "id": 383,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "winterEliminatorSword.png",
+      "bodyFileName": "winterEliminatorPlayer.png",
+      "description": "Not available for sale."
+    },
+    "vanguardborealis": {
+      "eventoffsale": true,
+      "wip": true,
+      "name": "vanguardborealis",
+      "eventtag": "WINTER EVENT",
+      "displayName": "Vanguardia Borealis",
+      "id": 384,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "winterVanguardSword.png",
+      "bodyFileName": "winterVanguardPlayer.png",
+      "description": "Not available for sale."
     }
   }
 }

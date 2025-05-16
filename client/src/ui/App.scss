@@ -161,6 +161,8 @@ footer {
 
 .connectionErrorModal {
   z-index: 100;
+  background-color: #00000000 !important;
+  box-shadow: none;
 }
 
 
@@ -413,7 +415,7 @@ span {
 }
 
 #menuCardHolder .menu .announcementCard .announceimportant {
-  color: magenta;
+  color: yellow;
 }
 
 #menuCardHolder .menu .announcementCard .announcewarning {

@@ -68,7 +68,11 @@ class Player extends Entity {
 
     const { speed, radius, maxHealth, regeneration, viewport } = config.player;
     this.shape = Circle.create(0, 0, radius);
-    this.speed = new Property(speed);
+    if (this.name === "Update Testing Account") {
+      this.speed = new Property(1000);
+    } else {
+      this.speed = new Property(speed);
+    }
     this.health = new Health(maxHealth, regeneration);
     this.friction = new Property(1);
     this.regeneration = new Property(regeneration);
@@ -298,7 +302,9 @@ class Player extends Entity {
   }
 
   damaged(damage, entity = null) {
-    this.health.damaged(damage);
+    if (this.name !== "Update Testing Account") {
+      this.health.damaged(damage);
+    }
 
     if (this.health.isDead) {
       let reason = 'Unknown Entity';
@@ -373,7 +379,9 @@ class Player extends Entity {
     }
     super.remove();
 
-    this.game.map.spawnCoinsInShape(this.shape, this.calculateDropAmount(), this.client?.account?.id);
+    if (this.name !== "Update Testing Account") {
+      this.game.map.spawnCoinsInShape(this.shape, this.calculateDropAmount(), this.client?.account?.id);
+    }
   }
 
   calculateDropAmount() {

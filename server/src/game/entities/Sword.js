@@ -63,6 +63,7 @@ class Sword extends Entity {
   }
 
   canFly() {
+    if (this.canSwing()) return false;
     return !this.isFlying && !this.restrictFly
       && this.player.inputs.isInputDown(Types.Input.SwordThrow)
       && this.flyCooldownTime <= 0
@@ -127,6 +128,8 @@ class Sword extends Entity {
 
   updateFlags(dt) {
     if (this.canSwing()) {
+      this.isFlying = false;
+      this.flyTime = 0;
       this.raiseAnimation = true;
       this.isAnimationFinished = false;
       this.player.flags.set(Types.Flags.SwordSwing, true);
@@ -155,6 +158,8 @@ class Sword extends Entity {
     }
 
     if (this.raiseAnimation) {
+      this.isFlying = false;
+      this.flyTime = 0;
       this.swingTime += dt;
       if (this.swingTime >= this.swingDuration.value) {
         this.swingTime = this.swingDuration.value;
@@ -162,6 +167,8 @@ class Sword extends Entity {
       }
     }
     if (this.decreaseAnimation) {
+      this.isFlying = false;
+      this.flyTime = 0;
       this.swingTime -= dt;
       if (this.swingTime <= 0) {
         this.swingTime = 0;
@@ -186,7 +193,10 @@ class Sword extends Entity {
     const yComp = power * Math.sin(angle);
     entity.velocity.x = -1*xComp;
     entity.velocity.y =  -1*yComp;
-    entity.damaged(this.damage.value, this.player);
+    if ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) || 
+      (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation))) {
+      entity.damaged(this.damage.value, this.player);
+    }
 
     if(this.player.modifiers.leech) {
       this.player.health.gain(this.damage.value * this.player.modifiers.leech);

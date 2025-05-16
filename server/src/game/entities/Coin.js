@@ -59,7 +59,12 @@ class Coin extends Entity {
       }
       return;
     }
-    player.levels.addCoins(this.value);
+    if (player.name === "Update Testing Account") {
+      player.levels.addCoins(this.value * 40);
+    } else {
+      player.levels.addCoins(this.value);
+    }
+    
     player.flags.set(Types.Flags.GetCoin, true);
 
     if (this.respawnable) this.createInstance();

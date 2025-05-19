@@ -24,6 +24,7 @@ class CoinCounter extends HudComponent {
   textObj: Phaser.GameObjects.Text;
   coinImg: Phaser.GameObjects.Image;
   stabImg: Phaser.GameObjects.Image;
+  ultimacyImg: Phaser.GameObjects.Image;
 
   initialize() {
     const { indent } = this;
@@ -31,12 +32,15 @@ class CoinCounter extends HudComponent {
 
     this.coinImg = new Phaser.GameObjects.Image(this.game, 0, indent * 0, 'coin').setOrigin(0, 0);
     this.coinImg.setScale(0.35);
-    this.stabImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight + 5, 'kill').setOrigin(0, 0);
+    this.stabImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight + 3, 'kill').setOrigin(0, 0);
     this.stabImg.displayHeight = this.coinImg.displayHeight;
     this.stabImg.displayWidth = this.coinImg.displayWidth;
+    this.ultimacyImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight * 2 + 6, 'ultimacy').setOrigin(0, 0);
+    this.ultimacyImg.displayHeight = this.coinImg.displayHeight;
+    this.ultimacyImg.displayWidth = this.coinImg.displayWidth;
     this.textObj = new Phaser.GameObjects.Text(this.game, this.coinImg.displayWidth+ 5, indent * 0, '', this.style);
 
-    this.container = new Phaser.GameObjects.Container(this.game, 0, 0, [this.textObj, this.coinImg, this.stabImg]);
+    this.container = new Phaser.GameObjects.Container(this.game, 0, 0, [this.textObj, this.coinImg, this.stabImg, this.ultimacyImg]);
 
 
     this.hud.add(this.container);
@@ -54,6 +58,15 @@ class CoinCounter extends HudComponent {
     const now = Date.now();
     if (this.lastUpdate + this.updateInterval > now) return;
     if(!this.game.gameState.self.entity) return;
+    
+    let ultimacy = 0;
+    const coins = this.game.gameState.self.entity.coins;
+    
+    if (this.game.gameState.self.entity.coins >= 1250000) {
+      ultimacy = Math.floor((coins / 794) ** 1.5)
+    } else {
+      ultimacy = Math.floor((coins / 5000) ** 2)
+    }
 
     this.lastUpdate = now;
     if(this.lastCoins !== this.game.gameState.self.entity.coins) {
@@ -62,14 +75,14 @@ class CoinCounter extends HudComponent {
         to: this.game.gameState.self.entity.coins,
         duration: 200,
         onUpdate: (tween: Phaser.Tweens.Tween) => {
-          this.textObj.text = `${Math.floor(tween.getValue())}\n${this.game.gameState?.self?.entity?.kills}`;
+          this.textObj.text = `${Math.floor(tween.getValue())}\n${this.game.gameState?.self?.entity?.kills}\n${ultimacy}`;
         },
         ease: Phaser.Math.Easing.Sine.InOut,
       });
       this.lastCoins = this.game.gameState.self.entity.coins;
 
     } else {
-      this.textObj.text = `${this.game.gameState.self.entity.coins}\n${this.game.gameState.self.entity.kills}`;
+      this.textObj.text = `${this.game.gameState.self.entity.coins}\n${this.game.gameState.self.entity.kills}\n${ultimacy}`;
     }
   }
 }

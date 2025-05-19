@@ -4,6 +4,7 @@ import { Evolutions } from '../Evolutions';
 import { Health } from '../components/Health';
 import { BiomeTypes, EntityTypes, FlagTypes, InputTypes } from '../Types';
 import { random } from '../../helpers';
+import { Settings } from '../Settings';
 import * as cosmetics from '../cosmetics.json';
 const {skins} = cosmetics;
 class Player extends BaseEntity {
@@ -79,12 +80,21 @@ class Player extends BaseEntity {
     this.bodyContainer = this.game.add.container(0, 0, [this.swordContainer, this.body, this.evolutionOverlay]);
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.bodyContainer, name, this.messageText]);
 
-    this.loadSkin(this.skin).then(() => {
-      this.body.setTexture(this.skinName+'Body');
-      this.sword.setTexture(this.skinName+'Sword');
-    }).catch(() => {
-      console.log('failed to load skin', this.skin);
-    });
+    if (Settings.loadskins) {
+        this.loadSkin(this.skin).then(() => {
+        this.body.setTexture(skins.player.name+'Body');
+        this.sword.setTexture(skins.player.name+'Sword');
+      }).catch(() => {
+        console.log('failed to load skin', this.skin);
+      });
+    } else {
+        this.loadSkin(this.skin).then(() => {
+        this.body.setTexture(this.skinName+'Body');
+        this.sword.setTexture(this.skinName+'Sword');
+      }).catch(() => {
+        console.log('failed to load skin', this.skin);
+      });
+    }
 
     return this.container;
   }

@@ -8,6 +8,16 @@
   .section {
     text-decoration: underline;
     font-size: 22px;
+    margin-bottom: 5px;
+  }
+  .sectionDebug {
+    text-decoration: underline;
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #888;
+  }
+  .debug {
+    color: #888;
   }
 
   label {

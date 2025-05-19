@@ -28,7 +28,7 @@ export class Controls {
     [InputTypes.Down]: ['S', 'DOWN'],
     [InputTypes.Right]: ['D', 'RIGHT'],
     [InputTypes.Ability]: ['G', 'Q'],
-    [InputTypes.SwordThrow]: ['C', 'E'],
+    [InputTypes.SwordThrow]: ['C', 'E', 'SHIFT'],
     [InputTypes.SwordSwing]: ['SPACE'],
   };
 

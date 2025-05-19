@@ -28,6 +28,16 @@ export const settingsList: Record<string, SettingType> = {
         }
       },
       },
+  loadskins: {
+      name: 'Refuse all skin loading attempts',
+      type: 'toggle',
+      default: false,
+      onChange: () => {
+        if (isLoaded) {
+          window.location.reload();
+        }
+      },
+      },
   useWebGL: {
     name: 'Use WebGL (requires reload)',
     type: 'toggle',

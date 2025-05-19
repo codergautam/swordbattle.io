@@ -167,8 +167,6 @@ class Sword extends Entity {
       }
     }
     if (this.decreaseAnimation) {
-      this.isFlying = false;
-      this.flyTime = 0;
       this.swingTime -= dt;
       if (this.swingTime <= 0) {
         this.swingTime = 0;

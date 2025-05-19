@@ -52,7 +52,7 @@ export default class Game extends Phaser.Scene {
       this.load.image('coin', publicPath + '/assets/game/coin-spring.png');
     }
     this.load.image('kill', publicPath + '/assets/game/ui/kill-spring.png');
-    this.load.image('ultimacy', publicPath + '/assets/game/ui/ultimacy.png');
+    this.load.image('mastery', publicPath + '/assets/game/ui/mastery.png');
     this.load.image('house1', publicPath + '/assets/game/house1.png');
     this.load.image('house1roof', publicPath + '/assets/game/house1roof.png');
     this.load.image('mossyRock', publicPath + '/assets/game/Mossy_Rock.png');

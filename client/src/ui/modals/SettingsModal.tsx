@@ -7,6 +7,7 @@ function SettingsModal() {
   const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
   const [swords, setSwords] = useState(Settings.swords);
   const [coins, setCoins] = useState(Settings.coins);
+  const [loadskins, setLoadskins] = useState(Settings.loadskins);
   const [antialiasing, setAntialiasing] = useState(Settings.antialiasing);
   const [resolution, setResolution] = useState(Settings.resolution);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
@@ -29,6 +30,10 @@ function SettingsModal() {
   const updateCoins = (value: any) => {
     setCoins(value);
     Settings.coins = value;
+  }
+  const updateLoadskins = (value: any) => {
+    setLoadskins(value);
+    Settings.loadskins = value;
   }
   const updateAntialiasing = (value: any) => {
     setAntialiasing(value);
@@ -124,6 +129,18 @@ function SettingsModal() {
         onChange={(e) => updateSound(e.target.value)}
       />
 
+      <br></br><h3 className="sectionDebug">Debug</h3>
+      <div className="settings-line">
+        <label htmlFor="loadskins" className="debug">Refuse skin loading attempts:</label>
+        <label className="switch">
+          <input type="checkbox" name="loadskins" id="loadskins"
+            checked={loadskins}
+            onChange={(e) => updateLoadskins(e.target.checked)}
+          />
+          <span className="slider round"></span>
+        </label>
+      </div>
+      <p style={{color: 'red', marginTop: '-7px', fontSize: '13.2px'}}>WARNING: THIS SETTING CAN BE DANGEROUS</p>
       {/* <label htmlFor="server">Server:</label> */}
       {/* <select name="server" id="server"
         value={servers.length === 0 ? 'loading' : server}

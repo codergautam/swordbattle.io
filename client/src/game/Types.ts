@@ -22,6 +22,12 @@ export enum EntityTypes {
   Roku = 20,
   Cat = 23,
   Santa = 24,
+  Camel = 25,
+  Scorpion = 26,
+  Fox = 27,
+  Flameling = 25,
+  Sphinx = 26,
+  Eldertusk = 27,
 
   Fireball = 21,
   Snowball = 22,

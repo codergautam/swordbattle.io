@@ -17,18 +17,18 @@ class MooseMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 1200;
+    this.coinsDrop = 40000;
 
     this.movementTimer = new Timer(0, 3, 4);
     this.stayTimer = new Timer(3, 2, 3);
     this.angryTimer = new Timer(0, 12, 17);
-    this.damage = new Property(25);
+    this.damage = new Property(55);
     this.isMoving = false;
     this.targetAngle = this.angle;
     this.startAngle = this.angle;
 
-    this.health = new Health(100, 1);
-    this.speed = new Property(8);
+    this.health = new Health(5000, 3);
+    this.speed = new Property(12);
     this.target = null;
     this.targets.push(Types.Entity.Player);
 
@@ -101,7 +101,7 @@ class MooseMob extends Entity {
 
     if (entity === this.target) {
       const force = this.damage.value * this.movementTimer.progress;
-      const knockback = force * 20;
+      const knockback = force * 30;
       entity.velocity.x -= knockback * Math.cos(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
       entity.velocity.y -= knockback * Math.sin(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
       entity.damaged(force, this);

@@ -980,8 +980,8 @@
       "bodyFileName": "donutPlayer.png",
       "description": "Become hyper for a kill spree..."
     },
-    "burger": {
-      "name": "burger",
+    "burgerogex": {
+      "name": "burgerogex",
       "displayName": "Burger OG",
       "id": 85,
       "buyable": false,
@@ -1030,8 +1030,8 @@
       "bodyFileName": "blueberryPlayer.png",
       "description": "As juicy as coins"
     },
-    "bishop": {
-      "name": "bishop",
+    "bishopogex": {
+      "name": "bishopogex",
       "displayName": "Chess Bishop OG",
       "id": 90,
       "buyable": false,
@@ -1500,8 +1500,8 @@
       "bodyFileName": "scubaPlayer.png",
       "description": "Go deep for coins"
     },
-    "fish": {
-      "name": "fish",
+    "fishogex": {
+      "name": "fishogex",
       "displayName": "Fish OG",
       "id": 139,
       "buyable": false,
@@ -1550,8 +1550,8 @@
       "bodyFileName": "virusPlayer.png",
       "description": "Infect them all"
     },
-    "arachne": {
-      "name": "arachne",
+    "arachneogex": {
+      "name": "arachneogex",
       "displayName": "Arachne OG",
       "id": 144,
       "buyable": false,

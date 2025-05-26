@@ -340,8 +340,8 @@
       "bodyFileName": "sickPlayer.png",
       "description": "I don't feel so good... I need coins"
     },
-    "clef": {
-      "name": "clef",
+    "clefogex": {
+      "name": "clefogex",
       "displayName": "Bass OG",
       "id": 18,
       "buyable": false,

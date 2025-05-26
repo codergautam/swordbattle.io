@@ -46,6 +46,7 @@ class Player extends BaseEntity {
     this.shape = Shape.create(this.shapeData);
     this.survivalStarted = Date.now();
     this.skinName = Object.values(skins).find(skin => skin.id === this.skin)?.name;
+    const ogex = this.skinName?.includes("ogex") || false;
     this.body = this.game.add.sprite(0, 0, 'playerBody').setRotation(-Math.PI / 2);
     this.evolutionOverlay = this.game.add.sprite(0, 0, '').setRotation(-Math.PI / 2);
     this.updateEvolution();
@@ -69,7 +70,11 @@ class Player extends BaseEntity {
       "[apc] cool guy 53": '#0055ff',
       "update testing account": '#00ff00'
     }
-    name.setFill(this.account ? (specialColors[this.name?.toLowerCase() as keyof typeof specialColors] ? specialColors[this.name?.toLowerCase() as keyof typeof specialColors] : '#0000ff') : '#000000');
+    if (ogex) {
+      name.setFill('#ffff00');
+    } else {
+      name.setFill(this.account ? (specialColors[this.name?.toLowerCase() as keyof typeof specialColors] ? specialColors[this.name?.toLowerCase() as keyof typeof specialColors] : '#0000ff') : '#000000');
+    }
 
     this.messageText = this.game.add.text(0, -this.body.height / 2 - 100, '')
       .setFontFamily('Arial')

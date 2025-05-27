@@ -18,7 +18,7 @@ let stopAt = false;
 if(!process.env.OLD_DB) throw new Error('No old db url provided');
 if(!process.env.NEW_DB && !ignoreNewDb) throw new Error('No new db url provided');
 // connect to the old db
-const sql = postgres(process.env.OLD_DB, {
+const sql postgres(process.env.OLD_DB, {
   ssl: {
     rejectUnauthorized: false,
   },

@@ -67,7 +67,7 @@ class Player extends BaseEntity {
     const specialColors: { [key: string]: string } = {
       "[apc] codergautam": '#ff0000',
       angel: '#acfffc',
-      "[apc] cool guy 53": '#0055ff',
+      "[awe] cool guy 53": '#0055ff',
       "update testing account": '#00ff00'
     }
     if (ogex) {

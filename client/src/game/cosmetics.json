@@ -3973,7 +3973,7 @@
       "price": 0,
       "swordFileName": "winterEliminatorSword.png",
       "bodyFileName": "winterEliminatorPlayer.png",
-      "description": "Not available for sale."
+      "description": "Requires 75000 frost tokens"
     },
     "vanguardborealis": {
       "eventoffsale": true,
@@ -3986,59 +3986,236 @@
       "price": 0,
       "swordFileName": "winterVanguardSword.png",
       "bodyFileName": "winterVanguardPlayer.png",
-      "description": "Not available for sale."
+      "description": "Requires 150000 frost tokens"
     },
     "violin": {
+      "sale": true,
+      
       "name": "violin",
       "displayName": "Violin",
       "id": 385,
       "buyable": true,
-      "price": 975,
+      "price": 1600,
       "swordFileName": "violinSword.png",
       "bodyFileName": "violinPlayer.png",
       "description": "Play a sad song for the ones you defeated"
     },
+    "fishbowl": {
+      "sale": true,
+      
+      "name": "fishbowl",
+      "displayName": "Fishbowl",
+      "id": 386,
+      "buyable": true,
+      "price": 1800,
+      "swordFileName": "fishbowlSword.png",
+      "bodyFileName": "fishbowlPlayer.png",
+      "description": "Maybe don't try eating this fish"
+    },
+    "cheeseburger": {
+      "sale": true,
+      
+      "name": "cheeseburger",
+      "displayName": "Cheeseburger",
+      "id": 387,
+      "buyable": true,
+      "price": 1900,
+      "swordFileName": "cheeseburgerSword.png",
+      "bodyFileName": "cheeseburgerPlayer.png",
+      "description": "Tasty!"
+    },
     "bass": {
+      "sale": true,
+      
       "ultimate": true,
       "tag": "Ultimate Violin",
-      "original": 250,
+      "original": 385,
 
       "name": "bass",
       "displayName": "Bass",
       "id": 388,
       "buyable": true,
-      "price": 975,
+      "price": 6000,
       "swordFileName": "ultimateViolinSword.png",
       "bodyFileName": "ultimateViolinPlayer.png",
       "description": "Slap them with your bass"
     },
     "fish": {
+      "sale": true,
+      
       "ultimate": true,
       "tag": "Ultimate Fishbowl",
-      "original": 250,
+      "original": 386,
 
       "name": "fish",
       "displayName": "Fish",
       "id": 389,
       "buyable": true,
-      "price": 975,
+      "price": 8000,
       "swordFileName": "ultimateFishbowlSword.png",
       "bodyFileName": "ultimateFishbowlPlayer.png",
       "description": "The real fish"
     },
     "mcbattle": {
+      "sale": true,
+      
       "ultimate": true,
       "tag": "Ultimate Cheeseburger",
-      "original": 250,
+      "original": 387,
 
       "name": "mcbattle",
       "displayName": "McBattle Deluxe",
       "id": 390,
       "buyable": true,
-      "price": 975,
+      "price": 7000,
       "swordFileName": "ultimateCheeseburgerSword.png",
       "bodyFileName": "ultimateCheeseburgerPlayer.png",
       "description": "Swordbattle's favorite meal, now with extra cheese!"
+    },
+    "firstfrost": {
+      "eventoffsale": true,
+      "wip": true,
+      "name": "firstfrost",
+      "eventtag": "WINTER EVENT",
+      "displayName": "First-Frost Pi Guy",
+      "id": 391,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "winterPiguySword.png",
+      "bodyFileName": "winterPiguyPlayer.png",
+      "description": "Requires 314159 frost tokens"
+    },
+    "future": {
+      "sale": true,
+      
+      "name": "future",
+      "displayName": "Future Fighter",
+      "id": 392,
+      "buyable": true,
+      "price": 375,
+      "swordFileName": "futureSword.png",
+      "bodyFileName": "futurePlayer.png",
+      "description": "From the future, but fighting in the present."
+    },
+    "futurizer": {
+      "sale": true,
+      
+      "ultimate": true,
+      "tag": "Ultimate Future Fighter",
+      "original": 392,
+
+      "name": "futurizer",
+      "displayName": "Futurizer",
+      "id": 393,
+      "buyable": true,
+      "price": 150000,
+      "swordFileName": "ultimateFutureSword.png",
+      "bodyFileName": "ultimateFuturePlayer.png",
+      "description": "Leaving everything in past tense for over -2000 years."
+    },
+    "jellyfish": {
+      "sale": true,
+      
+      "name": "jellyfish",
+      "displayName": "Jellyfish",
+      "id": 394,
+      "buyable": true,
+      "price": 2850,
+      "swordFileName": "jellyfishSword.png",
+      "bodyFileName": "jellyfishPlayer.png",
+      "description": "Found in Jellyfish Fields"
+    },
+    "jelly": {
+      "sale": true,
+      
+      "ultimate": true,
+      "tag": "Ultimate Jellyfish",
+      "original": 394,
+
+      "name": "jelly",
+      "displayName": "Jelly",
+      "id": 395,
+      "buyable": true,
+      "price": 75000,
+      "swordFileName": "ultimateJellyfishSword.png",
+      "bodyFileName": "ultimateJellyfishPlayer.png",
+      "description": "Jelly jelly jelly jelly jelly"
+    },
+    "pidude": {
+      "sale": true,
+
+      "name": "pidude",
+      "displayName": "Pi Dude",
+      "id": 396,
+      "buyable": true,
+      "price": 3141,
+      "swordFileName": "pidudeSword.png",
+      "bodyFileName": "pidudePlayer.png",
+      "description": "Not yet a Pi Guy, just a Pi Dude"
+    },
+    "pidiver": {
+      "sale": true,
+      
+      "ultimate": true,
+      "tag": "Ultimate Pi Dude",
+      "original": 396,
+
+      "name": "pidiver",
+      "displayName": "Pi Diver",
+      "id": 397,
+      "buyable": true,
+      "price": 2500,
+      "swordFileName": "ultimatePidudeSword.png",
+      "bodyFileName": "ultimatePidudePlayer.png",
+      "description": "The headquarters of all things Pi!"
+    },
+    "futuremancer": {
+      "sale": true,
+      
+      "ultimate": true,
+      "tag": "Ultimate Necromancer",
+      "original": 278,
+
+      "name": "futuremancer",
+      "displayName": "Futuremancer",
+      "id": 398,
+      "buyable": true,
+      "price": 85000,
+      "swordFileName": "ultimateNecromancerSword.png",
+      "bodyFileName": "ultimateNecromancerPlayer.png",
+      "description": "The future of necromancy is here!"
+    },
+    "piman": {
+      "sale": true,
+      
+      "ultimate": true,
+      "tag": "Ultimate Pi Guy",
+      "original": 197,
+
+      "name": "piman",
+      "displayName": "Pi Man",
+      "id": 399,
+      "buyable": true,
+      "price": 314159,
+      "swordFileName": "ultimatePiguySword.png",
+      "bodyFileName": "ultimatePiguyPlayer.png",
+      "description": "The original Pi Guy"
+    },
+    "shatteredglass": {
+      "sale": true,
+      
+      "ultimate": true,
+      "tag": "Ultimate Stained Glass",
+      "original": 206,
+
+      "name": "shatteredglass",
+      "displayName": "Shattered Glass",
+      "id": 400,
+      "buyable": true,
+      "price": 9000,
+      "swordFileName": "ultimateStainedglassSword.png",
+      "bodyFileName": "ultimateStainedglassPlayer.png",
+      "description": "Well there goes all of its value"
     }
   }
 }

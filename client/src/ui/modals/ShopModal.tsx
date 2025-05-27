@@ -977,7 +977,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       </div>
       <div className='label'>
         <div ref={targetElementRef7}></div>
-        <span style={{color: 'blue'}}>Special Skins (Player Event Active!)</span><hr></hr>
+        <span style={{color: 'blue'}}>Special Skins</span><hr></hr>
         <p style={{color: 'white'}}>Special skins are miscellaneous skins that are (currently) either skins for random skin events or are temporary skins that may or may not be fully added to the game.</p>
         </div>
         <div className='skins'>
@@ -996,8 +996,8 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           {skin.obl && (
             <h2 className="skin-name" style={{color: 'yellow'}} dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
           )}
-          {skin.wip && (
-            <h2 className="skin-name" style={{color: 'red'}} dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          {skin.ultimate && !skin.obl && (
+            <h2 className="skin-name" style={{color: 'white'}} dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
           )}
           {skin.ultimate && (
             <p className='skin-tag'>{skin.tag}</p>

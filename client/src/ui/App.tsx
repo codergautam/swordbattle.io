@@ -313,8 +313,8 @@ function App() {
                 </div>
 
                 <div className="announcementCard menuCard panel">
-                    <div>
-                       GAME IS CURRENTLY IN MAINTENENCE EXPECT THE POSSIBILITY OF DISCONNECTS
+                    <div style={{fontSize: '15px'}}>
+                    Tip: If someone's nametag is <span style={{ color: 'yellow' }}>yellow</span>, it means they are using an <span style={{color: '#ffffaa'}}>exclusive version</span> of a skin! (Obtained before the beginning of 2024)
                     </div>
                   </div>
                 {/* <!-- Play --> */}

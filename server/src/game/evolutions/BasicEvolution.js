@@ -35,7 +35,7 @@ class BasicEvolution extends Effect {
   get durationTime() {
     return this.abilityDurationTimer.duration - this.abilityDurationTimer.time;
   }
-
+  
   activateAbility() {
     if(!this.canActivateAbility) return;
     if(this.isAbilityActive) return;

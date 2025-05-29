@@ -4,6 +4,7 @@ const Biome = require('./biomes/Biome');
 const EarthBiome = require('./biomes/EarthBiome');
 const FireBiome = require('./biomes/FireBiome');
 const IceBiome = require('./biomes/IceBiome');
+const DesertBiome = require('./biomes/DesertBiome');
 const River = require('./biomes/River');
 const Safezone = require('./biomes/Safezone');
 const House1 = require('./entities/mapObjects/House1');

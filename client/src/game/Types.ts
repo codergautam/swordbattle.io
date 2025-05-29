@@ -65,6 +65,7 @@ export enum BiomeTypes {
   Ice = 3,
   River = 4,
   Safezone = 5,
+  Desert = 6,
 }
 
 export enum ShapeTypes {

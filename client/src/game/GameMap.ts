@@ -52,6 +52,7 @@ class GameMap {
       case BiomeTypes.Fire: BiomeClass = Biome; break;
       case BiomeTypes.Ice: BiomeClass = Biome; break;
       case BiomeTypes.Earth: BiomeClass = Biome; break;
+      case BiomeTypes.Desert: BiomeClass = Biome; break;
       case BiomeTypes.River: BiomeClass = River; break;
       case BiomeTypes.Safezone: BiomeClass = Safezone; break;
     }

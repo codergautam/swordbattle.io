@@ -93,6 +93,7 @@ class Minimap extends HudComponent {
         case BiomeTypes.Fire: color = 0x636363; break;
         case BiomeTypes.Earth: color = 0x1aad41; break;
         case BiomeTypes.Ice: color = 0xffffff; break;
+        case BiomeTypes.Desert: color = 0x1aad41; break;
         case BiomeTypes.River: color = 0x1584bf; break;
         case BiomeTypes.Safezone: color = 0x36B536; break;
       }

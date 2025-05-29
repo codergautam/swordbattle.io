@@ -200,6 +200,7 @@ spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
       case Types.Biome.River: BiomeClass = River; break;
       case Types.Biome.Earth: BiomeClass = EarthBiome; break;
       case Types.Biome.Fire: BiomeClass = FireBiome; break;
+      case Types.Biome.Desert: BiomeClass = DesertBiome; break;
       case Types.Biome.Ice: BiomeClass = IceBiome; break;
     }
 

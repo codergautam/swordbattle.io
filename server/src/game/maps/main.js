@@ -44,14 +44,30 @@ module.exports = {
       objects: [
       ],
     },
+
     {
       type: Types.Biome.River,
-      pos: [0, 3500],
+      pos: [15000, 15000],
       points: [
-        [-1500, 0],
-        [1500, 0],
-        [1500, 11500],
-        [-1500, 11500],
+        [-2000, 0],
+        [-13500, -11500],
+        [-11500, -13500],
+        [0, -2000],
+        [0, 0],
+      ],
+      objects: [
+      ],
+    },
+
+    {
+      type: Types.Biome.River,
+      pos: [-15000, 15000],
+      points: [
+        [0, -2000],
+        [11500, -13500],
+        [13500, -11500],
+        [2000, 0],
+        [0, 0],
       ],
       objects: [
       ],
@@ -145,9 +161,8 @@ module.exports = {
       pos: [-15000, -13000],
       points: [
         [11500, 11500],
-        [13500, 16500],
-        [13500, 28000],
-        [0, 28000],
+        [12500, 13500],
+        [0, 26000],
         [0, 0],
       ],
       objects: [
@@ -160,7 +175,7 @@ module.exports = {
         {
           type: Types.Entity.Pond,
           amount: 1,
-          position: [-10000, 5000],
+          position: [-10000, -500],
           size: 4500,
         },
         /*
@@ -237,9 +252,8 @@ module.exports = {
       pos: [15000, -13000],
       points: [
         [0, 0],
-        [0, 28000],
-        [-13500, 28000],
-        [-13500, 16500],
+        [0, 26000],
+        [-12500, 13500],
         [-11500, 11500],
       ],
       objects: [
@@ -252,7 +266,7 @@ module.exports = {
         {
           type: Types.Entity.LavaPool,
           amount: 1,
-          position: [9000, 4000],
+          position: [10000, -500],
           size: 5000,
         },
         {
@@ -293,6 +307,16 @@ module.exports = {
           position: 'random',
           respawnable: true,
         }
+      ],
+    },
+    {
+      type: Types.Biome.Desert,
+      pos: [13000, 15000],
+      points: [
+        [-26000, 0],
+        [-14500, -11500],
+        [-11500, -11500],
+        [0, 0],
       ],
     },
   ],

@@ -44,6 +44,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('fireTile', publicPath + '/assets/game/tiles/fire-spring.jpg');
     this.load.image('earthTile', publicPath + '/assets/game/tiles/grass-spring.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice.png');
+    this.load.image('desertTile', publicPath + '/assets/game/tiles/desert.png');
     this.load.image('river', publicPath + '/assets/game/tiles/river-spring.png');
 
     if (Settings.coins) {

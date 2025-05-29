@@ -81,6 +81,7 @@ class Sword extends Entity {
     state.size = this.size;
     state.isFlying = this.isFlying;
     state.abilityActive = this.player.evolutions.evolutionEffect.isAbilityActive;
+    state.abilityTimer = this.player.evolutions.evolutionEffect.abilityCooldownTimer.time;
     state.skin = this.skin;
     return state;
   }
@@ -196,6 +197,11 @@ class Sword extends Entity {
       entity.damaged(this.damage.value, this.player);
     }
 
+    if (this.player.evolutions.evolutionEffect.abilityCooldownTimer.time > 0 &&
+      [Types.Entity.Player].includes(entity.type)) {
+      this.player.evolutions.evolutionEffect.abilityCooldownTimer.time += 1;
+    }
+    
     if(this.player.modifiers.leech) {
       this.player.health.gain(this.damage.value * this.player.modifiers.leech);
     }

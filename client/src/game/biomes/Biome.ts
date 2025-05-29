@@ -6,7 +6,7 @@ import River from './River';
 export type BiomeType = Biome | River;
 
 const containers: Phaser.GameObjects.TileSprite[] = [];
-const biomesCount = 8;
+const biomesCount = 10;
 
 class Biome {
   scene: Game;
@@ -39,6 +39,7 @@ class Biome {
       case BiomeTypes.Fire: texture = 'fireTile'; break;
       case BiomeTypes.Earth: texture = 'earthTile'; break;
       case BiomeTypes.Ice: texture = 'iceTile'; break;
+      case BiomeTypes.Desert: texture = 'desertTile'; break;
       case BiomeTypes.River: texture = 'river'; break;
       case BiomeTypes.Safezone: texture = 'safezone'; break;
     }

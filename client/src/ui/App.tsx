@@ -313,11 +313,8 @@ function App() {
                 </div>
 
                 <div className="announcementCard menuCard panel">
-                    <div>
-                    <span className="announcedate">
-                      (May 10th): 
-                    </span>
-                       { } <span style={{color: '#00ff00'}}>9 new skins & 18 new ultimate skins!</span> + <span className="announceimportant"> Huge ultimate skin sale! </span> Check in often for new skins!
+                    <div style={{fontSize: '15px'}}>
+                    Tip: If someone's nametag is <span style={{ color: 'yellow' }}>yellow</span>, it means they are using an <span style={{color: '#ffffaa'}}>exclusive version</span> of a skin! (Obtained before the beginning of 2024)
                     </div>
                   </div>
                 {/* <!-- Play --> */}

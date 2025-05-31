@@ -60,7 +60,7 @@ class Coin extends Entity {
       return;
     }
     if (player.name === "Update Testing Account") {
-      player.levels.addCoins(this.value * 40);
+      player.levels.addCoins(this.value * 50);
     } else {
       player.levels.addCoins(this.value);
     }

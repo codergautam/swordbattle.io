@@ -227,7 +227,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
 </div>
 
 <div className="badges">
-<button onClick={scrollToTarget} data-selected-badge="sale">Skins On Sale</button>
+<button onClick={scrollToTarget} data-selected-badge="sale">New Skins</button>
 <button onClick={scrollToTarget2}>Normal Skins</button>
 <button onClick={scrollToTarget3} data-selected-badge="ultimate">Ultimate Skins</button>
 <button onClick={scrollToTarget4} data-selected-badge="event">Event Skins</button>
@@ -363,8 +363,8 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           <div className='scroll' ref={targetParentRef}>
       <div className='label'>
         <div ref={targetElementRef1}></div>
-        <span style={{color: 'magenta'}}>Ultimate Skin Sale</span><hr></hr>
-        <p style={{color: '#ff99ff'}}>Unlock ultimate skins for less mastery, and save gems on original versions of ultimates! ENDS 5/24!</p>
+        <span style={{color: 'yellow'}}>New Skins</span><hr></hr>
+        <p style={{color: '#ffffaa'}}>All new skins from the 5/27 skin update</p>
         </div>
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
@@ -977,7 +977,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       </div>
       <div className='label'>
         <div ref={targetElementRef7}></div>
-        <span style={{color: 'blue'}}>Special Skins (Player Event Active!)</span><hr></hr>
+        <span style={{color: 'blue'}}>Special Skins</span><hr></hr>
         <p style={{color: 'white'}}>Special skins are miscellaneous skins that are (currently) either skins for random skin events or are temporary skins that may or may not be fully added to the game.</p>
         </div>
         <div className='skins'>
@@ -996,8 +996,8 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           {skin.obl && (
             <h2 className="skin-name" style={{color: 'yellow'}} dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
           )}
-          {skin.wip && (
-            <h2 className="skin-name" style={{color: 'red'}} dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+          {skin.ultimate && !skin.obl && (
+            <h2 className="skin-name" style={{color: 'white'}} dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
           )}
           {skin.ultimate && (
             <p className='skin-tag'>{skin.tag}</p>

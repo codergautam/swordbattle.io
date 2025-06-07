@@ -131,7 +131,7 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
-    this.cameras.main.setBackgroundColor('#00AC00');
+    this.cameras.main.setBackgroundColor('#006400');
 
     this.soundManager.initialize();
     this.hud.initialize();

@@ -8,7 +8,7 @@ const helpers = require('../../helpers');
 // size, coins, health, weight
 const rarities = [
   [200, 50, 1, 75],
-  [2200, 20000, 1600, 0.5],
+  [2200, 40000, 800, 2],
   [400, 250, 70, 6],
   [750, 750, 100, 4],
   [1050, 2000, 230, 3],

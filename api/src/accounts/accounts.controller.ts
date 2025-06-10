@@ -77,6 +77,7 @@ export class AccountsController {
     const account = await this.accountsService.getByUsername(username);
     const totalStats = await this.statsService.getTotalStats(account);
     const dailyStats = await this.statsService.getAllDailyStats(account);
+    const clan = await this.accountsService.getClan(username);
     const rank = await this.statsService.getAccountRankByXp(account);
 
     const ip = request.ip;

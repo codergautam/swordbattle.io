@@ -258,6 +258,15 @@ export class AccountsService {
     return this.sanitizeAccount(account);
   }
 
+  async getClan(username: string) {
+    const account = await this.findOne({ where: { username: username } });
+    if (!account) {
+      throw new NotFoundException('User not found');
+    }
+    this.sanitizeAccount(account);
+    return account.clan || null;
+  }
+
   async changeUsername(id: number, username: string) {
     // validate username
     if(validateUsername(username)) {

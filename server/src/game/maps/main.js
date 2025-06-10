@@ -9,12 +9,46 @@ module.exports = {
       pos: [0, 0],
       radius: 2000,
       objects: [
+        /*
+        {
+          type: Types.Entity.Fish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [70, 90],
+        },
+        {
+          type: Types.Entity.AngryFish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [70, 90],
+        }
+          */
       ],
     },
     {
       type: Types.Biome.River,
       pos: [0, 0],
       radius: 4000,
+      objects: [
+        /*
+        {
+          type: Types.Entity.Fish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [70, 90],
+        },
+        {
+          type: Types.Entity.AngryFish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [70, 90],
+        }
+          */
+      ]
     },
 
     {
@@ -28,6 +62,22 @@ module.exports = {
         [0, 0],
       ],
       objects: [
+        /*
+        {
+          type: Types.Entity.Fish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [70, 90],
+        },
+        {
+          type: Types.Entity.AngryFish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [70, 90],
+        }
+          */
       ],
     },
 
@@ -42,6 +92,22 @@ module.exports = {
         [0, 0],
       ],
       objects: [
+        /*
+        {
+          type: Types.Entity.Fish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [70, 90],
+        },
+        {
+          type: Types.Entity.AngryFish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [70, 90],
+        }
+          */
       ],
     },
     {
@@ -54,6 +120,22 @@ module.exports = {
         [-1500, 11500],
       ],
       objects: [
+        /*
+        {
+          type: Types.Entity.Fish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [70, 90],
+        },
+        {
+          type: Types.Entity.AngryFish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [70, 90],
+        }
+          */
       ],
     },
 
@@ -106,6 +188,13 @@ module.exports = {
           position: 'random',
           respawnable: true,
           size: [80, 110],
+        },
+        {
+          type: Types.Entity.Wolf,
+          amount: 6,
+          position: 'random',
+          respawnable: true,
+          size: [85, 105],
         },
         {
           type: Types.Entity.Yeti,

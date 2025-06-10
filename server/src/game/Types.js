@@ -22,6 +22,8 @@ const Entity = {
   Roku: 20,
   Cat: 23,
   Santa: 24,
+  Fish: 25,
+  AngryFish: 26,
 
   Fireball: 21,
   Snowball: 22,

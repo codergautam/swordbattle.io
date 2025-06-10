@@ -7,15 +7,15 @@ const Property = require('../../components/Property');
 const Types = require('../../Types');
 const helpers = require('../../../helpers');
 
-class CatMob extends Entity {
+class AngryFishMob extends Entity {
   static defaultDefinition = {
-    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+    forbiddenBiomes: [Types.Biome.Safezone],
     attackRadius: 1000,
   };
 
   constructor(game, objectData) {
     objectData = Object.assign({ size: 70 }, objectData);
-    super(game, Types.Entity.Cat, objectData);
+    super(game, Types.Entity.AngryFish, objectData);
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
@@ -161,4 +161,4 @@ class CatMob extends Entity {
   }
 }
 
-module.exports = CatMob;
+module.exports = AngryFishMob;

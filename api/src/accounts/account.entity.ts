@@ -13,6 +13,7 @@ export class Account {
   @CreateDateColumn() created_at: Date;
 
   @Column({ unique: true }) username: string;
+  @Column({ default: '' }) clan: string;
 
   @Exclude()
   @Column() password: string;

@@ -23,6 +23,8 @@ const WolfMob = require('./entities/mobs/Wolf');
 const CatMob = require('./entities/mobs/Cat');
 const BunnyMob = require('./entities/mobs/Bunny');
 const MooseMob = require('./entities/mobs/Moose');
+const FishMob = require('./entities/mobs/Fish');
+const AngryFishMob = require('./entities/mobs/AngryFish');
 const ChimeraMob = require('./entities/mobs/Chimera');
 const YetiMob = require('./entities/mobs/Yeti');
 const SantaMob = require('./entities/mobs/Santa');
@@ -167,6 +169,8 @@ spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
       case Types.Entity.Cat: ObjectClass = CatMob; break;
       case Types.Entity.Bunny: ObjectClass = BunnyMob; break;
       case Types.Entity.Moose: ObjectClass = MooseMob; break;
+      case Types.Entity.Fish: ObjectClass = FishMob; break;
+      case Types.Entity.AngryFish: ObjectClass = AngryFishMob; break;
       case Types.Entity.Chimera: ObjectClass = ChimeraMob; break;
       case Types.Entity.Yeti: ObjectClass = YetiMob; break;
       case Types.Entity.Santa: ObjectClass = SantaMob; break;

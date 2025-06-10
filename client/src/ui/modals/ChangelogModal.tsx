@@ -3,16 +3,12 @@ import './ChangelogModal.scss';
 function ChangelogModal() {
   return (
     <div className="changelog">
-    <h1 style={{fontSize: 30, color: 'white'}}>What's new? (May 2025)</h1>
-    <ul style={{fontSize: 19, color: '#ff00ff'}}>- Since May 3rd, we have added 15 skins & 27 ultimate skins!</ul>
-    <ul style={{fontSize: 15, color: '#ffaaff'}}>Check the shop to see the newest ones!</ul>
-    <br></br>
-    <ul style={{fontSize: 17, color: 'white'}}>- Evolutions now start with a 5-second ability cooldown when first evolved</ul>
+    <h1 style={{fontSize: 30, color: 'white'}}>What's new? (June 2025)</h1>
+    <ul style={{fontSize: 18, color: '#ff3399'}}>- Added 5 more special skins to award great players! (found in the Special Skins tab)</ul>
     <br></br>
     <ul style={{fontSize: 17, color: '#ffff00'}}>- The current mastery you can earn from a game is now shown while you're alive!</ul>
     <ul style={{fontSize: 13, color: '#888888'}}>Note: because mastery gain is exponential, mastery won't start increasing until 5000 coins, and won't ramp up until around 100K coins. For efficient mastery gain, always get as many coins as possible in a single game!</ul>
-    <br></br><br></br>
-    <ul style={{fontSize: 19, color: '#aaffaa'}}>- (March 2025) New "secret" evolution: Stalker! (Hint: to get it, don't pick any other evolutions)</ul>
+    <br></br>
     <p style={{fontSize: 16, color: 'lightblue'}}>Join the <a href="https://discord.com/invite/9A9dNTGWb9" className="primary-link" target="_blank" rel="nofollow">Swordbattle.io Discord Server</a> to learn more about these updates on the full changelog!</p>
 </div>
 

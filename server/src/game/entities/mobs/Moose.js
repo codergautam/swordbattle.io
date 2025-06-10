@@ -8,6 +8,11 @@ const Types = require('../../Types');
 const helpers = require('../../../helpers');
 
 class MooseMob extends Entity {
+  static defaultDefinition = {
+      forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
+      attackRadius: 1000,
+    };
+
   constructor(game, objectData) {
     objectData = Object.assign({ size: 125 }, objectData);
     super(game, Types.Entity.Moose, objectData);

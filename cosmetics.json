@@ -4225,7 +4225,7 @@
       "special": true,
       "player": true,
       "price": 10000000,
-      "swordFileName": "vipAbotSwordNew.png",
+      "swordFileName": "vipAbotSwordNew2.png",
       "bodyFileName": "vipAbotPlayer.png",
       "description": "Given to A-bot for being a lead dev for the game!"
     },

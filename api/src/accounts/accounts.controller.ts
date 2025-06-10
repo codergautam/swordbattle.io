@@ -91,6 +91,6 @@ export class AccountsController {
       this.accountsService.incrementProfileViews(account);
     }
 
-    return { account, totalStats, dailyStats, rank };
+    return { account, totalStats, dailyStats, rank, clan };
   }
 }

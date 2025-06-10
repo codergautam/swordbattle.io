@@ -911,6 +911,7 @@ export interface Account {
   subscription?: boolean;
   subscription_start_date?: string;
   rank?: number;
+  clan?: string;
 }
 
 export function encodeAccount(message: Account): Uint8Array {
@@ -954,6 +955,13 @@ function _encodeAccount(message: Account, bb: ByteBuffer): void {
     writeVarint32(bb, 40);
     writeVarint64(bb, intToLong($rank));
   }
+
+  // optional string clan = 6;
+  let $clan = message.clan;
+  if ($clan !== undefined) {
+    writeVarint32(bb, 50);
+    writeString(bb, $clan);
+  }
 }
 
 export function decodeAccount(binary: Uint8Array): Account {
@@ -968,40 +976,46 @@ function _decodeAccount(bb: ByteBuffer): Account {
 
     switch (tag >>> 3) {
       case 0:
-        break end_of_message;
+      break end_of_message;
 
       // optional int32 id = 1;
       case 1: {
-        message.id = readVarint32(bb);
-        break;
+      message.id = readVarint32(bb);
+      break;
       }
 
       // optional string created_at = 2;
       case 2: {
-        message.created_at = readString(bb, readVarint32(bb));
-        break;
+      message.created_at = readString(bb, readVarint32(bb));
+      break;
       }
 
       // optional bool subscription = 3;
       case 3: {
-        message.subscription = !!readByte(bb);
-        break;
+      message.subscription = !!readByte(bb);
+      break;
       }
 
       // optional string subscription_start_date = 4;
       case 4: {
-        message.subscription_start_date = readString(bb, readVarint32(bb));
-        break;
+      message.subscription_start_date = readString(bb, readVarint32(bb));
+      break;
       }
 
       // optional int32 rank = 5;
       case 5: {
-        message.rank = readVarint32(bb);
-        break;
+      message.rank = readVarint32(bb);
+      break;
+      }
+
+      // optional string clan = 6;
+      case 6: {
+      message.clan = readString(bb, readVarint32(bb));
+      break;
       }
 
       default:
-        skipUnknownField(bb, tag & 7);
+      skipUnknownField(bb, tag & 7);
     }
   }
 

@@ -61,6 +61,7 @@ message Account {
   bool subscription = 3;
   string subscription_start_date = 4;
   int32 rank = 5;
+  string clan = 6;
 }
 message MapData {
   int32 x = 1;

@@ -885,6 +885,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
         if (!skin.og) return false;
+        if (skin.ultimate) return false;
         if (!account?.skins.owned.includes(skin.id)) return false;
         
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());

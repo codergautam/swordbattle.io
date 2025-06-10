@@ -158,7 +158,7 @@
       "price": 100000,
       "swordFileName": "vipWasdSword.png",
       "bodyFileName": "vipWasdPlayer.png",
-      "description": "Given to Wasd for contributing to the community and Swordbattle as a whole. May also be on sale during special player events."
+      "description": "Given to Wasd for contributing to the community and Swordbattle as a whole. Also available to other players for 100k gems."
     },
     "pi guy": {
       "name": "pi guy",
@@ -1789,8 +1789,8 @@
       "swordFileName": "laserfoilSword.png",
       "bodyFileName": "laserfoilPlayer.png"
     },
-    "scythe": {
-      "name": "scythe",
+    "scytheogex": {
+      "name": "scytheogex",
       "displayName": "Scythe OG",
       "id": 169,
       "buyable": false,
@@ -3205,7 +3205,7 @@
       "price": 100000,
       "swordFileName": "vipSkillzSword.png",
       "bodyFileName": "vipSkillzPlayer.png",
-      "description": "Given to Skillz for becoming a #5 all time player. May also be on sale during special player events."
+      "description": "Given to Skillz for becoming a #5 all-time player. Also available to other players for 100k gems."
     },
     "amethyst": {
       "name": "amethyst",
@@ -3217,7 +3217,7 @@
       "price": 100000,
       "swordFileName": "vipAmethystSword.png",
       "bodyFileName": "vipAmethystPlayer.png",
-      "description": "Given to Amethyst for becoming a #5 all time player. May also be on sale during special player events."
+      "description": "Given to Amethyst for becoming a #5 all-time player. Also available to other players for 100k gems."
     },
     "frager": {
       "name": "frager",
@@ -3229,7 +3229,7 @@
       "price": 100000,
       "swordFileName": "vipFragerSword.png",
       "bodyFileName": "vipFragerPlayer.png",
-      "description": "Given to Frager for contributing to the community and Swordbattle as a whole. May also be on sale during special player events."
+      "description": "Given to Frager for contributing to the community and Swordbattle as a whole. Also available to other players for 100k gems."
     },
     "oyoyoy": {
       "name": "oyoyoy",
@@ -3241,13 +3241,13 @@
       "price": 100000,
       "swordFileName": "vipOyoyoySword.png",
       "bodyFileName": "vipOyoyoyPlayer.png",
-      "description": "Given to Oyoyoy for becoming the #1 player of all time! May also be on sale during special player events."
+      "description": "Given to Oyoyoy for becoming the #1 player of all time! Also available to other players for 100k gems."
     },
     "oblgolden": {
       "name": "oblgolden",
       "displayName": "Golden Obliterator",
       "ultimate": true,
-      "id": 322,
+      "id": 401,
       "buyable": true,
       "special": true,
       "obl": true,
@@ -3260,7 +3260,7 @@
       "name": "oblemerald",
       "displayName": "Emerald Obliterator",
       "ultimate": true,
-      "id": 323,
+      "id": 402,
       "buyable": true,
       "special": true,
       "obl": true,
@@ -3273,7 +3273,7 @@
       "name": "obldiamond",
       "displayName": "Diamond Obliterator",
       "ultimate": true,
-      "id": 324,
+      "id": 403,
       "buyable": true,
       "special": true,
       "obl": true,
@@ -3286,7 +3286,7 @@
       "name": "oblsapphire",
       "displayName": "Sapphire Obliterator",
       "ultimate": true,
-      "id": 325,
+      "id": 404,
       "buyable": true,
       "special": true,
       "obl": true,
@@ -3299,7 +3299,7 @@
       "name": "oblamethyst",
       "displayName": "Amethyst Obliterator",
       "ultimate": true,
-      "id": 326,
+      "id": 405,
       "buyable": true,
       "special": true,
       "obl": true,
@@ -3778,8 +3778,8 @@
       "name": "truegrass",
       "displayName": "True Grass",
       "id": 370,
-      "special": true,
-      "buyable": true,
+      "buyable": false,
+      "og": true,
       "price": 75000,
       "swordFileName": "tileEarthSword-spring.png",
       "bodyFileName": "tileEarthPlayer-spring.png",
@@ -3792,8 +3792,8 @@
       "name": "truesnow",
       "displayName": "True Snow",
       "id": 371,
-      "special": true,
-      "buyable": true,
+      "buyable": false,
+      "og": true,
       "price": 75000,
       "swordFileName": "tileIceSword.png",
       "bodyFileName": "tileIcePlayer.png",
@@ -3816,8 +3816,8 @@
       "name": "truelava",
       "displayName": "True Lava",
       "id": 373,
-      "special": true,
-      "buyable": true,
+      "buyable": false,
+      "og": true,
       "price": 75000,
       "swordFileName": "tileFireSword-spring.png",
       "bodyFileName": "tileFirePlayer-spring.png",
@@ -3830,8 +3830,8 @@
       "name": "truewater",
       "displayName": "True Water",
       "id": 374,
-      "special": true,
-      "buyable": true,
+      "buyable": false,
+      "og": true,
       "price": 75000,
       "swordFileName": "tileWaterSword-spring.png",
       "bodyFileName": "tileWaterPlayer-spring.png",
@@ -4216,6 +4216,66 @@
       "swordFileName": "ultimateStainedglassSword.png",
       "bodyFileName": "ultimateStainedglassPlayer.png",
       "description": "Well there goes all of its value"
+    },
+    "abot": {
+      "name": "abot",
+      "displayName": "Admiral A-Bot",
+      "id": 322,
+      "buyable": true,
+      "special": true,
+      "player": true,
+      "price": 10000000,
+      "swordFileName": "vipAbotSword.png",
+      "bodyFileName": "vipAbotPlayer.png",
+      "description": "Given to A-bot for being a lead dev for the game!"
+    },
+    "bobthenoodle": {
+      "name": "bobthenoodle",
+      "displayName": "BlobTheNoodle",
+      "id": 323,
+      "buyable": true,
+      "special": true,
+      "player": true,
+      "price": 10000000,
+      "swordFileName": "vipBobSword.png",
+      "bodyFileName": "vipBobPlayer.png",
+      "description": "Given to BobTheNoodle for being a #5 all-time player."
+    },
+    "coolguy": {
+      "name": "coolguy",
+      "displayName": "Cool Guy",
+      "id": 324,
+      "buyable": true,
+      "special": true,
+      "player": true,
+      "price": 10000000,
+      "swordFileName": "vipCoolguySword.png",
+      "bodyFileName": "vipCoolguyPlayer.png",
+      "description": "Given to cool guy 53 for being the absolute COOLEST person of all time"
+    },
+    "liltim": {
+      "name": "liltim",
+      "displayName": "Lil'Tim",
+      "id": 325,
+      "buyable": true,
+      "special": true,
+      "player": true,
+      "price": 10000000,
+      "swordFileName": "vipGmanSword.png",
+      "bodyFileName": "vipGmanPlayer.png",
+      "description": "Given to G-MAN for being an official artist for the game!"
+    },
+    "number1": {
+      "name": "number1",
+      "displayName": "Number1",
+      "id": 326,
+      "buyable": true,
+      "special": true,
+      "player": true,
+      "price": 10000000,
+      "swordFileName": "vipNumberSword.png",
+      "bodyFileName": "vipNumberPlayer.png",
+      "description": "Given to Number1 for being a former #3 all-time player!"
     }
   }
 }

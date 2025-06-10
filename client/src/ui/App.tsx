@@ -324,7 +324,7 @@ function App() {
                       type="text"
                       id="nameInput"
                       placeholder="Enter Name"
-                      maxLength={20}
+                      maxLength={16}
                       value={account.isLoggedIn ? account.username : name}
                       onChange={(e) => setName(e.target.value)}
                       style={{ cursor: account.isLoggedIn ? 'not-allowed' : 'text'}}

@@ -43,7 +43,7 @@ class Player extends BaseEntity {
   createSprite() {
     this.isMe = this.id === this.game.gameState.self.id;
     if (this.account && this.account.clan) {
-      this.clan = this.account.clan.toString();
+      this.clan = this.account.clan.toString().toUpperCase();
     }
     this.shape = Shape.create(this.shapeData);
     this.survivalStarted = Date.now();
@@ -61,8 +61,7 @@ class Player extends BaseEntity {
       line: 0,
       offsetY: -this.body.height / 2 - 40,
     });
-
-    const displayName = this.clan ? `${this.clan} ${this.name}`.replace(/\s+/, ' ') : this.name;
+    const displayName = this.clan ? `[${this.clan}] ${this.name}`.replace(/\s+/, ' ') : this.name;
     const name = this.game.add.text(0, -this.body.height / 2 - 50, displayName);
     name.setFontFamily('Arial');
     name.setFontSize(50);

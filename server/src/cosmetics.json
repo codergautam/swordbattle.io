@@ -4225,7 +4225,7 @@
       "special": true,
       "player": true,
       "price": 10000000,
-      "swordFileName": "vipAbotSword.png",
+      "swordFileName": "vipAbotSwordNew.png",
       "bodyFileName": "vipAbotPlayer.png",
       "description": "Given to A-bot for being a lead dev for the game!"
     },
@@ -4237,7 +4237,7 @@
       "special": true,
       "player": true,
       "price": 10000000,
-      "swordFileName": "vipBobSword.png",
+      "swordFileName": "vipBobSwordNew.png",
       "bodyFileName": "vipBobPlayer.png",
       "description": "Given to BobTheNoodle for being a #5 all-time player."
     },
@@ -4249,7 +4249,7 @@
       "special": true,
       "player": true,
       "price": 10000000,
-      "swordFileName": "vipCoolguySword.png",
+      "swordFileName": "vipCoolguySwordNew.png",
       "bodyFileName": "vipCoolguyPlayer.png",
       "description": "Given to cool guy 53 for being the absolute COOLEST person of all time"
     },

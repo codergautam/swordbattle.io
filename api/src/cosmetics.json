@@ -4224,7 +4224,7 @@
       "buyable": true,
       "special": true,
       "player": true,
-      "price": 10000000,
+      "price": 100000,
       "swordFileName": "vipAbotSwordNew2.png",
       "bodyFileName": "vipAbotPlayer.png",
       "description": "Given to A-bot for being a lead dev for the game!"
@@ -4236,7 +4236,7 @@
       "buyable": true,
       "special": true,
       "player": true,
-      "price": 10000000,
+      "price": 100000,
       "swordFileName": "vipBobSwordNew.png",
       "bodyFileName": "vipBobPlayer.png",
       "description": "Given to BobTheNoodle for being a #5 all-time player."
@@ -4248,7 +4248,7 @@
       "buyable": true,
       "special": true,
       "player": true,
-      "price": 10000000,
+      "price": 100000,
       "swordFileName": "vipCoolguySwordNew.png",
       "bodyFileName": "vipCoolguyPlayer.png",
       "description": "Given to cool guy 53 for being the absolute COOLEST person of all time"
@@ -4260,7 +4260,7 @@
       "buyable": true,
       "special": true,
       "player": true,
-      "price": 10000000,
+      "price": 100000,
       "swordFileName": "vipGmanSword.png",
       "bodyFileName": "vipGmanPlayer.png",
       "description": "Given to G-MAN for being an official artist for the game!"
@@ -4272,7 +4272,7 @@
       "buyable": true,
       "special": true,
       "player": true,
-      "price": 10000000,
+      "price": 100000,
       "swordFileName": "vipNumberSword.png",
       "bodyFileName": "vipNumberPlayer.png",
       "description": "Given to Number1 for being a former #3 all-time player!"

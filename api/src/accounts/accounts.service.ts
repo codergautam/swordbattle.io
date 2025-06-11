@@ -4,7 +4,7 @@ import { FindOneOptions, Repository } from 'typeorm';
 import { Account } from './account.entity';
 import * as config from '../config';
 import validateUsername from 'src/helpers/validateUsername';
-import validateClan from 'src/helpers/validateClan';
+import validateClantag from 'src/helpers/validateClantag';
 import { Transaction } from 'src/transactions/transactions.entity';
 import * as cosmetics from '../cosmetics.json';
 import CacheObj from 'src/Cache';
@@ -269,14 +269,14 @@ export class AccountsService {
     return account.clan || null;
   }
 
-  async changeClan(id: number, clan: string) {
-    // validate username
-    if(validateClan(clan)) {
-      return {error: validateClan(clan)};
+  async changeClantag(id: number, clantag: string) {
+    // validate clan tag
+    if(validateClantag(clantag)) {
+      return {error: validateClantag(clantag)};
     }
     const account = await this.getById(id);
 
-    // Make sure the clan is not changed too often
+    // Make sure the clan tag is not changed too often
     const now = new Date();
     const lastClanChange = new Date(account.lastClanChange);
     const diff = now.getTime() - lastClanChange.getTime();
@@ -298,7 +298,7 @@ export class AccountsService {
      return {error: 'You can change your clan again in ' + human};
     }
 
-    account.clan = clan.toUpperCase();
+    account.clan = clantag.toUpperCase();
     account.lastClanChange = new Date();
     try {
     await this.accountsRepository.save(account);

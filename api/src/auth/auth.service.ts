@@ -3,7 +3,7 @@ import { AccountsService } from '../accounts/accounts.service';
 import { SecretLoginDTO, LoginDTO, RegisterDTO } from './auth.dto';
 import { Account } from 'src/accounts/account.entity';
 import validateUsername from 'src/helpers/validateUsername';
-import validateClan from 'src/helpers/validateClan';
+import validateClan from 'src/helpers/validateClantag';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -102,9 +102,9 @@ export class AuthService {
     }
   }
 
-  async changeClan(account: Account, newClan: string) {
+  async changeClantag(account: Account, newClantag: string) {
     try {
-      let result = await this.accountsService.changeClan(account.id, newClan);
+      let result = await this.accountsService.changeClantag(account.id, newClantag);
       if(result.success) {
         (result as any).secret = account.secret;
       }

@@ -190,6 +190,7 @@ export class StatsService {
         .limit(limit)
         .groupBy('daily_stats.account_id')
         .addGroupBy('account.username')
+        .addGroupBy('account.clan')
         .orderBy('SUM(daily_stats.' + sortBy + ')', 'DESC')
         .getRawMany();
     }

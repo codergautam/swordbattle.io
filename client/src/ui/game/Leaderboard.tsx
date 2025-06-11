@@ -44,7 +44,7 @@ function Leaderboard({ game }: any) {
 
 function getRankColor(rank: number) {
   // #1 gold, #2 silver, #3 bronze, #4-10 green, #11-50 purple, #51-100 gray
-  if (rank === 1) return '#ffd700';
+  if (rank === 1) return '#ffff00';
   if (rank === 2) return '#ccccdc';
   if (rank === 3) return '#222222';
   if (rank >= 4 && rank <= 5) return '#00ffff';

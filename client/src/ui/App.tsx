@@ -241,13 +241,13 @@ function App() {
     dispatch(changeNameAsync(newName) as any);
   }
   const onChangeClan = () => {
-    const newClan = prompt('What do you want your clan tag to be? Clans can only be 1-4 characters long, and you can only change your clan once every 3 days.');
+    const newClan = prompt('What do you want your clan tag to be? Clans can only be 1-4 characters long, and you can only change your clan once every 7 days.');
     if (!newClan) return;
 
     dispatch(changeClanAsync(newClan) as any);
   }
   const onRemoveClan = () => {
-    const newClan = prompt('Are you sure you want to remove your clan tag? This can only be done once every 3 days. Type anything to confirm, or press "cancel" to exit.');
+    const newClan = prompt('Are you sure you want to remove your clan tag? This can only be done once every 7 days. Type anything to confirm, or press "cancel" to exit.');
 
     dispatch(changeClanAsync('') as any);
   }

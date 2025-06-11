@@ -18,6 +18,7 @@ interface Stats {
 }
 interface AccountData {
   username: string;
+  clan: string;
   created_at: string;
   profile_views: number;
   skins: { equipped: number, owned: number[] };
@@ -34,6 +35,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 export default function Profile() {
   const [query] = useSearchParams();
   const username = query.get('username');
+  const clan = query.get('clan');
   const [data, setAccountData] = useState<ProfileData | null>(null);
   const [isLoading, setLoading] = useState(true);
 
@@ -109,10 +111,35 @@ export default function Profile() {
         window.location.href = '../leaderboard';
       }}>X</button>
           <center>
-        <h1>
-        <img src={'assets/game/player/'+Object.values(cosmetics.skins).find((skin: any) => skin.id === data.account.skins.equipped)?.bodyFileName} alt="Equipped skin" className="equipped-skin" />
-
-          {data.account.username}</h1></center>
+        {data.account.clan ? (
+          <h1>
+            <img
+              src={
+                'assets/game/player/' +
+                Object.values(cosmetics.skins).find(
+                  (skin: any) => skin.id === data.account.skins.equipped
+                )?.bodyFileName
+              }
+              alt="Equipped skin"
+              className="equipped-skin"
+            />
+            <span style={{color: 'yellow'}}>[{data.account.clan}]</span> {data.account.username}
+          </h1>
+        ) : (
+          <h1>
+            <img
+              src={
+                'assets/game/player/' +
+                Object.values(cosmetics.skins).find(
+                  (skin: any) => skin.id === data.account.skins.equipped
+                )?.bodyFileName
+              }
+              alt="Equipped skin"
+              className="equipped-skin"
+            />
+            {data.account.username}
+          </h1>
+        )}</center>
         <br />
         <div className='cluster'>
           <center>

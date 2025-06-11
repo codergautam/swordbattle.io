@@ -89,11 +89,11 @@ export const changeNameAsync = createAsyncThunk(
 );
 
 export const changeClanAsync = createAsyncThunk(
-  'account/changeClan',
+  'account/changeClantag',
   async (newClan: string, { getState, dispatch }) => {
     // const state: any = getState();
     try {
-      const response = await api.postAsync(`${api.endpoint}/auth/change-clan?now=${Date.now()}`, {
+      const response = await api.postAsync(`${api.endpoint}/auth/change-clantag?now=${Date.now()}`, {
         newClan
       });
 

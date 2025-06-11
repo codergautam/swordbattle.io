@@ -3,7 +3,7 @@ import { AccountsService } from '../accounts/accounts.service';
 import { SecretLoginDTO, LoginDTO, RegisterDTO } from './auth.dto';
 import { Account } from 'src/accounts/account.entity';
 import validateUsername from 'src/helpers/validateUsername';
-import validateClan from 'src/helpers/validateClantag';
+import validateClantag from 'src/helpers/validateClantag';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -17,8 +17,8 @@ export class AuthService {
     if(validateUsername(data.username)) {
       throw new UnauthorizedException(validateUsername(data.username));
     }
-    if(validateClan(data.clan)) {
-      throw new UnauthorizedException(validateClan(data.clan));
+    if(validateClantag(data.clan)) {
+      throw new UnauthorizedException(validateClantag(data.clan));
     }
     // validate email
     if(data.email && /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/.test(data.email) === false) {

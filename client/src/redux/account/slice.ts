@@ -90,19 +90,19 @@ export const changeNameAsync = createAsyncThunk(
 
 export const changeClanAsync = createAsyncThunk(
   'account/changeClan',
-  async (newClan: string, { getState, dispatch }) => {
+  async (newClantag: string, { getState, dispatch }) => {
     // const state: any = getState();
     try {
       const response = await api.postAsync(`${api.endpoint}/auth/change-clantag?now=${Date.now()}`, {
-        newClan
+        newClantag
       });
 
       if (response.error) {
         alert(response.error);
       } else if (response.success) {
-        alert('Clan changed successfully');
+        alert('Clan tag changed successfully');
         // Dispatching actions to update clan and token in the state
-        dispatch(setClan(newClan));
+        dispatch(setClantag(newClantag));
         dispatch(setSecret(response.secret));
       }
     } catch (error) {
@@ -156,7 +156,7 @@ const accountSlice = createSlice({
     setName: (state, action) => {
       state.username = action.payload;
     },
-    setClan: (state, action) => {
+    setClantag: (state, action) => {
       state.clan = action.payload;
     },
     setSecret: (state, action) => {
@@ -179,5 +179,5 @@ const accountSlice = createSlice({
   },
 });
 
-export const { setAccount, clearAccount, setName, setClan, setSecret } = accountSlice.actions;
+export const { setAccount, clearAccount, setName, setClantag, setSecret } = accountSlice.actions;
 export default accountSlice.reducer;

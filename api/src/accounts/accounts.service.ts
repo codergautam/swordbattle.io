@@ -270,13 +270,13 @@ export class AccountsService {
   }
 
   async changeClantag(id: number, clantag: string) {
-    // validate clan tag
+    // validate clantag
     if(validateClantag(clantag)) {
       return {error: validateClantag(clantag)};
     }
     const account = await this.getById(id);
 
-    // Make sure the clan tag is not changed too often
+    // Make sure the clantag is not changed too often
     const now = new Date();
     const lastClanChange = new Date(account.lastClanChange);
     const diff = now.getTime() - lastClanChange.getTime();

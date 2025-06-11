@@ -71,9 +71,10 @@ export class AuthController {
     return result;
   }
 
+  @UseGuards(AccountGuard)
   @Post('change-clantag')
   async changeClantag(@Req() request) {
-    let result = await this.authService.changeClantag(request.account, request.body.newClan);
+    let result = await this.authService.changeClantag(request.account, request.body.newClantag);
     return result;
   }
 

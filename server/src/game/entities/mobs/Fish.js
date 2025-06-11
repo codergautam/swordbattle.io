@@ -9,7 +9,7 @@ const helpers = require('../../../helpers');
 
 class FishMob extends Entity {
   static defaultDefinition = {
-    forbiddenBiomes: [Types.Biome.Fire, Types.Biome.Earth, Types.Biome.Ice],
+    forbiddenBiomes: [Types.Biome.Fire, Types.Biome.Earth, Types.Biome.Ice, Types.Biome.Safezone],
     attackRadius: 1000,
   };
 
@@ -19,16 +19,15 @@ class FishMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 600;
+    this.coinsDrop = 150;
 
     this.tamedBy = null;
 
     this.jumpTimer = new Timer(1.75, 2, 3.5);
     this.angryTimer = new Timer(0, 6, 11);
 
-    this.health = new Health(35, 7);
+    this.health = new Health(20, 7);
     this.speed = new Property(30);
-    this.damage = new Property(17);
     this.target = null;
     this.targets.push(Types.Entity.Player);
 
@@ -81,7 +80,7 @@ class FishMob extends Entity {
       this.jumpTimer.renew();
 
       if (this.target) {
-        const angle = helpers.angle(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
+        const angle = helpers.angle(this.target.shape.x, this.target.shape.y, this.shape.x, this.shape.y);
         this.angle = angle;
         this.speed.multiplier *= 2;
       } else {
@@ -109,20 +108,8 @@ class FishMob extends Entity {
     const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
     const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
 
-    const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
-    if (this.target && entity.id === this.target.id) {
-      entity.damaged(this.damage.value, this);
-
-      this.velocity.scale(-0.5);
-      entity.velocity.x += 75 * Math.cos(angle);
-      entity.velocity.y += 75 * Math.sin(angle);
-
-      this.shape.applyCollision(mtv);
-      entity.shape.applyCollision(mtv.clone().scale(-1));
-    } else {
-      entity.shape.applyCollision(targetMtv);
-      this.shape.applyCollision(selfMtv);
-    }
+    entity.shape.applyCollision(targetMtv);
+    this.shape.applyCollision(selfMtv);
   }
 
   damaged(damage, entity) {
@@ -157,7 +144,6 @@ class FishMob extends Entity {
   cleanup() {
     super.cleanup();
     this.speed.reset();
-    this.damage.reset();
   }
 }
 

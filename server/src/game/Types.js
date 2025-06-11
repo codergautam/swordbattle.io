@@ -22,21 +22,24 @@ const Entity = {
   Roku: 20,
   Cat: 23,
   Santa: 24,
-  Fish: 25,
-  AngryFish: 26,
+  Ancient: 25,
+  SwordProj: 26,
+  Boulder: 27,
+  Fish: 28,
+  AngryFish: 29,
 
   Fireball: 21,
   Snowball: 22,
 };
 
 const Mobs = [
-  Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Santa, Entity.Chimera, Entity.Roku, Entity.Cat,
+  Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Santa, Entity.Chimera, Entity.Roku, Entity.Ancient, Entity.Cat, Entity.Fish, Entity.AngryFish
 ];
 const Groups = {
   Obstacles: [
     Entity.Player, Entity.Sword, Entity.Coin,
     Entity.IceSpike, Entity.Rock, Entity.MossyRock, Entity.LavaRock,
-    Entity.Fireball, Entity.Snowball, Entity.Chest,
+    Entity.Fireball, Entity.Boulder, Entity.SwordProj, Entity.Snowball, Entity.Chest,
     ...Mobs,
   ],
   Mobs,

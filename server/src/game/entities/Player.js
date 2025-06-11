@@ -321,6 +321,9 @@ class Player extends Entity {
           case Types.Entity.Roku: reason = 'Roku'; break;
           case Types.Entity.Snowball: reason = 'Big Yeti'; break; // the yeti boss throws snowballs
           case Types.Entity.Fireball: reason = 'Roku'; break; // the roku throws fireballs
+          case Types.Entity.SwordProj: reason = 'An Ancient Statue'; break; // the ancient statue throws swords
+          case Types.Entity.Ancient: reason = 'An Ancient Statue'; break;
+          case Types.Entity.Boulder: reason = 'An Ancient Statue'; break; // the ancient statue throws boulders
         }
       }
       this.remove(reason, entity.type === Types.Entity.Player ? Types.DisconnectReason.Player : Types.DisconnectReason.Mob);

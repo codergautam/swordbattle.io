@@ -9,7 +9,7 @@ const helpers = require('../../../helpers');
 
 class AngryFishMob extends Entity {
   static defaultDefinition = {
-    forbiddenBiomes: [Types.Biome.Safezone],
+    forbiddenBiomes: [Types.Biome.Fire, Types.Biome.Earth, Types.Biome.Ice, Types.Biome.Safezone],
     attackRadius: 1000,
   };
 
@@ -19,20 +19,20 @@ class AngryFishMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 600;
+    this.coinsDrop = 150;
 
     this.tamedBy = null;
 
     this.jumpTimer = new Timer(1.75, 2, 3.5);
-    this.angryTimer = new Timer(0, 6, 11);
+    this.angryTimer = new Timer(0, 3, 6);
 
-    this.health = new Health(35, 7);
-    this.speed = new Property(30);
-    this.damage = new Property(17);
+    this.health = new Health(20, 7);
+    this.speed = new Property(40);
+    this.damage = new Property(9);
     this.target = null;
     this.targets.push(Types.Entity.Player);
 
-    this.knockbackResistance = new Property(2);
+    this.knockbackResistance = new Property(500);
 
     this.spawn();
   }

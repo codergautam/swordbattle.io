@@ -9,22 +9,6 @@ module.exports = {
       pos: [0, 0],
       radius: 2000,
       objects: [
-        /*
-        {
-          type: Types.Entity.Fish,
-          amount: 5,
-          position: 'random',
-          respawnable: true,
-          size: [70, 90],
-        },
-        {
-          type: Types.Entity.AngryFish,
-          amount: 5,
-          position: 'random',
-          respawnable: true,
-          size: [70, 90],
-        }
-          */
       ],
     },
     {
@@ -32,22 +16,20 @@ module.exports = {
       pos: [0, 0],
       radius: 4000,
       objects: [
-        /*
         {
           type: Types.Entity.Fish,
           amount: 5,
           position: 'random',
           respawnable: true,
-          size: [70, 90],
+          size: [53, 73],
         },
         {
           type: Types.Entity.AngryFish,
           amount: 5,
           position: 'random',
           respawnable: true,
-          size: [70, 90],
+          size: [53, 73],
         }
-          */
       ]
     },
 
@@ -62,22 +44,20 @@ module.exports = {
         [0, 0],
       ],
       objects: [
-        /*
         {
           type: Types.Entity.Fish,
           amount: 5,
           position: 'random',
           respawnable: true,
-          size: [70, 90],
+          size: [53, 73],
         },
         {
           type: Types.Entity.AngryFish,
           amount: 5,
           position: 'random',
           respawnable: true,
-          size: [70, 90],
+          size: [53, 73],
         }
-          */
       ],
     },
 
@@ -92,22 +72,20 @@ module.exports = {
         [0, 0],
       ],
       objects: [
-        /*
         {
           type: Types.Entity.Fish,
           amount: 5,
           position: 'random',
           respawnable: true,
-          size: [70, 90],
+          size: [53, 73],
         },
         {
           type: Types.Entity.AngryFish,
           amount: 5,
           position: 'random',
           respawnable: true,
-          size: [70, 90],
+          size: [53, 73],
         }
-          */
       ],
     },
     {
@@ -120,22 +98,20 @@ module.exports = {
         [-1500, 11500],
       ],
       objects: [
-        /*
         {
           type: Types.Entity.Fish,
           amount: 5,
           position: 'random',
           respawnable: true,
-          size: [70, 90],
+          size: [53, 73],
         },
         {
           type: Types.Entity.AngryFish,
           amount: 5,
           position: 'random',
           respawnable: true,
-          size: [70, 90],
+          size: [53, 73],
         }
-          */
       ],
     },
 
@@ -201,7 +177,7 @@ module.exports = {
           amount: 1,
           position: 'random',
           respawnable: true,
-          respawnTime: [60 * 15, 60 * 20], // 10-30 minutes
+          respawnTime: [60 * 7, 60 * 23], // 10-30 minutes
           size: [300, 400],
           health: 750,
           isBoss: true,
@@ -317,6 +293,20 @@ module.exports = {
           amount: 18,
           position: 'random',
           respawnable: true,
+        },
+        {
+          type: Types.Entity.Ancient,
+          amount: 3,
+          position: 'random',
+          respawnable: true,
+          respawnTime: [60 * 5, 60 * 20],
+          size: [275, 375],
+          health: 400,
+          isBoss: true,
+          damage: 25,
+          rotationSpeed: 10,
+          swordSize: 100,
+          boulderSize: 200,
         },
       ],
     },

@@ -4,20 +4,20 @@ const Circle = require('../shapes/Circle');
 const Entity = require('./Entity');
 const Types = require('../Types');
 
-class Fireball extends Entity {
+class SwordProj extends Entity {
   static defaultDefinition = {
     size: 50,
     angle: 0,
     speed: 40,
-    damage: 7,
+    damage: 9,
     duration: [5, 10],
     position: [0, 0],
     forbiddenBiomes: [Types.Biome.River],
-    knockbackMultiplier: 6.5
+    knockbackMultiplier: 5
   };
 
   constructor(game, definition) {
-    super(game, Types.Entity.Fireball, definition);
+    super(game, Types.Entity.SwordProj, definition);
 
     this.shape = Circle.create(0, 0, this.size);
     this.speed = new Property(this.definition.speed);
@@ -51,7 +51,6 @@ class Fireball extends Entity {
     entity.velocity.x += this.speed.value * Math.cos(this.angle) * this.knockbackMultiplier.value / (entity.knockbackResistance.value || 1);
     entity.velocity.y += this.speed.value * Math.sin(this.angle) * this.knockbackMultiplier.value / (entity.knockbackResistance.value || 1);
 
-    // Destroy the fireball
     this.remove();
   }
 
@@ -62,4 +61,4 @@ class Fireball extends Entity {
   }
 }
 
-module.exports = Fireball;
+module.exports = SwordProj;

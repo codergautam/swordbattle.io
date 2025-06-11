@@ -29,7 +29,10 @@ const ChimeraMob = require('./entities/mobs/Chimera');
 const YetiMob = require('./entities/mobs/Yeti');
 const SantaMob = require('./entities/mobs/Santa');
 const RokuMob = require('./entities/mobs/Roku');
+const AncientMob = require('./entities/mobs/Ancient');
 const Fireball = require('./entities/Fireball');
+const Boulder = require('./entities/Boulder');
+const SwordProj = require('./entities/SwordProj');
 const Snowball = require('./entities/Snowball');
 const Timer = require('./components/Timer');
 const Types = require('./Types');
@@ -175,7 +178,10 @@ spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
       case Types.Entity.Yeti: ObjectClass = YetiMob; break;
       case Types.Entity.Santa: ObjectClass = SantaMob; break;
       case Types.Entity.Roku: ObjectClass = RokuMob; break;
+      case Types.Entity.Ancient: ObjectClass = AncientMob; break;
       case Types.Entity.Fireball: ObjectClass = Fireball; break;
+      case Types.Entity.Boulder: ObjectClass = Boulder; break;
+      case Types.Entity.SwordProj: ObjectClass = SwordProj; break;
       case Types.Entity.Snowball: ObjectClass = Snowball; break;
     }
 

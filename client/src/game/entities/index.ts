@@ -3,6 +3,8 @@ import { BaseEntity } from './BaseEntity';
 import Chest from './Chest';
 import Coin from './Coin';
 import Fireball from './Fireball';
+import Boulder from './Boulder';
+import SwordProj from './SwordProj';
 import Player from './Player';
 import Snowball from './Snowball';
 import Sword from './Sword';
@@ -20,6 +22,7 @@ import BunnyMob from './mobs/Bunny';
 import ChimeraMob from './mobs/Chimera';
 import MooseMob from './mobs/Moose';
 import RokuMob from './mobs/Roku';
+import AncientMob from './mobs/Ancient';
 import WolfMob from './mobs/Wolf';
 import CatMob from './mobs/Cat';
 import YetiMob from './mobs/Yeti';
@@ -49,8 +52,11 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.Player]: 20,
   [EntityTypes.Sword]: 21,
   [EntityTypes.Fireball]: 22,
+  [EntityTypes.Boulder]: 22,
+  [EntityTypes.SwordProj]: 22,
   [EntityTypes.Snowball]: 22,
   [EntityTypes.Roku]: 23,
+  [EntityTypes.Ancient]: 23,
   [EntityTypes.Yeti]: 23,
   [EntityTypes.Santa]: 23,
 
@@ -78,7 +84,10 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.Yeti: return YetiMob;
     case EntityTypes.Santa: return SantaMob;
     case EntityTypes.Roku: return RokuMob;
+    case EntityTypes.Ancient: return AncientMob;
     case EntityTypes.Fireball: return Fireball;
+    case EntityTypes.Boulder: return Boulder;
+    case EntityTypes.SwordProj: return SwordProj;
     case EntityTypes.Snowball: return Snowball;
 
     case EntityTypes.Rock: return Rock;

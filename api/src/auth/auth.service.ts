@@ -3,6 +3,7 @@ import { AccountsService } from '../accounts/accounts.service';
 import { SecretLoginDTO, LoginDTO, RegisterDTO } from './auth.dto';
 import { Account } from 'src/accounts/account.entity';
 import validateUsername from 'src/helpers/validateUsername';
+import validateClan from 'src/helpers/validateClan';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -15,6 +16,9 @@ export class AuthService {
     // validate username
     if(validateUsername(data.username)) {
       throw new UnauthorizedException(validateUsername(data.username));
+    }
+    if(validateClan(data.clan)) {
+      throw new UnauthorizedException(validateClan(data.clan));
     }
     // validate email
     if(data.email && /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/.test(data.email) === false) {
@@ -88,6 +92,19 @@ export class AuthService {
   async changeUsername(account: Account, newUsername: string) {
     try {
       let result = await this.accountsService.changeUsername(account.id, newUsername);
+      if(result.success) {
+        (result as any).secret = account.secret;
+      }
+    return result;
+    } catch (e) {
+      console.log(e);
+      return {error: e.message};
+    }
+  }
+
+  async changeClan(account: Account, newClan: string) {
+    try {
+      let result = await this.accountsService.changeClan(account.id, newClan);
       if(result.success) {
         (result as any).secret = account.secret;
       }

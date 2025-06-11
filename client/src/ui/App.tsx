@@ -16,7 +16,7 @@ import LoginModal from './modals/LoginModal';
 import SignupModal from './modals/SignupModal';
 import ConnectionError from './modals/ConnectionError';
 
-import { clearAccount, setAccount, logoutAsync, changeNameAsync } from '../redux/account/slice';
+import { clearAccount, setAccount, logoutAsync, changeNameAsync, changeClanAsync } from '../redux/account/slice';
 import { selectAccount } from '../redux/account/selector';
 import api from '../api';
 
@@ -240,6 +240,12 @@ function App() {
 
     dispatch(changeNameAsync(newName) as any);
   }
+  const onChangeClan = () => {
+    const newClan = prompt('What do you want your clan tag to be? Clans can only be 1-4 characters long, and you can only change your clan once every 3 days.');
+    if (!newClan) return;
+
+    dispatch(changeClanAsync(newClan) as any);
+  }
   const openShop = () => {
     setModal(<ShopModal account={account} />);
   }
@@ -381,6 +387,9 @@ function App() {
                    <li>
                    <a className="dropdown-item" href="#" onClick={onChangeName}>
                      <FontAwesomeIcon icon={faICursor} /> Change Name
+                   </a>
+                   <a className="dropdown-item" href="#" onClick={onChangeClan}>
+                     <FontAwesomeIcon icon={faICursor} /> Change Clan
                    </a>
                    </li>
                    <li><a className="dropdown-item" href="#" onClick={onLogout}>

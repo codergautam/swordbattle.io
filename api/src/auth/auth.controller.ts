@@ -71,6 +71,11 @@ export class AuthController {
     return result;
   }
 
+  async changeClan(@Req() request) {
+    let result = await this.authService.changeClan(request.account, request.body.newClan);
+    return result;
+  }
+
   setCookie(res: Response, key: string, value: string) {
     return res.cookie(key, value, {
       // httpOnly: true,

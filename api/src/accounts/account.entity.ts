@@ -33,6 +33,7 @@ export class Account {
   @Column({ default: 0 }) profile_views: number;
 
   @Column({ nullable: true })  lastUsernameChange: Date;
+  @Column({ nullable: true })  lastClanChange: Date;
 
   @OneToMany(() => Transaction, transaction => transaction.account)
   transactions: Transaction[];

@@ -6,6 +6,8 @@ export class RegisterDTO {
 
   @Length(config.usernameLength[0], config.usernameLength[1]) username: string;
 
+  @Length(config.clanLength[0], config.clanLength[1]) clan: string;
+
   @Length(8, 128) password: string;
 }
 

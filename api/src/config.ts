@@ -10,6 +10,9 @@ interface ConfigProps {
 
   usernameWaitTime: number;
   usernameLength: [number, number];
+
+  clanWaitTime: number;
+  clanLength: [number, number];
 }
 
 export const config: ConfigProps = {
@@ -21,5 +24,8 @@ export const config: ConfigProps = {
   serverSecret: process.env.SERVER_SECRET || 'server-secret',
 
   usernameWaitTime: 7 * 24 * 60 * 60 * 1000, // 7 days
-  usernameLength: [1, 16]
+  usernameLength: [1, 16],
+
+  clanWaitTime: 3 * 24 * 60 * 60 * 1000, // 3 days
+  clanLength: [1, 4]
 };

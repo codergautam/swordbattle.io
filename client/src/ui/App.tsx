@@ -384,7 +384,7 @@ function App() {
                <div className="dropdown">
                 {account.clan ? (
                   <div className="auth-username">
-                    <FontAwesomeIcon icon={faUser} /> <span style={{color: 'yellow'}}>[{account.clan}]</span> {account.username}
+                    <FontAwesomeIcon icon={faUser} /> <span style={{color: 'yellow'}}>[{account.clan?.toUpperCase()}]</span> {account.username}
                   </div>
                 ) : (
                   <div className="auth-username">

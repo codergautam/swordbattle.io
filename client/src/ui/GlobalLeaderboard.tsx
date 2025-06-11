@@ -129,7 +129,14 @@ export function GlobalLeaderboard() {
                     <div className="d-flex align-items-center">
                       <div className="user-info__basic">
                         <h5 className="mb-0">
-                          <Link to={`/profile?username=${encodeURIComponent(row.username)}`} rel="noreferrer" style={{ color: 'black' }}>{row.username}</Link>
+                            <Link
+                            to={`/profile?username=${encodeURIComponent(row.username)}`}
+                            rel="noreferrer"
+                            style={{ color: 'black' }}
+                            >
+                            {row.clan && <span style={{ color: '#ffff00' }}>[{row.clan}] </span>}
+                            {row.username}
+                            </Link>
                         </h5>
                       </div>
                     </div>
@@ -175,9 +182,14 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
       <div className={clsx('leaderboard-card', isFirst && 'leaderboard-card--first')}>
         <div className="leaderboard-card__top">
           <h3 className="text-center">
-            #{index + 1} - <Link to={`/profile?username=${encodeURIComponent(row.username)}`} rel="noreferrer" style={{ color: isFirst ? 'white' : 'black' }}>
-              {row.username}
-            </Link>
+            #{index + 1} - <Link
+                            to={`/profile?username=${encodeURIComponent(row.username)}`}
+                            rel="noreferrer"
+                            style={{ color: isFirst ? 'white' : 'black' }}
+                            >
+                            {row.clan && <span style={{ color: '#ffff00' }}>[{row.clan}] </span>}
+                            {row.username}
+                            </Link>
           </h3>
         </div>
         <div className="leaderboard-card__body">

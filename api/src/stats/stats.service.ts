@@ -163,6 +163,7 @@ export class StatsService {
         .leftJoinAndSelect('total_stats.account', 'account', 'account.id = total_stats.id')
         .select([
           'account.username as username',
+          'account.clan as clan',
           'total_stats.xp as xp',
           'total_stats.coins as coins',
           'total_stats.kills as kills',
@@ -178,6 +179,7 @@ export class StatsService {
         .leftJoinAndSelect('daily_stats.account', 'account', 'account.id = daily_stats.account_id')
         .select([
           'account.username as username',
+          'account.clan as clan',
           'SUM(daily_stats.xp) as xp',
           'SUM(daily_stats.coins) as coins',
           'SUM(daily_stats.kills) as kills',

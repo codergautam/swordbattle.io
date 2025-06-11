@@ -134,7 +134,7 @@ export function GlobalLeaderboard() {
                             rel="noreferrer"
                             style={{ color: 'black' }}
                             >
-                            {row.clan && <span style={{ color: '#c8c800' }}>[{row.clan}] </span>}
+                            {row.clan && <span style={{ color: '#b0b000' }} className='clan'>[{row.clan}] </span>}
                             {row.username}
                             </Link>
                         </h5>
@@ -187,7 +187,7 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
                             rel="noreferrer"
                             style={{ color: isFirst ? 'white' : 'black' }}
                             >
-                            {row.clan && <span style={{ color: isFirst ? '#ffff00' : '#c8c800' }}>[{row.clan}] </span>}
+                            {row.clan && <span style={{ color: isFirst ? '#ffff00' : '#b0b000' }} className='clan'>[{row.clan}] </span>}
                             {row.username}
                             </Link>
           </h3>

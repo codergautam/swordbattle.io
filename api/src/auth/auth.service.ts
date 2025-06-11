@@ -17,9 +17,6 @@ export class AuthService {
     if(validateUsername(data.username)) {
       throw new UnauthorizedException(validateUsername(data.username));
     }
-    if(validateClantag(data.clan)) {
-      throw new UnauthorizedException(validateClantag(data.clan));
-    }
     // validate email
     if(data.email && /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/.test(data.email) === false) {
       throw new UnauthorizedException('Invalid email');

@@ -4,7 +4,9 @@ function ChangelogModal() {
   return (
     <div className="changelog">
     <h1 style={{fontSize: 30, color: 'white'}}>What's new? (June 2025)</h1>
-    <ul style={{fontSize: 18, color: '#ff3499'}}>- Added 5 more special skins to award great players! (found in the Special Skins tab)</ul>
+    <ul style={{fontSize: 22, color: '#ffffcc'}}>Team up with friends and create official alliances with other players using Swordbattle's new <span style={{color: '#ffff00'}}>Clan Tags!</span></ul>
+  <ul style={{fontSize: 15, color: '#ffffee'}}>- Log in to your account, hover over your name in the top right, and click "Change Clan" to get your own!</ul>
+  <ul style={{fontSize: 15, color: '#ffffee'}}>- This will be the only clan update for now, but clans will get more and more features later on!</ul>
     <br></br>
     <ul style={{fontSize: 17, color: '#ffff00'}}>- The current mastery you can earn from a game is now shown while you're alive!</ul>
     <ul style={{fontSize: 13, color: '#888888'}}>Note: because mastery gain is exponential, mastery won't start increasing until 5000 coins, and won't ramp up until around 100K coins. For efficient mastery gain, always get as many coins as possible in a single game!</ul>

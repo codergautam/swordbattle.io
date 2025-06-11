@@ -108,7 +108,7 @@ export const changeClanAsync = createAsyncThunk(
     } catch (error) {
       // Handle any other errors, such as network issues
       console.error(error);
-      alert('An error occurred while changing the clan.');
+      alert('An error occurred while changing the clan tag.');
     }
   }
 );

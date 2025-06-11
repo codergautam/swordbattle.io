@@ -388,6 +388,8 @@ function App() {
                    <a className="dropdown-item" href="#" onClick={onChangeName}>
                      <FontAwesomeIcon icon={faICursor} /> Change Name
                    </a>
+                    </li>
+                    <li>
                    <a className="dropdown-item" href="#" onClick={onChangeClan}>
                      <FontAwesomeIcon icon={faICursor} /> Change Clan
                    </a>

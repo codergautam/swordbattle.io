@@ -71,6 +71,7 @@ export class AuthController {
     return result;
   }
 
+  @Post('change-clan')
   async changeClan(@Req() request) {
     let result = await this.authService.changeClan(request.account, request.body.newClan);
     return result;

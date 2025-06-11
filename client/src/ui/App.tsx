@@ -246,11 +246,16 @@ function App() {
 
     dispatch(changeClanAsync(newClan) as any);
   }
+  /*
+
+  Doesn't work find an alternative
+
   const onRemoveClan = () => {
     const newClan = prompt('Are you sure you want to remove your clan tag? This can only be done once every 7 days. Type anything to confirm, or press "cancel" to exit.');
 
     dispatch(changeClanAsync('') as any);
   }
+    */
   const openShop = () => {
     setModal(<ShopModal account={account} />);
   }
@@ -405,11 +410,6 @@ function App() {
                     <li>
                    <a className="dropdown-item" href="#" onClick={onChangeClan}>
                      <FontAwesomeIcon icon={faICursor} /> Change Clan
-                   </a>
-                   </li>
-                   <li>
-                   <a className="dropdown-item" href="#" onClick={onRemoveClan}>
-                     <FontAwesomeIcon icon={faX}/> Remove Clan
                    </a>
                    </li>
                    <li><a className="dropdown-item" href="#" onClick={onLogout}>

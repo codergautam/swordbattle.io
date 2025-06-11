@@ -89,7 +89,7 @@ export const changeNameAsync = createAsyncThunk(
 );
 
 export const changeClanAsync = createAsyncThunk(
-  'account/changeClantag',
+  'account/changeClan',
   async (newClan: string, { getState, dispatch }) => {
     // const state: any = getState();
     try {

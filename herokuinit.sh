@@ -13,6 +13,7 @@ echo "Installing dependencies"
 cd api
 yarn install
 yarn build
+ls
 
 cd ../server
 yarn install

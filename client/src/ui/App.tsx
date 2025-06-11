@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSignOut, faICursor,faGear } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOut, faICursor,faGear, faX } from '@fortawesome/free-solid-svg-icons';
 
 import clsx from 'clsx';
 import { useScale } from './Scale';
@@ -246,6 +246,11 @@ function App() {
 
     dispatch(changeClanAsync(newClan) as any);
   }
+  const onRemoveClan = () => {
+    const newClan = prompt('Are you sure you want to remove your clan tag? This can only be done once every 3 days. Type anything to confirm, or press "cancel" to exit.');
+
+    dispatch(changeClanAsync('') as any);
+  }
   const openShop = () => {
     setModal(<ShopModal account={account} />);
   }
@@ -400,6 +405,11 @@ function App() {
                     <li>
                    <a className="dropdown-item" href="#" onClick={onChangeClan}>
                      <FontAwesomeIcon icon={faICursor} /> Change Clan
+                   </a>
+                   </li>
+                   <li>
+                   <a className="dropdown-item" href="#" onClick={onRemoveClan}>
+                     <FontAwesomeIcon icon={faX}/> Remove Clan
                    </a>
                    </li>
                    <li><a className="dropdown-item" href="#" onClick={onLogout}>

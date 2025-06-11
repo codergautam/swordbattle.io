@@ -26,6 +26,6 @@ export const config: ConfigProps = {
   usernameWaitTime: 7 * 24 * 60 * 60 * 1000, // 7 days
   usernameLength: [1, 20],
 
-  clanWaitTime: 3 * 24 * 60 * 60 * 1000, // 3 days
-  clanLength: [1, 4]
+  clanWaitTime: 7 * 24 * 60 * 60 * 1000, // 3 days
+  clanLength: [0, 5]
 };

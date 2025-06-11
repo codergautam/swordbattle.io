@@ -21,7 +21,7 @@ class AncientMob extends Entity {
     swordCount: [3],
     swordSpeed: 70,
     swordSize: 80,
-    boulderSize: 150,
+    boulderSize: 130,
     boulderSpeed: 55,
     boulderDuration: [2.25, 2.75],
     swordsSpread: Math.PI / 6,

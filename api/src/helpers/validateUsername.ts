@@ -16,7 +16,7 @@ export default function validateUsername(username: string): string {
   if(username.includes("  ")) {
     return "Username can't have two spaces in a row";
   }
-   var regex = /^[a-zA-Z0-9!@"$%&:';()*\+,;\-=[\]\^_{|}<>~` ]+$/g;
+  var regex = /^[a-zA-Z0-9!@"$%&:';()*\+,;\-=[\]\^_{|}<>~` ]+$/g;
   if(!username.match(regex)) {
     return "Username can only contain letters, numbers, spaces, and the following symbols: !@\"$%&:';()*\+,-=[\]\^_{|}<>~`";
   }
@@ -25,4 +25,4 @@ export default function validateUsername(username: string): string {
     return "Username contains a bad word!\nIf this is a mistake, please contact an admin.";
   }
   return "";
-} 
+}

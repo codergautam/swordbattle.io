@@ -14,12 +14,11 @@ export SERVER_PORT=8080
 
 (
   cd server
-  pm2 start yarn --name server --interpreter bash -- start
+  pm2 start yarn --name server -- start
 )
 
 echo "Deployment complete"
 echo "Starting proxy server..."
 
-# node prod-proxy.js
 pm2 start prod-proxy.js --name proxy
 pm2 logs

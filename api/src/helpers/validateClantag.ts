@@ -3,7 +3,7 @@ import * as filter from 'leo-profanity';
 
 export default function validateClantag(clantag: string): string {
   // just to be safe
-  if(clantag === "__proto__" || clantag === "constructor" || clantag === "prototype") {
+  if(clantag === "__proto__" || clantag === "constructor" || clantag === "prototype" || clantag === "DEV" || clantag === "ADMIN" || clantag === "OWNER" || clantag === "CODER") {
     return "Clan is not allowed";
   }
   // normal validation

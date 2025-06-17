@@ -7,7 +7,7 @@ export default function validateClantag(clantag: string): string {
   if(clantag === "__proto__" || clantag === "constructor" || clantag === "prototype") {
     return "Clan is not allowed";
   }
-  if (forbiddenTags.includes(clantag.toUpperCase();)) {
+  if (forbiddenTags.includes(clantag.toUpperCase())) {
     return "No";
   }
   // normal validation

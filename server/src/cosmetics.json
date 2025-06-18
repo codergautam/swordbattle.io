@@ -4272,7 +4272,7 @@
       "buyable": true,
       "price": 50000,
       "swordFileName": "ultimateMarauderSword.png",
-      "bodyFileName": "ultimateMarauderPlayer.png",
+      "bodyFileName": "ultimateNewMarauderPlayer.png",
       "description": "Initialize Sequence SB-50. Activate Mech Protocol."
     },
     "apocalypsev2": {

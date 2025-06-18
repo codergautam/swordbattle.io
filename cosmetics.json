@@ -1410,8 +1410,8 @@
       "bodyFileName": "boarPlayer.png",
       "description": "Sharp horns..."
     },
-    "apocalypse": {
-      "name": "apocalypse",
+    "apocalypseogex": {
+      "name": "apocalypseogex",
       "displayName": "Apocalypse OG",
       "id": 131,
       "buyable": false,
@@ -1620,8 +1620,8 @@
       "bodyFileName": "mossmechPlayer.png",
       "description": "Rise from the wild and DOMINATE!"
     },
-    "explosion": {
-      "name": "explosion",
+    "explosionogex": {
+      "name": "explosionogex",
       "displayName": "Explosion OG",
       "id": 152,
       "buyable": false,
@@ -3073,7 +3073,7 @@
       "displayName": "Cyberlight Ninja",
       "id": 308,
       "buyable": true,
-      "price": 35000,
+      "price": 30000,
       "swordFileName": "ultimatenewNinjaSword.png",
       "bodyFileName": "ultimatenewNinjaPlayer.png",
       "description": "Camouflage isn't needed when your enemies are too scared to attack you...",
@@ -3100,7 +3100,7 @@
       "displayName": "Rainbow Void",
       "id": 310,
       "buyable": true,
-      "price": 55000,
+      "price": 45000,
       "swordFileName": "ultimateVoidSword.png",
       "bodyFileName": "ultimateVoidPlayer.png",
       "description": "Wanted to be dark and depressing but instead became part of someone's gaming setup",
@@ -3149,7 +3149,7 @@
       "displayName": "Rainbow Luminous",
       "id": 314,
       "buyable": true,
-      "price": 45000,
+      "price": 35000,
       "swordFileName": "ultimateLuminousSword.png",
       "bodyFileName": "ultimateLuminousPlayer.png",
       "description": "Even brighter than before!",
@@ -3162,7 +3162,7 @@
       "displayName": "Rainbow Fire",
       "id": 315,
       "buyable": true,
-      "price": 50000,
+      "price": 40000,
       "swordFileName": "ultimateFireSword.png",
       "bodyFileName": "ultimateFirePlayer.png",
       "description": "Every color burns hotter than the last...",
@@ -3988,9 +3988,7 @@
       "bodyFileName": "winterVanguardPlayer.png",
       "description": "Requires 150000 frost tokens"
     },
-    "violin": {
-      "sale": true,
-      
+    "violin": {  
       "name": "violin",
       "displayName": "Violin",
       "id": 385,
@@ -4001,8 +3999,6 @@
       "description": "Play a sad song for the ones you defeated"
     },
     "fishbowl": {
-      "sale": true,
-      
       "name": "fishbowl",
       "displayName": "Fishbowl",
       "id": 386,
@@ -4013,8 +4009,6 @@
       "description": "Maybe don't try eating this fish"
     },
     "cheeseburger": {
-      "sale": true,
-      
       "name": "cheeseburger",
       "displayName": "Cheeseburger",
       "id": 387,
@@ -4025,8 +4019,6 @@
       "description": "Tasty!"
     },
     "bass": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Violin",
       "original": 385,
@@ -4040,9 +4032,7 @@
       "bodyFileName": "ultimateViolinPlayer.png",
       "description": "Slap them with your bass"
     },
-    "fish": {
-      "sale": true,
-      
+    "fish": { 
       "ultimate": true,
       "tag": "Ultimate Fishbowl",
       "original": 386,
@@ -4057,8 +4047,6 @@
       "description": "The real fish"
     },
     "mcbattle": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Cheeseburger",
       "original": 387,
@@ -4086,8 +4074,6 @@
       "description": "Requires 314159 frost tokens"
     },
     "future": {
-      "sale": true,
-      
       "name": "future",
       "displayName": "Future Fighter",
       "id": 392,
@@ -4098,8 +4084,6 @@
       "description": "From the future, but fighting in the present."
     },
     "futurizer": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Future Fighter",
       "original": 392,
@@ -4114,8 +4098,6 @@
       "description": "Leaving everything in past tense for over -2000 years."
     },
     "jellyfish": {
-      "sale": true,
-      
       "name": "jellyfish",
       "displayName": "Jellyfish",
       "id": 394,
@@ -4126,8 +4108,6 @@
       "description": "Found in Jellyfish Fields"
     },
     "jelly": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Jellyfish",
       "original": 394,
@@ -4142,8 +4122,6 @@
       "description": "Jelly jelly jelly jelly jelly"
     },
     "pidude": {
-      "sale": true,
-
       "name": "pidude",
       "displayName": "Pi Dude",
       "id": 396,
@@ -4154,8 +4132,6 @@
       "description": "Not yet a Pi Guy, just a Pi Dude"
     },
     "pidiver": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Pi Dude",
       "original": 396,
@@ -4170,8 +4146,6 @@
       "description": "The headquarters of all things Pi!"
     },
     "futuremancer": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Necromancer",
       "original": 278,
@@ -4186,8 +4160,6 @@
       "description": "The future of necromancy is here!"
     },
     "piman": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Pi Guy",
       "original": 197,
@@ -4202,8 +4174,6 @@
       "description": "The original Pi Guy"
     },
     "shatteredglass": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Stained Glass",
       "original": 206,
@@ -4276,6 +4246,62 @@
       "swordFileName": "vipNumberSword.png",
       "bodyFileName": "vipNumberPlayer.png",
       "description": "Given to Number1 for being a former #3 all-time player!"
+    },
+    "marauder": {
+      "sale": true,
+
+      "name": "marauder",
+      "displayName": "Marauder",
+      "id": 406,
+      "buyable": true,
+      "price": 50000,
+      "swordFileName": "marauderSword.png",
+      "bodyFileName": "marauderPlayer.png",
+      "description": "Hunt them down..."
+    },
+    "mechamarauder": {
+      "sale": true,
+      
+      "ultimate": true,
+      "tag": "Ultimate Marauder",
+      "original": 406,
+
+      "name": "mechamarauder",
+      "displayName": "Mecha Marauder",
+      "id": 407,
+      "buyable": true,
+      "price": 50000,
+      "swordFileName": "ultimateMarauderSword.png",
+      "bodyFileName": "ultimateMarauderPlayer.png",
+      "description": "Initialize Sequence SB-50. Activate Mech Protocol."
+    },
+    "apocalypsev2": {
+      "sale": true,
+
+      "name": "apocalypsev2",
+      "displayName": "Apocalypse",
+      "id": 408,
+      "buyable": true,
+      "price": 19000,
+      "swordFileName": "apocalypsev2Sword.png",
+      "bodyFileName": "apocalypsev2Player.png",
+      "description": "End the world"
+    },
+    "atomic": {
+      "sale": true,
+      
+      "ultimate": true,
+      "tag": "Ultimate Apocalypse",
+      "original": 408,
+
+      "name": "atomic",
+      "displayName": "Atomic",
+      "id": 409,
+      "buyable": true,
+      "price": 11111,
+      "swordFileName": "ultimateApocalypseSword.png",
+      "bodyFileName": "ultimateApocalypsePlayer.png",
+      "description": "Who knew one battler could hold this much power?"
     }
   }
 }

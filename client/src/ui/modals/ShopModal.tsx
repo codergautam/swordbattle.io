@@ -364,7 +364,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       <div className='label'>
         <div ref={targetElementRef1}></div>
         <span style={{color: 'yellow'}}>New Skins</span><hr></hr>
-        <p style={{color: '#ffffaa'}}>All new skins from the 5/27 skin update</p>
+        <p style={{color: '#ffffaa'}}>All new skins from the 6/18 skin update</p>
         </div>
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
@@ -571,11 +571,12 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         <div ref={targetElementRef3}></div>
         <div className='label'>
         <span>Ultimate Skins</span><hr></hr>
-        <p>Ultimate skins are remakes of normal skins and are obtained by earning mastery instead of spending gems. <br></br><span style={{color: 'red'}}>Unlocking ultimate skins DOES NOT take away any mastery. The original skin must be owned before unlocking the ultimate version.</span></p>
+        <p>Ultimate skins are remakes of normal skins and are obtained by earning mastery instead of spending gems. <br></br><span style={{color: 'red'}}>Unlocking ultimate skins DOES NOT take away any mastery. The original skin must be owned before unlocking the ultimate version.</span><br></br>(The original version of an Ultimate is based on it's Tag. For example, the "Ultimate Blueberry" Tag means the original skin is Blueberry)</p>
         </div>
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
+        if (skin.og) return false;
         if (!skin.ultimate) return false;
         if (skin.special) return false;
         

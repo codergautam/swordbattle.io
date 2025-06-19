@@ -420,8 +420,8 @@
       "bodyFileName": "chefPlayer.png",
       "description": "Chop 'em up"
     },
-    "rainbow": {
-      "name": "rainbow",
+    "rainbowogex": {
+      "name": "rainbowogex",
       "displayName": "Rainbow OG",
       "id": 27,
       "buyable": false,
@@ -1280,8 +1280,8 @@
       "bodyFileName": "scorpionPlayer.png",
       "description": "Poisoned wounds are the worst..."
     },
-    "illusionary": {
-      "name": "illusionary",
+    "illusionaryogex": {
+      "name": "illusionaryogex",
       "displayName": "Illusionary OG",
       "id": 117,
       "buyable": false,

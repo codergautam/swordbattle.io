@@ -364,7 +364,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       <div className='label'>
         <div ref={targetElementRef1}></div>
         <span style={{color: 'yellow'}}>New Skins</span><hr></hr>
-        <p style={{color: '#ffffaa'}}>All new skins from the 6/18 skin update (Note: not all skins have been released yet)</p>
+        <p style={{color: '#ffffaa'}}>All new skins from the 6/18 skin update</p>
         </div>
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {

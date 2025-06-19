@@ -4302,6 +4302,90 @@
       "swordFileName": "ultimateApocalypseSword.png",
       "bodyFileName": "ultimateApocalypsePlayer.png",
       "description": "Who knew one battler could hold this much power?"
+    },
+    "prismatic": {
+      "sale": true,
+
+      "name": "prismatic",
+      "displayName": "Prismatic",
+      "id": 410,
+      "buyable": true,
+      "price": 255,
+      "swordFileName": "prismaticSword.png",
+      "bodyFileName": "prismaticPlayer.png",
+      "description": "Bright and colorful!"
+    },
+    "rainbowv2": {
+      "sale": true,
+      
+      "ultimate": true,
+      "tag": "Ultimate Prismatic",
+      "original": 410,
+
+      "name": "rainbowv2",
+      "displayName": "Rainbow",
+      "id": 411,
+      "buyable": true,
+      "price": 2255,
+      "swordFileName": "ultimatePrismaticSword.png",
+      "bodyFileName": "ultimatePrismaticPlayer.png",
+      "description": "Infinitely colorful..."
+    },
+    "trippyv2": {
+      "sale": true,
+
+      "name": "trippyv2",
+      "displayName": "Trippy",
+      "id": 412,
+      "buyable": true,
+      "price": 3400,
+      "swordFileName": "trippyv2Sword.png",
+      "bodyFileName": "trippyv2Player.png",
+      "description": "Wear this skin and spin to give enemies headaches"
+    },
+    "illusionaryv2": {
+      "sale": true,
+      
+      "ultimate": true,
+      "tag": "Ultimate Trippy",
+      "original": 412,
+
+      "name": "illusionaryv2",
+      "displayName": "Illusionary",
+      "id": 413,
+      "buyable": true,
+      "price": 13500,
+      "swordFileName": "ultimateTrippySword.png",
+      "bodyFileName": "ultimateTrippyPlayer.png",
+      "description": "Does it ever end?"
+    },
+    "tree": {
+      "sale": true,
+
+      "name": "tree",
+      "displayName": "Tree",
+      "id": 414,
+      "buyable": true,
+      "price": 400,
+      "swordFileName": "treeSword.png",
+      "bodyFileName": "treePlayer.png",
+      "description": "How does a tree even battle?"
+    },
+    "treedisguise": {
+      "sale": true,
+      
+      "ultimate": true,
+      "tag": "Ultimate Tree",
+      "original": 414,
+
+      "name": "treedisguise",
+      "displayName": "Tree Disguise",
+      "id": 415,
+      "buyable": true,
+      "price": 4500,
+      "swordFileName": "ultimateTreeSword.png",
+      "bodyFileName": "ultimateTreePlayer.png",
+      "description": "Nobody is actually falling for this but at least it looks cool"
     }
   }
 }

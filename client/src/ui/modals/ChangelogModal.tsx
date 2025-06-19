@@ -13,7 +13,7 @@ function ChangelogModal() {
   <ul style={{fontSize: 14, color: '#cccccc'}}>- Ancient Statues throw player-flinging boulders and sharp, rocky swords, and can ram into players to deal damage, too! They can be found in the forest biome.</ul>
   <ul style={{fontSize: 14, color: '#cccccc'}}>- Ancient Statues are weaker than the other bosses and drop less coins, but up to 3 can spawn at once!</ul>
     <br></br>
-    <ul style={{fontSize: 20, color: '#ff00ff'}}>- 2 new skins and 2 new ultimate skins! More coming soon!</ul>
+    <ul style={{fontSize: 20, color: '#ff00ff'}}>- 5 new skins and 5 new ultimate skins! More coming soon!</ul>
     <br></br>
     <p style={{fontSize: 16, color: 'lightblue'}}>Join the <a href="https://discord.com/invite/9A9dNTGWb9" className="primary-link" target="_blank" rel="nofollow">Swordbattle.io Discord Server</a> to learn more about these updates on the full changelog!</p>
 </div>

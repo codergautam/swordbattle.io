@@ -19,9 +19,9 @@ class AncientMob extends Entity {
     swordCooldown: [4.5, 6],
     swordDuration: [2, 3.5],
     swordCount: [3],
-    swordSpeed: 70,
+    swordSpeed: 63,
     swordSize: 80,
-    boulderSize: 130,
+    boulderSize: 115,
     boulderSpeed: 55,
     boulderDuration: [2.25, 2.75],
     swordsSpread: Math.PI / 6,
@@ -37,7 +37,7 @@ class AncientMob extends Entity {
     this.isGlobal = this.definition.isBoss;
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 20000;
+    this.coinsDrop = 25000;
 
     this.jumpTimer = new Timer(0, this.definition.jumpCooldown[0], this.definition.jumpCooldown[1]);
     this.angryTimer = new Timer(0, 7, 10);
@@ -83,7 +83,7 @@ class AncientMob extends Entity {
               size: this.definition.swordSize,
               speed: this.definition.swordSpeed,
               angle: this.angle - ((i - (swords - 1) / 2) * spread),
-              damage: this.damage.value,
+              damage: this.damage.value * 0.7,
               duration: [this.definition.swordDuration[0], this.definition.swordDuration[1]],
               position: [this.shape.x, this.shape.y],
             });

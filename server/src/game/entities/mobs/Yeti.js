@@ -31,7 +31,7 @@ class YetiMob extends Entity {
     this.isGlobal = this.definition.isBoss;
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 450 * (this.definition.isBoss ? 100 : 1);
+    this.coinsDrop = 500 * (this.definition.isBoss ? 100 : 1);
     this.density = 3;
 
     this.snowballTimer = new Timer(0, this.definition.snowballCooldown[0], this.definition.snowballCooldown[1]);
@@ -122,7 +122,7 @@ class YetiMob extends Entity {
           size: this.definition.snowballSize,
           speed: this.definition.snowballSpeed,
           angle: this.angle,
-          damage: this.damage.value,
+          damage: this.damage.value * 0.5,
           duration: [this.definition.snowballDuration[0], this.definition.snowballDuration[1]],
           position: [this.shape.x, this.shape.y],
         });

@@ -19,7 +19,7 @@ class AngryFishMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 150;
+    this.coinsDrop = 500;
 
     this.tamedBy = null;
 
@@ -28,7 +28,7 @@ class AngryFishMob extends Entity {
 
     this.health = new Health(20, 7);
     this.speed = new Property(40);
-    this.damage = new Property(9);
+    this.damage = new Property(5);
     this.target = null;
     this.targets.push(Types.Entity.Player);
 

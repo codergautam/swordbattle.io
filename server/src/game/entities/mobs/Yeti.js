@@ -122,7 +122,7 @@ class YetiMob extends Entity {
           size: this.definition.snowballSize,
           speed: this.definition.snowballSpeed,
           angle: this.angle,
-          damage: this.damage.value * 0.5,
+          damage: this.damage.value * 0.75,
           duration: [this.definition.snowballDuration[0], this.definition.snowballDuration[1]],
           position: [this.shape.x, this.shape.y],
         });

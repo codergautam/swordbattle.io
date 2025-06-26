@@ -35,12 +35,23 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 export default function Profile() {
   const [query] = useSearchParams();
   const username = query.get('username');
+  const id = query.get('id');
   const clan = query.get('clan');
   const [data, setAccountData] = useState<ProfileData | null>(null);
   const [isLoading, setLoading] = useState(true);
 
   const fetchAccount = () => {
-    api.post(`${api.endpoint}/profile/getPublicUserInfo/${username}`, {}, (data) => {
+    let endpoint = '';
+    if (username) {
+      endpoint = `${api.endpoint}/profile/getPublicUserInfo/${username}`;
+    } else if (id) {
+      endpoint = `${api.endpoint}/profile/getPublicUserInfo/${id}`;
+    }
+    if (!endpoint) {
+      setLoading(false);
+      return;
+    }
+    api.post(endpoint, {}, (data) => {
       if (!data.message) {
         setAccountData(data);
       }

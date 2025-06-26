@@ -269,6 +269,15 @@ export class AccountsService {
     return account.clan || null;
   }
 
+  async getClanById(id: number) {
+    const account = await this.findOne({ where: { id: id } });
+    if (!account) {
+      throw new NotFoundException('User not found');
+    }
+    this.sanitizeAccount(account);
+    return account.clan || null;
+  }
+
   async changeClantag(id: number, clantag: string) {
     // validate clantag
     if(validateClantag(clantag)) {

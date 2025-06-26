@@ -93,4 +93,26 @@ export class AccountsController {
 
     return { account, totalStats, dailyStats, rank, clan };
   }
+
+  @Post('getPublicUserInfo/:id')
+  async getAccountById(@Param('id') id: number, @Req() request: Request) {
+    const account = await this.accountsService.getById(id);
+    const totalStats = await this.statsService.getTotalStats(account);
+    const dailyStats = await this.statsService.getAllDailyStats(account);
+    const clan = await this.accountsService.getClanById(id);
+    const rank = await this.statsService.getAccountRankByXp(account);
+
+    const ip = request.ip;
+    let viewedIps = this.recentProfileViews.get(account.id);
+    if (!viewedIps) {
+      viewedIps = new Set();
+      this.recentProfileViews.set(account.id, viewedIps);
+    }
+    if (!viewedIps.has(ip)) {
+      viewedIps.add(ip);
+      this.accountsService.incrementProfileViews(account);
+    }
+
+    return { account, totalStats, dailyStats, rank, clan };
+  }
 }

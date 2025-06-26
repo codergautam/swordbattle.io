@@ -108,10 +108,15 @@ export default function Profile() {
     };
   };
 
+  console.log('Username: ', data?.account.username)
+  console.log('Clan: ', data?.account.clan)
+  console.log('Profile Views: ', data?.account.profile_views)
+  console.log('Created at: ', data?.account.created_at)
+
   if (isLoading) {
     return <h3>Loading...</h3>
   }
-  if (!data?.account || (typeof username !== 'string' && typeof id !== 'number')) {
+  if (!data?.account || (!username && !id)) {
     return <h3 className="text-center">Account not found</h3>
   }
   return (

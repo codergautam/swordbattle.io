@@ -94,7 +94,7 @@ export class AccountsController {
     return { account, totalStats, dailyStats, rank, clan };
   }
 
-  @Post('getPublicUserInfo/:id')
+  @Post('getPublicUserInfoById/:id')
   async getAccountById(@Param('id') id: number, @Req() request: Request) {
     const account = await this.accountsService.getById(id);
     const totalStats = await this.statsService.getTotalStats(account);

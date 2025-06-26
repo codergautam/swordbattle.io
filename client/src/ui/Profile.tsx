@@ -42,10 +42,11 @@ export default function Profile() {
 
   const fetchAccount = () => {
     let endpoint = '';
+    // Default to name if username and id are provided at once (just to be safe)
     if (username) {
       endpoint = `${api.endpoint}/profile/getPublicUserInfo/${username}`;
     } else if (id) {
-      endpoint = `${api.endpoint}/profile/getPublicUserInfo/${id}`;
+      endpoint = `${api.endpoint}/profile/getPublicUserInfoById/${id}`;
     }
     if (!endpoint) {
       setLoading(false);

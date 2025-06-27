@@ -17,7 +17,8 @@
       "swordFileName": "dogSword.png",
       "bodyFileName": "dogPlayer.png",
       "description": "Dogs!",
-      "price": 50
+      "price": 50,
+      "crates": [5, 23, 26]
     },
     "cat": {
       "name": "cat",
@@ -27,7 +28,8 @@
       "swordFileName": "catSword.png",
       "bodyFileName": "catPlayer.png",
       "description": "Cats!",
-      "price": 50
+      "price": 50,
+      "crates": [5, 23, 26]
     },
     "mummy": {
       "name": "mummy",
@@ -37,7 +39,8 @@
       "buyable": true,
       "swordFileName": "mummySword.png",
       "bodyFileName": "mummyPlayer.png",
-      "description": "Back from the dead!"
+      "description": "Back from the dead!",
+      "crates": [8, 11, 26, 30]
     },
     "toilet": {
       "name": "toilet",
@@ -47,7 +50,8 @@
       "price": 100,
       "swordFileName": "toiletSword.png",
       "bodyFileName": "toiletPlayer.png",
-      "description": "Release the explosives..."
+      "description": "Release the explosives...",
+      "crates": [26]
     },
     "spring": {
       "name": "spring",
@@ -57,7 +61,8 @@
       "price": 150,
       "swordFileName": "springSword.png",
       "bodyFileName": "springPlayer.png",
-      "description": "Spring is here!"
+      "description": "Spring is here!",
+      "crates": [7, 12, 26]
     },
     "bread": {
       "name": "bread",
@@ -67,7 +72,8 @@
       "price": 200,
       "swordFileName": "breadSword.png",
       "bodyFileName": "breadPlayer.png",
-      "description": "Fresh, and tasty!"
+      "description": "Fresh, and tasty!",
+      "crates": [6, 26]
     },
     "witch": {
       "name": "witch",
@@ -77,7 +83,8 @@
       "price": 175,
       "swordFileName": "witchSword.png",
       "bodyFileName": "witchPlayer.png",
-      "description": "Cast a spell on your enemies"
+      "description": "Cast a spell on your enemies",
+      "crates": [8, 19]
     },
     "lion": {
       "name": "lion",
@@ -87,7 +94,8 @@
       "price": 225,
       "swordFileName": "lionSword.png",
       "bodyFileName": "lionPlayer.png",
-      "description": "Roar!"
+      "description": "Roar!",
+      "crates": [5, 29]
     },
     "skeleton": {
       "name": "skeleton",
@@ -97,7 +105,8 @@
       "price": 200,
       "swordFileName": "skeletonSword.png",
       "bodyFileName": "skeletonPlayer.png",
-      "description": "Spooky scary skeletons"
+      "description": "Spooky scary skeletons",
+      "crates": [8, 29]
     },
     "anime": {
       "name": "anime",
@@ -116,7 +125,8 @@
       "price": 300,
       "swordFileName": "icecreamSword.png",
       "bodyFileName": "icecreamPlayer.png",
-      "description": "I scream, you scream, your enemies scream"
+      "description": "I scream, you scream, your enemies scream",
+      "crates": [6, 7, 26, 36]
     },
     "military grade": {
       "name": "military grade",
@@ -126,7 +136,8 @@
       "price": 5000,
       "swordFileName": "militaryGradeSword.png",
       "bodyFileName": "militaryGradePlayer.png",
-      "description": "“The greatest victory is that which requires no battle” - Sun Tzu"
+      "description": "“The greatest victory is that which requires no battle” - Sun Tzu",
+      "crates": [19, 21, 29]
     },
     "forest lurker": {
       "name": "forest lurker",
@@ -136,7 +147,8 @@
       "price": 6000,
       "swordFileName": "forestLurkerSword.png",
       "bodyFileName": "forestLurkerPlayer.png",
-      "description": "Ahora nadie puede verme"
+      "description": "Ahora nadie puede verme",
+      "crates": [12, 24, 30]
     },
     "tea": {
       "name": "tea",
@@ -146,7 +158,8 @@
       "price": 250,
       "swordFileName": "teaSword.png",
       "bodyFileName": "teaPlayer.png",
-      "description": "Garam aur meethi chai :)"
+      "description": "Garam aur meethi chai :)",
+      "crates": [6]
     },
     "wasd": {
       "name": "wasd",
@@ -168,7 +181,8 @@
       "price": 314159,
       "swordFileName": "piGuySword.png",
       "bodyFileName": "piGuyPlayer.png",
-      "description": "The ratio of a circle's circumference to its diameter"
+      "description": "The ratio of a circle's circumference to its diameter",
+      "crates": [10, 13, 30, 35, 36]
     },
     "frost ninja": {
       "name": "frost ninja",
@@ -178,7 +192,8 @@
       "price": 11111,
       "swordFileName": "frostninjaSword.png",
       "bodyFileName": "frostninjaPlayer.png",
-      "description": "The cold never bothered me anyway"
+      "description": "The cold never bothered me anyway",
+      "crates": [3, 30, 36]
     },
     "penguin": {
       "name": "penguin",
@@ -188,7 +203,8 @@
       "price": 700,
       "swordFileName": "penguinSword.png",
       "bodyFileName": "penguinPlayer.png",
-      "description": "Waddle waddle"
+      "description": "Waddle waddle",
+      "crates": [5, 30, 36]
     },
     "snowflake": {
       "name": "snowflake",
@@ -198,7 +214,8 @@
       "price": 950,
       "swordFileName": "snowflakeSword.png",
       "bodyFileName": "snowflakePlayer.png",
-      "description": "Unique and beautiful"
+      "description": "Unique and beautiful",
+      "crates": [7, 36, 19, 33]
     },
     "calculator": {
       "name": "calculator",
@@ -208,7 +225,8 @@
       "price": 1750,
       "swordFileName": "calculatorSword.png",
       "bodyFileName": "calculatorPlayer.png",
-      "description": "Enemy HP × 0 = 0"
+      "description": "Enemy HP × 0 = 0",
+      "crates": [1, 13, 35]
     },
     "yinyang": {
       "name": "yinyang",
@@ -330,8 +348,8 @@
       "bodyFileName": "glassPlayer.png",
       "description": "Why have gold when you can have glass?"
     },
-    "sick": {
-      "name": "sick",
+    "sickogex": {
+      "name": "sickogex",
       "displayName": "Sick OG",
       "id": 17,
       "buyable": false,
@@ -570,8 +588,8 @@
       "bodyFileName": "determinedPlayer.png",
       "description": "I. Need. Coins."
     },
-    "tiger": {
-      "name": "tiger",
+    "tigerogex": {
+      "name": "tigerogex",
       "displayName": "Tiger OG",
       "id": 42,
       "buyable": false,
@@ -590,8 +608,8 @@
       "bodyFileName": "frumpythefrogPlayer.png",
       "description": "A frog named Frumpy"
     },
-    "vinyl": {
-      "name": "vinyl",
+    "vinylogex": {
+      "name": "vinylogex",
       "displayName": "Vinyl OG",
       "id": 44,
       "buyable": false,
@@ -660,8 +678,8 @@
       "bodyFileName": "cheesePlayer.png",
       "description": "Its cheese"
     },
-    "farmer": {
-      "name": "farmer",
+    "farmerogex": {
+      "name": "farmerogex",
       "displayName": "Farmer OG",
       "id": 51,
       "buyable": false,
@@ -770,8 +788,8 @@
       "bodyFileName": "killerbotPlayer.png",
       "description": "Makes your opponents wish they were fighting an actual bot"
     },
-    "comic": {
-      "name": "comic",
+    "comicogex": {
+      "name": "comicogex",
       "displayName": "Comic OG",
       "id": 62,
       "buyable": false,
@@ -850,8 +868,8 @@
       "bodyFileName": "soldierPlayer.png",
       "description": "A hardened veteran"
     },
-    "suit": {
-      "name": "suit",
+    "suitogex": {
+      "name": "suitogex",
       "displayName": "The Suit OG",
       "id": 72,
       "buyable": false,
@@ -930,8 +948,8 @@
       "bodyFileName": "winterPlayer.png",
       "description": "I like it cold."
     },
-    "painter": {
-      "name": "painter",
+    "painterogex": {
+      "name": "painterogex",
       "displayName": "Painter OG",
       "id": 80,
       "buyable": false,
@@ -1010,8 +1028,8 @@
       "bodyFileName": "frameworkPlayer.png",
       "description": "Built like a rock..."
     },
-    "blobfish": {
-      "name": "blobfish",
+    "blobfishogex": {
+      "name": "blobfishogex",
       "displayName": "Blobfish OG",
       "id": 88,
       "buyable": false,
@@ -1060,8 +1078,8 @@
       "bodyFileName": "thiefPlayer.png",
       "description": "Steal coins from enemy"
     },
-    "alarm": {
-      "name": "alarm",
+    "alarmogex": {
+      "name": "alarmogex",
       "displayName": "Alarm Clock OG",
       "id": 93,
       "buyable": false,
@@ -1070,8 +1088,8 @@
       "bodyFileName": "alarmPlayer.png",
       "description": "Shak'em before they are ready"
     },
-    "emerald": {
-      "name": "emerald",
+    "emeraldogex": {
+      "name": "emeraldogex",
       "displayName": "Emerald OG",
       "id": 94,
       "buyable": false,
@@ -1120,8 +1138,8 @@
       "bodyFileName": "cellPlayer.png",
       "description": "Have stronger cells to be stronger"
     },
-    "compass": {
-      "name": "compass",
+    "compassogex": {
+      "name": "compassogex",
       "displayName": "Compass OG",
       "id": 99,
       "buyable": false,
@@ -1140,8 +1158,8 @@
       "bodyFileName": "luminescentPlayer.png",
       "description": "Glow with coins"
     },
-    "mage": {
-      "name": "mage",
+    "mageogex": {
+      "name": "mageogex",
       "displayName": "Mage OG",
       "id": 101,
       "buyable": false,
@@ -1240,8 +1258,8 @@
       "bodyFileName": "cyborgPlayer.png",
       "description": "AI-Assisted Stabbing"
     },
-    "vaporwave": {
-      "name": "vaporwave",
+    "vaporwaveogex": {
+      "name": "vaporwaveogex",
       "displayName": "Vaporwave OG",
       "id": 113,
       "buyable": false,
@@ -1300,8 +1318,8 @@
       "bodyFileName": "birdPlayer.png",
       "description": "Watch out for the talons..."
     },
-    "bottlecap": {
-      "name": "bottlecap",
+    "bottlecapogex": {
+      "name": "bottlecapogex",
       "displayName": "Bottle Cap OG",
       "id": 119,
       "buyable": false,
@@ -1320,8 +1338,8 @@
       "bodyFileName": "galaxyPlayer.png",
       "description": "Rule the cosmos"
     },
-    "dragonfruit": {
-      "name": "dragonfruit",
+    "dragonfruitogex": {
+      "name": "dragonfruitogex",
       "displayName": "DragonFruit OG",
       "id": 121,
       "buyable": false,
@@ -1330,8 +1348,8 @@
       "bodyFileName": "dragonfruitPlayer.png",
       "description": "Tastes like a pear pineapple"
     },
-    "pirate": {
-      "name": "pirate",
+    "pirateogex": {
+      "name": "pirateogex",
       "displayName": "Pirate OG",
       "id": 122,
       "buyable": false,
@@ -1360,8 +1378,8 @@
       "bodyFileName": "incendiaryPlayer.png",
       "description": "Melt your gold"
     },
-    "snake": {
-      "name": "snake",
+    "snakeogex": {
+      "name": "snakeogex",
       "displayName": "Snake OG",
       "id": 125,
       "buyable": false,
@@ -1400,8 +1418,8 @@
       "bodyFileName": "devexPlayer.png",
       "description": "3x the power!"
     },
-    "boar": {
-      "name": "boar",
+    "boarogex": {
+      "name": "boarogex",
       "displayName": "Boar OG",
       "id": 130,
       "buyable": false,
@@ -1440,8 +1458,8 @@
       "bodyFileName": "piePlayer.png",
       "description": "A snack before destruction"
     },
-    "octopus": {
-      "name": "octopus",
+    "octopusogex": {
+      "name": "octopusogex",
       "displayName": "The Octopus OG",
       "id": 129,
       "buyable": false,
@@ -1460,8 +1478,8 @@
       "bodyFileName": "cameraPlayer.png",
       "description": "A photo with your friends"
     },
-    "bubblegum": {
-      "name": "bubblegum",
+    "bubblegumogex": {
+      "name": "bubblegumogex",
       "displayName": "Bubblegum OG",
       "id": 135,
       "buyable": false,
@@ -1480,8 +1498,8 @@
       "bodyFileName": "angelPlayer.png",
       "description": "The best at PVP. Ever."
     },
-    "starhog": {
-      "name": "starhog",
+    "starhogogex": {
+      "name": "starhogogex",
       "displayName": "Starhog OG",
       "id": 137,
       "buyable": false,
@@ -1490,8 +1508,8 @@
       "bodyFileName": "starhogPlayer.png",
       "description": "A  hog in  space doesn't seem right..."
     },
-    "scuba": {
-      "name": "scuba",
+    "scubaogex": {
+      "name": "scubaogex",
       "displayName": "Scuba OG",
       "id": 138,
       "buyable": false,
@@ -1510,8 +1528,8 @@
       "bodyFileName": "fishPlayer.png",
       "description": "C'est un poisson!"
     },
-    "shuriken": {
-      "name": "shuriken",
+    "shurikenogex": {
+      "name": "shurikenogex",
       "displayName": "Shuriken OG",
       "id": 140,
       "buyable": false,
@@ -1520,8 +1538,8 @@
       "bodyFileName": "shurikenPlayer.png",
       "description": "More than one edge"
     },
-    "glitch": {
-      "name": "glitch",
+    "glitchogex": {
+      "name": "glitchogex",
       "displayName": "Glitch OG",
       "id": 141,
       "buyable": false,
@@ -1540,8 +1558,8 @@
       "bodyFileName": "patchworkPlayer.png",
       "description": "Its only being held together by some glitch..."
     },
-    "virus": {
-      "name": "virus",
+    "virusogex": {
+      "name": "virusogex",
       "displayName": "Virus OG",
       "id": 143,
       "buyable": false,
@@ -1560,8 +1578,8 @@
       "bodyFileName": "arachnePlayer.png",
       "description": "Crawl all over the coins"
     },
-    "shark": {
-      "name": "shark",
+    "sharkogex": {
+      "name": "sharkogex",
       "displayName": "Sharky OG",
       "id": 146,
       "buyable": false,
@@ -1630,8 +1648,8 @@
       "bodyFileName": "explosionPlayer.png",
       "description": "I hope they're not nukes.."
     },
-    "honeycomb": {
-      "name": "honeycomb",
+    "honeycombogex": {
+      "name": "honeycombogex",
       "displayName": "Honeycomb OG",
       "id": 153,
       "buyable": false,
@@ -1660,8 +1678,8 @@
       "bodyFileName": "cookiePlayer.png",
       "description": "Scrumptious!"
     },
-    "controller": {
-      "name": "controller",
+    "controllerogex": {
+      "name": "controllerogex",
       "displayName": "Controller OG",
       "id": 156,
       "buyable": false,
@@ -1680,8 +1698,8 @@
       "bodyFileName": "computerPlayer.png",
       "description": "Play swordbattle on swordbattle"
     },
-    "skull": {
-      "name": "skull",
+    "skullogex": {
+      "name": "skullogex",
       "displayName": "Skull OG",
       "id": 158,
       "buyable": false,
@@ -1710,8 +1728,8 @@
       "bodyFileName": "cylinderPlayer.png",
       "description": "Its 3D. Its just better like that."
     },
-    "solarsystem": {
-      "name": "solarsystem",
+    "solarsystemogex": {
+      "name": "solarsystemogex",
       "displayName": "Solar System OG",
       "id": 161,
       "buyable": false,
@@ -1750,8 +1768,8 @@
       "bodyFileName": "predatorPlayer.png",
       "description": "Hunt them down..."
     },
-    "mercenary": {
-      "name": "mercenary",
+    "mercenaryogex": {
+      "name": "mercenaryogex",
       "displayName": "Mercenary OG",
       "id": 165,
       "buyable": false,
@@ -1760,8 +1778,8 @@
       "bodyFileName": "mercenaryPlayer.png",
       "description": "Hunt down predators"
     },
-    "biker": {
-      "name": "biker",
+    "bikerogex": {
+      "name": "bikerogex",
       "displayName": "Biker OG",
       "id": 166,
       "buyable": false,
@@ -1887,7 +1905,8 @@
       "price": 400,
       "swordFileName": "seafireSword.png",
       "bodyFileName": "seafirePlayer.png",
-      "description": "When lava and water meet by the volcano’s side, the sea ignites."
+      "description": "When lava and water meet by the volcano’s side, the sea ignites.",
+      "crates": [10, 20, 30]
     },
     "keyboard": {
       "name": "keyboard",
@@ -1897,7 +1916,8 @@
       "price": 3000,
       "swordFileName": "keyboardSword.png",
       "bodyFileName": "keyboardPlayer.png",
-      "description": "Beethoven would be proud."
+      "description": "Beethoven would be proud.",
+      "crates": [14, 16]
     },
     "ghost": {
       "name": "ghost",
@@ -1907,7 +1927,8 @@
       "price": 1500,
       "swordFileName": "ghostSword.png",
       "bodyFileName": "ghostPlayer.png",
-      "description": "Boo!"
+      "description": "Boo!",
+      "crates": [8, 11, 15]
     },
     "hypersphere": {
       "name": "hypersphere",
@@ -1917,7 +1938,8 @@
       "price": 1111,
       "swordFileName": "hypersphereSword.png",
       "bodyFileName": "hyperspherePlayer.png",
-      "description": "Enter the hyperverse..."
+      "description": "Enter the hyperverse...",
+      "crates": [1]
     },
     "udon": {
       "name": "udon",
@@ -1927,7 +1949,8 @@
       "price": 500,
       "swordFileName": "udonSword.png",
       "bodyFileName": "udonPlayer.png",
-      "description": "You can't fight on an empty stomach."
+      "description": "You can't fight on an empty stomach.",
+      "crates": [6]
     },
     "gingerbread": {
       "name": "gingerbread",
@@ -1937,7 +1960,8 @@
       "price": 200,
       "swordFileName": "gingerbreadSword.png",
       "bodyFileName": "gingerbreadPlayer.png",
-      "description": "Tis the season to eat gingerbread! Nom nom nom nom nom, Nom nom, Nom, Nom."
+      "description": "Tis the season to eat gingerbread! Nom nom nom nom nom, Nom nom, Nom, Nom.",
+      "crates": [6, 7]
     },
     "corruption": {
       "name": "corruption",
@@ -1947,7 +1971,8 @@
       "price": 2000,
       "swordFileName": "corruptionSword.png",
       "bodyFileName": "corruptionPlayer.png",
-      "description": "The corruption spreads..."
+      "description": "The corruption spreads...",
+      "crates": [8, 25]
     },
     "pawn": {
       "name": "pawn",
@@ -1957,7 +1982,8 @@
       "price": 15000,
       "swordFileName": "pawnSword.png",
       "bodyFileName": "pawnPlayer.png",
-      "description": "Checkmate!"
+      "description": "Checkmate!",
+      "crates": [15]
     },
     "miner": {
       "name": "miner",
@@ -1967,7 +1993,8 @@
       "price": 750000,
       "swordFileName": "minerSword.png",
       "bodyFileName": "minerPlayer.png",
-      "description": "Dig for gold!"
+      "description": "Dig for gold!",
+      "crates": [19, 22, 30, 31]
     },
     "snowglobe": {
       "name": "snowglobe",
@@ -1977,7 +2004,8 @@
       "price": 360000,
       "swordFileName": "snowglobeSword.png",
       "bodyFileName": "snowglobePlayer.png",
-      "description": "Let it snow!"
+      "description": "Let it snow!",
+      "crates": [7, 36]
     }
     ,
     "maskedPhoenix": {
@@ -1988,7 +2016,8 @@
       "price": 20000,
       "swordFileName": "maskedPhoenixSword.png",
       "bodyFileName": "maskedPhoenixPlayer.png",
-      "description": "Rise from the ashes!"
+      "description": "Rise from the ashes!",
+      "crates": [24, 29, 30]
     },
     "blade": {
       "name": "blade",
@@ -1998,7 +2027,8 @@
       "price": 10000,
       "swordFileName": "bladeSword.png",
       "bodyFileName": "bladePlayer.png",
-      "description": "Technoblade never dies!"
+      "description": "Technoblade never dies!",
+      "crates": [23, 30]
     },
     "aerial": {
       "name": "aerial",
@@ -2008,7 +2038,8 @@
       "price": 555,
       "swordFileName": "aerialSword.png",
       "bodyFileName": "aerialPlayer.png",
-      "description": "Strike from the skies!"
+      "description": "Strike from the skies!",
+      "crates": [10, 14, 28, 33, 36]
     },
     "aztec": {
       "name": "aztec",
@@ -2018,7 +2049,8 @@
       "price": 150000,
       "swordFileName": "aztecSword.png",
       "bodyFileName": "aztecPlayer.png",
-      "description": "A lost artifact that has finally been found..."
+      "description": "A lost artifact that has finally been found...",
+      "crates": [11, 12, 33]
     },
     "bombboy": {
       "name": "bombboy",
@@ -2028,7 +2060,8 @@
       "price": 650,
       "swordFileName": "bombboySword.png",
       "bodyFileName": "bombboyPlayer.png",
-      "description": "Explosive!"
+      "description": "Explosive!",
+      "crates": [19, 23, 30]
     },
     "bonedragon": {
       "name": "bonedragon",
@@ -2038,7 +2071,8 @@
       "price": 100000,
       "swordFileName": "bonedragonSword.png",
       "bodyFileName": "bonedragonPlayer.png",
-      "description": "Reawaken the beast..."
+      "description": "Reawaken the beast...",
+      "crates": [5, 8, 29]
     },
     "coolcarl": {
       "name": "coolcarl",
@@ -2048,7 +2082,8 @@
       "price": 1250,
       "swordFileName": "coolcarlSword.png",
       "bodyFileName": "coolcarlPlayer.png",
-      "description": "He's just cool like that."
+      "description": "He's just cool like that.",
+      "crates": [23, 30]
     },
     "crabby": {
       "name": "crabby",
@@ -2058,7 +2093,8 @@
       "price": 3000,
       "swordFileName": "crabbySword.png",
       "bodyFileName": "crabbyPlayer.png",
-      "description": "For cranky grinders and crabby fighters."
+      "description": "For cranky grinders and crabby fighters.",
+      "crates": [5, 6, 32]
     },
     "danger": {
       "name": "danger",
@@ -2068,7 +2104,8 @@
       "price": 12500,
       "swordFileName": "dangerSword.png",
       "bodyFileName": "dangerPlayer.png",
-      "description": "I am the danger..."
+      "description": "I am the danger...",
+      "crates": [13, 22, 29, 33]
     },
     "dragonfly": {
       "name": "dragonfly",
@@ -2078,7 +2115,8 @@
       "price": 7500,
       "swordFileName": "dragonflySword.png",
       "bodyFileName": "dragonflyPlayer.png",
-      "description": "As ferocious as a dragon, as fast as a fly."
+      "description": "As ferocious as a dragon, as fast as a fly.",
+      "crates": [5, 12]
     },
     "midnight": {
       "name": "midnight",
@@ -2088,7 +2126,8 @@
       "price": 14500,
       "swordFileName": "midnightSword.png",
       "bodyFileName": "midnightPlayer.png",
-      "description": "Swords are only silhouettes in the darkness..."
+      "description": "Swords are only silhouettes in the darkness...",
+      "crates": [2, 14, 28]
     },
     "void": {
       "name": "void",
@@ -2098,7 +2137,8 @@
       "price": 14000,
       "swordFileName": "voidSword.png",
       "bodyFileName": "voidPlayer.png",
-      "description": "The gateway between reality and oblivion..."
+      "description": "The gateway between reality and oblivion...",
+      "crates": [2, 14, 24, 34]
     },
     "pixel": {
       "name": "pixel",
@@ -2108,7 +2148,8 @@
       "price": 3500,
       "swordFileName": "pixelSword.png",
       "bodyFileName": "pixelPlayer.png",
-      "description": "Pixel is better."
+      "description": "Pixel is better.",
+      "crates": [15, 23]
     },
     "rose": {
       "name": "rose",
@@ -2118,7 +2159,8 @@
       "price": 5999,
       "swordFileName": "roseSword.png",
       "bodyFileName": "rosePlayer.png",
-      "description": "Flatter the competition."
+      "description": "Flatter the competition.",
+      "crates": [7, 12]
     },
     "shell": {
       "name": "shell",
@@ -2128,7 +2170,8 @@
       "price": 26000,
       "swordFileName": "shellSword.png",
       "bodyFileName": "shellPlayer.png",
-      "description": "Quick! Hide in your shell."
+      "description": "Quick! Hide in your shell.",
+      "crates": [7, 11, 12, 33]
     },
     "stainedglass": {
       "name": "stainedglass",
@@ -2138,7 +2181,8 @@
       "price": 13000,
       "swordFileName": "stainedglassSword.png",
       "bodyFileName": "stainedglassPlayer.png",
-      "description": "Too cool to be normal glass, yet too opaque to bee seen through"
+      "description": "Too cool to be normal glass, yet too opaque to bee seen through",
+      "crates": [4, 14, 22, 33]
     },
     "goldeneye": {
       "name": "goldeneye",
@@ -2148,7 +2192,8 @@
       "price": 62500,
       "swordFileName": "goldeneyeSword.png",
       "bodyFileName": "goldeneyePlayer.png",
-      "description": "The eye of the beholder."
+      "description": "The eye of the beholder.",
+      "crates": [8, 23, 30, 31]
     },
     "ancientcoin": {
       "name": "ancientcoin",
@@ -2158,7 +2203,8 @@
       "price": 35000,
       "swordFileName": "ancientcoinSword.png",
       "bodyFileName": "ancientcoinPlayer.png",
-      "description": "Once a simple coin, now a relic worth thousands"
+      "description": "Once a simple coin, now a relic worth thousands",
+      "crates": [11, 31, 33]
     },
     "apple": {
       "name": "apple",
@@ -2168,9 +2214,10 @@
       "price": 125,
       "swordFileName": "appleSword.png",
       "bodyFileName": "applePlayer.png",
-      "description": "An apple a day keeps The Roku away!"
+      "description": "An apple a day keeps The Roku away!",
+      "crates": [6, 12]
     },
-"auroraborealis": {
+    "auroraborealis": {
       "name": "auroraborealis",
       "displayName": "Aurora Borealis",
       "id": 223,
@@ -2178,7 +2225,8 @@
       "price": 900,
       "swordFileName": "auroraborealisSword.png",
       "bodyFileName": "auroraborealisPlayer.png",
-      "description": "Distract your opponents with a magnificent sight to see."
+      "description": "Distract your opponents with a magnificent sight to see.",
+      "crates": [2, 4, 12, 28]
     },
     "autumn": {
       "name": "autumn",
@@ -2188,17 +2236,19 @@
       "price": 150,
       "swordFileName": "autumnSword.png",
       "bodyFileName": "autumnPlayer.png",
-      "description": "Autumn is here!"
+      "description": "Autumn is here!",
+      "crates": [7, 12]
     },
-    "beachv2": {
-      "name": "beachv2",
+    "beach v2": {
+      "name": "beach v2",
       "displayName": "Beach",
       "id": 225,
       "buyable": true,
       "price": 2500,
       "swordFileName": "beachv2Sword.png",
       "bodyFileName": "beachv2Player.png",
-      "description": "As I see it, summer never ends!"
+      "description": "As I see it, summer never ends!",
+      "crates": [7, 27, 32]
     },
     "blackandwhite": {
       "name": "blackandwhite",
@@ -2208,17 +2258,19 @@
       "price": 12000,
       "swordFileName": "blackandwhiteSword.png",
       "bodyFileName": "blackandwhitePlayer.png",
-      "description": "A warrior of true balance"
+      "description": "A warrior of true balance",
+      "crates": [14, 23, 25, 30]
     },
-    "blueberryv2": {
-      "name": "blueberryv2",
+    "blueberry v2": {
+      "name": "blueberry v2",
       "displayName": "Blueberry",
       "id": 227,
       "buyable": true,
       "price": 80,
       "swordFileName": "blueberryv2Sword.png",
       "bodyFileName": "blueberryv2Player.png",
-      "description": "Embrace the sweet taste of victory!"
+      "description": "Embrace the sweet taste of victory!",
+      "crates": [6, 12, 27]
     },
     "brick": {
       "name": "brick",
@@ -2228,7 +2280,8 @@
       "price": 800,
       "swordFileName": "brickSword.png",
       "bodyFileName": "brickPlayer.png",
-      "description": "Smack your enemies with the force of a thousand bricks!"
+      "description": "Smack your enemies with the force of a thousand bricks!",
+      "crates": [14, 22, 33]
     },
     "broken": {
       "name": "broken",
@@ -2238,7 +2291,8 @@
       "price": 8500,
       "swordFileName": "brokenSword.png",
       "bodyFileName": "brokenPlayer.png",
-      "description": "Something that was never meant to be seen..."
+      "description": "Something that was never meant to be seen...",
+      "crates": [1, 14, 18, 25]
     },
     "chest": {
       "name": "chest",
@@ -2248,7 +2302,8 @@
       "price": 22500,
       "swordFileName": "chestSword.png",
       "bodyFileName": "chestPlayer.png",
-      "description": "You have become the very thing you swore to destroy!"
+      "description": "You have become the very thing you swore to destroy!",
+      "crates": [22, 31]
     },
     "chroma": {
       "name": "chroma",
@@ -2258,7 +2313,8 @@
       "price": 255255,
       "swordFileName": "chromaSword.png",
       "bodyFileName": "chromaPlayer.png",
-      "description": "A prismatic amalgamation..."
+      "description": "A prismatic amalgamation...",
+      "crates": [4, 33]
     },
     "cowboy": {
       "name": "cowboy",
@@ -2268,7 +2324,8 @@
       "price": 600,
       "swordFileName": "cowboySword.png",
       "bodyFileName": "cowboyPlayer.png",
-      "description": "Yeehaw!"
+      "description": "Yeehaw!",
+      "crates": [19, 29, 30]
     },
     "crosshair": {
       "name": "crosshair",
@@ -2278,7 +2335,8 @@
       "price": 27500,
       "swordFileName": "crosshairSword.png",
       "bodyFileName": "crosshairPlayer.png",
-      "description": "This might come as a surprise, but I'm pretty good at throwing swords"
+      "description": "This might come as a surprise, but I'm pretty good at throwing swords",
+      "crates": [19, 21, 29, 33, 34]
     },
     "cybernetic": {
       "name": "cybernetic",
@@ -2288,7 +2346,8 @@
       "price": 600000,
       "swordFileName": "cyberneticSword.png",
       "bodyFileName": "cyberneticPlayer.png",
-      "description": "The final advancement in technology..."
+      "description": "The final advancement in technology...",
+      "crates": [1, 2, 30, 34]
     },
     "digital": {
       "name": "digital",
@@ -2298,7 +2357,8 @@
       "price": 10101,
       "swordFileName": "digitalSword.png",
       "bodyFileName": "digitalPlayer.png",
-      "description": "01110011 01110111 01101111 01110010 01100100"
+      "description": "01110011 01110111 01101111 01110010 01100100",
+      "crates": [1, 13, 14, 33, 35]
     },
     "disguised": {
       "name": "disguised",
@@ -2308,17 +2368,19 @@
       "price": 9000,
       "swordFileName": "disguisedSword.png",
       "bodyFileName": "disguisedPlayer.png",
-      "description": "Who's behind the disguise?"
+      "description": "Who's behind the disguise?",
+      "crates": [8, 24, 29, 30]
     },
-    "donutv2": {
-      "name": "donutv2",
+    "donut v2": {
+      "name": "donut v2",
       "displayName": "Donut",
       "id": 237,
       "buyable": true,
       "price": 8000,
       "swordFileName": "donutv2Sword.png",
       "bodyFileName": "donutv2Player.png",
-      "description": "SUGAR RUSH!!!"
+      "description": "SUGAR RUSH!!!",
+      "crates": [6, 27]
     },
     "fireandwater": {
       "name": "fireandwater",
@@ -2328,7 +2390,8 @@
       "price": 5566,
       "swordFileName": "fireandwaterSword.png",
       "bodyFileName": "fireandwaterPlayer.png",
-      "description": "An equilibrium of elements."
+      "description": "An equilibrium of elements.",
+      "crates": [10, 25]
     },
     "firework": {
       "name": "firework",
@@ -2338,17 +2401,19 @@
       "price": 6500,
       "swordFileName": "fireworkSword.png",
       "bodyFileName": "fireworkPlayer.png",
-      "description": "Beautiful to watch until the fireworks start going after you!"
+      "description": "Beautiful to watch until the fireworks start going after you!",
+      "crates": [2, 4, 19, 28]
     },
-    "glassv2": {
-      "name": "glassv2",
+    "glass v2": {
+      "name": "glass v2",
       "displayName": "Glass",
       "id": 240,
       "buyable": true,
       "price": 4500,
       "swordFileName": "glassv2Sword.png",
       "bodyFileName": "glassv2Player.png",
-      "description": "Let me be clear..."
+      "description": "Let me be clear...",
+      "crates": [14, 22, 27]
     },
     "golden": {
       "name": "golden",
@@ -2358,7 +2423,8 @@
       "price": 25000,
       "swordFileName": "goldenSword.png",
       "bodyFileName": "goldenPlayer.png",
-      "description": "I'm made of coins, both metaphorically and literally!"
+      "description": "I'm made of coins, both metaphorically and literally!",
+      "crates": [14, 22, 31]
     },
     "hologram": {
       "name": "hologram",
@@ -2368,7 +2434,8 @@
       "price": 3250,
       "swordFileName": "hologramSword.png",
       "bodyFileName": "hologramPlayer.png",
-      "description": "The thing you're fighting is no longer physical..."
+      "description": "The thing you're fighting is no longer physical...",
+      "crates": [1, 14, 29]
     },
     "hotairballoon": {
       "name": "hotairballoon",
@@ -2378,7 +2445,8 @@
       "price": 450,
       "swordFileName": "hotairballoonSword.png",
       "bodyFileName": "hotairballoonPlayer.png",
-      "description": "Send your opponents sailing into the sky!"
+      "description": "Send your opponents sailing into the sky!",
+      "crates": [4, 33]
     },
     "infinity": {
       "name": "infinity",
@@ -2388,7 +2456,8 @@
       "price": 88888,
       "swordFileName": "infinitySword.png",
       "bodyFileName": "infinityPlayer.png",
-      "description": "No longer bound by limits..."
+      "description": "No longer bound by limits...",
+      "crates": [1, 13, 33, 35]
     },
     "light": {
       "name": "light",
@@ -2398,7 +2467,8 @@
       "price": 550,
       "swordFileName": "lightSword.png",
       "bodyFileName": "lightPlayer.png",
-      "description": "Too bright!"
+      "description": "Too bright!",
+      "crates": [4, 10, 34]
     },
     "lightningconjurer": {
       "name": "lightningconjurer",
@@ -2408,7 +2478,8 @@
       "price": 17500,
       "swordFileName": "lightningconjurerSword.png",
       "bodyFileName": "lightningconjurerPlayer.png",
-      "description": "Strike down your opponents (literally)"
+      "description": "Strike down your opponents (literally)",
+      "crates": [9, 10]
     },
     "luminous": {
       "name": "luminous",
@@ -2418,7 +2489,8 @@
       "price": 750,
       "swordFileName": "luminousSword.png",
       "bodyFileName": "luminousPlayer.png",
-      "description": "Light up the arena!"
+      "description": "Light up the arena!",
+      "crates": [4, 34]
     },
     "mace": {
       "name": "mace",
@@ -2428,7 +2500,8 @@
       "price": 7000,
       "swordFileName": "maceSword.png",
       "bodyFileName": "macePlayer.png",
-      "description": "Why slice your enemies when you can simply whack them?"
+      "description": "Why slice your enemies when you can simply whack them?",
+      "crates": [2, 19, 21, 29]
     },
     "magmatic": {
       "name": "magmatic",
@@ -2438,7 +2511,8 @@
       "price": 30000,
       "swordFileName": "magmaticSword.png",
       "bodyFileName": "magmaticPlayer.png",
-      "description": "Conjure magma from deep in the mantle..."
+      "description": "Conjure magma from deep in the mantle...",
+      "crates": [9, 10, 20, 30]
     },
     "metal": {
       "name": "metal",
@@ -2448,7 +2522,8 @@
       "price": 275,
       "swordFileName": "metalSword.png",
       "bodyFileName": "metalPlayer.png",
-      "description": "Great for both swords and armor!"
+      "description": "Great for both swords and armor!",
+      "crates": [14, 21, 22]
     },
     "orange": {
       "name": "orange",
@@ -2458,7 +2533,8 @@
       "price": 2250,
       "swordFileName": "orangeSword.png",
       "bodyFileName": "orangePlayer.png",
-      "description": "Can you handle the tang?"
+      "description": "Can you handle the tang?",
+      "crates": [6, 12]
     },
     "radar": {
       "name": "radar",
@@ -2468,7 +2544,8 @@
       "price": 5750,
       "swordFileName": "radarSword.png",
       "bodyFileName": "radarPlayer.png",
-      "description": "You can't hide from me!"
+      "description": "You can't hide from me!",
+      "crates": [1, 21, 24, 33]
     },
     "redux": {
       "name": "redux",
@@ -2478,7 +2555,8 @@
       "price": 1000,
       "swordFileName": "reduxSword.png",
       "bodyFileName": "reduxPlayer.png",
-      "description": "The same original skin in a modern, polished style!"
+      "description": "The same original skin in a modern, polished style!",
+      "crates": [14, 18, 27]
     },
     "refusal": {
       "name": "refusal",
@@ -2488,7 +2566,8 @@
       "price": 350,
       "swordFileName": "refusalSword.png",
       "bodyFileName": "refusalPlayer.png",
-      "description": "Never accept defeat!"
+      "description": "Never accept defeat!",
+      "crates": [13, 14]
     },
     "robo": {
       "name": "robo",
@@ -2498,7 +2577,8 @@
       "price": 2750,
       "swordFileName": "roboSword.png",
       "bodyFileName": "roboPlayer.png",
-      "description": "Battle mode activated!"
+      "description": "Battle mode activated!",
+      "crates": [1, 14, 23]
     },
     "shield": {
       "name": "shield",
@@ -2508,27 +2588,30 @@
       "price": 45000,
       "swordFileName": "shieldSword.png",
       "bodyFileName": "shieldPlayer.png",
-      "description": "The best defense!"
+      "description": "The best defense!",
+      "crates": [11, 19, 21]
     },
     "steampunk": {
       "name": "steampunk",
       "displayName": "Steampunk",
       "id": 257,
       "buyable": true,
-      "price": 525525,
+      "price": 500000,
       "swordFileName": "steampunkSword.png",
       "bodyFileName": "steampunkPlayer.png",
-      "description": "Killin' like clockwork"
+      "description": "Killin' like clockwork",
+      "crates": [1, 22, 30]
     },
-    "sunsetv2": {
-      "name": "sunsetv2",
+    "sunset v2": {
+      "name": "sunset v2",
       "displayName": "Sunset",
       "id": 258,
       "buyable": true,
       "price": 3333,
       "swordFileName": "sunsetv2Sword.png",
       "bodyFileName": "sunsetv2Player.png",
-      "description": "The last light your enemies will see before darkness..."
+      "description": "The last light your enemies will see before darkness...",
+      "crates": [4, 7, 27, 28]
     },
     "thedivider": {
       "name": "thedivider",
@@ -2538,7 +2621,8 @@
       "price": 200200,
       "swordFileName": "thedividerSword.png",
       "bodyFileName": "thedividerPlayer.png",
-      "description": "A single slice will divide anything into two..."
+      "description": "A single slice will divide anything into two...",
+      "crates": [1, 21, 25, 30]
     },
     "unknown": {
       "name": "unknown",
@@ -2548,7 +2632,8 @@
       "price": 70,
       "swordFileName": "unknownSword.png",
       "bodyFileName": "unknownPlayer.png",
-      "description": "Who knows?"
+      "description": "Who knows?",
+      "crates": [2, 13, 14, 24, 27]
     },
     "world": {
       "name": "world",
@@ -2558,7 +2643,8 @@
       "price": 4250,
       "swordFileName": "worldSword.png",
       "bodyFileName": "worldPlayer.png",
-      "description": "Swing swords across the globe!"
+      "description": "Swing swords across the globe!",
+      "crates": [7, 11, 12]
     },
     "desertninja": {
       "name": "desertninja",
@@ -2568,7 +2654,8 @@
       "price": 22222,
       "swordFileName": "desertninjaSword.png",
       "bodyFileName": "desertninjaPlayer.png",
-      "description": "Just another grain of sand throughout the endless dunes..."
+      "description": "Just another grain of sand throughout the endless dunes...",
+      "crates": [3, 30]
     },
     "lavaninja": {
       "name": "lavaninja",
@@ -2578,7 +2665,8 @@
       "price": 33333,
       "swordFileName": "lavaninjaSword.png",
       "bodyFileName": "lavaninjaPlayer.png",
-      "description": "You can probably guess what this guy's favorite biome is"
+      "description": "You can probably guess what this guy's favorite biome is",
+      "crates": [3, 20, 30, 33]
     },
     "thundercloudninja": {
       "name": "thundercloudninja",
@@ -2588,7 +2676,8 @@
       "price": 44444,
       "swordFileName": "thundercloudninjaSword.png",
       "bodyFileName": "thundercloudninjaPlayer.png",
-      "description": "Hide in the clouds and strike from above!"
+      "description": "Hide in the clouds and strike from above!",
+      "crates": [3, 23, 30, 34]
     },
     "summitninja": {
       "name": "summitninja",
@@ -2598,7 +2687,8 @@
       "price": 55555,
       "swordFileName": "summitninjaSword.png",
       "bodyFileName": "summitninjaPlayer.png",
-      "description": "There are always challenges to face before you reach the summit..."
+      "description": "There are always challenges to face before you reach the summit...",
+      "crates": [3, 30, 36]
     },
     "nightmareninja": {
       "name": "nightmareninja",
@@ -2608,7 +2698,8 @@
       "price": 66666,
       "swordFileName": "nightmareninjaSword.png",
       "bodyFileName": "nightmareninjaPlayer.png",
-      "description": "There's always a reason why people become evil..."
+      "description": "There's always a reason why people become evil...",
+      "crates": [2, 3, 29, 34]
     },
     "forestninja": {
       "name": "forestninja",
@@ -2618,17 +2709,19 @@
       "price": 9999,
       "swordFileName": "forestninjaSword.png",
       "bodyFileName": "forestninjaPlayer.png",
-      "description": "A rogue soldier who travels alone."
+      "description": "A rogue soldier who travels alone.",
+      "crates": [3, 12, 30]
     },
-    "ninjav2": {
-      "name": "ninjav2",
+    "ninja v2": {
+      "name": "ninja v2",
       "displayName": "Ninja",
       "id": 268,
       "buyable": true,
       "price": 111,
       "swordFileName": "ninjav2Sword.png",
       "bodyFileName": "ninjav2Player.png",
-      "description": "A warrior with swiftness and stealth..."
+      "description": "A warrior with swiftness and stealth...",
+      "crates": [3, 24, 27, 30]
     },
     "ash": {
       "name": "ash",
@@ -2638,7 +2731,8 @@
       "price": 850,
       "swordFileName": "ashSword.png",
       "bodyFileName": "ashPlayer.png",
-      "description": "The last thing remaining after everything else has burned down..."
+      "description": "The last thing remaining after everything else has burned down...",
+      "crates": [2, 24, 29, 33]
     },
     "empyrean": {
       "name": "empyrean",
@@ -2648,7 +2742,8 @@
       "price": 13500,
       "swordFileName": "empyreanSword.png",
       "bodyFileName": "empyreanPlayer.png",
-      "description": "Ward off the evil energy of the void"
+      "description": "Ward off the evil energy of the void",
+      "crates": [4, 14, 33]
     },
     "fade": {
       "name": "fade",
@@ -2658,7 +2753,8 @@
       "price": 4321,
       "swordFileName": "fadeSword.png",
       "bodyFileName": "fadePlayer.png",
-      "description": "Make your enemies fade away..."
+      "description": "Make your enemies fade away...",
+      "crates": [14, 21, 33]
     },
     "nightlurker": {
       "name": "nightlurker",
@@ -2668,7 +2764,8 @@
       "price": 60000,
       "swordFileName": "nightlurkerSword.png",
       "bodyFileName": "nightlurkerPlayer.png",
-      "description": "Still remains to be seen..."
+      "description": "Still remains to be seen...",
+      "crates": [2, 5, 8, 24]
     },
     "obliterator": {
       "name": "obliterator",
@@ -2678,7 +2775,8 @@
       "price": 1000000,
       "swordFileName": "obliteratorSword.png",
       "bodyFileName": "obliteratorPlayer.png",
-      "description": "Death is inevitable."
+      "description": "Death is inevitable.",
+      "crates": [1, 21, 29, 30]
     },
     "frostconjurer": {
       "name": "frostconjurer",
@@ -2688,17 +2786,19 @@
       "price": 23750,
       "swordFileName": "frostconjurerSword.png",
       "bodyFileName": "frostconjurerPlayer.png",
-      "description": "It's a cold world out there"
+      "description": "It's a cold world out there",
+      "crates": [9, 10, 14, 36]
     },
-    "basketballv2": {
-      "name": "basketballv2",
+    "basketball v2": {
+      "name": "basketball v2",
       "displayName": "Basketball",
       "id": 275,
       "buyable": true,
       "price": 75,
       "swordFileName": "basketballv2Sword.png",
       "bodyFileName": "basketballv2Player.png",
-      "description": "Shoot some hoops and stab some enemies!"
+      "description": "Shoot some hoops and stab some enemies!",
+      "crates": [17, 27]
     },
     "bit": {
       "name": "bit",
@@ -2708,7 +2808,8 @@
       "price": 825,
       "swordFileName": "bitSword.png",
       "bodyFileName": "bitPlayer.png",
-      "description": "Keeping it retro!"
+      "description": "Keeping it retro!",
+      "crates": [15, 18]
     },
     "leafpile": {
       "name": "leafpile",
@@ -2718,7 +2819,8 @@
       "price": 525,
       "swordFileName": "leafpileSword.png",
       "bodyFileName": "leafpilePlayer.png",
-      "description": "A portable alternative to hiding in trees!"
+      "description": "A portable alternative to hiding in trees!",
+      "crates": [7, 12, 33]
     },
     "necromancer": {
       "name": "necromancer",
@@ -2728,7 +2830,8 @@
       "price": 4000,
       "swordFileName": "necromancerSword.png",
       "bodyFileName": "necromancerPlayer.png",
-      "description": "I can never die!"
+      "description": "I can never die!",
+      "crates": [2, 8, 29, 30, 34]
     },
     "flameconjurer": {
       "name": "flameconjurer",
@@ -2738,7 +2841,8 @@
       "price": 5250,
       "swordFileName": "flameconjurerSword.png",
       "bodyFileName": "flameconjurerPlayer.png",
-      "description": "The flame never stops burning..."
+      "description": "The flame never stops burning...",
+      "crates": [9, 10, 20, 30]
     },
     "steel": {
       "name": "steel",
@@ -2748,7 +2852,8 @@
       "price": 999,
       "swordFileName": "steelSword.png",
       "bodyFileName": "steelPlayer.png",
-      "description": "Shiny and polished!"
+      "description": "Shiny and polished!",
+      "crates": [21, 22]
     },
     "frosthologram": {
       "eventoffsale": true,
@@ -2858,15 +2963,16 @@
       "bodyFileName": "winterFrozenPlayer.png",
       "description": "At least I'm well-preserved!"
     },
-    "winterv2": {
-      "name": "winterv2",
+    "winter v2": {
+      "name": "winter v2",
       "displayName": "Winter",
       "id": 290,
       "buyable": true,
       "price": 150,
       "swordFileName": "winterWinterSword.png",
       "bodyFileName": "winterWinterPlayer.png",
-      "description": "Winter is here!"
+      "description": "Winter is here!",
+      "crates": [7, 36, 27]
     },
     "festive": {
       "eventoffsale": true,
@@ -2892,15 +2998,16 @@
       "bodyFileName": "winterSharpshooterPlayer.png",
       "description": "Oh, you said “sword” battle?"
     },
-    "scythev2": {
-      "name": "scythev2",
+    "scythe v2": {
+      "name": "scythe v2",
       "displayName": "Scythe",
       "id": 293,
       "buyable": true,
       "price": 40000,
       "swordFileName": "scythev2Sword.png",
       "bodyFileName": "scythev2Player.png",
-      "description": "Scythes are always better than swords..."
+      "description": "Scythes are always better than swords...",
+      "crates": [8, 19, 20, 26, 29]
     },
     "yetiscythe": {
       "eventoffsale": true,
@@ -2934,7 +3041,8 @@
       "price": 700,
       "swordFileName": "fireSword.png",
       "bodyFileName": "firePlayer.png",
-      "description": "🔥🔥🔥🔥🔥"
+      "description": "🔥🔥🔥🔥🔥",
+      "crates": [10, 14, 20]
     },
     "cryofire": {
       "eventoffsale": true,
@@ -2956,7 +3064,8 @@
       "price": 675,
       "swordFileName": "waterSword.png",
       "bodyFileName": "waterPlayer.png",
-      "description": "💧💧💧💧💧"
+      "description": "💧💧💧💧💧",
+      "crates": [9, 10, 12, 32]
     },
     "iceconjurer": {
       "eventoffsale": true,
@@ -2990,7 +3099,8 @@
       "price": 300,
       "swordFileName": "emoticonSword.png",
       "bodyFileName": "emoticonPlayer.png",
-      "description": ":v"
+      "description": ":v",
+      "crates": [1, 13, 23]
     },
     "unknownrune": {
       "eventoffsale": true,
@@ -3140,7 +3250,8 @@
       "price": 90,
       "swordFileName": "eggSword.png",
       "bodyFileName": "eggPlayer.png",
-      "description": "“You better scramble like an egg before you get folded like an omelet”"
+      "description": "“You better scramble like an egg before you get folded like an omelet”",
+      "crates": [6]
     },
     "rainbowluminous": {
       "ultimate": true,
@@ -3409,7 +3520,8 @@
       "price": 1313,
       "swordFileName": "firepatternSword.png",
       "bodyFileName": "firepatternPlayer.png",
-      "description": "A symmetrical formation made of magma and flames."
+      "description": "A symmetrical formation made of magma and flames.",
+      "crates": [10, 20]
     },
     "waterpattern": {
       "ultimate": true,
@@ -3542,7 +3654,8 @@
       "price": 1400,
       "swordFileName": "snowballSword.png",
       "bodyFileName": "snowballPlayer.png",
-      "description": "Throw snowballs and swords at the same time!"
+      "description": "Throw snowballs and swords at the same time!",
+      "crates": [7, 14, 36]
     },
     "blackhole": {
       "name": "blackhole",
@@ -3577,7 +3690,8 @@
       "price": 65,
       "swordFileName": "colorfulSword.png",
       "bodyFileName": "colorfulPlayer.png",
-      "description": "Very vibrant"
+      "description": "Very vibrant",
+      "crates": [4, 14]
     },
     "flaming": {
       "name": "flaming",
@@ -3605,7 +3719,7 @@
       "ultimate": true,
       "tag": "Ultimate Skeleton",
       "name": "skullv2",
-      "displayName": "Skull",
+      "displayName": "Spooky Skull",
       "id": 355,
       "buyable": true,
       "price": 8500,
@@ -3644,7 +3758,8 @@
       "price": 5555,
       "swordFileName": "unreleasedWaveSword.png",
       "bodyFileName": "unreleasedWavePlayer.png",
-      "description": "The small waves are relaxing, but the big waves are deadly."
+      "description": "The small waves are relaxing, but the big waves are deadly.",
+      "crates": [12, 14, 32, 33]
     },
     "clockwork": {
       "ultimate": true,
@@ -3696,12 +3811,13 @@
       "price": 3210,
       "swordFileName": "possessedSword.png",
       "bodyFileName": "possessedPlayer.png",
-      "description": "Overtaken by something spectral..."
+      "description": "Overtaken by something spectral...",
+      "crates": [2, 8, 24]
     },
-    "arachnev2": {
+    "arachne v2": {
       "ultimate": true,
       "tag": "Ultimate Aphid",
-      "name": "arachnev2",
+      "name": "arachne v2",
       "displayName": "Arachne",
       "id": 364,
       "buyable": true,
@@ -3719,7 +3835,8 @@
       "price": 6350,
       "swordFileName": "emeraldwaterSword.png",
       "bodyFileName": "emeraldwaterPlayer.png",
-      "description": "A mixture of water and dissolved gems"
+      "description": "A mixture of water and dissolved gems",
+      "crates": [14, 32, 34]
     },
     "vibrant": {
       "ultimate": true,
@@ -3770,7 +3887,8 @@
       "price": 7777,
       "swordFileName": "grassSword.png",
       "bodyFileName": "grassPlayer.png",
-      "description": "Well, well, well..."
+      "description": "Well, well, well...",
+      "crates": [12, 14]
     },
     "truegrass": {
       "ultimate": true,
@@ -3808,7 +3926,8 @@
       "price": 3750,
       "swordFileName": "magmaSword.png",
       "bodyFileName": "magmaPlayer.png",
-      "description": "Molten rock material within the earth from which igneous rock is formed on cooling"
+      "description": "Molten rock material within the earth from which igneous rock is formed on cooling",
+      "crates": [10, 20, 33]
     },
     "truelava": {
       "ultimate": true,
@@ -3873,7 +3992,8 @@
       "price": 11500,
       "swordFileName": "aphidNewSword.png",
       "bodyFileName": "aphidNewNewNewNewPlayer.png",
-      "description": "A simple creature turned into a neon anomaly"
+      "description": "A simple creature turned into a neon anomaly",
+      "crates": [1, 5, 30, 34]
     },
     "eliminator": {
       "name": "eliminator",
@@ -3883,7 +4003,8 @@
       "price": 18500,
       "swordFileName": "eliminatorSword.png",
       "bodyFileName": "eliminatorPlayer.png",
-      "description": "The only thing left behind by the eliminator is the faint glow of neon."
+      "description": "The only thing left behind by the eliminator is the faint glow of neon.",
+      "crates": [1, 2, 29, 34]
     },
     "wood": {
       "name": "wood",
@@ -3893,7 +4014,8 @@
       "price": 975,
       "swordFileName": "woodSword.png",
       "bodyFileName": "woodPlayer.png",
-      "description": "Does this skin really need an explanation?"
+      "description": "Does this skin really need an explanation?",
+      "crates": [14, 22]
     },
     "darkness": {
       "ultimate": true,
@@ -3909,10 +4031,10 @@
       "bodyFileName": "ultimateAshPlayer.png",
       "description": "Nothing to see here! Literally"
     },
-    "bishopv2": {
+    "bishop v2": {
       "ultimate": true,
       "tag": "Ultimate Pawn",
-      "name": "bishopv2",
+      "name": "bishop v2",
       "displayName": "Bishop",
       "id": 381,
       "buyable": true,
@@ -3996,7 +4118,8 @@
       "price": 1600,
       "swordFileName": "violinSword.png",
       "bodyFileName": "violinPlayer.png",
-      "description": "Play a sad song for the ones you defeated"
+      "description": "Play a sad song for the ones you defeated",
+      "crates": [16]
     },
     "fishbowl": {
       "name": "fishbowl",
@@ -4006,7 +4129,8 @@
       "price": 1800,
       "swordFileName": "fishbowlSword.png",
       "bodyFileName": "fishbowlPlayer.png",
-      "description": "Maybe don't try eating this fish"
+      "description": "Maybe don't try eating this fish",
+      "crates": [5, 32]
     },
     "cheeseburger": {
       "name": "cheeseburger",
@@ -4016,7 +4140,8 @@
       "price": 1900,
       "swordFileName": "cheeseburgerSword.png",
       "bodyFileName": "cheeseburgerPlayer.png",
-      "description": "Tasty!"
+      "description": "Tasty!",
+      "crates": [6]
     },
     "bass": {
       "ultimate": true,
@@ -4081,7 +4206,8 @@
       "price": 375,
       "swordFileName": "futureSword.png",
       "bodyFileName": "futurePlayer.png",
-      "description": "From the future, but fighting in the present."
+      "description": "From the future, but fighting in the present.",
+      "crates": [1, 21, 30]
     },
     "futurizer": {
       "ultimate": true,
@@ -4105,7 +4231,8 @@
       "price": 2850,
       "swordFileName": "jellyfishSword.png",
       "bodyFileName": "jellyfishPlayer.png",
-      "description": "Found in Jellyfish Fields"
+      "description": "Found in Jellyfish Fields",
+      "crates": [5, 32]
     },
     "jelly": {
       "ultimate": true,
@@ -4129,7 +4256,8 @@
       "price": 3141,
       "swordFileName": "pidudeSword.png",
       "bodyFileName": "pidudePlayer.png",
-      "description": "Not yet a Pi Guy, just a Pi Dude"
+      "description": "Not yet a Pi Guy, just a Pi Dude",
+      "crates": [1, 21, 30, 35]
     },
     "pidiver": {
       "ultimate": true,
@@ -4248,8 +4376,6 @@
       "description": "Given to Number1 for being a former #3 all-time player!"
     },
     "marauder": {
-      "sale": true,
-
       "name": "marauder",
       "displayName": "Marauder",
       "id": 406,
@@ -4257,11 +4383,10 @@
       "price": 50000,
       "swordFileName": "marauderSword.png",
       "bodyFileName": "marauderPlayer.png",
-      "description": "Hunt them down..."
+      "description": "Hunt them down...",
+      "crates": [1, 2, 19, 29, 30]
     },
     "mechamarauder": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Marauder",
       "original": 406,
@@ -4275,21 +4400,18 @@
       "bodyFileName": "ultimateNewMarauderPlayer.png",
       "description": "Initialize Sequence SB-50. Activate Mech Protocol."
     },
-    "apocalypsev2": {
-      "sale": true,
-
-      "name": "apocalypsev2",
+    "apocalypse v2": {
+      "name": "apocalypse v2",
       "displayName": "Apocalypse",
       "id": 408,
       "buyable": true,
       "price": 19000,
       "swordFileName": "apocalypsev2Sword.png",
       "bodyFileName": "apocalypsev2Player.png",
-      "description": "End the world"
+      "description": "End the world",
+      "crates": [20, 26]
     },
     "atomic": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Apocalypse",
       "original": 408,
@@ -4304,8 +4426,6 @@
       "description": "Who knew one battler could hold this much power?"
     },
     "prismatic": {
-      "sale": true,
-
       "name": "prismatic",
       "displayName": "Prismatic",
       "id": 410,
@@ -4313,16 +4433,15 @@
       "price": 255,
       "swordFileName": "prismaticSword.png",
       "bodyFileName": "prismaticPlayer.png",
-      "description": "Bright and colorful!"
+      "description": "Bright and colorful!",
+      "crates": [4, 14]
     },
-    "rainbowv2": {
-      "sale": true,
-      
+    "rainbow v2": {
       "ultimate": true,
       "tag": "Ultimate Prismatic",
       "original": 410,
 
-      "name": "rainbowv2",
+      "name": "rainbow v2",
       "displayName": "Rainbow",
       "id": 411,
       "buyable": true,
@@ -4331,26 +4450,23 @@
       "bodyFileName": "ultimatePrismaticPlayer.png",
       "description": "Infinitely colorful..."
     },
-    "trippyv2": {
-      "sale": true,
-
-      "name": "trippyv2",
+    "trippy v2": {
+      "name": "trippy v2",
       "displayName": "Trippy",
       "id": 412,
       "buyable": true,
       "price": 3400,
       "swordFileName": "trippyv2Sword.png",
       "bodyFileName": "trippyv2Player.png",
-      "description": "Wear this skin and spin to give enemies headaches"
+      "description": "Wear this skin and spin to give enemies headaches",
+      "crates": [14, 27, 33]
     },
-    "illusionaryv2": {
-      "sale": true,
-      
+    "illusionary v2": {
       "ultimate": true,
       "tag": "Ultimate Trippy",
       "original": 412,
 
-      "name": "illusionaryv2",
+      "name": "illusionary v2",
       "displayName": "Illusionary",
       "id": 413,
       "buyable": true,
@@ -4360,8 +4476,6 @@
       "description": "Does it ever end?"
     },
     "tree": {
-      "sale": true,
-
       "name": "tree",
       "displayName": "Tree",
       "id": 414,
@@ -4369,11 +4483,10 @@
       "price": 400,
       "swordFileName": "treeSword.png",
       "bodyFileName": "treePlayer.png",
-      "description": "How does a tree even battle?"
+      "description": "How does a tree even battle?",
+      "crates": [11, 12]
     },
     "treedisguise": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Tree",
       "original": 414,
@@ -4386,6 +4499,1351 @@
       "swordFileName": "ultimateTreeSword.png",
       "bodyFileName": "ultimateTreePlayer.png",
       "description": "Nobody is actually falling for this but at least it looks cool"
+    },
+    "pyromancer": {
+      "sale": true,
+
+      "name": "pyromancer",
+      "displayName": "Pyromancer",
+      "id": 416,
+      "buyable": true,
+      "price": 400000,
+      "swordFileName": "pyromancerSword.png",
+      "bodyFileName": "pyromancerPlayer.png",
+      "description": "The creator of all fire and flames.",
+      "crates": []
+    },
+    "topaz": {
+      "sale": true,
+      
+      "name": "topaz",
+      "displayName": "Topaz",
+      "id": 417,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "topazSword.png",
+      "bodyFileName": "topazPlayer.png",
+      "description": "A gem that shines like the sun.",
+      "crates": []
+    },
+    "tiger v2": {
+      "sale": true,
+      
+      "name": "tiger v2",
+      "displayName": "Tiger",
+      "id": 418,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "tigerv2Sword.png",
+      "bodyFileName": "tigerv2Player.png",
+      "description": "Don't get in the way of its claws...",
+      "crates": []
+    },
+    "tire": {
+      "sale": true,
+      
+      "name": "tire",
+      "displayName": "Tire",
+      "id": 419,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "tireSword.png",
+      "bodyFileName": "tirePlayer.png",
+      "description": "Run over your enemies",
+      "crates": []
+    },
+    "moai": {
+      "sale": true,
+      
+      "name": "moai",
+      "displayName": "Moai",
+      "id": 420,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "moaiSword.png",
+      "bodyFileName": "moaiPlayer.png",
+      "description": "🗿",
+      "crates": []
+    },
+    "farmer v2": {
+      "sale": true,
+      
+      "name": "farmer v2",
+      "displayName": "Farmer",
+      "id": 421,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "farmerv2Sword.png",
+      "bodyFileName": "farmerv2Player.png",
+      "description": "Trained in the fields.",
+      "crates": []
+    },
+    "triangles": {
+      "sale": true,
+      
+      "name": "triangles",
+      "displayName": "Triangles",
+      "id": 422,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "trianglesSword.png",
+      "bodyFileName": "trianglesPlayer.png",
+      "description": "Attack from all angles!",
+      "crates": []
+    },
+    "classicfarmer": {
+      "sale": true,
+
+      "ultimate": true,
+      "tag": "Ultimate Farmer",
+      "original": 421,
+      
+      "name": "classicfarmer",
+      "displayName": "Classic Farmer",
+      "id": 423,
+      "buyable": true,
+      "price": 100,
+      "swordFileName": "ultimateFarmerSword.png",
+      "bodyFileName": "ultimateFarmerPlayer.png",
+      "description": "The OG of OGs",
+      "crates": []
+    },
+    "ghostplayer": {
+      "sale": true,
+
+      "ultimate": true,
+      "tag": "Ultimate Ghost",
+      "original": 183,
+      
+      "name": "ghostplayer",
+      "displayName": "Ghost Player",
+      "id": 424,
+      "buyable": true,
+      "price": 250,
+      "swordFileName": "ultimateGhostSword.png",
+      "bodyFileName": "ultimateGhostPlayer.png",
+      "description": "It gleams a ghostly green glow...",
+      "crates": []
+    },
+    "sick v2": {
+      "sale": true,
+      
+      "name": "sick v2",
+      "displayName": "Sick",
+      "id": 425,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "sickv2Sword.png",
+      "bodyFileName": "sickv2Player.png",
+      "description": "I don't feel so good... I need coins",
+      "crates": []
+    },
+    "comic v2": {
+      "sale": true,
+      
+      "name": "comic v2",
+      "displayName": "Comic",
+      "id": 426,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "comicv2Sword.png",
+      "bodyFileName": "comicv2Player.png",
+      "description": "Start your villain arc.",
+      "crates": []
+    },
+    "suit v2": {
+      "sale": true,
+      
+      "name": "suit v2",
+      "displayName": "The Suit",
+      "id": 427,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "suitv2Sword.png",
+      "bodyFileName": "suitv2Player.png",
+      "description": "Hide secrets under the suit...",
+      "crates": []
+    },
+    "painter v2": {
+      "sale": true,
+      
+      "name": "painter v2",
+      "displayName": "Painter",
+      "id": 428,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "painterv2Sword.png",
+      "bodyFileName": "painterv2Player.png",
+      "description": "The power of paint!",
+      "crates": []
+    },
+    "blobfish v2": {
+      "sale": true,
+      
+      "name": "blobfish v2",
+      "displayName": "Blobfish",
+      "id": 429,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "blobfishv2Sword.png",
+      "bodyFileName": "blobfishv2Player.png",
+      "description": "Don't leave the deep...",
+      "crates": []
+    },
+    "boar v2": {
+      "sale": true,
+      
+      "name": "boar v2",
+      "displayName": "Boar",
+      "id": 430,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "boarv2Sword.png",
+      "bodyFileName": "boarv2Player.png",
+      "description": "Sharp horns...",
+      "crates": []
+    },
+    "bubblegum v2": {
+      "sale": true,
+      
+      "name": "bubblegum v2",
+      "displayName": "Bubblegum",
+      "id": 431,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "bubblegumv2Sword.png",
+      "bodyFileName": "bubblegumv2Player.png",
+      "description": "Chew on this!",
+      "crates": []
+    },
+    "dragonfruit v2": {
+      "sale": true,
+      
+      "name": "dragonfruit v2",
+      "displayName": "Dragonfruit",
+      "id": 432,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "dragonfruitv2Sword.png",
+      "bodyFileName": "dragonfruitv2Player.png",
+      "description": "A fruit that is not a dragon",
+      "crates": []
+    },
+    "honeycomb v2": {
+      "sale": true,
+      
+      "name": "honeycomb v2",
+      "displayName": "Honeycomb",
+      "id": 433,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "honeycombv2Sword.png",
+      "bodyFileName": "honeycombv2Player.png",
+      "description": "Don't get stung!",
+      "crates": []
+    },
+    "mage v2": {
+      "sale": true,
+      
+      "name": "mage v2",
+      "displayName": "Mage",
+      "id": 434,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "magev2Sword.png",
+      "bodyFileName": "magev2Player.png",
+      "description": "Cast a spell!",
+      "crates": []
+    },
+    "mossmech v2": {
+      "sale": true,
+
+      "ultimate": true,
+      "tag": "Ultimate Grass",
+      "original": 369,
+      
+      "name": "mossmech v2",
+      "displayName": "Moss Mech",
+      "id": 435,
+      "buyable": true,
+      "price": 100,
+      "swordFileName": "ultimateGrassSword.png",
+      "bodyFileName": "ultimateGrassPlayer.png",
+      "description": "Rise from the wild and DOMINATE!",
+      "crates": []
+    },
+    "octopus v2": {
+      "sale": true,
+      
+      "name": "octopus v2",
+      "displayName": "The Octopus",
+      "id": 436,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "octopusv2Sword.png",
+      "bodyFileName": "octopusv2Player.png",
+      "description": "Drag them away",
+      "crates": []
+    },
+    "pirate v2": {
+      "sale": true,
+      
+      "name": "pirate v2",
+      "displayName": "Pirate",
+      "id": 437,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "piratev2Sword.png",
+      "bodyFileName": "piratev2Player.png",
+      "description": "Arrr matey! Set sail for the seas!",
+      "crates": []
+    },
+    "scuba v2": {
+      "sale": true,
+      
+      "name": "scuba v2",
+      "displayName": "Scuba",
+      "id": 438,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "scubav2Sword.png",
+      "bodyFileName": "scubav2Player.png",
+      "description": "Go deep for coins!",
+      "crates": []
+    },
+    "shark v2": {
+      "sale": true,
+      
+      "name": "shark v2",
+      "displayName": "Shark",
+      "id": 439,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "sharkv2Sword.png",
+      "bodyFileName": "sharkv2Player.png",
+      "description": "You never know what will hide in the deep ocean.",
+      "crates": []
+    },
+    "shuriken v2": {
+      "sale": true,
+      
+      "name": "shuriken v2",
+      "displayName": "Shuriken",
+      "id": 440,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "shurikenv2Sword.png",
+      "bodyFileName": "shurikenv2Player.png",
+      "description": "More than one edge.",
+      "crates": []
+    },
+    "skull v2": {
+      "sale": true,
+      
+      "name": "skull v2",
+      "displayName": "Skull",
+      "id": 441,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "skullv2Sword.png",
+      "bodyFileName": "skullv2Player.png",
+      "description": "Bad to the bone!",
+      "crates": []
+    },
+    "vaporwave v2": {
+      "sale": true,
+      
+      "name": "vaporwave v2",
+      "displayName": "Vaporwave",
+      "id": 442,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "vaporwavev2Sword.png",
+      "bodyFileName": "vaporwavev2Player.png",
+      "description": "Vaporwave is back!",
+      "crates": []
+    },
+    "vinyl v2": {
+      "sale": true,
+      
+      "name": "vinyl v2",
+      "displayName": "Vinyl",
+      "id": 443,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "vinylv2Sword.png",
+      "bodyFileName": "vinylv2Player.png",
+      "description": "Go old-fashioned.",
+      "crates": []
+    },
+    "alarm v2": {
+      "sale": true,
+      
+      "name": "alarm v2",
+      "displayName": "Alarm Clock",
+      "id": 444,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "alarmv2Sword.png",
+      "bodyFileName": "alarmv2Player.png",
+      "description": "Shak'em before they are ready",
+      "crates": []
+    },
+    "biker v2": {
+      "sale": true,
+      
+      "name": "biker v2",
+      "displayName": "Biker",
+      "id": 445,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "bikerv2Sword.png",
+      "bodyFileName": "bikerv2Player.png",
+      "description": "Ride or die",
+      "crates": []
+    },
+    "bottlecap v2": {
+      "sale": true,
+      
+      "name": "bottlecap v2",
+      "displayName": "Bottle Cap",
+      "id": 446,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "bottlecapv2Sword.png",
+      "bodyFileName": "bottlecapv2Player.png",
+      "description": "Gain a quick boost of energy!",
+      "crates": []
+    },
+    "compass v2": {
+      "sale": true,
+      
+      "name": "compass v2",
+      "displayName": "Compass",
+      "id": 447,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "compassv2Sword.png",
+      "bodyFileName": "compassv2Player.png",
+      "description": "Find your way to victory!",
+      "crates": []
+    },
+    "controller v2": {
+      "sale": true,
+      
+      "name": "controller v2",
+      "displayName": "Controller",
+      "id": 448,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "controllerv2Sword.png",
+      "bodyFileName": "controllerv2Player.png",
+      "description": "Press start to play",
+      "crates": []
+    },
+    "glitch v2": {
+      "sale": true,
+      
+      "name": "glitch v2",
+      "displayName": "Glitch",
+      "id": 449,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "glitchv2Sword.png",
+      "bodyFileName": "glitchv2Player.png",
+      "description": "Glitch them out of existence.",
+      "crates": []
+    },
+    "mercenary v2": {
+      "sale": true,
+      
+      "name": "mercenary v2",
+      "displayName": "Mercenary",
+      "id": 450,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "mercenaryv2Sword.png",
+      "bodyFileName": "mercenaryv2Player.png",
+      "description": "Fight to be the best.",
+      "crates": []
+    },
+    "snake v2": {
+      "sale": true,
+      
+      "name": "snake v2",
+      "displayName": "Snake",
+      "id": 451,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "snakev2Sword.png",
+      "bodyFileName": "snakev2Player.png",
+      "description": "Very venomous",
+      "crates": []
+    },
+    "solarsystem v2": {
+      "sale": true,
+      
+      "name": "solarsystem v2",
+      "displayName": "Solar System",
+      "id": 452,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "solarsystemv2Sword.png",
+      "bodyFileName": "solarsystemv2Player.png",
+      "description": "The universe is at your fingertips...",
+      "crates": []
+    },
+    "starhog v2": {
+      "sale": true,
+      
+      "name": "starhog v2",
+      "displayName": "Starhog",
+      "id": 453,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "starhogv2Sword.png",
+      "bodyFileName": "starhogv2Player.png",
+      "description": "A hog in space doesn't seem right...",
+      "crates": []
+    },
+    "virus v2": {
+      "sale": true,
+      
+      "name": "virus v2",
+      "displayName": "Virus",
+      "id": 454,
+      "buyable": true,
+      "price": 0,
+      "swordFileName": "virusv2Sword.png",
+      "bodyFileName": "virusv2Player.png",
+      "description": "Infect them all...",
+      "crates": []
+    },
+    "triangulation": {
+      "sale": true,
+
+      "ultimate": true,
+      "tag": "Ultimate Triangles",
+      "original": 369,
+      
+      "name": "triangulation",
+      "displayName": "Triangulation",
+      "id": 435,
+      "buyable": true,
+      "price": 100,
+      "swordFileName": "ultimateTriangleSword.png",
+      "bodyFileName": "ultimateTrianglePlayer.png",
+      "description": "",
+      "crates": []
+    }
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  "crates": {
+    "tech": {
+      "name": "tech",
+      "displayName": "Tech Crate",
+      "buyable": true,
+      "id": 1,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "This crate is the future",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85,
+        "master": 0.25
+      }
+    },
+    "dark": {
+      "name": "dark",
+      "displayName": "Dark Crate",
+      "buyable": true,
+      "id": 2,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Everything dark from the night to the void",
+      "rarityChances": {
+        "common": 0.5,
+        "uncommon": 0.3,
+        "rare": 0.15,
+        "epic": 0.04,
+        "legendary": 0.01,
+        "master": 0.001
+      }
+    },
+    "ninja": {
+      "name": "ninja",
+      "displayName": "Ninja Crate",
+      "buyable": true,
+      "id": 3,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Be the stealthiest in any terrain",
+      "rarityChances": {
+        "common": 0.5,
+        "rare": 0.15,
+        "epic": 0.04,
+        "legendary": 0.01
+      }
+    },
+    "vibrant": {
+      "name": "vibrant",
+      "displayName": "Vibrant Crate",
+      "buyable": true,
+      "id": 4,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Because every color at once is the best color",
+      "rarityChances": {
+        "common": 0.5,
+        "uncommon": 0.3,
+        "rare": 0.15,
+        "epic": 0.04,
+        "mythical": 0.005
+      }
+    },
+    "animal": {
+      "name": "animal",
+      "displayName": "Animal Crate",
+      "buyable": true,
+      "id": 5,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "The wildest of the wild",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85
+      }
+    },
+    "food": {
+      "name": "food",
+      "displayName": "Food Crate",
+      "buyable": true,
+      "id": 6,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": true,
+      "description": "\"I have enough on my plate,\" said NOBODY EVER",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20
+      }
+    },
+    "seasons": {
+      "name": "seasons",
+      "displayName": "Seasons Crate",
+      "buyable": true,
+      "id": 7,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "All four seasons in one crate",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "mythical": 0.85
+      }
+    },
+    "spooky": {
+      "name": "spooky",
+      "displayName": "Spooky Crate",
+      "buyable": true,
+      "id": 8,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Scare your enemies with these spooky skins",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "legendary": 3,
+        "mythical": 0.85
+      }
+    },
+    "conjurer": {
+      "name": "conjurer",
+      "displayName": "Conjurer Crate",
+      "buyable": true,
+      "id": 9,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Conjure every element",
+      "rarityChances": {
+        "common": 35,
+        "rare": 20,
+        "epic": 15
+      }
+    },
+    "elemental": {
+      "name": "elemental",
+      "displayName": "Elemental Crate",
+      "buyable": true,
+      "id": 10,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Every element in one",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "mythical": 0.85
+      }
+    },
+    "ancient": {
+      "name": "ancient",
+      "displayName": "Ancient Crate",
+      "buyable": true,
+      "id": 11,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Relics of the past",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85
+      }
+    },
+    "nature": {
+      "name": "nature",
+      "displayName": "Nature Crate",
+      "buyable": true,
+      "id": 12,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Nature's finest",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "mythical": 0.85
+      }
+    },
+    "symbol": {
+      "name": "symbol",
+      "displayName": "Symbol Crate",
+      "buyable": true,
+      "id": 13,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "This crate symbolizes the importance of non-alphanumeric characters",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85
+      }
+    },
+    "simple": {
+      "name": "simple",
+      "displayName": "Simple Crate",
+      "buyable": true,
+      "id": 14,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Simple idea, simple execution, simple crate",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85,
+        "master": 0.25
+      }
+    },
+    "game": {
+      "unlisted": true,
+
+      "name": "game",
+      "displayName": "Game Crate",
+      "buyable": true,
+      "id": 15,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "A game in a game",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "epic": 15
+      }
+    },
+    "music": {
+      "unlisted": true,
+
+      "name": "music",
+      "displayName": "Music Crate",
+      "buyable": true,
+      "id": 16,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Visualize the sound of music",
+      "rarityChances": {
+        "uncommon": 100
+      }
+    },
+    "sports": {
+      "unlisted": true,
+
+      "name": "sports",
+      "displayName": "Sports Crate",
+      "buyable": true,
+      "id": 17,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Play some sports while playing Swordbattle",
+      "rarityChances": {
+        "common": 100
+      }
+    },
+    "meta": {
+      "unlisted": true,
+      
+      "name": "meta",
+      "displayName": "Meta Crate",
+      "buyable": true,
+      "id": 18,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "It's meta bruh",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20
+      }
+    },
+    "weapon": {
+      "name": "weapon",
+      "displayName": "Weapons Crate",
+      "buyable": true,
+      "id": 19,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "More than just swords",
+      "rarityChances": {
+        "common": 35,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3,
+        "master": 0.25
+      }
+    },
+    "scorch": {
+      "name": "scorch",
+      "displayName": "Scorch Crate",
+      "buyable": true,
+      "id": 20,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Scorching magma, burning flames, and everything in between",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3
+      }
+    },
+    "reinforced": {
+      "name": "reinforced",
+      "displayName": "Reinforced Crate",
+      "buyable": true,
+      "id": 21,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "What's better than a crate? A METAL crate!",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85,
+        "master": 0.25
+      }
+    },
+    "builder": {
+      "name": "builder",
+      "displayName": "Builder's Crate",
+      "buyable": true,
+      "id": 22,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Build the crates",
+      "rarityChances": {
+        "common": 35,
+        "rare": 20,
+        "epic": 15,
+        "master": 0.25
+      }
+    },
+    "good": {
+      "name": "good",
+      "displayName": "Good Crate",
+      "buyable": true,
+      "id": 23,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "The other definition of good",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "epic": 15,
+        "legendary": 3
+      }
+    },
+    "hidden": {
+      "name": "hidden",
+      "displayName": "Hidden Crate",
+      "buyable": true,
+      "id": 24,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "It's not actually hidden but you get the point",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3
+      }
+    },
+    "dual": {
+      "name": "dual",
+      "displayName": "Duality Crate",
+      "buyable": true,
+      "id": 25,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Two sides to every story",
+      "rarityChances": {
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "mythical": 0.85
+      }
+    },
+    "og": {
+      "name": "og",
+      "displayName": "OG Crate",
+      "buyable": true,
+      "id": 26,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Every OG-exclusive skin that survived the test of time",
+      "rarityChances": {
+        "common": 35,
+        "epic": 15,
+        "legendary": 3
+      }
+    },
+    "remake": {
+      "name": "remake",
+      "displayName": "Remake Crate",
+      "buyable": true,
+      "id": 27,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Every OG-exclusive skin that got remade into a better version",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20
+      }
+    },
+    "elevate": {
+      "name": "elevate",
+      "displayName": "Elevate Crate",
+      "buyable": true,
+      "id": 28,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Reach for the stars",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85,
+        "master": 0.25
+      }
+    },
+    "deadly": {
+      "name": "deadly",
+      "displayName": "Deadly Crate",
+      "buyable": true,
+      "id": 29,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "A bit more fatal than the rest",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85,
+        "master": 0.25
+      }
+    },
+    "battler": {
+      "name": "battler",
+      "displayName": "Battler Crate",
+      "buyable": true,
+      "id": 30,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "All of the battlers found across Swordbattle",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85,
+        "master": 0.25
+      }
+    },
+    "gold": {
+      "name": "gold",
+      "displayName": "Gold Crate",
+      "buyable": true,
+      "id": 31,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Surprisingly not that expensive",
+      "rarityChances": {
+        "epic": 15,
+        "legendary": 3,
+        "master": 0.25
+      }
+    },
+    "aquatic": {
+      "name": "aquatic",
+      "displayName": "Aquatic Crate",
+      "buyable": true,
+      "id": 32,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Dive into the depths of the ocean",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85,
+        "master": 0.25
+      }
+    },
+    "pattern": {
+      "name": "pattern",
+      "displayName": "Pattern Crate",
+      "buyable": true,
+      "id": 33,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Theres a pattern to this crate",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85
+      }
+    },
+    "neon": {
+      "name": "neon",
+      "displayName": "Neon Crate",
+      "buyable": true,
+      "id": 34,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Brightness within the darkness",
+      "rarityChances": {
+        "common": 35,
+        "rare": 20,
+        "epic": 15,
+        "legendary": 3,
+        "master": 0.25
+      }
+    },
+    "number": {
+      "name": "number",
+      "displayName": "Number Crate",
+      "buyable": true,
+      "id": 35,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Count up the numbers",
+      "rarityChances": {
+        "uncommon": 25,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85
+      }
+    },
+    "cold": {
+      "name": "cold",
+      "displayName": "Cold Crate",
+      "buyable": true,
+      "id": 36,
+      "price": 2000,
+      "crateFileName": "crate.png",
+      "noquotes": false,
+      "description": "Chill out with these skins",
+      "rarityChances": {
+        "common": 35,
+        "uncommon": 25,
+        "epic": 15,
+        "legendary": 3,
+        "mythical": 0.85
+      }
     }
   }
 }

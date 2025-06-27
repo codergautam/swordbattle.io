@@ -59,6 +59,7 @@
   padding-top: 20px;
   margin-bottom: -20px;
   padding-bottom: 20px;
+  height: 120%;
 }
 .skins {
   flex-grow: 1;
@@ -285,6 +286,7 @@ h1 {
   background-color: #ddd;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  width: 60%;
 }
 
 .badges button.active {
@@ -294,25 +296,151 @@ h1 {
 
 .badges button[data-selected-badge="og"]:not(.active) {
   background-color: #ff0000;
+  width: 60%;
 }
 
 .badges button[data-selected-badge="event"]:not(.active) {
   background-color: #00ffff;
+  width: 60%;
 }
 
 .badges button[data-selected-badge="player"]:not(.active) {
   background-color: #0000ff;
+  width: 60%;
 }
 
 .badges button[data-selected-badge="own"]:not(.active) {
   background-color: #00ff00;
+  width: 60%;
 }
 
 
 .badges button[data-selected-badge="sale"]:not(.active) {
   background-color: #ffff00;
+  width: 60%;
 }
 
 .badges button[data-selected-badge="ultimate"]:not(.active) {
   background-color: #ff00ff;
+  width: 60%;
+}
+
+/* Skins Container Styles */
+.scroll-crate {
+  order: -1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 82%;
+  background-color: #00000068;
+  margin-top: -20px;
+  padding-top: 20px;
+  margin-bottom: -20px;
+  padding-bottom: 20px;
+  height: 120%;
+  margin-left: -20px;
+  margin-right: 10px;
+}
+.back-button {
+    margin-left: 20px;
+    top: 10px;
+    right: 10px;
+    z-index: 100;
+    background: rgb(1, 61, 0);
+    border-radius: 25px;
+    padding: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+  }
+  .crate-desc {
+  font-size: 25px;
+  text-align: center;
+  color: #ffffff;
+  /* Adjusting header color to fit modal style */
+  margin: 0;
+  margin-bottom: 10px;
+  margin-top: -48px;
+}
+.crate-extra {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  width: 20%;
+  max-width: 300px;
+  min-width: 100px;
+  font-size: 10%;
+  margin-right: 10px;
+  height: 100%;
+
+  .main-text {
+    font-size: 25px;
+    margin-bottom: 0;
+    margin-top: 5px;
+  }
+
+  .crate-img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 130px;
+    height: 130px;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 0;
+  }
+
+  p {
+    font-size: 15px;
+    color: #ffffff;
+    margin-bottom: 0;
+  }
+
+  .crate-price {
+    font-size: 15px;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    // Reduce space between price text and button
+    p, span, .price-text {
+      margin-bottom: -25px !important;
+    }
+
+    .buy-button {
+      color: #ffffff;
+      padding: 0.8rem;
+      margin-top: 2px; // Reduced from 10px to 2px
+      font-size: 10px;
+      text-transform: uppercase;
+      border-radius: 2px;
+      font-weight: 400;
+      display: block;
+      width: 100%;
+      cursor: pointer;
+      border: 0.5px solid rgba(255, 255, 255, 0.2);
+      background: transparent;
+      margin-bottom: 0;
+      align-self: stretch;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+    }
+  }
+
+  .crate-rarities {
+    h3 {
+      font-size: 18px;
+      margin-bottom: 5px;
+      color: #ffffff;
+    }
+    ul {
+      font-size: 13px;
+    }
+  }
 }

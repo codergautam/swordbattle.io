@@ -122,9 +122,9 @@ const accountSlice = createSlice({
       state.username = '';
       state.clan = '';
       state.secret = '';
-      state.gems = 0;
+      state.gems = 234234;
       state.ultimacy = 0;
-      state.isLoggedIn = false;
+      state.isLoggedIn = true;
       state.skins = { equipped: 1, owned: [1] };
       window.phaser_game?.events.emit('tokenUpdate', '');
       state.is_v1 = false;

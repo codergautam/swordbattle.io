@@ -79,6 +79,7 @@ export class AccountsController {
     const dailyStats = await this.statsService.getAllDailyStats(account);
     const clan = await this.accountsService.getClan(username);
     const rank = await this.statsService.getAccountRankByXp(account);
+    const coinsrank = await this.statsService.getAccountRankByCoins(account);
 
     const ip = request.ip;
     let viewedIps = this.recentProfileViews.get(account.id);
@@ -91,7 +92,7 @@ export class AccountsController {
       this.accountsService.incrementProfileViews(account);
     }
 
-    return { account, totalStats, dailyStats, rank, clan };
+    return { account, totalStats, dailyStats, rank, coinsrank, clan };
   }
 
   @Post('getPublicUserInfoById/:id')

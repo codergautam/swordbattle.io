@@ -81,7 +81,7 @@ function SettingsModal() {
           <span className="slider round"></span>
         </label>
       </div>
-    <br></br><h3 className="section">Performance</h3>
+    <br /><h3 className="section">Performance</h3>
       <div className="settings-line">
         <label htmlFor="useWebGL">Use WebGL (requires reload):</label>
         <label className="switch">
@@ -112,7 +112,7 @@ function SettingsModal() {
       />
 
 
-    <br></br><h3 className="section">Gameplay</h3>
+    <br /><h3 className="section">Gameplay</h3>
       <label htmlFor="movement">Movement mode:</label>
       <select name="movement" id="movement"
         value={movementMode}
@@ -129,7 +129,7 @@ function SettingsModal() {
         onChange={(e) => updateSound(e.target.value)}
       />
 
-      <br></br><h3 className="sectionDebug">Debug</h3>
+      <br /><h3 className="sectionDebug">Debug</h3>
       <div className="settings-line">
         <label htmlFor="loadskins" className="debug">Refuse skin loading attempts:</label>
         <label className="switch">

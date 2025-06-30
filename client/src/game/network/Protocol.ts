@@ -912,6 +912,7 @@ export interface Account {
   subscription_start_date?: string;
   rank?: number;
   clan?: string;
+  coinsrank?: number;
 }
 
 export function encodeAccount(message: Account): Uint8Array {
@@ -962,7 +963,15 @@ function _encodeAccount(message: Account, bb: ByteBuffer): void {
     writeVarint32(bb, 50);
     writeString(bb, $clan);
   }
+
+  // optional int32 coinsrank = 7;
+  let $coinsrank = message.coinsrank;
+  if ($coinsrank !== undefined) {
+    writeVarint32(bb, 56);
+    writeVarint64(bb, intToLong($coinsrank));
+  }
 }
+
 
 export function decodeAccount(binary: Uint8Array): Account {
   return _decodeAccount(wrapByteBuffer(binary));

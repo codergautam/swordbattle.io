@@ -28,6 +28,7 @@ interface ProfileData {
   totalStats?: Stats;
   dailyStats?: Stats[];
   rank?: number;
+  coinsrank?: number;
 }
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -165,6 +166,8 @@ export default function Profile() {
         <br />
 
         {data.rank && <h4 className="stat">#{data.rank} all time</h4>}
+        {data.rank && <h4 className="stat">#{data.rank} all time (coins)</h4>}
+        <br />
         <h4 className="stat">{numberWithCommas(data.account.profile_views)} profile views</h4>
         </center>
         </div>

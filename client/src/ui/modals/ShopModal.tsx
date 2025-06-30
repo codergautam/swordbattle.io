@@ -212,7 +212,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       <div className="shop-extra">
       <h1 className='shop-title'>Shop</h1>
       {account?.isLoggedIn ? (
-      <h1 className='shop-desc'>Gems: {numberWithCommas(account.gems)}<img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} /><br></br>Mastery: {numberWithCommas(account.ultimacy)}<img className={'gem'} src='assets/game/ultimacy.png' alt='Gems' width={30} height={30} /></h1>
+      <h1 className='shop-desc'>Gems: {numberWithCommas(account.gems)}<img className={'gem'} src='assets/game/gem.png' alt='Gems' width={30} height={30} /><br />Mastery: {numberWithCommas(account.ultimacy)}<img className={'gem'} src='assets/game/ultimacy.png' alt='Gems' width={30} height={30} /></h1>
       ) : (
         <h1 className='shop-desc'><b>Login or Signup</b> to buy stuff from the shop!<br/>Earn gems by stabbing players and collecting coins around the map!</h1>
       )}
@@ -354,7 +354,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       }
       )}
       </div>
-      <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
       </div>
         </>
       )}
@@ -567,11 +567,11 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       }
       )}
       </div>
-      <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      <br /><br /><br /><br /><br /><br /><br /><br />
         <div ref={targetElementRef3}></div>
         <div className='label'>
         <span>Ultimate Skins</span><hr></hr>
-        <p>Ultimate skins are remakes of normal skins and are obtained by earning mastery instead of spending gems. <br></br><span style={{color: 'red'}}>Unlocking ultimate skins DOES NOT take away any mastery. The original skin must be owned before unlocking the ultimate version.</span><br></br>(The original version of an Ultimate is based on it's Tag. For example, the "Ultimate Blueberry" Tag means the original skin is Blueberry)</p>
+        <p>Ultimate skins are remakes of normal skins and are obtained by earning mastery instead of spending gems.<br /><span style={{color: 'red'}}>Unlocking ultimate skins DOES NOT take away any mastery. The original skin must be owned before unlocking the ultimate version.</span><br />(The original version of an Ultimate is based on it's Tag. For example, the "Ultimate Blueberry" Tag means the original skin is Blueberry)</p>
         </div>
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
@@ -667,11 +667,11 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       }
       )}
       </div>
-      <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      <br /><br /><br /><br /><br /><br /><br /><br />
         <div ref={targetElementRef4}></div>
         <div className='label'>
         <span>Event Skins</span><hr></hr>
-        <p>Event skins are available from holidays or seasonal events that happen annually, and can no longer be bought once the event ends.<br></br> They'll never be unbuyable permanently, so make sure to drop by during these events to claim them!</p>
+        <p>Event skins are available from holidays or seasonal events that happen annually, and can no longer be bought once the event ends.<br /> They'll never be unbuyable permanently, so make sure to drop by during these events to claim them!</p>
         </div>
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
@@ -767,7 +767,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       }
       )}
       </div>
-      <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      <br /><br /><br /><br /><br /><br /><br /><br />
       {account?.isLoggedIn && (
         <>
           <div className='label'>
@@ -873,7 +873,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           )}
         { Object.values(skins).filter((skinData: any) =>  skinData.og && account?.skins.owned.includes(skinData.id)).length > 0 && (
     <>
-    <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+    <br /><br /><br /><br /><br /><br /><br /><br />
        <div ref={targetElementRef6}></div>
         <div className='label'>
         <span>OG Skins</span><hr></hr>
@@ -971,7 +971,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
   </button>
 ))}
-<br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+<br /><br /><br /><br /><br /><br /><br /><br />
         </div>
       )
       }
@@ -1095,7 +1095,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       }
       )}
       </div>
-      <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+      <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
       <div className='label'>
         <span style={{color: 'white'}}>Upcoming Skins</span><hr></hr>
         <p style={{color: 'white'}}>Some skins from this list may not be added to the game in the future.</p>

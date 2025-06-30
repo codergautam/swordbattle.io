@@ -13,11 +13,11 @@ export default function AccountCard({account, onLogin, onSignup}: {account: Acco
     return (
       <span id="logged-in">
         <h1>{account.username}</h1>
-        <br></br>
+        <br />
         <div className="stats">
         <p>         </p><p>         </p><p>         </p><p>         </p><p>         </p><p>         </p><ValueCnt scale={0.5} value={account.gems} img={GemImg}/>
         </div>
-        <br></br>
+        <br />
         <div className="stats">
         <p>         </p><p>         </p><p>         </p><p>         </p><p>         </p><p>         </p><ValueCnt scale={0.5} value={account.ultimacy} img={UltimacyImg}/>
     

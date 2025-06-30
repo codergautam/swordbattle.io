@@ -166,7 +166,7 @@ export default function Profile() {
         <br />
 
         {data.rank && <h4 className="stat">#{data.rank} all time</h4>}
-        {data.rank && <h4 className="stat">#{data.rank} all time (coins)</h4>}
+        {data.rank && <h4 className="stat">#{data.coinsrank} all time (coins)</h4>}
         <br />
         <h4 className="stat">{numberWithCommas(data.account.profile_views)} profile views</h4>
         </center>

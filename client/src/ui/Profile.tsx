@@ -165,8 +165,22 @@ export default function Profile() {
         <h4 className="stat">{data.dailyStats && data.dailyStats.length ? `Last seen ${lastSeen(data.dailyStats[0].date)}` : ''}</h4>
         <br />
 
-        {data.rank && <h4 className="stat">#{data.rank} all time</h4>}
-        {data.rank && <h4 className="stat">#{data.coinsrank} all time (coins)</h4>}
+        {data.rank && (
+          <h4
+            className="stat"
+            style={data.rank === 1 ? { color: 'yellow' } : undefined}
+          >
+            #{data.rank} all time (XP)
+          </h4>
+        )}
+        {data.coinsrank && (
+          <h4
+            className="stat"
+            style={data.coinsrank === 1 ? { color: 'yellow' } : undefined}
+          >
+            #{data.coinsrank} all time (Coins)
+          </h4>
+        )}
         <br />
         <h4 className="stat">{numberWithCommas(data.account.profile_views)} profile views</h4>
         </center>

@@ -22,6 +22,7 @@ interface AccountData {
   created_at: string;
   profile_views: number;
   skins: { equipped: number, owned: number[] };
+  recovered: boolean;
 }
 interface ProfileData {
   account: AccountData;
@@ -196,7 +197,7 @@ export default function Profile() {
           <Card title="Mastery" text={data.totalStats ? numberWithCommas(data.totalStats.ultimacy) : 0} />
         </div>
 
-        {data.dailyStats && data.dailyStats.length &&
+        {!data.account.recovered && data.dailyStats && data.dailyStats.length &&
           <div className="xp-graph">
             <Line data={prepareGraphData(data.dailyStats)} options={{
               responsive: true,

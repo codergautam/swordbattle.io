@@ -12,7 +12,7 @@ const types: Record<string, string> = {
   'kills': 'Kills',
   'coins': 'Coins',
   'playtime': 'Survived',
-  'xp': 'XP',
+  'total-coins': 'XP',
   'ultimacy': 'Mastery',
   'total-kills': 'Total Stabs',
   'total-playtime': 'Total Playtime',

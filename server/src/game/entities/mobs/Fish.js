@@ -113,7 +113,11 @@ class FishMob extends Entity {
   }
 
   damaged(damage, entity) {
-    this.health.damaged(damage);
+    if (entity.modifiers?.mobPower) {
+      this.health.damaged(damage * entity.modifiers.mobPower);
+    } else {
+      this.health.damaged(damage);
+    }
     if(this.tamedBy !== entity.id) {
     this.target = entity;
     }

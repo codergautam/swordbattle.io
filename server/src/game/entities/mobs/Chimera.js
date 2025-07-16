@@ -111,7 +111,11 @@ class ChimeraMob extends Entity {
   }
 
   damaged(damage, entity) {
-    this.health.damaged(damage);
+    if (entity.modifiers?.mobPower) {
+      this.health.damaged(damage * entity.modifiers.mobPower);
+    } else {
+      this.health.damaged(damage);
+    }
     this.target = entity;
     this.angryTimer.renew();
 

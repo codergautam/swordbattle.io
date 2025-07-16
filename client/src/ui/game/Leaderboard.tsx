@@ -53,6 +53,7 @@ function getRankColor(rank: number) {
   if (rank >= 26 && rank <= 50) return '#ee00ff';
   if (rank >= 51 && rank <= 75) return '#800080';
   if (rank >= 76 && rank <= 100) return '#707070';
+  if (rank >= 101 && rank <= 200) return '#575454ff';
   return 'white';
 }
 

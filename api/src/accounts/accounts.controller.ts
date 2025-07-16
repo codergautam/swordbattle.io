@@ -65,10 +65,10 @@ export class AccountsController {
   }
 
   @UseGuards(ServerGuard)
-  @Post('getTop100Rank/:username')
-  async getTop100Rank(@Param('username') username: string) {
+  @Post('getTop200Rank/:username')
+  async getTop200Rank(@Param('username') username: string) {
     const account = await this.accountsService.getByUsername(username);
-    const rank = await this.statsService.getTop100RankedUser(account);
+    const rank = await this.statsService.getTop200RankedUser(account);
     return { rank };
   }
 

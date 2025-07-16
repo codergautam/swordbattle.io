@@ -332,7 +332,7 @@ function App() {
 
                 <div className="announcementCard menuCard panel">
                     <div style={{fontSize: '15px'}}>
-                    Tip: Wait for your swordthrow to be ready before using the Rammer ability to get the most out of it!
+                    Tip: The Lumberjack ability has multiple uses: finding chests, defending against enemies, and breaking chests faster!
                     </div>
                   </div>
                 {/* <!-- Play --> */}
@@ -454,6 +454,11 @@ function App() {
                 }}
                rel="nofollow">
                  More Games
+               </a>
+             </div>
+             <div>
+               <a href="/changelog.html" target="_blank" rel="nofollow">
+                 Changelog
                </a>
              </div>
              <div>

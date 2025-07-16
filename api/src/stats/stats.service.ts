@@ -98,7 +98,7 @@ export class StatsService {
     const result = await this.totalStatsRepository
       .createQueryBuilder('total_stats')
       .select('total_stats.id', 'id')
-      .addSelect('RANK() OVER (ORDER BY total_stats.total-coins DESC)', 'rank')
+      .addSelect('RANK() OVER (ORDER BY total_stats.xp DESC)', 'rank')
       .limit(100)
       .getRawMany();
 
@@ -125,7 +125,7 @@ export class StatsService {
     const subQuery = this.totalStatsRepository
       .createQueryBuilder('total_stats')
       .select('total_stats.id', 'id')
-      .addSelect('RANK() OVER (ORDER BY total_stats.total-coins DESC)', 'rank');
+      .addSelect('RANK() OVER (ORDER BY total_stats.xp DESC)', 'rank');
 
     const result = await this.totalStatsRepository
       .createQueryBuilder()
@@ -182,7 +182,7 @@ export class StatsService {
         .select([
           'account.username as username',
           'account.clan as clan',
-          'total_stats.xp as xp',
+          'total_stats.coins as xp',
           'total_stats.coins as coins',
           'total_stats.kills as kills',
           'total_stats.ultimacy as ultimacy',
@@ -198,7 +198,7 @@ export class StatsService {
         .select([
           'account.username as username',
           'account.clan as clan',
-          'SUM(daily_stats.xp) as xp',
+          'SUM(daily_stats.coins) as xp',
           'SUM(daily_stats.coins) as coins',
           'SUM(daily_stats.kills) as kills',
           'SUM(daily_stats.ultimacy) as ultimacy',

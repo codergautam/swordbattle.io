@@ -98,7 +98,7 @@ export class StatsService {
     const result = await this.totalStatsRepository
       .createQueryBuilder('total_stats')
       .select('total_stats.id', 'id')
-      .addSelect('RANK() OVER (ORDER BY total_stats.xp DESC)', 'rank')
+      .addSelect('RANK() OVER (ORDER BY total_stats.coins DESC)', 'rank')
       .limit(100)
       .getRawMany();
 
@@ -125,7 +125,7 @@ export class StatsService {
     const subQuery = this.totalStatsRepository
       .createQueryBuilder('total_stats')
       .select('total_stats.id', 'id')
-      .addSelect('RANK() OVER (ORDER BY total_stats.xp DESC)', 'rank');
+      .addSelect('RANK() OVER (ORDER BY total_stats.coins DESC)', 'rank');
 
     const result = await this.totalStatsRepository
       .createQueryBuilder()

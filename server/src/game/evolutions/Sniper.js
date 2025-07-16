@@ -9,21 +9,23 @@ module.exports = class Sniper extends Evolution {
   static abilityCooldown = 72;
 
   applyAbilityEffects() {
-    this.player.modifiers.invisible = true;
-      this.player.shape.setScale(0.01);
-      this.player.viewport.zoom.multiplier *= 0.01
+    this.player.viewport.zoom.multiplier *= 0.575;
+      this.player.shape.setScale(1.1);
+    this.player.speed.multiplier *= 1.25;
 
-    this.player.speed.multiplier *= 1.32;
+    
+    this.player.modifiers.throwDamage = 5;
+    this.player.sword.flySpeed.multiplier *= 2.5;
 
     this.player.health.regenWait.multiplier = 0;
-    this.player.health.regen.multiplier *= 1.5;
+    this.player.health.regen.multiplier *= 2;
   }
 
   update(dt) {
     super.update(dt);
     this.player.shape.setScale(1.05);
 
-    this.player.viewport.zoom.multiplier *= 0.6;
+    this.player.viewport.zoom.multiplier *= 0.725;
     this.player.modifiers.throwDamage = 4;
     
     this.player.health.max.multiplier *= 1.1;

@@ -9,14 +9,15 @@ module.exports = class Archer extends Evolution {
   static abilityCooldown = 72;
 
   applyAbilityEffects() {
-    this.player.modifiers.invisible = true;
-      this.player.shape.setScale(0.01);
-      this.player.viewport.zoom.multiplier *= 0.01
-
-    this.player.speed.multiplier *= 1.32;
+    this.player.speed.multiplier *= 1.4;
+    this.player.shape.setScale(0.8)
 
     this.player.health.regenWait.multiplier = 0;
-    this.player.health.regen.multiplier *= 1.5;
+    this.player.health.regen.multiplier *= 3;
+    this.player.health.max.multiplier *= 1.5;
+    this.player.sword.flyDuration.multiplier *= 0.333;
+    this.player.sword.flySpeed.multiplier *= 3;
+    this.player.modifiers.throwDamage = 4.25;
   }
 
   update(dt) {

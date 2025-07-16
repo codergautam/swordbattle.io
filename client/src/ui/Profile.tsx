@@ -93,7 +93,7 @@ export default function Profile() {
     let runningTotal = 0;
     const data = allDates.map(date => {
       const stat = dailyStats.find(stat => fixDate(new Date(stat.date)).toLocaleDateString() === fixDate(date).toLocaleDateString());
-      return stat ? runningTotal += stat.xp : runningTotal;
+      return stat ? runningTotal += stat.coins : runningTotal;
     });
 
     return {

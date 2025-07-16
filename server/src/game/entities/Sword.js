@@ -209,11 +209,7 @@ class Sword extends Entity {
 
   processTargetsCollision(entity) {
     if (entity === this.player) return;
-    if (this.player.modifiers.ramThrow && this.isFlying) {
-      //
-    } else {
-      if (!this.canCollide(entity)) return;
-    }
+    if (!this.canCollide(entity)) return;
 
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
     let power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
@@ -244,7 +240,7 @@ class Sword extends Entity {
     if ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) || 
       (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation))) {
         if (this.player.modifiers.scaleThrow && this.isFlying) {
-          entity.damaged(this.damage.value * ((this.flyLog + 1) * 1.25) * this.player.modifiers.throwDamage, this.player);
+          entity.damaged(this.damage.value * ((this.flyLog + 1) * 1.75) * this.player.modifiers.throwDamage, this.player);
         } else if (this.player.modifiers.throwDamage && this.isFlying) {
           entity.damaged(this.damage.value * this.player.modifiers.throwDamage, this.player);
         } else {

@@ -13,7 +13,7 @@ module.exports = class Rammer extends Evolution {
     this.player.sword.damage.multiplier *= 1.2;
     this.player.sword.knockback.multiplier['ability'] = 1.2;
     this.player.knockbackResistance.multiplier *= 0;
-    this.player.shape.setScale(1.225);
+    this.player.shape.setScale(1.175);
     this.player.health.regen.multiplier *= 0;
     this.player.speed.multiplier *= 0.6;
     this.player.sword.swingDuration.multiplier['ability'] = 0.5;
@@ -27,7 +27,7 @@ module.exports = class Rammer extends Evolution {
     super.update(dt);
     this.player.modifiers.ramThrow = true;
     this.player.speed.multiplier *= 0.85;
-    this.player.shape.setScale(1.15);
+    this.player.shape.setScale(1.12);
     this.player.sword.damage.multiplier *= 1.1;
     this.player.sword.knockback.multiplier['ability'] = 3;
     this.player.knockbackResistance.multiplier *= 1.4;

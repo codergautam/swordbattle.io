@@ -9,16 +9,17 @@ module.exports = class Sniper extends Evolution {
   static abilityCooldown = 72;
 
   applyAbilityEffects() {
-    this.player.viewport.zoom.multiplier *= 0.575;
+    this.player.viewport.zoom.multiplier *= 0.625;
       this.player.shape.setScale(1.1);
-    this.player.speed.multiplier *= 1.25;
+    this.player.speed.multiplier *= 1.125;
 
     
     this.player.modifiers.throwDamage = 5;
-    this.player.sword.flySpeed.multiplier *= 2.5;
+    this.player.sword.flySpeed.multiplier *= 1.85;
+    this.player.sword.flyDuration.multiplier *= 1;
 
     this.player.health.regenWait.multiplier = 0;
-    this.player.health.regen.multiplier *= 2;
+    this.player.health.regen.multiplier *= 1;
   }
 
   update(dt) {
@@ -28,19 +29,18 @@ module.exports = class Sniper extends Evolution {
     this.player.viewport.zoom.multiplier *= 0.725;
     this.player.modifiers.throwDamage = 4;
     
-    this.player.health.max.multiplier *= 1.1;
     this.player.health.regen.multiplier *= 0.7;
-    this.player.health.regenWait.multiplier *= 0.8;
+    this.player.health.regenWait.multiplier *= 1.3;
 
     this.player.sword.damage.multiplier *= 0.4;
     
-    this.player.sword.knockback.multiplier['ability'] = 4;
+    this.player.sword.knockback.multiplier['ability'] = 2.5;
     this.player.knockbackResistance.multiplier *= 0;
 
     this.player.sword.swingDuration.multiplier['ability'] = 0.875;
 
     this.player.sword.flyDuration.multiplier *= 1.5;
-    this.player.sword.flySpeed.multiplier *= 2;
+    this.player.sword.flySpeed.multiplier *= 1.65;
     this.player.sword.playerSpeedBoost.multiplier *= 2.35;
   }
 }

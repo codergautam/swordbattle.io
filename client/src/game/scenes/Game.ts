@@ -88,6 +88,8 @@ export default class Game extends Phaser.Scene {
     this.load.image('chest4', publicPath + '/assets/game/Chest4.png');
     this.load.image('chest5', publicPath + '/assets/game/Chest5.png');
     this.load.image('chest6', publicPath + '/assets/game/Chest6.png');
+    this.load.image('chest7', publicPath + '/assets/game/Chest7.png');
+    this.load.image('chest8', publicPath + '/assets/game/Chest8.png');
 
     this.load.image('crown', publicPath + '/assets/game/player/crown-new.png');
 
@@ -99,9 +101,20 @@ export default class Game extends Phaser.Scene {
     this.load.image('samuraiOverlay', publicPath + '/assets/game/player/samurai.png');
     this.load.image('rookOverlay', publicPath + '/assets/game/player/rook.png');
     this.load.image('stalkerOverlay', publicPath + '/assets/game/player/stalker.png');
+    this.load.image('warriorOverlay', publicPath + '/assets/game/player/warrior.png');
+    this.load.image('lumberjackOverlay', publicPath + '/assets/game/player/lumberjack.png');
+    this.load.image('defenderOverlay', publicPath + '/assets/game/player/defender.png');
+    this.load.image('fighterOverlay', publicPath + '/assets/game/player/fighter.png');
+    this.load.image('fishermanOverlay', publicPath + '/assets/game/player/fisherman.png');
+    this.load.image('archerOverlay', publicPath + '/assets/game/player/archer.png');
+    this.load.image('superArcherOverlay', publicPath + '/assets/game/player/superarcher.png');
+    this.load.image('sniperOverlay', publicPath + '/assets/game/player/sniper.png');
+    this.load.image('rammerOverlay', publicPath + '/assets/game/player/rammer.png');
+    this.load.image('juggernautOverlay', publicPath + '/assets/game/player/juggernaut.png');
 
     this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');
+    this.load.image('arrowParticle', publicPath + '/assets/game/particles/arrow.png');
 
     this.load.image('chatButton', publicPath + '/assets/game/ui/chat.png');
     if (this.isMobile) {

@@ -5,7 +5,7 @@ Swordbattle.io is a multiplayer game where players fight each other with differe
 ## Special Thanks
 - Guru for helping make it less laggy
 - Mistik for networking base
-- Cool guy 53 (aka yocto) for maintaining the game late 2024
+- Cool guy 53 (aka yocto) for maintaining the game in 2025
 - All the artists for bringing sb to life
 
 > Note: you are looking at the V2 version of the code. For the old V1 version, go to the [v1 repo](https://github.com/codergautam/swordbattle.io-legacy)

@@ -312,7 +312,11 @@ class Player extends BaseEntity {
   }
 
   rotateBody(angle: number) {
+    const evolutionClass = Evolutions[this.evolution];
     const swordRotation = this.swordSwingAngle * this.swordLerpProgress;
+    if (this.evolution && evolutionClass[0] === "Rammer" && this.swordFlying) {
+      return
+    }
     this.swordContainer.setRotation(swordRotation);
     this.bodyContainer.setRotation(angle);
   }

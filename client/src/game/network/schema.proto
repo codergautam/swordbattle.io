@@ -112,6 +112,7 @@ message Entity {
   float swordSwingDuration = 34;
   float swordFlyingCooldown = 35;
   string disconnectReasonMessage = 36;
+  bool pullbackParticles = 37;
 
   // Chest
   int32 rarity = 38;

@@ -165,21 +165,12 @@ export default function Profile() {
         <h4 className="stat">Joined {sinceFrom(data.account.created_at)} ago</h4>
         <h4 className="stat">{data.dailyStats && data.dailyStats.length ? `Last seen ${lastSeen(data.dailyStats[0].date)}` : ''}</h4>
         <br />
-
-        {data.rank && (
-          <h4
-            className="stat"
-            style={data.rank === 1 ? { color: 'yellow' } : undefined}
-          >
-            #{data.rank} all time (XP)
-          </h4>
-        )}
         {data.coinsrank && (
           <h4
             className="stat"
             style={data.coinsrank === 1 ? { color: 'yellow' } : undefined}
           >
-            #{data.coinsrank} all time (Coins)
+            #{data.coinsrank} all time
           </h4>
         )}
         <br />
@@ -190,10 +181,10 @@ export default function Profile() {
         <br />
         <div className="row">
           <Card title="Games Played" text={data.totalStats ? numberWithCommas(data.totalStats.games) : 0} />
-          <Card title="XP" text={data.totalStats ? numberWithCommas(data.totalStats.xp) : 0} />
+          <Card title="XP" text={data.totalStats ? numberWithCommas(Math.floor(data.totalStats.coins / 20)) : 0} />
+          <Card title="Former XP" text={data.totalStats ? numberWithCommas(data.totalStats.xp) : 0} />
           <Card title="Total Playtime" text={data.totalStats ? secondsToTime(data.totalStats.playtime) : 0} />
           <Card title="Stabs" text={data.totalStats ? numberWithCommas(data.totalStats.kills) : 0} />
-          <Card title="Skins Owned" text={data.account.skins.owned.length} />
           <Card title="Mastery" text={data.totalStats ? numberWithCommas(data.totalStats.ultimacy) : 0} />
         </div>
 

@@ -13,8 +13,8 @@ interface SettingType {
 let isLoaded = false;
 
 export const settingsList: Record<string, SettingType> = {
-  swords: {
-    name: 'Show skins swords in shop',
+  owned: {
+    name: 'Show owned skins in shop',
     type: 'toggle',
     default: false,
     },

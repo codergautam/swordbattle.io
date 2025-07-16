@@ -5,7 +5,7 @@ import './SettingsModal.scss';
 
 function SettingsModal() {
   const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
-  const [swords, setSwords] = useState(Settings.swords);
+  const [owned, setOwned] = useState(Settings.owned);
   const [coins, setCoins] = useState(Settings.coins);
   const [loadskins, setLoadskins] = useState(Settings.loadskins);
   const [antialiasing, setAntialiasing] = useState(Settings.antialiasing);
@@ -23,9 +23,9 @@ function SettingsModal() {
     setUseWebGL(value);
     Settings.useWebGL = value;
   }
-  const updateSwords = (value: any) => {
-    setSwords(value);
-    Settings.swords = value;
+  const updateOwned = (value: any) => {
+    setOwned(value);
+    Settings.owned = value;
   }
   const updateCoins = (value: any) => {
     setCoins(value);
@@ -62,11 +62,11 @@ function SettingsModal() {
 
       <h3 className="section">Visual</h3>
       <div className="settings-line">
-        <label htmlFor="swords">Show skins' swords in shop: </label>
+        <label htmlFor="owned">Show the "Owned Skins" tab in shop: </label>
         <label className="switch">
-          <input type="checkbox" name="swords" id="swords"
-            checked={swords}
-            onChange={(e) => updateSwords(e.target.checked)}
+          <input type="checkbox" name="owned" id="owned"
+            checked={owned}
+            onChange={(e) => updateOwned(e.target.checked)}
           />
           <span className="slider round"></span>
         </label>

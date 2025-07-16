@@ -1,17 +1,12 @@
 import { random } from '../../helpers';
 import { BaseEntity } from './BaseEntity';
 import * as cosmetics from '../cosmetics.json';
-import { Settings } from '../Settings';
 const {skins} = cosmetics;
 
 class Sword extends BaseEntity {
-  static stateFields = [...BaseEntity.stateFields, 'size', 'isFlying', 'abilityActive', 'skin', 'skinName']
+  static stateFields = [...BaseEntity.stateFields, 'size', 'isFlying', 'abilityActive', 'skin', 'skinName', 'pullbackParticles']
 
   createSprite() {
-    if (Settings.loadskins) {
-    this.skin = null;
-    }
-
     if(this.skin) {
       const skinObj = Object.values(skins).find(skin => skin.id === this.skin)
       this.skinName = (skinObj?.name ?? 'player')+ 'Sword';
@@ -67,6 +62,28 @@ class Sword extends BaseEntity {
     particles.setDepth(45);
   }
 
+  addPullbackParticles() {
+    const fps = this.game.game.loop.actualFps;
+    if (fps < 5) return;
+
+    const width = this.container.displayWidth;
+    const height = this.container.displayHeight;
+    const particles = this.game.add.particles(
+      this.container.x - (width * this.container.originX + random(-width, width)) / 4,
+      this.container.y - (height * this.container.originY + random(-height, height)) / 4,
+      'arrowParticle',
+      { scale: 0.05, 
+        speed: 100, 
+        maxParticles: 1, 
+        rotate: {
+          onEmit: () => {
+              return Phaser.Math.FloatBetween(0, 360); // Random rotation in degrees
+          }
+      },},
+    );
+    particles.setDepth(45);
+  }
+
   update(dt: number) {
     super.update(dt);
 
@@ -77,7 +94,11 @@ class Sword extends BaseEntity {
     if (this.isFlying && this.abilityActive) {
       this.addAbilityParticles();
     }
+    if (this.isFlying && this.pullbackParticles) {
+      this.addPullbackParticles();
+    }
   }
 }
 
 export default Sword;
+

@@ -10,6 +10,7 @@
 
 .shop-btn{
   position: absolute;
+  user-select: none;
 
 
   // left
@@ -34,6 +35,7 @@
 
 .leaderboard-btn{
   position: fixed;
+  user-select: none;
 
 
   // left

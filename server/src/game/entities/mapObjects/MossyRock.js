@@ -33,8 +33,13 @@ class MossyRock extends Entity {
     const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
     const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
 
-    this.shape.applyCollision(selfMtv);
-    entity.shape.applyCollision(targetMtv);
+    if (!entity.modifiers?.ramThrow) {
+      this.shape.applyCollision(selfMtv);
+      entity.shape.applyCollision(targetMtv);
+    } else if (!entity.sword?.isFlying) {
+      this.shape.applyCollision(selfMtv);
+      entity.shape.applyCollision(targetMtv);
+    }
   }
 
   createState() {

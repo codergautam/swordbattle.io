@@ -200,16 +200,20 @@ class Player extends Entity {
   }
 
   processTargetsCollision(entity, response) {
-    const selfWeight = this.weight;
-    const targetWeight = entity.weight;
-    const totalWeight = selfWeight + targetWeight;
+    if (this.modifiers.ramThrow && this.sword.isFlying) {
+      return
+    } else {
+      const selfWeight = this.weight;
+      const targetWeight = entity.weight;
+      const totalWeight = selfWeight + targetWeight;
 
-    const mtv = this.shape.getCollisionOverlap(response);
-    const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
-    const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
+      const mtv = this.shape.getCollisionOverlap(response);
+      const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
+      const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
 
-    this.shape.applyCollision(selfMtv);
-    entity.shape.applyCollision(targetMtv);
+      this.shape.applyCollision(selfMtv);
+      entity.shape.applyCollision(targetMtv);
+    }
   }
 
   applyInputs(dt) {

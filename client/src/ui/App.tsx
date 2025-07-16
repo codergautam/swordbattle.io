@@ -332,7 +332,7 @@ function App() {
 
                 <div className="announcementCard menuCard panel">
                     <div style={{fontSize: '15px'}}>
-                    Tip: If someone's nametag is <span style={{ color: 'yellow' }}>yellow</span>, it means they are using an <span style={{color: '#ffffaa'}}>exclusive version</span> of a skin! (Obtained before the beginning of 2024)
+                    Tip: Wait for your swordthrow to be ready before using the Rammer ability to get the most out of it!
                     </div>
                   </div>
                 {/* <!-- Play --> */}

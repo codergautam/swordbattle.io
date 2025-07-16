@@ -196,7 +196,7 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
               </p>
             </>) : (
               <h5 className="mb-0">
-                {type === 'xp' && numberWithCommas(row.Math.floor(row.coins / 20)) + ' XP'}
+                {type === 'xp' && numberWithCommas(Math.floor(row.coins / 20)) + ' XP'}
                 {type === 'ultimacy' && numberWithCommas(row.ultimacy) + '  mastery'}
                 {type === 'total-kills' && numberWithCommas(row.kills) + ' stabs'}
                 {type === 'total-playtime' && secondsToTime(row.playtime) + ' played'}

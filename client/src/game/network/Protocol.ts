@@ -1203,6 +1203,7 @@ export interface Entity {
   swordSwingDuration?: number;
   swordFlyingCooldown?: number;
   disconnectReasonMessage?: string;
+  pullbackParticles?: boolean;
   rarity?: number;
   width?: number;
   height?: number;
@@ -1509,6 +1510,13 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
   if ($disconnectReasonMessage !== undefined) {
     writeVarint32(bb, 290);
     writeString(bb, $disconnectReasonMessage);
+  }
+
+  // optional bool pullbackParticles = 37;
+  let $pullbackParticles = message.pullbackParticles;
+  if ($pullbackParticles !== undefined) {
+    writeVarint32(bb, 241);
+    writeByte(bb, $pullbackParticles ? 1 : 0);
   }
 
   // optional int32 rarity = 38;
@@ -1852,6 +1860,12 @@ function _decodeEntity(bb: ByteBuffer): Entity {
       // optional string disconnectReasonMessage = 36;
       case 36: {
         message.disconnectReasonMessage = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional bool pullbackParticles = 37;
+      case 37: {
+        message.pullbackParticles = !!readByte(bb);
         break;
       }
 

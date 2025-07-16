@@ -21,7 +21,7 @@ class LavaRock extends Entity {
       [0.8741007194244604 * this.size, 0.05935251798561151 * this.size],
       [0.10431654676258993 * this.size, 0.11151079136690648 * this.size],
     ]);
-    this.shape.angle = helpers.random(-Math.PI, Math.PI);
+    this.shape.angle = 0
     this.targets.push(...Types.Groups.Obstacles);
 
     this.spawn();
@@ -38,8 +38,13 @@ class LavaRock extends Entity {
     const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
     const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
 
-    this.shape.applyCollision(selfMtv);
-    entity.shape.applyCollision(targetMtv);
+    if (!entity.modifiers?.ramThrow) {
+      this.shape.applyCollision(selfMtv);
+      entity.shape.applyCollision(targetMtv);
+    } else if (!entity.sword?.isFlying) {
+      this.shape.applyCollision(selfMtv);
+      entity.shape.applyCollision(targetMtv);
+    }
   }
 
   createState() {

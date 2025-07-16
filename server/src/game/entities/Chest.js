@@ -7,12 +7,14 @@ const helpers = require('../../helpers');
 
 // size, coins, health, weight
 const rarities = [
-  [200, 50, 1, 75], 
+  [200, 50, 1, 68], 
   [350, 150, 30, 13],
-  [600, 350, 70, 6],
-  [800, 1000, 150, 4],
-  [1200, 2500, 350, 3],
-  [2000, 7500, 800, 1.5],
+  [600, 350, 70, 7],
+  [800, 1000, 150, 5],
+  [1200, 2500, 350, 3.5],
+  [1600, 5000, 650, 2],
+  [1800, 10000, 1000, 1],
+  [2000, 12500, 800, 0.5],
 ];
 
 let totalWeight = rarities.reduce((acc, rarity) => acc + rarity[3], 0);
@@ -56,11 +58,19 @@ class Chest extends Entity {
     if (!sword.canCollide(this)) return;
 
     sword.collidedEntities.add(this);
-    this.health.damaged(sword.damage.value);
+    if (sword.player.modifiers.chestPower) {
+      this.health.damaged(sword.damage.value * sword.player.modifiers.chestPower);
+    } else {
+      this.health.damaged(sword.damage.value);
+    }
     if (this.health.isDead) {
       sword.player.flags.set(Types.Flags.ChestDestroy, true);
 
-      this.game.map.spawnCoinsInShape(this.shape, this.coins);
+      if (sword.player.modifiers.chestPower) {
+        this.game.map.spawnCoinsInShape(this.shape, this.coins * (1 + (sword.player.modifiers.chestPower * 0.15)));
+      } else {
+        this.game.map.spawnCoinsInShape(this.shape, this.coins);
+      }
 
       if (this.respawnable) this.createInstance();
       this.remove();
@@ -68,6 +78,7 @@ class Chest extends Entity {
       sword.player.flags.set(Types.Flags.ChestHit, true);
     }
   }
+
 
   createState() {
     const state = super.createState();

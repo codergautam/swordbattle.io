@@ -2,7 +2,7 @@ const Types = require('../Types');
 
 module.exports = {
   coinsCount: 0,
-  aiPlayersCount: 20,
+  aiPlayersCount: 10,
   biomes: [
     {
       type: Types.Biome.Safezone,
@@ -127,19 +127,19 @@ module.exports = {
       objects: [
         {
           type: Types.Entity.IceMound,
-          amount: 40,
+          amount: 35,
           position: 'random',
           size: [300, 700],
         },
         {
           type: Types.Entity.IceSpike,
-          amount: 25,
+          amount: 20,
           position: 'random',
           size: [200, 600],
         },
         {
           type: Types.Entity.IcePond,
-          amount: 13,
+          amount: 11,
           position: 'random',
           size: [600, 900],
         },
@@ -198,7 +198,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Rock,
-          amount: 10,
+          amount: 5,
           position: 'random',
           size: [200, 400],
         },
@@ -216,6 +216,12 @@ module.exports = {
         [0, 0],
       ],
       objects: [
+        {
+          type: Types.Entity.MossyRock,
+          amount: 10,
+          position: 'random',
+          size: [500, 700],
+        },
         {
           type: Types.Entity.Bush,
           amount: 160,
@@ -277,7 +283,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Rock,
-          amount: 20,
+          amount: 10,
           position: 'random',
           size: [200, 400],
         },
@@ -301,9 +307,9 @@ module.exports = {
           respawnable: true,
           respawnTime: [60 * 5, 60 * 20],
           size: [275, 375],
-          health: 700,
+          health: 1100,
           isBoss: true,
-          damage: 25,
+          damage: 30,
           rotationSpeed: 10,
           swordSize: 100,
           boulderSize: 200,
@@ -322,6 +328,12 @@ module.exports = {
         [-11500, 11500],
       ],
       objects: [
+        {
+          type: Types.Entity.LavaRock,
+          amount: 7,
+          position: 'random',
+          size: [300, 600],
+        },
         {
           type: Types.Entity.LavaPool,
           amount: 30,
@@ -356,7 +368,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Rock,
-          amount: 10,
+          amount: 5,
           position: 'random',
           size: [200, 400],
         },

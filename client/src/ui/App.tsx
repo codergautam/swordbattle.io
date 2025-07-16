@@ -261,7 +261,7 @@ function App() {
   }
 
   const openLeaderboard = () => {
-    window.location.href = "https://swordbattle.io/leaderboard";
+    window.location.hash = "#/leaderboard";
   };
 
   useEffect(() => {
@@ -311,6 +311,8 @@ function App() {
             {/* <!-- GAME NAME --> */}
             <div id="gameName"><img src={titleImg} alt="Swordbattle.io" width={750} height={250} style={{
     position: 'fixed',
+    userSelect: 'none',
+    pointerEvents: 'none',
     top: '-50%',
     left: '50%',
     transform: 'translate(-50%, -125%)'
@@ -455,17 +457,6 @@ function App() {
                </a>
              </div>
              <div>
-               <a href="https://worldguessr.com/" target="_blank"
-                style={{
-                  position: 'fixed',
-                  right: '95%',
-                  bottom: '150%',
-                  fontSize: '0.1em',
-                  color: 'white',
-                }}
-               rel="dofollow">
-                 Free GeoGuessr!
-               </a>
              </div>
               {/* <div>
                <a href="https://swordbattle.io/partners" target="_blank" className='partners' rel="nofollow">

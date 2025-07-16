@@ -29,7 +29,6 @@ module.exports = class Samurai extends Evolution {
     this.player.knockbackResistance.multiplier *= 1.5;
     this.player.health.max.multiplier *= 1.125;
     this.player.health.regen.multiplier *= 1.15;
-    this.player.health.regenWait.multiplier *= 1;
     //TODO: Damagecooldown: 1.1
   }
 }

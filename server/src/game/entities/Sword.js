@@ -30,6 +30,7 @@ class Sword extends Entity {
     this.isAnimationFinished = true;
     this.flyTime = 0;
     this.flyCooldownTime = 0;
+    this.flyLog = 0;
     this.skin = player.skin;
 
     this.focusTime = 200;
@@ -39,6 +40,7 @@ class Sword extends Entity {
     this.proportion = 0.7;
     this.shape = new Polygon(0, 0, [[0, 0]]);
     this.targets.push(Types.Entity.Player, ...Types.Groups.Mobs);
+    this.pullbackParticles = false;
   }
 
   get angle() {
@@ -82,6 +84,7 @@ class Sword extends Entity {
     state.isFlying = this.isFlying;
     state.abilityActive = this.player.evolutions.evolutionEffect.isAbilityActive;
     state.skin = this.skin;
+    state.pullbackParticles = this.pullbackParticles;
     return state;
   }
 
@@ -91,11 +94,31 @@ class Sword extends Entity {
     this.updateFlags(dt);
 
     if (this.isFlying) {
+
+      if (this.player.modifiers.cancelThrow) {
+        this.stopFly(); // Archergod
+        this.flyCooldownTime = 0.2;
+      }
+
+       if (this.player.modifiers.pullback) {
+        this.pullbackParticles = true; // Fisherman
+      } else {
+        this.pullbackParticles = false;
+      }
+
       player.speed.multiplier *= this.playerSpeedBoost.value;
       this.shape.x += this.flySpeed.value * Math.cos(this.shape.angle - Math.PI / 2);
       this.shape.y += this.flySpeed.value * Math.sin(this.shape.angle - Math.PI / 2);
 
+      if (this.player.modifiers.ramThrow) {
+        this.player.shape.x = this.shape.x;
+        this.player.shape.y = this.shape.y;
+        this.player.shape.angle = this.shape.angle;
+        this.player.angle = this.shape.angle;
+      }
+
       this.flyTime += dt;
+      this.flyLog = this.flyTime;
       if (this.flyTime >= this.flyDuration.value) {
         this.stopFly();
       }
@@ -140,7 +163,11 @@ class Sword extends Entity {
     }
     if (this.canFly()) {
       this.isFlying = true;
-      this.flyCooldownTime = this.flyCooldown.value;
+      if (this.player.modifiers.ramAbility) {
+        this.flyCooldownTime = this.flyCooldown.value / 8;
+      } else {
+        this.flyCooldownTime = this.flyCooldown.value;
+      }
       this.player.flags.set(Types.Flags.SwordThrow, true);
       this.player.inputs.inputUp(Types.Input.SwordThrow);
     }
@@ -182,18 +209,47 @@ class Sword extends Entity {
 
   processTargetsCollision(entity) {
     if (entity === this.player) return;
-    if (!this.canCollide(entity)) return;
+    if (this.player.modifiers.ramThrow && this.isFlying) {
+      //
+    } else {
+      if (!this.canCollide(entity)) return;
+    }
 
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
     let power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
-    power = Math.max(Math.min(power, 400), 100);
+    if (this.player.modifiers.pullAll) {
+      power = Math.max(Math.min(power, 400), 100);
+      power = 0 - power
+    } else if (this.player.modifiers.pullback === true) {
+        if (this.isFlying) {
+          this.isAnimationFinished = true;
+          this.flyTime = this.flyDuration.value;
+          power = Math.max(Math.min(power, 400), 100);
+          power = 0 - (power / (this.flyDuration.value / this.flyLog));
+        } else {
+          if (!this.player.evolutions.evolutionEffect.isAbilityActive) {
+            power = (Math.max(Math.min(power, 400), 100)) * 0.25;
+          }
+        }
+        if (entity.type === Types.Entity.Player) {
+          power *= 4;
+        }
+      } else if (!this.player.modifiers.noRestrictKnockback) {
+        power = Math.max(Math.min(power, 400), 100);
+      }
     const xComp = power * Math.cos(angle);
     const yComp = power * Math.sin(angle);
     entity.velocity.x = -1*xComp;
     entity.velocity.y =  -1*yComp;
     if ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) || 
       (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation))) {
-      entity.damaged(this.damage.value, this.player);
+        if (this.player.modifiers.scaleThrow && this.isFlying) {
+          entity.damaged(this.damage.value * ((this.flyLog + 1) * 1.25) * this.player.modifiers.throwDamage, this.player);
+        } else if (this.player.modifiers.throwDamage && this.isFlying) {
+          entity.damaged(this.damage.value * this.player.modifiers.throwDamage, this.player);
+        } else {
+          entity.damaged(this.damage.value, this.player);
+        }
     }
 
     if(this.player.modifiers.leech) {

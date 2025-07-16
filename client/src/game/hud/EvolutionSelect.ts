@@ -5,7 +5,7 @@ import { config } from '../../config';
 class EvolutionSelect extends HudComponent {
   spritesContainer: Phaser.GameObjects.Container | null = null;
   hideButton: Phaser.GameObjects.Text | null = null;
-  spriteSize = 125;
+  spriteSize = 100;
   indent = 50;
   minimized = false;
   updateList = false;
@@ -117,7 +117,7 @@ class EvolutionSelect extends HudComponent {
         const overlay = this.hud.scene.add.sprite(0, 0, evolution[1]).setOrigin(evolution[3][0], evolution[3][1]);
         overlay.setScale(body.width / overlay.width * evolution[2])
 
-        const container = this.hud.scene.add.container((this.spriteSize + 50) * (i - (count + 1) / 2), 0, [body, overlay]);
+        const container = this.hud.scene.add.container((this.spriteSize + 110) * (i - (count + 1) / 2), -25, [body, overlay]);
         container.setScale(this.spriteSize / body.height).setAlpha(alpha);
 
         const text = this.hud.scene!.add.text(0, 0, evolution[0], {
@@ -127,21 +127,32 @@ class EvolutionSelect extends HudComponent {
           strokeThickness: 6,
         }).setAlpha(alpha);
 
+        const desc = this.hud.scene!.add.text(0, 0, evolution[4], {
+          fontSize: 30,
+          fontStyle: 'bold',
+          stroke: '#000000',
+          strokeThickness: 5,
+        }).setAlpha(alpha);
+
         body.setInteractive()
           .on('pointerover', () => {
             // this.game.input.setDefaultCursor('pointer');
             container.setAlpha(1);
             text.setAlpha(1);
+            desc.setAlpha(1);
           })
           .on('pointerout', () => {
             // this.game.input.setDefaultCursor(config.cursorUrl || 'default');
             container.setAlpha(alpha);
             text.setAlpha(alpha);
+            desc.setAlpha(alpha);
           })
           .on('pointerdown', () => this.selectEvolution(evol));
 
         container.add(text);
-        Phaser.Display.Align.In.BottomCenter(text, body, 0, 40);
+        container.add(desc);
+        Phaser.Display.Align.In.BottomCenter(text, body, 0, 45);
+        Phaser.Display.Align.In.Center(desc, body, 0, 200);
         this.spritesContainer.add(container);
       }
       this.updateList = false;

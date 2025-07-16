@@ -84,7 +84,7 @@
       "displayName": "Lion",
       "id": 179,
       "buyable": true,
-      "price": 225,
+      "price": 250,
       "swordFileName": "lionSword.png",
       "bodyFileName": "lionPlayer.png",
       "description": "Roar!"
@@ -660,8 +660,8 @@
       "bodyFileName": "cheesePlayer.png",
       "description": "Its cheese"
     },
-    "farmer": {
-      "name": "farmer",
+    "farmerogex": {
+      "name": "farmerogex",
       "displayName": "Farmer OG",
       "id": 51,
       "buyable": false,
@@ -1914,7 +1914,7 @@
       "displayName": "Hypersphere",
       "id": 181,
       "buyable": true,
-      "price": 1111,
+      "price": 1000,
       "swordFileName": "hypersphereSword.png",
       "bodyFileName": "hyperspherePlayer.png",
       "description": "Enter the hyperverse..."
@@ -1974,7 +1974,7 @@
       "displayName": "Snow Globe",
       "id": 190,
       "buyable": true,
-      "price": 360000,
+      "price": 350000,
       "swordFileName": "snowglobeSword.png",
       "bodyFileName": "snowglobePlayer.png",
       "description": "Let it snow!"
@@ -2005,7 +2005,7 @@
       "displayName": "Aerial",
       "id": 220,
       "buyable": true,
-      "price": 555,
+      "price": 550,
       "swordFileName": "aerialSword.png",
       "bodyFileName": "aerialPlayer.png",
       "description": "Strike from the skies!"
@@ -2025,7 +2025,7 @@
       "displayName": "Bomb Boy",
       "id": 218,
       "buyable": true,
-      "price": 650,
+      "price": 600,
       "swordFileName": "bombboySword.png",
       "bodyFileName": "bombboyPlayer.png",
       "description": "Explosive!"
@@ -2115,7 +2115,7 @@
       "displayName": "Rose",
       "id": 209,
       "buyable": true,
-      "price": 5999,
+      "price": 6000,
       "swordFileName": "roseSword.png",
       "bodyFileName": "rosePlayer.png",
       "description": "Flatter the competition."
@@ -2145,7 +2145,7 @@
       "displayName": "Golden Eye",
       "id": 207,
       "buyable": true,
-      "price": 62500,
+      "price": 65000,
       "swordFileName": "goldeneyeSword.png",
       "bodyFileName": "goldeneyePlayer.png",
       "description": "The eye of the beholder."
@@ -2195,7 +2195,7 @@
       "displayName": "Beach",
       "id": 225,
       "buyable": true,
-      "price": 2500,
+      "price": 2250,
       "swordFileName": "beachv2Sword.png",
       "bodyFileName": "beachv2Player.png",
       "description": "As I see it, summer never ends!"
@@ -2325,7 +2325,7 @@
       "displayName": "Fire & Water",
       "id": 238,
       "buyable": true,
-      "price": 5566,
+      "price": 5500,
       "swordFileName": "fireandwaterSword.png",
       "bodyFileName": "fireandwaterPlayer.png",
       "description": "An equilibrium of elements."
@@ -2445,7 +2445,7 @@
       "displayName": "Metal",
       "id": 250,
       "buyable": true,
-      "price": 275,
+      "price": 300,
       "swordFileName": "metalSword.png",
       "bodyFileName": "metalPlayer.png",
       "description": "Great for both swords and armor!"
@@ -2495,7 +2495,7 @@
       "displayName": "Robo",
       "id": 255,
       "buyable": true,
-      "price": 2750,
+      "price": 2500,
       "swordFileName": "roboSword.png",
       "bodyFileName": "roboPlayer.png",
       "description": "Battle mode activated!"
@@ -2515,7 +2515,7 @@
       "displayName": "Steampunk",
       "id": 257,
       "buyable": true,
-      "price": 525525,
+      "price": 500000,
       "swordFileName": "steampunkSword.png",
       "bodyFileName": "steampunkPlayer.png",
       "description": "Killin' like clockwork"
@@ -2525,7 +2525,7 @@
       "displayName": "Sunset",
       "id": 258,
       "buyable": true,
-      "price": 3333,
+      "price": 3500,
       "swordFileName": "sunsetv2Sword.png",
       "bodyFileName": "sunsetv2Player.png",
       "description": "The last light your enemies will see before darkness..."
@@ -2535,7 +2535,7 @@
       "displayName": "The Divider",
       "id": 259,
       "buyable": true,
-      "price": 200200,
+      "price": 200000,
       "swordFileName": "thedividerSword.png",
       "bodyFileName": "thedividerPlayer.png",
       "description": "A single slice will divide anything into two..."
@@ -2545,7 +2545,7 @@
       "displayName": "Unknown",
       "id": 260,
       "buyable": true,
-      "price": 70,
+      "price": 75,
       "swordFileName": "unknownSword.png",
       "bodyFileName": "unknownPlayer.png",
       "description": "Who knows?"
@@ -2655,7 +2655,7 @@
       "displayName": "Fade",
       "id": 271,
       "buyable": true,
-      "price": 4321,
+      "price": 4250,
       "swordFileName": "fadeSword.png",
       "bodyFileName": "fadePlayer.png",
       "description": "Make your enemies fade away..."
@@ -2685,7 +2685,7 @@
       "displayName": "Frost Conjurer",
       "id": 274,
       "buyable": true,
-      "price": 23750,
+      "price": 22500,
       "swordFileName": "frostconjurerSword.png",
       "bodyFileName": "frostconjurerPlayer.png",
       "description": "It's a cold world out there"
@@ -2705,7 +2705,7 @@
       "displayName": "8-Bit",
       "id": 276,
       "buyable": true,
-      "price": 825,
+      "price": 800,
       "swordFileName": "bitSword.png",
       "bodyFileName": "bitPlayer.png",
       "description": "Keeping it retro!"
@@ -2715,7 +2715,7 @@
       "displayName": "Leafpile",
       "id": 277,
       "buyable": true,
-      "price": 525,
+      "price": 500,
       "swordFileName": "leafpileSword.png",
       "bodyFileName": "leafpilePlayer.png",
       "description": "A portable alternative to hiding in trees!"
@@ -2745,7 +2745,7 @@
       "displayName": "Steel",
       "id": 280,
       "buyable": true,
-      "price": 999,
+      "price": 1000,
       "swordFileName": "steelSword.png",
       "bodyFileName": "steelPlayer.png",
       "description": "Shiny and polished!"
@@ -2953,7 +2953,7 @@
       "displayName": "Water Conjurer",
       "id": 298,
       "buyable": true,
-      "price": 675,
+      "price": 650,
       "swordFileName": "waterSword.png",
       "bodyFileName": "waterPlayer.png",
       "description": "💧💧💧💧💧"
@@ -3406,7 +3406,7 @@
       "displayName": "Firepattern",
       "id": 336,
       "buyable": true,
-      "price": 1313,
+      "price": 1250,
       "swordFileName": "firepatternSword.png",
       "bodyFileName": "firepatternPlayer.png",
       "description": "A symmetrical formation made of magma and flames."
@@ -3539,7 +3539,7 @@
       "displayName": "Snowball",
       "id": 349,
       "buyable": true,
-      "price": 1400,
+      "price": 1250,
       "swordFileName": "snowballSword.png",
       "bodyFileName": "snowballPlayer.png",
       "description": "Throw snowballs and swords at the same time!"
@@ -3574,7 +3574,7 @@
       "displayName": "Colorful",
       "id": 352,
       "buyable": true,
-      "price": 65,
+      "price": 25,
       "swordFileName": "colorfulSword.png",
       "bodyFileName": "colorfulPlayer.png",
       "description": "Very vibrant"
@@ -3641,7 +3641,7 @@
       "displayName": "Wave",
       "id": 358,
       "buyable": true,
-      "price": 5555,
+      "price": 5500,
       "swordFileName": "unreleasedWaveSword.png",
       "bodyFileName": "unreleasedWavePlayer.png",
       "description": "The small waves are relaxing, but the big waves are deadly."
@@ -3693,7 +3693,7 @@
       "displayName": "Possessed",
       "id": 363,
       "buyable": true,
-      "price": 3210,
+      "price": 3250,
       "swordFileName": "possessedSword.png",
       "bodyFileName": "possessedPlayer.png",
       "description": "Overtaken by something spectral..."
@@ -3716,7 +3716,7 @@
       "displayName": "Emeraldwater",
       "id": 365,
       "buyable": true,
-      "price": 6350,
+      "price": 6250,
       "swordFileName": "emeraldwaterSword.png",
       "bodyFileName": "emeraldwaterPlayer.png",
       "description": "A mixture of water and dissolved gems"
@@ -3870,7 +3870,7 @@
       "displayName": "Aphid",
       "id": 377,
       "buyable": true,
-      "price": 11500,
+      "price": 12500,
       "swordFileName": "aphidNewSword.png",
       "bodyFileName": "aphidNewNewNewNewPlayer.png",
       "description": "A simple creature turned into a neon anomaly"
@@ -3880,7 +3880,7 @@
       "displayName": "Eliminator",
       "id": 378,
       "buyable": true,
-      "price": 18500,
+      "price": 17500,
       "swordFileName": "eliminatorSword.png",
       "bodyFileName": "eliminatorPlayer.png",
       "description": "The only thing left behind by the eliminator is the faint glow of neon."
@@ -3890,7 +3890,7 @@
       "displayName": "Wood",
       "id": 379,
       "buyable": true,
-      "price": 975,
+      "price": 950,
       "swordFileName": "woodSword.png",
       "bodyFileName": "woodPlayer.png",
       "description": "Does this skin really need an explanation?"
@@ -3993,7 +3993,7 @@
       "displayName": "Violin",
       "id": 385,
       "buyable": true,
-      "price": 1600,
+      "price": 1500,
       "swordFileName": "violinSword.png",
       "bodyFileName": "violinPlayer.png",
       "description": "Play a sad song for the ones you defeated"
@@ -4003,7 +4003,7 @@
       "displayName": "Fishbowl",
       "id": 386,
       "buyable": true,
-      "price": 1800,
+      "price": 1750,
       "swordFileName": "fishbowlSword.png",
       "bodyFileName": "fishbowlPlayer.png",
       "description": "Maybe don't try eating this fish"
@@ -4013,7 +4013,7 @@
       "displayName": "Cheeseburger",
       "id": 387,
       "buyable": true,
-      "price": 1900,
+      "price": 2000,
       "swordFileName": "cheeseburgerSword.png",
       "bodyFileName": "cheeseburgerPlayer.png",
       "description": "Tasty!"
@@ -4078,7 +4078,7 @@
       "displayName": "Future Fighter",
       "id": 392,
       "buyable": true,
-      "price": 375,
+      "price": 350,
       "swordFileName": "futureSword.png",
       "bodyFileName": "futurePlayer.png",
       "description": "From the future, but fighting in the present."
@@ -4102,7 +4102,7 @@
       "displayName": "Jellyfish",
       "id": 394,
       "buyable": true,
-      "price": 2850,
+      "price": 2500,
       "swordFileName": "jellyfishSword.png",
       "bodyFileName": "jellyfishPlayer.png",
       "description": "Found in Jellyfish Fields"
@@ -4248,8 +4248,6 @@
       "description": "Given to Number1 for being a former #3 all-time player!"
     },
     "marauder": {
-      "sale": true,
-
       "name": "marauder",
       "displayName": "Marauder",
       "id": 406,
@@ -4260,8 +4258,6 @@
       "description": "Hunt them down..."
     },
     "mechamarauder": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Marauder",
       "original": 406,
@@ -4276,20 +4272,16 @@
       "description": "Initialize Sequence SB-50. Activate Mech Protocol."
     },
     "apocalypsev2": {
-      "sale": true,
-
       "name": "apocalypsev2",
       "displayName": "Apocalypse",
       "id": 408,
       "buyable": true,
-      "price": 19000,
+      "price": 20000,
       "swordFileName": "apocalypsev2Sword.png",
       "bodyFileName": "apocalypsev2Player.png",
       "description": "End the world"
     },
     "atomic": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Apocalypse",
       "original": 408,
@@ -4298,14 +4290,12 @@
       "displayName": "Atomic",
       "id": 409,
       "buyable": true,
-      "price": 11111,
+      "price": 10000,
       "swordFileName": "ultimateApocalypseSword.png",
       "bodyFileName": "ultimateApocalypsePlayer.png",
       "description": "Who knew one battler could hold this much power?"
     },
     "prismatic": {
-      "sale": true,
-
       "name": "prismatic",
       "displayName": "Prismatic",
       "id": 410,
@@ -4316,8 +4306,6 @@
       "description": "Bright and colorful!"
     },
     "rainbowv2": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Prismatic",
       "original": 410,
@@ -4326,26 +4314,22 @@
       "displayName": "Rainbow",
       "id": 411,
       "buyable": true,
-      "price": 2255,
+      "price": 2000,
       "swordFileName": "ultimatePrismaticSword.png",
       "bodyFileName": "ultimatePrismaticPlayer.png",
       "description": "Infinitely colorful..."
     },
     "trippyv2": {
-      "sale": true,
-
       "name": "trippyv2",
       "displayName": "Trippy",
       "id": 412,
       "buyable": true,
-      "price": 3400,
+      "price": 3500,
       "swordFileName": "trippyv2Sword.png",
       "bodyFileName": "trippyv2Player.png",
       "description": "Wear this skin and spin to give enemies headaches"
     },
     "illusionaryv2": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Trippy",
       "original": 412,
@@ -4360,8 +4344,6 @@
       "description": "Does it ever end?"
     },
     "tree": {
-      "sale": true,
-
       "name": "tree",
       "displayName": "Tree",
       "id": 414,
@@ -4372,8 +4354,6 @@
       "description": "How does a tree even battle?"
     },
     "treedisguise": {
-      "sale": true,
-      
       "ultimate": true,
       "tag": "Ultimate Tree",
       "original": 414,
@@ -4386,6 +4366,290 @@
       "swordFileName": "ultimateTreeSword.png",
       "bodyFileName": "ultimateTreePlayer.png",
       "description": "Nobody is actually falling for this but at least it looks cool"
+    },
+    "pyromancer": {
+      "new": true,
+
+      "sale": true,
+      "ogprice": 400000,
+      "saletag": "75% OFF",
+
+      "name": "pyromancer",
+      "displayName": "Pyromancer",
+      "id": 416,
+      "buyable": true,
+      "price": 100000,
+      "swordFileName": "pyromancerSword.png",
+      "bodyFileName": "pyromancerPlayer.png",
+      "description": "The creator of all fire and flames."
+    },
+    "tire": {
+      "new": true,
+      
+      "name": "tire",
+      "displayName": "Tire",
+      "id": 417,
+      "buyable": true,
+      "price": 850,
+      "swordFileName": "tireSword.png",
+      "bodyFileName": "tirePlayer.png",
+      "description": "Run over your enemies"
+    },
+    "moai": {
+      "new": true,
+
+      "sale": true,
+      "ogprice": 15000,
+      "saletag": "33% OFF",
+      
+      "name": "moai",
+      "displayName": "Moai",
+      "id": 418,
+      "buyable": true,
+      "price": 10000,
+      "swordFileName": "moaiSword.png",
+      "bodyFileName": "moaiPlayer.png",
+      "description": "🗿"
+    },
+    "farmer v2": {
+      "new": true,
+      
+      "name": "farmer v2",
+      "displayName": "Farmer",
+      "id": 419,
+      "buyable": true,
+      "price": 5250,
+      "swordFileName": "farmerv2Sword.png",
+      "bodyFileName": "farmerv2Player.png",
+      "description": "Trained in the fields."
+    },
+    "triangles": {
+      "new": true,
+      
+      "name": "triangles",
+      "displayName": "Triangles",
+      "id": 420,
+      "buyable": true,
+      "price": 350,
+      "swordFileName": "trianglesSword.png",
+      "bodyFileName": "trianglesPlayer.png",
+      "description": "Attack from all angles!"
+    },
+    "classicfarmer": {
+      "new": true,
+
+      "ultimate": true,
+      "tag": "Ultimate Farmer",
+      "original": 419,
+      
+      "name": "classicfarmer",
+      "displayName": "Classic Farmer",
+      "id": 421,
+      "buyable": true,
+      "price": 4000,
+      "swordFileName": "ultimateFarmerSword.png",
+      "bodyFileName": "ultimateFarmerPlayer.png",
+      "description": "The OG of OGs"
+    },
+    "ghostplayer": {
+      "new": true,
+
+      "ultimate": true,
+      "tag": "Ultimate Ghost",
+      "original": 183,
+      
+      "name": "ghostplayer",
+      "displayName": "Ghost-Player",
+      "id": 422,
+      "buyable": true,
+      "price": 250,
+      "swordFileName": "ultimateGhostSword.png",
+      "bodyFileName": "ultimateGhostPlayer.png",
+      "description": "It gleams a ghostly green glow..."
+    },
+    "triangulation": {
+      "new": true,
+
+      "ultimate": true,
+      "tag": "Ultimate Triangles",
+      "original": 420,
+      
+      "name": "triangulation",
+      "displayName": "Triangulation",
+      "id": 423,
+      "buyable": true,
+      "price": 1500,
+      "swordFileName": "ultimateTriangleSword.png",
+      "bodyFileName": "ultimateTrianglePlayer.png",
+      "description": "The true use of triangles is to STAB!"
+    },
+    "movie v2": {
+      "new": true,
+
+      "sale": true,
+      "ogprice": 6000,
+      "saletag": "50% OFF",
+      
+      "name": "movie v2",
+      "displayName": "Movie",
+      "id": 424,
+      "buyable": true,
+      "price": 3000,
+      "swordFileName": "moviev2Sword.png",
+      "bodyFileName": "moviev2Player.png",
+      "description": "Watch it all unfold"
+    },
+    "popcorn": {
+      "new": true,
+
+      "ultimate": true,
+      "tag": "Ultimate Movie",
+      "original": 424,
+      
+      "name": "popcorn",
+      "displayName": "Popcorn",
+      "id": 425,
+      "buyable": true,
+      "price": 2500,
+      "swordFileName": "ultimateMovieSword.png",
+      "bodyFileName": "ultimateMoviePlayer.png",
+      "description": "You can't have a movie without popcorn!"
+    },
+    "inverted": {
+      "new": true,
+      
+      "name": "inverted",
+      "displayName": "Inverted",
+      "id": 426,
+      "buyable": true,
+      "price": 75,
+      "swordFileName": "invertedSword.png",
+      "bodyFileName": "invertedPlayer.png",
+      "description": "All wrongs become rights"
+    },
+    "invertedknight": {
+      "new": true,
+
+      "ultimate": true,
+      "tag": "Ultimate Inverted",
+      "original": 426,
+      
+      "name": "invertedknight",
+      "displayName": "Inverted Knight",
+      "id": 427,
+      "buyable": true,
+      "price": 15000,
+      "swordFileName": "ultimateInvertedSword.png",
+      "bodyFileName": "ultimateInvertedPlayer.png",
+      "description": "Almost as if every hit makes you stronger..."
+    },
+    "ramen": {
+      "new": true,
+
+      "sale": true,
+      "ogprice": 4500,
+      "saletag": "33% OFF",
+      
+      "name": "ramen",
+      "displayName": "Ramen",
+      "id": 428,
+      "buyable": true,
+      "price": 3000,
+      "swordFileName": "ramenSword.png",
+      "bodyFileName": "ramenPlayer.png",
+      "description": "A bowl of noodles that will never get cold!"
+    },
+    "meatball": {
+      "new": true,
+      
+      "name": "meatball",
+      "displayName": "Meatball",
+      "id": 429,
+      "buyable": true,
+      "price": 2000,
+      "swordFileName": "meatballSword.png",
+      "bodyFileName": "meatballPlayer.png",
+      "description": "The best part of any spaghetti dish!"
+    },
+    "shapes": {
+      "new": true,
+      
+      "name": "shapes",
+      "displayName": "Shapes",
+      "id": 430,
+      "buyable": true,
+      "price": 750,
+      "swordFileName": "shapesSword.png",
+      "bodyFileName": "shapesPlayer.png",
+      "description": "Attack in all ways, shapes and forms."
+    },
+    "detective": {
+      "new": true,
+
+      "sale": true,
+      "ogprice": 30000,
+      "saletag": "50% OFF",
+      
+      "name": "detective",
+      "displayName": "Detective",
+      "id": 431,
+      "buyable": true,
+      "price": 15000,
+      "swordFileName": "detectiveSword.png",
+      "bodyFileName": "detectivePlayer.png",
+      "description": "Uncover the truth, and know the unknown."
+    },
+    "drum": {
+      "new": true,
+      
+      "name": "drum",
+      "displayName": "Drum",
+      "id": 432,
+      "buyable": true,
+      "price": 3000,
+      "swordFileName": "drumSword.png",
+      "bodyFileName": "drumPlayer.png",
+      "description": "Play the beats that bring the heat!"
+    },
+    "unrendered": {
+      "new": true,
+
+      "sale": true,
+      "ogprice": 7000,
+      "saletag": "50% OFF",
+      
+      "name": "unrendered",
+      "displayName": "Unrendered",
+      "id": 433,
+      "buyable": true,
+      "price": 3500,
+      "swordFileName": "unrenderedSword.png",
+      "bodyFileName": "unrenderedPlayer.png",
+      "description": "ERROR: Skin cannot be loaded\nㅤㅤㅤㅤㅤㅤㅤcode 1014"
+    },
+    "tennis": {
+      "new": true,
+      
+      "name": "tennis",
+      "displayName": "Tennis",
+      "id": 434,
+      "buyable": true,
+      "price": 700,
+      "swordFileName": "tennisSword.png",
+      "bodyFileName": "tennisPlayer.png",
+      "description": "Game, set, match!"
+    },
+    "golf": {
+      "new": true,
+      
+      "name": "golf",
+      "displayName": "Golf",
+      "id": 435,
+      "buyable": true,
+      "price": 800,
+      "swordFileName": "golfSword.png",
+      "bodyFileName": "golfPlayer.png",
+      "description": "Hole in one!"
     }
   }
 }

@@ -306,7 +306,7 @@ class Player extends Entity {
   }
 
   damaged(damage, entity = null) {
-    if (this.name !== "Update Testing Account") {
+    if (this.name !== "Update Testing Account" && !this.player.modifiers?.invincible) {
       this.health.damaged(damage);
     }
 

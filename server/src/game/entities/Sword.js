@@ -97,6 +97,8 @@ class Sword extends Entity {
         this.flyCooldownTime = 0.2;
       }
 
+    this.player.modifiers.invincible = false;
+
     if (this.isFlying) {
 
       if (this.player.modifiers.cancelThrow) {
@@ -114,6 +116,7 @@ class Sword extends Entity {
       this.shape.y += this.flySpeed.value * Math.sin(this.shape.angle - Math.PI / 2);
 
       if (this.player.modifiers.ramThrow) {
+        this.player.modifiers.invincible = true;
         this.player.shape.x = this.shape.x;
         this.player.shape.y = this.shape.y;
         this.player.shape.angle = this.shape.angle;
@@ -243,7 +246,7 @@ class Sword extends Entity {
     if ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) || 
       (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation))) {
         if (this.player.modifiers.scaleThrow && this.isFlying) {
-          entity.damaged(this.damage.value * ((this.flyLog + 1) * 1.75) * this.player.modifiers.throwDamage, this.player);
+          entity.damaged(this.damage.value * ((this.flyLog + 1) * 1.35) * this.player.modifiers.throwDamage, this.player);
         } else if (this.player.modifiers.throwDamage && this.isFlying) {
           entity.damaged(this.damage.value * this.player.modifiers.throwDamage, this.player);
         } else {

@@ -15,7 +15,7 @@ module.exports = class Sniper extends Evolution {
 
     
     this.player.modifiers.throwDamage = 5;
-    this.player.sword.flySpeed.multiplier *= 1.85;
+    this.player.sword.flySpeed.multiplier *= 1.65;
     this.player.sword.flyDuration.multiplier *= 1;
 
     this.player.health.regenWait.multiplier = 0;
@@ -42,7 +42,7 @@ module.exports = class Sniper extends Evolution {
     this.player.sword.swingDuration.multiplier['ability'] = 0.875;
 
     this.player.sword.flyDuration.multiplier *= 1.5;
-    this.player.sword.flySpeed.multiplier *= 1.65;
+    this.player.sword.flySpeed.multiplier *= 1.55;
     this.player.sword.playerSpeedBoost.multiplier *= 2.35;
   }
 }

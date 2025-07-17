@@ -17,7 +17,7 @@ module.exports = class SuperArcher extends Evolution {
     this.player.shape.setScale(0.925);
 
     this.player.modifiers.scaleThrow = true;
-    this.player.modifiers.throwDamage = 1.75;
+    this.player.modifiers.throwDamage = 2.25;
 
     this.player.speed.multiplier *= 1.075;
 
@@ -28,7 +28,7 @@ module.exports = class SuperArcher extends Evolution {
 
     this.player.sword.damage.multiplier *= 0.35;
     
-    this.player.sword.knockback.multiplier['ability'] = 2.5;
+    this.player.sword.knockback.multiplier['ability'] = 1.5;
     this.player.knockbackResistance.multiplier *= 1.15;
 
     this.player.sword.swingDuration.multiplier['ability'] = 0.925;

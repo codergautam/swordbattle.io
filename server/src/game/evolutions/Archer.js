@@ -34,7 +34,7 @@ module.exports = class Archer extends Evolution {
 
     this.player.sword.damage.multiplier *= 0.35;
     
-    this.player.sword.knockback.multiplier['ability'] = 2;
+    this.player.sword.knockback.multiplier['ability'] = 1.75;
     this.player.knockbackResistance.multiplier *= 1.2;
 
     this.player.sword.swingDuration.multiplier['ability'] = 0.9;

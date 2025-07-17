@@ -93,11 +93,14 @@ class Sword extends Entity {
 
     this.updateFlags(dt);
 
+    if (this.player.modifiers.cancelThrow) {
+        this.flyCooldownTime = 0.2;
+      }
+
     if (this.isFlying) {
 
       if (this.player.modifiers.cancelThrow) {
         this.stopFly(); // Archergod
-        this.flyCooldownTime = 0.2;
       }
 
        if (this.player.modifiers.pullback) {

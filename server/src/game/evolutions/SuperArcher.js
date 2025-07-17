@@ -33,8 +33,8 @@ module.exports = class SuperArcher extends Evolution {
 
     this.player.sword.swingDuration.multiplier['ability'] = 0.925;
 
-    this.player.sword.flyDuration.multiplier *= 0.9;
-    this.player.sword.flySpeed.multiplier *= 1.15;
+    this.player.sword.flyDuration.multiplier *= 0.75;
+    this.player.sword.flySpeed.multiplier *= 1.4;
     this.player.sword.playerSpeedBoost.multiplier *= 3;
   }
 }

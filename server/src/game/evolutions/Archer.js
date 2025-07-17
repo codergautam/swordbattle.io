@@ -33,6 +33,8 @@ module.exports = class Archer extends Evolution {
     this.player.health.regen.multiplier *= 0.8;
 
     this.player.sword.damage.multiplier *= 0.35;
+    this.player.modifiers.chestPower = 3;
+    this.player.modifiers.mobPower = 3;
     
     this.player.sword.knockback.multiplier['ability'] = 1.75;
     this.player.knockbackResistance.multiplier *= 1.2;

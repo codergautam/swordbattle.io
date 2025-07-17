@@ -67,7 +67,7 @@ class Chest extends Entity {
       sword.player.flags.set(Types.Flags.ChestDestroy, true);
 
       if (sword.player.modifiers.chestPower) {
-        this.game.map.spawnCoinsInShape(this.shape, this.coins * (1 + (sword.player.modifiers.chestPower * 0.15)));
+        this.game.map.spawnCoinsInShape(this.shape, this.coins);
       } else {
         this.game.map.spawnCoinsInShape(this.shape, this.coins);
       }

@@ -33,6 +33,8 @@ module.exports = class Sniper extends Evolution {
     this.player.health.regenWait.multiplier *= 1.3;
 
     this.player.sword.damage.multiplier *= 0.4;
+    this.player.modifiers.chestPower = 2.5;
+    this.player.modifiers.mobPower = 2.5;
     
     this.player.sword.knockback.multiplier['ability'] = 2.5;
     this.player.knockbackResistance.multiplier *= 0;

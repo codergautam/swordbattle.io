@@ -208,6 +208,7 @@
   font-family: "Roboto", sans-serif;
   overflow-y: auto;
   text-align: left;
+  width: 100%;
 
   .back-button {
     top: 10px;
@@ -264,6 +265,7 @@
       border-radius: 25px;
       margin-left: 0;
       text-align: left;
+      width: 100%;
     }
 
     .xp-graph {
@@ -272,6 +274,7 @@
       border-radius: 5px;
       padding: 10px;
       display: block;
+      margin: 0 auto;
     }
 
     .leaderboard-card {

@@ -35,7 +35,7 @@ module.exports = {
 
   // Player settings
   player: {
-    speed: 700,
+    speed: 770,
     radius: 100,
     maxHealth: 80,
     regeneration: 3,

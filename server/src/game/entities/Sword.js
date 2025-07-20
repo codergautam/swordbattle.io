@@ -167,7 +167,9 @@ class Sword extends Entity {
     if (this.canFly()) {
       this.isFlying = true;
       if (this.player.modifiers.ramAbility) {
-        this.flyCooldownTime = this.flyCooldown.value / 8;
+        this.flyCooldownTime = this.flyCooldown.value / 5;
+      } else if (this.player.modifiers.ramThrow) {
+        this.flyCooldownTime = this.flyCooldown.value / 1.5;
       } else {
         this.flyCooldownTime = this.flyCooldown.value;
       }

@@ -59,7 +59,7 @@ class LevelSystem {
       [Types.Buff.Speed]: {
         level: 0,
         max: 10,
-        step: 0.04,
+        step: 0.03,
         buyable: true,
       },
       [Types.Buff.Size]: {
@@ -76,7 +76,7 @@ class LevelSystem {
       },
       [Types.Buff.Regeneration]: {
         level: 0,
-        step: 0.15,
+        step: 0.09,
         max: 10,
         buyable: true,
       },

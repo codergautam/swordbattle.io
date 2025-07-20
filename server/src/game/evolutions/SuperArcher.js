@@ -22,9 +22,9 @@ module.exports = class SuperArcher extends Evolution {
     this.player.speed.multiplier *= 1.075;
 
     
-    this.player.health.max.multiplier *= 0.85;
+    this.player.health.max.multiplier *= 0.9;
     this.player.health.regenWait.multiplier = 0.5;
-    this.player.health.regen.multiplier *= 0.425;
+    this.player.health.regen.multiplier *= 0.6;
 
     this.player.sword.damage.multiplier *= 0.35;
     this.player.modifiers.chestPower = 3;

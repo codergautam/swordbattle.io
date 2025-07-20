@@ -177,7 +177,7 @@ module.exports = {
           amount: 1,
           position: 'random',
           respawnable: true,
-          respawnTime: [60 * 7, 60 * 23], // 10-30 minutes
+          respawnTime: [60 * 7, 60 * 17], // 10-30 minutes
           size: [300, 400],
           health: 750,
           isBoss: true,
@@ -305,9 +305,9 @@ module.exports = {
           amount: 3,
           position: 'random',
           respawnable: true,
-          respawnTime: [60 * 5, 60 * 20],
+          respawnTime: [60 * 5, 60 * 15],
           size: [275, 375],
-          health: 1100,
+          health: 1000,
           isBoss: true,
           damage: 30,
           rotationSpeed: 10,

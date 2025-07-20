@@ -18,8 +18,8 @@ module.exports = class Rammer extends Evolution {
     this.player.speed.multiplier *= 0.6;
     this.player.sword.swingDuration.multiplier['ability'] = 0.5;
 
-    this.player.sword.flyDuration.multiplier *= 0.2;
-    this.player.sword.flySpeed.multiplier *= 2.5;
+    this.player.sword.flyDuration.multiplier *= 0.5;
+    this.player.sword.flySpeed.multiplier *= 1.75;
     this.player.health.max.multiplier *= 1;
   }
 
@@ -34,6 +34,9 @@ module.exports = class Rammer extends Evolution {
     this.player.health.max.multiplier *= 1.5;
     this.player.health.regen.multiplier *= 1.3;
     this.player.health.regenWait.multiplier *= 1.2;
+
+    this.player.sword.flyDuration.multiplier *= 0.4;
+    this.player.sword.flySpeed.multiplier *= 1.2;
     //TODO: Damagecooldown: 1.1
   }
 }

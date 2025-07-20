@@ -67,15 +67,26 @@
 			}
 
 			&.updateCard {
-				background: #48ace2;
+				background: #67c3f4;
 
 				.leaderboard-card__top {
-					background: rgb(16, 31, 165);
+					background: #58a5cf;
+					padding: 20px 0 10px 0;
 				}
 
 				.leaderboard-card__body {
-					background: #48ace2;
+					padding: 15px;
+					margin-top: -20px;
 				}
+
+				&--first {
+				transform: scale(1.05);
+
+				.leaderboard-card__top {
+					background: linear-gradient(45deg, #5782c2, #4753bc);
+					color: #fff;
+				}
+			}
 			}
 		}
 		.table {
@@ -111,10 +122,10 @@
 				}
 
 				&.updateCard {
-				background: #48ace2;
+				background: #67c3f4;
 
 				td {
-				background: #48ace2;
+				background: #67c3f4;
 				}
 		}
 			}

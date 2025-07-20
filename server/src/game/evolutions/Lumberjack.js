@@ -11,7 +11,7 @@ module.exports = class Lumberjack extends Evolution {
 
   applyAbilityEffects() {
     this.player.modifiers.chestPower = 4;
-    this.player.viewport.zoom.multiplier *= 0.65;
+    this.player.viewport.zoom.multiplier *= 0.7;
     this.player.shape.setScale(1.5);
     this.player.speed.multiplier *= 1.2;
     this.player.sword.knockback.multiplier['ability'] = 3;
@@ -23,14 +23,14 @@ module.exports = class Lumberjack extends Evolution {
 
   update(dt) {
     this.player.modifiers.chestPower = 3;
-    this.player.modifiers.mobPower = 0.7;
+    this.player.modifiers.mobPower = 1; // If too op for grinding then nerf
     this.player.shape.setScale(1.2);
     this.player.sword.knockback.multiplier['ability'] = 2;
     this.player.knockbackResistance.multiplier *= 0.5;
-    this.player.sword.damage.multiplier *= 0.9;
-    this.player.speed.multiplier *= 0.825;
+    this.player.sword.damage.multiplier *= 1.15;
+    this.player.speed.multiplier *= 0.85;
     this.player.health.regenWait.multiplier *= 0.5;
-    this.player.health.max.multiplier *= 0.7;
+    this.player.health.max.multiplier *= 0.85;
     super.update(dt);
   }
 }

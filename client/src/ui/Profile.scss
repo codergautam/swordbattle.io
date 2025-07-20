@@ -213,15 +213,15 @@
     top: 10px;
     right: 10px;
     z-index: 100;
-    background: rgba(0, 0, 0, 0.241);
-    border-radius: 25px;
+    border: none;
     padding: 10px;
     font-size: 20px;
     font-weight: bold;
-    color: white;
+    color: black;
     cursor: pointer;
     width: 50px;
     height: 50px;
+    margin-bottom: 10px;
   }
 
   .main-content {
@@ -285,12 +285,14 @@
       &__top {
         background: #f9f6ff;
         padding: 20px 0 10px 0;
+        text-align: center;
       }
 
       &__body {
         padding: 15px;
         margin-top: -40px;
         z-index: inherit;
+        text-align: center;
       }
 
       &__first {

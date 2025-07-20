@@ -6,24 +6,6 @@
 		text-decoration: none;
 	}
 
-	.back-button {
-		background: #d2d2d2;
-    border-color: gray;
-    border-radius: 25px;
-    color: #000;
-    cursor: pointer;
-    font-size: 20px;
-    font-weight: 700;
-    height: 50px;
-    left: 50%;
-    padding: 10px;
-    position: absolute;
-    top: 10px;
-    transform: translate(-350%,50%);
-    width: 200px;
-    z-index: 100
-	  }
-
 	@import '~bootstrap/scss/bootstrap';
 
 	--bs-table-bg: transparent;
@@ -83,6 +65,18 @@
 					color: #fff;
 				}
 			}
+
+			&.updateCard {
+				background: #48ace2;
+
+				.leaderboard-card__top {
+					background: rgb(16, 31, 165);
+				}
+
+				.leaderboard-card__body {
+					background: #48ace2;
+				}
+			}
 		}
 		.table {
 			border-spacing: 0 15px;
@@ -117,10 +111,10 @@
 				}
 
 				&.updateCard {
-				background: #e0f4ff;
+				background: #48ace2;
 
 				td {
-				background: #e0f4ff;
+				background: #48ace2;
 				}
 		}
 			}

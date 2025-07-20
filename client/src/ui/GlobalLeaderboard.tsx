@@ -173,7 +173,7 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
   const isFirst = index === 0;
   return (
     <div className="col-sm-4">
-      <div className={clsx('leaderboard-card', isFirst && 'leaderboard-card--first')}>
+      <div className={clsx('leaderboard-card', isFirst && 'leaderboard-card--first', row.username === "Update Testing Account" && 'updateCard')}>
         <div className="leaderboard-card__top">
           <h3 className="text-center">
             #{index + 1} - <Link

@@ -67,16 +67,17 @@
 			}
 
 			&.updateCard {
-				background: #a9d5ec;
+				background: #e0f4ff;
 
 				.leaderboard-card__top {
-					background: #58a5cf;
+					background: #7fbbdb;
 					padding: 20px 0 10px 0;
 				}
 
 				.leaderboard-card__body {
 					padding: 15px;
 					margin-top: -20px;
+					background: #e0f4ff;
 				}
 
 				&--first {
@@ -122,10 +123,10 @@
 				}
 
 				&.updateCard {
-				background: #a9d5ec;
+				background: #e0f4ff;
 
 				td {
-				background: #a9d5ec;
+				background: #e0f4ff;
 				}
 		}
 			}

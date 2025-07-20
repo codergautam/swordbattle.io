@@ -218,6 +218,7 @@
     padding: 10px;
     font-size: 20px;
     font-weight: bold;
+    background-color: #f9f9f9;
     color: black;
     cursor: pointer;
     width: 50px;
@@ -284,6 +285,10 @@
       overflow: hidden;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       text-align: center;
+
+      * {
+        text-align: center !important;
+      }
 
       &__top {
         background: #f9f6ff;

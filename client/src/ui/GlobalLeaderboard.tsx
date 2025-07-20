@@ -118,7 +118,7 @@ export function GlobalLeaderboard() {
             {data.slice(3).map((row) => {
               const index = data.indexOf(row);
               return (
-                <tr key={index}>
+                <tr key={index} className={row.username === "Update Testing Account" ? "updateCard" : ""}>
                   <td><b>#{index + 1}</b></td>
                   <td>
                     <div className="d-flex align-items-center">

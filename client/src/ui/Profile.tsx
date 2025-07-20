@@ -65,8 +65,7 @@ export default function Profile() {
   useEffect(() => fetchAccount(), []);
 
   useEffect(() => {
-  const ownedProfiles = data?.account?.profiles?.owned;
-  const currentProfileId = ownedProfiles && ownedProfiles.length > 0 ? ownedProfiles[0] : 1;
+  const currentProfileId = data?.account?.profiles?.equipped ?? 1;
   const className = `profile-body-${currentProfileId}`;
 
   document.body.classList.add(className);
@@ -79,7 +78,8 @@ export default function Profile() {
       }
     });
   };
-}, [data?.account?.profiles?.owned]);
+}, [data?.account?.profiles?.equipped]);
+
 
 
   const prepareGraphData = (dailyStats: Stats[]) => {

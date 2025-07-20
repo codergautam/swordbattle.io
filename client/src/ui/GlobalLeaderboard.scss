@@ -115,7 +115,16 @@
 						border-radius: 0 5px 5px 0;
 					}
 				}
+
+				&.updateCard {
+				background: #e0f4ff;
+
+				td {
+				background: #e0f4ff;
+				}
+		}
 			}
+			
 		}
 	}
 }

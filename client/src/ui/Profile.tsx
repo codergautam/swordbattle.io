@@ -83,39 +83,43 @@ export default function Profile() {
 
 
   const prepareGraphData = (dailyStats: Stats[]) => {
-    // Sort the stats by date
-    dailyStats.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  // Sort and fill dates
+  dailyStats.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const allDates = [];
+  let d = new Date(dailyStats[0].date);
+  d.setDate(d.getDate() - 1);
+  const endDate = new Date(dailyStats[dailyStats.length - 1].date);
+  for (; d <= endDate; d.setDate(d.getDate() + 1)) {
+    allDates.push(new Date(d));
+  }
 
-    // Create a new array for all dates in the range
-    const allDates = [];
-    let d = new Date(dailyStats[0].date);
-    d.setDate(d.getDate() - 1); // One day before the first date
-    const endDate = new Date(dailyStats[dailyStats.length - 1].date);
-    for (; d <= endDate; d.setDate(d.getDate() + 1)) {
-      allDates.push(new Date(d));
-    }
+  const labels = allDates.map(date => fixDate(date).toLocaleDateString());
+  let runningTotal = 0;
+  const dataPoints = allDates.map(date => {
+    const stat = dailyStats.find(stat =>
+      fixDate(new Date(stat.date)).toLocaleDateString() === fixDate(date).toLocaleDateString()
+    );
+    return stat ? runningTotal += stat.coins : runningTotal;
+  });
 
-    // Map the stats to the new date range
-    const labels = allDates.map(date => fixDate(date).toLocaleDateString());
-    let runningTotal = 0;
-    const data = allDates.map(date => {
-      const stat = dailyStats.find(stat => fixDate(new Date(stat.date)).toLocaleDateString() === fixDate(date).toLocaleDateString());
-      return stat ? runningTotal += stat.coins : runningTotal;
-    });
+  const isProfile3 = data?.account?.profiles?.equipped === 3;
 
-    return {
-      labels,
-      datasets: [
-        {
-          label: 'Total XP',
-          data,
-          backgroundColor: 'white',
-          borderColor: 'white',
-          tension: 0.4,
-        },
-      ],
-    };
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Total XP',
+        data: dataPoints,
+        backgroundColor: isProfile3 ? '#ff6384' : 'white',        // Point fill
+        borderColor: isProfile3 ? '#ff6384' : 'white',           // Line color
+        pointBackgroundColor: isProfile3 ? '#ff6384' : 'white',  // Dot fill
+        pointBorderColor: isProfile3 ? '#ff6384' : 'white',      // Dot border
+        tension: 0.4,
+      },
+    ],
   };
+};
+
 
   console.log('Username: ', data?.account.username)
   console.log('Clan: ', data?.account.clan)
@@ -197,30 +201,39 @@ export default function Profile() {
 
         {!data.account.recovered && data.dailyStats && data.dailyStats.length &&
           <div className="xp-graph">
-            <Line data={prepareGraphData(data.dailyStats)} options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  ticks: {
-                    color: 'white',
-                  }
-                },
-                x: {
-                  ticks: {
-                    color: 'white',
-                  }
-                }
-              },
-              plugins: {
-                legend: {
-                  labels: {
-                    color: 'white'
+            <Line data={prepareGraphData(data.dailyStats)}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: {
+                      color: data.account.profiles.equipped === 3 ? '#666666' : 'white',
+                    },
+                    grid: {
+                      color: data.account.profiles.equipped === 3 ? '#c9c9c9' : 'rgba(255,255,255,0.1)',
+                    },
+                  },
+                  x: {
+                    ticks: {
+                      color: data.account.profiles.equipped === 3 ? '#666666' : 'white',
+                    },
+                    grid: {
+                      color: data.account.profiles.equipped === 3 ? '#c9c9c9' : 'rgba(255,255,255,0.1)',
+                    },
                   },
                 },
-              },
-            }} />
+                plugins: {
+                  legend: {
+                    labels: {
+                      color: data.account.profiles.equipped === 3 ? '#797979' : 'white',
+                    },
+                  },
+                },
+              }}
+            />
+  
           </div>
         }
         </div>

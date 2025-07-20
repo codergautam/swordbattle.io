@@ -22,6 +22,7 @@ interface AccountData {
   created_at: string;
   profile_views: number;
   skins: { equipped: number, owned: number[] };
+  profiles: { equipped: number, owned: number[] };
   recovered: boolean;
 }
 interface ProfileData {
@@ -64,16 +65,22 @@ export default function Profile() {
   useEffect(() => fetchAccount(), []);
 
   useEffect(() => {
-    if (data?.account.username === "Update Testing Account") {
-      document.body.classList.add('profile-blue');
-    } else {
-      document.body.classList.add('profile-body');
-    }
-    return () => {
-      document.body.classList.remove('profile-blue');
-      document.body.classList.remove('profile-body');
-    };
-  }, [data]);
+  const ownedProfiles = data?.account?.profiles?.owned;
+  const currentProfileId = ownedProfiles && ownedProfiles.length > 0 ? ownedProfiles[0] : 1;
+  const className = `profile-body-${currentProfileId}`;
+
+  document.body.classList.add(className);
+
+  return () => {
+    // Clean up all profile-body-* classes
+    document.body.classList.forEach((cls) => {
+      if (cls.startsWith('profile-body-')) {
+        document.body.classList.remove(cls);
+      }
+    });
+  };
+}, [data?.account?.profiles?.owned]);
+
 
   const prepareGraphData = (dailyStats: Stats[]) => {
     // Sort the stats by date

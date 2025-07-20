@@ -55,6 +55,9 @@ export class Account {
   @Column({ unique: true, nullable: false, default: () => `gen_random_uuid()` })
   secret: string;
 
+  @Column({ type: 'jsonb', default: '{"equipped": 1, "owned": [1]}' })
+  profiles: { equipped: number; owned: number[] };
+
   constructor(data: Partial<Account> = {}) {
     Object.assign(this, data);
   }

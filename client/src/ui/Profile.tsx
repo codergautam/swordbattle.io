@@ -99,7 +99,7 @@ export default function Profile() {
     const stat = dailyStats.find(stat =>
       fixDate(new Date(stat.date)).toLocaleDateString() === fixDate(date).toLocaleDateString()
     );
-    return stat ? runningTotal += stat.coins : runningTotal;
+    return stat ? runningTotal += Math.floor(stat.coins / 20) : runningTotal;
   });
 
   const isProfile3 = data?.account?.profiles?.equipped === 3;

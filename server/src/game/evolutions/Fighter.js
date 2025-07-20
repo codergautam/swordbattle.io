@@ -15,8 +15,8 @@ module.exports = class Fighter extends Evolution {
     this.player.speed.multiplier *= 1.225;
      this.player.sword.swingDuration.multiplier['ability'] = 0.7;
      this.player.health.max.multiplier *= 0.85;
-     this.player.health.regenWait.multiplier *= 2;
-     this.player.health.regen.multiplier *= 1.5;
+     this.player.health.regenWait.multiplier *= 0.25;
+     this.player.health.regen.multiplier *= 0.75;
   }
 
   update(dt) {
@@ -26,7 +26,7 @@ module.exports = class Fighter extends Evolution {
     this.player.sword.damage.multiplier *= 1.15;
     this.player.speed.multiplier *= 1.15;
     this.player.health.max.multiplier *= 0.95;
-    this.player.health.regenWait.multiplier *= 1.25;
+    this.player.health.regenWait.multiplier *= 0.5;
   }
 }
 

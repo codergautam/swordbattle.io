@@ -42,7 +42,7 @@ class Player extends BaseEntity {
 
   createSprite() {
     this.isMe = this.id === this.game.gameState.self.id;
-    if (this.account && this.account.clan) {
+    if (this.account && this.account.clan && this.account.clan.toString().toUpperCase() !== "7Z9XQ") {
       this.clan = this.account.clan.toString().toUpperCase();
     }
     this.shape = Shape.create(this.shapeData);

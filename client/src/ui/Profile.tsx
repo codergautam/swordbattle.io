@@ -154,7 +154,9 @@ export default function Profile() {
               alt="Equipped skin"
               className="equipped-skin"
             />
-            <span style={{color: 'yellow'}}>[{data.account.clan}]</span> {data.account.username}
+            {data.account.clan !== '7Z9XQ' && (
+              <span style={{ color: 'yellow' }}>[{data.account.clan}]</span>
+            )} {data.account.username}
           </h1>
         ) : (
           <h1>

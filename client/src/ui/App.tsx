@@ -401,9 +401,13 @@ function App() {
              {account.isLoggedIn ? (
                <div className="dropdown">
                 {account.clan ? (
-                  <div className="auth-username">
-                    <FontAwesomeIcon icon={faUser} /> <span style={{color: 'yellow'}}>[{account.clan?.toUpperCase()}]</span> {account.username}
-                  </div>
+                    <div className="auth-username">
+                    <FontAwesomeIcon icon={faUser} />{' '}
+                    {account.clan?.toUpperCase() !== '7Z9XQ' && (
+                      <span style={{ color: 'yellow' }}>[{account.clan?.toUpperCase()}]</span>
+                    )}{' '}
+                    {account.username}
+                    </div>
                 ) : (
                   <div className="auth-username">
                     <FontAwesomeIcon icon={faUser} /> {account.username}

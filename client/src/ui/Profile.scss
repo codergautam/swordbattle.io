@@ -31,6 +31,11 @@
       font-size: 25px;
     }
 
+    .graystat {
+      font-size: 25px;
+      color: #aaa;
+    }
+
     h1 {
       border: solid 3px #fff;
       padding: 10px;
@@ -52,6 +57,15 @@
     }
 
     .cluster {
+      background-color: rgb(1, 61, 0);
+      border: 1px solid rgb(1, 28, 1);
+      border-radius: 25px;
+      padding-left: 10px;
+      padding-top: 10px;
+    }
+
+    .smallcluster {
+      width: 50%;
       background-color: rgb(1, 61, 0);
       border: 1px solid rgb(1, 28, 1);
       border-radius: 25px;
@@ -132,6 +146,11 @@
       font-size: 25px;
     }
 
+    .graystat {
+      font-size: 25px;
+      color: #aaa;
+    }
+
     h1 {
       border: solid 3px #fff;
       padding: 10px;
@@ -154,6 +173,15 @@
 
     .cluster {
       background-color: rgb(7, 10, 106);
+      border: 1px solid rgb(1, 28, 1);
+      border-radius: 25px;
+      padding-left: 10px;
+      padding-top: 10px;
+    }
+
+    .smallcluster {
+      width: 50%;
+      background-color: rgb(1, 61, 0);
       border: 1px solid rgb(1, 28, 1);
       border-radius: 25px;
       padding-left: 10px;
@@ -238,6 +266,11 @@
       font-size: 25px;
     }
 
+    .graystat {
+      font-size: 25px;
+      color: #aaa;
+    }
+
      h1 {
       padding: 10px;
       border-radius: 25px;
@@ -257,6 +290,12 @@
     }
 
     .cluster {
+      padding-left: 10px;
+      padding-top: 10px;
+    }
+
+    .smallcluster {
+      width: 50%;
       padding-left: 10px;
       padding-top: 10px;
     }

@@ -14,6 +14,7 @@ export class Account {
 
   @Column({ unique: true }) username: string;
   @Column({ default: '' }) clan: string;
+  @Column({ default: '' }) bio: string;
 
   @Exclude()
   @Column() password: string;

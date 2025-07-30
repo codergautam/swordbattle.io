@@ -246,6 +246,12 @@ function App() {
 
     dispatch(changeClanAsync(newClan) as any);
   }
+  const onRemoveClan = () => {
+    const newClan = prompt('Are you sure you want to remove your clan tag? You cannot change it again for 7 days. Type anything to confirm.');
+    if (!newClan) return;
+
+    dispatch(changeClanAsync('7Z9XQ') as any);
+  }
   /*
 
   Doesn't work find an alternative
@@ -412,6 +418,11 @@ function App() {
                     <li>
                    <a className="dropdown-item" href="#" onClick={onChangeClan}>
                      <FontAwesomeIcon icon={faICursor} /> Change Clan
+                   </a>
+                   </li>
+                   <li>
+                   <a className="dropdown-item" href="#" onClick={onRemoveClan}>
+                     <FontAwesomeIcon icon={faX} /> Remove Clan
                    </a>
                    </li>
                    <li><a className="dropdown-item" href="#" onClick={onLogout}>

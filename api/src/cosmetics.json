@@ -4368,24 +4368,16 @@
       "description": "Nobody is actually falling for this but at least it looks cool"
     },
     "pyromancer": {
-      "new": true,
-
-      "sale": true,
-      "ogprice": 400000,
-      "saletag": "75% OFF",
-
       "name": "pyromancer",
       "displayName": "Pyromancer",
       "id": 416,
       "buyable": true,
-      "price": 100000,
+      "price": 400000,
       "swordFileName": "pyromancerSword.png",
       "bodyFileName": "pyromancerPlayer.png",
       "description": "The creator of all fire and flames."
     },
     "tire": {
-      "new": true,
-      
       "name": "tire",
       "displayName": "Tire",
       "id": 417,
@@ -4396,24 +4388,16 @@
       "description": "Run over your enemies"
     },
     "moai": {
-      "new": true,
-
-      "sale": true,
-      "ogprice": 15000,
-      "saletag": "33% OFF",
-      
       "name": "moai",
       "displayName": "Moai",
       "id": 418,
       "buyable": true,
-      "price": 10000,
+      "price": 15000,
       "swordFileName": "moaiSword.png",
       "bodyFileName": "moaiPlayer.png",
       "description": "🗿"
     },
     "farmer v2": {
-      "new": true,
-      
       "name": "farmer v2",
       "displayName": "Farmer",
       "id": 419,
@@ -4424,8 +4408,6 @@
       "description": "Trained in the fields."
     },
     "triangles": {
-      "new": true,
-      
       "name": "triangles",
       "displayName": "Triangles",
       "id": 420,
@@ -4436,8 +4418,6 @@
       "description": "Attack from all angles!"
     },
     "classicfarmer": {
-      "new": true,
-
       "ultimate": true,
       "tag": "Ultimate Farmer",
       "original": 419,
@@ -4452,8 +4432,6 @@
       "description": "The OG of OGs"
     },
     "ghostplayer": {
-      "new": true,
-
       "ultimate": true,
       "tag": "Ultimate Ghost",
       "original": 183,
@@ -4468,8 +4446,6 @@
       "description": "It gleams a ghostly green glow..."
     },
     "triangulation": {
-      "new": true,
-
       "ultimate": true,
       "tag": "Ultimate Triangles",
       "original": 420,
@@ -4484,24 +4460,16 @@
       "description": "The true use of triangles is to STAB!"
     },
     "movie v2": {
-      "new": true,
-
-      "sale": true,
-      "ogprice": 6000,
-      "saletag": "50% OFF",
-      
       "name": "movie v2",
       "displayName": "Movie",
       "id": 424,
       "buyable": true,
-      "price": 3000,
+      "price": 6000,
       "swordFileName": "moviev2Sword.png",
       "bodyFileName": "moviev2Player.png",
       "description": "Watch it all unfold"
     },
     "popcorn": {
-      "new": true,
-
       "ultimate": true,
       "tag": "Ultimate Movie",
       "original": 424,
@@ -4516,8 +4484,6 @@
       "description": "You can't have a movie without popcorn!"
     },
     "inverted": {
-      "new": true,
-      
       "name": "inverted",
       "displayName": "Inverted",
       "id": 426,
@@ -4528,8 +4494,6 @@
       "description": "All wrongs become rights"
     },
     "invertedknight": {
-      "new": true,
-
       "ultimate": true,
       "tag": "Ultimate Inverted",
       "original": 426,
@@ -4544,24 +4508,16 @@
       "description": "Almost as if every hit makes you stronger..."
     },
     "ramen": {
-      "new": true,
-
-      "sale": true,
-      "ogprice": 4500,
-      "saletag": "33% OFF",
-      
       "name": "ramen",
       "displayName": "Ramen",
       "id": 428,
       "buyable": true,
-      "price": 3000,
+      "price": 4500,
       "swordFileName": "ramenSword.png",
       "bodyFileName": "ramenPlayer.png",
       "description": "A bowl of noodles that will never get cold!"
     },
     "meatball": {
-      "new": true,
-      
       "name": "meatball",
       "displayName": "Meatball",
       "id": 429,
@@ -4572,8 +4528,6 @@
       "description": "The best part of any spaghetti dish!"
     },
     "shapes": {
-      "new": true,
-      
       "name": "shapes",
       "displayName": "Shapes",
       "id": 430,
@@ -4584,24 +4538,16 @@
       "description": "Attack in all ways, shapes and forms."
     },
     "detective": {
-      "new": true,
-
-      "sale": true,
-      "ogprice": 30000,
-      "saletag": "50% OFF",
-      
       "name": "detective",
       "displayName": "Detective",
       "id": 431,
       "buyable": true,
-      "price": 15000,
+      "price": 30000,
       "swordFileName": "detectiveSword.png",
       "bodyFileName": "detectivePlayer.png",
       "description": "Uncover the truth, and know the unknown."
     },
     "drum": {
-      "new": true,
-      
       "name": "drum",
       "displayName": "Drum",
       "id": 432,
@@ -4612,24 +4558,16 @@
       "description": "Play the beats that bring the heat!"
     },
     "unrendered": {
-      "new": true,
-
-      "sale": true,
-      "ogprice": 7000,
-      "saletag": "50% OFF",
-      
       "name": "unrendered",
       "displayName": "Unrendered",
       "id": 433,
       "buyable": true,
-      "price": 3500,
+      "price": 7000,
       "swordFileName": "unrenderedSword.png",
       "bodyFileName": "unrenderedPlayer.png",
       "description": "ERROR: Skin cannot be loaded\nㅤㅤㅤㅤㅤㅤㅤcode 1014"
     },
     "tennis": {
-      "new": true,
-      
       "name": "tennis",
       "displayName": "Tennis",
       "id": 434,
@@ -4640,8 +4578,6 @@
       "description": "Game, set, match!"
     },
     "golf": {
-      "new": true,
-      
       "name": "golf",
       "displayName": "Golf",
       "id": 435,

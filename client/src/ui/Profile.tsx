@@ -24,6 +24,7 @@ interface AccountData {
   skins: { equipped: number, owned: number[] };
   profiles: { equipped: number, owned: number[] };
   recovered: boolean;
+  bio: string;
 }
 interface ProfileData {
   account: AccountData;
@@ -170,6 +171,18 @@ export default function Profile() {
             {data.account.username}
           </h1>
         )}</center>
+        <br />
+        <div className='smallcluster'>
+          <center>
+            <br />
+            {data.account.bio && (
+              <h4 className="stat">"{data.account.bio}"</h4>
+            ) : (
+              <h4 className="graystat">No bio set.</h4>
+            )}
+            <br />
+        </center>
+        </div>
         <br />
         <div className='cluster'>
           <center>

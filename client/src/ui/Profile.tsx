@@ -177,13 +177,15 @@ export default function Profile() {
         <div className='smallcluster'>
           <center>
             <br />
-            {data.account.bio ? (
+            {data.account.bio === ".ban" ? (
+              <h4 className="graystat">Bio has been removed for violating rules.</h4>
+            ) : data.account.bio ? (
               <h4 className="stat">"{data.account.bio}"</h4>
             ) : (
               <h4 className="graystat">No bio set.</h4>
             )}
             <br />
-        </center>
+          </center>
         </div>
         <br />
         <div className='cluster'>

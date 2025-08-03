@@ -3,15 +3,18 @@ import './ChangelogModal.scss';
 function ChangelogModal() {
   return (
     <div className="changelog">
-    <h1 style={{fontSize: 30, color: 'white'}}>What's new? (July 2025)</h1>
-    <ul style={{fontSize: 19, color: '#7777ee'}}>11 new evolutions, new chests, leaderboard changes, Monthly Evols, and more!</ul>
-    <ul style={{fontSize: 18, color: '#aaaaff'}}>Read more at Swordbattle.io's <a className="primary-link" target="_blank" href="https://swordbattle.io/changelog.html">
-new official changelog</a>!</ul>
-    <br />
-    <ul style={{fontSize: 14, color: '#ffffff'}}>(Also includes an evolution tree and info on all the new evolutions!)</ul>
+    <h1 style={{fontSize: 30, color: 'white'}}>What's new? (August 2025)</h1>
+    <ul style={{fontSize: 17, color: 'white'}}>We've added more options to the account menu, including the option to remove your clantag, and changing the new bios that appear on profiles!</ul>
+    <img
+      src="assets/ChangelogAugust-main.png"
+      alt="Changelog August"
+      style={{ width: '30%', maxWidth: 500, margin: '20px 0', borderRadius: 12 }}
+    />
+    <ul style={{fontSize: 15, color: 'red'}}>(Please note that using your bio for swearing, advertising, or harassment towards other players will result in a permanent revocation.)</ul>
     <br />
 
-    <ul style={{fontSize: 16, color: '#ff0000'}}>Note: The evolutions are not fully balanced yet, so expect major changes to them (along with more server restarts) until 7/20 at the latest.</ul>
+    <ul style={{fontSize: 18, color: '#aaaaff'}}>Read more at Swordbattle.io's <a className="primary-link" target="_blank" href="https://swordbattle.io/changelog.html">
+new official changelog</a>!</ul>
 </div>
 
   );

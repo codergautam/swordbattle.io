@@ -19,8 +19,10 @@ module.exports = class Fisherman extends Evolution {
 
     this.player.sword.swingDuration.multiplier['ability'] = 0.5;
     this.player.knockbackResistance.multiplier *= 0;
-    this.player.health.regenWait.multiplier *= 0.5;
-    this.player.sword.damage.multiplier *= 0.65;
+    
+    this.player.health.regenWait.multiplier *= 1.75;
+    this.player.health.regenWait.multiplier *= 0;
+    this.player.sword.damage.multiplier *= 0.675;
   }
 
   update(dt) {

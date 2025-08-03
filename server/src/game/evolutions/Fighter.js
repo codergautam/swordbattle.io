@@ -5,8 +5,8 @@ module.exports = class Fighter extends Evolution {
   static type = Types.Evolution.Fighter;
   static level = 27;
   static previousEvol = Types.Evolution.Berserker;
-  static abilityDuration = 3;
-  static abilityCooldown = 18;
+  static abilityDuration = 4;
+  static abilityCooldown = 19;
 
   applyAbilityEffects() {
     this.player.shape.setScale(0.925);

@@ -7,14 +7,14 @@ const helpers = require('../../helpers');
 
 // size, coins, health, weight
 const rarities = [
-  [200, 50, 1, 30], 
-  [350, 150, 40, 26],
-  [600, 350, 85, 20],
-  [800, 1000, 175, 10],
-  [1200, 2500, 400, 7],
-  [1600, 6500, 750, 4.5],
-  [1750, 12500, 1250, 1.5],
-  [1850, 15000, 1000, 1],
+  [200, 50, 1, 68],  // Normal chest
+  [350, 150, 40, 13], // Green chest
+  [600, 350, 85, 8], // Red
+  [800, 1000, 175, 5], // Blue
+  [1200, 2500, 400, 3], // Yellow
+  [1600, 6500, 750, 2], // Purple
+  [1750, 12500, 1250, 1], // Silver
+  [1850, 15000, 1000, 0], // Black chest (not in use)
 ];
 
 let totalWeight = rarities.reduce((acc, rarity) => acc + rarity[3], 0);

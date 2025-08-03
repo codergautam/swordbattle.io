@@ -21,7 +21,7 @@ module.exports = class Tank extends Evolution {
 
   update(dt) {
     super.update(dt);
-    this.player.speed.multiplier *= 0.7;
+    this.player.speed.multiplier *= 0.8;
     this.player.shape.setScale(1.25);
     this.player.sword.damage.multiplier *= 1.15;
     this.player.sword.knockback.multiplier['ability'] = 1.35;

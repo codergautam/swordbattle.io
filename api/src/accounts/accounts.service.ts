@@ -5,6 +5,7 @@ import { Account } from './account.entity';
 import * as config from '../config';
 import validateUsername from 'src/helpers/validateUsername';
 import validateClantag from 'src/helpers/validateClantag';
+import validateUserbio from 'src/helpers/validateUserbio';
 import { Transaction } from 'src/transactions/transactions.entity';
 import * as cosmetics from '../cosmetics.json';
 import CacheObj from 'src/Cache';
@@ -276,6 +277,22 @@ export class AccountsService {
     }
     this.sanitizeAccount(account);
     return account.clan || null;
+  }
+
+  async changeUserbio(id: number, userbio: string) {
+    // validate userbio
+    if(validateUserbio(userbio)) {
+      return {error: validateUserbio(userbio)};
+    }
+    const account = await this.getById(id);
+
+    account.bio = userbio
+    try {
+    await this.accountsRepository.save(account);
+    return {success: true};
+    } catch(e) {
+      return {error: 'Failed to update bio, '+ e.message};
+    }
   }
 
   async changeClantag(id: number, clantag: string) {

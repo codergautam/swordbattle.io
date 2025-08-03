@@ -8,7 +8,7 @@ export default function validateClantag(clantag: string): string {
     return "Clan is not allowed";
   }
   if (forbiddenTags.includes(clantag.toUpperCase())) {
-    return "No";
+    return "Clan is not allowed";
   }
   // normal validation
   if(clantag.length < config.clanLength[0] || clantag.length > config.clanLength[1]) {

@@ -112,6 +112,19 @@ export class AuthService {
     }
   }
 
+  async changeUserbio(account: Account, newUserbio: string) {
+    try {
+      let result = await this.accountsService.changeUserbio(account.id, newUserbio);
+      if(result.success) {
+        (result as any).secret = account.secret;
+      }
+    return result;
+    } catch (e) {
+      console.log(e);
+      return {error: e.message};
+    }
+  }
+
   async updateAccount(account: Account) {
     return this.accountsService.update(account.id, account);
   }

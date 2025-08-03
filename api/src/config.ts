@@ -13,6 +13,8 @@ interface ConfigProps {
 
   clanWaitTime: number;
   clanLength: [number, number];
+
+  bioLength: [number, number];
 }
 
 export const config: ConfigProps = {
@@ -27,5 +29,7 @@ export const config: ConfigProps = {
   usernameLength: [1, 16],
 
   clanWaitTime: 7 * 24 * 60 * 60 * 1000, // 3 days
-  clanLength: [0, 5]
+  clanLength: [1, 5],
+
+  bioLength: [1, 100]
 };

@@ -78,6 +78,13 @@ export class AuthController {
     return result;
   }
 
+  @UseGuards(AccountGuard)
+  @Post('change-userbio')
+  async changeUserbio(@Req() request) {
+    let result = await this.authService.changeUserbio(request.account, request.body.newUserbio);
+    return result;
+  }
+
   setCookie(res: Response, key: string, value: string) {
     return res.cookie(key, value, {
       // httpOnly: true,

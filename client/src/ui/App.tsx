@@ -16,7 +16,7 @@ import LoginModal from './modals/LoginModal';
 import SignupModal from './modals/SignupModal';
 import ConnectionError from './modals/ConnectionError';
 
-import { clearAccount, setAccount, logoutAsync, changeNameAsync, changeClanAsync } from '../redux/account/slice';
+import { clearAccount, setAccount, logoutAsync, changeNameAsync, changeClanAsync, changeBioAsync } from '../redux/account/slice';
 import { selectAccount } from '../redux/account/selector';
 import api from '../api';
 
@@ -246,22 +246,18 @@ function App() {
 
     dispatch(changeClanAsync(newClan) as any);
   }
+  const onChangeBio = () => {
+    const newBio = prompt('What do you want your bio to be? You can change it whenever you want, but it can only be up to 100 characters long.');
+    if (!newBio) return;
+
+    dispatch(changeBioAsync(newBio) as any);
+  }
   const onRemoveClan = () => {
     const newClan = prompt('Are you sure you want to remove your clan tag? You cannot change it again for 7 days. Type anything to confirm.');
     if (!newClan) return;
 
     dispatch(changeClanAsync('7Z9XQ') as any);
   }
-  /*
-
-  Doesn't work find an alternative
-
-  const onRemoveClan = () => {
-    const newClan = prompt('Are you sure you want to remove your clan tag? This can only be done once every 7 days. Type anything to confirm, or press "cancel" to exit.');
-
-    dispatch(changeClanAsync('') as any);
-  }
-    */
   const openShop = () => {
     setModal(<ShopModal account={account} />);
   }
@@ -419,6 +415,11 @@ function App() {
                      <FontAwesomeIcon icon={faICursor} /> Change Name
                    </a>
                     </li>
+                    <li>
+                   <a className="dropdown-item" href="#" onClick={onChangeBio}>
+                     <FontAwesomeIcon icon={faICursor} /> Change Bio
+                   </a>
+                   </li>
                     <li>
                    <a className="dropdown-item" href="#" onClick={onChangeClan}>
                      <FontAwesomeIcon icon={faICursor} /> Change Clan

@@ -108,13 +108,38 @@ export const changeClanAsync = createAsyncThunk(
       } else if (response.success) {
         alert('Clan tag changed successfully');
         // Dispatching actions to update clan and token in the state
-        dispatch(setClantag(newClantag));
+        dispatch(setClan(newClantag));
         dispatch(setSecret(response.secret));
       }
     } catch (error) {
       // Handle any other errors, such as network issues
       console.error(error);
       alert('An error occurred while changing the clan tag.');
+    }
+  }
+);
+
+export const changeBioAsync = createAsyncThunk(
+  'account/changeBio',
+  async (newUserbio: string, { getState, dispatch }) => {
+    // const state: any = getState();
+    try {
+      const response = await api.postAsync(`${api.endpoint}/auth/change-userbio?now=${Date.now()}`, {
+        newUserbio
+      });
+
+      if (response.error) {
+        alert(response.error);
+      } else if (response.success) {
+        alert('Bio changed successfully');
+        // Dispatching actions to update bio and token in the state
+        dispatch(setBio(newUserbio));
+        dispatch(setSecret(response.secret));
+      }
+    } catch (error) {
+      // Handle any other errors, such as network issues
+      console.error(error);
+      alert('An error occurred while changing your bio.');
     }
   }
 );
@@ -168,8 +193,11 @@ const accountSlice = createSlice({
     setName: (state, action) => {
       state.username = action.payload;
     },
-    setClantag: (state, action) => {
+    setClan: (state, action) => {
       state.clan = action.payload;
+    },
+    setBio: (state, action) => {
+      state.bio = action.payload;
     },
     setSecret: (state, action) => {
       state.secret = action.payload;
@@ -191,5 +219,5 @@ const accountSlice = createSlice({
   },
 });
 
-export const { setAccount, clearAccount, setName, setClantag, setSecret } = accountSlice.actions;
+export const { setAccount, clearAccount, setName, setClan, setBio, setSecret } = accountSlice.actions;
 export default accountSlice.reducer;

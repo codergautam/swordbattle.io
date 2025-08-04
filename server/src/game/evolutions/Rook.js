@@ -6,7 +6,7 @@ module.exports = class Rook extends Evolution {
   static level = 22;
   static previousEvol = Types.Evolution.Tank;
   static abilityDuration = 0.2;
-  static abilityCooldown = 5;
+  static abilityCooldown = 6;
 
   applyAbilityEffects() {
     const downInputs = this.player.inputs?.downInputs;
@@ -39,7 +39,7 @@ module.exports = class Rook extends Evolution {
 
     this.player.shape.setScale(1.15);
     this.player.speed.multiplier *= 0.85;
-    this.player.sword.damage.multiplier *= 1.425;
+    this.player.sword.damage.multiplier *= 1.3;
     this.player.sword.swingDuration.multiplier['ability'] = 1.4;
     this.player.sword.knockback.multiplier['ability'] = 0.9;
     this.player.knockbackResistance.multiplier *= 1.35;

@@ -20,7 +20,7 @@ module.exports = class Vampire extends Evolution {
   }
 
   update(dt) {
-    this.player.modifiers.leech = 0.375;
+    this.player.modifiers.leech = 0.5;
     this.player.sword.damage.multiplier *= 0.9;
     this.player.health.max.multiplier *= 0.975;
     super.update(dt);

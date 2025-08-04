@@ -27,7 +27,8 @@ module.exports = class Archer extends Evolution {
 
     
     this.player.health.max.multiplier *= 0.9;
-    this.player.health.regen.multiplier *= 1.1;
+    this.player.health.regen.multiplier *= 1.25;
+    this.player.health.regenWait.multiplier *= 0.8;
 
     this.player.sword.damage.multiplier *= 0.35;
     this.player.modifiers.chestPower = 3;

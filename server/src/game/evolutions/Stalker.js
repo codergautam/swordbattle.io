@@ -13,7 +13,7 @@ module.exports = class Stalker extends Evolution {
       this.player.shape.setScale(0.01);
       this.player.viewport.zoom.multiplier *= 0.01
 
-    this.player.speed.multiplier *= 1.32;
+    this.player.speed.multiplier *= 1.325;
 
     this.player.health.regenWait.multiplier = 0;
     this.player.health.regen.multiplier *= 1.25;
@@ -21,11 +21,11 @@ module.exports = class Stalker extends Evolution {
 
   update(dt) {
     super.update(dt);
-    this.player.modifiers.leech = 0.4;
+    this.player.modifiers.leech = 0.3;
     this.player.shape.setScale(1.05);
-    this.player.sword.damage.multiplier *= 1.15;
+    this.player.sword.damage.multiplier *= 1.125;
     this.player.knockbackResistance.multiplier *= 0;
-    this.player.speed.multiplier *= 0.935;
+    this.player.speed.multiplier *= 0.9;
     this.player.sword.knockback.multiplier['ability'] = 1;
     this.player.sword.swingDuration.multiplier['ability'] = 0.95;
     this.player.health.max.multiplier *= 1.175;

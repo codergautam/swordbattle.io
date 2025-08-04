@@ -11,8 +11,8 @@ module.exports = class Defender extends Evolution {
   applyAbilityEffects() {
     this.player.modifiers.noRestrictKnockback = true;
 
-    this.player.sword.damage.multiplier *= 1.25;
-    this.player.sword.knockback.multiplier['ability'] = 10;
+    this.player.sword.damage.multiplier *= 1.3;
+    this.player.sword.knockback.multiplier['ability'] = 20;
     this.player.knockbackResistance.multiplier *= 2;
     this.player.shape.setScale(1.7);
     this.player.health.regen.multiplier *= 10;
@@ -26,12 +26,12 @@ module.exports = class Defender extends Evolution {
     super.update(dt);
     this.player.speed.multiplier *= 0.8;
     this.player.shape.setScale(1.325);
-    this.player.sword.damage.multiplier *= 0.75;
+    this.player.sword.damage.multiplier *= 0.8;
     this.player.sword.knockback.multiplier['ability'] = 2;
     this.player.knockbackResistance.multiplier *= 2;
     this.player.health.max.multiplier *= 2;
-    this.player.health.regen.multiplier *= 1.75;
-    this.player.health.regenWait.multiplier *= 2.5;
+    this.player.health.regen.multiplier *= 1.5;
+    this.player.health.regenWait.multiplier *= 0.75;
     //TODO: Damagecooldown: 1.1
   }
 }

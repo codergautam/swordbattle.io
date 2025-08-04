@@ -60,12 +60,12 @@ function getRankColor(rank: number) {
 function LeaderboardLine({ player }: any) {
   const balance = player.coins >= 1000 ? `${(player.coins / 1000).toFixed(1)}k` : player.coins;
   const specialColors: { [key: string]: string } = {
-    "codergautam": '#ff0000',
+    codergautam: '#ff0000',
     angel: '#acfffc',
     "cool guy 53": '#0099ff',
     "update testing account": '#00ff00',
-    "AmethystBladeYt": '#7802ab',
-    "SpiffyCayden": '#ff6803',
+    amethystbladeyt: '#7802ab',
+    spiffycayden: '#ff6803',
   }
   return (
     <div className="leaderboard-line">

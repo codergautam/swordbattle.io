@@ -63,7 +63,9 @@ function LeaderboardLine({ player }: any) {
     "codergautam": '#ff0000',
     angel: '#acfffc',
     "cool guy 53": '#0099ff',
-    "update testing account": '#00ff00'
+    "update testing account": '#00ff00',
+    "AmethystBladeYt": '#7802ab',
+    "SpiffyCayden": '#ff6803',
   }
   return (
     <div className="leaderboard-line">

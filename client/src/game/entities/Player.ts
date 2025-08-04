@@ -70,7 +70,9 @@ class Player extends BaseEntity {
       "codergautam": '#ff0000',
       angel: '#acfffc',
       "cool guy 53": '#0055ff',
-      "update testing account": '#00ff00'
+      "update testing account": '#00ff00',
+      "AmethystBladeYt": '#7802ab',
+      "SpiffyCayden": '#ff6803',
     }
     if (ogex) {
       name.setFill('#ffff00');

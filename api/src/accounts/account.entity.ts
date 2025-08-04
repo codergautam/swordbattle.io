@@ -59,6 +59,9 @@ export class Account {
   @Column({ type: 'jsonb', default: '{"equipped": 1, "owned": [1]}' })
   profiles: { equipped: number; owned: number[] };
 
+  @Column({ type: 'jsonb', default: '{"tags": [], "colors": []}' })
+  tags: { tags: string[]; colors: string[] };
+
   constructor(data: Partial<Account> = {}) {
     Object.assign(this, data);
   }

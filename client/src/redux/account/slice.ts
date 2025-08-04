@@ -15,6 +15,7 @@ export type AccountState = {
   recovered: boolean;
   profiles: { equipped: number; owned: number[] };
   bio: string;
+  tags: { tags: string[]; colors: string[] };
 }
 
 const initialState: AccountState = {
@@ -31,6 +32,7 @@ const initialState: AccountState = {
   recovered: false,
   profiles: { equipped: 1, owned: [1] },
   bio: '',
+  tags: { tags: [], colors: [] },
 };
 
 // Async Thunks
@@ -163,6 +165,7 @@ const accountSlice = createSlice({
       state.recovered = false;
       state.profiles = { equipped: 1, owned: [1] };
       state.bio = '';
+      state.tags = { tags: [], colors: [] };
     },
     setAccount: (state, action) => {
       state.email = action.payload.email;
@@ -179,6 +182,7 @@ const accountSlice = createSlice({
       state.recovered = action.payload.recovered;
       state.profiles = action.payload.profiles;
       state.bio = action.payload.bio;
+      state.tags = action.payload.tags;
       if (previousToken !== state.secret) {
         console.log('Token updated');
         window.phaser_game?.events.emit('tokenUpdate', state.secret);

@@ -25,6 +25,7 @@ interface AccountData {
   profiles: { equipped: number, owned: number[] };
   recovered: boolean;
   bio: string;
+  tags: { tags: string[], colors: string[] };
 }
 interface ProfileData {
   account: AccountData;
@@ -173,6 +174,27 @@ export default function Profile() {
             {data.account.username}
           </h1>
         )}</center>
+        <br />
+        {/* Hopefully this works */}
+        {data.account.tags.tags.length > 0 && (
+          <div className="profile-tags" style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {data.account.tags.tags.map((tag: string, idx: number) => (
+              <span
+                key={idx}
+                style={{
+                  color: data.account.tags.colors[idx] || '#fff',
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  padding: '2px 8px',
+                  borderRadius: '6px',
+                  background: 'rgba(0,0,0,0.15)',
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
         <br />
         <div className='smallcluster'>
           <center>

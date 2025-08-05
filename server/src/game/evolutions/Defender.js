@@ -12,7 +12,7 @@ module.exports = class Defender extends Evolution {
     this.player.modifiers.noRestrictKnockback = true;
 
     this.player.sword.damage.multiplier *= 1.3;
-    this.player.sword.knockback.multiplier['ability'] = 20;
+    this.player.sword.knockback.multiplier['ability'] = 15;
     this.player.knockbackResistance.multiplier *= 2;
     this.player.shape.setScale(1.7);
     this.player.health.regen.multiplier *= 10;

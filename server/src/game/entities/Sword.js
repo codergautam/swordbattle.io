@@ -217,7 +217,13 @@ class Sword extends Entity {
     if (!this.canCollide(entity)) return;
 
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
+
     let power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
+
+    if (this.player.modifiers.noRestrictKnockback) {
+       power = (this.knockback.value);
+    }
+
     if (this.player.modifiers.pullAll) {
       power = Math.max(Math.min(power, 400), 100);
       power = 0 - power
@@ -235,7 +241,9 @@ class Sword extends Entity {
         if (entity.type === Types.Entity.Player) {
           power *= 4;
         }
-      } else if (!this.player.modifiers.noRestrictKnockback) {
+      } else if (this.player.modifiers.noRestrictKnockback) {
+        power *= 2
+      } else {
         power = Math.max(Math.min(power, 400), 100);
       }
     const xComp = power * Math.cos(angle);

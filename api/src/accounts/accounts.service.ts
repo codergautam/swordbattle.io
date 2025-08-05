@@ -281,17 +281,21 @@ export class AccountsService {
 
   async changeUserbio(id: number, userbio: string) {
     // validate userbio
-    if(validateUserbio(userbio)) {
-      return {error: validateUserbio(userbio)};
+    if (validateUserbio(userbio)) {
+      return { error: validateUserbio(userbio) };
     }
     const account = await this.getById(id);
 
-    account.bio = userbio
+    if (account.bio === ".ban") {
+      return { error: "You cannot change your bio. You may get bio permissions back in the future." };
+    }
+
+    account.bio = userbio;
     try {
-    await this.accountsRepository.save(account);
-    return {success: true};
-    } catch(e) {
-      return {error: 'Failed to update bio, '+ e.message};
+      await this.accountsRepository.save(account);
+      return { success: true };
+    } catch (e) {
+      return { error: "Failed to update bio, " + e.message };
     }
   }
 

@@ -148,7 +148,25 @@ export function GlobalLeaderboard() {
                       </td>
                       <td>{row.kills}</td>
                       <td>{secondsToTime(row.playtime)}</td>
-                      <td>{sinceFrom(row.date)}</td>
+                      <td>
+                      {(() => {
+                        const agoText = sinceFrom(row.date);
+                        let style: React.CSSProperties = {};
+                        if (agoText.includes('days')) {
+                          const days = parseInt(agoText.split(' ')[0], 10);
+                          if (days > 300) style.color = '#ff69b4'; // pink
+                          else if (days > 250) style.color = 'red';
+                          else if (days > 200) style.color = 'orange';
+                          else if (days > 150) style.color = 'yellow';
+                          else if (days > 100) style.color = 'limegreen';
+                          else if (days > 50) style.color = 'darkgreen';
+                        } else if (agoText.includes('2 year')) {
+                          style.color = '#4b0082'; // dark purple/blue
+                        } else if (agoText.includes('1 year')) {
+                          style.color = 'purple';
+                        }
+                        return <span style={style}>{agoText}</span>;
+                      })()} ago</td>
                     </>
                   ) : (
                     <td>
@@ -196,7 +214,24 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
             {type !== 'xp' && type !== 'mastery' && !type.startsWith('total') ? (<>
               <h5 className="mb-0">{numberWithCommas(row.coins)} coins</h5>
               <p className="text-muted mb-0">
-                Kills: {row.kills}, Survived: {secondsToTime(row.playtime)}, {sinceFrom(row.date)} ago
+                Kills: {row.kills}, Survived: {secondsToTime(row.playtime)}, {(() => {
+                        const agoText = sinceFrom(row.date);
+                        let style: React.CSSProperties = {};
+                        if (agoText.includes('days')) {
+                          const days = parseInt(agoText.split(' ')[0], 10);
+                          if (days > 300) style.color = '#ff69b4'; // pink
+                          else if (days > 250) style.color = 'red';
+                          else if (days > 200) style.color = 'orange';
+                          else if (days > 150) style.color = 'yellow';
+                          else if (days > 100) style.color = 'limegreen';
+                          else if (days > 50) style.color = 'darkgreen';
+                        } else if (agoText.includes('2 year')) {
+                          style.color = '#4b0082'; // dark purple/blue
+                        } else if (agoText.includes('1 year')) {
+                          style.color = 'purple';
+                        }
+                        return <span style={style}>{agoText}</span>;
+                      })()} ago
               </p>
             </>) : (
               <h5 className="mb-0">

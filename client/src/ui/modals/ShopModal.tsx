@@ -6,7 +6,7 @@ import api from '../../api';
 import * as cosmetics from '../../game/cosmetics.json'
 
 import './ShopModal.scss'
-import { buyFormats, numberWithCommas } from '../../helpers';
+import { buyFormats, numberWithCommas, sinceFrom } from '../../helpers';
 import { Id } from '@reduxjs/toolkit/dist/tsHelpers';
 let { skins } = cosmetics;
 
@@ -229,7 +229,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
 
 <h1 className='shop-desc-extra'>(Skins may take a while to fully load)</h1>
 <div className="badges">
-<button onClick={scrollToTarget2}>Normal Skins</button>
+<button onClick={scrollToTarget2}>Today's Skins</button>
 <button onClick={scrollToTarget3} data-selected-badge="ultimate">Ultimate Skins</button>
 {/* <button onClick={scrollToTarget4} data-selected-badge="event">Event Skins</button> */}
 
@@ -408,20 +408,26 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           <div className='scroll' ref={targetParentRef}>
         <div className='label'>
         <div ref={targetElementRef2}></div>
-        <span>Normal Skins</span><hr></hr>
+        <span>Today's Skins</span><hr></hr>
+        {account?.isLoggedIn && account.lastDayPlayed && (
+          <p>
+            Resets in{" "}
+            {(() => {
+              const result = sinceFrom(
+                new Date(
+                  account.lastDayPlayed.getTime() + 24 * 60 * 60 * 1000
+                ).toISOString()
+              );
+              return result.includes("-") ? "0 seconds" : result;
+            })()}
+          </p>
+        )}
+
         </div>
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
-        if (skin.special) return false;
-        if (skin.wip) return false;
-        if (skin.ultimate) return false;
-        if (skin.player) return false;
-        if (skin.freebie) return false;
-        if (skin.eventoffsale) return false;
-        if (skin.event) return false;
-        if (skin.og) return false;
-        if (skin.currency) return false;
+        if (!account?.skinList.includes(skin.id)) return false;
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
       }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
         const skin = skinData as Skin;

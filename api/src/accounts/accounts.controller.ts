@@ -120,8 +120,9 @@ export class AccountsController {
   @Get('clanMembers')
   async getClanMembers(@Query('clan') clan: string) {
     const members = await this.accountsService.findClanMembers(clan);
-    const memberXP = await this.accountsService.findStatOfAll(clan, 'xp');
+    const memberXP = await this.accountsService.findStatOfClan(clan);
+    const XP = Math.round(memberXP / 20);
 
-    return { count: members.length, xp: memberXP, members };
+    return { count: members.length, xp: XP, members };
   }
 }

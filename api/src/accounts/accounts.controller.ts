@@ -146,7 +146,6 @@ export class AccountsController {
 
     return {
       success: true,
-      account: this.accountsService.sanitizeAccount(updatedAccount),
     };
   }
 }

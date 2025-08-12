@@ -27,8 +27,10 @@ import LoginImg from '../assets/img/login.png';
 import './App.scss';
 import GemCount from './ValueCnt';
 import ShopButton from './ShopButton';
+import InventoryButton from './InventoryButton';
 import LeaderboardButton from './LeaderboardButton';
 import ShopModal from './modals/ShopModal';
+import InventoryModal from './modals/InventoryModal';
 import MigrationModal from './modals/MigrationModal';
 import { getCookies, playVideoAd } from '../helpers';
 import Ad from './Ad';
@@ -175,13 +177,9 @@ function App() {
         !skin.event &&
         !skin.og &&
         !skin.ultimate &&
-        !skin.special &&
-        !skin.wip &&
-        !skin.player &&
-        !skin.freebie &&
         !skin.eventoffsale &&
-        !skin.currency &&
-        skin.price > 0
+        skin.price > 0 &&
+        skin.buyable
     );
 
     const guaranteedIds = [273, 234, 189, 257, 416];
@@ -346,6 +344,11 @@ function App() {
     setModal(<ShopModal account={account} />);
   }
 
+  
+  const openInventory = () => {
+    setModal(<InventoryModal account={account} />);
+  }
+
   const openLeaderboard = () => {
     window.location.hash = "#/leaderboard";
   };
@@ -389,6 +392,9 @@ function App() {
         <>
         <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`}>
         <ShopButton account={account} scale={scale.factor} openShop={openShop} />
+        {account?.isLoggedIn && (
+          <InventoryButton account={account} scale={scale.factor} openInventory={openInventory} />
+          )}
         <LeaderboardButton scale={scale.factor} openLeaderboard={openLeaderboard} />
             <div id="contentt" style={scale.styles}>
 

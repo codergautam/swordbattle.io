@@ -13,11 +13,30 @@ interface SettingType {
 let isLoaded = false;
 
 export const settingsList: Record<string, SettingType> = {
-  owned: {
-    name: 'Show owned skins in shop',
-    type: 'toggle',
-    default: false,
+  skinSort: {
+    name: 'Sort skins by',
+    list: [
+      { name: 'Price (Low to High)', value: 'low' },
+      { name: 'Price (High to Low)', value: 'high' },
+      { name: 'Name', value: 'name' },
+    ],
+    default: 'low',
+  },
+  showUltimate: {
+      name: 'Show ultimate skins',
+      type: 'toggle',
+      default: true,
     },
+  showEvent: {
+      name: 'Show event skins',
+      type: 'toggle',
+      default: true,
+    },
+  showOG: {
+    name: 'Show OG skins',
+    type: 'toggle',
+    default: true,
+  },
   coins: {
       name: 'Use legacy coin images (requires reload)',
       type: 'toggle',
@@ -27,17 +46,7 @@ export const settingsList: Record<string, SettingType> = {
           window.location.reload();
         }
       },
-      },
-  loadskins: {
-      name: 'Refuse all skin loading attempts',
-      type: 'toggle',
-      default: false,
-      onChange: () => {
-        if (isLoaded) {
-          window.location.reload();
-        }
-      },
-      },
+    },
   useWebGL: {
     name: 'Use WebGL (requires reload)',
     type: 'toggle',

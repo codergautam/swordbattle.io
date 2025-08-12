@@ -33,14 +33,39 @@
   }
 }
 
-.leaderboard-btn{
-  position: fixed;
+.inventory-btn{
+  position: absolute;
   user-select: none;
 
 
   // left
   left: 0%;
   top: 85px;
+  transform-origin: left;
+  cursor: pointer;
+
+
+  img {
+    height: auto;
+    display: inline-block;
+    margin-left: 10px;
+    margin-top: 10px;
+    transition: transform 0.3s ease;
+  }
+
+  img:hover {
+    transform: scale(1.1);
+  }
+}
+
+.leaderboard-btn{
+  position: fixed;
+  user-select: none;
+  transform: scale(0.85);
+
+
+  right: -1%;
+  bottom: 10px;
   transform-origin: left;
   cursor: pointer;
 

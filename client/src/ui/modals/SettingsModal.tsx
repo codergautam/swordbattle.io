@@ -5,7 +5,6 @@ import './SettingsModal.scss';
 
 function SettingsModal() {
   const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
-  const [owned, setOwned] = useState(Settings.owned);
   const [coins, setCoins] = useState(Settings.coins);
   const [loadskins, setLoadskins] = useState(Settings.loadskins);
   const [antialiasing, setAntialiasing] = useState(Settings.antialiasing);
@@ -22,10 +21,6 @@ function SettingsModal() {
   const updateUseWebGL = (value: any) => {
     setUseWebGL(value);
     Settings.useWebGL = value;
-  }
-  const updateOwned = (value: any) => {
-    setOwned(value);
-    Settings.owned = value;
   }
   const updateCoins = (value: any) => {
     setCoins(value);
@@ -61,16 +56,6 @@ function SettingsModal() {
       <div className="settings-title">Settings</div>
 
       <h3 className="section">Visual</h3>
-      <div className="settings-line">
-        <label htmlFor="owned">Show the "Owned Skins" tab in shop: </label>
-        <label className="switch">
-          <input type="checkbox" name="owned" id="owned"
-            checked={owned}
-            onChange={(e) => updateOwned(e.target.checked)}
-          />
-          <span className="slider round"></span>
-        </label>
-      </div>
       <div className="settings-line">
         <label htmlFor="coins">Use legacy coin images (requires reload): </label>
         <label className="switch">
@@ -128,19 +113,6 @@ function SettingsModal() {
         value={sound}
         onChange={(e) => updateSound(e.target.value)}
       />
-
-      <br /><h3 className="sectionDebug">Debug</h3>
-      <div className="settings-line">
-        <label htmlFor="loadskins" className="debug">Refuse skin loading attempts:</label>
-        <label className="switch">
-          <input type="checkbox" name="loadskins" id="loadskins"
-            checked={loadskins}
-            onChange={(e) => updateLoadskins(e.target.checked)}
-          />
-          <span className="slider round"></span>
-        </label>
-      </div>
-      <p style={{color: 'red', marginTop: '-7px', fontSize: '13.2px'}}>WARNING: THIS SETTING CAN BE DANGEROUS</p>
       {/* <label htmlFor="server">Server:</label> */}
       {/* <select name="server" id="server"
         value={servers.length === 0 ? 'loading' : server}

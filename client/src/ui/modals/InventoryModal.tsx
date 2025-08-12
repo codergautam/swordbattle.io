@@ -119,33 +119,21 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
     setSkinStatus(prev => ({ ...prev, [id]: actionText ?? "" }));
 
     const apiPath = isOwned ? '/equip/' : '/buy/';
+
     api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${id}`, null, (data) => {
-      if (data.error) {
-        alert(data.error);
-        setSkinStatus(prev => ({ ...prev, [id]: '' }));
-        return;
-      }
-
-      if (isOwned) {
-        dispatch(setAccount({
-          ...account,
-          skins: { ...account.skins, equipped: id }
-        }));
+      if (data?.success) {
+        // success
+        setSkinStatus(prev => ({ ...prev, [id]: "equipped" }));
       } else {
-        dispatch(setAccount({
-          ...account,
-          skins: {
-            ...account.skins,
-            owned: [...account.skins.owned, id],
-            equipped: id
-          }
-        }));
+        // fail
+        setSkinStatus(prev => {
+          const updated = { ...prev };
+          delete updated[id];
+          return updated;
+        });
       }
-
-      setSkinStatus(prev => ({ ...prev, [id]: '' }));
-
-      dispatch(updateAccountAsync() as any);
     });
+
   }
 
   useEffect(() => {

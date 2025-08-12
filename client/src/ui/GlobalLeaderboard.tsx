@@ -150,23 +150,27 @@ export function GlobalLeaderboard() {
                       <td>{secondsToTime(row.playtime)}</td>
                       <td>
                       {(() => {
-                        const agoText = sinceFrom(row.date);
-                        let style: React.CSSProperties = {};
-                        if (agoText.includes('days')) {
-                          const days = parseInt(agoText.split(' ')[0], 10);
-                          if (days > 300) style.color = '#ff69b4'; // pink
-                          else if (days > 250) style.color = 'red';
-                          else if (days > 200) style.color = 'orange';
-                          else if (days > 150) style.color = 'yellow';
-                          else if (days > 100) style.color = 'limegreen';
-                          else if (days > 50) style.color = 'darkgreen';
-                        } else if (agoText.includes('2 year')) {
-                          style.color = '#4b0082'; // dark purple/blue
-                        } else if (agoText.includes('1 year')) {
-                          style.color = 'purple';
-                        }
-                        return <span style={style}>{agoText}</span>;
-                      })()} ago</td>
+                  const agoText = sinceFrom(row.date) + ' ago';
+                  let style: React.CSSProperties = {};
+                  let isBold = false;
+                  if (agoText.includes('days')) {
+                    const days = parseInt(agoText.split(' ')[0], 10);
+                    if (days > 300) style.color = '#ff006aff'; // pink
+                    else if (days > 250) style.color = 'red';
+                    else if (days > 200) style.color = '#eb9423ff';
+                    else if (days > 150) style.color = '#ebdd23';
+                    else if (days > 100) style.color = '#0c8f0c';
+                    else if (days > 50) style.color = '#006400';
+                    if (days > 200) isBold = true;
+                  } else if (agoText.includes('2 year')) {
+                    style.color = '#00ffd5ff'; // dark purple/blue
+                    isBold = true;
+                  } else if (agoText.includes('1 year')) {
+                    style.color = '#4b0082';
+                    isBold = true;
+                  }
+                  return <span style={style}>{isBold ? <b>{agoText}</b> : agoText}</span>;
+                })()}</td>
                     </>
                   ) : (
                     <td>
@@ -214,24 +218,28 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
             {type !== 'xp' && type !== 'mastery' && !type.startsWith('total') ? (<>
               <h5 className="mb-0">{numberWithCommas(row.coins)} coins</h5>
               <p className="text-muted mb-0">
-                Kills: {row.kills}, Survived: {secondsToTime(row.playtime)}, {(() => {
-                        const agoText = sinceFrom(row.date);
-                        let style: React.CSSProperties = {};
-                        if (agoText.includes('days')) {
-                          const days = parseInt(agoText.split(' ')[0], 10);
-                          if (days > 300) style.color = '#ff69b4'; // pink
-                          else if (days > 250) style.color = 'red';
-                          else if (days > 200) style.color = 'orange';
-                          else if (days > 150) style.color = 'yellow';
-                          else if (days > 100) style.color = 'limegreen';
-                          else if (days > 50) style.color = 'darkgreen';
-                        } else if (agoText.includes('2 year')) {
-                          style.color = '#4b0082'; // dark purple/blue
-                        } else if (agoText.includes('1 year')) {
-                          style.color = 'purple';
-                        }
-                        return <span style={style}>{agoText}</span>;
-                      })()} ago
+                {(() => {
+                  const agoText = sinceFrom(row.date) + ' ago';
+                  let style: React.CSSProperties = {};
+                  let isBold = false;
+                  if (agoText.includes('days')) {
+                    const days = parseInt(agoText.split(' ')[0], 10);
+                    if (days > 300) style.color = '#ff006aff'; // pink
+                    else if (days > 250) style.color = 'red';
+                    else if (days > 200) style.color = '#eb9423ff';
+                    else if (days > 150) style.color = '#ebdd23';
+                    else if (days > 100) style.color = '#0c8f0c';
+                    else if (days > 50) style.color = '#006400';
+                    if (days > 200) isBold = true;
+                  } else if (agoText.includes('2 year')) {
+                    style.color = '#00ffd5ff'; // dark purple/blue
+                    isBold = true;
+                  } else if (agoText.includes('1 year')) {
+                    style.color = '#4b0082';
+                    isBold = true;
+                  }
+                  return <span style={style}>{isBold ? <b>{agoText}</b> : agoText}</span>;
+                })()}
               </p>
             </>) : (
               <h5 className="mb-0">

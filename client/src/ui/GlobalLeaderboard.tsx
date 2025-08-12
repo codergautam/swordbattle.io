@@ -12,7 +12,6 @@ const types: Record<string, string> = {
   'kills': 'Kills',
   'coins': 'Coins',
   'playtime': 'Survived',
-  'date': 'Time Created',
   'xp': 'XP',
   'mastery': 'Mastery',
   'total-kills': 'Total Stabs',
@@ -149,7 +148,7 @@ export function GlobalLeaderboard() {
                       </td>
                       <td>{row.kills}</td>
                       <td>{secondsToTime(row.playtime)}</td>
-                      <td>{secondsToTime(row.date)}</td>
+                      <td>{sinceFrom(row.date)}</td>
                     </>
                   ) : (
                     <td>

@@ -208,13 +208,6 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
 <button onClick={scrollToTarget}>Today's Skins</button>
 <button onClick={scrollToTarget2} data-selected-badge="ultimate">Ultimate Skins</button>
 <button onClick={scrollToTarget3} data-selected-badge="event">Event Skins</button>
-
-        
-  { Object.values(skins).filter((skinData: any) =>  skinData.og && account?.skins.owned.includes(skinData.id)).length > 0 && (
-    <>
-        <button onClick={scrollToTarget5} data-selected-badge="og">OG Skins</button>
-        </>
-  )}
       </div>
       </div>
       {searchTerm && (

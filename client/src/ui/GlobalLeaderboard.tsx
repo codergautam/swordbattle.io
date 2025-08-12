@@ -149,15 +149,15 @@ export function GlobalLeaderboard() {
                       <td>{row.kills}</td>
                       <td>{secondsToTime(row.playtime)}</td>
                       <td>
-                      {(() => {
+                      Kills: {row.kills}, Survived: {secondsToTime(row.playtime)}, {(() => {
                   const agoText = sinceFrom(row.date) + ' ago';
                   let style: React.CSSProperties = {};
                   let isBold = false;
                   if (agoText.includes('days')) {
                     const days = parseInt(agoText.split(' ')[0], 10);
-                    if (days > 300) style.color = '#ff006aff'; // pink
+                    if (days > 300) style.color = '#ff00bfff'; // pink
                     else if (days > 250) style.color = 'red';
-                    else if (days > 200) style.color = '#eb9423ff';
+                    else if (days > 200) style.color = '#da8a22ff';
                     else if (days > 150) style.color = '#ebdd23';
                     else if (days > 100) style.color = '#0c8f0c';
                     else if (days > 50) style.color = '#006400';

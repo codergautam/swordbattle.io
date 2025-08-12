@@ -7,7 +7,6 @@ import validateUsername from 'src/helpers/validateUsername';
 import validateClantag from 'src/helpers/validateClantag';
 import validateUserbio from 'src/helpers/validateUserbio';
 import { Transaction } from 'src/transactions/transactions.entity';
-import { TotalStats } from 'src/stats/totalStats.entity';
 import * as cosmetics from '../cosmetics.json';
 import CacheObj from 'src/Cache';
 
@@ -24,8 +23,7 @@ export class AccountsService {
     private readonly accountsRepository: Repository<Account>,
     @InjectRepository(Transaction)
     private readonly transactionsRepository: Repository<Transaction>,
-    @InjectRepository(TotalStats)
-    private readonly totalStatsRepository: Repository<TotalStats>,
+
   ) {}
 
   async create(data: Partial<Account>) {
@@ -61,16 +59,12 @@ export class AccountsService {
     return accounts;
   }
 
-  async findStatOfAll(where: FindOneOptions<TotalStats>, stat: keyof TotalStats): Promise<number> {
-  const stats = await this.totalStatsRepository.find(where);
-  return stats.reduce((total, row) => {
-    const value = row[stat];
-    return typeof value === 'number' ? total + value : total;
-  }, 0);
-}
-
-  async findStatOfClan(clan: string) {
-    return this.findStatOfAll({ where: { clan } }, 'coins'); 
+  async findStatOfAll(where: FindOneOptions<Account>, stat: keyof Account): Promise<number> {
+    const accounts = await this.findAll(where);
+    return accounts.reduce((total, account) => {
+      const value = account[stat];
+      return typeof value === 'number' ? total + value : total;
+    }, 0);
   }
 
   async findClanMembers(clan: string) {

@@ -20,13 +20,12 @@ export class AccountsService {
   private cosmeticCountsCache = new CacheObj<{ [key: number]: number }>(7200000) // 2 hours in milliseconds
 
   constructor(
-    @InjectRepository(Account)
-    private readonly accountsRepository: Repository<Account>,
-    @InjectRepository(Transaction)
-    private readonly transactionsRepository: Repository<Transaction>,
-    @InjectRepository(TotalStats)
-    private readonly totalStatsRepository: Repository<Transaction>,
-
+  @InjectRepository(Account)
+  private readonly accountsRepository: Repository<Account>,
+  @InjectRepository(Transaction)
+  private readonly transactionsRepository: Repository<Transaction>,
+  @InjectRepository(TotalStats)
+  private readonly totalStatsRepository: Repository<TotalStats>,
   ) {}
 
   async create(data: Partial<Account>) {

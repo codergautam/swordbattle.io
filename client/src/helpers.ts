@@ -121,7 +121,7 @@ export function addCommas(num: number) {
 }
 
 export function calculateGemsXP(coins: number, kills: number) {
-  const xp = Math.floor(coins / 20) + (kills * 50)
+  const xp = Math.floor(coins / 20) + kills
   if (coins >= 1250000) {
     return {
       xp,

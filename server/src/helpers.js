@@ -45,7 +45,7 @@ module.exports = {
   },
 
  calculateGemsXP(coins, kills) {
-    const xp = Math.floor(coins / 20) + (kills * 50)
+    const xp = Math.floor(coins / 20) + kills
     if (coins >= 1250000) {
       return {
         xp,

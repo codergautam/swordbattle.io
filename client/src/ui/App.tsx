@@ -40,16 +40,12 @@ import ForumCard from './ForumCard';
 import titleImg from '../assets/img/final.png';
 import Leaderboard from './game/Leaderboard';
 
-import * as cosmetics from '../game/cosmetics.json'
-
 let debugMode = false;
 try {
   debugMode = window.location.search.includes("debugAlertMode");
   } catch(e) {}
 
 function App() {
-  let { skins } = cosmetics;
-  
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
 
@@ -162,54 +158,6 @@ function App() {
     console.log('Getting server list');
     getServerList().then(setServers);
   }, []);
-
-  useEffect(() => {
-    if (account?.lastDayPlayed) {
-      const lastPlayed = new Date(account.lastDayPlayed).getTime();
-      const now = Date.now();
-      if (now - lastPlayed > 24 * 60 * 60 * 1000) {
-        // Filter skins based on criteria
-        const eligibleSkins = Object.values(skins).filter(
-          (skin: any) =>
-            skin.skinbuyable === true &&
-            !skin.event &&
-            !skin.og &&
-            !skin.ultimate &&
-            !skin.special &&
-            !skin.wip &&
-            !skin.player &&
-            !skin.freebie &&
-            !skin.eventoffsale &&
-            !skin.currency
-        );
-        // Shuffle and pick 15 random skins
-        const guaranteedIds = [273, 234, 189, 257, 416];
-
-        let shuffled: number[] = [];
-        let hasGuaranteed = false;
-
-        // Keep shuffling until none of the guaranteed ids are present
-        do {
-          shuffled = eligibleSkins
-            .map((skin: any) => ({ skin, sort: Math.random() }))
-            .sort((a: any, b: any) => a.sort - b.sort)
-            .map((obj: any) => obj.skin.id)
-            .slice(0, 15);
-
-          hasGuaranteed = guaranteedIds.some(id => shuffled.includes(id));
-        } while (hasGuaranteed);
-
-        // Add guaranteed ids to the list
-        const skinList = [...shuffled, ...guaranteedIds];
-
-        dispatch(setAccount({
-          ...account,
-          lastDayPlayed: now,
-          skinList
-        }));
-      }
-    }
-  }, [account?.lastDayPlayed]);
 
   const updateServer = (value: any) => {
     setServer(value);

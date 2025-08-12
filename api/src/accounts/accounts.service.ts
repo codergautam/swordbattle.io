@@ -174,7 +174,7 @@ export class AccountsService {
     // Check if the user has enough gems
     const skinPrice = cosmetic.price;
     if (cosmetic.ultimate) {
-      if (user.ultimacy < skinPrice) {
+      if (user.mastery < skinPrice) {
         return { error: 'Not enough mastery' };
       }
     } else {
@@ -250,16 +250,16 @@ export class AccountsService {
     return account;
   }
 
-  async addUltimacy(account: Account, ultimacy: number, reason = "server") {
-    if(ultimacy === 0) return account;
-    account.ultimacy += ultimacy;
+  async addMastery(account: Account, mastery: number, reason = "server") {
+    if(mastery === 0) return account;
+    account.mastery += mastery;
     await this.accountsRepository.save(account);
     // add to transactions table
     const transaction = this.transactionsRepository.create({
       account: account,
-      amount: ultimacy,
+      amount: mastery,
       description: reason,
-      transaction_id: "ultimacy",
+      transaction_id: "mastery",
     });
     await this.transactionsRepository.save(transaction);
 

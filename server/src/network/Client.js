@@ -137,9 +137,9 @@ class Client {
     if (!this.account || !this.account.id) return;
 
     game.account_id = this.account.id;
-    const { gems, xp, ultimacy } = calculateGemsXP(game.coins, game.kills);
+    const { gems, xp, mastery } = calculateGemsXP(game.coins, game.kills);
     game.gems = gems;
-    game.ultimacy = ultimacy;
+    game.mastery = mastery;
     game.xp = xp;
 
     api.post('/stats/update', game, (data) => {

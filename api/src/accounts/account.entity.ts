@@ -24,6 +24,7 @@ export class Account {
   @Column({ default: 0 }) gems: number;
   @Column({ default: 0 }) xp: number;
   @Column({ default: 0 }) ultimacy: number;
+  @Column({ default: 0 }) mastery: number;
 
   @Column({ default: false }) subscription: boolean;
 

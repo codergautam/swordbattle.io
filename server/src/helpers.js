@@ -50,13 +50,13 @@ module.exports = {
       return {
         xp,
         gems: Math.floor(xp / 5),
-        ultimacy: Math.floor((coins / 794) ** 1.5), 
+        mastery: Math.floor((coins / 794) ** 1.5), 
       };
     } else {
       return {
         xp,
         gems: Math.floor(xp / 5),
-        ultimacy: Math.floor((coins / 5000) ** 2),
+        mastery: Math.floor((coins / 5000) ** 2),
       };
     }
   },

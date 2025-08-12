@@ -13,7 +13,7 @@ const types: Record<string, string> = {
   'coins': 'Coins',
   'playtime': 'Survived',
   'total-coins': 'XP',
-  'ultimacy': 'Mastery',
+  'mastery': 'mastery',
   'total-kills': 'Total Stabs',
   'total-playtime': 'Total Playtime',
 };
@@ -104,12 +104,12 @@ export function GlobalLeaderboard() {
             <tr>
               <th>Rank</th>
               <th>Name</th>
-              {type !== 'total-coins' && type !== 'ultimacy' && !type.startsWith('total') ? (<>
+              {type !== 'total-coins' && type !== 'mastery' && !type.startsWith('total') ? (<>
                 <th>Coins</th>
                 <th>Kills</th>
                 <th>Survived</th>
               </>) : (
-                <th>{type === 'total-coins' ? 'XP' : type === 'ultimacy' ? 'Mastery' : type.slice(6)}</th>
+                <th>{type === 'total-coins' ? 'XP' : type === 'mastery' ? 'Mastery' : type.slice(6)}</th>
               )}
             </tr>
           </thead>
@@ -136,7 +136,7 @@ export function GlobalLeaderboard() {
                       </div>
                     </div>
                   </td>
-                  {type !== 'total-coins' && type !== 'ultimacy' && !type.startsWith('total') ? (
+                  {type !== 'total-coins' && type !== 'mastery' && !type.startsWith('total') ? (
                     <>
                       <td>
                         <div className="d-flex align-items-baseline">
@@ -152,7 +152,7 @@ export function GlobalLeaderboard() {
                     <td>
                       <h4 className="mr-1">
                         {type === 'total-coins' && numberWithCommas(Math.floor(row.coins / 20))}
-                        {type === 'ultimacy' && numberWithCommas(row.ultimacy)}
+                        {type === 'mastery' && numberWithCommas(row.mastery)}
                         {type === 'total-kills' && numberWithCommas(row.kills)}
                         {type === 'total-playtime' && secondsToTime(row.playtime)}
                       </h4>
@@ -191,7 +191,7 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
         <div className="leaderboard-card__body">
           <div className="text-center">
             <br />
-            {type !== 'total-coins' && type !== 'ultimacy' && !type.startsWith('total') ? (<>
+            {type !== 'total-coins' && type !== 'mastery' && !type.startsWith('total') ? (<>
               <h5 className="mb-0">{numberWithCommas(row.coins)} coins</h5>
               <p className="text-muted mb-0">
                 Kills: {row.kills}, Survived: {secondsToTime(row.playtime)}
@@ -199,7 +199,7 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
             </>) : (
               <h5 className="mb-0">
                 {type === 'total-coins' && numberWithCommas(Math.floor(row.coins / 20)) + ' XP'}
-                {type === 'ultimacy' && numberWithCommas(row.ultimacy) + '  mastery'}
+                {type === 'mastery' && numberWithCommas(row.mastery) + '  mastery'}
                 {type === 'total-kills' && numberWithCommas(row.kills) + ' stabs'}
                 {type === 'total-playtime' && secondsToTime(row.playtime) + ' played'}
               </h5>

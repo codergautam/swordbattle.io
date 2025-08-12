@@ -7,7 +7,7 @@ export class SaveGameDTO {
 
   @IsInt() kills: number;
 
-  @IsInt() ultimacy: number;
+  @IsInt() mastery: number;
 
   @IsInt() coins: number;
 
@@ -24,7 +24,7 @@ export enum TimeRange {
 
 export enum StatsSortType {
   XP = 'xp',
-  Ultimacy = 'ultimacy',
+  Mastery = 'mastery',
   TotalCoins = 'coins',
   TotalKills = 'kills',
   TotalPlaytime = 'playtime',

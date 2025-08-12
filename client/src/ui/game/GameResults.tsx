@@ -111,7 +111,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
         <div className="info">
           <div className="title">Mastery Earned</div>
           <CountUp
-            end={calculateGemsXP(results.coins, results.kills).ultimacy}
+            end={calculateGemsXP(results.coins, results.kills).mastery}
             duration={3}
           />
         </div>

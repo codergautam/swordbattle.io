@@ -19,7 +19,7 @@ export default function AccountCard({account, onLogin, onSignup}: {account: Acco
         </div>
         <br />
         <div className="stats">
-        <p>         </p><p>         </p><p>         </p><p>         </p><p>         </p><p>         </p><ValueCnt scale={0.5} value={account.ultimacy} img={UltimacyImg}/>
+        <p>         </p><p>         </p><p>         </p><p>         </p><p>         </p><p>         </p><ValueCnt scale={0.5} value={account.mastery} img={UltimacyImg}/>
     
         </div>
                    <Link to={`/profile?username=${encodeURIComponent(account.username)}`} target="_blank" className="profilebutton">

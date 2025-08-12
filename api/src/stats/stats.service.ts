@@ -28,9 +28,9 @@ export class StatsService {
 
     // Update gems
     let gems = data.gems;
-    let ultimacy = data.ultimacy;
+    let mastery = data.mastery;
     await this.accountsService.addGems(account, gems, "game");
-    await this.accountsService.addUltimacy(account, ultimacy, "game");
+    await this.accountsService.addMastery(account, mastery, "game");
     await this.accountsService.addXp(account, data.xp);
 
     return true;
@@ -185,7 +185,7 @@ export class StatsService {
           'total_stats.coins as xp',
           'total_stats.coins as coins',
           'total_stats.kills as kills',
-          'total_stats.ultimacy as ultimacy',
+          'total_stats.mastery as mastery',
           'total_stats.playtime as playtime',
         ])
         .limit(limit)
@@ -201,7 +201,7 @@ export class StatsService {
           'SUM(daily_stats.coins) as xp',
           'SUM(daily_stats.coins) as coins',
           'SUM(daily_stats.kills) as kills',
-          'SUM(daily_stats.ultimacy) as ultimacy',
+          'SUM(daily_stats.mastery) as mastery',
           'SUM(daily_stats.playtime) as playtime',
         ])
         .where(where)
@@ -218,7 +218,7 @@ export class StatsService {
     row.xp += data.xp;
     row.coins += data.coins;
     row.kills += data.kills;
-    row.ultimacy += data.ultimacy;
+    row.mastery += data.mastery;
     row.playtime += data.playtime;
     row.games += 1;
     return row;

@@ -10,7 +10,7 @@ import cosmetics from '../game/cosmetics.json';
 interface Stats {
   date: string;
   xp: number;
-  ultimacy: number;
+  mastery: number;
   kills: number;
   games: number;
   coins: number
@@ -235,7 +235,7 @@ export default function Profile() {
           <Card title="Former XP" text={data.totalStats ? numberWithCommas(data.totalStats.xp) : 0} />
           <Card title="Total Playtime" text={data.totalStats ? secondsToTime(data.totalStats.playtime) : 0} />
           <Card title="Stabs" text={data.totalStats ? numberWithCommas(data.totalStats.kills) : 0} />
-          <Card title="Mastery" text={data.totalStats ? numberWithCommas(data.totalStats.ultimacy) : 0} />
+          <Card title="Mastery" text={data.totalStats ? numberWithCommas(data.totalStats.mastery) : 0} />
         </div>
 
         {!data.account.recovered && data.dailyStats && data.dailyStats.length &&

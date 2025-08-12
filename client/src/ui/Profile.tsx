@@ -139,7 +139,7 @@ export default function Profile() {
         <div className='statsContent'>
       <button className="back-button" onClick={() =>{
         // ../index.html
-        window.location.href = '../leaderboard';
+        window.location.href = '../index.html';
       }}>X</button>
           <center>
         {data.account.clan ? (

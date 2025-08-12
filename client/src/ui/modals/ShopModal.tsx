@@ -415,7 +415,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
             {(() => {
               const result = sinceFrom(
                 new Date(
-                  account.lastDayPlayed.getTime() + 24 * 60 * 60 * 1000
+                  account?.lastDayPlayed.getTime() + 24 * 60 * 60 * 1000
                 ).toISOString()
               );
               return result.includes("-") ? "0 seconds" : result;

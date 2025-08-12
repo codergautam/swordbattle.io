@@ -159,18 +159,12 @@ function App() {
   const [servers, setServers] = useState<any[]>([]);
 
   useEffect(() => {
-    console.log('Getting server list');
-    getServerList().then(setServers);
-  }, []);
-
-  useEffect(() => {
   if (!account?.lastDayPlayed) return;
 
   const lastPlayed = new Date(account.lastDayPlayed).getTime();
   const now = Date.now();
 
   if (now - lastPlayed > 24 * 60 * 60 * 1000) {
-    // Eligible skins filter
     const eligibleSkins = Object.values(skins).filter(
       (skin: any) =>
         !skin.event &&
@@ -186,8 +180,6 @@ function App() {
 
     const guaranteedIds = [273, 234, 189, 257, 416];
 
-    let shuffled: number[] = [];
-
     function shuffleArray<T>(array: T[]): T[] {
       let arr = [...array];
       for (let i = arr.length - 1; i > 0; i--) {
@@ -197,18 +189,19 @@ function App() {
       return arr;
     }
 
+    let shuffled: number[] = [];
     do {
       shuffled = shuffleArray(eligibleSkins.map((skin: any) => skin.id)).slice(0, 15);
     } while (guaranteedIds.some((id) => shuffled.includes(id)));
 
     const newSkinList = [...shuffled, ...guaranteedIds];
 
-    if (
-      !account.skinList ||
-      newSkinList.length !== account.skinList.length ||
-      newSkinList.some((id) => !account.skinList.includes(id)) ||
-      now - lastPlayed > 24 * 60 * 60 * 1000
-    ) {
+    const oldSkinList = account.skinList || [];
+    const listsDiffer =
+      newSkinList.length !== oldSkinList.length ||
+      newSkinList.some((id) => !oldSkinList.includes(id));
+
+    if (listsDiffer) {
       dispatch(
         setAccount({
           ...account,
@@ -218,7 +211,8 @@ function App() {
       );
     }
   }
-}, [account?.lastDayPlayed, dispatch, skins, account]);
+}, [account?.lastDayPlayed, dispatch, skins]);
+
 
 
   const updateServer = (value: any) => {

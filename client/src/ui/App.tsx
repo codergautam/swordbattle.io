@@ -159,6 +159,11 @@ function App() {
   const [servers, setServers] = useState<any[]>([]);
 
   useEffect(() => {
+    console.log('Getting server list');
+    getServerList().then(setServers);
+  }, []);
+
+  useEffect(() => {
   if (!account?.lastDayPlayed) return;
 
   const lastPlayed = new Date(account.lastDayPlayed).getTime();

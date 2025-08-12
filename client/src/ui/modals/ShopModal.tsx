@@ -409,19 +409,33 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         <div className='label'>
         <div ref={targetElementRef2}></div>
         <span>Today's Skins</span><hr></hr>
-        {account?.isLoggedIn && account.lastDayPlayed && (
-          <p>
-            Resets in{" "}
-            {(() => {
-              const lastPlayedDate = new Date(account.lastDayPlayed);
-              if (isNaN(lastPlayedDate.getTime())) return "0 seconds";
-              const result = sinceFrom(
-                new Date(lastPlayedDate.getTime() + 24 * 60 * 60 * 1000).toISOString()
-              );
-              return result.includes("-") ? "0 seconds" : result;
-            })()}
-          </p>
-        )}
+        {account?.isLoggedIn && account.lastDayPlayed && (() => {
+          const lastPlayedDate = new Date(account.lastDayPlayed);
+          if (isNaN(lastPlayedDate.getTime())) return <p>Resets in 0 seconds</p>;
+
+          const now = Date.now();
+          const resetTime = lastPlayedDate.getTime() + 24 * 60 * 60 * 1000;
+          let diffMs = resetTime - now;
+
+          if (diffMs <= 0) {
+            diffMs = 24 * 60 * 60 * 1000; // Visual reset
+          }
+
+          const hours = Math.floor(diffMs / (1000 * 60 * 60));
+          const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+          if (hours === 24 && minutes === 0) {
+            return <p>Resets in 1 day</p>;
+          } else if (hours > 0) {
+            return <p>Resets in {hours} hour{hours > 1 ? "s" : ""} {minutes} minute{minutes !== 1 ? "s" : ""}</p>;
+          } else if (minutes > 0) {
+            return <p>Resets in {minutes} minute{minutes !== 1 ? "s" : ""}</p>;
+          } else {
+            return <p>Resets in less than a minute</p>;
+          }
+        })()}
+
+
 
 
         </div>

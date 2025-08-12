@@ -102,24 +102,52 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
     skinRefs.current[index] = element;
   }, []);
   function handleActionClick(id: number) {
-
-    // If there is action already happening, don't do anything
     if (skinStatus[id]) return;
 
-    const skinAction = account.skins.equipped === id ? null :
-                      account.skins.owned.includes(id) ? 'Equipping...' : 'Getting...';
+    const isOwned = account.skins.owned.includes(id);
+    const isEquipped = account.skins.equipped === id;
 
-    if (skinAction) {
-      setSkinStatus(prev => ({ ...prev, [id]: skinAction }));
-
-      const apiPath = skinAction === 'Equipping...' ? '/equip/' : '/buy/';
-      api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${id}`, null, (data) => {
-        if (data.error) alert(data.error);
-        dispatch(updateAccountAsync() as any);
-        setSkinStatus(prev => ({ ...prev, [id]: '' }));
-      });
+    let actionText: string | null = null;
+    if (isEquipped) {
+      return;
+    } else if (isOwned) {
+      actionText = 'Equipping...';
+    } else {
+      actionText = 'Getting...';
     }
+
+    setSkinStatus(prev => ({ ...prev, [id]: actionText ?? "" }));
+
+    const apiPath = isOwned ? '/equip/' : '/buy/';
+    api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${id}`, null, (data) => {
+      if (data.error) {
+        alert(data.error);
+        setSkinStatus(prev => ({ ...prev, [id]: '' }));
+        return;
+      }
+
+      if (isOwned) {
+        dispatch(setAccount({
+          ...account,
+          skins: { ...account.skins, equipped: id }
+        }));
+      } else {
+        dispatch(setAccount({
+          ...account,
+          skins: {
+            ...account.skins,
+            owned: [...account.skins.owned, id],
+            equipped: id
+          }
+        }));
+      }
+
+      setSkinStatus(prev => ({ ...prev, [id]: '' }));
+
+      dispatch(updateAccountAsync() as any);
+    });
   }
+
   useEffect(() => {
     const handleMouseMove = (event: any) => {
       skinRefs.current.forEach((skinRef, index) => {

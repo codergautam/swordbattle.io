@@ -102,27 +102,37 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
     skinRefs.current[index] = element;
   }, []);
   function handleActionClick(id: number) {
-  if (skinStatus[id]) return;
+    if (skinStatus[id]) return;
 
-  const isEquipped = account.skins.equipped === id;
-  const isOwned = account.skins.owned.includes(id);
+    const isEquipped = account.skins.equipped === id;
+    const isOwned = account.skins.owned.includes(id);
 
-  const actionText = isEquipped ? null : isOwned ? 'Equipping...' : 'Getting...';
+    const actionText = isEquipped ? null : isOwned ? 'Equipping...' : 'Getting...';
 
-  if (actionText) {
-    setSkinStatus(prev => ({ ...prev, [id]: actionText }));
+    if (actionText) {
+      setSkinStatus(prev => ({ ...prev, [id]: actionText }));
 
-    const apiPath = isOwned ? '/equip/' : '/buy/';
-    api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${id}`, null, (data) => {
-      if (data.error) {
-        alert(data.error);
-      }
-      dispatch(updateAccountAsync() as any).then(() => {
-        setSkinStatus({});
+      const apiPath = isOwned ? '/equip/' : '/buy/';
+      api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${id}`, null, (data) => {
+        if (data.error) {
+          alert(data.error);
+          setSkinStatus(prev => {
+            const copy = { ...prev };
+            delete copy[id];
+            return copy;
+          });
+          return;
+        }
+
+        dispatch(updateAccountAsync() as any).then(() => {
+          setSkinStatus({
+            [id]: 'Equipped'
+          });
+        });
       });
-    });
+    }
   }
-}
+
 
 
 

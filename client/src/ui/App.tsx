@@ -61,6 +61,7 @@ function App() {
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
   const [clanMemberCount, setClanMemberCount] = useState(0);
+  const [clanXP, setClanXP] = useState(0);
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
@@ -205,10 +206,10 @@ function App() {
 
   useEffect(() => {
   if (account?.clan) {
-    api.get(`${api.endpoint}/accounts/clanMembers?clan=${account.clan}`, (data) => {
+    api.get(`${api.endpoint}/profile/clanMembers?clan=${account.clan}`, (data) => {
       if (data && typeof data.count === 'number') {
-        // Save the count to state or Redux
         setClanMemberCount(data.count);
+        setClanXP(data.xp);
       }
     });
   }
@@ -354,7 +355,7 @@ function App() {
                       </div>
                       <div style={{ fontSize: '15px' }}>
                         {account?.clan
-                        ? `Clan "${account.clan}" has ${clanMemberCount ?? '...'} members`
+                        ? `Clan "${account.clan}" has ${clanMemberCount ?? '...'} members, and ${clanXP ?? '...'} total xp`
                         : 'No clan'}
                       </div>
                       </>

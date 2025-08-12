@@ -39,18 +39,6 @@ export class AccountsService {
     return account;
   }
 
-  async findAll(where?: FindOneOptions<Account>, throwException = false) {
-    const accounts = await this.accountsRepository.find(where);
-    if ((!accounts || accounts.length === 0) && throwException) {
-      throw new NotFoundException(`Accounts not found`);
-    }
-    return accounts;
-  }
-
-  async findClanMembers(clan: string) {
-    return this.findAll({ where: { clan } });
-  }
-
   async findOneWithLowercase(options: any): Promise<Account | undefined> {
     const queryBuilder = this.accountsRepository.createQueryBuilder('account');
 
@@ -62,6 +50,26 @@ export class AccountsService {
 
     return queryBuilder.getOne();
 }
+
+  async findAll(where?: FindOneOptions<Account>, throwException = false) {
+    const accounts = await this.accountsRepository.find(where);
+    if ((!accounts || accounts.length === 0) && throwException) {
+      throw new NotFoundException(`Accounts not found`);
+    }
+    return accounts;
+  }
+
+  async findStatOfAll(where: FindOneOptions<Account>, stat: keyof Account): Promise<number> {
+    const accounts = await this.findAll(where);
+    return accounts.reduce((total, account) => {
+      const value = account[stat];
+      return typeof value === 'number' ? total + value : total;
+    }, 0);
+  }
+
+  async findClanMembers(clan: string) {
+    return this.findAll({ where: { clan } });
+  }
 
   async getById(id: number) {
     const account = await this.findOne({ where: { id } });

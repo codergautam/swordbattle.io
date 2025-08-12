@@ -32,7 +32,6 @@ interface ProfileData {
   totalStats?: Stats;
   dailyStats?: Stats[];
   rank?: number;
-  coinsrank?: number;
 }
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -101,7 +100,7 @@ export default function Profile() {
     const stat = dailyStats.find(stat =>
       fixDate(new Date(stat.date)).toLocaleDateString() === fixDate(date).toLocaleDateString()
     );
-    return stat ? runningTotal += Math.floor(stat.coins / 20) : runningTotal;
+    return stat ? runningTotal += stat.xp : runningTotal;
   });
 
   const isProfile3 = data?.account?.profiles?.equipped === 3;
@@ -215,12 +214,12 @@ export default function Profile() {
         <h4 className="stat">Joined {sinceFrom(data.account.created_at)} ago</h4>
         <h4 className="stat">{data.dailyStats && data.dailyStats.length ? `Last seen ${lastSeen(data.dailyStats[0].date)}` : ''}</h4>
         <br />
-        {data.coinsrank && (
+        {data.rank && (
           <h4
             className="stat"
-            style={data.coinsrank === 1 ? { color: 'yellow' } : undefined}
+            style={data.rank === 1 ? { color: 'yellow' } : undefined}
           >
-            #{data.coinsrank} all time
+            #{data.rank} all time
           </h4>
         )}
         <br />
@@ -231,9 +230,9 @@ export default function Profile() {
         <br />
         <div className="row">
           <Card title="Games Played" text={data.totalStats ? numberWithCommas(data.totalStats.games) : 0} />
-          <Card title="XP" text={data.totalStats ? numberWithCommas(Math.floor(data.totalStats.coins / 20)) : 0} />
-          <Card title="Former XP" text={data.totalStats ? numberWithCommas(data.totalStats.xp) : 0} />
+          <Card title="XP" text={data.totalStats ? numberWithCommas(data.totalStats.xp) : 0} />
           <Card title="Total Playtime" text={data.totalStats ? secondsToTime(data.totalStats.playtime) : 0} />
+          <Card title="Skins Owned" text={data.account.skins.owned.length} />
           <Card title="Stabs" text={data.totalStats ? numberWithCommas(data.totalStats.kills) : 0} />
           <Card title="Mastery" text={data.totalStats ? numberWithCommas(data.totalStats.mastery) : 0} />
         </div>

@@ -98,7 +98,7 @@ export class StatsService {
     const result = await this.totalStatsRepository
       .createQueryBuilder('total_stats')
       .select('total_stats.id', 'id')
-      .addSelect('RANK() OVER (ORDER BY total_stats.coins DESC)', 'rank')
+      .addSelect('RANK() OVER (ORDER BY total_stats.xp DESC)', 'rank')
       .limit(200)
       .getRawMany();
 
@@ -125,7 +125,7 @@ export class StatsService {
     const subQuery = this.totalStatsRepository
       .createQueryBuilder('total_stats')
       .select('total_stats.id', 'id')
-      .addSelect('RANK() OVER (ORDER BY total_stats.coins DESC)', 'rank');
+      .addSelect('RANK() OVER (ORDER BY total_stats.xp DESC)', 'rank');
 
     const result = await this.totalStatsRepository
       .createQueryBuilder()
@@ -137,24 +137,6 @@ export class StatsService {
 
 
     return result ? parseInt(result.rank, 10) : undefined;
-  }
-
-  async getAccountRankByCoins(account: Account) {
-    const subQuery = this.totalStatsRepository
-      .createQueryBuilder('total_stats')
-      .select('total_stats.id', 'id')
-      .addSelect('RANK() OVER (ORDER BY total_stats.coins DESC)', 'coinsrank');
-
-    const result = await this.totalStatsRepository
-      .createQueryBuilder()
-      .select('sub.coinsrank', 'coinsrank')
-      .from('(' + subQuery.getQuery() + ')', 'sub')
-      .setParameter('id', account.id)
-      .where('sub.id = :id')
-      .getRawOne();
-
-
-    return result ? parseInt(result.coinsrank, 10) : undefined;
   }
 
   async fetch(fetchData: FetchStatsDTO) {
@@ -182,7 +164,7 @@ export class StatsService {
         .select([
           'account.username as username',
           'account.clan as clan',
-          'total_stats.coins as xp',
+          'total_stats.xp as xp',
           'total_stats.coins as coins',
           'total_stats.kills as kills',
           'total_stats.mastery as mastery',
@@ -198,7 +180,7 @@ export class StatsService {
         .select([
           'account.username as username',
           'account.clan as clan',
-          'SUM(daily_stats.coins) as xp',
+          'SUM(daily_stats.xp) as xp',
           'SUM(daily_stats.coins) as coins',
           'SUM(daily_stats.kills) as kills',
           'SUM(daily_stats.mastery) as mastery',

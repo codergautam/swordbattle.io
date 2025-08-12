@@ -42,7 +42,7 @@ export class GamesService {
       .leftJoinAndSelect('game.account', 'account', 'account.id = game.account_id')
       .select([
         'account.username as username',
-        'game.created_at',
+        'game.created_at as date',
         'game.playtime as playtime',
         'game.coins as coins',
         'game.kills as kills',

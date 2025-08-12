@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Req, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Req, UseGuards, Query, Body } from '@nestjs/common';
 import { Request } from 'express';
 import { AccountsService } from './accounts.service';
 import { StatsService } from 'src/stats/stats.service';
@@ -122,5 +122,31 @@ export class AccountsController {
     const memberXP = await this.accountsService.findStatOfAll({where: { clan }}, 'xp');
 
     return { count: members.length, xp: memberXP, members };
+  }
+
+  @UseGuards(AccountGuard)
+  @Post('updateSkins')
+  async updateSkins(
+    @Req() request: AccountRequest,
+    @Body() body: { lastDayPlayed: number; skinList: number[] },
+  ) {
+    const userId = request.account.id;
+    const { lastDayPlayed, skinList } = body;
+
+    if (!lastDayPlayed || !skinList || !Array.isArray(skinList)) {
+      return { success: false, message: 'Invalid payload' };
+    }
+
+    // Call service to update the account fields
+    const updatedAccount = await this.accountsService.updateSkins(userId, lastDayPlayed, skinList);
+
+    if (!updatedAccount) {
+      return { success: false, message: 'Account not found or update failed' };
+    }
+
+    return {
+      success: true,
+      account: this.accountsService.sanitizeAccount(updatedAccount),
+    };
   }
 }

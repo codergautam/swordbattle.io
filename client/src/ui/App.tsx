@@ -202,12 +202,19 @@ function App() {
       newSkinList.some((id) => !oldSkinList.includes(id));
 
     if (listsDiffer) {
-      dispatch(
-        setAccount({
-          ...account,
+      api.post(
+        `${api.endpoint}/profile/updateSkins`,
+        {
           lastDayPlayed: now,
           skinList: newSkinList,
-        })
+        },
+        (response: any) => {
+          if (response.success && response.account) {
+            dispatch(setAccount(response.account));
+          } else {
+            console.error('Failed to update skins on server', response);
+          }
+        }
       );
     }
   }

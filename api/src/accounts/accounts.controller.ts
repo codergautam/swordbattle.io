@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Req, UseGuards, Query } from '@nestjs/common';
 import { Request } from 'express';
 import { AccountsService } from './accounts.service';
 import { StatsService } from 'src/stats/stats.service';
@@ -115,5 +115,11 @@ export class AccountsController {
     }
 
     return { account, totalStats, dailyStats, rank, clan };
+  }
+
+  @Get('clanMembers')
+  async getClanMembers(@Query('clan') clan: string) {
+    const members = await this.accountsService.findClanMembers(clan);
+    return { count: members.length, members };
   }
 }

@@ -60,6 +60,7 @@ function App() {
   const [accountReady, setAccountReady] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
+  const [clanMemberCount, setClanMemberCount] = useState(0);
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
@@ -146,7 +147,7 @@ function App() {
   }, 10);
 
   if(!firstGame) return;
-    // setModal(<ChangelogModal />);
+    setModal(<ChangelogModal />);
   }, [gameStarted]);
 
   const [server, setServer] = useState(Settings.server);
@@ -202,6 +203,17 @@ function App() {
     }
   }, [isConnected, assetsLoaded]);
 
+  useEffect(() => {
+  if (account?.clan) {
+    api.get(`/accounts/clanMembers?clan=${account.clan}`, (data) => {
+      if (data && typeof data.count === 'number') {
+        // Save the count to state or Redux
+        setClanMemberCount(data.count);
+      }
+    });
+  }
+}, [account?.clan]);
+
   const onStart = () => {
     console.log('Starting game');
     if(!isConnected) {
@@ -222,6 +234,8 @@ function App() {
       go();
     }
   };
+
+
   const openSettings = () => setModal(<SettingsModal />);
   const closeModal = () => setModal(null);
   const onHome = () => setGameStarted(false);
@@ -333,9 +347,22 @@ function App() {
                 </div>
 
                 <div className="announcementCard menuCard panel">
-                    <div style={{fontSize: '15px'}}>
-                    Tip: The Lumberjack ability has multiple uses: finding chests, defending against enemies, and breaking chests faster!
-                    </div>
+                    {account?.username === "Update Testing Account" ? (
+                      <>
+                      <div style={{ fontSize: '15px' }}>
+                        UTA info
+                      </div>
+                      <div style={{ fontSize: '15px' }}>
+                        {account?.clan
+                        ? `Clan "${account.clan}" has ${clanMemberCount ?? '...'} members`
+                        : 'No clan'}
+                      </div>
+                      </>
+                    ) : (
+                      <div style={{ fontSize: '15px' }}>
+                        Tip: The Lumberjack ability has multiple uses: finding chests, defending against enemies, and breaking chests faster!
+                      </div>
+                    )}
                   </div>
                 {/* <!-- Play --> */}
                 <div className="joinCard menuCard panel" style={{ position: 'relative' }}>

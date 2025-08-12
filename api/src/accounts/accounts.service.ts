@@ -39,6 +39,18 @@ export class AccountsService {
     return account;
   }
 
+  async findAll(where?: FindOneOptions<Account>, throwException = false) {
+    const accounts = await this.accountsRepository.find(where);
+    if ((!accounts || accounts.length === 0) && throwException) {
+      throw new NotFoundException(`Accounts not found`);
+    }
+    return accounts;
+  }
+
+  async findClanMembers(clan: string) {
+    return this.findAll({ where: { clan } });
+  }
+
   async findOneWithLowercase(options: any): Promise<Account | undefined> {
     const queryBuilder = this.accountsRepository.createQueryBuilder('account');
 

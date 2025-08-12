@@ -205,7 +205,7 @@ function App() {
 
   useEffect(() => {
   if (account?.clan) {
-    api.get(`/accounts/clanMembers?clan=${account.clan}`, (data) => {
+    api.get(`${api.endpoint}/accounts/clanMembers?clan=${account.clan}`, (data) => {
       if (data && typeof data.count === 'number') {
         // Save the count to state or Redux
         setClanMemberCount(data.count);

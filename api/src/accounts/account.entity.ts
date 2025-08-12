@@ -37,7 +37,19 @@ export class Account {
 
   @Column({ nullable: true })  lastUsernameChange: Date;
   @Column({ nullable: true })  lastClanChange: Date;
-  @Column({ default: () => new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)  })  lastDayPlayed: Date;
+  @Column({
+    type: 'timestamp',
+    default: () => `NOW() - interval '2 days'`,
+    nullable: false,
+  })
+  lastDayPlayed: Date;
+
+  @BeforeInsert()
+  setLastDayPlayed() {
+    if (!this.lastDayPlayed) {
+      this.lastDayPlayed = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+    }
+  }
 
   @OneToMany(() => Transaction, transaction => transaction.account)
   transactions: Transaction[];

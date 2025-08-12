@@ -180,7 +180,8 @@ function App() {
         !skin.player &&
         !skin.freebie &&
         !skin.eventoffsale &&
-        !skin.currency
+        !skin.currency &&
+        skin.price > 0
     );
 
     const guaranteedIds = [273, 234, 189, 257, 416];

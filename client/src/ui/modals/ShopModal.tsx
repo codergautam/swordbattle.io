@@ -413,15 +413,16 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           <p>
             Resets in{" "}
             {(() => {
+              const lastPlayedDate = new Date(account.lastDayPlayed);
+              if (isNaN(lastPlayedDate.getTime())) return "0 seconds";
               const result = sinceFrom(
-                new Date(
-                  account?.lastDayPlayed.getTime() + 24 * 60 * 60 * 1000
-                ).toISOString()
+                new Date(lastPlayedDate.getTime() + 24 * 60 * 60 * 1000).toISOString()
               );
               return result.includes("-") ? "0 seconds" : result;
             })()}
           </p>
         )}
+
 
         </div>
         <div className='skins'>

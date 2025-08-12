@@ -164,52 +164,62 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (account?.lastDayPlayed) {
-      const lastPlayed = new Date(account.lastDayPlayed).getTime();
-      const now = Date.now();
-      if (now - lastPlayed > 24 * 60 * 60 * 1000) {
-        // Filter skins based on criteria
-        const eligibleSkins = Object.values(skins).filter(
-          (skin: any) =>
-            skin.skinbuyable === true &&
-            !skin.event &&
-            !skin.og &&
-            !skin.ultimate &&
-            !skin.special &&
-            !skin.wip &&
-            !skin.player &&
-            !skin.freebie &&
-            !skin.eventoffsale &&
-            !skin.currency
-        );
-        // Shuffle and pick 15 random skins
-        const guaranteedIds = [273, 234, 189, 257, 416];
+  if (!account?.lastDayPlayed) return;
 
-        let shuffled: number[] = [];
-        let hasGuaranteed = false;
+  const lastPlayed = new Date(account.lastDayPlayed).getTime();
+  const now = Date.now();
 
-        // Keep shuffling until none of the guaranteed ids are present
-        do {
-          shuffled = eligibleSkins
-            .map((skin: any) => ({ skin, sort: Math.random() }))
-            .sort((a: any, b: any) => a.sort - b.sort)
-            .map((obj: any) => obj.skin.id)
-            .slice(0, 15);
+  if (now - lastPlayed > 24 * 60 * 60 * 1000) {
+    // Eligible skins filter
+    const eligibleSkins = Object.values(skins).filter(
+      (skin: any) =>
+        !skin.event &&
+        !skin.og &&
+        !skin.ultimate &&
+        !skin.special &&
+        !skin.wip &&
+        !skin.player &&
+        !skin.freebie &&
+        !skin.eventoffsale &&
+        !skin.currency
+    );
 
-          hasGuaranteed = guaranteedIds.some(id => shuffled.includes(id));
-        } while (hasGuaranteed);
+    const guaranteedIds = [273, 234, 189, 257, 416];
 
-        // Add guaranteed ids to the list
-        const skinList = [...shuffled, ...guaranteedIds];
+    let shuffled: number[] = [];
 
-        dispatch(setAccount({
+    function shuffleArray<T>(array: T[]): T[] {
+      let arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    do {
+      shuffled = shuffleArray(eligibleSkins.map((skin: any) => skin.id)).slice(0, 15);
+    } while (guaranteedIds.some((id) => shuffled.includes(id)));
+
+    const newSkinList = [...shuffled, ...guaranteedIds];
+
+    if (
+      !account.skinList ||
+      newSkinList.length !== account.skinList.length ||
+      newSkinList.some((id) => !account.skinList.includes(id)) ||
+      now - lastPlayed > 24 * 60 * 60 * 1000
+    ) {
+      dispatch(
+        setAccount({
           ...account,
           lastDayPlayed: now,
-          skinList
-        }));
-      }
+          skinList: newSkinList,
+        })
+      );
     }
-  }, [account?.lastDayPlayed]);
+  }
+}, [account?.lastDayPlayed, dispatch, skins, account]);
+
 
   const updateServer = (value: any) => {
     setServer(value);

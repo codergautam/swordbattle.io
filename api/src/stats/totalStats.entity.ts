@@ -11,7 +11,6 @@ export class TotalStats {
 
   @Column({ default: 0 }) kills: number;
 
-  @Column({ default: 0 }) ultimacy: number;
   @Column({ default: 0 }) mastery: number;
 
   @Column({ default: 0 }) games: number;

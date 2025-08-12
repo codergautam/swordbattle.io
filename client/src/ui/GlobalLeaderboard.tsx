@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
-import { numberWithCommas, secondsToTime } from '../helpers';
+import { numberWithCommas, secondsToTime, sinceFrom } from '../helpers';
 import api from '../api';
 
 import 'bootstrap/dist/js/bootstrap.bundle.min';
@@ -13,7 +13,7 @@ const types: Record<string, string> = {
   'coins': 'Coins',
   'playtime': 'Survived',
   'total-coins': 'XP',
-  'mastery': 'mastery',
+  'mastery': 'Mastery',
   'total-kills': 'Total Stabs',
   'total-playtime': 'Total Playtime',
 };
@@ -108,6 +108,7 @@ export function GlobalLeaderboard() {
                 <th>Coins</th>
                 <th>Kills</th>
                 <th>Survived</th>
+                <th>Time Created</th>
               </>) : (
                 <th>{type === 'total-coins' ? 'XP' : type === 'mastery' ? 'Mastery' : type.slice(6)}</th>
               )}
@@ -147,6 +148,7 @@ export function GlobalLeaderboard() {
                       </td>
                       <td>{row.kills}</td>
                       <td>{secondsToTime(row.playtime)}</td>
+                      <td>{secondsToTime(row.created_at)}</td>
                     </>
                   ) : (
                     <td>
@@ -194,7 +196,7 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
             {type !== 'total-coins' && type !== 'mastery' && !type.startsWith('total') ? (<>
               <h5 className="mb-0">{numberWithCommas(row.coins)} coins</h5>
               <p className="text-muted mb-0">
-                Kills: {row.kills}, Survived: {secondsToTime(row.playtime)}
+                Kills: {row.kills}, Survived: {secondsToTime(row.playtime)}, {sinceFrom(row.created_at)} ago
               </p>
             </>) : (
               <h5 className="mb-0">

@@ -8,7 +8,6 @@ export type AccountState = {
   isLoggedIn: boolean;
   secret: string;
   gems: number;
-  ultimacy: number;
   mastery: number;
   skins: { equipped: number; owned: number[] };
   is_v1: boolean;
@@ -26,7 +25,6 @@ const initialState: AccountState = {
   secret: '',
   isLoggedIn: false,
   gems: 0,
-  ultimacy: 0,
   mastery: 0,
   skins: { equipped: 1, owned: [1] },
   is_v1: false,
@@ -158,7 +156,6 @@ const accountSlice = createSlice({
       state.clan = '';
       state.secret = '';
       state.gems = 0;
-      state.ultimacy = 0;
       state.mastery = 0;
       state.isLoggedIn = false;
       state.skins = { equipped: 1, owned: [1] };
@@ -178,7 +175,6 @@ const accountSlice = createSlice({
       const previousToken = state.secret;
       state.secret = action.payload.secret;
       state.gems = action.payload.gems;
-      state.ultimacy = action.payload.ultimacy;
       state.mastery = action.payload.mastery;
       state.skins = action.payload.skins;
       state.is_v1 = action.payload.is_v1;

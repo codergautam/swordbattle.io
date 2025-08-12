@@ -102,37 +102,28 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
     skinRefs.current[index] = element;
   }, []);
   function handleActionClick(id: number) {
-    if (skinStatus[id]) return;
+  if (skinStatus[id]) return;
 
-    const isOwned = account.skins.owned.includes(id);
-    const isEquipped = account.skins.equipped === id;
+  const isEquipped = account.skins.equipped === id;
+  const isOwned = account.skins.owned.includes(id);
 
-    if (isEquipped) return;
+  const actionText = isEquipped ? null : isOwned ? 'Equipping...' : 'Getting...';
 
-    const actionText = isOwned ? 'Equipping...' : 'Getting...';
-
+  if (actionText) {
     setSkinStatus(prev => ({ ...prev, [id]: actionText }));
 
     const apiPath = isOwned ? '/equip/' : '/buy/';
-
-    api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${id}`, null, async (data) => {
+    api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${id}`, null, (data) => {
       if (data.error) {
         alert(data.error);
-        setSkinStatus(prev => ({ ...prev, [id]: '' }));
-        return;
       }
-
-      await dispatch(updateAccountAsync() as any);
-
-      setSkinStatus(() => {
-        const newStatus: { [id: number]: string } = {};
-        if (account.skins.equipped !== undefined && account.skins.equipped !== null) {
-          newStatus[account.skins.equipped] = 'Equipped';
-        }
-        return newStatus;
+      dispatch(updateAccountAsync() as any).then(() => {
+        setSkinStatus({});
       });
     });
   }
+}
+
 
 
   useEffect(() => {
@@ -437,8 +428,12 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
           </h4>
           {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
   <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
-    {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
-      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
+    {skinStatus[skin.id] ?? (
+      account.skins.equipped === skin.id ? 'Equipped' :
+      account.skins.owned.includes(skin.id) ? 'Equip' :
+      skin.ultimate ? 'Unlock' : 'Buy'
+    )}
+
   </button>
 ))}
         </div>
@@ -582,8 +577,11 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
           </h4>
           {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
   <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
-    {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
-      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
+    {skinStatus[skin.id] ?? (
+      account.skins.equipped === skin.id ? 'Equipped' :
+      account.skins.owned.includes(skin.id) ? 'Equip' :
+      skin.ultimate ? 'Unlock' : 'Buy'
+    )}
   </button>
 ))}
         </div>

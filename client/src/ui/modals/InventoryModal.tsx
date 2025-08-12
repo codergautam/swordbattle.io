@@ -134,7 +134,11 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
       }
 
       dispatch(updateAccountAsync() as any).then(() => {
-        setSkinStatus({ [id]: 'Equipped' });
+        setSkinStatus(prev => {
+          // Remove old equipped skin statuses
+          const newStatus = { [id]: 'Equipped' };
+          return newStatus;
+        });
       });
     });
   }
@@ -440,20 +444,20 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
 }
           </h4>
           {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
-  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
-    {
-      skinStatus[skin.id] 
+      <button
+      className='buy-button'
+      onClick={() => handleActionClick(skin.id)}
+    >
+      {skinStatus[skin.id]
         ? skinStatus[skin.id]
-        : (account.skins.equipped === skin.id
-            ? 'Equipped'
-            : account.skins.owned.includes(skin.id)
-              ? 'Equip'
-              : skin.ultimate
-                ? 'Unlock'
-                : 'Buy'
-          )
-    }
-  </button>
+        : account.skins.equipped === skin.id
+          ? 'Equipped'
+          : account.skins.owned.includes(skin.id)
+            ? 'Equip'
+            : skin.ultimate
+              ? 'Unlock'
+              : 'Buy'}
+     </button>
 ))}
         </div>
       )
@@ -595,13 +599,20 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
 }
           </h4>
           {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
-  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
-    {skinStatus[skin.id] ?? (
-      account.skins.equipped === skin.id ? 'Equipped' :
-      account.skins.owned.includes(skin.id) ? 'Equip' :
-      skin.ultimate ? 'Unlock' : 'Buy'
-    )}
-  </button>
+      <button
+        className='buy-button'
+        onClick={() => handleActionClick(skin.id)}
+      >
+        {skinStatus[skin.id]
+          ? skinStatus[skin.id]
+          : account.skins.equipped === skin.id
+            ? 'Equipped'
+            : account.skins.owned.includes(skin.id)
+              ? 'Equip'
+              : skin.ultimate
+                ? 'Unlock'
+                : 'Buy'}
+      </button>
 ))}
         </div>
       )

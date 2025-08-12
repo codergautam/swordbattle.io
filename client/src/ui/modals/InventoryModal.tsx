@@ -122,8 +122,15 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
 
     api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${id}`, null, (data) => {
       if (data?.success) {
-        // success
-        setSkinStatus(prev => ({ ...prev, [id]: "equipped" }));
+        setSkinStatus(prev => {
+          const updated: { [id: number]: string } = {};
+          // remove "equipped" duplicate
+          for (const key in prev) {
+            updated[Number(key)] = "";
+          }
+          updated[id] = "equipped";
+          return updated;
+        });
       } else {
         // fail
         setSkinStatus(prev => {
@@ -132,6 +139,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
           return updated;
         });
       }
+
     });
 
   }

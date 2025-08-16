@@ -120,7 +120,7 @@ function getAutoServer(): Server {
   }
 
   if(server.offline) {
-    alert('All servers are offline or blocked. Please try again in 5-10 mins. If not fixed, please report to support@swordbattle.io');
+    alert('All servers are offline or blocked. Please refresh the page, or try again later if the problem persists.');
   }
 
   return server;

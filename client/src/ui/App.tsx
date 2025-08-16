@@ -179,7 +179,8 @@ function App() {
         !skin.ultimate &&
         !skin.eventoffsale &&
         skin.price > 0 &&
-        skin.buyable
+        skin.buyable &&
+        (!skin.description.includes("Given"))
     );
 
     const guaranteedIds = [273, 234, 189, 257, 416];

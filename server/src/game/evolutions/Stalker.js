@@ -5,18 +5,18 @@ module.exports = class Stalker extends Evolution {
   static type = Types.Evolution.Stalker;
   static level = 27;
   static previousEvol = Types.Evolution.Vampire;
-  static abilityDuration = 6.5;
-  static abilityCooldown = 72;
+  static abilityDuration = 7;
+  static abilityCooldown = 65;
 
   applyAbilityEffects() {
     this.player.modifiers.invisible = true;
       this.player.shape.setScale(0.01);
       this.player.viewport.zoom.multiplier *= 0.01
 
-    this.player.speed.multiplier *= 1.325;
+    this.player.speed.multiplier *= 1.475;
 
     this.player.health.regenWait.multiplier = 0;
-    this.player.health.regen.multiplier *= 1.25;
+    this.player.health.regen.multiplier *= 1.5;
   }
 
   update(dt) {

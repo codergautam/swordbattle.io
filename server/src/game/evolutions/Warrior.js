@@ -6,14 +6,14 @@ module.exports = class Warrior extends Evolution {
   static level = 27;
   static previousEvol = Types.Evolution.Samurai;
   static abilityDuration = 7;
-  static abilityCooldown = 70;
+  static abilityCooldown = 80;
 
   applyAbilityEffects() {
     this.player.shape.setScale(1.4);
-    this.player.sword.damage.multiplier *= 1;
+    this.player.sword.damage.multiplier *= 1.1;
     this.player.sword.swingDuration.multiplier['ability'] = 0.65;
     this.player.knockbackResistance.multiplier *= 1.5;
-    this.player.health.regen.multiplier *= 1.5;
+    this.player.health.regen.multiplier *= 1.75;
     this.player.speed.multiplier *= 1.3;
     this.player.sword.knockback.multiplier['ability'] = 1.25;
 
@@ -26,7 +26,7 @@ module.exports = class Warrior extends Evolution {
     this.player.shape.setScale(1.15);
     this.player.sword.damage.multiplier *= 1.2;
     this.player.sword.knockback.multiplier['ability'] = 1.15;
-    this.player.health.max.multiplier *= 1.2;
+    this.player.health.max.multiplier *= 1.3;
     this.player.health.regen.multiplier *= 1.15;
     //TODO: Damagecooldown: 1.1
   }

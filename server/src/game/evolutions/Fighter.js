@@ -6,14 +6,14 @@ module.exports = class Fighter extends Evolution {
   static level = 27;
   static previousEvol = Types.Evolution.Berserker;
   static abilityDuration = 4;
-  static abilityCooldown = 19;
+  static abilityCooldown = 24;
 
   applyAbilityEffects() {
-    this.player.shape.setScale(0.925);
-    this.player.sword.damage.multiplier *= 1.2;
+    this.player.shape.setScale(0.955);
+    this.player.sword.damage.multiplier *= 1.225;
     this.player.sword.knockback.multiplier['ability'] = 1.5;
     this.player.speed.multiplier *= 1.225;
-     this.player.sword.swingDuration.multiplier['ability'] = 0.7;
+     this.player.sword.swingDuration.multiplier['ability'] = 0.8;
      this.player.health.max.multiplier *= 0.85;
      this.player.health.regenWait.multiplier *= 0.25;
      this.player.health.regen.multiplier *= 0.75;
@@ -21,12 +21,13 @@ module.exports = class Fighter extends Evolution {
 
   update(dt) {
     super.update(dt);
-    this.player.shape.setScale(0.975);
-     this.player.sword.swingDuration.multiplier['default'] = 0.9;
-    this.player.sword.damage.multiplier *= 1.15;
-    this.player.speed.multiplier *= 1.15;
+    this.player.shape.setScale(0.985);
+    this.player.sword.swingDuration.multiplier['default'] = 0.9;
+    this.player.sword.damage.multiplier *= 1.175;
+    this.player.speed.multiplier *= 1.175;
     this.player.health.max.multiplier *= 0.95;
-    this.player.health.regenWait.multiplier *= 0.5;
+    this.player.health.regenWait.multiplier *= 0.35;
+    this.player.health.regen.multiplier *= 0.9;
   }
 }
 

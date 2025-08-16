@@ -9,7 +9,7 @@ module.exports = class Knight extends Evolution {
 
   applyAbilityEffects() {
     this.player.shape.setScale(1);
-    this.player.sword.damage.multiplier *= 1.15;
+    this.player.sword.damage.multiplier *= 1.1;
     this.player.sword.knockback.multiplier['ability'] = 1.4;
     this.player.speed.multiplier *= 1.2;
      this.player.sword.swingDuration.multiplier['ability'] = 0.75;
@@ -19,7 +19,7 @@ module.exports = class Knight extends Evolution {
   update(dt) {
     super.update(dt);
     this.player.shape.setScale(0.95);
-    this.player.sword.damage.multiplier *= 1;
+    this.player.sword.damage.multiplier *= 0.9;
     this.player.knockbackResistance.multiplier *= 1.05;
     this.player.speed.multiplier *= 1.1;
     this.player.health.max.multiplier *= 0.9;

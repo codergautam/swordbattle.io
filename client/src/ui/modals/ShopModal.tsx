@@ -219,7 +219,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         if (skin.og) return false;
         if (skin.eventoffsale) return false;
         if (skin.price === 0) return false;
-        if (!skin.description?.includes("Given")) return false;
+        if (skin.description?.includes("Given")) return false;
         
         return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
       }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {

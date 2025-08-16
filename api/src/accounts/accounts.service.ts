@@ -181,6 +181,11 @@ export class AccountsService {
       return { error: 'Invalid skin id' };
     }
 
+    // Check if the skin is still available (Today's Skins)
+    if (!user.skinList.includes(itemId) && !cosmetic.event && !cosmetic.ultimate) {
+      return { error: 'Skin is no longer available, check again for new available skins' };
+    }
+
 
     // Check if the user has enough gems
     const skinPrice = cosmetic.price;

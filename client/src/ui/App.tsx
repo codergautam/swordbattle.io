@@ -216,12 +216,12 @@ function App() {
         (response: any) => {
           if (response.success && response.account) {
             dispatch(setAccount(response.account));
-            window.location.reload();
           } else {
             console.error('Failed to update skins on server', response);
           }
         }
       );
+      window.location.reload();
     }
   }
 }, [account?.lastDayPlayed, dispatch, skins]);

@@ -367,7 +367,7 @@ class Player extends BaseEntity {
     if (this.abilityActive) {
       if (this.evolution) {
         const evolutionClass = Evolutions[this.evolution];
-        if (evolutionClass[0] !== 'Stalker') {
+        if (evolutionClass[0] !== 'Stalker' && evolutionClass[0] !== 'Juggernaut') {
           this.addAbilityParticles();
         }
       } 

@@ -228,11 +228,11 @@ function App() {
       );
     }
   }
+}, [account?.lastDayPlayed, dispatch, skins]);
 
-  useEffect(() => {
+useEffect(() => {
     window.sessionStorage.removeItem('skinsReloaded');
   }, []);
-}, [account?.lastDayPlayed, dispatch, skins]);
 
 
 

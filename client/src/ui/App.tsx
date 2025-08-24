@@ -216,14 +216,22 @@ function App() {
         (response: any) => {
           if (response.success && response.account) {
             dispatch(setAccount(response.account));
+            // Prevent infinite reloads
+            if (!window.sessionStorage.getItem('skinsReloaded')) {
+              window.sessionStorage.setItem('skinsReloaded', '1');
+              window.location.reload();
+            }
           } else {
             console.error('Failed to update skins on server', response);
           }
         }
       );
-      window.location.reload();
     }
   }
+
+  useEffect(() => {
+    window.sessionStorage.removeItem('skinsReloaded');
+  }, []);
 }, [account?.lastDayPlayed, dispatch, skins]);
 
 

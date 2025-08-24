@@ -322,7 +322,6 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
-        if (skin.og) return false;
         if (skin.eventoffsale) return false;
         if (!account?.skins.owned.includes(skin.id)) return false;
         if (!Settings.showUltimate && skin.ultimate) return false;

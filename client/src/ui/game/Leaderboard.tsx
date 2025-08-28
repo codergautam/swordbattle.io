@@ -59,14 +59,35 @@ function getRankColor(rank: number) {
 
 function LeaderboardLine({ player }: any) {
   const balance = player.coins >= 1000 ? `${(player.coins / 1000).toFixed(1)}k` : player.coins;
-  const specialColors: { [key: string]: string } = {
+  const specialColors: {
+    [key: string]: string | { gradient: [string, string] };
+  } = {
     codergautam: '#ff0000',
     angel: '#acfffc',
     "cool guy 53": '#0099ff',
-    "update testing account": '#00ff00',
+    "update testing account": { gradient: ['#00ff00', '#000000'] }, // lime → black
     amethystbladeyt: '#7802ab',
-    spiffycayden: '#ff6803',
+    "bob the noodle": '#ff5e00',
+  };
+
+  let nameStyle: React.CSSProperties = {};
+  if (player.account) {
+    const special = specialColors[player.name.toLowerCase() as any];
+    if (special) {
+      if (typeof special === 'string') {
+        nameStyle.color = special;
+      } else if ('gradient' in special) {
+        nameStyle = {
+          background: `linear-gradient(to bottom, ${special.gradient[0]}, ${special.gradient[1]})`,
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+        };
+      }
+    } else {
+      nameStyle.color = '#3333ff';
+    }
   }
+
   return (
     <div className="leaderboard-line">
       <span className="leaderboard-place">#{player.place}: </span>
@@ -75,9 +96,16 @@ function LeaderboardLine({ player }: any) {
           [{player.account.clan}]{' '}
         </span>
       )}
-      <span className="leaderboard-name" style={player.account ? { color: specialColors[player.name.toLowerCase() as any] ? specialColors[player.name.toLowerCase() as any] : '#3333ff' } : {}}>{player.name}
-      {player.account?.rank && <span style={{color: getRankColor(player.account.rank)}}> (#{player.account.rank})</span>}
-       <span style={{color: 'white'}}>- </span></span>
+      <span className="leaderboard-name" style={nameStyle}>
+        {player.name}
+        {player.account?.rank && (
+          <span style={{ color: getRankColor(player.account.rank) }}>
+            {' '}
+            (#{player.account.rank})
+          </span>
+        )}
+        <span style={{ color: 'white' }}>- </span>
+      </span>
       <span className="leaderboard-score">{balance}</span>
     </div>
   );

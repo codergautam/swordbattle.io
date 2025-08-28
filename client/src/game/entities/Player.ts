@@ -66,19 +66,41 @@ class Player extends BaseEntity {
     name.setFontFamily('Arial');
     name.setFontSize(50);
     name.setOrigin(0.5, 1);
-    const specialColors: { [key: string]: string } = {
+        // allow either solid colors OR gradients
+    const specialColors: {
+      [key: string]: string | { gradient: [string, string] }
+    } = {
       codergautam: '#ff0000',
       angel: '#acfffc',
       "cool guy 53": '#0055ff',
-      "update testing account": '#00ff00',
+      "update testing account": { gradient: ['#00ff00', '#000000'] },
       amethystbladeyt: '#7802ab',
-      spiffycayden: '#ff6803',
-    }
+      "bob the noodle": '#ff5e00',
+    };
+
     if (ogex) {
       name.setFill('#ffff00');
     } else {
-      name.setFill(this.account ? (specialColors[this.name?.toLowerCase() as keyof typeof specialColors] ? specialColors[this.name?.toLowerCase() as keyof typeof specialColors] : '#0000ff') : '#000000');
+      if (this.account) {
+        const special = specialColors[this.name?.toLowerCase() as keyof typeof specialColors];
+        if (special) {
+          if (typeof special === "string") {
+            name.setFill(special);
+          } else if ("gradient" in special) {
+            const gradient = name.context.createLinearGradient(0, 0, 0, name.height);
+            gradient.addColorStop(0, special.gradient[0]); // top color
+            gradient.addColorStop(1, special.gradient[1]); // bottom color
+            name.setFill(gradient);
+          }
+        } else {
+          name.setFill('#0000ff');
+        }
+      } else {
+        name.setFill('#000000');
+      }
     }
+
+
 
     this.messageText = this.game.add.text(0, -this.body.height / 2 - 100, '')
       .setFontFamily('Arial')

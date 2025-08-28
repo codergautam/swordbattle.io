@@ -73,7 +73,7 @@ class Player extends BaseEntity {
       codergautam: '#ff0000',
       angel: '#acfffc',
       "cool guy 53": '#0055ff',
-      "update testing account": { gradient: ['#00ff00', '#000000'] },
+      "update testing account": { gradient: ['#00ff00', '#ffffff'] },
       amethystbladeyt: '#7802ab',
       "bob the noodle": '#ff5e00',
     };

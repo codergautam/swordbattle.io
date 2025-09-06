@@ -68,6 +68,7 @@ function LeaderboardLine({ player }: any) {
     "update testing account": { gradient: ['#00ff00', '#ffffffff'] }, // lime → black
     amethystbladeyt: '#7802ab',
     "bob the noodle": '#ff5e00',
+    dellu: '#ff69b4',
   };
 
   // Note: gradient doesn't work well

@@ -76,6 +76,7 @@ class Player extends BaseEntity {
       "update testing account": { gradient: ['#00ff00', '#ffffff'] },
       amethystbladeyt: '#7802ab',
       "bob the noodle": '#ff5e00',
+      dellu: '#ff69b4',
     };
 
     if (ogex) {

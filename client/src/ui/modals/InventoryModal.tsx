@@ -108,8 +108,17 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
     setEquippedSkinId(account.skins.equipped ?? null);
   }, [account.skins.equipped]);
 
+  function accountHasBan() {
+    return account?.isLoggedIn && account?.username?.startsWith(".");
+  }
+
   function handleActionClick(id: number) {
     if (skinStatus[id]) return;
+
+    if (accountHasBan() && equippedSkinId !== id && account.skins.owned.includes(id)) {
+      alert("Skins cannot be equipped");
+      return;
+    }
 
     if (equippedSkinId === id) return; // Already equipped
 

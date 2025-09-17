@@ -61,10 +61,19 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   const assignRef = useCallback((element: HTMLImageElement, index: number) => {
     skinRefs.current[index] = element;
   }, []);
-  function handleActionClick(id: number) {
 
+  function accountHasBan() {
+    return account?.isLoggedIn && account?.username?.startsWith(".");
+  }
+
+  function handleActionClick(id: number) {
     // If there is action already happening, don't do anything
     if (skinStatus[id]) return;
+
+    if (accountHasBan() && account.skins.equipped !== id && account.skins.owned.includes(id)) {
+      alert("Skins cannot be equipped");
+      return;
+    }
 
     const skinAction = account.skins.equipped === id ? null :
                       account.skins.owned.includes(id) ? 'Equipping...' : 'Getting...';

@@ -474,11 +474,13 @@ useEffect(() => {
         </option>)}
                     </select>
 
-                    <div id="enterGame" className="menuButton" onClick={()=>accountReady && isConnected && onStart()}>
-                    {(accountReady && isConnected)? 'Play!' : 'Connecting...'}
-            </div>
-
-
+                    <div id="enterGame" className="menuButton" onClick={() => {
+                        if (accountReady && isConnected) {
+                          if (account.isLoggedIn && account.username.startsWith(".")) {alert(
+                            "Your account has been temporarily suspended due to violations of the game's rules. This restriction will be lifted soon. Please log out to play with a different account."
+                            ); return; } onStart(); }}}>
+                        {(accountReady && isConnected) ? 'Play!' : 'Connecting...'}
+                    </div>
                   </div>
                 </div>
               </div>

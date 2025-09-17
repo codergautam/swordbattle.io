@@ -65,26 +65,16 @@ function LeaderboardLine({ player }: any) {
     codergautam: '#ff0000',
     angel: '#acfffc',
     "cool guy 53": '#0099ff',
-    "update testing account": { gradient: ['#00ff00', '#ffffffff'] }, // lime → black
+    "update testing account": '#00ff00',
     amethystbladeyt: '#7802ab',
     "bob the noodle": '#ff5e00',
-    dellu: '#ff69b4',
   };
 
-  // Note: gradient doesn't work well
   let nameStyle: React.CSSProperties = {};
   if (player.account) {
     const special = specialColors[player.name.toLowerCase() as any];
-    if (special) {
-      if (typeof special === 'string') {
-        nameStyle.color = special;
-      } else if ('gradient' in special) {
-        nameStyle = {
-          background: `linear-gradient(to bottom, ${special.gradient[0]}, ${special.gradient[1]})`,
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-        };
-      }
+    if (special && typeof special === 'string') {
+      nameStyle.color = special;
     } else {
       nameStyle.color = '#3333ff';
     }

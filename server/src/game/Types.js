@@ -70,6 +70,8 @@ module.exports = {
     SuperArcher: 15,
     Rammer: 16,
     Juggernaut: 17,
+    Rammer: 18,
+    Juggernaut: 19,
   },
   Buff: {
     Speed: 1,

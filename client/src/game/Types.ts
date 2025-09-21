@@ -64,6 +64,8 @@ export enum EvolutionTypes {
   SuperArcher = 15,
   Rammer = 16,
   Juggernaut = 17,
+  Cursed = 18,
+  CursedFail = 19,
 }
 
 export enum BuffTypes {

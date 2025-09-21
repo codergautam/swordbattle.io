@@ -19,4 +19,6 @@ export const Evolutions: Record<any, [string, string, number, [number, number], 
   [EvolutionTypes.SuperArcher]: ['Super Archer', 'superArcherOverlay', 1.09, [0.49, 0.5], 'Farther swordthrows = more damage'],
   [EvolutionTypes.Rammer]: ['Rammer', 'rammerOverlay', 1.09, [0.5, 0.53], 'Swordthrows bring you along'],
   [EvolutionTypes.Juggernaut]: ['Juggernaut', 'juggernautOverlay', 1.09, [0.5, 0.53], 'Very powerful but no ability'],
+  [EvolutionTypes.Cursed]: ['Cursed', 'cursedOverlay', 1.09, [0.5, 0.53], 'You should not be seeing this...'],
+  [EvolutionTypes.CursedFail]: ['CursedFail', 'cursedOverlay', 1.09, [0.5, 0.53], 'You should REALLY not be seeing this...'],
 };

@@ -19,6 +19,7 @@ module.exports = class Cursed extends Evolution {
     this.player.health.max.multiplier *= 9;
     this.player.health.regenWait.multiplier *= 1.5;
     this.player.health.regen.multiplier *= 1;
+    //Will get poisoner ability to do small amount of damage in a field
   }
 
   update(dt) {

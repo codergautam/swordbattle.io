@@ -111,7 +111,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('sniperOverlay', publicPath + '/assets/game/player/sniper.png');
     this.load.image('rammerOverlay', publicPath + '/assets/game/player/rammer.png');
     this.load.image('juggernautOverlay', publicPath + '/assets/game/player/juggernaut.png');
-    this.load.image('CursedOverlay', publicPath + '/assets/game/player/cursednymph.png');
+    this.load.image('CursedOverlay', publicPath + '/assets/game/player/curseddemonbody.png');
 
     this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');

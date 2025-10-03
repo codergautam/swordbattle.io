@@ -114,19 +114,59 @@ export class BaseEntity {
 
   remove() {
     const duration = (this.constructor as typeof BaseEntity).removeTransition;
-    const destroy = () => {
-      this.container?.destroy();
-      this.healthBar?.destroy();
+
+    const destroyNow = () => {
+      try {
+        if (this.healthBar && typeof this.healthBar.destroy === 'function') {
+          this.healthBar.destroy();
+          this.healthBar = undefined;
+        }
+
+        if (this.container) {
+          try {
+            if (this.container.scene && this.container.scene.tweens) {
+              const tweens = (this.container.scene.tweens as any)._tweens || [];
+              for (const tw of tweens.slice()) {
+                try {
+                  if (tw && tw.targets && tw.targets.indexOf && tw.targets.indexOf(this.container) !== -1) {
+                    tw.stop();
+                  }
+                } catch (e) {}
+              }
+            }
+          } catch (e) {}
+
+          try {
+            this.container.destroy(true);
+          } catch (e) {}
+          this.container = null;
+        }
+
+        (this as any).body = null;
+        this.shape = (null as any);
+        this.removed = true;
+      } catch (e) {
+        console.error('Error during entity destroy', e);
+      }
     };
 
-    if (!duration) return destroy();
+    if (!duration) {
+      destroyNow();
+      return;
+    }
 
-    if (this.healthBar) this.healthBar.hidden = true;
-    this.game.add.tween({
-      targets: [this.container, this.healthBar?.bar],
-      duration,
-      alpha: 0,
-      onComplete: destroy,
-    });
+    try {
+      if (this.container && this.container.scene && this.container.scene.tweens) {
+        this.container.scene.tweens.add({
+          targets: this.container,
+          alpha: 0,
+          duration,
+          onComplete: destroyNow,
+        });
+        return;
+      }
+    } catch (e) {}
+
+    destroyNow();
   }
 }

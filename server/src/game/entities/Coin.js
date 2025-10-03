@@ -27,15 +27,20 @@ class Coin extends Entity {
   }
 
   update() {
+  if (Math.abs(this.velocity.x) > 0.01 || Math.abs(this.velocity.y) > 0.01) {
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
     this.velocity.scale(0.5);
 
-    if (Date.now() > this.despawnTime) {
-      if(this.respawnable) this.createInstance();
-      this.remove();
-    }
+    if (Math.abs(this.velocity.x) < 0.01) this.velocity.x = 0;
+    if (Math.abs(this.velocity.y) < 0.01) this.velocity.y = 0;
   }
+
+  if (Date.now() > this.despawnTime) {
+    if(this.respawnable) this.createInstance();
+    this.remove();
+  }
+}
 
   createState() {
     const state = super.createState();

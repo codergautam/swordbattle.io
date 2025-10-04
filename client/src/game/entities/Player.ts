@@ -74,7 +74,6 @@ class Player extends BaseEntity {
       "cool guy 53": '#0055ff',
       "update testing account": '#00ff00',
       amethystbladeyt: '#7802ab',
-      "bob the noodle": '#ff5e00',
     };
 
     if (ogex) {

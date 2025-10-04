@@ -67,7 +67,6 @@ function LeaderboardLine({ player }: any) {
     "cool guy 53": '#0099ff',
     "update testing account": '#00ff00',
     amethystbladeyt: '#7802ab',
-    "bob the noodle": '#ff5e00',
   };
 
   let nameStyle: React.CSSProperties = {};

@@ -15,12 +15,12 @@ module.exports = class Fisherman extends Evolution {
     this.player.modifiers.pullAll = true;
     this.player.modifiers.pullback = false;
 
-    this.player.sword.knockback.multiplier['ability'] = 0.315;
+    this.player.sword.knockback.multiplier['ability'] = 0.3;
 
     this.player.sword.swingDuration.multiplier['ability'] = 0.5;
     this.player.knockbackResistance.multiplier *= 0;
     
-    this.player.health.regenWait.multiplier *= 2.35;
+    this.player.health.regenWait.multiplier *= 3.75;
     this.player.health.regenWait.multiplier *= 0;
     this.player.sword.damage.multiplier *= 0.7;
   }
@@ -32,6 +32,7 @@ module.exports = class Fisherman extends Evolution {
     this.player.sword.knockback.multiplier['ability'] = 1.5;
 
     this.player.knockbackResistance.multiplier *= 1.35;
+    this.player.health.max.multiplier *= 1.15;
     this.player.sword.damage.multiplier *= 1.15;
     this.player.speed.multiplier *= 0.9;
     this.player.health.regenWait.multiplier *= 0.6;

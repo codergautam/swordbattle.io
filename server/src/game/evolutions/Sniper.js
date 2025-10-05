@@ -10,7 +10,7 @@ module.exports = class Sniper extends Evolution {
 
   applyAbilityEffects() {
     this.player.viewport.zoom.multiplier *= 0.625;
-      this.player.shape.setScale(1.1);
+    this.player.shape.setScale(1.1);
     this.player.speed.multiplier *= 1.125;
 
     
@@ -28,11 +28,12 @@ module.exports = class Sniper extends Evolution {
 
     this.player.viewport.zoom.multiplier *= 0.725;
     this.player.modifiers.throwDamage = 4.25;
+    this.player.speed.multiplier *= 0.975;
     
     this.player.health.regen.multiplier *= 0.7;
     this.player.health.regenWait.multiplier *= 1.3;
 
-    this.player.sword.damage.multiplier *= 0.4;
+    this.player.sword.damage.multiplier *= 0.375;
     this.player.modifiers.chestPower = 2.5;
     this.player.modifiers.mobPower = 2.5;
     

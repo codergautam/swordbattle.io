@@ -49,8 +49,8 @@ module.exports = class Fighter extends Evolution {
     this.player.speed.multiplier *= 0.875;
 
     if (boostActive) {
-      this.player.speed.multiplier *= 1.175;
-      this.player.sword.damage.multiplier *= 1.175;
+      this.player.speed.multiplier *= 5;
+      this.player.sword.damage.multiplier *= 5;
     }
 
     this.player.health.max.multiplier *= 0.95;

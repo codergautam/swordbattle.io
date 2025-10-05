@@ -92,6 +92,7 @@ class Player extends Entity {
     this.levels = new LevelSystem(this);
     this.evolutions = new EvolutionSystem(this);
     this.tamedEntities = new Set();
+    this.lastDirectionInput = 3; // down
 
     this.modifiers = {};
 
@@ -247,14 +248,18 @@ class Player extends Entity {
 
       if (this.inputs.isInputDown(Types.Input.Up)) {
         directionY = -1;
+        this.lastDirectionInput = 1;
       } else if (this.inputs.isInputDown(Types.Input.Down)) {
         directionY = 1;
+        this.lastDirectionInput = 3;
       }
 
       if (this.inputs.isInputDown(Types.Input.Right)) {
         directionX = 1;
+        this.lastDirectionInput = 2;
       } else if (this.inputs.isInputDown(Types.Input.Left)) {
         directionX = -1;
+        this.lastDirectionInput = 4;
       }
 
       if (directionX !== 0 || directionY !== 0) {
@@ -309,6 +314,15 @@ class Player extends Entity {
     if (this.name !== "Update Testing Account") {
       this.health.damaged(damage);
     }
+
+    if (this.evolutions && this.evolutions.evolutionEffect && typeof this.evolutions.evolutionEffect.onDamaged === 'function') {
+      try {
+        this.evolutions.evolutionEffect.onDamaged(entity);
+      } catch (e) {
+        //
+      }
+    }
+
 
     if (this.health.isDead) {
       let reason = 'Unknown Entity';

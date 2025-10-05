@@ -445,8 +445,8 @@ useEffect(() => {
                       </div>
                       </>
                     ) : (
-                      <div style={{ fontSize: '15px' }}>
-                        Tip: The Lumberjack ability has multiple uses: finding chests, defending against enemies, and breaking chests faster!
+                      <div style={{ fontSize: '15px', color: 'yellow' }}>
+                        October 4th: Fighter now loses speed and damage out-of-combat, and balanced most evolutions!
                       </div>
                     )}
                   </div>

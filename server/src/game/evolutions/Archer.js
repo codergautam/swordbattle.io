@@ -21,9 +21,9 @@ module.exports = class Archer extends Evolution {
     super.update(dt);
     this.player.shape.setScale(0.925);
 
-    this.player.modifiers.throwDamage = 3.5;
+    this.player.modifiers.throwDamage = 3.75;
 
-    this.player.speed.multiplier *= 1.1;
+    this.player.speed.multiplier *= 1.075;
 
     
     this.player.health.max.multiplier *= 0.9;

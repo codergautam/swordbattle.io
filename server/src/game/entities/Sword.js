@@ -220,7 +220,7 @@ class Sword extends Entity {
 
     let power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
 
-    if (this.player.modifiers.noRestrictKnockback) {
+    if (entity.type === Types.Entity.Player && this.player.modifiers.noRestrictKnockback) {
        power = (this.knockback.value);
     }
 
@@ -241,8 +241,8 @@ class Sword extends Entity {
         if (entity.type === Types.Entity.Player) {
           power *= 4;
         }
-      } else if (this.player.modifiers.noRestrictKnockback) {
-        power *= 2
+      } else if (entity.type === Types.Entity.Player && this.player.modifiers.noRestrictKnockback) {
+        power *= 4
       } else {
         power = Math.max(Math.min(power, 400), 100);
       }
@@ -253,7 +253,7 @@ class Sword extends Entity {
     if ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) || 
       (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation))) {
         if (this.player.modifiers.scaleThrow && this.isFlying) {
-          entity.damaged(this.damage.value * ((this.flyLog + 1) * 1.35) * this.player.modifiers.throwDamage, this.player);
+          entity.damaged(this.damage.value * ((this.flyLog + 1) * 1.45) * this.player.modifiers.throwDamage, this.player);
         } else if (this.player.modifiers.throwDamage && this.isFlying) {
           entity.damaged(this.damage.value * this.player.modifiers.throwDamage, this.player);
         } else {

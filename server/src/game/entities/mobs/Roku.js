@@ -160,7 +160,6 @@ class RokuMob extends Entity {
   remove() {
     super.remove();
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
-    this.createInstance();
   }
 
   cleanup() {

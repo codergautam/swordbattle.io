@@ -94,25 +94,17 @@ export function fixDate(inputDate: Date) {
 export function lastSeen(dateString: string) {
   if (!dateString) return 'never';
 
-  let inputDate = new Date(dateString);
-  inputDate = fixDate(inputDate);
-  inputDate.setHours(0, 0, 0, 0);
+  const inputDate = new Date(dateString);
+  const now = new Date();
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const diffMs = now.getTime() - inputDate.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
 
-
-  const diff = (today as any) - (inputDate as any);
-
-  const daysDiff = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-  if (daysDiff === 0) {
-    return 'today';
-  } else if (daysDiff === 1) {
-    return 'yesterday';
-  } else {
-    return daysDiff + ' days ago';
+  if (diffSec < 600) {
+    return 'now';
   }
+
+  return humanReadable(diffSec) + ' ago';
 }
 
 

@@ -8,11 +8,11 @@ module.exports = class Plaguebearer extends Evolution {
   static abilityDuration = 6;
   static abilityCooldown = 90;
   static poisonRadius = 2000;
-  static poisonDPS = 15;
+  static poisonDPS = 8;
 
   applyAbilityEffects() {
     this.poisonFieldActive = true;
-    this.player.speed.multiplier *= 0.9;
+    this.player.speed.multiplier *= 0.75;
   }
 
   update(dt) {

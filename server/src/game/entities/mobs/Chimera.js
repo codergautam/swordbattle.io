@@ -92,6 +92,7 @@ class ChimeraMob extends Entity {
   }
 
   damaged(damage, entity) {
+    if (this.removed) return;
     if (entity.modifiers?.mobPower) {
       this.health.damaged(damage * entity.modifiers.mobPower);
     } else {
@@ -113,6 +114,7 @@ class ChimeraMob extends Entity {
   }
 
   remove() {
+    if (this.removed) return;
     super.remove();
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
     this.createInstance();

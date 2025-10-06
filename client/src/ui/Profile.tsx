@@ -232,7 +232,11 @@ export default function Profile() {
         <div className='cluster'>
           <center>
         <h4 className="stat">Joined {sinceFrom(data.account.created_at)} ago</h4>
-        <h4 className="stat">{data.dailyStats && data.dailyStats.length ? `Last seen ${lastSeen(data.dailyStats[0].date)}` : ''}</h4>
+        <h4 className="stat">
+          {data.dailyStats && data.dailyStats.length
+            ? `Last seen ${lastSeen(data.dailyStats[0].date) === 'now' ? 'now' : lastSeen(data.dailyStats[0].date)}`
+            : ''}
+        </h4>
         <br />
         {data.rank && (
           <h4

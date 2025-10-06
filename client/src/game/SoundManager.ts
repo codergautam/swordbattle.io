@@ -41,6 +41,9 @@ class SoundManager {
       [FlagTypes.PlayerDeath]: new Sound(FlagTypes.PlayerDeath, [
         'PlayerDeath/PlayerDeath1.wav', 'PlayerDeath/PlayerDeath2.wav', 'PlayerDeath/PlayerDeath3.wav',
       ]),
+      [FlagTypes.PoisonDamaged]: new Sound(FlagTypes.PoisonDamaged, [
+        'PoisonDamaged/PoisonDamaged1.wav', 'PoisonDamaged/PoisonDamaged2.wav', 'PoisonDamaged/PoisonDamaged3.wav',
+      ]),
     };
   }
 
@@ -69,9 +72,10 @@ class SoundManager {
     for (const sound of Object.values(this.manager)) {
       sound.update(dt);
     }
-    for (let flag in player.flags) {
-      if (player.flags[flag]) {
-        this.play(flag);
+    for (const key of Object.keys(this.manager)) {
+      const flagNum = Number(key) as unknown as FlagTypes;
+      if (player.flags && player.flags[flagNum]) {
+        this.play(flagNum);
       }
     }
   }

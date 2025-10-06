@@ -2,7 +2,7 @@ import { BaseEntity } from './BaseEntity';
 import { Shape } from '../physics/Shape';
 import { Evolutions } from '../Evolutions';
 import { Health } from '../components/Health';
-import { BiomeTypes, EntityTypes, FlagTypes, InputTypes } from '../Types';
+import { BiomeTypes, EntityTypes, FlagTypes, InputTypes, EvolutionTypes } from '../Types';
 import { random } from '../../helpers';
 import { Settings } from '../Settings';
 import * as cosmetics from '../cosmetics.json';
@@ -15,7 +15,7 @@ class Player extends BaseEntity {
     'buffs', 'evolution', 'possibleEvolutions',
     'isAbilityAvailable', 'abilityActive', 'abilityDuration', 'abilityCooldown',
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordFlying', 'swordFlyingCooldown',
-    'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account'
+    'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing', 'coinShield',
   ];
   static removeTransition = 500;
 
@@ -26,6 +26,8 @@ class Player extends BaseEntity {
   evolutionOverlay!: Phaser.GameObjects.Sprite;
   messageText!: Phaser.GameObjects.Text;
 
+  protectionAura!: Phaser.GameObjects.Graphics;
+
   isMe: boolean = false;
   swordLerpProgress = 0;
   angleLerp = 0;
@@ -35,6 +37,9 @@ class Player extends BaseEntity {
   survivalStarted: number = 0;
   swordRaiseStarted: boolean = false;
   swordDecreaseStarted: boolean = false;
+
+  wideSwing: boolean = false;
+  poisonParticlesLast: number = 0;
 
   get survivalTime() {
     return (Date.now() - this.survivalStarted) / 1000;
@@ -55,6 +60,15 @@ class Player extends BaseEntity {
 
     this.sword = this.game.add.sprite(this.body.width / 2, this.body.height / 2, 'playerSword').setRotation(Math.PI / 4);
     this.swordContainer = this.game.add.container(0, 0, [this.sword]);
+
+    this.protectionAura = this.game.add.graphics();
+    const auraRadius = Math.max(this.body.width, this.body.height) * 0.75;
+    this.protectionAura.fillStyle(0x33bbff, 0.12);
+    this.protectionAura.fillCircle(0, 0, auraRadius);
+    this.protectionAura.setBlendMode(Phaser.BlendModes.ADD);
+    this.protectionAura.setDepth(1);
+    this.protectionAura.setAlpha(0);
+    this.protectionAura.setVisible(false);
 
     this.healthBar = new Health(this, {
       hideWhenFull: false,
@@ -97,7 +111,7 @@ class Player extends BaseEntity {
       .setOrigin(0.5, 1)
       .setFill('#ffffff');
 
-    this.bodyContainer = this.game.add.container(0, 0, [this.swordContainer, this.body, this.evolutionOverlay]);
+    this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.swordContainer, this.body, this.evolutionOverlay]);
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.bodyContainer, name, this.messageText]);
 
     if (Settings.loadskins) {
@@ -195,6 +209,10 @@ class Player extends BaseEntity {
   beforeStateUpdate(data: any): void {
     super.beforeStateUpdate(data);
 
+    if (data.wideSwing !== undefined) {
+    this.wideSwing = data.wideSwing;
+    }
+
     if (!this.isMe && data.swordSwingProgress !== undefined) {
       if (this.swordSwingProgress === 0 && data.swordSwingProgress !== 0) {
         this.swordRaiseStarted = true;
@@ -228,14 +246,64 @@ class Player extends BaseEntity {
       const isTextBlack = data.biome !== BiomeTypes.Fire;
       this.messageText?.setFill(isTextBlack ? '#000000' : '#ffffff');
     }
+
+    if (data.biome !== undefined || data.coins !== undefined) {
+      const coins = data.coins !== undefined ? data.coins : (this as any).coins;
+      const biome = data.biome !== undefined ? data.biome : (this as any).biome;
+      const isProtected = (biome === BiomeTypes.Safezone) || (coins !== undefined && coins < this.coinShield);
+      this.updateProtectionAura(isProtected);
+    }
+
     if (data.flags) {
       if (data.flags[FlagTypes.EnemyHit]) {
         const entity = this.game.gameState.entities[data.flags[FlagTypes.EnemyHit]];
         if (entity && entity.type !== EntityTypes.Player) this.addHitParticles(entity);
       }
+
+      if (data.flags[FlagTypes.PoisonDamaged]) {
+        try {
+          if (this.evolution === EvolutionTypes.Plaguebearer && this.game.soundManager) {
+            this.game.soundManager.play(FlagTypes.PoisonDamaged);
+          }
+        } catch (e) {}
+      }
+
       if (data.flags[FlagTypes.Damaged]) {
         this.addDamagedParticles();
       }
+      if (data.flags[FlagTypes.ChainDamaged]) {
+        try {
+          if (!this.game.gameState.chainDamagedTimestamps) this.game.gameState.chainDamagedTimestamps = {};
+          (this.game.gameState.chainDamagedTimestamps as any)[this.id] = Date.now();
+        } catch (e) {}
+        this.addLightningParticles();
+      }
+    }
+  }
+
+  updateProtectionAura(show: boolean) {
+    if (!this.protectionAura) return;
+    if (show && this.protectionAura.visible && this.protectionAura.alpha >= 0.95) return;
+    if (!show && !this.protectionAura.visible) return;
+
+    if (show) {
+      this.protectionAura.setVisible(true);
+      this.game.tweens.add({
+        targets: this.protectionAura,
+        alpha: 1,
+        duration: 200,
+        ease: 'Power2',
+      });
+    } else {
+      this.game.tweens.add({
+        targets: this.protectionAura,
+        alpha: 0,
+        duration: 200,
+        ease: 'Power2',
+        onComplete: () => {
+          this.protectionAura.setVisible(false);
+        }
+      });
     }
   }
 
@@ -266,6 +334,147 @@ class Player extends BaseEntity {
   }
   }
 
+  addLightningParticles() {
+    const fps = this.game.game.loop.actualFps;
+    if (fps < 5) return;
+    try {
+      const allEntities = Object.values(this.game.gameState.entities) as BaseEntity[];
+      const maxTargets = 3;
+      const maxDistance = 2000;
+      const now = Date.now();
+      const cache = (this.game.gameState as any).chainDamagedTimestamps || {};
+      const chainNodes = allEntities
+        .filter(e => e && e.type === EntityTypes.Player && e.container)
+        .map(e => {
+          const hasFlag = !!(e.flags && e.flags[FlagTypes.ChainDamaged]);
+          const recent = !!(cache[e.id] && (now - cache[e.id] <= 600));
+          return {
+            e,
+            id: e.id,
+            d: Phaser.Math.Distance.Between(this.container.x, this.container.y, e.container.x, e.container.y),
+            hasFlag,
+            recent,
+            ts: cache[e.id] || (hasFlag ? now : 0)
+          };
+        })
+        .filter(n => n.d <= maxDistance && (n.hasFlag || n.recent));
+
+      const selfTs = cache[this.id] || now;
+      chainNodes.push({ e: this as any as BaseEntity, id: this.id, d: 0, hasFlag: true, recent: true, ts: selfTs });
+
+      chainNodes.sort((a, b) => (a.ts - b.ts) || (a.d - b.d));
+
+      const myIndex = chainNodes.findIndex(n => n.id === this.id);
+      let neighbors: typeof chainNodes = [];
+      if (myIndex !== -1) {
+        if (myIndex - 1 >= 0) neighbors.push(chainNodes[myIndex - 1]);
+        if (myIndex + 1 < chainNodes.length) neighbors.push(chainNodes[myIndex + 1]);
+      }
+      if (neighbors.length === 0) {
+        neighbors = chainNodes
+          .filter(n => n.id !== this.id)
+          .sort((a, b) => a.d - b.d)
+          .slice(0, maxTargets);
+      }
+
+      if (neighbors.length === 0) {
+        const total = 20;
+        const sx = this.container.x;
+        const sy = this.container.y;
+        for (let i = 0; i < total; i++) {
+          const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+          const radius = Phaser.Math.Between(20, 140);
+          const px = sx + Math.cos(angle) * radius + random(-6, 6);
+          const py = sy + Math.sin(angle) * radius + random(-6, 6);
+
+          const sprite = this.game.add.sprite(px, py, 'lightningParticle')
+            .setDepth(60)
+            .setBlendMode(Phaser.BlendModes.ADD)
+            .setScale(Phaser.Math.FloatBetween(0.12, 0.28))
+            .setAlpha(1);
+
+          const delay = Phaser.Math.Between(0, 80);
+          this.game.tweens.add({
+            targets: sprite,
+            alpha: 0,
+            scale: 0.01,
+            duration: 500,
+            delay,
+            ease: 'Linear',
+            onComplete: () => sprite.destroy(),
+          });
+        }
+        return;
+      }
+
+      neighbors.forEach(node => {
+        const target = node.e;
+        const sx = this.container.x;
+        const sy = this.container.y;
+        const tx = target.container.x;
+        const ty = target.container.y;
+        const dist = Phaser.Math.Distance.Between(sx, sy, tx, ty);
+        const baseAngle = Phaser.Math.Angle.Between(sx, sy, tx, ty);
+
+        const lineG = this.game.add.graphics();
+        lineG.lineStyle(Math.max(2, Math.min(6, Math.round(dist / 300))), 0x99ccff, 0.95);
+        const wobble = (x: number, y: number, f = 6) => [x + random(-f, f), y + random(-f, f)];
+        const [sxw, syw] = wobble(sx, sy, 6);
+        const [txw, tyw] = wobble(tx, ty, 6);
+        lineG.beginPath();
+        lineG.moveTo(sxw, syw);
+        const midCount = Math.min(3, Math.floor(dist / 200));
+        for (let m = 1; m <= midCount; m++) {
+          const t = m / (midCount + 1);
+          const mx = Phaser.Math.Linear(sx, tx, t) + random(-18, 18);
+          const my = Phaser.Math.Linear(sy, ty, t) + random(-18, 18);
+          lineG.lineTo(mx, my);
+        }
+        lineG.lineTo(txw, tyw);
+        lineG.strokePath();
+        lineG.setDepth(48);
+        lineG.setBlendMode(Phaser.BlendModes.ADD);
+        lineG.setAlpha(1);
+
+        const sparks = Math.max(8, Math.floor(36 / Math.max(1, neighbors.length)));
+        for (let i = 0; i < sparks; i++) {
+          const t = sparks === 1 ? 0.5 : (i / (sparks - 1));
+          const jitterAlong = Phaser.Math.FloatBetween(-6, 6);
+          const px = Phaser.Math.Linear(sx, tx, t) + Math.cos(baseAngle + Math.PI / 2) * jitterAlong + random(-4, 4);
+          const py = Phaser.Math.Linear(sy, ty, t) + Math.sin(baseAngle + Math.PI / 2) * jitterAlong + random(-4, 4);
+
+          const s = this.game.add.sprite(px, py, 'lightningParticle')
+            .setDepth(60)
+            .setBlendMode(Phaser.BlendModes.ADD)
+            .setScale(Phaser.Math.FloatBetween(0.12, 0.36))
+            .setRotation(baseAngle + Phaser.Math.FloatBetween(-0.2, 0.2))
+            .setAlpha(1);
+
+          const delay = Phaser.Math.Between(0, 90);
+          this.game.tweens.add({
+            targets: s,
+            alpha: 0,
+            scale: 0.02,
+            duration: 500,
+            delay,
+            ease: 'Cubic.easeOut',
+            onComplete: () => s.destroy(),
+          });
+        }
+
+        this.game.tweens.add({
+          targets: lineG,
+          alpha: 0,
+          duration: 500,
+          ease: 'Linear',
+          onComplete: () => lineG.destroy(),
+        });
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   addAbilityParticles() {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
@@ -277,6 +486,48 @@ class Player extends BaseEntity {
       { scale: 0.05, speed: 200, maxParticles: 1 },
     );
     particles.setDepth(45);
+    if (this.evolution === EvolutionTypes.Plaguebearer && this.abilityActive) {
+      this.addPoisonFieldParticles();
+    }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  
+  addPoisonFieldParticles() {
+    const fps = this.game.game.loop.actualFps;
+    if (fps < 5) return;
+    const now = Date.now();
+    if (now - this.poisonParticlesLast < 180) return; // 5-6 times per sec
+    this.poisonParticlesLast = now;
+
+    try {
+      for (let i = 0; i < 120; i++) {
+        const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+        const rr = Math.sqrt(Phaser.Math.FloatBetween(0, 1)) * 2000;
+        const px = this.container.x + Math.cos(angle) * rr + random(-8, 8);
+        const py = this.container.y + Math.sin(angle) * rr + random(-8, 8);
+
+        const s = this.game.add.sprite(px, py, 'poisonParticle')
+          .setDepth(40)
+          .setBlendMode(Phaser.BlendModes.ADD)
+          .setScale(Phaser.Math.FloatBetween(0.04, 0.09))
+          .setAlpha(0.9)
+          .setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
+
+        const rot = Phaser.Math.FloatBetween(-0.25, 0.25);
+        const delay = Phaser.Math.Between(0, 120);
+        this.game.tweens.add({
+          targets: s,
+          angle: s.angle + rot,
+          alpha: 0,
+          duration: 500,
+          delay,
+          ease: 'Sine.easeInOut',
+          onComplete: () => s.destroy(),
+        });
+      }
     } catch (e) {
       console.log(e);
     }
@@ -326,9 +577,12 @@ class Player extends BaseEntity {
 
   rotateBody(angle: number) {
     const evolutionClass = Evolutions[this.evolution];
-    const swordRotation = this.swordSwingAngle * this.swordLerpProgress;
+    let swordRotation = this.swordSwingAngle * this.swordLerpProgress;
+    if (this.wideSwing) {
+      swordRotation += Math.PI / 4;
+    }
     if (this.evolution && evolutionClass[0] === "Rammer" && this.swordFlying) {
-      return
+      return;
     }
     this.swordContainer.setRotation(swordRotation);
     this.bodyContainer.setRotation(angle);

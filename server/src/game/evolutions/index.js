@@ -36,10 +36,22 @@ class EvolutionSystem {
 
   checkRequirements(evolution) {
     const Evol = evolutions[evolution];
+    
+    let previousOk = true;
+    if (Evol.previousEvol !== undefined) {
+      if (Evol.previousEvol === "secret") {
+        previousOk = (this.evolution === 0);
+      } else if (Array.isArray(Evol.previousEvol)) {
+        previousOk = Evol.previousEvol.includes(this.evolution);
+      } else {
+        previousOk = (this.evolution === Evol.previousEvol);
+      }
+    }
+
     return Evol && Evol.level <= this.player.levels.level
       && (Evol.biomes.length === 0 || Evol.biomes.includes(this.player.biome))
       && evolutions[this.evolution].level < Evol.level
-      && (Evol.previousEvol === undefined || this.evolution === Evol.previousEvol || (Evol.previousEvol === "secret" && this.evolution === 0) || this.evolution === Evol.previousEvol[0] || this.evolution === Evol.previousEvol[1]);
+      && previousOk;
   }
 
   upgrade(evol) {

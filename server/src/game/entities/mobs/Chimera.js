@@ -40,27 +40,6 @@ class ChimeraMob extends Entity {
       this.target = null;
     }
 
-    if (!this.target) {
-      const searchRadius = this.definition.attackRadius;
-      const searchZone = this.shape.boundary;
-      searchZone.x -= searchRadius;
-      searchZone.y -= searchRadius;
-      searchZone.width += searchRadius;
-      searchZone.height += searchRadius;
-
-      const targets = this.game.entitiesQuadtree.get(searchZone);
-      for (const { entity: target } of targets) {
-        if (target === this) continue;
-        if (target.type !== Types.Entity.Player) continue;
-
-        const distance = helpers.distance(this.shape.x, this.shape.y, target.shape.x, target.shape.y);
-        if (distance < searchRadius) {
-          this.target = target;
-          break;
-        }
-      }
-    }
-
     this.health.update(dt);
     this.jumpTimer.update(dt);
 
@@ -91,23 +70,25 @@ class ChimeraMob extends Entity {
   processTargetsCollision(entity, response) {
     if (entity.depth !== this.depth) return;
 
-    if (this.target) {
-      entity.damaged(this.damage.value, this);
+    const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
 
-      const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
+    if (entity.type === Types.Entity.Player) {
+      entity.damaged(this.damage.value, this);
       entity.velocity.x -= 2 * Math.cos(angle) / (entity.knockbackResistance.value || 1);
       entity.velocity.y -= 2 * Math.sin(angle) / (entity.knockbackResistance.value || 1);
-    } else {
-      const selfWeight = this.weight;
-      const targetWeight = entity.weight;
-      const totalWeight = selfWeight + targetWeight;
-
-      const mtv = this.shape.getCollisionOverlap(response);
-      const selfMtv = mtv.clone().scale(targetWeight / totalWeight);
-      const targetMtv = mtv.clone().scale(selfWeight / totalWeight * -1);
-      entity.shape.applyCollision(targetMtv);
-      this.shape.applyCollision(selfMtv);
+      return;
     }
+
+    if (this.target) {
+      entity.damaged(this.damage.value, this);
+      entity.velocity.x -= 2 * Math.cos(angle) / (entity.knockbackResistance.value || 1);
+      entity.velocity.y -= 2 * Math.sin(angle) / (entity.knockbackResistance.value || 1);
+      return;
+    }
+
+    const mtv = this.shape.getCollisionOverlap(response);
+    const targetMtv = mtv.clone().scale(1);
+    entity.shape.applyCollision(targetMtv);
   }
 
   damaged(damage, entity) {

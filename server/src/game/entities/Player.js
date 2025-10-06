@@ -62,9 +62,11 @@ class Player extends Entity {
     this.movementDirection = 0;
     this.angle = 0;
     this.inputs = new Inputs();
+    this.lastDirectionInput = 3; // down
     this.mouse = null;
     this.targets.push(Types.Entity.Player);
     this.skin = skins.player.id;
+    this.coinShield = 500;
 
     const { speed, radius, maxHealth, regeneration, viewport } = config.player;
     this.shape = Circle.create(0, 0, radius);
@@ -92,9 +94,9 @@ class Player extends Entity {
     this.levels = new LevelSystem(this);
     this.evolutions = new EvolutionSystem(this);
     this.tamedEntities = new Set();
-    this.lastDirectionInput = 3; // down
 
     this.modifiers = {};
+    this.wideSwing = false;
 
     this.chatMessage = '';
     this.chatMessageTimer = new Timer(0, 3);
@@ -141,6 +143,8 @@ class Player extends Entity {
     state.swordSwingDuration = this.sword.swingDuration.value;
     state.swordFlying = this.sword.isFlying;
     state.swordFlyingCooldown = this.sword.flyCooldownTime;
+    state.wideSwing = this.wideSwing;
+    state.coinShield = this.coinShield;
     if (this.removed && this.client) {
       state.disconnectReasonMessage = this.client.disconnectReason.message;
       state.disconnectReasonType = this.client.disconnectReason.type;
@@ -326,6 +330,8 @@ class Player extends Entity {
 
     if (this.health.isDead) {
       let reason = 'Unknown Entity';
+      let disconnectType = Types.DisconnectReason.Mob;
+
       if (entity) {
         switch (entity.type) {
           case Types.Entity.Player: reason = entity.name; break;
@@ -343,8 +349,21 @@ class Player extends Entity {
           case Types.Entity.Ancient: reason = 'An Ancient Statue'; break;
           case Types.Entity.Boulder: reason = 'An Ancient Statue'; break; // the ancient statue throws boulders
         }
+
+        disconnectType = (entity.type === Types.Entity.Player) ? Types.DisconnectReason.Player : Types.DisconnectReason.Mob;
+
+        if (entity.type === Types.Entity.Player) {
+          try {
+            entity.kills = (entity.kills || 0) + 1;
+            entity.flags.set(Types.Flags.PlayerKill, this.id);
+          } catch (e) { /* */ }
+          try {
+            this.flags.set(Types.Flags.PlayerDeath, true);
+          } catch (e) { /* */ }
+        }
       }
-      this.remove(reason, entity.type === Types.Entity.Player ? Types.DisconnectReason.Player : Types.DisconnectReason.Mob);
+
+      this.remove(reason, disconnectType);
     }
   }
 

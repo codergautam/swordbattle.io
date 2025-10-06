@@ -1,11 +1,16 @@
 #logged-in {
+  text-align: center;
+
   .stats {
     display: flex;
     flex-direction: row;
-    margin: 0 0 0 1rem;
-    padding: 0.5rem 0.5rem 0.5rem 0;
-    border-left: 1px solid var(--color-border);
+    margin: 0;
+    padding: 0;
     gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    border-left: none;
+    transform: translate(-5%, -20%);
   }
 
   h1 {

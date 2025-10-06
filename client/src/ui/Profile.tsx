@@ -7,6 +7,7 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import './Profile.scss';
 import cosmetics from '../game/cosmetics.json';
+import clsx from 'clsx';
 interface Stats {
   date: string;
   xp: number;
@@ -17,6 +18,7 @@ interface Stats {
   playtime: number;
 }
 interface AccountData {
+  id: number;
   username: string;
   clan: string;
   created_at: string;
@@ -34,19 +36,25 @@ interface ProfileData {
   rank?: number;
 }
 
+const sorts = [
+  { key: 'coins', label: 'Coins' },
+  { key: 'kills', label: 'Kills' },
+  { key: 'playtime', label: 'Playtime' },
+];
+
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function Profile() {
   const [query] = useSearchParams();
   const username = query.get('username');
   const id = query.get('id');
-  const clan = query.get('clan');
   const [data, setAccountData] = useState<ProfileData | null>(null);
   const [isLoading, setLoading] = useState(true);
+  const [gameSort, setGameSort] = useState<'coins' | 'kills' | 'playtime'>('coins');
+  const [games, setGames] = useState<any[]>([]);
 
-  const fetchAccount = () => {
+  useEffect(() => {
     let endpoint = '';
-    // Default to name if username and id are provided at once (just to be safe)
     if (username) {
       endpoint = `${api.endpoint}/profile/getPublicUserInfo/${username}`;
     } else if (id) {
@@ -61,27 +69,40 @@ export default function Profile() {
         setAccountData(data);
       }
       setLoading(false);
-    })
-  }
-  useEffect(() => fetchAccount(), []);
+    });
+  }, [username, id]);
 
   useEffect(() => {
-  const currentProfileId = data?.account?.profiles?.equipped ?? 1;
-  const className = `profile-body-${currentProfileId}`;
-
-  document.body.classList.add(className);
-
-  return () => {
-    // Clean up all profile-body-* classes
-    document.body.classList.forEach((cls) => {
-      if (cls.startsWith('profile-body-')) {
-        document.body.classList.remove(cls);
+    if (!data?.account) return;
+    api.post(
+      `${api.endpoint}/games/fetch`,
+      {
+        sortBy: gameSort,
+        timeRange: 'all',
+        limit: 15,
+        accountId: data.account.id,
+      },
+      (res: any) => {
+        if (Array.isArray(res)) setGames(res);
+        else setGames([]);
       }
-    });
-  };
-}, [data?.account?.profiles?.equipped]);
+    );
+  }, [data?.account, gameSort]);
 
+  const sortedGames = [...(games || [])].sort((a, b) => b[gameSort] - a[gameSort]).slice(0, 5);
 
+  useEffect(() => {
+    const currentProfileId = data?.account?.profiles?.equipped ?? 1;
+    const className = `profile-body-${currentProfileId}`;
+    document.body.classList.add(className);
+    return () => {
+      document.body.classList.forEach((cls) => {
+        if (cls.startsWith('profile-body-')) {
+          document.body.classList.remove(cls);
+        }
+      });
+    };
+  }, [data?.account?.profiles?.equipped]);
 
   const prepareGraphData = (dailyStats: Stats[]) => {
   // Sort and fill dates
@@ -105,21 +126,21 @@ export default function Profile() {
 
   const isProfile3 = data?.account?.profiles?.equipped === 3;
 
-  return {
-    labels,
-    datasets: [
-      {
-        label: 'Total XP',
-        data: dataPoints,
-        backgroundColor: isProfile3 ? '#ff6384' : 'white',        // Point fill
-        borderColor: isProfile3 ? '#ff6384' : 'white',           // Line color
-        pointBackgroundColor: isProfile3 ? '#ff6384' : 'white',  // Dot fill
-        pointBorderColor: isProfile3 ? '#ff6384' : 'white',      // Dot border
-        tension: 0.4,
-      },
-    ],
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Total XP',
+          data: dataPoints,
+          backgroundColor: isProfile3 ? '#ff6384' : 'white',        // Point fill
+          borderColor: isProfile3 ? '#ff6384' : 'white',           // Line color
+          pointBackgroundColor: isProfile3 ? '#ff6384' : 'white',  // Dot fill
+          pointBorderColor: isProfile3 ? '#ff6384' : 'white',      // Dot border
+          tension: 0.4,
+        },
+      ],
+    };
   };
-};
 
 
   console.log('Username: ', data?.account.username)
@@ -130,7 +151,7 @@ export default function Profile() {
   if (isLoading) {
     return <h3>Loading...</h3>
   }
-  if (!data?.account || (!username && !id)) {
+  if (!data?.account) {
     return <h3 className="text-center">Account not found</h3>
   }
   return (
@@ -174,7 +195,6 @@ export default function Profile() {
           </h1>
         )}</center>
         <br />
-        {/* Hopefully this works */}
         {data.account.tags.tags.length > 0 && (
           <div className="profile-tags" style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
             {data.account.tags.tags.map((tag: string, idx: number) => (
@@ -237,43 +257,128 @@ export default function Profile() {
           <Card title="Mastery" text={data.totalStats ? numberWithCommas(data.totalStats.mastery) : 0} />
         </div>
 
-        {!data.account.recovered && data.dailyStats && data.dailyStats.length &&
-          <div className="xp-graph">
-            <Line data={prepareGraphData(data.dailyStats)}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    ticks: {
-                      color: data.account.profiles.equipped === 3 ? '#666666' : 'white',
+        <div className="profile-stat-separator">
+          <span>
+            {data.account.recovered ? 'Account Statistics not found' : 'Account Statistics'}
+          </span>
+          <span className="profile-stat-separator-arrow">▼</span>
+        </div>
+
+        <br />
+
+        {!data.account.recovered && (
+          <>
+          <div className="profile-top-games">
+              <div className="profile-top-games__header">
+                <h3>Top 5 Games</h3>
+                <div className="profile-top-games__sort">
+                  {sorts.map(({ key, label }) => (
+                    <button
+                      key={key}
+                      className={clsx('profile-top-games__sort-btn', { active: gameSort === key })}
+                      onClick={() => setGameSort(key as any)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <table className="profile-top-games__table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Coins</th>
+                    <th>Kills</th>
+                    <th>Playtime</th>
+                    <th>Time Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedGames.length === 0 && (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: 'center', color: '#aaa' }}>No games found.</td>
+                    </tr>
+                  )}
+                  {sortedGames.map((game, idx) => (
+                    <tr key={idx}>
+                      <td><b>{idx + 1}</b></td>
+                      <td>{numberWithCommas(game.coins)}</td>
+                      <td>{numberWithCommas(game.kills)}</td>
+                      <td>{secondsToTime(game.playtime)}</td>
+                      <td>
+                        {(() => {
+                          const agoText = sinceFrom(game.date) + ' ago';
+                          let style: React.CSSProperties = {};
+                          let isBold = false;
+                          if (agoText.includes('days')) {
+                            const days = parseInt(agoText.split(' ')[0], 10);
+                            if (days > 300) style.color = '#ff00bfff';
+                            else if (days > 250) style.color = 'red';
+                            else if (days > 200) style.color = '#df7e00ff';
+                            else if (days > 150) style.color = 'rgba(255, 208, 0, 1)';
+                            else if (days > 100) style.color = '#00ff00';
+                            else if (days > 50) style.color = '#18ca68ff';
+                            if (days > 200) isBold = true;
+                          } else if (agoText.includes('2 year')) {
+                            style.color = '#0077ffff';
+                            isBold = true;
+                          } else if (agoText.includes('1 year')) {
+                            style.color = '#a323ffff';
+                            isBold = true;
+                          }
+                          return <span style={style}>{isBold ? <b>{agoText}</b> : agoText}</span>;
+                        })()}
+                      </td>
+                    </tr>
+                  ))}
+                  {sortedGames.length < 5 && sortedGames.length > 0 && (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: 'center', color: '#aaa' }}>Not enough games</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+          {data.dailyStats && data.dailyStats.length &&
+            <div className="xp-graph">
+              <Line data={prepareGraphData(data.dailyStats)}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      ticks: {
+                        color: data.account.profiles.equipped === 3 ? '#666666' : 'white',
+                      },
+                      grid: {
+                        color: data.account.profiles.equipped === 3 ? '#c9c9c9' : 'rgba(255,255,255,0.1)',
+                      },
                     },
-                    grid: {
-                      color: data.account.profiles.equipped === 3 ? '#c9c9c9' : 'rgba(255,255,255,0.1)',
+                    x: {
+                      ticks: {
+                        color: data.account.profiles.equipped === 3 ? '#666666' : 'white',
+                      },
+                      grid: {
+                        color: data.account.profiles.equipped === 3 ? '#c9c9c9' : 'rgba(255,255,255,0.1)',
+                      },
                     },
                   },
-                  x: {
-                    ticks: {
-                      color: data.account.profiles.equipped === 3 ? '#666666' : 'white',
-                    },
-                    grid: {
-                      color: data.account.profiles.equipped === 3 ? '#c9c9c9' : 'rgba(255,255,255,0.1)',
-                    },
-                  },
-                },
-                plugins: {
-                  legend: {
-                    labels: {
-                      color: data.account.profiles.equipped === 3 ? '#797979' : 'white',
+                  plugins: {
+                    legend: {
+                      labels: {
+                        color: data.account.profiles.equipped === 3 ? '#797979' : 'white',
+                      },
                     },
                   },
-                },
-              }}
-            />
-  
-          </div>
-        }
+                }}
+              />
+    
+            </div>
+          }
+          </>
+        )}
         </div>
       </div>
     </section>

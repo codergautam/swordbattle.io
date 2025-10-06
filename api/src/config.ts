@@ -31,5 +31,5 @@ export const config: ConfigProps = {
   clanWaitTime: 7 * 24 * 60 * 60 * 1000, // 3 days
   clanLength: [1, 5],
 
-  bioLength: [1, 100]
+  bioLength: [1, 150]
 };

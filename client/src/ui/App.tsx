@@ -22,6 +22,7 @@ import api from '../api';
 
 import SettingsImg from '../assets/img/settings.png';
 import DiscordLogo from '../assets/img/discordLogo.png';
+import GithubLogo from '../assets/img/githubLogo.png';
 import SignupImg from '../assets/img/signup.png';
 import LoginImg from '../assets/img/login.png';
 import './App.scss';
@@ -37,7 +38,7 @@ import Ad from './Ad';
 import { Settings } from '../game/Settings';
 import { getServerList, updatePing } from '../ServerList';
 import AccountCard from './AccountCard';
-import ForumCard from './ForumCard';
+import ChangelogCard from './ChangelogCard';
 // import Game from '../game/scenes/Game';
 import titleImg from '../assets/img/final.png';
 import Leaderboard from './game/Leaderboard';
@@ -70,6 +71,74 @@ function App() {
   const [clanXP, setClanXP] = useState(0);
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  const messages = [
+    "Tip: The Lumberjack's ability has multiple uses: finding chests, defending against enemies, and breaking chests faster!",
+    "Tip: The Super Archer's ability cancels its current swordthrow and resets its throw cooldown, allowing you to throw twice!",
+    "Tip: The Rook's ability dashes itself in the last direction it moved in, helping out for both mobility and offense!",
+    "Tip: The Defender doesn't deal much damage, but has a ton of health and size, making it great for preventing attacks!",
+    "Tip: The Defender's ability can be used to knock enemies across the map, pushing them far away!",
+    "Tip: The Tank's ability greatly increases its size and regen, providing lots of defense for a short time!",
+    "Tip: The Samurai has lots of knockback reduction, making it harder for other players to push you around!",
+    "Tip: The Rook can only move in four directions, but has great stats that make up for it!",
+    "Tip: The Berserker has low health but high damage, making it great for aggressive playstyles!",
+    "Tip: The Berserker's ability only somewhat increases its stats, but lasts a long time, helping for a final push on an enemy!",
+    "Tip: The Vampire's ability greatly increases its lifesteal, damage, & speed, making it great for healing and killing enemies!",
+    "Tip: The Vampire is very good at fighting teams of players, as it can heal off of each of them!",
+    "Tip: The Warrior is great for being aggressive while keeping good defensive stats, making it great for fighting!",
+    "Tip: The Warrior's ability increases its speed, damage and size, making it great for chasing down enemies!",
+    "Tip: The Lumberjack deals bonus damage to chests at the cost of less damage to mobs and players, making it good for farming!",
+    "Tip: The Fighter has faster attack speed, regen time, and ability cooldown, letting it be apart of more fights!",
+    "Tip: The Fighter ability affects stats very slightly, but can be activated very often!",
+    "Tip: The Stalker's ability makes it invisible and very fast, which is helpful for both ambushes and escapes!",
+    "Tip: The Archer makes swordthrows better and, while mediocre by itself, evolves to the Sniper and Super Archer at 50k coins!",
+    "Tip: The Sniper can maintain distance from enemies due to its fast throwing and increased sight range!",
+    "Tip: The Slasher attacks in twice as wide of an arc, which is helpful for hitting multiple enemies at once!",
+    "Tip: The Striker is great for taking down a team of enemies!",
+    "Tip: Each player in a chain hit from the Striker takes 25% less damage than the previous player.",
+    "Tip: The Striker ability makes all players in a chain hit take as much damage as the initial hit!",
+    "Tip: The Plaguebearer deals half its damage as instant damage, and half as poison damage over 1 second!",
+    "Tip: The Plaguebearer's ability summons a poison field that can take down many enemies at once, and scare them away!",
+    "Tip: Throwing your sword temporarily prevents melee attacks, making you vulnerable to enemies up close!",
+    "Tip: Predicting enemy swordthrows can help you dodge them more often!",
+    "Tip: Join the Swordbattle Discord Server for more detailed changelogs and patch notes!",
+    "Tip: Join the Swordbattle Discord Server to chat with other players and get help!",
+    "Tip: Join the Swordbattle Discord Server to vote on polls to decide the future of Swordbattle.io!",
+    "Tip: You can report bugs and suggest features on the Swordbattle.io Discord Server!",
+    "Tip: You can report players through the Swordbattle.io Discord Server.",
+    "Tip: Join the Swordbattle Discord Server for sneak peaks and exclusive news!",
+    "Tip: Boosting the Swordbattle Discord Server gives you a permanent Supporter tag on your profile, and an exclusive name color!",
+    "Tip: Boosting the Swordbattle Discord Server gives you a permanent Supporter tag on your profile, and an exclusive name color!",
+    "Tip: Boosting the Swordbattle Discord Server gives you access to exclusive channels and in-game giveaways!",
+    "Tip: You can only regen after not taking damage for a couple seconds, so stay away from mobs and lava to keep regening!",
+    "Tip: The Ancient Statues have two attacks: throwing damaging stone swords and a boulder that knocks you far back!",
+    "Tip: The Roku fires a lot of fireballs when you get too close, so stay back to avoid taking damage!",
+    "Tip: Press C, E, Shift, or Right Click on computer to throw your sword!",
+    "Tip: You can hide the Leaderboard, Minimap and Evolutions panels by clicking on their nametags!",
+    "Tip: TPS measures how well the server is running, with 20 being the best. Report low TPS to support@swordbattle.io or on Discord.",
+    "Tip: Report server crashes, restarts, or disconnects to support@swordbattle.io or the Swordbattle Discord Server.",
+    "Tip: Forgot your password or username? You can reset it by emailing support@swordbattle.io",
+    "Tip: Get enough Coins or XP to get onto the Leaderboards!",
+    "Tip: Creating an account lets you save your progress and earn cool skins through the shop!",
+    "Tip: Create an account to get a blue nametag and access to the shop and inventory!",
+    "Tip: Creating an account will let you earn XP and make yourself more recognizable to other players!",
+    "Tip: Create an account to be able to get on the Leaderboards and see your rank!",
+    "Tip: The 4 tiers of evolutions are unlocked at 1000, 5000, 20000, and 50000 Coins!",
+    "Tip: You earn more and more mastery when getting more coins in a single life!",
+    "Tip: To maximize the mastery you earn, try to get as many coins as possible without dying!",
+    "Tip: Getting a bunch of games with 500000+ coins will help you earn mastery much faster!",
+    
+  ];
+  const [randomMessage] = useState(() => messages[Math.floor(Math.random() * messages.length)]);
+
+  const bottomLeftContainerStyle: React.CSSProperties = {
+    position: 'fixed',
+    left: 0,
+    bottom: 0,
+    transform: `scale(${scale.factor})`,
+    transformOrigin: 'bottom left',
+    pointerEvents: 'none',
+  };
 
   useEffect(() => {
 
@@ -172,46 +241,78 @@ function App() {
   const now = Date.now();
 
   if (now - lastPlayed > 24 * 60 * 60 * 1000) {
-    const eligibleSkins = Object.values(skins).filter(
-      (skin: any) =>
-        !skin.event &&
-        !skin.og &&
-        !skin.ultimate &&
-        !skin.eventoffsale &&
-        skin.price > 0 &&
-        skin.buyable &&
-        !skin.description.includes("Given")
-    );
+    const eligible = Object.values(skins).filter((skin: any) =>
+      !skin.event &&
+      !skin.og &&
+      !skin.ultimate &&
+      !skin.eventoffsale &&
+      skin.price > 0 &&
+      skin.buyable &&
+      !skin.description.includes('Given')
+    ) as any[];
 
-    const guaranteedIds = [273, 234, 189, 257, 416];
+    const sortedByPriceDesc = [...eligible].sort((a, b) => (b.price || 0) - (a.price || 0));
 
-    function shuffleArray<T>(array: T[]): T[] {
-      let arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
+    const top15 = sortedByPriceDesc.slice(0, 15).map(s => s.id);
+    const topSet = new Set(top15);
+
+    const shuffleArray = <T,>(arr: T[]) => {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+        [a[i], a[j]] = [a[j], a[i]];
       }
-      return arr;
+      return a;
+    };
+
+    const pickUnique = (pool: any[], count: number, selected: Set<number>) => {
+      const candidates = shuffleArray(pool.map(s => s.id)).filter(id => !selected.has(id) && !topSet.has(id));
+      const picked = candidates.slice(0, count);
+      picked.forEach(id => selected.add(id));
+      return picked;
+    };
+
+    const bucket1 = eligible.filter(s => s.price >= 1 && s.price <= 500);
+    const bucket2 = eligible.filter(s => s.price > 500 && s.price <= 5000);
+    const bucket3 = eligible.filter(s => s.price > 5000);
+
+    const selectedSet = new Set<number>();
+    const picks: number[] = [];
+
+    picks.push(...pickUnique(bucket1, 15, selectedSet));
+    picks.push(...pickUnique(bucket2, 15, selectedSet));
+    picks.push(...pickUnique(bucket3, 15, selectedSet));
+
+    const needed = 45 - picks.length;
+    if (needed > 0) {
+      const remainingPool = shuffleArray(eligible.map(s => s.id)).filter(id => !selectedSet.has(id) && !topSet.has(id));
+      const fill = remainingPool.slice(0, needed);
+      fill.forEach(id => selectedSet.add(id));
+      picks.push(...fill);
     }
 
-    let shuffled: number[] = [];
-    do {
-      shuffled = shuffleArray(eligibleSkins.map((skin: any) => skin.id)).slice(0, 15);
-    } while (guaranteedIds.some((id) => shuffled.includes(id)));
+    const newSkinList = [...picks.slice(0, 45), ...top15];
+    if (newSkinList.length < 60) {
+      const remaining = shuffleArray(eligible.map(s => s.id)).filter(id => !newSkinList.includes(id));
+      newSkinList.push(...remaining.slice(0, 60 - newSkinList.length));
+    }
 
-    const newSkinList = [...shuffled, ...guaranteedIds];
+    const uniqueList = Array.from(new Set(newSkinList)).slice(0, 60);
+    const finalList = uniqueList.length === 60 ? uniqueList : newSkinList.slice(0, 60);
+
+    const newSkinListToSend = finalList;
 
     const oldSkinList = account.skinList || [];
     const listsDiffer =
-      newSkinList.length !== oldSkinList.length ||
-      newSkinList.some((id) => !oldSkinList.includes(id));
+      newSkinListToSend.length !== oldSkinList.length ||
+      newSkinListToSend.some((id) => !oldSkinList.includes(id));
 
     if (listsDiffer) {
       api.post(
         `${api.endpoint}/profile/updateSkins`,
         {
           lastDayPlayed: now,
-          skinList: newSkinList,
+          skinList: newSkinListToSend,
         },
         (response: any) => {
           if (response.success && response.account) {
@@ -411,14 +512,7 @@ useEffect(() => {
           <div id="menuContainer" >
 
             {/* <!-- GAME NAME --> */}
-            <div id="gameName"><img src={titleImg} alt="Swordbattle.io" width={750} height={250} style={{
-    position: 'fixed',
-    userSelect: 'none',
-    pointerEvents: 'none',
-    top: '-50%',
-    left: '50%',
-    transform: 'translate(-50%, -125%)'
-  }} />
+            <div id="gameName"><img src={titleImg} alt="Swordbattle.io" width={750} height={250} className="title-img" />
 </div>
 
             {/* <!-- LOADING TEXT --> */}
@@ -426,13 +520,13 @@ useEffect(() => {
             <div id="menuCardHolder" style={{ display: 'inline-block', height: 'auto !important', position: 'fixed',
     top: '-50%',
     left: '50%',
-    transform: 'translate(-50%, -5%)' }} >
+    transform: 'translate(-50%, -25%)' }} >
               <div className="menu">
                 <div className="accountCard menuCard panel">
                   <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} />
                 </div>
 
-                <div className="announcementCard menuCard panel">
+                {/* <div className="announcementCard menuCard panel">
                     {account?.username === "Update Testing Account" ? (
                       <>
                       <div style={{ fontSize: '15px' }}>
@@ -449,7 +543,8 @@ useEffect(() => {
                         October 4th: Fighter now loses speed and damage out-of-combat, and balanced most evolutions!
                       </div>
                     )}
-                  </div>
+                  </div> */}
+
                 {/* <!-- Play --> */}
                 <div className="joinCard menuCard panel" style={{ position: 'relative' }}>
                   <div className="joinCardInput">
@@ -483,7 +578,29 @@ useEffect(() => {
                     </div>
                   </div>
                 </div>
+                <div className="accountCard menuCard panel">
+                  <ChangelogCard/>
+                </div>
               </div>
+              <div
+  className="panel tipCard"
+  style={{
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    width: '75%',
+    margin: 'auto',
+    marginTop: 5,
+    padding: 7,
+    fontSize: 13,
+    boxSizing: 'border-box',
+    maxWidth: '100%',
+  }}
+  title={randomMessage}
+>
+  {randomMessage}
+</div>
+              <br />
               <div className='fullWidth'>
                 <div id="adBelow">
                  <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 90]]} />
@@ -494,19 +611,29 @@ useEffect(() => {
 </div>
           </div>
 
-          {/* <!-- SETTINGS --> */}
-          <div id="settingsButton" className="altLink panel"  onClick={openSettings}>
-            {/* <i className="material-icons ui-icon">&#xE8B8;</i> */}
+          {/* <!-- BUTTONS --> */}
+          <div style={bottomLeftContainerStyle} className="bottom-left-buttons">
+          <div id="settingsButton" className="altLink panel" style={{ pointerEvents: 'auto' }} onClick={openSettings}>
             <FontAwesomeIcon icon={faGear} className='ui-icon'/>
           </div>
-          {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal'} />}
-          {/* <div id="topRight1" className="inParty">
-            <span>top right stuff</span>
-          </div> */}
 
-           {/* <div id="topRight2" className="altLink">
-            <span>more top right stuff</span>
-          </div> */}
+          <a id="githubButton" className="altLink imgPanel" href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
+            <img src={GithubLogo} width={60} alt="GitHub" />
+          </a>
+          <a id="discordButton" className="altLink imgPanel" href="https://discord.com/invite/9A9dNTGWb9" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
+            <img src={DiscordLogo} width={60} alt="Discord" />
+          </a>
+          <div id="playlightButton" className="imgPanel" style={{ pointerEvents: 'auto' }} onClick={() => {
+              try {
+                (window as any)?.showPlaylight();
+              } catch (e) {
+                console.log('Error showing playlight', e);
+              }
+            }}>
+            More Games
+          </div>
+          </div>
+          {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal'} />}
 
 <div className="auth-buttons" style={scale.styles}>
              {account.isLoggedIn ? (
@@ -565,45 +692,7 @@ useEffect(() => {
             <a href="./docs/privacy.txt" target="_blank">Privacy</a>
           </div> */}
                  <footer className={clsx('links', isLoaded && 'animation')} style={scale.styles}>
-             <div>
-               <a href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="nofollow">About</a>
-             </div>
-             <div>
-               <a href="https://discord.com/invite/9A9dNTGWb9" target="_blank" className='discord' rel="nofollow">
-                 Discord
-               </a>
-             </div>
-
-             <div>
-               <a href="#"
-                onClick={() => {
-                  try {
-                      (window as any)?.showPlaylight()
-                  } catch(e) {
-                      console.log('Error showing playlight', e);
-                  }
-                }}
-               rel="nofollow">
-                 More Games
-               </a>
-             </div>
-             <div>
-               <a href="/changelog.html" target="_blank" rel="nofollow">
-                 Changelog
-               </a>
-             </div>
-             <div>
-             </div>
-              {/* <div>
-               <a href="https://swordbattle.io/partners" target="_blank" className='partners' rel="nofollow">
-                 Partners
-               </a>
-             </div> */}
-             <div>
-               {/* <a href="https://iogames.forum/t/official-swordbattle-changelog/17400/last" target="_blank" className='changelog' style={{color: 'yellow'}} rel="nofollow">
-                Changelog
-              </a> */}
-             </div>
+             {/* Footer not in use for now */}
            </footer>
         </div>
 

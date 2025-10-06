@@ -57,27 +57,6 @@ class YetiMob extends Entity {
       this.target = null;
     }
 
-    if (!this.target) {
-      const searchRadius = this.definition.attackRadius;
-      const searchZone = this.shape.boundary;
-      searchZone.x -= searchRadius;
-      searchZone.y -= searchRadius;
-      searchZone.width += searchRadius;
-      searchZone.height += searchRadius;
-
-      const targets = this.game.entitiesQuadtree.get(searchZone);
-      for (const { entity: target } of targets) {
-        if (target === this) continue;
-        if (target.type !== Types.Entity.Player) continue;
-
-        const distance = helpers.distance(this.shape.x, this.shape.y, target.shape.x, target.shape.y);
-        if (distance < searchRadius) {
-          this.target = target;
-          break;
-        }
-      }
-    }
-
     if (this.isMoving) {
       if (this.movementTimer.finished && !this.target) {
         this.movementTimer.renew();

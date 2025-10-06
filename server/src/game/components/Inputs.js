@@ -62,6 +62,18 @@ class Inputs {
 
     return difference;
   }
+
+  inputDown(inputType) {
+    if (this.isInputDown(inputType)) {
+      return;
+    }
+    this.downInputs.push(inputType);
+
+    // up right down left
+    if ([1, 2, 3, 4].includes(inputType) && typeof this.onDirectionInput === 'function') {
+      this.onDirectionInput(inputType);
+    }
+  }
 };
 
 module.exports = Inputs;

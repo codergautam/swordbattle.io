@@ -25,6 +25,7 @@ class WolfMob extends Entity {
 
     this.jumpTimer = new Timer(0, 2, 3);
     this.angryTimer = new Timer(0, 12, 21);
+    this.attackTimer = new Timer(0, 0.5, 0.5);
 
     this.health = new Health(75, 1);
     this.speed = new Property(22);
@@ -39,6 +40,7 @@ class WolfMob extends Entity {
 
   update(dt) {
     this.angryTimer.update(dt);
+    this.attackTimer.update(dt);
     if (this.angryTimer.finished || !this.target || this.target.removed) {
       this.target = null;
     }
@@ -111,7 +113,10 @@ class WolfMob extends Entity {
 
     const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
     if (this.target && entity.id === this.target.id) {
-      entity.damaged(this.damage.value, this);
+      if (this.attackTimer.finished) {
+        entity.damaged(this.damage.value, this);
+        this.attackTimer.renew();
+      }
 
       this.velocity.scale(-0.5);
       entity.velocity.x += 75 * Math.cos(angle);

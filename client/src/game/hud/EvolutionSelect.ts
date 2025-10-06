@@ -57,6 +57,19 @@ class EvolutionSelect extends HudComponent {
     const player = this.game.gameState.self.entity;
     if (!this.container || !this.spritesContainer || !player) return;
 
+  if (player.coins === 0) {
+    this.container.setVisible(false);
+    this.hideButton?.setVisible(false);
+    this.minimized = false;
+    return;
+  }
+
+  if (!this.container.visible) {
+    this.minimized = false;
+    this.spritesContainer.alpha = 1;
+    this.spritesContainer.y = -70;
+  }
+
     if (this.updateList) {
       this.spritesContainer?.removeAll(true);
 
@@ -133,6 +146,13 @@ class EvolutionSelect extends HudComponent {
           stroke: '#000000',
           strokeThickness: 5,
         }).setAlpha(alpha);
+        
+        const abil = this.hud.scene!.add.text(0, 0, `Ability: ${evolution[5]}`, {
+          fontSize: 30,
+          fontStyle: 'bold',
+          stroke: '#000000',
+          strokeThickness: 5,
+        }).setAlpha(alpha);
 
         body.setInteractive()
           .on('pointerover', () => {
@@ -140,19 +160,23 @@ class EvolutionSelect extends HudComponent {
             container.setAlpha(1);
             text.setAlpha(1);
             desc.setAlpha(1);
+            abil.setAlpha(1);
           })
           .on('pointerout', () => {
             // this.game.input.setDefaultCursor(config.cursorUrl || 'default');
             container.setAlpha(alpha);
             text.setAlpha(alpha);
             desc.setAlpha(alpha);
+            abil.setAlpha(alpha);
           })
           .on('pointerdown', () => this.selectEvolution(evol));
 
         container.add(text);
         container.add(desc);
+        container.add(abil);
         Phaser.Display.Align.In.BottomCenter(text, body, 0, 45);
         Phaser.Display.Align.In.Center(desc, body, 0, 200);
+        Phaser.Display.Align.In.BottomCenter(abil, body, 0, 120);
         this.spritesContainer.add(container);
       }
       this.updateList = false;

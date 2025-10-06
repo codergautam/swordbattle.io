@@ -114,8 +114,128 @@
       }
     }
   }
-}
 
+  .profile-top-games {
+    margin: 30px 0 40px 0;
+    background: rgba(0,0,0,0.08);
+    border-radius: 12px;
+    padding: 20px;
+
+    &__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    &__sort {
+      display: flex;
+      gap: 10px;
+    }
+
+    &__sort-btn {
+      background: #222;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      &.active, &:hover {
+        background: #ffb700;
+        color: #222;
+      }
+    }
+
+    &__table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: transparent;
+
+      th, td {
+        padding: 10px 12px;
+        text-align: center;
+        font-size: 1rem;
+      }
+      th {
+        background: #222;
+        color: #fff;
+        font-weight: 700;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        box-shadow: 2px 0 0 0 #444;
+        border-right: 2px solid #444;
+        border-bottom: 3px solid #ffb700;
+      }
+      th:last-child {
+        border-right: none;
+        box-shadow: none;
+      }
+      tr:nth-child(even) td {
+        background: rgba(255,255,255,0.04);
+      }
+      tr:nth-child(odd) td {
+        background: rgba(0,0,0,0.03);
+      }
+      td {
+        color: #fff;
+      }
+    }
+  }
+
+  .profile-stat-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 32px 0 8px 0;
+    opacity: 0.5;
+    position: relative;
+    font-size: 0.95rem;
+
+    & > span:first-child {
+      margin: 0 12px;
+      color: #ccc;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      font-size: 0.95rem;
+      z-index: 1;
+      background: transparent;
+    }
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #444;
+      display: block;
+    }
+
+    &::before {
+      margin-right: 12px;
+    }
+    &::after {
+      margin-left: 12px;
+    }
+
+    .profile-stat-separator-arrow {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 100%;
+      font-size: 1.2rem;
+      color: #ccc;
+      pointer-events: none;
+      opacity: 0.7;
+      line-height: 1;
+      margin-top: 2px;
+    }
+  }
+}
 .profile-body-2 {
   @import '~bootstrap/scss/bootstrap';
 

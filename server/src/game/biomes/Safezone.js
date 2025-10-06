@@ -32,8 +32,7 @@ class Safezone extends Biome {
       this.game.map.shape.randomSpawnInside(player.shape);
     } else {
       player.viewport.zoom.multiplier *= 0.9;
-      player.sword.damage.multiplier = 0;
-      player.sword.knockback.multiplier['biome'] = 0;
+      player.modifiers.safe = true;
     }
   }
 

@@ -147,21 +147,38 @@ class Minimap extends HudComponent {
 
     const players = this.game.gameState.getPlayers();
     let leader;
+    let leaderDotVisible = true;
     for (const player of players) {
       const playerX = (player.shape.x - map.x) * this.scaleX;
       const playerY = (player.shape.y - map.y) * this.scaleY;
       const isSelf = player.id === this.game.gameState.self.id;
       const scale = this.scaleX * (isSelf ? 3 : 2);
+      const dotRadius = player.shape.radius * scale;
+
+      // Hide dot if too small
+      if (dotRadius < 1) {
+        if (!leader || (player.coins > leader.coins)) {
+          leader = player;
+          leaderDotVisible = false;
+        }
+        continue;
+      }
+
       graphics.fillStyle(isSelf ? 0xffffff : 0xff0000);
-      graphics.fillCircle(playerX, playerY, player.shape.radius * scale);
+      graphics.fillCircle(playerX, playerY, dotRadius);
       graphics.stroke();
 
       if (!leader || (player.coins > leader.coins)) {
         leader = player;
+        leaderDotVisible = true;
       }
     }
-    if (leader) {
+
+    if (leader && leaderDotVisible) {
       this.updateCrown(leader, dt);
+      if (this.crown) this.crown.setVisible(true);
+    } else {
+      if (this.crown) this.crown.setVisible(false);
     }
   }
 

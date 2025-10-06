@@ -183,7 +183,7 @@ export class AccountsService {
 
     // Check if the skin is still available (Today's Skins)
     if (!user.skinList.includes(itemId) && !cosmetic.event && !cosmetic.ultimate) {
-      return { error: 'Skin is no longer available, check again for new available skins' };
+      return { error: 'Skin is no longer available, refresh the page for new available skins' };
     }
 
 

@@ -11,13 +11,14 @@
   z-index: 3;
 
   .content {
-    width: 450px;
+    width: 400px;
     padding: 1rem 3rem;
     padding-top: 2rem;
     border-radius: 10px;
     font-family: Poppins, sans-serif;
-    background-color: rgba(21, 21, 21, 0.71) !important;
+
     h2 {
+      text-align: left;
       font-weight: 600;
       font-size: 2rem;
     }
@@ -30,11 +31,6 @@
 
     button {
       margin: 5px;
-    }
-
-    .notification {
-      color: red;
-      font-weight: 900;
     }
   }
 
@@ -62,7 +58,7 @@
     }
     to {
       opacity: 1;
-      backdrop-filter: blur(1px);
+      backdrop-filter: blur(2px);
     }
   }
 }

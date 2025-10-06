@@ -20,9 +20,9 @@ export class GamesService {
     return this.gamesRepository.save(game);
   }
 
-  async fetch(fetchData: FetchGamesDTO) {
+  async fetch(fetchData: FetchGamesDTO & { accountId?: number }) {
     let { sortBy, timeRange, limit } = fetchData;
-    if(limit > 100) {
+    if (limit > 100) {
       limit = 100;
     }
     let where = {};
@@ -35,6 +35,10 @@ export class GamesService {
       const lastWeek = new Date(today);
       lastWeek.setDate(today.getDate() - 7);
       where = { created_at: Between(lastWeek, today) };
+    }
+
+    if (fetchData.accountId) {
+      where = { ...where, account: { id: fetchData.accountId } };
     }
 
     return await this.gamesRepository

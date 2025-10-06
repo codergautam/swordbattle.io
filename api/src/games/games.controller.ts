@@ -14,7 +14,7 @@ export class GamesController {
   }
 
   @Post('fetch')
-  fetchGames(@Body() data: FetchGamesDTO) {
+  fetchGames(@Body() data: FetchGamesDTO & { accountId?: number }) {
     return this.gamesService.fetch(data);
   }
 

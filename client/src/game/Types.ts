@@ -43,6 +43,8 @@ export enum FlagTypes {
   SwordThrow = 8,
   PlayerKill = 9,
   PlayerDeath = 10,
+  ChainDamaged = 11,
+  PoisonDamaged = 12,
 }
 
 export enum EvolutionTypes {
@@ -64,6 +66,9 @@ export enum EvolutionTypes {
   SuperArcher = 15,
   Rammer = 16,
   Juggernaut = 17,
+  Slasher = 18,
+  Striker = 19,
+  Plaguebearer = 20,
 }
 
 export enum BuffTypes {

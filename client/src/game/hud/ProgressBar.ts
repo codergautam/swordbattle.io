@@ -10,6 +10,7 @@ class ProgressBar extends HudComponent {
   levelUpText!: Phaser.GameObjects.Text;
   stabbedText!: Phaser.GameObjects.Text;
   inSafezoneMessage!: Phaser.GameObjects.Text;
+  tipText!: Phaser.GameObjects.Text;
   width = 500;
   height = 15;
 
@@ -22,6 +23,7 @@ class ProgressBar extends HudComponent {
   killStreak = 0;
   lastKillTime = 0;
   lastEntityStabId = 0;
+  currentProtectionMessage: 'none' | 'safezone' | 'collect' = 'none';
 
   initialize() {
     // Create the background bar
@@ -45,12 +47,19 @@ class ProgressBar extends HudComponent {
     }).setOrigin(0.5);
 
     // "You are in the safe zone" text
-    this.inSafezoneMessage = this.game.add.text(this.width / 2, -this.height - 40, 'You are in the safe zone', {
+    this.inSafezoneMessage = this.game.add.text(this.width / 2, -this.height - 60, 'You are protected: you are in the safezone', {
       fontSize: 22,
       fontStyle: 'bold',
       stroke: '#000000',
       strokeThickness: 6,
-    }).setOrigin(0.5);
+    }).setOrigin(0.5).setAlpha(0);
+
+    this.tipText = this.game.add.text(this.width / 2, -this.height - 40, 'Find chests or stab mobs to get coins faster', {
+      fontSize: 18,
+      fontStyle: 'normal',
+      stroke: '#000000',
+      strokeThickness: 4,
+    }).setOrigin(0.5).setAlpha(0).setVisible(false);
 
     this.levelUpText = this.game.add.text(this.width / 2, -this.game.scale.height / 5, '', {
       fontSize: 50,
@@ -67,7 +76,7 @@ class ProgressBar extends HudComponent {
       strokeThickness: 6,
     }).setOrigin(0.5).setAlpha(0);
 
-    this.progressBarContainer = this.hud.scene.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText, this.inSafezoneMessage]);
+    this.progressBarContainer = this.hud.scene.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText, this.inSafezoneMessage, this.tipText]);
     this.container = this.game.add.container(0, 0, [this.progressBarContainer, this.levelUpText, this.stabbedText]);
     this.hud.add(this.container);
   }
@@ -93,7 +102,7 @@ class ProgressBar extends HudComponent {
     } else {
       this.stabbedText.setColor('#f23838');
       this.killStreak = 0;
-      this.stabbedText.setText(`Stabbed ${nickname}`);
+      this.stabbedText.setText(`Killed ${nickname}`);
     }
 
     const onComplete = () => {
@@ -172,11 +181,56 @@ class ProgressBar extends HudComponent {
     this.levelText!.text = `Level: ${player.level} (${Math.round(this.currentProgress * 100)}%)`;
     this.progressBar.scaleX = this.currentProgress;
 
-    // Update safezone message visibility
-    const shouldShow = player.biome === BiomeTypes.Safezone;
-    const isShown = Boolean(this.inSafezoneMessage.alpha);
-    if (isShown !== shouldShow) {
-      this.toggleSafezoneText(shouldShow);
+    let desiredProtectionState: 'none' | 'safezone' | 'collect' = 'none';
+    if (player.biome === BiomeTypes.Safezone) {
+      desiredProtectionState = 'safezone';
+    } else if (player.coins < 500) {
+      desiredProtectionState = 'collect';
+    }
+
+    const switchProtectionMessage = () => {
+      if (desiredProtectionState === 'safezone') {
+        this.inSafezoneMessage.setText('You are protected: you are in the safezone');
+        this.tipText.setVisible(false).setAlpha(0);
+        this.game.tweens.add({
+          targets: this.inSafezoneMessage,
+          alpha: 1,
+          duration: 200,
+        });
+      } else if (desiredProtectionState === 'collect') {
+        const coinsLeft = Math.max(0, 500 - player.coins);
+        this.inSafezoneMessage.setText(`You are protected: collect ${coinsLeft} more coins to fight other players`);
+        this.tipText.setText('Find chests or stab mobs to get coins faster').setVisible(true);
+        this.game.tweens.add({
+          targets: [this.inSafezoneMessage, this.tipText],
+          alpha: 1,
+          duration: 200,
+        });
+      } else {
+        // hide both
+        this.game.tweens.add({
+          targets: [this.inSafezoneMessage, this.tipText],
+          alpha: 0,
+          duration: 200,
+        });
+      }
+      this.currentProtectionMessage = desiredProtectionState;
+    };
+
+    if (desiredProtectionState !== this.currentProtectionMessage) {
+      if (this.currentProtectionMessage === 'none') {
+        switchProtectionMessage();
+      } else {
+        this.game.tweens.add({
+          targets: [this.inSafezoneMessage, this.tipText],
+          alpha: 0,
+          duration: 200,
+          onComplete: switchProtectionMessage,
+        });
+      }
+    } else if (desiredProtectionState === 'collect') {
+      const coinsLeft = Math.max(0, 500 - player.coins);
+      this.inSafezoneMessage.setText(`You are protected: collect ${coinsLeft} more coins to fight other players`);
     }
 
     const stabbedId = player.flags[FlagTypes.PlayerKill];

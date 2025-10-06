@@ -121,4 +121,7 @@ message Entity {
   int32 disconnectReasonType = 41;
   // skin
   int32 skin = 42;
+  
+  bool wideSwing = 43;
+  int32 coinShield = 44;
 }

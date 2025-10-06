@@ -7,12 +7,13 @@ class BurningEffect extends Effect {
 
     this.multiplier = config.multiplier || 1.2;
     this.damage = config.damage || 1;
+    this.entity = config && (config.attacker || config.entity) ? (config.attacker || config.entity) : null;
   }
 
   update(dt) {
     this.player.speed.multiplier *= this.multiplier;
     this.player.flags.set(Types.Flags.LavaDamaged, true);
-    this.player.damaged(this.damage * dt, this.entity);
+    this.player.damaged(this.damage * dt, this.entity || null);
 
     super.update(dt);
   }

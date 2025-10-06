@@ -44,6 +44,7 @@ class GameState {
   captchaVerified = false;
   failedSkinLoads: Record<number, boolean> = {};
   recentDeadPlayers: Record<number, { name: string, time: number }> = {};
+  chainDamagedTimestamps: Record<number, number> = {};
 
   constructor(game: Game) {
     this.game = game;

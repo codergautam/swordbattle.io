@@ -24,6 +24,7 @@ class MooseMob extends Entity {
     this.movementTimer = new Timer(0, 3, 4);
     this.stayTimer = new Timer(3, 2, 3);
     this.angryTimer = new Timer(0, 12, 17);
+    this.attackTimer = new Timer(0, 0.5, 0.5);
     this.damage = new Property(25);
     this.isMoving = false;
     this.targetAngle = this.angle;
@@ -41,6 +42,7 @@ class MooseMob extends Entity {
 
   update(dt) {
     this.angryTimer.update(dt);
+    this.attackTimer.update(dt);
     if (this.angryTimer.finished || !this.target || this.target.removed) {
       this.target = null;
     }
@@ -102,11 +104,14 @@ class MooseMob extends Entity {
     this.shape.applyCollision(selfMtv);
 
     if (entity === this.target) {
-      const force = this.damage.value * this.movementTimer.progress;
-      const knockback = force * 20;
-      entity.velocity.x -= knockback * Math.cos(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
-      entity.velocity.y -= knockback * Math.sin(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
-      entity.damaged(force, this);
+      if (this.attackTimer.finished) {
+        const force = this.damage.value * this.movementTimer.progress;
+        const knockback = force * 20;
+        entity.velocity.x -= knockback * Math.cos(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
+        entity.velocity.y -= knockback * Math.sin(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
+        entity.damaged(force, this);
+        this.attackTimer.renew();
+      }
 
       // 50% chance of kicking off multiple times
       if (Math.random() > 0.5) {

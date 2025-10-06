@@ -5,7 +5,6 @@ module.exports = class Lumberjack extends Evolution {
   static type = Types.Evolution.Lumberjack;
   static level = 27;
   static previousEvol = [Types.Evolution.Samurai, Types.Evolution.Rook];
-  // static level = 1;
   static abilityDuration = 4;
   static abilityCooldown = 36;
 

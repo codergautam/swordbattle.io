@@ -70,6 +70,9 @@ module.exports = {
     SuperArcher: 15,
     Rammer: 16,
     Juggernaut: 17,
+    Slasher: 18,
+    Striker: 19,
+    Plaguebearer: 20,
   },
   Buff: {
     Speed: 1,
@@ -89,6 +92,8 @@ module.exports = {
     SwordThrow: 8,
     PlayerKill: 9,
     PlayerDeath: 10,
+    ChainDamaged: 11,
+    PoisonDamaged: 12,
   },
   Effect: {
     Custom: 1,

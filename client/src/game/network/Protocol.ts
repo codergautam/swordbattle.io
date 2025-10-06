@@ -1201,6 +1201,8 @@ export interface Entity {
   height?: number;
   disconnectReasonType?: number;
   skin?: number;
+  wideSwing?: boolean;
+  coinShield?: number;
 }
 
 export function encodeEntity(message: Entity): Uint8Array {
@@ -1545,6 +1547,20 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
     writeVarint32(bb, 336);
     writeVarint64(bb, intToLong($skin));
   }
+
+  // optional bool wideSwing = 43;
+  let $wideSwing = message.wideSwing;
+  if ($wideSwing !== undefined) {
+    writeVarint32(bb, 344); // 43 << 3 | 0
+    writeByte(bb, $wideSwing ? 1 : 0);
+  }
+
+  // optional int32 coinShield = 44;
+  let $coinShield = message.coinShield;
+  if ($coinShield !== undefined) {
+    writeVarint32(bb, 352); // 44 << 3 | 0
+    writeVarint64(bb, intToLong($coinShield));
+  }
 }
 
 export function decodeEntity(binary: Uint8Array): Entity {
@@ -1888,6 +1904,18 @@ function _decodeEntity(bb: ByteBuffer): Entity {
       // optional int32 skin = 42;
       case 42: {
         message.skin = readVarint32(bb);
+        break;
+      }
+
+      // optional bool wideSwing = 43;
+      case 43: {
+        message.wideSwing = !!readByte(bb);
+        break;
+      }
+
+      // optional int32 coinShield = 44;
+      case 44: {
+        message.coinShield = readVarint32(bb);
         break;
       }
 

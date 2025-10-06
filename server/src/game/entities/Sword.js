@@ -18,9 +18,9 @@ class Sword extends Entity {
     this.swingDuration = new Property(initialSwingDuration, true);
     this.damage = new Property(damage);
     this.knockback = new Property(knockback, true);
-    this.flySpeed = new Property(100);
+    this.flySpeed = new Property(95);
     this.flyDuration = new Property(1.5);
-    this.flyCooldown = new Property(5);
+    this.flyCooldown = new Property(6);
     this.playerSpeedBoost = new Property(1.3);
 
     this.swingTime = 0;
@@ -103,7 +103,7 @@ class Sword extends Entity {
         this.stopFly(); // Archergod
       }
 
-       if (this.player.modifiers.pullback) {
+      if (this.player.modifiers.pullback) {
         this.pullbackParticles = true; // Fisherman
       } else {
         this.pullbackParticles = false;
@@ -126,7 +126,10 @@ class Sword extends Entity {
         this.stopFly();
       }
     } else {
-      const angle = player.angle + this.angle + Math.PI / 2;
+      let angle = player.angle + this.angle + Math.PI / 2;
+      if (this.player.modifiers.swingWide) {
+        angle += Math.PI / 4;
+      }
       const offsetX = player.shape.radius - this.size / 2.5;
       const offsetY = -player.shape.radius + this.size / 1.7;
       const offset = new SAT.Vector(offsetX, offsetY);
@@ -211,10 +214,24 @@ class Sword extends Entity {
     this.swingProgress = this.swingTime / this.swingDuration.value;
     this.restrictFly = false;
   }
-
-  processTargetsCollision(entity) {
+processTargetsCollision(entity) {
     if (entity === this.player) return;
     if (!this.canCollide(entity)) return;
+    
+    // safezone
+    if (this.player.modifiers.safe && entity.type === Types.Entity.Player && !this.player.isBot) return;
+    if (entity.type === Types.Entity.Player && entity.modifiers.safe && !entity.isBot) return;
+
+    // under 500
+    let skipDamageDueToCoins = false;
+    if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot) {
+      const attackerCoins = (this.player.levels && typeof this.player.levels.coins === 'number') ? this.player.levels.coins : 0;
+      const targetCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
+      if (attackerCoins < this.player.coinShield || targetCoins < this.player.coinShield) {
+        this.collidedEntities.add(entity);
+        skipDamageDueToCoins = true;
+      }
+    }
 
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
 
@@ -228,63 +245,158 @@ class Sword extends Entity {
       power = Math.max(Math.min(power, 400), 100);
       power = 0 - power
     } else if (this.player.modifiers.pullback === true) {
-        if (this.isFlying) {
-          this.isAnimationFinished = true;
-          this.flyTime = this.flyDuration.value;
-          power = Math.max(Math.min(power, 400), 100);
-          power = 0 - (power / (this.flyDuration.value / this.flyLog));
-        } else {
-          if (!this.player.evolutions.evolutionEffect.isAbilityActive) {
-            power = (Math.max(Math.min(power, 400), 100)) * 0.25;
-          }
-        }
-        if (entity.type === Types.Entity.Player) {
-          power *= 4;
-        }
-      } else if (entity.type === Types.Entity.Player && this.player.modifiers.noRestrictKnockback) {
-        power *= 4
-      } else {
+      if (this.isFlying) {
+        this.isAnimationFinished = true;
+        this.flyTime = this.flyDuration.value;
         power = Math.max(Math.min(power, 400), 100);
+        power = 0 - (power / (this.flyDuration.value / this.flyLog));
+      } else {
+        if (!this.player.evolutions.evolutionEffect.isAbilityActive) {
+        power = (Math.max(Math.min(power, 400), 100)) * 0.25;
+        }
+      }
+      if (entity.type === Types.Entity.Player) {
+        power *= 4;
+      }
+      } else if (entity.type === Types.Entity.Player && this.player.modifiers.noRestrictKnockback) {
+      power *= 4
+      } else {
+      power = Math.max(Math.min(power, 400), 100);
       }
     const xComp = power * Math.cos(angle);
     const yComp = power * Math.sin(angle);
     entity.velocity.x = -1*xComp;
     entity.velocity.y =  -1*yComp;
-    if ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) || 
-      (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation))) {
+
+    if (!skipDamageDueToCoins && ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) || 
+      (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation)))) {
+
+        const base = this.damage.value;
+        const throwMult = this.player.modifiers.throwDamage || 1;
+        let finalDamage = base;
+
         if (this.player.modifiers.scaleThrow && this.isFlying) {
-          entity.damaged(this.damage.value * ((this.flyLog + 1) * 1.45) * this.player.modifiers.throwDamage, this.player);
+          finalDamage = base * ((this.flyLog + 1) * 1.45) * throwMult;
         } else if (this.player.modifiers.throwDamage && this.isFlying) {
-          entity.damaged(this.damage.value * this.player.modifiers.throwDamage, this.player);
+          finalDamage = base * throwMult;
         } else {
-          entity.damaged(this.damage.value, this.player);
+          finalDamage = base;
+        }
+
+        // 50% now 50%  1s poison 
+        if (this.player.modifiers.poisonDamage) {
+          const immediate = finalDamage * 0.5;
+          const poisonTotal = finalDamage * 0.5;
+
+          // 50% now
+          entity.damaged(immediate, this.player);
+
+          // 50% poison
+          if (entity.type === Types.Entity.Player && typeof entity.addEffect === 'function') {
+            const poisonPerSecond = poisonTotal;
+            const effectId = `poison_${Date.now()}_${Math.random()}`;
+            try {
+              entity.addEffect(Types.Effect.Burning, effectId, { damage: poisonPerSecond, duration: 1, attacker: this.player });
+            } catch (e) {
+              entity.damaged(poisonTotal, this.player);
+            }
+          } else {
+            entity.damaged(poisonTotal, this.player);
+          }
+        } else {
+          entity.damaged(finalDamage, this.player);
         }
     }
 
-    if(this.player.modifiers.leech) {
+    if(this.player.modifiers.leech && !skipDamageDueToCoins) {
       this.player.health.gain(this.damage.value * this.player.modifiers.leech);
     }
 
     this.collidedEntities.add(entity);
     this.player.flags.set(Types.Flags.EnemyHit, entity.id);
 
+    if (entity.type === Types.Entity.Player && !skipDamageDueToCoins && this.player.modifiers.chainDamage) {
+      try { entity.flags.set(Types.Flags.ChainDamaged, entity.id); } catch (err) { /* */ }
+
+      const findClosestPlayer = (center, radius, excludeSet = new Set()) => {
+        let closest = null;
+        let minDist = Infinity;
+        const candidates = this.game.entitiesQuadtree
+          ? this.game.entitiesQuadtree.get({
+              x: center.x - radius,
+              y: center.y - radius,
+              width: radius * 2,
+              height: radius * 2
+            })
+          : Array.from(this.game.entities.values()).map(entity => ({ entity }));
+
+        for (const { entity: candidate } of candidates) {
+          if (
+            candidate &&
+            candidate.type === Types.Entity.Player &&
+            candidate !== this.player &&
+            !candidate.removed &&
+            !excludeSet.has(candidate)
+          ) {
+            const dx = candidate.shape.x - center.x;
+            const dy = candidate.shape.y - center.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < radius && dist < minDist) {
+              minDist = dist;
+              closest = candidate;
+            }
+          }
+        }
+        return closest;
+      };
+
+      const lossless = !!this.player.modifiers.losslessChainDamage;
+      const m1 = lossless ? 1.0 : 0.75;
+      const m2 = lossless ? 1.0 : 0.5;
+      const m3 = lossless ? 1.0 : 0.25;
+
+      // 1st
+      const firstSplash = findClosestPlayer(entity.shape, 2000, new Set([entity, this.player]));
+      if (firstSplash) {
+        firstSplash.damaged(this.damage.value * m1, this.player);
+        try { firstSplash.flags.set(Types.Flags.Damaged, firstSplash.id); } catch (e) {}
+        try { firstSplash.flags.set(Types.Flags.ChainDamaged, firstSplash.id); } catch (e) {}
+
+        // 2nd
+        const secondSplash = findClosestPlayer(firstSplash.shape, 2000, new Set([entity, this.player, firstSplash]));
+        if (secondSplash) {
+          secondSplash.damaged(this.damage.value * m2, this.player);
+          try { secondSplash.flags.set(Types.Flags.Damaged, secondSplash.id); } catch (e) {}
+          try { secondSplash.flags.set(Types.Flags.ChainDamaged, secondSplash.id); } catch (e) {}
+
+          // 3rd
+          const thirdSplash = findClosestPlayer(secondSplash.shape, 2000, new Set([entity, this.player, firstSplash, secondSplash]));
+          if (thirdSplash) {
+            thirdSplash.damaged(this.damage.value * m3, this.player);
+            try { thirdSplash.flags.set(Types.Flags.Damaged, thirdSplash.id); } catch (e) {}
+            try { thirdSplash.flags.set(Types.Flags.ChainDamaged, thirdSplash.id); } catch (e) {}
+          }
+        }
+      }
+    }
+
     if (entity.type === Types.Entity.Player) {
-      if (entity.removed) {
-        this.player.kills += 1;
-        this.player.flags.set(Types.Flags.PlayerKill, entity.id);
-        entity.flags.set(Types.Flags.PlayerDeath, true);
-      } else {
-        entity.flags.set(Types.Flags.Damaged, entity.id);
-        [...this.player.tamedEntities].forEach(wolf => {
-          const wolfObj = this.game.entities.get(wolf);
-          if(wolfObj && !wolfObj.removed) {
-            wolfObj.target = entity;
-            wolfObj.angryTimer.renew();
+      if (!skipDamageDueToCoins) {
+        if (entity.removed) {
+          // now done in Player.damaged
+        } else {
+          entity.flags.set(Types.Flags.Damaged, entity.id);
+          [...this.player.tamedEntities].forEach(wolf => {
+            const wolfObj = this.game.entities.get(wolf);
+            if(wolfObj && !wolfObj.removed) {
+              wolfObj.target = entity;
+              wolfObj.angryTimer.renew();
           }
         });
       }
     }
-  }
+}
+}
 
   cleanup() {
     super.cleanup();

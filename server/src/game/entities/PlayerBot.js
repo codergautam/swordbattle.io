@@ -57,6 +57,7 @@ class PlayerAI extends Player {
     super(game, objectData.name);
 
     this.isBot = true;
+    this.coinShield = 0;
     this.target = null;
     this.attackCooldown = 0;
     this.smartness = Math.random();

@@ -1,11 +1,35 @@
-.panel {
-  padding: 15px;
+.panel,
+.imgPanel {
   margin: 8px;
   border-radius: 10px;
   background-color: rgb(34, 34, 34) !important;
-  box-shadow:  0 0 0 3px rgba(51, 51, 51, 0.98);
   color: rgb(231, 231, 231);
   box-sizing: border-box;
+}
+
+.panel {
+  padding: 15px;
+  box-shadow: 0 0 0 3px rgba(51, 51, 51, 0.98);
+}
+
+.imgPanel {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  width: 60px;
+  height: 60px;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    box-shadow: 0 0 0 3px rgba(51, 51, 51, 0.98);
+    border-radius: 10px;
+    pointer-events: none;
+    z-index: 2;
+  }
 }
 
 .shop-btn{
@@ -33,12 +57,22 @@
   }
 }
 
+.tipCard {
+  padding: 7px;
+  font-size: 13px;
+  width: 75%;
+  margin: auto;
+  margin-top: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
 .inventory-btn{
   position: absolute;
   user-select: none;
-
-
-  // left
   left: 0%;
   top: 85px;
   transform-origin: left;
@@ -123,6 +157,7 @@ footer {
       right: 10px;
       user-select: none;
       display: none;
+      text-align: left;
 
       li {
         list-style: none;
@@ -369,20 +404,50 @@ span {
   cursor: pointer;
 }
 
-#settingsButton {
+#settingsButton,
+#githubButton,
+#discordButton,
+#playlightButton {
   position: absolute;
   cursor: pointer;
-  font-size: 35px;
   line-height: 20px;
   bottom: 12px;
-  left: 12px;
   transition: transform cubic-bezier(0.77, 0, 0.175, 1) 0.1s;
+  height: auto;
 }
-#settingsButton:hover {
+
+#settingsButton:hover,
+#githubButton:hover,
+#discordButton:hover,
+#playlightButton:hover {
   transform: scale(1.05);
 }
-#settingsButton:active {
+
+#settingsButton:active,
+#githubButton:active,
+#discordButton:active,
+#playlightButton:active {
   transform: scale(0.95);
+}
+
+#settingsButton {
+  left: 12px;
+}
+
+#githubButton {
+  left: 87px;
+}
+
+#discordButton {
+  left: 162px;
+}
+
+#playlightButton {
+  font-size: 17px;
+  text-align: center;
+  color: #fff;
+  left: 237px;
+  height: 60px;
 }
 
 .fullWidth {
@@ -524,6 +589,16 @@ span {
   margin-bottom: 10px;
   cursor: pointer;
 }
+
+.title-img {
+  position: fixed;
+  user-select: none;
+  pointer-events: none;
+  top: -50%;
+  left: 50%;
+  transform: translate(-50%, -120%);
+}
+
 @media only screen and (max-width: 1040px) {
   #menuCardHolder #adBelow {
     display: none;
@@ -539,6 +614,13 @@ span {
   }
   #menuCardHolder .menu .joinCard {
     order: -1;
+  }
+  .tipCard {
+    display: none !important;
+  }
+  .title-img {
+    top: -70%;
+    transform: translate(-50%, -160%);
   }
 }
 @media only screen and (max-width: 768px) {
@@ -576,5 +658,9 @@ span {
   }
   #linksContainer {
     display: none;
+  }
+  .title-img {
+    top: -90%;
+    transform: translate(-50%, -200%);
   }
 }

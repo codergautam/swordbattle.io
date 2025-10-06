@@ -21,7 +21,7 @@ module.exports = class Stalker extends Evolution {
 
   update(dt) {
     super.update(dt);
-    this.player.modifiers.leech = 0.45;
+    this.player.modifiers.leech = 0.375;
     this.player.shape.setScale(1.05);
     this.player.sword.damage.multiplier *= 1.15;
     this.player.knockbackResistance.multiplier *= 0;

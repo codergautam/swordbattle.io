@@ -5,10 +5,10 @@ module.exports = class Plaguebearer extends Evolution {
   static type = Types.Evolution.Plaguebearer;
   static level = 29;
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
-  static abilityDuration = 8;
-  static abilityCooldown = 8;
-  static poisonRadius = 4500;
-  static poisonDPS = 35;
+  static abilityDuration = 6;
+  static abilityCooldown = 90;
+  static poisonRadius = 2000;
+  static poisonDPS = 15;
 
   applyAbilityEffects() {
     this.poisonFieldActive = true;

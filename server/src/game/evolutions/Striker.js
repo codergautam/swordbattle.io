@@ -6,7 +6,7 @@ module.exports = class Striker extends Evolution {
   static level = 29;
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
   static abilityDuration = 7.5;
-  static abilityCooldown = 85;
+  static abilityCooldown = 75;
 
   applyAbilityEffects() {
     this.player.modifiers.losslessChainDamage = true;

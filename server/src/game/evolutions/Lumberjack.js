@@ -29,7 +29,7 @@ module.exports = class Lumberjack extends Evolution {
     this.player.sword.damage.multiplier *= 1.3;
     this.player.sword.swingDuration.multiplier['base'] = 1.175;
     this.player.speed.multiplier *= 0.95;
-    this.player.health.regenWait.multiplier *= 0.6;
+    this.player.health.regenWait.multiplier *= 0.3;
     this.player.health.regen.multiplier *= 0.9;
     this.player.health.max.multiplier *= 0.9;
     super.update(dt);

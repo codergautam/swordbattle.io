@@ -37,8 +37,8 @@ module.exports = class Rook extends Evolution {
 
     this.player.shape.setScale(1.15);
     this.player.speed.multiplier *= 0.875;
-    this.player.sword.damage.multiplier *= 1.35;
-    this.player.sword.swingDuration.multiplier['ability'] = 1.35;
+    this.player.sword.damage.multiplier *= 1.375;
+    this.player.sword.swingDuration.multiplier['ability'] = 1.325;
     this.player.sword.knockback.multiplier['ability'] = 0.9;
     this.player.knockbackResistance.multiplier *= 1.35;
     this.player.health.max.multiplier *= 1.3;

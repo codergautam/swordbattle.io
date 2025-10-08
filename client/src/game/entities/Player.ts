@@ -340,7 +340,7 @@ class Player extends BaseEntity {
     try {
       const allEntities = Object.values(this.game.gameState.entities) as BaseEntity[];
       const maxTargets = 3;
-      const maxDistance = 2000;
+      const maxDistance = 2500;
       const now = Date.now();
       const cache = (this.game.gameState as any).chainDamagedTimestamps || {};
       const chainNodes = allEntities

@@ -356,21 +356,21 @@ processTargetsCollision(entity) {
       const m3 = lossless ? 1.0 : 0.25;
 
       // 1st
-      const firstSplash = findClosestPlayer(entity.shape, 2000, new Set([entity, this.player]));
+      const firstSplash = findClosestPlayer(entity.shape, 2500, new Set([entity, this.player]));
       if (firstSplash) {
         firstSplash.damaged(this.damage.value * m1, this.player);
         try { firstSplash.flags.set(Types.Flags.Damaged, firstSplash.id); } catch (e) {}
         try { firstSplash.flags.set(Types.Flags.ChainDamaged, firstSplash.id); } catch (e) {}
 
         // 2nd
-        const secondSplash = findClosestPlayer(firstSplash.shape, 2000, new Set([entity, this.player, firstSplash]));
+        const secondSplash = findClosestPlayer(firstSplash.shape, 2500, new Set([entity, this.player, firstSplash]));
         if (secondSplash) {
           secondSplash.damaged(this.damage.value * m2, this.player);
           try { secondSplash.flags.set(Types.Flags.Damaged, secondSplash.id); } catch (e) {}
           try { secondSplash.flags.set(Types.Flags.ChainDamaged, secondSplash.id); } catch (e) {}
 
           // 3rd
-          const thirdSplash = findClosestPlayer(secondSplash.shape, 2000, new Set([entity, this.player, firstSplash, secondSplash]));
+          const thirdSplash = findClosestPlayer(secondSplash.shape, 2500, new Set([entity, this.player, firstSplash, secondSplash]));
           if (thirdSplash) {
             thirdSplash.damaged(this.damage.value * m3, this.player);
             try { thirdSplash.flags.set(Types.Flags.Damaged, thirdSplash.id); } catch (e) {}

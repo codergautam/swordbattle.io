@@ -6,7 +6,7 @@ module.exports = class SuperArcher extends Evolution {
   static level = 29;
   static previousEvol = Types.Evolution.Archer;
   static abilityDuration = 0.2;
-  static abilityCooldown = 11;f
+  static abilityCooldown = 12;
 
   applyAbilityEffects() {
     this.player.modifiers.cancelThrow = true;

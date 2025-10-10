@@ -307,7 +307,7 @@ module.exports = {
           respawnable: true,
           respawnTime: [60 * 5, 60 * 15],
           size: [275, 375],
-          health: 700,
+          health: 800,
           isBoss: true,
           damage: 20,
           rotationSpeed: 10,

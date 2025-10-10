@@ -6,7 +6,7 @@ module.exports = class Archer extends Evolution {
   static level = 26;
   static previousEvol = "secret";
   static abilityDuration = 7;
-  static abilityCooldown = 70;
+  static abilityCooldown = 65;
 
   applyAbilityEffects() {
     this.player.speed.multiplier *= 1.4;

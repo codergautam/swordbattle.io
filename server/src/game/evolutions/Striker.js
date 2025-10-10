@@ -24,7 +24,7 @@ module.exports = class Striker extends Evolution {
 
     this.player.health.max.multiplier *= 0.9;
     this.player.health.regen.multiplier *= 1.025;
-    this.player.health.regenWait.multiplier *= 0.9;
+    this.player.health.regenWait.multiplier *= 0.85;
 
     this.player.sword.swingDuration.multiplier['ability'] = 1.025;
   }

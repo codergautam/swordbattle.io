@@ -7,6 +7,43 @@ import { random } from '../../helpers';
 import { Settings } from '../Settings';
 import * as cosmetics from '../cosmetics.json';
 const {skins} = cosmetics;
+
+const particlePool: Phaser.GameObjects.Sprite[] = [];
+const graphicsPool: Phaser.GameObjects.Graphics[] = [];
+
+function getParticle(game: Phaser.Scene, key: string) {
+  let p = particlePool.pop();
+  if (!p) {
+    p = game.add.sprite(0, 0, key);
+    p.setDepth(40);
+    p.setBlendMode(Phaser.BlendModes.ADD);
+  }
+  p.setActive(true).setVisible(true);
+  return p;
+}
+
+function releaseParticle(p: Phaser.GameObjects.Sprite) {
+  p.setActive(false).setVisible(false);
+  p.x = 0; p.y = 0;
+  particlePool.push(p);
+}
+
+function getGraphics(game: Phaser.Scene) {
+  let g = graphicsPool.pop();
+  if (!g) {
+    g = game.add.graphics();
+  }
+  g.clear();
+  g.setActive(true).setVisible(true);
+  return g;
+}
+
+function releaseGraphics(g: Phaser.GameObjects.Graphics) {
+  g.clear();
+  g.setActive(false).setVisible(false);
+  graphicsPool.push(g);
+}
+
 class Player extends BaseEntity {
   static stateFields = [
     ...BaseEntity.stateFields, 'name', 'angle',
@@ -340,7 +377,7 @@ class Player extends BaseEntity {
     try {
       const allEntities = Object.values(this.game.gameState.entities) as BaseEntity[];
       const maxTargets = 3;
-      const maxDistance = 2500;
+      const maxDistance = 3250;
       const now = Date.now();
       const cache = (this.game.gameState as any).chainDamagedTimestamps || {};
       const chainNodes = allEntities
@@ -387,11 +424,10 @@ class Player extends BaseEntity {
           const px = sx + Math.cos(angle) * radius + random(-6, 6);
           const py = sy + Math.sin(angle) * radius + random(-6, 6);
 
-          const sprite = this.game.add.sprite(px, py, 'lightningParticle')
-            .setDepth(60)
-            .setBlendMode(Phaser.BlendModes.ADD)
-            .setScale(Phaser.Math.FloatBetween(0.12, 0.28))
-            .setAlpha(1);
+          const sprite = getParticle(this.game, 'lightningParticle');
+          sprite.x = px;
+          sprite.y = py;
+          sprite.setScale(Phaser.Math.FloatBetween(0.12, 0.28)).setAlpha(1);
 
           const delay = Phaser.Math.Between(0, 80);
           this.game.tweens.add({
@@ -401,7 +437,7 @@ class Player extends BaseEntity {
             duration: 500,
             delay,
             ease: 'Linear',
-            onComplete: () => sprite.destroy(),
+            onComplete: () => releaseParticle(sprite),
           });
         }
         return;
@@ -416,7 +452,7 @@ class Player extends BaseEntity {
         const dist = Phaser.Math.Distance.Between(sx, sy, tx, ty);
         const baseAngle = Phaser.Math.Angle.Between(sx, sy, tx, ty);
 
-        const lineG = this.game.add.graphics();
+        const lineG = getGraphics(this.game);
         lineG.lineStyle(Math.max(2, Math.min(6, Math.round(dist / 300))), 0x99ccff, 0.95);
         const wobble = (x: number, y: number, f = 6) => [x + random(-f, f), y + random(-f, f)];
         const [sxw, syw] = wobble(sx, sy, 6);
@@ -443,10 +479,10 @@ class Player extends BaseEntity {
           const px = Phaser.Math.Linear(sx, tx, t) + Math.cos(baseAngle + Math.PI / 2) * jitterAlong + random(-4, 4);
           const py = Phaser.Math.Linear(sy, ty, t) + Math.sin(baseAngle + Math.PI / 2) * jitterAlong + random(-4, 4);
 
-          const s = this.game.add.sprite(px, py, 'lightningParticle')
-            .setDepth(60)
-            .setBlendMode(Phaser.BlendModes.ADD)
-            .setScale(Phaser.Math.FloatBetween(0.12, 0.36))
+          const s = getParticle(this.game, 'lightningParticle');
+          s.x = px;
+          s.y = py;
+          s.setScale(Phaser.Math.FloatBetween(0.12, 0.36))
             .setRotation(baseAngle + Phaser.Math.FloatBetween(-0.2, 0.2))
             .setAlpha(1);
 
@@ -458,7 +494,7 @@ class Player extends BaseEntity {
             duration: 500,
             delay,
             ease: 'Cubic.easeOut',
-            onComplete: () => s.destroy(),
+            onComplete: () => releaseParticle(s),
           });
         }
 
@@ -467,7 +503,7 @@ class Player extends BaseEntity {
           alpha: 0,
           duration: 500,
           ease: 'Linear',
-          onComplete: () => lineG.destroy(),
+          onComplete: () => releaseGraphics(lineG),
         });
       });
     } catch (e) {
@@ -509,10 +545,10 @@ class Player extends BaseEntity {
         const px = this.container.x + Math.cos(angle) * rr + random(-8, 8);
         const py = this.container.y + Math.sin(angle) * rr + random(-8, 8);
 
-        const s = this.game.add.sprite(px, py, 'poisonParticle')
-          .setDepth(40)
-          .setBlendMode(Phaser.BlendModes.ADD)
-          .setScale(Phaser.Math.FloatBetween(0.04, 0.09))
+        const s = getParticle(this.game, 'poisonParticle');
+        s.x = px;
+        s.y = py;
+        s.setScale(Phaser.Math.FloatBetween(0.04, 0.09))
           .setAlpha(0.9)
           .setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
 
@@ -525,7 +561,7 @@ class Player extends BaseEntity {
           duration: 500,
           delay,
           ease: 'Sine.easeInOut',
-          onComplete: () => s.destroy(),
+          onComplete: () => releaseParticle(s),
         });
       }
     } catch (e) {

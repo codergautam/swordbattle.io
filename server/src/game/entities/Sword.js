@@ -224,9 +224,11 @@ processTargetsCollision(entity) {
 
     // under 500
     let skipDamageDueToCoins = false;
+    const attackerCoins = (this.player.levels && typeof this.player.levels.coins === 'number') ? this.player.levels.coins : 0;
+    const targetCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
+    const attackerUnderShield = attackerCoins < this.player.coinShield;
+    const targetUnderShield = targetCoins < this.player.coinShield;
     if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot) {
-      const attackerCoins = (this.player.levels && typeof this.player.levels.coins === 'number') ? this.player.levels.coins : 0;
-      const targetCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
       if (attackerCoins < this.player.coinShield || targetCoins < this.player.coinShield) {
         this.collidedEntities.add(entity);
         skipDamageDueToCoins = true;
@@ -236,6 +238,13 @@ processTargetsCollision(entity) {
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
 
     let power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
+
+    if (entity.type === Types.Entity.Player && attackerUnderShield) {
+      power *= 0.25;
+    }
+    if (entity.type === Types.Entity.Player && targetUnderShield && !attackerUnderShield) {
+      power *= 2;
+    }
 
     if (entity.type === Types.Entity.Player && this.player.modifiers.noRestrictKnockback) {
        power = (this.knockback.value);
@@ -356,21 +365,21 @@ processTargetsCollision(entity) {
       const m3 = lossless ? 1.0 : 0.25;
 
       // 1st
-      const firstSplash = findClosestPlayer(entity.shape, 2500, new Set([entity, this.player]));
+      const firstSplash = findClosestPlayer(entity.shape, 3250, new Set([entity, this.player]));
       if (firstSplash) {
         firstSplash.damaged(this.damage.value * m1, this.player);
         try { firstSplash.flags.set(Types.Flags.Damaged, firstSplash.id); } catch (e) {}
         try { firstSplash.flags.set(Types.Flags.ChainDamaged, firstSplash.id); } catch (e) {}
 
         // 2nd
-        const secondSplash = findClosestPlayer(firstSplash.shape, 2500, new Set([entity, this.player, firstSplash]));
+        const secondSplash = findClosestPlayer(firstSplash.shape, 3250, new Set([entity, this.player, firstSplash]));
         if (secondSplash) {
           secondSplash.damaged(this.damage.value * m2, this.player);
           try { secondSplash.flags.set(Types.Flags.Damaged, secondSplash.id); } catch (e) {}
           try { secondSplash.flags.set(Types.Flags.ChainDamaged, secondSplash.id); } catch (e) {}
 
           // 3rd
-          const thirdSplash = findClosestPlayer(secondSplash.shape, 2500, new Set([entity, this.player, firstSplash, secondSplash]));
+          const thirdSplash = findClosestPlayer(secondSplash.shape, 3250, new Set([entity, this.player, firstSplash, secondSplash]));
           if (thirdSplash) {
             thirdSplash.damaged(this.damage.value * m3, this.player);
             try { thirdSplash.flags.set(Types.Flags.Damaged, thirdSplash.id); } catch (e) {}

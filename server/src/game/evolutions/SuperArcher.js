@@ -6,7 +6,7 @@ module.exports = class SuperArcher extends Evolution {
   static level = 29;
   static previousEvol = Types.Evolution.Archer;
   static abilityDuration = 0.2;
-  static abilityCooldown = 12;
+  static abilityCooldown = 15;
 
   applyAbilityEffects() {
     this.player.modifiers.cancelThrow = true;
@@ -18,9 +18,6 @@ module.exports = class SuperArcher extends Evolution {
 
     this.player.modifiers.scaleThrow = true;
     this.player.modifiers.throwDamage = 1.9;
-
-    this.player.speed.multiplier *= 1.05;
-
     
     this.player.health.max.multiplier *= 1;
     this.player.health.regenWait.multiplier = 0.5;

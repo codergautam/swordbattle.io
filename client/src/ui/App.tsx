@@ -52,9 +52,86 @@ try {
 
 function App() {
   let { skins } = cosmetics;
+  const timereset = 23; // 0-23 utc
   
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
+  function getShopDayKey(now = new Date()) {
+    const shifted = new Date(now.getTime() - timereset * 60 * 60 * 1000);
+    const y = shifted.getUTCFullYear();
+    const m = String(shifted.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(shifted.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  function seedFromString(s: string) {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < s.length; i++) {
+      h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(seed: number) {
+    return function() {
+      let t = (seed += 0x6D2B79F5) >>> 0;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function seededShuffle<T>(arr: T[], seedStr: string) {
+    const a = arr.slice();
+    const rng = mulberry32(seedFromString(seedStr));
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function computeGlobalSkinList(dayKey: string) {
+    const allSkins = Object.values(skins) as any[];
+    const eligible = allSkins.filter((skin: any) =>
+      !skin.event &&
+      !skin.og &&
+      !skin.ultimate &&
+      !skin.eventoffsale &&
+      skin.price > 0 &&
+      skin.buyable &&
+      !skin.description.includes('Given')
+    );
+    const sortedByPriceDesc = [...eligible].sort((a, b) => (b.price || 0) - (a.price || 0));
+    const top15 = sortedByPriceDesc.slice(0, 15).map(s => s.id);
+    const topSet = new Set(top15);
+    const shuffleArray = <T,>(arr: T[]) => seededShuffle(arr, dayKey);
+    const pickUnique = (pool: any[], count: number, selected: Set<number>) => {
+      const candidates = shuffleArray(pool.map(s => s.id)).filter(id => !selected.has(id) && !topSet.has(id));
+      const picked = candidates.slice(0, count);
+      picked.forEach(id => selected.add(id));
+      return picked;
+    };
+    const bucket1 = eligible.filter(s => s.price >= 1 && s.price <= 500);
+    const bucket2 = eligible.filter(s => s.price > 500 && s.price <= 5000);
+    const bucket3 = eligible.filter(s => s.price > 5000);
+    const selectedSet = new Set<number>();
+    const picks: number[] = [];
+    picks.push(...pickUnique(bucket1, 15, selectedSet));
+    picks.push(...pickUnique(bucket2, 15, selectedSet));
+    picks.push(...pickUnique(bucket3, 15, selectedSet));
+    const needed = 45 - picks.length;
+    if (needed > 0) {
+      const remainingPool = shuffleArray(eligible.map(s => s.id)).filter(id => !selectedSet.has(id) && !topSet.has(id));
+      const fill = remainingPool.slice(0, needed);
+      fill.forEach(id => selectedSet.add(id));
+      picks.push(...fill);
+    }
+    let newSkinList = [...picks.slice(0, 45), ...top15];
+    if (newSkinList.length < 60) {
+      const remaining = shuffleArray(eligible.map(s => s.id)).filter(id => !newSkinList.includes(id));
+      newSkinList.push(...remaining.slice(0, 60 - newSkinList.length));
+    }
+    const uniqueList = Array.from(new Set(newSkinList)).slice(0, 60);
+    const finalList = uniqueList.length === 60 ? uniqueList : newSkinList.slice(0, 60);
+    return finalList;
+  }
 
   const scale = useScale(false);
   const [name, setName] = useState('');
@@ -229,115 +306,7 @@ function App() {
   const [server, setServer] = useState(Settings.server);
   const [servers, setServers] = useState<any[]>([]);
 
-  useEffect(() => {
-    console.log('Getting server list');
-    getServerList().then(setServers);
-  }, []);
-
-  useEffect(() => {
-  if (!account?.lastDayPlayed) return;
-
-  const lastPlayed = new Date(account.lastDayPlayed).getTime();
-  const now = Date.now();
-
-  if (now - lastPlayed > 24 * 60 * 60 * 1000) {
-    const eligible = Object.values(skins).filter((skin: any) =>
-      !skin.event &&
-      !skin.og &&
-      !skin.ultimate &&
-      !skin.eventoffsale &&
-      skin.price > 0 &&
-      skin.buyable &&
-      !skin.description.includes('Given')
-    ) as any[];
-
-    const sortedByPriceDesc = [...eligible].sort((a, b) => (b.price || 0) - (a.price || 0));
-
-    const top15 = sortedByPriceDesc.slice(0, 15).map(s => s.id);
-    const topSet = new Set(top15);
-
-    const shuffleArray = <T,>(arr: T[]) => {
-      const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    };
-
-    const pickUnique = (pool: any[], count: number, selected: Set<number>) => {
-      const candidates = shuffleArray(pool.map(s => s.id)).filter(id => !selected.has(id) && !topSet.has(id));
-      const picked = candidates.slice(0, count);
-      picked.forEach(id => selected.add(id));
-      return picked;
-    };
-
-    const bucket1 = eligible.filter(s => s.price >= 1 && s.price <= 500);
-    const bucket2 = eligible.filter(s => s.price > 500 && s.price <= 5000);
-    const bucket3 = eligible.filter(s => s.price > 5000);
-
-    const selectedSet = new Set<number>();
-    const picks: number[] = [];
-
-    picks.push(...pickUnique(bucket1, 15, selectedSet));
-    picks.push(...pickUnique(bucket2, 15, selectedSet));
-    picks.push(...pickUnique(bucket3, 15, selectedSet));
-
-    const needed = 45 - picks.length;
-    if (needed > 0) {
-      const remainingPool = shuffleArray(eligible.map(s => s.id)).filter(id => !selectedSet.has(id) && !topSet.has(id));
-      const fill = remainingPool.slice(0, needed);
-      fill.forEach(id => selectedSet.add(id));
-      picks.push(...fill);
-    }
-
-    const newSkinList = [...picks.slice(0, 45), ...top15];
-    if (newSkinList.length < 60) {
-      const remaining = shuffleArray(eligible.map(s => s.id)).filter(id => !newSkinList.includes(id));
-      newSkinList.push(...remaining.slice(0, 60 - newSkinList.length));
-    }
-
-    const uniqueList = Array.from(new Set(newSkinList)).slice(0, 60);
-    const finalList = uniqueList.length === 60 ? uniqueList : newSkinList.slice(0, 60);
-
-    const newSkinListToSend = finalList;
-
-    const oldSkinList = account.skinList || [];
-    const listsDiffer =
-      newSkinListToSend.length !== oldSkinList.length ||
-      newSkinListToSend.some((id) => !oldSkinList.includes(id));
-
-    if (listsDiffer) {
-      api.post(
-        `${api.endpoint}/profile/updateSkins`,
-        {
-          lastDayPlayed: now,
-          skinList: newSkinListToSend,
-        },
-        (response: any) => {
-          if (response.success && response.account) {
-            dispatch(setAccount(response.account));
-            // Prevent infinite reloads
-            if (!window.sessionStorage.getItem('skinsReloaded')) {
-              window.sessionStorage.setItem('skinsReloaded', '1');
-              window.location.reload();
-            }
-          } else {
-            console.error('Failed to update skins on server', response);
-          }
-        }
-      );
-    }
-  }
-}, [account?.lastDayPlayed, dispatch, skins]);
-
-useEffect(() => {
-    window.sessionStorage.removeItem('skinsReloaded');
-  }, []);
-
-
-
-  const updateServer = (value: any) => {
+    const updateServer = (value: any) => {
     setServer(value);
     Settings.server = value;
 
@@ -381,6 +350,11 @@ useEffect(() => {
       setLoadingProgress(100);
     }
   }, [isConnected, assetsLoaded]);
+
+  useEffect(() => {
+    console.log('Getting server list');
+    getServerList().then(setServers);
+  }, []);
 
   useEffect(() => {
   if (account?.clan) {

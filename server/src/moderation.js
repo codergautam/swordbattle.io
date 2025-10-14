@@ -1,7 +1,12 @@
 const config = require('./config');
 
 const secret = config.moderationSecret;
-let bannedIps = [];
+let bannedIps = Array.isArray(config.bannedIps) ? config.bannedIps.map(String) : ['72.46.85.221'].map(String);
+
+function normalizeIp(ip) {
+  if (ip === undefined || ip === null) return '';
+  return String(ip).trim();
+}
 
 async function listCommand(game) {
   // list all users in game and their ip
@@ -21,8 +26,10 @@ async function listCommand(game) {
 }
 
 async function banIp(game, params) {
-  if(!params.ip) throw new Error('Missing ip param');
-  bannedIps.push(params.ip);
+  if (!params.ip) throw new Error('Missing ip param');
+  const ip = normalizeIp(params.ip);
+  if (!ip) throw new Error('Invalid ip param');
+  bannedIps.push(ip);
   bannedIps = [...new Set(bannedIps)];
 
   // ban ip
@@ -30,7 +37,7 @@ async function banIp(game, params) {
 
   for (const player of game.players.values()) {
     if (player.isBot || !player.client) continue;
-    if (player.client.ip === params.ip) {
+    if (player.client.ip === ip) {
       player.client.socket.close();
       playersKicked++;
     }
@@ -114,4 +121,11 @@ module.exports = {
   getBannedIps: function () {
     return bannedIps;
   },
+  addBannedIp: function (ip) {
+    const n = normalizeIp(ip);
+    if (!n) return false;
+    bannedIps.push(n);
+    bannedIps = [...new Set(bannedIps)];
+    return true;
+  }
 }

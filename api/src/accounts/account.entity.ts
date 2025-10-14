@@ -42,14 +42,6 @@ export class Account {
     default: () => `NOW() - interval '2 days'`,
     nullable: false,
   })
-  lastDayPlayed: Date;
-
-  @BeforeInsert()
-  setLastDayPlayed() {
-    if (!this.lastDayPlayed) {
-      this.lastDayPlayed = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
-    }
-  }
 
   @OneToMany(() => Transaction, transaction => transaction.account)
   transactions: Transaction[];
@@ -74,9 +66,6 @@ export class Account {
 
   @Column({ type: 'jsonb', default: '{"tags": [], "colors": []}' })
   tags: { tags: string[]; colors: string[] };
-
-  @Column({ type: 'jsonb', default: [352, 64, 67, 260, 275, 426, 227, 313, 111, 112, 268, 222, 23, 180, 179, 195, 410, 250, 392, 254] })
-  skinList: number[];
 
   constructor(data: Partial<Account> = {}) {
     Object.assign(this, data);

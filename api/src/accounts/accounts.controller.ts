@@ -123,29 +123,4 @@ export class AccountsController {
 
     return { count: members.length, xp: memberXP, members };
   }
-
-  @UseGuards(AccountGuard)
-  @Post('updateSkins')
-  async updateSkins(
-    @Req() request: AccountRequest,
-    @Body() body: { lastDayPlayed: number; skinList: number[] },
-  ) {
-    const userId = request.account.id;
-    const { lastDayPlayed, skinList } = body;
-
-    if (!lastDayPlayed || !skinList || !Array.isArray(skinList)) {
-      return { success: false, message: 'Invalid payload' };
-    }
-
-    // Call service to update the account fields
-    const updatedAccount = await this.accountsService.updateSkins(userId, lastDayPlayed, skinList);
-
-    if (!updatedAccount) {
-      return { success: false, message: 'Account not found or update failed' };
-    }
-
-    return {
-      success: true,
-    };
-  }
 }

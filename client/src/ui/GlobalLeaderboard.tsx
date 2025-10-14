@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { numberWithCommas, secondsToTime, sinceFrom } from '../helpers';
 import api from '../api';
@@ -25,9 +25,15 @@ const ranges: Record<string, string> = {
 };
 
 export function GlobalLeaderboard() {
+  const navigate = useNavigate();
   const [type, setType] = useState<string>('coins');
   const [range, setRange] = useState<string>('all');
   const [data, setData] = useState<any[]>([]);
+
+  // search
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [allUsernames, setAllUsernames] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
 
   const fetchData = () => {
     const isGames = type === 'coins' || type === 'kills' || type === 'playtime';
@@ -50,14 +56,72 @@ export function GlobalLeaderboard() {
   useEffect(fetchData, [type, range]);
 
   useEffect(() => {
+    api.post(`${api.endpoint}/games/fetch`, {
+      sortBy: 'coins',
+      timeRange: 'all',
+      limit: 100,
+    }, (res: any) => {
+      if (Array.isArray(res)) {
+        const unique = Array.from(new Set(res.map((r: any) => r.username).filter(Boolean)));
+        setAllUsernames(unique);
+      }
+    });
+  }, []);
+
+  const suggestions = searchTerm.trim()
+    ? allUsernames.filter(u => u.toLowerCase().startsWith(searchTerm.trim().toLowerCase())).slice(0, 10)
+    : [];
+
+  useEffect(() => {
     document.body.classList.add('global-leaderboard-body');
     return () => document.body.classList.remove('global-leaderboard-body');
   }, []);
 
+  const navigateToProfile = (username: string) => {
+    setShowSuggestions(false);
+    setSearchTerm('');
+    navigate(`/profile?username=${encodeURIComponent(username)}`);
+  };
+
   return (
     <section className="main-content">
       <div className="container">
-        <h1>{types[type]} Leaderboard</h1>
+        <button
+          className="back-button"
+          style={{ position: 'absolute', left: 16, top: 16, zIndex: 1200 }}
+          onClick={() => { window.location.href = '../index.html'; }}>X</button>
+
+        <div style={{ position: 'absolute', right: 16, top: 16, zIndex: 1200, width: 320 }}>
+          <input
+            type="text"
+            placeholder="Search usernames..."
+            value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value); setShowSuggestions(true); }}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            className="form-control"
+            aria-label="Search usernames"
+          />
+          {showSuggestions && (
+            <div style={{ background: 'white', border: '1px solid rgba(0,0,0,0.12)', maxHeight: 260, overflowY: 'auto' }}>
+              {searchTerm.trim().length === 0 ? (
+                <div style={{ padding: 10, color: '#666' }}>Type to search usernames</div>
+              ) : suggestions.length === 0 ? (
+                <div style={{ padding: 10, color: '#666' }}>No accounts found</div>
+              ) : (
+                suggestions.map((u) => (
+                  <div
+                    key={u}
+                    style={{ padding: '8px 10px', cursor: 'pointer', borderBottom: '1px solid rgba(0,0,0,0.04)' }}
+                    onMouseDown={(ev) => { ev.preventDefault(); navigateToProfile(u); }}
+                  >
+                    {u}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
         <br />
         <h3>{ranges[range]}</h3>
         <br />

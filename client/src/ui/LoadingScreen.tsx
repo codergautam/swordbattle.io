@@ -53,7 +53,6 @@ function LoadingScreen({ progress }: any) {
         {stuckVisible && (
           <p>Stuck at 98%? Try refreshing or interacting with the page</p>
         )}
-        <p style={{ color: '#ffffffaa' }}>(Page may refresh to load data)</p>
       </div>
     </div>
   );

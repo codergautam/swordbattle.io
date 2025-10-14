@@ -162,17 +162,6 @@ export class AccountsService {
     return this.findAll({ where: { clan } });
   }
 
-  async updateSkins(userId: number, lastDayPlayed: number, skinList: number[]) {
-    const account = await this.accountsRepository.findOne({ where: { id: userId } });
-    if (!account) return null;
-
-    account.lastDayPlayed = new Date(lastDayPlayed);
-    account.skinList = skinList;
-
-    return this.accountsRepository.save(account);
-  }
-
-
   async getById(id: number) {
     const account = await this.findOne({ where: { id } });
     if (!account) {
@@ -530,4 +519,42 @@ export class AccountsService {
     delete account.email;
     return account;
   }
-}
+
+  /**
+   * Search accounts by username prefix (case-insensitive).
+   * Returns up to `limit` sanitized accounts (includes username, skins, created_at, xp, last_seen).
+   */
+  async searchAccountsByPrefix(prefix: string, limit = 25) {
+    const p = (prefix || '').trim().toLowerCase();
+    if (!p) return [];
+
+    // Use a left join to daily_stats to try to get last seen (max date) if available.
+    // This returns raw rows; normalize below.
+    const rows = await this.accountsRepository.createQueryBuilder('a')
+      .select([
+        'a.username AS username',
+        'a.skins AS skins',
+        'a.created_at AS created_at',
+        'a.xp AS xp',
+      ])
+      .leftJoin('daily_stats', 'd', 'd.account_id = a.id')
+      .addSelect('MAX(d.date) AS last_seen')
+      .where('LOWER(a.username) LIKE :p', { p: `${p}%` })
+      .groupBy('a.id')
+      .orderBy('a.username', 'ASC')
+      .limit(limit)
+      .getRawMany();
+
+    // Normalize raw shapes to consistent { username, skins, created_at, xp, last_seen }
+    const results = rows.map((r: any) => {
+      const username = r.username ?? r.a_username ?? r.a_username;
+      const skins = r.skins ?? r.a_skins ?? r.a_skins;
+      const created_at = r.created_at ?? r.a_created_at ?? r.a_created_at;
+      const xp = (r.xp ?? r.a_xp ?? r.a_xp) !== undefined ? Number(r.xp ?? r.a_xp ?? r.a_xp) : 0;
+      const last_seen = r.last_seen ?? r.max ?? null;
+      return { username, skins, created_at, xp, last_seen };
+    }).filter((x: any) => x.username);
+
+    return results;
+  }
+ }

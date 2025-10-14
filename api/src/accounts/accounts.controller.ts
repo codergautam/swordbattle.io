@@ -124,28 +124,14 @@ export class AccountsController {
     return { count: members.length, xp: memberXP, members };
   }
 
-  @UseGuards(AccountGuard)
-  @Post('updateSkins')
-  async updateSkins(
-    @Req() request: AccountRequest,
-    @Body() body: { lastDayPlayed: number; skinList: number[] },
-  ) {
-    const userId = request.account.id;
-    const { lastDayPlayed, skinList } = body;
-
-    if (!lastDayPlayed || !skinList || !Array.isArray(skinList)) {
-      return { success: false, message: 'Invalid payload' };
-    }
-
-    // Call service to update the account fields
-    const updatedAccount = await this.accountsService.updateSkins(userId, lastDayPlayed, skinList);
-
-    if (!updatedAccount) {
-      return { success: false, message: 'Account not found or update failed' };
-    }
-
-    return {
-      success: true,
-    };
+  // Search accounts by username prefix (case-insensitive).
+  // Body: { q: string, limit?: number }
+  @Post('search')
+  async searchAccounts(@Body() body: { q: string; limit?: number }) {
+    const q = (body?.q ?? '').toString().trim();
+    const limit = Number(body?.limit) || 25;
+    if (!q) return [];
+    const results = await this.accountsService.searchAccountsByPrefix(q, limit);
+    return results;
   }
 }

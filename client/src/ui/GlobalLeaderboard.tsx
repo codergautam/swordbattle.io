@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { numberWithCommas, secondsToTime, sinceFrom } from '../helpers';
 import api from '../api';
@@ -7,6 +7,37 @@ import api from '../api';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './GlobalLeaderboard.scss';
 import cosmetics from '../game/cosmetics.json';
+
+function abbrNumber(n: number | string) {
+  const num = Number(n) || 0;
+  if (num >= 1_000_000) {
+    const v = +(num / 1_000_000).toFixed(1);
+    return (v % 1 === 0 ? v.toFixed(0) : v.toString()) + 'm';
+  }
+  if (num >= 1_000) {
+    const v = +(num / 1_000).toFixed(1);
+    return (v % 1 === 0 ? v.toFixed(0) : v.toString()) + 'k';
+  }
+  return num.toString();
+}
+
+function timeSinceShort(dateLike?: string | Date | null) {
+  if (!dateLike) return 'unknown';
+  const d = new Date(dateLike).getTime();
+  if (isNaN(d)) return 'unknown';
+  const diff = Date.now() - d;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return '<1min';
+  if (mins < 60) return `${mins}min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo`;
+  const years = Math.floor(months / 12);
+  return `${years}y`;
+}
 
 const types: Record<string, string> = {
   'kills': 'Kills',
@@ -25,9 +56,15 @@ const ranges: Record<string, string> = {
 };
 
 export function GlobalLeaderboard() {
+  const navigate = useNavigate();
   const [type, setType] = useState<string>('coins');
   const [range, setRange] = useState<string>('all');
   const [data, setData] = useState<any[]>([]);
+
+  // search
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [serverSuggestions, setServerSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
 
   const fetchData = () => {
     const isGames = type === 'coins' || type === 'kills' || type === 'playtime';
@@ -50,14 +87,84 @@ export function GlobalLeaderboard() {
   useEffect(fetchData, [type, range]);
 
   useEffect(() => {
+    if (!searchTerm || searchTerm.trim().length === 0) {
+      setServerSuggestions([]);
+      return;
+    }
+    const q = searchTerm.trim();
+    const timeout = setTimeout(() => {
+      api.post(`${api.endpoint}/profile/search`, { q, limit: 25 }, (res: any) => {
+        if (!Array.isArray(res)) {
+          setServerSuggestions([]);
+          return;
+        }
+        setServerSuggestions(res.slice(0, 25));
+      });
+    }, 250);
+    return () => clearTimeout(timeout);
+  }, [searchTerm]);
+
+  useEffect(() => {
     document.body.classList.add('global-leaderboard-body');
     return () => document.body.classList.remove('global-leaderboard-body');
   }, []);
 
+  const navigateToProfile = (username: string) => {
+    setShowSuggestions(false);
+    setSearchTerm('');
+    navigate(`/profile?username=${encodeURIComponent(username)}`);
+  };
+
   return (
     <section className="main-content">
       <div className="container">
-        <h1>{types[type]} Leaderboard</h1>
+        <button className="back-button" onClick={() => { window.location.href = '../index.html'; }}>X</button>
+        <div className="leaderboard-search">
+          <input
+            type="text"
+            placeholder="Search usernames..."
+            value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value); setShowSuggestions(true); }}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            className="form-control"
+            aria-label="Search usernames"
+          />
+          {showSuggestions && (
+            <div className="search-suggestions">
+              {searchTerm.trim().length === 0 ? (
+                <div className="suggestion-hint">Type to search usernames</div>
+              ) : serverSuggestions.length === 0 ? (
+                <div className="suggestion-hint">No accounts found</div>
+              ) : (
+                serverSuggestions.map((s: any) => {
+                  const u = s.username;
+                  const createdAt = s.created_at ?? s.createdAt ?? null;
+                  const lastSeen = s.last_seen ?? s.lastSeen ?? null;
+                  const xp = s.xp ?? 0;
+                  const equippedId = s?.skins?.equipped;
+                  const equippedSkin = equippedId ? Object.values((cosmetics as any).skins).find((sk: any) => sk.id === equippedId) : null;
+                  return (
+                    <div
+                      key={u}
+                      className="search-suggestion"
+                      onMouseDown={(ev) => { ev.preventDefault(); navigateToProfile(u); }}
+                    >
+                      <div className="suggestion-left">
+                        <div className="suggestion-name">{u}</div>
+                        <div className="suggestion-meta">
+                          <span>Joined {timeSinceShort(createdAt)} ago</span>
+                          <span>• Online {timeSinceShort(lastSeen)} ago</span>
+                          <span>• {abbrNumber(xp)} XP</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          )}
+        </div>
         <br />
         <h3>{ranges[range]}</h3>
         <br />

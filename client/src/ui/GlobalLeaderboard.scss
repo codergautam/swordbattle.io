@@ -40,6 +40,93 @@
 		padding-top: 100px;
 		padding-bottom: 100px;
 
+    .back-button {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      z-index: 1200;
+      width: 44px;
+      height: 44px;
+      border-radius: 22px;
+      border: none;
+      background: #f9f6ff;
+      color: #333;
+      font-size: 18px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .08s ease;
+      &:hover { transform: translateY(-1px); }
+    }
+
+    .leaderboard-search {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      z-index: 1200;
+      width: 360px;
+      display: flex;
+      flex-direction: column;
+
+      input.form-control {
+        border-radius: 8px;
+        padding: 10px 12px;
+        border: 1px solid rgba(0,0,0,0.09);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        background: #fff;
+      }
+
+      .search-suggestions {
+        margin-top: 8px;
+        background: #fff;
+        border-radius: 8px;
+        border: 1px solid rgba(0,0,0,0.08);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+        max-height: 360px;
+        overflow-y: auto;
+      }
+
+      .suggestion-hint {
+        padding: 10px;
+        color: #666;
+      }
+
+      .search-suggestion {
+        display: flex;
+        gap: 12px;
+        padding: 10px 12px;
+        align-items: center;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+        justify-content: space-between;
+        &:hover { background: rgba(0,0,0,0.02); }
+
+        .suggestion-left {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          .suggestion-name { font-weight: 700; color: #222; font-size: 14px; }
+          .suggestion-meta {
+            font-size: 12px;
+            color: #777;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+          }
+        }
+
+        .suggestion-skins {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          img { border-radius: 6px; width: 42px; height: 42px; object-fit: cover; }
+          .no-skin { color: #999; font-size: 14px; }
+        }
+      }
+    }
+
 		.leaderboard-card {
 			background: #fff;
 			margin-bottom: 30px;

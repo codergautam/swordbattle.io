@@ -374,6 +374,12 @@ function App() {
       return;
     }
     else  {
+      // check server capacity (if we've fetched server list)
+      const selectedServer = servers.find(s => s.value === server);
+      if (selectedServer && typeof selectedServer.playerCnt === 'number' && selectedServer.playerCnt > 50) {
+        alert('Server full');
+        return;
+      }
       const go = () => {
         setGameStarted(true);
         window.phaser_game?.events.emit('startGame', name);

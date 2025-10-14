@@ -32,14 +32,31 @@ async function banIp(game, params) {
   bannedIps.push(ip);
   bannedIps = [...new Set(bannedIps)];
 
-  // ban ip
+  // ban ip (best-effort; guard against missing objects / socket API differences)
   let playersKicked = 0;
 
   for (const player of game.players.values()) {
-    if (player.isBot || !player.client) continue;
-    if (player.client.ip === ip) {
-      player.client.socket.close();
-      playersKicked++;
+    try {
+      if (player.isBot || !player.client) continue;
+      const pIp = player.client.ip ?? (player.client.socket && player.client.socket.getUserData ? player.client.socket.getUserData().ip : undefined);
+      if (!pIp) continue;
+      if (String(pIp).trim() === ip) {
+        // close socket if possible without throwing
+        try {
+          if (player.client.socket && typeof player.client.socket.close === 'function') {
+            player.client.socket.close();
+          } else if (player.client.socket && typeof player.client.socket.end === 'function') {
+            player.client.socket.end();
+          }
+        } catch (e) {
+          // ignore socket close errors - we don't want to crash the moderation endpoint
+          console.warn('Error closing socket for banned ip:', e?.message ?? e);
+        }
+        playersKicked++;
+      }
+    } catch (e) {
+      // safety: skip problematic player entries
+      console.warn('Error processing player while banning ip:', e?.message ?? e);
     }
   }
 

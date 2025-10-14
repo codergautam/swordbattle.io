@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const Protocol = require('./protocol/Protocol');
 const Client = require('./Client');
 const { getBannedIps } = require('../moderation');
+const config = require('../config');
 
 class Server {
   constructor(game) {
@@ -29,12 +30,51 @@ class Server {
         );
       },
       open: (socket) => {
+        // create client object
         const client = new Client(this.game, socket);
-        if (getBannedIps().includes(client.ip)) {
-          client.socket.close();
-          console.log(`Client ${client.id} (${client.ip}) tried to connect but is banned.`);
-          return;
+
+        // prefer userData IP (set in upgrade), fall back to any client.ip
+        let ip = '';
+        try {
+          const ud = (socket && typeof socket.getUserData === 'function') ? socket.getUserData() : null;
+          ip = (ud && ud.ip) ? String(ud.ip) : (client.ip ? String(client.ip) : '');
+        } catch (e) {
+          ip = client.ip ? String(client.ip) : '';
         }
+
+        // check banned (guard if getBannedIps not an array)
+        try {
+          const banned = Array.isArray(getBannedIps()) ? getBannedIps() : [];
+          if (ip && banned.includes(ip)) {
+            // close as safely as possible and do not throw
+            try {
+              if (socket && typeof socket.close === 'function') socket.close();
+              else if (client.socket && typeof client.socket.close === 'function') client.socket.close();
+            } catch (e) {
+              console.warn('Error closing banned socket:', e?.message ?? e);
+            }
+            console.log(`Client ${client.id} (${ip}) tried to connect but is banned.`);
+            return;
+          }
+        } catch (e) {
+          console.warn('Error checking banned ips:', e?.message ?? e);
+        }
+
+        // enforce max simultaneous connections per IP
+        const maxPerIp = (typeof config.maxConnectionsPerIp === 'number') ? config.maxConnectionsPerIp : 1;
+        if (maxPerIp > 0) {
+          let count = 0;
+          for (const c of this.clients.values()) {
+            if (!c || !c.ip) continue;
+            if (c.ip === ip) count++;
+          }
+          if (count >= maxPerIp) {
+            try { client.socket.close(); } catch (e) {}
+            console.log(`Rejected connection from ${ip}: ${count} existing connection(s) >= limit ${maxPerIp}`);
+            return;
+          }
+        }
+
         this.addClient(client);
       },
       message: (socket, message) => {

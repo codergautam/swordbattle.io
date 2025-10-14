@@ -58,7 +58,7 @@
       align-items: center;
       justify-content: center;
       transition: transform .08s ease;
-      &:hover { transform: translateY(-1px); }
+      &:hover { transform: translateY(1px); }
     }
 
     .leaderboard-search {
@@ -91,6 +91,13 @@
       .suggestion-hint {
         padding: 10px;
         color: #666;
+      }
+
+      .search-more {
+        text-align: center;
+        padding: 8px;
+        color: #666;
+        font-weight: 600;
       }
 
       .search-suggestion {

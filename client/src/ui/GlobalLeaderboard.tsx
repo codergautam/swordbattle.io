@@ -66,6 +66,8 @@ export function GlobalLeaderboard() {
   const [serverSuggestions, setServerSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
 
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  
   const fetchData = () => {
     const isGames = type === 'coins' || type === 'kills' || type === 'playtime';
     const url = `${api.endpoint}/${isGames ? 'games' : 'stats'}/fetch`;
@@ -89,19 +91,26 @@ export function GlobalLeaderboard() {
   useEffect(() => {
     if (!searchTerm || searchTerm.trim().length === 0) {
       setServerSuggestions([]);
+      setIsSearching(false);
       return;
     }
     const q = searchTerm.trim();
+    setIsSearching(true);
     const timeout = setTimeout(() => {
       api.post(`${api.endpoint}/profile/search`, { q, limit: 25 }, (res: any) => {
         if (!Array.isArray(res)) {
           setServerSuggestions([]);
+          setIsSearching(false);
           return;
         }
         setServerSuggestions(res.slice(0, 25));
+        setIsSearching(false);
       });
     }, 250);
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeout);
+      setIsSearching(false);
+    };
   }, [searchTerm]);
 
   useEffect(() => {
@@ -134,6 +143,8 @@ export function GlobalLeaderboard() {
             <div className="search-suggestions">
               {searchTerm.trim().length === 0 ? (
                 <div className="suggestion-hint">Type to search usernames</div>
+              ) : isSearching ? (
+                <div className="suggestion-hint">Searching...</div>
               ) : serverSuggestions.length === 0 ? (
                 <div className="suggestion-hint">No accounts found</div>
               ) : (
@@ -154,13 +165,23 @@ export function GlobalLeaderboard() {
                         <div className="suggestion-name">{u}</div>
                         <div className="suggestion-meta">
                           <span>Joined {timeSinceShort(createdAt)} ago</span>
-                          <span>• Online {timeSinceShort(lastSeen)} ago</span>
-                          <span>• {abbrNumber(xp)} XP</span>
+                          {(() => {
+                            const lastSeenText = timeSinceShort(lastSeen);
+                            if (lastSeen && lastSeenText !== 'unknown') {
+                              return <span>• Online {lastSeenText} ago</span>;
+                            }
+                            return null;
+                          })()}
+                          <span>• {xp >= 1_000_000 ? <strong>{abbrNumber(xp)} XP</strong> : `${abbrNumber(xp)} XP`}</span>
                         </div>
-                      </div>
+                       </div>
+                      <div />
                     </div>
-                  );
-                })
+                   );
+                 })
+               )}
+              {!isSearching && serverSuggestions.length >= 25 && (
+                <div className="search-more">... more results</div>
               )}
             </div>
           )}

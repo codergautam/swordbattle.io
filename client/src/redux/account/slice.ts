@@ -16,6 +16,8 @@ export type AccountState = {
   profiles: { equipped: number; owned: number[] };
   bio: string;
   tags: { tags: string[]; colors: string[] };
+  lastDayPlayed?: Date;
+  skinList: number[];
 }
 
 const initialState: AccountState = {
@@ -33,6 +35,8 @@ const initialState: AccountState = {
   profiles: { equipped: 1, owned: [1] },
   bio: '',
   tags: { tags: [], colors: [] },
+  lastDayPlayed: new Date(),
+  skinList: [],
 };
 
 // Async Thunks
@@ -166,6 +170,8 @@ const accountSlice = createSlice({
       state.profiles = { equipped: 1, owned: [1] };
       state.bio = '';
       state.tags = { tags: [], colors: [] };
+      state.lastDayPlayed = new Date();
+      state.skinList = [352, 64, 67, 260, 275, 426, 227, 313, 111, 112, 268, 222, 23, 180, 179, 195, 410, 250, 392, 254];
     },
     setAccount: (state, action) => {
       state.email = action.payload.email;
@@ -183,6 +189,8 @@ const accountSlice = createSlice({
       state.profiles = action.payload.profiles;
       state.bio = action.payload.bio;
       state.tags = action.payload.tags;
+      state.lastDayPlayed = action.payload.lastDayPlayed;
+      state.skinList = action.payload.skinList;
       if (previousToken !== state.secret) {
         console.log('Token updated');
         window.phaser_game?.events.emit('tokenUpdate', state.secret);

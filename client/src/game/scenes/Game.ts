@@ -120,7 +120,6 @@ export default class Game extends Phaser.Scene {
     this.load.image('arrowParticle', publicPath + '/assets/game/particles/arrow.png');
     this.load.image('lightningParticle', publicPath + '/assets/game/particles/lightning.png');
     this.load.image('poisonParticle', publicPath + '/assets/game/particles/poison.png');
-    this.load.image('sparkleParticle', publicPath + '/assets/game/particles/sparkle.png');
 
     this.load.image('chatButton', publicPath + '/assets/game/ui/chat.png');
     if (this.isMobile) {

@@ -64,7 +64,6 @@ class Player extends BaseEntity {
   messageText!: Phaser.GameObjects.Text;
 
   protectionAura!: Phaser.GameObjects.Graphics;
-  sparkleInterval?: number;
 
   isMe: boolean = false;
   swordLerpProgress = 0;
@@ -128,17 +127,19 @@ class Player extends BaseEntity {
       amethystbladeyt: '#7802ab',
     };
 
-    const applyNameColor = (hex: string) => {
-      name.setFill(hex);
-    };
-
-    const special = specialColors[this.name?.toLowerCase() as keyof typeof specialColors];
-    if (special) {
-      applyNameColor(special);
-    } else if (this.account) {
-      applyNameColor('#0000ff');
+    if (ogex) {
+      name.setFill('#ffff00');
     } else {
-      applyNameColor('#000000');
+      if (this.account) {
+        const special = specialColors[this.name?.toLowerCase() as keyof typeof specialColors];
+        if (special) {
+          name.setFill(special);
+        } else {
+          name.setFill('#0000ff');
+        }
+      } else {
+        name.setFill('#000000');
+      }
     }
 
     this.messageText = this.game.add.text(0, -this.body.height / 2 - 100, '')
@@ -149,39 +150,6 @@ class Player extends BaseEntity {
 
     this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.swordContainer, this.body, this.evolutionOverlay]);
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.bodyContainer, name, this.messageText]);
-
-    if (ogex) {
-      try {
-        this.sparkleInterval = window.setInterval(() => {
-          const fps = this.game.game.loop?.actualFps ?? 60;
-          if (fps < 15 || !this.container) return;
-
-          const sprite = getParticle(this.game, 'sparkleParticle');
-          const rx = Phaser.Math.FloatBetween(-this.body.width * 0.3, this.body.width * 0.3);
-          const ry = Phaser.Math.FloatBetween(-this.body.height * 0.3, this.body.height * 0.3);
-          sprite.x = Math.round(this.container.x + rx + Phaser.Math.FloatBetween(-5, 5));
-          sprite.y = Math.round(this.container.y + ry + Phaser.Math.FloatBetween(-5, 5));
-          sprite.setScale(Phaser.Math.FloatBetween(0.06, 0.09))
-            .setAlpha(1)
-            .setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
-          sprite.setDepth(50);
-          sprite.setBlendMode(Phaser.BlendModes.ADD);
-          try { sprite.setTint(0xffdd88); } catch (e) {}
-
-          const duration = Phaser.Math.Between(600, 1100);
-          this.game.tweens.add({
-            targets: sprite,
-            alpha: 0,
-            scale: 0.01,
-            duration,
-            ease: 'Cubic.easeOut',
-            onComplete: () => releaseParticle(sprite),
-          });
-        }, 300);
-      } catch (e) {
-        //
-      }
-    }
 
     if (Settings.loadskins) {
         this.loadSkin(this.skin).then(() => {
@@ -716,12 +684,6 @@ class Player extends BaseEntity {
   remove() {
     super.remove();
     this.flags = {}; // clear flags to stop all sounds
-    try { // clear ogex particle
-      if (this.sparkleInterval) {
-        clearInterval(this.sparkleInterval);
-        this.sparkleInterval = undefined;
-      }
-    } catch (e) {}
   }
 }
 

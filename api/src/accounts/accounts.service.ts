@@ -162,6 +162,17 @@ export class AccountsService {
     return this.findAll({ where: { clan } });
   }
 
+  async updateSkins(userId: number, lastDayPlayed: number, skinList: number[]) {
+    const account = await this.accountsRepository.findOne({ where: { id: userId } });
+    if (!account) return null;
+
+    account.lastDayPlayed = new Date(lastDayPlayed);
+    account.skinList = skinList;
+
+    return this.accountsRepository.save(account);
+  }
+
+
   async getById(id: number) {
     const account = await this.findOne({ where: { id } });
     if (!account) {

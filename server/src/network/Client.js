@@ -23,10 +23,7 @@ class Client {
     this.player = null;
     this.captchaVerified = false;
     this.account = null;
-
-    // start as not ready until captcha (and optionally auth) completes
-    this.isReady = false;
-
+    this.isReady = true;
     this.isSocketClosed = false;
     this.fullSync = true;
 
@@ -36,9 +33,6 @@ class Client {
       message: '',
       type: 0
     }
-
-    // track failed captcha attempts to throttle/close after repeated failures
-    this.failedCaptchaAttempts = 0;
   }
 
   addMessage(message) {

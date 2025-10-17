@@ -99,35 +99,99 @@ class GameState {
   }
 
   start(name: string) {
-
     const afterSent = () => {
-    if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
+      if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
     }
-    Socket.emit({ play: true, name });
-    afterSent();
+
+    console.log('[CAPTCHA] start() - recaptchaClientKey:', config.recaptchaClientKey);
+
+    if(config.recaptchaClientKey) {
+      console.log('[CAPTCHA] Waiting for reCAPTCHA to load...');
+      const waitForRecaptcha = () => {
+        if ((window as any).recaptcha) {
+          console.log('[CAPTCHA] reCAPTCHA loaded, executing for action: play');
+          (window as any).recaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: any) => {
+            console.log('[CAPTCHA] Received captcha token, length:', captcha?.length);
+            const captchaData = exportCaptcha(captcha);
+            console.log('[CAPTCHA] Sending play request with captcha data:', Object.keys(captchaData));
+            Socket.emit({ play: true, name, ...captchaData });
+            afterSent();
+          }).catch((err: any) => {
+            console.error('[CAPTCHA] Error executing captcha:', err);
+          });
+        } else {
+          console.log('[CAPTCHA] reCAPTCHA not available yet, retrying in 100ms...');
+          setTimeout(waitForRecaptcha, 100);
+        }
+      }
+      waitForRecaptcha();
+    } else {
+      console.log('[CAPTCHA] Sending play request without captcha (disabled)');
+      Socket.emit({ play: true, name });
+      afterSent();
+    }
   }
 
   restart() {
-    Socket.emit({ play: true });
-    if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
-    if(!this.game.hud.evolutionSelect.minimized) this.game.hud.evolutionSelect.toggleMinimize();
+    const afterSent = () => {
+      if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
+      if(!this.game.hud.evolutionSelect.minimized) this.game.hud.evolutionSelect.toggleMinimize();
+    }
+
+    console.log('[CAPTCHA] restart() - recaptchaClientKey:', config.recaptchaClientKey);
+
+    if(config.recaptchaClientKey) {
+      console.log('[CAPTCHA] Waiting for reCAPTCHA to load...');
+      const waitForRecaptcha = () => {
+        if ((window as any).recaptcha) {
+          console.log('[CAPTCHA] reCAPTCHA loaded, executing for action: play');
+          (window as any).recaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: any) => {
+            console.log('[CAPTCHA] Received captcha token, length:', captcha?.length);
+            const captchaData = exportCaptcha(captcha);
+            console.log('[CAPTCHA] Sending play request with captcha data:', Object.keys(captchaData));
+            Socket.emit({ play: true, ...captchaData });
+            afterSent();
+          }).catch((err: any) => {
+            console.error('[CAPTCHA] Error executing captcha:', err);
+          });
+        } else {
+          console.log('[CAPTCHA] reCAPTCHA not available yet, retrying in 100ms...');
+          setTimeout(waitForRecaptcha, 100);
+        }
+      }
+      waitForRecaptcha();
+    } else {
+      console.log('[CAPTCHA] Sending play request without captcha (disabled)');
+      Socket.emit({ play: true });
+      afterSent();
+    }
   }
 
   spectate() {
+    console.log('[CAPTCHA] spectate() - recaptchaClientKey:', config.recaptchaClientKey, 'captchaVerified:', this.captchaVerified);
+
     if(config.recaptchaClientKey && !this.captchaVerified) {
-    if(this.debugMode) alert("Attempting recaptcha");
+      if(this.debugMode) alert("Attempting recaptcha");
+      console.log('[CAPTCHA] Waiting for reCAPTCHA to load...');
       const waitForRecaptcha = () => {
         if ((window as any).recaptcha) {
             // reCAPTCHA is available, execute your code
             if(this.debugMode) alert("Recaptcha available, executing");
-            // (window as any).recaptcha.execute(config.recaptchaClientKey, { action: 'spectate' }).then((captcha: any) => {
-                // if (this.debugMode) alert("Received captcha of length " + captcha.length + ", sending spectate");
+            console.log('[CAPTCHA] reCAPTCHA loaded, executing for action: spectate');
+            (window as any).recaptcha.execute(config.recaptchaClientKey, { action: 'spectate' }).then((captcha: any) => {
+                if (this.debugMode) alert("Received captcha of length " + captcha.length + ", sending spectate");
+                console.log('[CAPTCHA] Received captcha token, length:', captcha?.length);
                 this.captchaVerified = true;
-                Socket.emit({ spectate: true });
-            // });
+                const captchaData = exportCaptcha(captcha);
+                console.log('[CAPTCHA] Sending spectate request with captcha data:', Object.keys(captchaData));
+                Socket.emit({ spectate: true, ...captchaData });
+            }).catch((err: any) => {
+                console.error('[CAPTCHA] Error executing captcha:', err);
+            });
         } else {
             // reCAPTCHA is not available, check again after 100ms
             if(this.debugMode) alert("Recaptcha not available, waiting 100ms");
+            console.log('[CAPTCHA] reCAPTCHA not available yet, retrying in 100ms...');
             setTimeout(waitForRecaptcha, 100);
         }
     }
@@ -137,7 +201,8 @@ class GameState {
 
     } else {
       if(this.debugMode) alert("Sending spectate w/o recaptcha");
-    Socket.emit({ spectate: true });
+      console.log('[CAPTCHA] Sending spectate request without captcha (disabled or already verified)');
+      Socket.emit({ spectate: true });
     }
   }
 

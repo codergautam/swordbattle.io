@@ -1,5 +1,5 @@
 export default function exportCaptcha(captcha: string) {
-  const parts = 6;
+  const parts = 12;
   const maxLenPerPart = 200;
   if(captcha.length > parts * maxLenPerPart) {
     alert('Captcha too long, length: ' + captcha.length+ ', max length: ' + parts * maxLenPerPart);

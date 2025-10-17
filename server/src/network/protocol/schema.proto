@@ -17,7 +17,13 @@ message ClientMessage {
   string captchaP2 = 14;
   string captchaP3 = 15;
   string captchaP4 = 16;
-  string captchaP5 = 43;
+  string captchaP5 = 45;
+  string captchaP6 = 46;
+  string captchaP7 = 47;
+  string captchaP8 = 48;
+  string captchaP9 = 49;
+  string captchaP10 = 50;
+  string captchaP11 = 51;
 }
 message InputData {
   int32 inputType = 1;
@@ -121,7 +127,7 @@ message Entity {
   int32 disconnectReasonType = 41;
   // skin
   int32 skin = 42;
-  
+
   bool wideSwing = 43;
   int32 coinShield = 44;
 }

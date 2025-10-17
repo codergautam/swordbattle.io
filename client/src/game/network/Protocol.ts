@@ -16,6 +16,12 @@ export interface ClientMessage {
   captchaP3?: string;
   captchaP4?: string;
   captchaP5?: string;
+  captchaP6?: string;
+  captchaP7?: string;
+  captchaP8?: string;
+  captchaP9?: string;
+  captchaP10?: string;
+  captchaP11?: string;
 }
 
 export function encodeClientMessage(message: ClientMessage): Uint8Array {
@@ -147,11 +153,53 @@ function _encodeClientMessage(message: ClientMessage, bb: ByteBuffer): void {
     writeString(bb, $captchaP4);
   }
 
-  // optional string captchaP5 = 43;
+  // optional string captchaP5 = 45;
   let $captchaP5 = message.captchaP5;
   if ($captchaP5 !== undefined) {
-    writeVarint32(bb, 346);
+    writeVarint32(bb, 362);
     writeString(bb, $captchaP5);
+  }
+
+  // optional string captchaP6 = 46;
+  let $captchaP6 = message.captchaP6;
+  if ($captchaP6 !== undefined) {
+    writeVarint32(bb, 370);
+    writeString(bb, $captchaP6);
+  }
+
+  // optional string captchaP7 = 47;
+  let $captchaP7 = message.captchaP7;
+  if ($captchaP7 !== undefined) {
+    writeVarint32(bb, 378);
+    writeString(bb, $captchaP7);
+  }
+
+  // optional string captchaP8 = 48;
+  let $captchaP8 = message.captchaP8;
+  if ($captchaP8 !== undefined) {
+    writeVarint32(bb, 386);
+    writeString(bb, $captchaP8);
+  }
+
+  // optional string captchaP9 = 49;
+  let $captchaP9 = message.captchaP9;
+  if ($captchaP9 !== undefined) {
+    writeVarint32(bb, 394);
+    writeString(bb, $captchaP9);
+  }
+
+  // optional string captchaP10 = 50;
+  let $captchaP10 = message.captchaP10;
+  if ($captchaP10 !== undefined) {
+    writeVarint32(bb, 402);
+    writeString(bb, $captchaP10);
+  }
+
+  // optional string captchaP11 = 51;
+  let $captchaP11 = message.captchaP11;
+  if ($captchaP11 !== undefined) {
+    writeVarint32(bb, 410);
+    writeString(bb, $captchaP11);
   }
 }
 
@@ -270,9 +318,45 @@ function _decodeClientMessage(bb: ByteBuffer): ClientMessage {
         break;
       }
 
-      // optional string captchaP5 = 43;
-      case 43: {
+      // optional string captchaP5 = 45;
+      case 45: {
         message.captchaP5 = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string captchaP6 = 46;
+      case 46: {
+        message.captchaP6 = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string captchaP7 = 47;
+      case 47: {
+        message.captchaP7 = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string captchaP8 = 48;
+      case 48: {
+        message.captchaP8 = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string captchaP9 = 49;
+      case 49: {
+        message.captchaP9 = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string captchaP10 = 50;
+      case 50: {
+        message.captchaP10 = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional string captchaP11 = 51;
+      case 51: {
+        message.captchaP11 = readString(bb, readVarint32(bb));
         break;
       }
 
@@ -964,7 +1048,6 @@ function _encodeAccount(message: Account, bb: ByteBuffer): void {
   }
 }
 
-
 export function decodeAccount(binary: Uint8Array): Account {
   return _decodeAccount(wrapByteBuffer(binary));
 }
@@ -977,46 +1060,46 @@ function _decodeAccount(bb: ByteBuffer): Account {
 
     switch (tag >>> 3) {
       case 0:
-      break end_of_message;
+        break end_of_message;
 
       // optional int32 id = 1;
       case 1: {
-      message.id = readVarint32(bb);
-      break;
+        message.id = readVarint32(bb);
+        break;
       }
 
       // optional string created_at = 2;
       case 2: {
-      message.created_at = readString(bb, readVarint32(bb));
-      break;
+        message.created_at = readString(bb, readVarint32(bb));
+        break;
       }
 
       // optional bool subscription = 3;
       case 3: {
-      message.subscription = !!readByte(bb);
-      break;
+        message.subscription = !!readByte(bb);
+        break;
       }
 
       // optional string subscription_start_date = 4;
       case 4: {
-      message.subscription_start_date = readString(bb, readVarint32(bb));
-      break;
+        message.subscription_start_date = readString(bb, readVarint32(bb));
+        break;
       }
 
       // optional int32 rank = 5;
       case 5: {
-      message.rank = readVarint32(bb);
-      break;
+        message.rank = readVarint32(bb);
+        break;
       }
 
       // optional string clan = 6;
       case 6: {
-      message.clan = readString(bb, readVarint32(bb));
-      break;
+        message.clan = readString(bb, readVarint32(bb));
+        break;
       }
 
       default:
-      skipUnknownField(bb, tag & 7);
+        skipUnknownField(bb, tag & 7);
     }
   }
 
@@ -1509,7 +1592,7 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
   // optional bool pullbackParticles = 37;
   let $pullbackParticles = message.pullbackParticles;
   if ($pullbackParticles !== undefined) {
-    writeVarint32(bb, 241);
+    writeVarint32(bb, 296);
     writeByte(bb, $pullbackParticles ? 1 : 0);
   }
 
@@ -1551,14 +1634,14 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
   // optional bool wideSwing = 43;
   let $wideSwing = message.wideSwing;
   if ($wideSwing !== undefined) {
-    writeVarint32(bb, 344); // 43 << 3 | 0
+    writeVarint32(bb, 344);
     writeByte(bb, $wideSwing ? 1 : 0);
   }
 
   // optional int32 coinShield = 44;
   let $coinShield = message.coinShield;
   if ($coinShield !== undefined) {
-    writeVarint32(bb, 352); // 44 << 3 | 0
+    writeVarint32(bb, 352);
     writeVarint64(bb, intToLong($coinShield));
   }
 }

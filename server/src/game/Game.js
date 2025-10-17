@@ -160,44 +160,48 @@ class Game {
 
   processClientMessage(client, data) {
     if (data.spectate && !client.spectator.isSpectating) {
+      console.log('[CAPTCHA] Spectate request - recaptchaSecretKey:', !!config.recaptchaSecretKey, 'captchaVerified:', client.captchaVerified, 'hasCaptchaP1:', !!data.captchaP1);
+
       if(config.recaptchaSecretKey && !client.captchaVerified && !data.captchaP1) {
-      // try {
-
-      //     client.socket.close();
-
-      //   } catch(e) {
-      //   console.log(e)
-      //   }
-      //   return;
-      this.addSpectator(client);
-      client.captchaVerified = true;
+        console.log('[CAPTCHA] Spectate rejected - no captcha data provided');
+        try {
+          client.socket.close();
+        } catch(e) {
+          console.log(e)
+        }
+        return;
       } else if(config.recaptchaSecretKey && !client.captchaVerified && data.captchaP1) {
-        // const captchaAsText = helpers.importCaptcha(data);
-        // const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${config.recaptchaSecretKey}&response=${captchaAsText}&remoteip=${client.ip}`;
+        console.log('[CAPTCHA] Verifying spectate captcha...');
+        const captchaAsText = helpers.importCaptcha(data);
+        console.log('[CAPTCHA] Captcha token length:', captchaAsText?.length);
+        const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${config.recaptchaSecretKey}&response=${captchaAsText}&remoteip=${client.ip}`;
 
-        // fetch(verifyUrl, {
-        //   method: 'post',
-        //   headers: {
-        //     Accept: 'application/json',
-        //     'Content-Type': 'application/json',
-        //   },
-        // }).then(res => res.json()).then(json => {
-        //   if(json.success && json.score >= 0.1) {
+        fetch(verifyUrl, {
+          method: 'post',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }).then(res => res.json()).then(json => {
+          console.log('[CAPTCHA] Spectate verification response:', json);
+          if(json.success && json.score >= 0.1) {
+            console.log('[CAPTCHA] Spectate captcha verified successfully');
             this.addSpectator(client);
             client.captchaVerified = true;
-        //   } else {
-        //     console.log('disconnected reason: invalid recaptcha', json);
-        //     try {
-        //     client.socket.close();
-        //     } catch(e) {
-        //       console.log(e);
-        //     }
-        //   }
-        // }).catch(err => {
-        //   console.log(err);
-        //   client.socket.close();
-        // });
+          } else {
+            console.log('[CAPTCHA] Spectate captcha verification failed:', json);
+            try {
+              client.socket.close();
+            } catch(e) {
+              console.log(e);
+            }
+          }
+        }).catch(err => {
+          console.log('[CAPTCHA] Spectate captcha verification error:', err);
+          client.socket.close();
+        });
       } else if(!config.recaptchaSecretKey || client.captchaVerified) {
+        console.log('[CAPTCHA] Spectate allowed without captcha check - disabled or already verified');
         this.addSpectator(client);
       }
 
@@ -206,17 +210,51 @@ class Game {
 
     let { player } = client;
     if (data.play && (!player || player.removed)) {
+      console.log('[CAPTCHA] Play request - recaptchaSecretKey:', !!config.recaptchaSecretKey, 'captchaVerified:', client.captchaVerified, 'hasCaptchaP1:', !!data.captchaP1, 'ip:', client.ip);
+
       if (getBannedIps().includes(client.ip)) {
         // close connection
         console.log('disconnected reason: banned ip', client.ip);
         client.socket.close();
         return;
       }
-      if(config.recaptchaSecretKey && !client.captchaVerified) {
-        console.log('disconnected reason: joining without recaptcha verification', client.ip);
+      if(config.recaptchaSecretKey && !data.captchaP1) {
+        console.log('[CAPTCHA] Play rejected - no captcha data provided');
         client.socket.close();
+        return;
       }
-        player = this.addPlayer(client, data);
+      if(config.recaptchaSecretKey && data.captchaP1) {
+        console.log('[CAPTCHA] Verifying play captcha...');
+        const captchaAsText = helpers.importCaptcha(data);
+        console.log('[CAPTCHA] Captcha token length:', captchaAsText?.length);
+        const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${config.recaptchaSecretKey}&response=${captchaAsText}&remoteip=${client.ip}`;
+
+        fetch(verifyUrl, {
+          method: 'post',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }).then(res => res.json()).then(json => {
+          console.log('[CAPTCHA] Play verification response:', json);
+          if(json.success && json.score >= 0.1) {
+            console.log('[CAPTCHA] Play captcha verified successfully');
+            player = this.addPlayer(client, data);
+          } else {
+            console.log('[CAPTCHA] Play captcha verification failed:', json);
+            try {
+              client.socket.close();
+            } catch(e) {
+              console.log(e);
+            }
+          }
+        }).catch(err => {
+          console.log('[CAPTCHA] Play captcha verification error:', err);
+          client.socket.close();
+        });
+        return;
+      }
+      player = this.addPlayer(client, data);
     }
 
     if (!player) return;

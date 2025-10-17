@@ -557,23 +557,24 @@ function App() {
                 </div>
               </div>
               <div
-  className="panel tipCard"
-  style={{
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    width: '75%',
-    margin: 'auto',
-    marginTop: 5,
-    padding: 7,
-    fontSize: 13,
-    boxSizing: 'border-box',
-    maxWidth: '100%',
-  }}
-  title={randomMessage}
->
-  {randomMessage}
-</div>
+                className="panel tipCard"
+                style={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  width: '75%',
+                  margin: 'auto',
+                  marginTop: 5,
+                  padding: 7,
+                  fontSize: 13,
+                  boxSizing: 'border-box',
+                  maxWidth: '100%',
+                  color: 'yellow'
+                }}
+                title={randomMessage}
+              >
+                We're sorry for the recent server issues. As compensation, you can claim 50,000 gems <span style={{color: 'cyan'}}>(and a free skin)</span> in the shop!
+              </div>
               <br />
               <div className='fullWidth'>
                 <div id="adBelow">

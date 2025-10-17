@@ -263,7 +263,7 @@ export class AccountsService {
 
     // Check if the skin is still available (Today's Skins)
     const todays = this.computeGlobalSkinList();
-    if (!todays.includes(itemId) && !cosmetic.event && !cosmetic.ultimate) {
+    if (!todays.includes(itemId) && !cosmetic.event && !cosmetic.ultimate && !cosmetic.currency && !cosmetic.sale) {
       return { error: "Skin is no longer available in today's shop; refresh the page for new available skins" };
     }
 

@@ -39,6 +39,8 @@ interface Skin {
   sale: boolean;
   saletag: string;
   ogprice?: number;
+
+  currency?: boolean;
 }
 
 const rotate = false;
@@ -332,6 +334,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
         if (skin.eventoffsale) return false;
+        if (skin.currency) return false;
         if (!account?.skins.owned.includes(skin.id)) return false;
         if (!Settings.showUltimate && skin.ultimate) return false;
         if (!Settings.showEvent && skin.event) return false;
@@ -485,6 +488,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
+        if (skin.currency) return false;
         if (!account?.skins.owned.includes(skin.id)) return false;
         if (!Settings.showUltimate && skin.ultimate) return false;
         if (!Settings.showEvent && skin.event) return false;

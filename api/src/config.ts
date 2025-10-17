@@ -29,7 +29,7 @@ export const config: ConfigProps = {
   usernameLength: [1, 16],
 
   clanWaitTime: 7 * 24 * 60 * 60 * 1000, // 3 days
-  clanLength: [1, 5],
+  clanLength: [1, 4],
 
   bioLength: [1, 150]
 };

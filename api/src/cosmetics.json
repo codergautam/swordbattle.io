@@ -4470,6 +4470,29 @@
       "swordFileName": "golfSword.png",
       "bodyFileName": "golfPlayer.png",
       "description": "Hole in one!"
+    },
+    "50kfreegems": {
+      "name": "50kfreegems",
+      "displayName": "50k Free Gems",
+      "id": 500,
+      "buyable": true,
+      "price": 50000,
+      "currency": true,
+      "sale": true,
+      "swordFileName": "sword.png",
+      "bodyFileName": "player.png",
+      "description": "Compensation for recent server outages"
+    },
+    "botter": {
+      "name": "botter",
+      "displayName": "Botter",
+      "id": 501,
+      "buyable": true,
+      "price": 0,
+      "sale": true,
+      "swordFileName": "botterSword.png",
+      "bodyFileName": "botterPlayer.png",
+      "description": "The middle ground between a pro hacker and a jobless loser"
     }
   }
 }

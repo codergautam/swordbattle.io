@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post, UseGuards, Res, Req } from '@nestjs/common';
 import { Response } from 'express';
+import { Throttle } from '@nestjs/throttler';
 import { RegisterDTO, LoginDTO, SecretLoginDTO } from './auth.dto';
 import { AuthService } from './auth.service';
 import { ServerGuard } from './guards/server.guard';
@@ -65,6 +66,7 @@ export class AuthController {
   }
 
   @UseGuards(AccountGuard)
+  @Throttle({ short: { limit: 1, ttl: 1000 }, medium: { limit: 5, ttl: 60000 } })
   @Post('change-username')
   async changeUsername(@Req() request) {
     let result = await this.authService.changeUsername(request.account, request.body.newUsername);
@@ -72,6 +74,7 @@ export class AuthController {
   }
 
   @UseGuards(AccountGuard)
+  @Throttle({ short: { limit: 1, ttl: 1000 }, medium: { limit: 5, ttl: 60000 } })
   @Post('change-clantag')
   async changeClantag(@Req() request) {
     let result = await this.authService.changeClantag(request.account, request.body.newClantag);
@@ -79,6 +82,7 @@ export class AuthController {
   }
 
   @UseGuards(AccountGuard)
+  @Throttle({ short: { limit: 1, ttl: 1000 }, medium: { limit: 5, ttl: 60000 } })
   @Post('change-userbio')
   async changeUserbio(@Req() request) {
     let result = await this.authService.changeUserbio(request.account, request.body.newUserbio);

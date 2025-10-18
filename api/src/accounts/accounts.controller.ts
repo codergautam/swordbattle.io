@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Post, Req, UseGuards, Query, Body } from '@nestjs/common';
 import { Request } from 'express';
+import { Throttle } from '@nestjs/throttler';
 import { AccountsService } from './accounts.service';
 import { StatsService } from 'src/stats/stats.service';
 import { AuthService } from 'src/auth/auth.service';
@@ -22,6 +23,7 @@ export class AccountsController {
   }
 
   @UseGuards(AccountGuard)
+  @Throttle({ short: { limit: 2, ttl: 1000 }, medium: { limit: 10, ttl: 60000 } })
   @Post('cosmetics/:type/buy/:itemId')
   async buySkin(@Req() request: any) {
     const id = request.account.id;
@@ -42,6 +44,7 @@ export class AccountsController {
   }
 
   @UseGuards(AccountGuard)
+  @Throttle({ short: { limit: 3, ttl: 1000 }, medium: { limit: 20, ttl: 60000 } })
   @Post('cosmetics/skins/equip/:skinId')
   async equipSkin(@Req() request: any) {
     const { token } = request.body;
@@ -72,6 +75,7 @@ export class AccountsController {
     return { rank };
   }
 
+  @Throttle({ short: { limit: 5, ttl: 1000 }, medium: { limit: 30, ttl: 60000 } })
   @Post('getPublicUserInfo/:username')
   async getAccount(@Param('username') username: string, @Req() request: Request) {
     const account = await this.accountsService.getByUsername(username);
@@ -94,6 +98,7 @@ export class AccountsController {
     return { account, totalStats, dailyStats, rank, clan };
   }
 
+  @Throttle({ short: { limit: 5, ttl: 1000 }, medium: { limit: 30, ttl: 60000 } })
   @Post('getPublicUserInfoById/:id')
   async getAccountById(@Param('id') id: number, @Req() request: Request) {
     const account = await this.accountsService.getById(id);

@@ -3392,8 +3392,8 @@
       "id": 343,
       "buyable": false,
       "price": 0,
-      "swordFileName": "unreleasedTumbleweedSword.png",
-      "bodyFileName": "unreleasedTumbleweedPlayer.png",
+      "swordFileName": "unreleasedTumbleweedSword2.png",
+      "bodyFileName": "unreleasedTumbleweedPlayer2.png",
       "description": "Not available for sale."
     },
     "sugar": {

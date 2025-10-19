@@ -9,6 +9,7 @@ const config = require('../config');
 const filter = require('leo-profanity');
 const Types = require('./Types');
 const { getBannedIps } = require('../moderation');
+const { filterChatMessage } = helpers;
 class Game {
   constructor() {
     this.entities = new Map();
@@ -21,6 +22,9 @@ class Game {
 
     this.entitiesQuadtree = null;
     this.tps = 0;
+
+    this.maxEntities = 10000;
+    this.maxPlayers = 100;
   }
 
   initialize() {
@@ -218,6 +222,30 @@ class Game {
         client.socket.close();
         return;
       }
+
+      const now = Date.now();
+      if (now - client.lastPlayTime < client.playCooldown) {
+        console.warn(`[RATE_LIMIT] Client ${client.id} (${client.ip}) attempted to spawn too quickly (cooldown: ${now - client.lastPlayTime}ms)`);
+        return; // Silently reject - don't disconnect, just ignore
+      }
+
+      if (now > client.playCountResetTime) {
+        client.playCount = 0;
+        client.playCountResetTime = now + 60000;
+      }
+
+      client.playCount++;
+      if (client.playCount > client.maxPlaysPerMinute) {
+        console.warn(`[RATE_LIMIT] Client ${client.id} (${client.ip}) exceeded play limit (${client.playCount} plays/min)`);
+        client.disconnectReason = {
+          message: 'Respawn spam detected',
+          type: 1
+        };
+        client.socket.close();
+        return;
+      }
+
+      client.lastPlayTime = now;
       if(config.recaptchaSecretKey && !data.captchaP1) {
         console.log('[CAPTCHA] Play rejected - no captcha data provided');
         client.socket.close();
@@ -401,12 +429,21 @@ class Game {
   }
 
   addPlayer(client, data) {
+    if (this.players.size >= this.maxPlayers) {
+      console.warn(`[LIMIT] Server at max player capacity (${this.players.size}/${this.maxPlayers})`);
+      client.disconnectReason = {
+        message: 'Server full',
+        type: 0
+      };
+      return null;
+    }
+
     // const name = client.player
     //   ? client.player.name
     //   : (client.account ? client.account.username : this.handleNickname(data.name || ''));
     const name = client.account && client.account.username ? client.account.username : (
       client.player && client.player.name ? client.player.name
-        : this.handleNickname(filter.clean(data.name) || '')
+        : this.handleNickname(filterChatMessage(data.name, filter) || '')
     )
     if (data?.name && data.name !== name) {
       data.name = name;
@@ -463,6 +500,11 @@ class Game {
 
   addEntity(entity) {
     if (this.entities.has(entity?.id)) return;
+
+    if (this.entities.size >= this.maxEntities && entity.type !== Types.Entity.Player && entity.type !== Types.Entity.Sword) {
+      console.warn(`[LIMIT] Max entities reached (${this.entities.size}/${this.maxEntities}), rejecting entity type ${entity.type}`);
+      return null;
+    }
 
     if (entity.id === null) {
       entity.id = this.idPool.take();

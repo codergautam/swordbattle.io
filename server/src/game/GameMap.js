@@ -119,7 +119,15 @@ spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
   const coins = Math.min(Math.round(totalCoinValue / 5), maxCoinsCount);
   const coinValue = totalCoinValue / coins;
 
-  for (let i = 0; i < coins; i++) {
+  const entityBuffer = 500;
+  const availableSlots = this.game.maxEntities - this.game.entities.size - entityBuffer;
+  const coinsToSpawn = Math.min(coins, Math.max(0, availableSlots));
+
+  if (coinsToSpawn < coins) {
+    console.warn(`[LIMIT] Coin spawn limited from ${coins} to ${coinsToSpawn} due to entity limit (${this.game.entities.size}/${this.game.maxEntities})`);
+  }
+
+  for (let i = 0; i < coinsToSpawn; i++) {
     // Get a random point within the shape for the coin's position
     const randomPoint = shape.getRandomPoint();
     const coin = this.game.map.addEntity({

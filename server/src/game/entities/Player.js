@@ -15,7 +15,7 @@ const Timer = require('../components/Timer');
 const EvolutionSystem = require('../evolutions');
 const Types = require('../Types');
 const config = require('../../config');
-const { clamp, calculateGemsXP } = require('../../helpers');
+const { clamp, calculateGemsXP, filterChatMessage } = require('../../helpers');
 const { skins } = require('../../cosmetics.json');
 
 // Check if any duplicate ids in cosmetics.json
@@ -388,7 +388,7 @@ class Player extends Entity {
     if (message.length === '') return;
 
     message = message.slice(0, 35);
-    message = filter.clean(message);
+    message = filterChatMessage(message, filter);
     this.chatMessage = message;
     this.chatMessageTimer.renew();
   }

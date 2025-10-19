@@ -39,6 +39,12 @@ class Client {
     this.messageResetTimer = 0;
     this.maxMessagesPerSecond = 120; // 120 messages per second (2 per tick at 60 TPS)
     this.maxQueueSize = 100; // Maximum queued messages
+
+    this.lastPlayTime = 0;
+    this.playCount = 0;
+    this.playCooldown = 1000;
+    this.maxPlaysPerMinute = 20;
+    this.playCountResetTime = Date.now() + 60000;
   }
 
   addMessage(message) {

@@ -79,6 +79,38 @@ module.exports = {
       }
     });
     return output;
+  },
+
+  filterChatMessage(message, filter) {
+    if (!message || message.length === 0) return message;
+
+    const normalized = message
+      .toLowerCase()
+      .replace(/\s+/g, '') // no whitespace
+      .replace(/0/g, 'o')
+      .replace(/1/g, 'i')
+      .replace(/3/g, 'e')
+      .replace(/4/g, 'a')
+      .replace(/5/g, 's')
+      .replace(/7/g, 't')
+      .replace(/8/g, 'b')
+      .replace(/\$/g, 's')
+      .replace(/@/g, 'a')
+      .replace(/\!/g, 'i')
+      .replace(/\*/g, '')
+      .replace(/\+/g, 't')
+      .replace(/\|/g, 'i')
+      .replace(/\./g, '')
+      .replace(/\_/g, '')
+      .replace(/-/g, '');
+
+    const hasProfanity = filter.check(normalized);
+
+    if (hasProfanity) {
+      return '*'.repeat(message.length);
+    }
+
+    return message;
   }
 
 };

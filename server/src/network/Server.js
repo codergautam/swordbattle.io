@@ -9,6 +9,12 @@ class Server {
     this.game = game;
     this.clients = new Map();
     this.disconnectedClients = new Set();
+
+    // Connection rate limiting per IP
+    this.connectionsByIP = new Map(); // ip -> { count, resetTime }
+    this.maxConnectionsPerIP = 10; // Max 10 concurrent connections per IP
+    this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime }
+    this.maxConnectionAttemptsPerMinute = 30; // Max 30 connection attempts per minute per IP
   }
 
   get online() {
@@ -30,18 +36,73 @@ class Server {
       },
       open: (socket) => {
         const client = new Client(this.game, socket);
-        if (getBannedIps().includes(client.ip)) {
+        const ip = client.ip;
+
+        // Check if IP is banned
+        if (getBannedIps().includes(ip)) {
           client.socket.close();
-          console.log(`Client ${client.id} (${client.ip}) tried to connect but is banned.`);
+          console.log(`[BAN] Client ${client.id} (${ip}) tried to connect but is banned.`);
           return;
         }
+
+        // Check connection attempts rate limit
+        const now = Date.now();
+        if (!this.connectionAttemptsByIP.has(ip)) {
+          this.connectionAttemptsByIP.set(ip, { attempts: 1, resetTime: now + 60000 });
+        } else {
+          const attemptData = this.connectionAttemptsByIP.get(ip);
+          if (now > attemptData.resetTime) {
+            attemptData.attempts = 1;
+            attemptData.resetTime = now + 60000;
+          } else {
+            attemptData.attempts++;
+            if (attemptData.attempts > this.maxConnectionAttemptsPerMinute) {
+              console.warn(`[RATE_LIMIT] IP ${ip} exceeded connection attempt limit (${attemptData.attempts} attempts/min)`);
+              client.socket.close();
+              return;
+            }
+          }
+        }
+
+        // Count current connections from this IP
+        let connectionsFromIP = 0;
+        for (const existingClient of this.clients.values()) {
+          if (existingClient.ip === ip) {
+            connectionsFromIP++;
+          }
+        }
+
+        // Check concurrent connection limit per IP
+        if (connectionsFromIP >= this.maxConnectionsPerIP) {
+          console.warn(`[RATE_LIMIT] IP ${ip} exceeded concurrent connection limit (${connectionsFromIP} connections)`);
+          client.socket.close();
+          return;
+        }
+
         this.addClient(client);
       },
       message: (socket, message) => {
         const client = this.clients.get(socket.id);
-        const data = Protocol.decode(message);
-        if (data) {
-          client.addMessage(data);
+        if (!client) {
+          console.warn('[SECURITY] Message received from unknown client');
+          return;
+        }
+
+        // Additional validation - maxPayloadLength is set in config but double-check
+        if (message.byteLength > 2048) {
+          console.warn(`[SECURITY] Client ${client.id} (${client.ip}) sent oversized message (${message.byteLength} bytes)`);
+          client.socket.close();
+          return;
+        }
+
+        try {
+          const data = Protocol.decode(message);
+          if (data) {
+            client.addMessage(data);
+          }
+        } catch (error) {
+          console.error(`[SECURITY] Error decoding message from client ${client.id}:`, error);
+          // Don't close connection for decode errors, just ignore the message
         }
       },
       close: (socket, code) => {
@@ -100,6 +161,14 @@ class Server {
     this.game.endTick();
     this.clients.forEach(client => client.cleanup());
 
+    // Cleanup expired rate limit tracking data every 60 seconds (3600 ticks at 60 TPS)
+    if (!this.rateLimitCleanupTimer) this.rateLimitCleanupTimer = 0;
+    this.rateLimitCleanupTimer++;
+    if (this.rateLimitCleanupTimer >= 3600) {
+      this.cleanupRateLimitTracking();
+      this.rateLimitCleanupTimer = 0;
+    }
+
     // calculate top entity types
     // const topEntityTypes = new Map();
     // for (const entity of this.game.entities) {
@@ -110,6 +179,17 @@ class Server {
     //   topEntityTypes.set(entity.type, topEntityTypes.get(entity.type) + 1);
     // }
     // console.log('top 5 entity types by count:', [...topEntityTypes.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5), 'total:', this.game.entities.size);
+  }
+
+  cleanupRateLimitTracking() {
+    const now = Date.now();
+
+    // Clean up expired connection attempt tracking
+    for (const [ip, data] of this.connectionAttemptsByIP.entries()) {
+      if (now > data.resetTime) {
+        this.connectionAttemptsByIP.delete(ip);
+      }
+    }
   }
 }
 

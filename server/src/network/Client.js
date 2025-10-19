@@ -33,9 +33,46 @@ class Client {
       message: '',
       type: 0
     }
+
+    // Rate limiting
+    this.messageCount = 0;
+    this.messageResetTimer = 0;
+    this.maxMessagesPerSecond = 120; // 120 messages per second (2 per tick at 60 TPS)
+    this.maxQueueSize = 100; // Maximum queued messages
   }
 
   addMessage(message) {
+    // Rate limiting check
+    this.messageCount++;
+    if (this.messageCount > this.maxMessagesPerSecond) {
+      console.warn(`[RATE_LIMIT] Client ${this.id} (${this.ip}) exceeded message rate limit (${this.messageCount}/s)`);
+      this.disconnectReason = {
+        message: 'Rate limit exceeded',
+        type: 1
+      };
+      try {
+        this.socket.close();
+      } catch(e) {
+        console.error('Error closing socket:', e);
+      }
+      return;
+    }
+
+    // Queue size check
+    if (this.messages.length >= this.maxQueueSize) {
+      console.warn(`[RATE_LIMIT] Client ${this.id} (${this.ip}) exceeded queue size limit (${this.messages.length})`);
+      this.disconnectReason = {
+        message: 'Message queue overflow',
+        type: 1
+      };
+      try {
+        this.socket.close();
+      } catch(e) {
+        console.error('Error closing socket:', e);
+      }
+      return;
+    }
+
     if(message.hasOwnProperty("token") && message.token === '' && this.token !== '' && this.account !== null) {
       this.token = '';
       this.account = null;
@@ -72,6 +109,13 @@ class Client {
     if (this.pingTimer <= 0) {
       this.socket.ping();
       this.pingTimer = 900;
+    }
+
+    // Reset rate limit counter every second (60 ticks at 60 TPS)
+    this.messageResetTimer += 1;
+    if (this.messageResetTimer >= 60) {
+      this.messageCount = 0;
+      this.messageResetTimer = 0;
     }
   }
 

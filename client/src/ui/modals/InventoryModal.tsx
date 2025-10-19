@@ -6,7 +6,7 @@ import api from '../../api';
 import * as cosmetics from '../../game/cosmetics.json'
 
 import './InventoryModal.scss'
-import { buyFormats, numberWithCommas, sinceFrom } from '../../helpers';
+import { numberWithCommas, sinceFrom } from '../../helpers';
 import { Id } from '@reduxjs/toolkit/dist/tsHelpers';
 let { skins } = cosmetics;
 
@@ -48,7 +48,6 @@ const rotate = false;
 const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
   const dispatch = useDispatch();
   const [skinStatus, setSkinStatus] = useState<{ [id: number]: string }>({});
-  const [skinCounts, setSkinCounts] = useState<{ [id: number]: number }>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBadge, setSelectedBadge] = useState('norm');
 
@@ -194,12 +193,6 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
     if(rotate) {
     modal.addEventListener('mousemove', handleMouseMove);
     }
-
-    // Fetch skin counts
-    api.get(`${api.endpoint}/profile/skins/buys`, (data) => {
-      if (data.error) return alert('Error fetching skin cnts '+ data.error);
-      setSkinCounts(data);
-    });
 
     return () => {
       if (modal && rotate) {
@@ -417,8 +410,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
             }}
             data-selected='skin'
             />
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-          <br/>
+          <h4 className='skin-count'>
           <p className='skin-desc'>{skin.description}</p>
           {
   (skin?.price ?? 0) > 0 ? (
@@ -570,8 +562,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
             }}
             data-selected='skin'
             />
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-          <br/>
+          <h4 className='skin-count'>
           <p className='skin-desc'>{skin.description}</p>
           {
   (skin?.price ?? 0) > 0 ? (

@@ -6,7 +6,7 @@ import api from '../../api';
 import * as cosmetics from '../../game/cosmetics.json'
 
 import './ShopModal.scss'
-import { buyFormats, numberWithCommas, sinceFrom } from '../../helpers';
+import { numberWithCommas, sinceFrom } from '../../helpers';
 import { Id } from '@reduxjs/toolkit/dist/tsHelpers';
 let { skins } = cosmetics;
 
@@ -50,7 +50,6 @@ const rotate = false;
 const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   const dispatch = useDispatch();
   const [skinStatus, setSkinStatus] = useState<{ [id: number]: string }>({});
-  const [skinCounts, setSkinCounts] = useState<{ [id: number]: number }>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBadge, setSelectedBadge] = useState('norm');
   const [shopDayKey, setShopDayKey] = useState<string>(() => getShopDayKey());
@@ -134,12 +133,6 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
     if(rotate) {
     modal.addEventListener('mousemove', handleMouseMove);
     }
-
-    // Fetch skin counts
-    api.get(`${api.endpoint}/profile/skins/buys`, (data) => {
-      if (data.error) return alert('Error fetching skin cnts '+ data.error);
-      setSkinCounts(data);
-    });
 
     return () => {
       if (modal && rotate) {
@@ -304,12 +297,6 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
     return finalList;
   }
   useEffect(() => {
-    // initial fetch
-    api.get(`${api.endpoint}/profile/skins/buys`, (data) => {
-      if (data.error) return alert('Error fetching skin cnts '+ data.error);
-      setSkinCounts(data);
-    });
-
     // countdown update every second
     const tick = () => {
       setTimeUntilResetMs(msUntilNextReset());
@@ -323,10 +310,6 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       const ms = msUntilNextReset();
       timeoutId = setTimeout(() => {
         setShopDayKey(getShopDayKey(new Date()));
-        // refresh counts and images on reset
-        api.get(`${api.endpoint}/profile/skins/buys`, (data) => {
-          if (!data?.error) setSkinCounts(data);
-        });
         // re-schedule for next day
         schedule();
       }, ms + 50); // slight buffer
@@ -456,8 +439,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
             }}
             data-selected='skin'
             />
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-          <br/>
+          <h4 className='skin-count'>
           <p className='skin-desc'>{skin.description}</p>
           {
   (skin?.price ?? 0) > 0 ? (
@@ -595,8 +577,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
               </>
             )}
             <br/>
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-          <br/>
+          <h4 className='skin-count'>
           <p className='skin-desc'>{skin.description}</p>
           {
         (skin?.price ?? 0) > 0 ? (
@@ -743,8 +724,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
             }}
             data-selected='skin'
             />
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-          <br/>
+          <h4 className='skin-count'>
           <p className='skin-desc'>{skin.description}</p>
           {
   (skin?.price ?? 0) > 0 ? (
@@ -880,8 +860,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
             }}
             data-selected='skin'
             />
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-          <br/>
+          <h4 className='skin-count'>
           <p className='skin-desc'>{skin.description}</p>
           {
   (skin?.price ?? 0) > 0 ? (
@@ -1017,8 +996,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
             }}
             data-selected='skin'
             />
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-          <br/>
+          <h4 className='skin-count'>
           <p className='skin-desc'>{skin.description}</p>
           {
   (skin?.price ?? 0) > 0 ? (

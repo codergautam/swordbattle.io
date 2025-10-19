@@ -52,6 +52,12 @@ checkForDuplicates();
 
 const filter = require('leo-profanity');
 
+// Configure profanity filter - remove mild words and false-positive-prone words
+filter.remove(['suck', 'sucks', 'damn', 'hell', 'crap', 'shota']);
+
+// Add missing plural forms and common variants of racial slurs
+filter.add(['niggas', 'niggers']);
+
 class Player extends Entity {
   constructor(game, name) {
     super(game, Types.Entity.Player);

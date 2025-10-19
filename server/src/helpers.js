@@ -81,10 +81,8 @@ module.exports = {
     return output;
   },
 
-  filterChatMessage(message, filter) {
-    if (!message || message.length === 0) return message;
-
-    const normalized = message
+  normalizeText(text) {
+    return text
       .toLowerCase()
       .replace(/\s+/g, '') // no whitespace
       .replace(/0/g, 'o')
@@ -103,8 +101,60 @@ module.exports = {
       .replace(/\./g, '')
       .replace(/\_/g, '')
       .replace(/-/g, '');
+  },
 
-    const hasProfanity = filter.check(normalized);
+  filterChatMessage(message, filter) {
+    if (!message || message.length === 0) return message;
+
+    const normalizeText = module.exports.normalizeText;
+    const normalizedMessage = normalizeText(message);
+
+    // Split message into words for word-boundary checking
+    const words = message.toLowerCase().split(/\s+/);
+
+    // Normalize all bad words from the filter
+    const badWords = filter.list();
+    const hasProfanity = badWords.some(word => {
+      const normalizedBadWord = normalizeText(word);
+
+      // Check each word in the message individually (prevents "pass" from matching "ass")
+      for (const messageWord of words) {
+        const normalizedWord = normalizeText(messageWord);
+
+        // 1. Exact match after normalization (catches leet speak, symbols, spaces)
+        if (normalizedWord === normalizedBadWord) {
+          return true;
+        }
+
+        // 2. Fuzzy vowel matching - only for short messages or single words
+        const badWordNoVowels = normalizedBadWord.replace(/[aeiou]/g, '');
+        const wordNoVowels = normalizedWord.replace(/[aeiou]/g, '');
+
+        // Match if consonants are identical AND word is shorter (vowels removed)
+        if (badWordNoVowels.length >= 3 &&
+            wordNoVowels === badWordNoVowels &&
+            normalizedWord.length < normalizedBadWord.length) {
+          return true;
+        }
+      }
+
+      // 3. Special case: check if entire message (normalized) is just the bad word with spaces
+      if (normalizedMessage === normalizedBadWord) {
+        return true;
+      }
+
+      // 4. Special case: check if entire message has consonants matching bad word
+      const normalizedMessageNoVowels = normalizedMessage.replace(/[aeiou]/g, '');
+      const badWordNoVowels = normalizedBadWord.replace(/[aeiou]/g, '');
+
+      if (badWordNoVowels.length >= 3 &&
+          normalizedMessageNoVowels === badWordNoVowels &&
+          normalizedMessage.length < normalizedBadWord.length) {
+        return true;
+      }
+
+      return false;
+    });
 
     if (hasProfanity) {
       return '*'.repeat(message.length);

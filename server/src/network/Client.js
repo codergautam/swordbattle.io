@@ -45,6 +45,11 @@ class Client {
     this.playCooldown = 1000;
     this.maxPlaysPerMinute = 20;
     this.playCountResetTime = Date.now() + 60000;
+
+    // Malformed message tracking
+    this.decodeErrorCount = 0;
+    this.maxDecodeErrors = 5; // Disconnect after 5 decode errors
+    this.decodeErrorResetTimer = 0;
   }
 
   addMessage(message) {
@@ -122,6 +127,13 @@ class Client {
     if (this.messageResetTimer >= 60) {
       this.messageCount = 0;
       this.messageResetTimer = 0;
+    }
+
+    // Reset decode error counter every 10 seconds (600 ticks at 60 TPS)
+    this.decodeErrorResetTimer += 1;
+    if (this.decodeErrorResetTimer >= 600) {
+      this.decodeErrorCount = 0;
+      this.decodeErrorResetTimer = 0;
     }
   }
 

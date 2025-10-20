@@ -91,6 +91,11 @@ class Server {
         // Additional validation - maxPayloadLength is set in config but double-check
         if (message.byteLength > 2048) {
           console.warn(`[SECURITY] Client ${client.id} (${client.ip}) sent oversized message (${message.byteLength} bytes)`);
+          client.decodeErrorCount = client.maxDecodeErrors; // Instant disconnect
+          client.disconnectReason = {
+            message: 'Oversized message',
+            type: 1
+          };
           client.socket.close();
           return;
         }
@@ -101,8 +106,29 @@ class Server {
             client.addMessage(data);
           }
         } catch (error) {
-          console.error(`[SECURITY] Error decoding message from client ${client.id}:`, error);
-          // Don't close connection for decode errors, just ignore the message
+          // Track decode errors per client
+          client.decodeErrorCount++;
+
+          // Log first error with details, then reduce verbosity
+          if (client.decodeErrorCount === 1) {
+            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) decode error: ${error.message}`);
+          } else if (client.decodeErrorCount <= 3) {
+            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) decode error #${client.decodeErrorCount}`);
+          }
+
+          // Disconnect after too many errors
+          if (client.decodeErrorCount >= client.maxDecodeErrors) {
+            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) exceeded decode error limit (${client.decodeErrorCount}), disconnecting`);
+            client.disconnectReason = {
+              message: 'Too many malformed messages',
+              type: 1
+            };
+            try {
+              client.socket.close();
+            } catch(e) {
+              console.error('Error closing socket:', e);
+            }
+          }
         }
       },
       close: (socket, code) => {

@@ -23,19 +23,26 @@ const encode = (data) => {
   return ServerMessage.encode(message).finish();
 }
 const decode = (msg) => {
+  // Validate message size
+  if (!msg || msg.byteLength === 0) {
+    throw new Error('Empty message');
+  }
+  if (msg.byteLength > 2048) {
+    throw new Error(`Message too large: ${msg.byteLength} bytes`);
+  }
+
   const payload = new Uint8Array(msg);
   const error = ClientMessage.verify(payload);
   if (error) {
-    console.log('[Protocol] Decoding error: ', error);
-    return null;
-  };
-let decoded;
+    throw new Error(`Verification failed: ${error}`);
+  }
+
+  let decoded;
   try {
-  decoded = ClientMessage.decode(payload);
+    decoded = ClientMessage.decode(payload);
     decoded = makeSendable(decoded);
   } catch (e) {
-    console.log('[Protocol] Decoding error: ', e);
-    return null;
+    throw new Error(`Decode failed: ${e.message}`);
   }
   return decoded;
 }

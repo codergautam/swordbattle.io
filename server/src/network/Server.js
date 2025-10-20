@@ -2,7 +2,7 @@ const uws = require('uWebSockets.js');
 const { v4: uuidv4 } = require('uuid');
 const Protocol = require('./protocol/Protocol');
 const Client = require('./Client');
-const { getBannedIps } = require('../moderation');
+const { getBannedIps, addBannedIp } = require('../moderation');
 
 class Server {
   constructor(game) {
@@ -90,7 +90,11 @@ class Server {
 
         // Additional validation - maxPayloadLength is set in config but double-check
         if (message.byteLength > 2048) {
-          console.warn(`[SECURITY] Client ${client.id} (${client.ip}) sent oversized message (${message.byteLength} bytes)`);
+          console.warn(`[SECURITY] Client ${client.id} (${client.ip}) sent oversized message (${message.byteLength} bytes), banning`);
+
+          // Ban the IP address immediately for attempting to bypass max payload
+          addBannedIp(client.ip, `Oversized message attack (${message.byteLength} bytes)`);
+
           client.decodeErrorCount = client.maxDecodeErrors; // Instant disconnect
           client.disconnectReason = {
             message: 'Oversized message',
@@ -116,9 +120,13 @@ class Server {
             console.warn(`[SECURITY] Client ${client.id} (${client.ip}) decode error #${client.decodeErrorCount}`);
           }
 
-          // Disconnect after too many errors
+          // Disconnect and ban after too many errors
           if (client.decodeErrorCount >= client.maxDecodeErrors) {
-            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) exceeded decode error limit (${client.decodeErrorCount}), disconnecting`);
+            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) exceeded decode error limit (${client.decodeErrorCount}), disconnecting and banning`);
+
+            // Ban the IP address
+            addBannedIp(client.ip, 'Too many malformed protobuf messages');
+
             client.disconnectReason = {
               message: 'Too many malformed messages',
               type: 1

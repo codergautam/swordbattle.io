@@ -114,4 +114,11 @@ module.exports = {
   getBannedIps: function () {
     return bannedIps;
   },
+  addBannedIp: function (ip, reason = 'Unknown') {
+    if (!ip || bannedIps.includes(ip)) return false;
+    bannedIps.push(ip);
+    bannedIps = [...new Set(bannedIps)];
+    console.log(`[BAN] IP ${ip} has been banned. Reason: ${reason}`);
+    return true;
+  },
 }

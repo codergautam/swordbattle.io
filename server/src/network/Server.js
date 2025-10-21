@@ -12,9 +12,9 @@ class Server {
 
     // Connection rate limiting per IP
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-    this.maxConnectionsPerIP = 10; // Max 10 concurrent connections per IP
+    this.maxConnectionsPerIP = 3; // Max 3 concurrent connections per IP (reduced from 10)
     this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime }
-    this.maxConnectionAttemptsPerMinute = 30; // Max 30 connection attempts per minute per IP
+    this.maxConnectionAttemptsPerMinute = 10; // Max 10 connection attempts per minute per IP (reduced from 30)
   }
 
   get online() {
@@ -27,25 +27,17 @@ class Server {
       idleTimeout: 32,
       maxPayloadLength: 2048,
       upgrade: (res, req, context) => {
+        const ip = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
 
-        res.upgrade({ id: uuidv4(), ip: req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '' },
-          req.getHeader('sec-websocket-key'),
-          req.getHeader('sec-websocket-protocol'),
-          req.getHeader('sec-websocket-extensions'), context,
-        );
-      },
-      open: (socket) => {
-        const client = new Client(this.game, socket);
-        const ip = client.ip;
-
-        // Check if IP is banned
+        // CRITICAL: Check if IP is banned BEFORE accepting connection
         if (getBannedIps().includes(ip)) {
-          client.socket.close();
-          console.log(`[BAN] Client ${client.id} (${ip}) tried to connect but is banned.`);
+          console.log(`[BAN] IP ${ip} tried to upgrade WebSocket but is banned. Rejecting connection.`);
+          res.writeStatus('403 Forbidden');
+          res.end('Banned');
           return;
         }
 
-        // Check connection attempts rate limit
+        // Check connection attempts rate limit BEFORE accepting
         const now = Date.now();
         if (!this.connectionAttemptsByIP.has(ip)) {
           this.connectionAttemptsByIP.set(ip, { attempts: 1, resetTime: now + 60000 });
@@ -57,14 +49,15 @@ class Server {
           } else {
             attemptData.attempts++;
             if (attemptData.attempts > this.maxConnectionAttemptsPerMinute) {
-              console.warn(`[RATE_LIMIT] IP ${ip} exceeded connection attempt limit (${attemptData.attempts} attempts/min)`);
-              client.socket.close();
+              console.warn(`[RATE_LIMIT] IP ${ip} exceeded connection attempt limit (${attemptData.attempts} attempts/min). Rejecting connection.`);
+              res.writeStatus('429 Too Many Requests');
+              res.end('Rate limit exceeded');
               return;
             }
           }
         }
 
-        // Count current connections from this IP
+        // Count current connections from this IP BEFORE accepting
         let connectionsFromIP = 0;
         for (const existingClient of this.clients.values()) {
           if (existingClient.ip === ip) {
@@ -72,13 +65,23 @@ class Server {
           }
         }
 
-        // Check concurrent connection limit per IP
+        // Check concurrent connection limit per IP BEFORE accepting
         if (connectionsFromIP >= this.maxConnectionsPerIP) {
-          console.warn(`[RATE_LIMIT] IP ${ip} exceeded concurrent connection limit (${connectionsFromIP} connections)`);
-          client.socket.close();
+          console.warn(`[RATE_LIMIT] IP ${ip} exceeded concurrent connection limit (${connectionsFromIP} connections). Rejecting connection.`);
+          res.writeStatus('429 Too Many Requests');
+          res.end('Too many connections');
           return;
         }
 
+        // Only upgrade if all checks pass
+        res.upgrade({ id: uuidv4(), ip },
+          req.getHeader('sec-websocket-key'),
+          req.getHeader('sec-websocket-protocol'),
+          req.getHeader('sec-websocket-extensions'), context,
+        );
+      },
+      open: (socket) => {
+        const client = new Client(this.game, socket);
         this.addClient(client);
       },
       message: (socket, message) => {

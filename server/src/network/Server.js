@@ -12,9 +12,9 @@ class Server {
 
     // Connection rate limiting per IP
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-    this.maxConnectionsPerIP = 3; // Max 3 concurrent connections per IP (reduced from 10)
+    this.maxConnectionsPerIP = 5;
     this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime }
-    this.maxConnectionAttemptsPerMinute = 10; // Max 10 connection attempts per minute per IP (reduced from 30)
+    this.maxConnectionAttemptsPerMinute = 7;
   }
 
   get online() {

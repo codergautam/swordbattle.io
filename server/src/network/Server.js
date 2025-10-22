@@ -12,9 +12,11 @@ class Server {
 
     // Connection rate limiting per IP
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-    this.maxConnectionsPerIP = 5;
-    this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime }
-    this.maxConnectionAttemptsPerMinute = 7;
+    this.maxConnectionsPerIP = 2; // Reduced from 5 to prevent flood attacks
+    this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
+    this.maxConnectionAttemptsPerMinute = 5; // Reduced from 7
+    this.maxConnectionAttemptsPer10Seconds = 3; // New: burst protection
+    this.tempBannedIPs = new Map(); // ip -> unbanTime (temporary auto-bans for flood attacks)
   }
 
   get online() {
@@ -28,6 +30,7 @@ class Server {
       maxPayloadLength: 2048,
       upgrade: (res, req, context) => {
         const ip = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
+        const now = Date.now();
 
         // CRITICAL: Check if IP is banned BEFORE accepting connection
         if (getBannedIps().includes(ip)) {
@@ -37,21 +40,61 @@ class Server {
           return;
         }
 
-        // Check connection attempts rate limit BEFORE accepting
-        const now = Date.now();
+        // Check temporary auto-ban (for flood attackers)
+        if (this.tempBannedIPs.has(ip)) {
+          const unbanTime = this.tempBannedIPs.get(ip);
+          if (now < unbanTime) {
+            const remainingSeconds = Math.ceil((unbanTime - now) / 1000);
+            console.warn(`[TEMP_BAN] IP ${ip} is temporarily banned. ${remainingSeconds}s remaining.`);
+            res.writeStatus('403 Forbidden');
+            res.end('Temporarily banned for suspicious activity');
+            return;
+          } else {
+            // Ban expired, remove it
+            this.tempBannedIPs.delete(ip);
+          }
+        }
+
+        // Enhanced connection attempts rate limiting with burst protection
         if (!this.connectionAttemptsByIP.has(ip)) {
-          this.connectionAttemptsByIP.set(ip, { attempts: 1, resetTime: now + 60000 });
+          this.connectionAttemptsByIP.set(ip, {
+            attempts: 1,
+            resetTime: now + 60000,
+            shortTermAttempts: 1,
+            shortTermResetTime: now + 10000
+          });
         } else {
           const attemptData = this.connectionAttemptsByIP.get(ip);
+
+          // Reset 1-minute counter if expired
           if (now > attemptData.resetTime) {
             attemptData.attempts = 1;
             attemptData.resetTime = now + 60000;
           } else {
             attemptData.attempts++;
             if (attemptData.attempts > this.maxConnectionAttemptsPerMinute) {
-              console.warn(`[RATE_LIMIT] IP ${ip} exceeded connection attempt limit (${attemptData.attempts} attempts/min). Rejecting connection.`);
+              console.warn(`[RATE_LIMIT] IP ${ip} exceeded connection attempt limit (${attemptData.attempts} attempts/min). Auto-banning for 5 minutes.`);
+              // Temporary ban for 5 minutes
+              this.tempBannedIPs.set(ip, now + 300000);
               res.writeStatus('429 Too Many Requests');
-              res.end('Rate limit exceeded');
+              res.end('Rate limit exceeded - temporarily banned');
+              return;
+            }
+          }
+
+          // Reset 10-second counter if expired
+          if (now > attemptData.shortTermResetTime) {
+            attemptData.shortTermAttempts = 1;
+            attemptData.shortTermResetTime = now + 10000;
+          } else {
+            attemptData.shortTermAttempts++;
+            // Burst protection: 3 connections in 10 seconds triggers temp ban
+            if (attemptData.shortTermAttempts > this.maxConnectionAttemptsPer10Seconds) {
+              console.warn(`[BURST_PROTECTION] IP ${ip} exceeded burst limit (${attemptData.shortTermAttempts} attempts/10s). Auto-banning for 10 minutes.`);
+              // Temporary ban for 10 minutes for burst attacks
+              this.tempBannedIPs.set(ip, now + 600000);
+              res.writeStatus('429 Too Many Requests');
+              res.end('Burst rate limit exceeded - temporarily banned');
               return;
             }
           }
@@ -223,8 +266,16 @@ class Server {
 
     // Clean up expired connection attempt tracking
     for (const [ip, data] of this.connectionAttemptsByIP.entries()) {
-      if (now > data.resetTime) {
+      if (now > data.resetTime && now > data.shortTermResetTime) {
         this.connectionAttemptsByIP.delete(ip);
+      }
+    }
+
+    // Clean up expired temporary bans
+    for (const [ip, unbanTime] of this.tempBannedIPs.entries()) {
+      if (now > unbanTime) {
+        console.log(`[TEMP_BAN] Temporary ban expired for IP ${ip}`);
+        this.tempBannedIPs.delete(ip);
       }
     }
   }

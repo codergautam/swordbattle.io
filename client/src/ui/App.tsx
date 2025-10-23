@@ -569,11 +569,11 @@ function App() {
                   fontSize: 13,
                   boxSizing: 'border-box',
                   maxWidth: '100%',
-                  color: 'yellow'
+                  color: 'white'
                 }}
                 title={randomMessage}
               >
-                We're sorry for the recent server issues. As compensation, you can claim 50,000 gems <span style={{color: 'cyan'}}>(and a free skin)</span> in the shop!
+                {randomMessage}
               </div>
               <br />
               <div className='fullWidth'>

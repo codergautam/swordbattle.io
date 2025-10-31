@@ -96,7 +96,8 @@ function App() {
       !skin.eventoffsale &&
       skin.price > 0 &&
       skin.buyable &&
-      !skin.description.includes('Given')
+      !skin.description.includes('Given') &&
+      !skin.currency
     );
     const sortedByPriceDesc = [...eligible].sort((a, b) => (b.price || 0) - (a.price || 0));
     const top15 = sortedByPriceDesc.slice(0, 15).map(s => s.id);

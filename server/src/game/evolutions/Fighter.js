@@ -45,12 +45,9 @@ module.exports = class Fighter extends Evolution {
     this.player.shape.setScale(0.97);
     this.player.sword.swingDuration.multiplier['default'] = 0.9;
 
-    this.player.sword.damage.multiplier *= 0.9;
-    this.player.speed.multiplier *= 0.9;
-
     if (boostActive) {
-      this.player.speed.multiplier *= 1.2;
-      this.player.sword.damage.multiplier *= 1.2;
+      this.player.speed.multiplier *= 1.25;
+      this.player.sword.damage.multiplier *= 1.25;
     }
 
     this.player.health.max.multiplier *= 0.95;

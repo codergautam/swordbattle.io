@@ -49,6 +49,12 @@ class YetiMob extends Entity {
 
     this.knockbackResistance = new Property(5);
 
+    // Marked player can deal full damge but other players deal less damage
+    if (this.definition.isBoss) {
+      this.markedPlayer = null;
+      this.markTime = 0;
+    }
+
     this.spawn();
   }
 
@@ -141,11 +147,36 @@ class YetiMob extends Entity {
 
   damaged(damage, entity) {
     if (this.removed) return;
+
+    let finalDamage = damage;
+
     if (entity.modifiers?.mobPower) {
-      this.health.damaged(damage * entity.modifiers.mobPower);
-    } else {
-      this.health.damaged(damage);
+      finalDamage *= entity.modifiers.mobPower;
     }
+
+    // Bots and shielded players always deal full damage
+    if (this.definition.isBoss) {
+      const isBot = entity.isBot;
+      const isShielded = entity.coins < 500;
+      const bypassesMarkSystem = isBot || isShielded;
+
+      if (!bypassesMarkSystem) {
+        const currentTime = Date.now();
+        const markDuration = 5000; // 5 seconds
+
+        if (!this.markedPlayer || (currentTime - this.markTime) >= markDuration) {
+          // This player marked
+          this.markedPlayer = entity;
+          this.markTime = currentTime;
+        }
+
+        if (this.markedPlayer !== entity) {
+          finalDamage *= 0.33; // 67% less dmg or 33% dmg
+        }
+      }
+    }
+
+    this.health.damaged(finalDamage);
     this.target = entity;
     if (this.movementTimer.finished) {
       this.movementTimer.renew();

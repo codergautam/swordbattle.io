@@ -22,13 +22,16 @@ module.exports = class Slasher extends Evolution {
     this.player.wideSwing = true;
     this.player.sword.swingAngle = -Math.PI / 1;
 
-    this.player.speed.multiplier *= 0.975;
+    this.player.speed.multiplier *= 1.1;
     this.player.shape.setScale(1.1);
-    this.player.sword.damage.multiplier *= 1.125;
+    this.player.sword.damage.multiplier *= 1.225;
 
     this.player.sword.knockback.multiplier['ability'] = 0.8;
-    this.player.knockbackResistance.multiplier *= 0.8;
+    this.player.knockbackResistance.multiplier *= 1.1;
 
+    
+    this.player.health.max.multiplier *= 1.125;
+    this.player.health.regen.multiplier *= 1.125;
     this.player.health.regenWait.multiplier *= 1.15;
   }
 }

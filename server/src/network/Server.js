@@ -12,10 +12,10 @@ class Server {
 
     // Connection rate limiting per IP
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-    this.maxConnectionsPerIP = 2; // Reduced from 5 to prevent flood attacks
+    this.maxConnectionsPerIP = 15;
     this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
-    this.maxConnectionAttemptsPerMinute = 5; // Reduced from 7
-    this.maxConnectionAttemptsPer10Seconds = 3; // New: burst protection
+    this.maxConnectionAttemptsPerMinute = 30;
+    this.maxConnectionAttemptsPer10Seconds = 6;
     this.tempBannedIPs = new Map(); // ip -> unbanTime (temporary auto-bans for flood attacks)
   }
 

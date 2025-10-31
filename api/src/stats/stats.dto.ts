@@ -19,7 +19,7 @@ export class SaveGameDTO {
 export enum TimeRange {
   AllTime = 'all',
   PastDay = 'day',
-  PastWeek = 'week',
+  PastMonth = 'month',
 }
 
 export enum StatsSortType {

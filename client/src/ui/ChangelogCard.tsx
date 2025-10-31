@@ -6,11 +6,11 @@ export default function ChangelogCard() {
   return (
     <span>
       <h1>News and Updates</h1>
-      <h2>September Update</h2>
-      <ul>- 3 New Monthly Evolutions!</ul>
-      <ul>- UI Improvements!</ul>
-      <ul>- PvP Balancing!</ul>
-      <ul>- And more!</ul>
+      <h2 style={{color: '#ffffee'}}>October Bugfixes</h2>
+      <ul>- Balanced team grinding</ul>
+      <ul>- Leaderboard Changes</ul>
+      <ul>- Balanced Evolutions</ul>
+      <ul>- Other Bugfixes</ul>
 
       <a href="/changelog.html" target="_blank" rel="noopener noreferrer" className="changelogbutton">
         <FontAwesomeIcon icon={faClipboardList} /> View Changelog

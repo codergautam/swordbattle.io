@@ -52,7 +52,7 @@ const types: Record<string, string> = {
 const ranges: Record<string, string> = {
   'all': 'All-Time',
   'day': 'Past Day',
-  'week': 'Past Week',
+  'month': 'Past Month',
 };
 
 export function GlobalLeaderboard() {
@@ -123,6 +123,39 @@ export function GlobalLeaderboard() {
     setSearchTerm('');
     navigate(`/profile?username=${encodeURIComponent(username)}`);
   };
+
+  // Only show max 5 games per account
+  const isGameLeaderboard = type === 'coins' || type === 'kills' || type === 'playtime';
+  const isAllTimeGameLeaderboard = isGameLeaderboard && range === 'all';
+  
+  const filteredData = isAllTimeGameLeaderboard ? (() => {
+    const gamesByAccount = new Map<string, any[]>();
+    data.forEach((row) => {
+      const accountKey = row.username || row.accountId || 'unknown';
+      if (!gamesByAccount.has(accountKey)) {
+        gamesByAccount.set(accountKey, []);
+      }
+      gamesByAccount.get(accountKey)!.push(row);
+    });
+    
+    const sortBy = type;
+    const sortFunc = (a: any, b: any) => {
+      if (sortBy === 'coins') return b.coins - a.coins;
+      if (sortBy === 'kills') return b.kills - a.kills;
+      if (sortBy === 'playtime') return b.playtime - a.playtime;
+      return 0;
+    };
+    
+    const topGames: any[] = [];
+    gamesByAccount.forEach((games) => {
+      const sortedGames = [...games].sort(sortFunc);
+      topGames.push(...sortedGames.slice(0, 5));
+    });
+    
+    topGames.sort(sortFunc);
+    
+    return topGames;
+  })() : data;
 
   return (
     <section className="main-content">
@@ -217,11 +250,24 @@ export function GlobalLeaderboard() {
         <br />
         <br />
 
+        {isAllTimeGameLeaderboard && (
+          <div className="alert alert-info" role="alert" style={{ 
+            marginBottom: '20px', 
+            borderRadius: '8px',
+            padding: '12px 16px',
+            backgroundColor: '#e7f3ff',
+            border: '1px solid #b3d9ff',
+            color: '#004085'
+          }}>
+            <strong>Note:</strong> This leaderboard displays up to only 5 games per player, which can be viewed on their profile.
+          </div>
+        )}
+
         <div className="row">
-          {data.length > 2 ? (<>
-            <LeaderboardCard type={type} row={data[0]} index={0} />
-            <LeaderboardCard type={type} row={data[1]} index={1} />
-            <LeaderboardCard type={type} row={data[2]} index={2} />
+          {filteredData.length > 2 ? (<>
+            <LeaderboardCard type={type} row={filteredData[0]} index={0} />
+            <LeaderboardCard type={type} row={filteredData[1]} index={1} />
+            <LeaderboardCard type={type} row={filteredData[2]} index={2} />
           </>) : (
             <>Loading...</>
           )}
@@ -244,8 +290,8 @@ export function GlobalLeaderboard() {
           </thead>
 
           <tbody>
-            {data.slice(3).map((row) => {
-              const index = data.indexOf(row);
+            {filteredData.slice(3).map((row, mapIndex) => {
+              const index = mapIndex + 3;
               return (
                 <tr key={index} className={row.username === "Update Testing Account" ? "updateCard" : ""}>
                   <td><b>#{index + 1}</b></td>

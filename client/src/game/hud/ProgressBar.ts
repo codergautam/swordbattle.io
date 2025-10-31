@@ -9,6 +9,7 @@ class ProgressBar extends HudComponent {
   levelTextTween!: Phaser.Tweens.Tween;
   levelUpText!: Phaser.GameObjects.Text;
   stabbedText!: Phaser.GameObjects.Text;
+  burningText!: Phaser.GameObjects.Text;
   inSafezoneMessage!: Phaser.GameObjects.Text;
   tipText!: Phaser.GameObjects.Text;
   width = 500;
@@ -24,6 +25,7 @@ class ProgressBar extends HudComponent {
   lastKillTime = 0;
   lastEntityStabId = 0;
   currentProtectionMessage: 'none' | 'safezone' | 'collect' = 'none';
+  isBurning = false;
 
   initialize() {
     // Create the background bar
@@ -76,7 +78,15 @@ class ProgressBar extends HudComponent {
       strokeThickness: 6,
     }).setOrigin(0.5).setAlpha(0);
 
-    this.progressBarContainer = this.hud.scene.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText, this.inSafezoneMessage, this.tipText]);
+    this.burningText = this.game.add.text(this.width / 2, -this.height - 90, 'Burning!', {
+      fontSize: 24,
+      fontStyle: 'bold',
+      color: '#ff4444',
+      stroke: '#000000',
+      strokeThickness: 5,
+    }).setOrigin(0.5).setAlpha(0);
+
+    this.progressBarContainer = this.hud.scene.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText, this.inSafezoneMessage, this.tipText, this.burningText]);
     this.container = this.game.add.container(0, 0, [this.progressBarContainer, this.levelUpText, this.stabbedText]);
     this.hud.add(this.container);
   }
@@ -163,6 +173,48 @@ class ProgressBar extends HudComponent {
     });
   }
 
+  updateBurningText(isBurning: boolean, hasProtectionMessage: boolean) {
+    if (isBurning && !this.isBurning) {
+      this.isBurning = true;
+
+      const targetY = hasProtectionMessage ? -this.height - 110 : -this.height - 90;
+
+      this.game.tweens.add({
+        targets: this.burningText,
+        alpha: 1,
+        y: targetY,
+        scaleX: 1.2,
+        scaleY: 1.2,
+        duration: 200,
+        ease: 'Back.easeOut',
+        yoyo: true,
+        repeat: -1,
+        repeatDelay: 300,
+      });
+    } else if (!isBurning && this.isBurning) {
+      this.isBurning = false;
+      this.game.tweens.killTweensOf(this.burningText);
+      this.game.tweens.add({
+        targets: this.burningText,
+        alpha: 0,
+        scaleX: 1,
+        scaleY: 1,
+        duration: 200,
+        ease: 'Power2',
+      });
+    } else if (isBurning && this.isBurning) {
+      const targetY = hasProtectionMessage ? -this.height - 110 : -this.height - 90;
+      if (Math.abs(this.burningText.y - targetY) > 5) {
+        this.game.tweens.add({
+          targets: this.burningText,
+          y: targetY,
+          duration: 200,
+          ease: 'Power2',
+        });
+      }
+    }
+  }
+
   update() {
     const player = this.game.gameState.self.entity;
     if (!this.container || !player) return;
@@ -232,6 +284,11 @@ class ProgressBar extends HudComponent {
       const coinsLeft = Math.max(0, 500 - player.coins);
       this.inSafezoneMessage.setText(`You are protected: collect ${coinsLeft} more coins to fight other players`);
     }
+
+    // Check if player is burning
+    const isCurrentlyBurning = !!player.flags[FlagTypes.LavaDamaged];
+    const hasProtectionMessage = desiredProtectionState !== 'none';
+    this.updateBurningText(isCurrentlyBurning, hasProtectionMessage);
 
     const stabbedId = player.flags[FlagTypes.PlayerKill];
     if(!stabbedId) return;

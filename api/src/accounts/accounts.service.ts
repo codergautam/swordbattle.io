@@ -73,7 +73,8 @@ export class AccountsService {
       !skin.eventoffsale &&
       skin.price > 0 &&
       skin.buyable &&
-      !(skin.description || '').includes('Given')
+      !(skin.description || '').includes('Given') &&
+      !skin.currency
     );
 
     const sortedByPriceDesc = [...eligible].sort((a, b) => (b.price || 0) - (a.price || 0));

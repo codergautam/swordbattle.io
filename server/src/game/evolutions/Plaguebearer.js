@@ -26,7 +26,7 @@ module.exports = class Plaguebearer extends Evolution {
     this.player.knockbackResistance.multiplier *= 0.75;
 
     this.player.health.max.multiplier *= 1.15;
-    this.player.health.regenWait.multiplier *= 1.25;
+    this.player.health.regenWait.multiplier *= 1.1;
 
     this.player.sword.swingDuration.multiplier['ability'] = 1.125;
 

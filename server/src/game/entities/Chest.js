@@ -44,6 +44,9 @@ class Chest extends Entity {
     // Despawn coin after 20 minutes
     this.despawnTime = Date.now() + (1000 * 60 * 20);
 
+    this.lastAttacker = null;
+    this.lastAttackTime = 0;
+
     this.spawn();
   }
 
@@ -58,11 +61,19 @@ class Chest extends Entity {
     if (!sword.canCollide(this)) return;
 
     sword.collidedEntities.add(this);
-    if (sword.player.modifiers.chestPower) {
+
+    const currentTime = Date.now();
+    const recentlyAttackedByOther = this.lastAttacker !== null && this.lastAttacker !== sword.player && (currentTime - this.lastAttackTime) < 5000;
+
+    if (sword.player.modifiers.chestPower && !recentlyAttackedByOther) {
       this.health.damaged(sword.damage.value * sword.player.modifiers.chestPower);
     } else {
       this.health.damaged(sword.damage.value);
     }
+
+    this.lastAttacker = sword.player;
+    this.lastAttackTime = currentTime;
+
     if (this.health.isDead) {
       sword.player.flags.set(Types.Flags.ChestDestroy, true);
 

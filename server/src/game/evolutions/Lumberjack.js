@@ -11,12 +11,12 @@ module.exports = class Lumberjack extends Evolution {
   applyAbilityEffects() {
     this.player.modifiers.chestPower = 3.5;
     this.player.viewport.zoom.multiplier *= 0.7;
-    this.player.shape.setScale(1.3);
-    this.player.speed.multiplier *= 1.2;
+    this.player.shape.setScale(1.25);
+    this.player.speed.multiplier *= 1.175;
     this.player.sword.knockback.multiplier['ability'] = 3;
     this.player.sword.swingDuration.multiplier['ability'] = 0.6;
     this.player.health.regenWait.multiplier *= 0;
-    this.player.health.regen.multiplier *= 2;
+    this.player.health.regen.multiplier *= 1.5;
     this.player.sword.damage.multiplier *= 1.15;
   }
 

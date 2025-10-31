@@ -345,7 +345,8 @@ processTargetsCollision(entity) {
             candidate.type === Types.Entity.Player &&
             candidate !== this.player &&
             !candidate.removed &&
-            !excludeSet.has(candidate)
+            !excludeSet.has(candidate) &&
+            !candidate.isBot
           ) {
             const dx = candidate.shape.x - center.x;
             const dy = candidate.shape.y - center.y;
@@ -366,21 +367,21 @@ processTargetsCollision(entity) {
 
       // 1st
       const firstSplash = findClosestPlayer(entity.shape, 3250, new Set([entity, this.player]));
-      if (firstSplash) {
+      if (firstSplash && !firstSplash.isBot) {
         firstSplash.damaged(this.damage.value * m1, this.player);
         try { firstSplash.flags.set(Types.Flags.Damaged, firstSplash.id); } catch (e) {}
         try { firstSplash.flags.set(Types.Flags.ChainDamaged, firstSplash.id); } catch (e) {}
 
         // 2nd
         const secondSplash = findClosestPlayer(firstSplash.shape, 3250, new Set([entity, this.player, firstSplash]));
-        if (secondSplash) {
+        if (secondSplash && !secondSplash.isBot) {
           secondSplash.damaged(this.damage.value * m2, this.player);
           try { secondSplash.flags.set(Types.Flags.Damaged, secondSplash.id); } catch (e) {}
           try { secondSplash.flags.set(Types.Flags.ChainDamaged, secondSplash.id); } catch (e) {}
 
           // 3rd
           const thirdSplash = findClosestPlayer(secondSplash.shape, 3250, new Set([entity, this.player, firstSplash, secondSplash]));
-          if (thirdSplash) {
+          if (thirdSplash && !thirdSplash.isBot) {
             thirdSplash.damaged(this.damage.value * m3, this.player);
             try { thirdSplash.flags.set(Types.Flags.Damaged, thirdSplash.id); } catch (e) {}
             try { thirdSplash.flags.set(Types.Flags.ChainDamaged, thirdSplash.id); } catch (e) {}

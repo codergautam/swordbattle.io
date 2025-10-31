@@ -7,7 +7,7 @@ export default function ChangelogCard() {
     <span>
       <h1>News and Updates</h1>
       <h2 style={{color: '#ffffee'}}>October Bugfixes</h2>
-      <ul>- Balanced team grinding</ul>
+      <ul>- Balanced team-grinding</ul>
       <ul>- Leaderboard Changes</ul>
       <ul>- Balanced Evolutions</ul>
       <ul>- Other Bugfixes</ul>

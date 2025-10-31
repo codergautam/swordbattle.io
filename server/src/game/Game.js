@@ -307,7 +307,12 @@ class Game {
       }
     }
     if (data.selectedEvolution) {
-      player.evolutions.upgrade(data.selectedEvolution);
+      // Defensive: protect against malformed/attacker-sent evolution values
+      try {
+        player.evolutions.upgrade(data.selectedEvolution);
+      } catch (err) {
+        console.error('Failed to process selectedEvolution:', data.selectedEvolution, err);
+      }
     }
     if (data.selectedBuff) {
       player.levels.addBuff(data.selectedBuff);

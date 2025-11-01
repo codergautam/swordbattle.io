@@ -424,7 +424,7 @@ function App() {
     const newClan = prompt('Are you sure you want to remove your clan tag? You cannot change it again for 7 days. Type anything to confirm.');
     if (!newClan) return;
 
-    dispatch(changeClanAsync('7Z9XQ') as any);
+    dispatch(changeClanAsync('X79Q') as any);
   }
   const openShop = () => {
     setModal(<ShopModal account={account} />);
@@ -617,7 +617,7 @@ function App() {
                 {account.clan ? (
                     <div className="auth-username">
                     <FontAwesomeIcon icon={faUser} />{' '}
-                    {account.clan?.toUpperCase() !== '7Z9XQ' && (
+                    {account.clan?.toUpperCase() !== 'X79Q' && (
                       <span style={{ color: 'yellow' }}>[{account.clan?.toUpperCase()}]</span>
                     )}{' '}
                     {account.username}

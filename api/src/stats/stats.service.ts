@@ -151,6 +151,10 @@ export class StatsService {
       const yesterday = new Date(today);
       yesterday.setDate(today.getDate() - 1);
       where = { date: Between(yesterday, today) };
+    } else if (timeRange === TimeRange.PastWeek) {
+      const lastWeek = new Date(today);
+      lastWeek.setDate(today.getDate() - 7);
+      where = { date: Between(lastWeek, today) };
     } else if (timeRange === TimeRange.PastMonth) {
       const lastMonth = new Date(today);
       lastMonth.setMonth(today.getMonth() - 1);

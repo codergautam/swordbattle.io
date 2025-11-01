@@ -52,6 +52,7 @@ const types: Record<string, string> = {
 const ranges: Record<string, string> = {
   'all': 'All-Time',
   'day': 'Past Day',
+  'week': 'Past Week',
   'month': 'Past Month',
 };
 
@@ -259,7 +260,7 @@ export function GlobalLeaderboard() {
             border: '1px solid #b3d9ff',
             color: '#004085'
           }}>
-            <strong>Note:</strong> This leaderboard displays up to only 5 games per player, which can be viewed on their profile.
+            <strong>Note:</strong> This leaderboard displays up to only 5 games per player, which can be viewed on the player's profile.
           </div>
         )}
 
@@ -304,7 +305,7 @@ export function GlobalLeaderboard() {
                             rel="noreferrer"
                             style={{ color: 'black' }}
                             >
-                            {row.clan && row.clan !== '7Z9XQ' && <span style={{ color: '#b0b000' }} className='clan'>[{row.clan}] </span>}
+                            {row.clan && row.clan !== 'X79Q' && <span style={{ color: '#b0b000' }} className='clan'>[{row.clan}] </span>}
                             {row.username}
                             </Link>
                         </h5>
@@ -379,7 +380,7 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
                             rel="noreferrer"
                             style={{ color: isFirst ? 'white' : 'black' }}
                             >
-                            {row.clan && row.clan !== '7Z9XQ' && (
+                            {row.clan && row.clan !== 'X79Q' && (
                               <span style={{ color: isFirst ? '#ffff00' : '#b0b000' }} className='clan'>[{row.clan}] </span>
                             )}
                             {row.username}

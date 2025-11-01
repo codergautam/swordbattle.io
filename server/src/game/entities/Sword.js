@@ -324,7 +324,7 @@ processTargetsCollision(entity) {
     this.collidedEntities.add(entity);
     this.player.flags.set(Types.Flags.EnemyHit, entity.id);
 
-    if (entity.type === Types.Entity.Player && !skipDamageDueToCoins && this.player.modifiers.chainDamage) {
+    if (entity.type === Types.Entity.Player && !skipDamageDueToCoins && this.player.modifiers.chainDamage && !entity.isBot) {
       try { entity.flags.set(Types.Flags.ChainDamaged, entity.id); } catch (err) { /* */ }
 
       const findClosestPlayer = (center, radius, excludeSet = new Set()) => {

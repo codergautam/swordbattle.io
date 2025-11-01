@@ -51,6 +51,10 @@ class AncientMob extends Entity {
     this.target = null;
     this.targets.push(Types.Entity.Player);
 
+    // Marked player can deal full damage but other players deal less damage
+    this.markedPlayer = null;
+    this.markTime = 0;
+
     this.spawn();
   }
 
@@ -150,15 +154,38 @@ class AncientMob extends Entity {
 
   damaged(damage, entity) {
     if (this.removed) return;
+
+    let finalDamage = damage;
+
     if (entity.modifiers?.mobPower) {
-      this.health.damaged(damage * entity.modifiers.mobPower);
-    } else {
-      this.health.damaged(damage);
+      finalDamage *= entity.modifiers.mobPower;
     }
+
+    // Bots and shielded players always deal full damage
+    const isBot = entity.isBot;
+    const isShielded = entity.coins < 500;
+    const bypassesMarkSystem = isBot || isShielded;
+
+    if (!bypassesMarkSystem) {
+      const currentTime = Date.now();
+      const markDuration = 5000; // 5s
+
+      if (!this.markedPlayer || (currentTime - this.markTime) >= markDuration) {
+        // This player marked
+        this.markedPlayer = entity;
+        this.markTime = currentTime;
+      }
+
+      if (this.markedPlayer !== entity) {
+        finalDamage *= 0.33; // 67% less dmg or 33% dmg
+      }
+    }
+
+    this.health.damaged(finalDamage);
     this.target = entity;
     this.angryTimer.renew();
 
-    if (this.health.isDead) {
+    if (this.health.isDead && !this.removed) {
       this.remove();
     }
   }

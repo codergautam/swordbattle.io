@@ -22,6 +22,11 @@ export const settingsList: Record<string, SettingType> = {
     ],
     default: 'low',
   },
+  showRegular: {
+      name: 'Show regular skins',
+      type: 'toggle',
+      default: true,
+    },
   showUltimate: {
       name: 'Show ultimate skins',
       type: 'toggle',

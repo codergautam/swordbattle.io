@@ -51,11 +51,16 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBadge, setSelectedBadge] = useState('norm');
 
+  const [showRegular, setRegular] = useState(Settings.showRegular);
   const [showUltimate, setUltimate] = useState(Settings.showUltimate);
   const [showEvent, setEvent] = useState(Settings.showEvent);
   const [showOG, setOG] = useState(Settings.showOG);
   const [skinSort, setSkinSort] = useState(Settings.skinSort);
 
+  const updateRegular = (value: any) => {
+    setRegular(value);
+    Settings.showRegular = value;
+  }
   const updateUltimate = (value: any) => {
     setUltimate(value);
     Settings.showUltimate = value;
@@ -270,6 +275,17 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
 <h1 className='shop-desc-extra'>(Skins may take a while to fully load)</h1>
 <div className="badges">
   <div className="settings-line">
+        <label htmlFor="showRegular">Show regular skins {' '} </label>
+        <label className="switch">
+          <input type="checkbox" name="showRegular" id="showRegular"
+            checked={showRegular}
+            onChange={(e) => updateRegular(e.target.checked)}
+          />
+          <span className="slider round"></span>
+        </label>
+      </div>
+      <br />
+      <div className="settings-line">
         <label htmlFor="showUltimate">Show ultimate skins {' '} </label>
         <label className="switch">
           <input type="checkbox" name="showUltimate" id="showUltimate"
@@ -329,6 +345,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
         if (skin.eventoffsale) return false;
         if (skin.currency) return false;
         if (!account?.skins.owned.includes(skin.id)) return false;
+        if (!Settings.showRegular && !skin.ultimate && !skin.event && !skin.eventoffsale && !skin.og) return false;
         if (!Settings.showUltimate && skin.ultimate) return false;
         if (!Settings.showEvent && skin.event) return false;
         if (!Settings.showEvent && skin.eventoffsale) return false;
@@ -482,6 +499,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
         const skin = skinData as Skin;
         if (skin.currency) return false;
         if (!account?.skins.owned.includes(skin.id)) return false;
+        if (!Settings.showRegular && !skin.ultimate && !skin.event && !skin.eventoffsale && !skin.og) return false;
         if (!Settings.showUltimate && skin.ultimate) return false;
         if (!Settings.showEvent && skin.event) return false;
         if (!Settings.showEvent && skin.eventoffsale) return false;

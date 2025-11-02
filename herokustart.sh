@@ -23,5 +23,6 @@ export SERVER_PORT=8080
 echo "Deployment complete"
 echo "Starting proxy server..."
 
-pm2 start prod-proxy.js --name proxy
+# Start proxy with NODE_OPTIONS explicitly set
+NODE_OPTIONS="--max-http-header-size=8192" pm2 start prod-proxy.js --name proxy
 pm2 logs

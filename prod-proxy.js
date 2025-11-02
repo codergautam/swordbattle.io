@@ -203,13 +203,38 @@ server.on('upgrade', (req, socket, head) => {
   }
 });
 
-// Also guard 'clientError' on the HTTP server
+// Also guard 'clientError' on the HTTP server - this handles oversized headers
 server.on('clientError', (err, socket) => {
-  console.error('HTTP server clientError:', err);
-  try { socket.end('HTTP/1.1 400 Bad Request\r\n\r\n'); } catch (e) {}
+  console.warn('[SECURITY] clientError caught:', err.code, err.message);
+  
+  // Extract IP from socket if possible for logging
+  const clientIP = socket.remoteAddress || 'unknown';
+  
+  // Ban IPs that cause oversized header errors
+  if (err.code === 'HPE_HEADER_OVERFLOW' || err.message && err.message.includes('header')) {
+    console.error(`[SECURITY] BANNING IP ${clientIP} for oversized header attack`);
+    bannedIPs.add(clientIP);
+  }
+  
+  try { 
+    socket.end('HTTP/1.1 400 Bad Request\r\n\r\n'); 
+  } catch (e) {}
+});
+
+// Process-level error handlers to prevent crashes
+process.on('uncaughtException', (err) => {
+  console.error('[CRITICAL] Uncaught exception in proxy:', err);
+  // Don't exit - continue running
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[CRITICAL] Unhandled rejection in proxy:', reason);
+  // Don't exit - continue running
 });
 
 // Start the server
 server.listen(process.env.PORT, () => {
   console.log(`Reverse proxy server running on port ${process.env.PORT}`);
+  console.log('[SECURITY] Header protection enabled with max size: 8KB');
+  console.log('[SECURITY] Rate limiting enabled: 60 req/min');
 });

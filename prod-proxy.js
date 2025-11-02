@@ -1,5 +1,6 @@
 const http = require('http');
 const httpProxy = require('http-proxy');
+const net = require('net');
 
 // Create a proxy server for the API
 const apiProxy = httpProxy.createProxyServer({ target: 'http://localhost:3000', ws: true });
@@ -15,13 +16,43 @@ const rateLimitMap = new Map(); // IP -> { count, resetTime }
 const bannedIPs = new Set(); // Permanently banned IPs for this session
 const TEMP_BAN_DURATION = 300000; // 5 minutes
 const MAX_REQUESTS_PER_MINUTE = 60;
+// Track concurrent requests/connections per IP
+const activeConnections = new Map(); // IP -> count
+const MAX_CONCURRENT_PER_IP = 12; // concurrent sockets/requests per IP before temporary ban
+const MAX_URL_LENGTH = 2000; // reject and ban if extremely long URL
 
 // Get client IP from request
 function getClientIP(req) {
   const xForwardedFor = req.headers['x-forwarded-for'];
   if (xForwardedFor) {
-    const ips = xForwardedFor.split(',');
-    return ips[0].trim();
+    try {
+      const raw = String(xForwardedFor);
+      // If header too long or contains weird data, treat as malicious
+      if (raw.length > 200) {
+        // Ban the connecting socket IP (not the forged header)
+        const sockIp = req.socket && req.socket.remoteAddress;
+        if (sockIp) {
+          console.warn(`[SECURITY] Malformed X-Forwarded-For from ${sockIp} (len=${raw.length}). Banning.`);
+          bannedIPs.add(sockIp);
+        }
+        return req.socket.remoteAddress;
+      }
+
+      const ips = raw.split(',').map(s => s.trim()).filter(Boolean);
+      // Validate first entry is an IP; if not, fallback to socket remoteAddress and ban
+      const candidate = ips[0];
+      if (net.isIP(candidate)) {
+        return candidate;
+      }
+      const sockIp2 = req.socket && req.socket.remoteAddress;
+      if (sockIp2) {
+        console.warn(`[SECURITY] Suspicious X-Forwarded-For value (${candidate}) from ${sockIp2}. Banning.`);
+        bannedIPs.add(sockIp2);
+      }
+      return req.socket.remoteAddress;
+    } catch (e) {
+      return req.socket.remoteAddress;
+    }
   }
   return req.socket.remoteAddress;
 }
@@ -85,6 +116,30 @@ const server = http.createServer((req, res) => {
   try {
     // Get client IP
     const clientIP = getClientIP(req);
+    // Basic URL length protection (very long URLs are often malicious)
+    if (req.url && req.url.length > MAX_URL_LENGTH) {
+      console.warn(`[SECURITY] Oversized URL from ${clientIP} (len=${req.url.length}). Banning.`);
+      bannedIPs.add(clientIP);
+      if (!res.headersSent) {
+        res.writeHead(414, { 'Content-Type': 'text/plain' });
+        res.end('Request-URI Too Long');
+      }
+      return;
+    }
+
+    // Track concurrent connections per IP
+    const current = activeConnections.get(clientIP) || 0;
+    if (current >= MAX_CONCURRENT_PER_IP) {
+      console.warn(`[SECURITY] Too many concurrent connections from ${clientIP} (${current}). Temporarily banning.`);
+      bannedIPs.add(clientIP);
+      setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION);
+      if (!res.headersSent) {
+        res.writeHead(429, { 'Content-Type': 'text/plain' });
+        res.end('Too Many Requests');
+      }
+      return;
+    }
+    activeConnections.set(clientIP, current + 1);
     
     // Check if IP is banned
     if (bannedIPs.has(clientIP)) {
@@ -132,6 +187,19 @@ const server = http.createServer((req, res) => {
       }
     }
   }
+});
+
+// Decrement activeConnections when response finishes or closes
+server.on('request', (req, res) => {
+  const ip = getClientIP(req) || req.socket.remoteAddress;
+  function finalize() {
+    try {
+      const c = activeConnections.get(ip) || 0;
+      if (c <= 1) activeConnections.delete(ip); else activeConnections.set(ip, c - 1);
+    } catch (e) {}
+  }
+  res.on && res.on('finish', finalize);
+  res.on && res.on('close', finalize);
 });
 
 // Set maximum header size to prevent oversized header DoS attacks
@@ -185,6 +253,17 @@ server.on('upgrade', (req, socket, head) => {
       } catch (e) {}
       return;
     }
+    // Track concurrent connections for WS too
+    const cur = activeConnections.get(clientIP) || 0;
+    if (cur >= MAX_CONCURRENT_PER_IP) {
+      console.warn(`[SECURITY] Too many concurrent WS connections from ${clientIP} (${cur}). Rejecting.`);
+      try { socket.end('HTTP/1.1 429 Too Many Requests\r\n\r\n'); } catch (e) {}
+      return;
+    }
+    activeConnections.set(clientIP, cur + 1);
+    socket.on && socket.on('close', () => {
+      try { const c = activeConnections.get(clientIP) || 0; if (c <= 1) activeConnections.delete(clientIP); else activeConnections.set(clientIP, c - 1); } catch (e) {}
+    });
     
     // Sanitize headers before processing WebSocket upgrade
     sanitizeHeaders(req);

@@ -12,6 +12,40 @@ const util = require('util');
 
 const readFileAsync = util.promisify(fs.readFile);
 
+// Rate limiting for serverinfo endpoint
+const serverinfoRateLimit = new Map(); // IP -> { count, resetTime }
+const SERVERINFO_MAX_REQUESTS_PER_MINUTE = 30;
+
+// Check rate limit for serverinfo requests
+function checkServerinfoRateLimit(ip) {
+  const now = Date.now();
+  const data = serverinfoRateLimit.get(ip);
+  
+  if (!data) {
+    serverinfoRateLimit.set(ip, { count: 1, resetTime: now + 60000 });
+    return true;
+  }
+  
+  if (now > data.resetTime) {
+    data.count = 1;
+    data.resetTime = now + 60000;
+    return true;
+  }
+  
+  data.count++;
+  return data.count <= SERVERINFO_MAX_REQUESTS_PER_MINUTE;
+}
+
+// Get client IP from request
+function getClientIP(req) {
+  const xForwardedFor = req.getHeader('x-forwarded-for');
+  if (xForwardedFor) {
+    const ips = xForwardedFor.split(',');
+    return ips[0].trim();
+  }
+  return '';
+}
+
 let app;
 if (config.useSSL) {
   app = uws.SSLApp({
@@ -81,16 +115,34 @@ function start() {
   game.initialize();
   const server = new Server(game);
   server.initialize(app);
-  app.get('/serverinfo', (res) => {
-    setCorsHeaders(res);
-    res.writeHeader('Content-Type', 'application/json');
-    res.writeStatus('200 OK');
-    res.end(JSON.stringify({
-      tps: game.tps,
-      entityCnt: game.entities.size,
-      playerCnt: game.players.size,
-      realPlayersCnt: [...game.players.values()].filter(p => !p.isBot).length,
-    }));
+  app.get('/serverinfo', (res, req) => {
+    try {
+      const clientIP = getClientIP(req);
+      
+      // Check rate limit
+      if (!checkServerinfoRateLimit(clientIP)) {
+        console.warn(`[RATE_LIMIT] /serverinfo: IP ${clientIP} exceeded rate limit`);
+        setCorsHeaders(res);
+        res.writeStatus('429 Too Many Requests');
+        res.end('Too Many Requests');
+        return;
+      }
+      
+      setCorsHeaders(res);
+      res.writeHeader('Content-Type', 'application/json');
+      res.writeStatus('200 OK');
+      res.end(JSON.stringify({
+        tps: game.tps,
+        entityCnt: game.entities.size,
+        playerCnt: game.players.size,
+        realPlayersCnt: [...game.players.values()].filter(p => !p.isBot).length,
+      }));
+    } catch (err) {
+      console.error('[ERROR] /serverinfo error:', err);
+      setCorsHeaders(res);
+      res.writeStatus('500 Internal Server Error');
+      res.end('Internal Server Error');
+    }
   });
   initModeration(game, app);
 

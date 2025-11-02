@@ -2,6 +2,9 @@
 
 echo "Starting Heroku deployment"
 
+# Set maximum HTTP header size to prevent oversized header DoS attacks
+export NODE_OPTIONS="--max-http-header-size=8192"
+
 export API_PORT=3000
 export SERVER_PORT=8080
 

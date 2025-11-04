@@ -12,11 +12,11 @@ class Server {
 
     // Connection rate limiting per IP
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-    this.maxConnectionsPerIP = 15;
-    this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
-    this.maxConnectionAttemptsPerMinute = 30;
-    this.maxConnectionAttemptsPer10Seconds = 6;
-    this.tempBannedIPs = new Map(); // ip -> unbanTime (temporary auto-bans for flood attacks)
+  this.maxConnectionsPerIP = 3; // Lowered for anti-abuse
+  this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
+  this.maxConnectionAttemptsPerMinute = 10; // Lowered for anti-abuse
+  this.maxConnectionAttemptsPer10Seconds = 2; // Lowered for anti-abuse
+  this.tempBannedIPs = new Map(); // ip -> unbanTime (temporary auto-bans for flood attacks)
   }
 
   get online() {
@@ -136,17 +136,15 @@ class Server {
 
         // Additional validation - maxPayloadLength is set in config but double-check
         if (message.byteLength > 2048) {
-          console.warn(`[SECURITY] Client ${client.id} (${client.ip}) sent oversized message (${message.byteLength} bytes), banning`);
-
-          // Ban the IP address immediately for attempting to bypass max payload
+          console.warn(`[SECURITY] Client ${client.id} (${client.ip}) sent oversized message (${message.byteLength} bytes), temp-banning`);
+          // Temp-ban the IP for 10 minutes
+          this.tempBannedIPs.set(client.ip, Date.now() + 10 * 60 * 1000);
           addBannedIp(client.ip, `Oversized message attack (${message.byteLength} bytes)`);
-
-          client.decodeErrorCount = client.maxDecodeErrors; // Instant disconnect
           client.disconnectReason = {
             message: 'Oversized message',
             type: 1
           };
-          client.socket.close();
+          try { client.socket.close(); } catch(e) {}
           return;
         }
 
@@ -156,33 +154,15 @@ class Server {
             client.addMessage(data);
           }
         } catch (error) {
-          // Track decode errors per client
-          client.decodeErrorCount++;
-
-          // Log first error with details, then reduce verbosity
-          if (client.decodeErrorCount === 1) {
-            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) decode error: ${error.message}`);
-          } else if (client.decodeErrorCount <= 3) {
-            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) decode error #${client.decodeErrorCount}`);
-          }
-
-          // Disconnect and ban after too many errors
-          if (client.decodeErrorCount >= client.maxDecodeErrors) {
-            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) exceeded decode error limit (${client.decodeErrorCount}), disconnecting and banning`);
-
-            // Ban the IP address
-            addBannedIp(client.ip, 'Too many malformed protobuf messages');
-
-            client.disconnectReason = {
-              message: 'Too many malformed messages',
-              type: 1
-            };
-            try {
-              client.socket.close();
-            } catch(e) {
-              console.error('Error closing socket:', e);
-            }
-          }
+          // On any decode error, temp-ban and disconnect immediately
+          console.warn(`[SECURITY] Client ${client.id} (${client.ip}) decode error: ${error.message} (instant temp-ban)`);
+          this.tempBannedIPs.set(client.ip, Date.now() + 10 * 60 * 1000);
+          addBannedIp(client.ip, 'Malformed protobuf message (instant temp-ban)');
+          client.disconnectReason = {
+            message: 'Malformed protobuf',
+            type: 1
+          };
+          try { client.socket.close(); } catch(e) {}
         }
       },
       close: (socket, code) => {

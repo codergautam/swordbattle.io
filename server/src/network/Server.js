@@ -6,7 +6,7 @@ const { getBannedIps, addBannedIp } = require('../moderation');
 
 class Server {
   constructor(game) {
-    this.globalConnectionLimit = 400; // Higher max open connections
+    this.globalConnectionLimit = 1000;
     this.connectionDelayMs = 0; // Dynamic delay for new connections under load
     this.game = game;
     this.clients = new Map();
@@ -14,10 +14,10 @@ class Server {
 
     // Enhanced DDoS Protection Settings
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-    this.maxConnectionsPerIP = 30; 
+    this.maxConnectionsPerIP = 100;
     this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
-    this.maxConnectionAttemptsPerMinute = 20; 
-    this.maxConnectionAttemptsPer10Seconds = 4;
+    this.maxConnectionAttemptsPerMinute = 60;
+    this.maxConnectionAttemptsPer10Seconds = 10;
     this.tempBannedIPs = new Map(); // ip -> { unbanTime, banCount }
     this.banDurations = [
       5 * 60 * 1000,    // 5 minutes for first offense
@@ -237,9 +237,8 @@ class Server {
         attemptData.shortTermAttempts++;
         // Burst protection: 7 connections in 10 seconds triggers temp ban
         if (attemptData.shortTermAttempts > this.maxConnectionAttemptsPer10Seconds) {
-          console.warn(`[BURST_PROTECTION] IP ${ip} exceeded burst limit (${attemptData.shortTermAttempts} attempts/10s). Auto-banning for 2 minutes.`);
-          // Temporary ban for 2 minutes for burst attacks
-          this.tempBannedIPs.set(ip, now + 120000);
+          console.warn(`[BURST_PROTECTION] IP ${ip} exceeded burst limit (${attemptData.shortTermAttempts} attempts/10s). Auto-banning for 30 seconds.`);
+          this.tempBannedIPs.set(ip, now + 30000);
           res.writeStatus('429 Too Many Requests');
           res.end('Burst rate limit exceeded - temporarily banned');
           return;

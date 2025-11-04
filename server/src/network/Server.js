@@ -6,16 +6,18 @@ const { getBannedIps, addBannedIp } = require('../moderation');
 
 class Server {
   constructor(game) {
+  this.globalConnectionLimit = 400; // Higher max open connections
+  this.connectionDelayMs = 0; // Dynamic delay for new connections under load
     this.game = game;
     this.clients = new Map();
     this.disconnectedClients = new Set();
 
     // Connection rate limiting per IP
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-  this.maxConnectionsPerIP = 3; // Lowered for anti-abuse
+  this.maxConnectionsPerIP = 8; // More forgiving for real users
   this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
-  this.maxConnectionAttemptsPerMinute = 10; // Lowered for anti-abuse
-  this.maxConnectionAttemptsPer10Seconds = 2; // Lowered for anti-abuse
+  this.maxConnectionAttemptsPerMinute = 30; // More forgiving
+  this.maxConnectionAttemptsPer10Seconds = 6; // More forgiving
   this.tempBannedIPs = new Map(); // ip -> unbanTime (temporary auto-bans for flood attacks)
   }
 
@@ -31,97 +33,23 @@ class Server {
       upgrade: (res, req, context) => {
         const ip = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
         const now = Date.now();
-
-        // CRITICAL: Check if IP is banned BEFORE accepting connection
-        if (getBannedIps().includes(ip)) {
-          console.log(`[BAN] IP ${ip} tried to upgrade WebSocket but is banned. Rejecting connection.`);
-          res.writeStatus('403 Forbidden');
-          res.end('Banned');
+        // GLOBAL CONNECTION LIMIT: count all open clients
+        const totalConnections = this.clients.size;
+        if (totalConnections >= this.globalConnectionLimit) {
+          console.warn(`[GLOBAL_LIMIT] Too many open connections (${totalConnections}), rejecting new connection.`);
+          res.writeStatus('503 Service Unavailable');
+          res.end('Server overloaded');
           return;
         }
 
-        // Check temporary auto-ban (for flood attackers)
-        if (this.tempBannedIPs.has(ip)) {
-          const unbanTime = this.tempBannedIPs.get(ip);
-          if (now < unbanTime) {
-            const remainingSeconds = Math.ceil((unbanTime - now) / 1000);
-            console.warn(`[TEMP_BAN] IP ${ip} is temporarily banned. ${remainingSeconds}s remaining.`);
-            res.writeStatus('403 Forbidden');
-            res.end('Temporarily banned for suspicious activity');
-            return;
-          } else {
-            // Ban expired, remove it
-            this.tempBannedIPs.delete(ip);
-          }
-        }
-
-        // Enhanced connection attempts rate limiting with burst protection
-        if (!this.connectionAttemptsByIP.has(ip)) {
-          this.connectionAttemptsByIP.set(ip, {
-            attempts: 1,
-            resetTime: now + 60000,
-            shortTermAttempts: 1,
-            shortTermResetTime: now + 10000
-          });
-        } else {
-          const attemptData = this.connectionAttemptsByIP.get(ip);
-
-          // Reset 1-minute counter if expired
-          if (now > attemptData.resetTime) {
-            attemptData.attempts = 1;
-            attemptData.resetTime = now + 60000;
-          } else {
-            attemptData.attempts++;
-            if (attemptData.attempts > this.maxConnectionAttemptsPerMinute) {
-              console.warn(`[RATE_LIMIT] IP ${ip} exceeded connection attempt limit (${attemptData.attempts} attempts/min). Auto-banning for 5 minutes.`);
-              // Temporary ban for 5 minutes
-              this.tempBannedIPs.set(ip, now + 300000);
-              res.writeStatus('429 Too Many Requests');
-              res.end('Rate limit exceeded - temporarily banned');
-              return;
-            }
-          }
-
-          // Reset 10-second counter if expired
-          if (now > attemptData.shortTermResetTime) {
-            attemptData.shortTermAttempts = 1;
-            attemptData.shortTermResetTime = now + 10000;
-          } else {
-            attemptData.shortTermAttempts++;
-            // Burst protection: 3 connections in 10 seconds triggers temp ban
-            if (attemptData.shortTermAttempts > this.maxConnectionAttemptsPer10Seconds) {
-              console.warn(`[BURST_PROTECTION] IP ${ip} exceeded burst limit (${attemptData.shortTermAttempts} attempts/10s). Auto-banning for 10 minutes.`);
-              // Temporary ban for 10 minutes for burst attacks
-              this.tempBannedIPs.set(ip, now + 600000);
-              res.writeStatus('429 Too Many Requests');
-              res.end('Burst rate limit exceeded - temporarily banned');
-              return;
-            }
-          }
-        }
-
-        // Count current connections from this IP BEFORE accepting
-        let connectionsFromIP = 0;
-        for (const existingClient of this.clients.values()) {
-          if (existingClient.ip === ip) {
-            connectionsFromIP++;
-          }
-        }
-
-        // Check concurrent connection limit per IP BEFORE accepting
-        if (connectionsFromIP >= this.maxConnectionsPerIP) {
-          console.warn(`[RATE_LIMIT] IP ${ip} exceeded concurrent connection limit (${connectionsFromIP} connections). Rejecting connection.`);
-          res.writeStatus('429 Too Many Requests');
-          res.end('Too many connections');
+        // If under heavy load, add a small random delay before accepting
+        if (totalConnections > this.globalConnectionLimit * 0.8) {
+          const delay = Math.floor(Math.random() * 150) + 50; // 50-200ms
+          setTimeout(() => this._handleUpgrade(res, req, context, ip, now), delay);
           return;
         }
 
-        // Only upgrade if all checks pass
-        res.upgrade({ id: uuidv4(), ip },
-          req.getHeader('sec-websocket-key'),
-          req.getHeader('sec-websocket-protocol'),
-          req.getHeader('sec-websocket-extensions'), context,
-        );
+        this._handleUpgrade(res, req, context, ip, now);
       },
       open: (socket) => {
         const client = new Client(this.game, socket);
@@ -176,8 +104,196 @@ class Server {
           console.log(`Client disconnected with code ${code}.`);
         } catch (e) {
         }
+
       }
     });
+  }
+
+  _handleUpgrade(res, req, context, ip, now) {
+    // CRITICAL: Check if IP is banned BEFORE accepting connection
+    if (getBannedIps().includes(ip)) {
+      console.log(`[BAN] IP ${ip} tried to upgrade WebSocket but is banned. Rejecting connection.`);
+      res.writeStatus('403 Forbidden');
+      res.end('Banned');
+      return;
+    }
+
+    // Check temporary auto-ban (for flood attackers)
+    if (this.tempBannedIPs.has(ip)) {
+      const unbanTime = this.tempBannedIPs.get(ip);
+      if (now < unbanTime) {
+        const remainingSeconds = Math.ceil((unbanTime - now) / 1000);
+        console.warn(`[TEMP_BAN] IP ${ip} is temporarily banned. ${remainingSeconds}s remaining.`);
+        res.writeStatus('403 Forbidden');
+        res.end('Temporarily banned for suspicious activity');
+        return;
+      } else {
+        // Ban expired, remove it
+        this.tempBannedIPs.delete(ip);
+      }
+    }
+
+    // Enhanced connection attempts rate limiting with burst protection
+    if (!this.connectionAttemptsByIP.has(ip)) {
+      this.connectionAttemptsByIP.set(ip, {
+        attempts: 1,
+        resetTime: now + 60000,
+        shortTermAttempts: 1,
+        shortTermResetTime: now + 10000
+      });
+    } else {
+      const attemptData = this.connectionAttemptsByIP.get(ip);
+
+      // Reset 1-minute counter if expired
+      if (now > attemptData.resetTime) {
+        attemptData.attempts = 1;
+        attemptData.resetTime = now + 60000;
+      } else {
+        attemptData.attempts++;
+        if (attemptData.attempts > this.maxConnectionAttemptsPerMinute) {
+          console.warn(`[RATE_LIMIT] IP ${ip} exceeded connection attempt limit (${attemptData.attempts} attempts/min). Auto-banning for 1 minute.`);
+          // Temporary ban for 1 minute
+          this.tempBannedIPs.set(ip, now + 60000);
+          res.writeStatus('429 Too Many Requests');
+          res.end('Rate limit exceeded - temporarily banned');
+          return;
+        }
+      }
+
+      // Reset 10-second counter if expired
+      if (now > attemptData.shortTermResetTime) {
+        attemptData.shortTermAttempts = 1;
+        attemptData.shortTermResetTime = now + 10000;
+      } else {
+        attemptData.shortTermAttempts++;
+        // Burst protection: 7 connections in 10 seconds triggers temp ban
+        if (attemptData.shortTermAttempts > this.maxConnectionAttemptsPer10Seconds) {
+          console.warn(`[BURST_PROTECTION] IP ${ip} exceeded burst limit (${attemptData.shortTermAttempts} attempts/10s). Auto-banning for 2 minutes.`);
+          // Temporary ban for 2 minutes for burst attacks
+          this.tempBannedIPs.set(ip, now + 120000);
+          res.writeStatus('429 Too Many Requests');
+          res.end('Burst rate limit exceeded - temporarily banned');
+          return;
+        }
+      }
+    }
+
+    // Count current connections from this IP BEFORE accepting
+    let connectionsFromIP = 0;
+    for (const existingClient of this.clients.values()) {
+      if (existingClient.ip === ip) {
+        connectionsFromIP++;
+      }
+    }
+
+    // Check concurrent connection limit per IP BEFORE accepting
+    if (connectionsFromIP >= this.maxConnectionsPerIP) {
+      console.warn(`[RATE_LIMIT] IP ${ip} exceeded concurrent connection limit (${connectionsFromIP} connections). Rejecting connection.`);
+      res.writeStatus('429 Too Many Requests');
+      res.end('Too many connections');
+      return;
+    }
+
+    // Only upgrade if all checks pass
+    res.upgrade({ id: uuidv4(), ip },
+      req.getHeader('sec-websocket-key'),
+      req.getHeader('sec-websocket-protocol'),
+      req.getHeader('sec-websocket-extensions'), context,
+    );
+  }
+
+  // Proper class method
+  _handleUpgrade(res, req, context, ip, now) {
+    // CRITICAL: Check if IP is banned BEFORE accepting connection
+    if (getBannedIps().includes(ip)) {
+      console.log(`[BAN] IP ${ip} tried to upgrade WebSocket but is banned. Rejecting connection.`);
+      res.writeStatus('403 Forbidden');
+      res.end('Banned');
+      return;
+    }
+
+    // Check temporary auto-ban (for flood attackers)
+    if (this.tempBannedIPs.has(ip)) {
+      const unbanTime = this.tempBannedIPs.get(ip);
+      if (now < unbanTime) {
+        const remainingSeconds = Math.ceil((unbanTime - now) / 1000);
+        console.warn(`[TEMP_BAN] IP ${ip} is temporarily banned. ${remainingSeconds}s remaining.`);
+        res.writeStatus('403 Forbidden');
+        res.end('Temporarily banned for suspicious activity');
+        return;
+      } else {
+        // Ban expired, remove it
+        this.tempBannedIPs.delete(ip);
+      }
+    }
+
+    // Enhanced connection attempts rate limiting with burst protection
+    if (!this.connectionAttemptsByIP.has(ip)) {
+      this.connectionAttemptsByIP.set(ip, {
+        attempts: 1,
+        resetTime: now + 60000,
+        shortTermAttempts: 1,
+        shortTermResetTime: now + 10000
+      });
+    } else {
+      const attemptData = this.connectionAttemptsByIP.get(ip);
+
+      // Reset 1-minute counter if expired
+      if (now > attemptData.resetTime) {
+        attemptData.attempts = 1;
+        attemptData.resetTime = now + 60000;
+      } else {
+        attemptData.attempts++;
+        if (attemptData.attempts > this.maxConnectionAttemptsPerMinute) {
+          console.warn(`[RATE_LIMIT] IP ${ip} exceeded connection attempt limit (${attemptData.attempts} attempts/min). Auto-banning for 5 minutes.`);
+          // Temporary ban for 5 minutes
+          this.tempBannedIPs.set(ip, now + 300000);
+          res.writeStatus('429 Too Many Requests');
+          res.end('Rate limit exceeded - temporarily banned');
+          return;
+        }
+      }
+
+      // Reset 10-second counter if expired
+      if (now > attemptData.shortTermResetTime) {
+        attemptData.shortTermAttempts = 1;
+        attemptData.shortTermResetTime = now + 10000;
+      } else {
+        attemptData.shortTermAttempts++;
+        // Burst protection: 3 connections in 10 seconds triggers temp ban
+        if (attemptData.shortTermAttempts > this.maxConnectionAttemptsPer10Seconds) {
+          console.warn(`[BURST_PROTECTION] IP ${ip} exceeded burst limit (${attemptData.shortTermAttempts} attempts/10s). Auto-banning for 10 minutes.`);
+          // Temporary ban for 10 minutes for burst attacks
+          this.tempBannedIPs.set(ip, now + 600000);
+          res.writeStatus('429 Too Many Requests');
+          res.end('Burst rate limit exceeded - temporarily banned');
+          return;
+        }
+      }
+    }
+
+    // Count current connections from this IP BEFORE accepting
+    let connectionsFromIP = 0;
+    for (const existingClient of this.clients.values()) {
+      if (existingClient.ip === ip) {
+        connectionsFromIP++;
+      }
+    }
+
+    // Check concurrent connection limit per IP BEFORE accepting
+    if (connectionsFromIP >= this.maxConnectionsPerIP) {
+      console.warn(`[RATE_LIMIT] IP ${ip} exceeded concurrent connection limit (${connectionsFromIP} connections). Rejecting connection.`);
+      res.writeStatus('429 Too Many Requests');
+      res.end('Too many connections');
+      return;
+    }
+
+    // Only upgrade if all checks pass
+    res.upgrade({ id: uuidv4(), ip },
+      req.getHeader('sec-websocket-key'),
+      req.getHeader('sec-websocket-protocol'),
+      req.getHeader('sec-websocket-extensions'), context,
+    );
   }
 
   getInformation() {

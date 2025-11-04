@@ -56,12 +56,12 @@ const MAX_HEADER_LENGTH = 8192;
 // Enhanced rate limiting and ban tracking
 const rateLimitMap = new Map(); // IP -> { count, resetTime, errorCount, lastError }
 const bannedIPs = new Set(); // Permanently banned IPs for this session
-const TEMP_BAN_DURATION = 300000; // 5 minutes
-const MAX_REQUESTS_PER_MINUTE = 30; // Reduced rate limit
+const TEMP_BAN_DURATION = 60000; // 1 minute
+const MAX_REQUESTS_PER_MINUTE = 100; // More forgiving rate limit
 const ERROR_BAN_THRESHOLD = 3; // Ban after this many errors in the window
 const ERROR_WINDOW = 10000; // 10 second window for error counting
-const CONCURRENT_CONN_LIMIT = 5; // Max concurrent connections per IP
-const GLOBAL_CONN_LIMIT = 200; // Global connection limit
+const CONCURRENT_CONN_LIMIT = 16; // More forgiving per-IP concurrent connections
+const GLOBAL_CONN_LIMIT = 400; // Higher global connection limit
 const SUSPICIOUS_SIZE = 1982; // The suspicious message size
 let currentConnections = 0;
 
@@ -73,14 +73,14 @@ const SUSPICIOUS_XFF_IPS = new Set();
 
 // Connection rate tracking
 const CONN_RATE_WINDOW = 10000; // 10 second window
-const MAX_CONN_PER_WINDOW = 10; // Max new connections per window
+const MAX_CONN_PER_WINDOW = 20; // More forgiving burst connection rate
 const CONN_HISTORY_SIZE = 5; // Track last 5 connections
 
 const homepageIpRate = new Map();
 const homepageGlobal = { count: 0, reset: 0 };
-const HOMEPAGE_IP_LIMIT = 10;
+const HOMEPAGE_IP_LIMIT = 30;
 const HOMEPAGE_IP_TTL = 10000;
-const HOMEPAGE_GLOBAL_LIMIT = 100;
+const HOMEPAGE_GLOBAL_LIMIT = 300;
 const HOMEPAGE_GLOBAL_TTL = 10000;
 const HOMEPAGE_CACHE = Buffer.from('<!DOCTYPE html><html><head><title>Swordbattle</title></head><body><h1>Swordbattle</h1><p>Server is up.</p></body></html>');
 

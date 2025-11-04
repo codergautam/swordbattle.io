@@ -52,22 +52,28 @@ class Server {
         const ip = ips[0];
         const now = Date.now();
 
+        const octets = ip.split('.');
+        const firstOctet = parseInt(octets[0]);
+        const secondOctet = parseInt(octets[1]);
+
         if (ip.startsWith('10.') || ip.startsWith('127.') || ip.startsWith('0.') ||
             ip.startsWith('169.254.') || ip.startsWith('172.16.') || ip.startsWith('172.17.') ||
             ip.startsWith('172.18.') || ip.startsWith('172.19.') || ip.startsWith('172.20.') ||
             ip.startsWith('172.21.') || ip.startsWith('172.22.') || ip.startsWith('172.23.') ||
             ip.startsWith('172.24.') || ip.startsWith('172.25.') || ip.startsWith('172.26.') ||
             ip.startsWith('172.27.') || ip.startsWith('172.28.') || ip.startsWith('172.29.') ||
-            ip.startsWith('172.30.') || ip.startsWith('172.31.') || ip.startsWith('191.168.') ||
-            ip.startsWith('192.168.') || ip.startsWith('193.168.') || ip.startsWith('194.168.') ||
-            ip.startsWith('195.168.') || ip.startsWith('196.168.') || ip.startsWith('197.168.') ||
-            ip.startsWith('198.168.') || ip.startsWith('199.168.') || ip.startsWith('224.') ||
-            ip.startsWith('225.') || ip.startsWith('226.') || ip.startsWith('227.') ||
-            ip.startsWith('228.') || ip.startsWith('229.') || ip.startsWith('230.') ||
-            ip.startsWith('231.') || ip.startsWith('232.') || ip.startsWith('233.') ||
-            ip.startsWith('234.') || ip.startsWith('235.') || ip.startsWith('236.') ||
-            ip.startsWith('237.') || ip.startsWith('238.') || ip.startsWith('239.') ||
-            ip.startsWith('240.') || ip === '255.255.255.255') {
+            ip.startsWith('172.30.') || ip.startsWith('172.31.') ||
+            (secondOctet === 168 && firstOctet !== 1 && firstOctet !== 2 && firstOctet !== 3 &&
+             firstOctet !== 4 && firstOctet !== 5 && firstOctet !== 8 && firstOctet !== 11 &&
+             firstOctet !== 13 && firstOctet !== 14 && firstOctet !== 15 && firstOctet !== 16 &&
+             firstOctet !== 17 && firstOctet !== 18 && firstOctet !== 19 && firstOctet !== 20 &&
+             firstOctet !== 21 && firstOctet !== 22 && firstOctet !== 23) ||
+            ip.startsWith('224.') || ip.startsWith('225.') || ip.startsWith('226.') ||
+            ip.startsWith('227.') || ip.startsWith('228.') || ip.startsWith('229.') ||
+            ip.startsWith('230.') || ip.startsWith('231.') || ip.startsWith('232.') ||
+            ip.startsWith('233.') || ip.startsWith('234.') || ip.startsWith('235.') ||
+            ip.startsWith('236.') || ip.startsWith('237.') || ip.startsWith('238.') ||
+            ip.startsWith('239.') || ip.startsWith('240.') || ip === '255.255.255.255') {
           res.writeStatus('403 Forbidden');
           res.end();
           return;

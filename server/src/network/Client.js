@@ -152,19 +152,28 @@ class Client {
     this.isReady = false;
     console.log('Client', this.id, 'authenticating with token POST /auth/verify');
     api.post('/auth/verify', { secret: this.token }, (data) => {
-      if (data.account) {
+      if (data && data.error) {
+        console.warn(`Client ${this.id} authentication failed: ${data.message} (status: ${data.status || 'unknown'})`);
+        this.token = '';
+        this.account = null;
+        this.isReady = true;
+        return;
+      }
+
+      if (data && data.account) {
         const username = data.account.username;
         console.log('Client', this.id, 'authenticated as', username);
         this.account = new Account();
         api.post('/profile/getTop100Rank/' + username, {}, (rankData) => {
-          if (rankData.rank) {
+          if (rankData && rankData.rank && !rankData.error) {
             data.account.rank = rankData.rank;
           }
-        this.account.update(data.account);
-
+          this.account.update(data.account);
         });
       } else {
-        console.log("Failed to authenticate", data)
+        console.log("Failed to authenticate - invalid response", data);
+        this.token = '';
+        this.account = null;
       }
       this.isReady = true;
     });
@@ -179,9 +188,21 @@ class Client {
 
       this.isReady = false;
       api.post('/auth/verify', { secret: this.token }, (data) => {
-        if (data.account) {
+        if (data && data.error) {
+          console.warn(`Client ${this.id} async authentication failed: ${data.message} (status: ${data.status || 'unknown'})`);
+          this.token = '';
+          this.account = null;
+          this.isReady = true;
+          resolve(null);
+          return;
+        }
+
+        if (data && data.account) {
           this.account = new Account();
           this.account.update(data.account);
+        } else {
+          this.token = '';
+          this.account = null;
         }
         this.isReady = true;
         resolve(this.account);

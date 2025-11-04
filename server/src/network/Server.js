@@ -6,7 +6,7 @@ const { getBannedIps, addBannedIp } = require('../moderation');
 
 class Server {
   constructor(game) {
-    this.globalConnectionLimit = 1000;
+    this.globalConnectionLimit = 2000;
     this.connectionDelayMs = 0; // Dynamic delay for new connections under load
     this.game = game;
     this.clients = new Map();
@@ -14,15 +14,15 @@ class Server {
 
     // Enhanced DDoS Protection Settings
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-    this.maxConnectionsPerIP = 100;
+    this.maxConnectionsPerIP = 50;
     this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
-    this.maxConnectionAttemptsPerMinute = 60;
-    this.maxConnectionAttemptsPer10Seconds = 10;
+    this.maxConnectionAttemptsPerMinute = 120;
+    this.maxConnectionAttemptsPer10Seconds = 20;
     this.tempBannedIPs = new Map(); // ip -> { unbanTime, banCount }
     this.banDurations = [
-      5 * 60 * 1000,    // 5 minutes for first offense
-      30 * 60 * 1000,   // 30 minutes for second offense
-      24 * 60 * 60 * 1000 // 24 hours for third+ offense
+      2 * 60 * 1000,
+      10 * 60 * 1000,
+      60 * 60 * 1000
     ];
     this.suspiciousIPs = new Map(); // Track suspicious behavior
     this.lastCleanup = Date.now();
@@ -35,7 +35,7 @@ class Server {
   initialize(app) {
     app.ws('/*', {
       compression: uws.SHARED_COMPRESSOR,
-      idleTimeout: 32,
+      idleTimeout: 60,
       maxPayloadLength: 2048,
       upgrade: (res, req, context) => {
         const ip = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
@@ -133,10 +133,7 @@ class Server {
 
         // Additional validation - maxPayloadLength is set in config but double-check
         if (message.byteLength > 2048) {
-          console.warn(`[SECURITY] Client ${client.id} (${client.ip}) sent oversized message (${message.byteLength} bytes), temp-banning`);
-          // Temp-ban the IP for 10 minutes
-          this.tempBannedIPs.set(client.ip, Date.now() + 10 * 60 * 1000);
-          addBannedIp(client.ip, `Oversized message attack (${message.byteLength} bytes)`);
+          console.warn(`[SECURITY] Client ${client.id} (${client.ip}) sent oversized message (${message.byteLength} bytes), disconnecting`);
           client.disconnectReason = {
             message: 'Oversized message',
             type: 1
@@ -151,15 +148,17 @@ class Server {
             client.addMessage(data);
           }
         } catch (error) {
-          // On any decode error, temp-ban and disconnect immediately
-          console.warn(`[SECURITY] Client ${client.id} (${client.ip}) decode error: ${error.message} (instant temp-ban)`);
-          this.tempBannedIPs.set(client.ip, Date.now() + 10 * 60 * 1000);
-          addBannedIp(client.ip, 'Malformed protobuf message (instant temp-ban)');
-          client.disconnectReason = {
-            message: 'Malformed protobuf',
-            type: 1
-          };
-          try { client.socket.close(); } catch(e) {}
+          client.decodeErrorCount++;
+          if (client.decodeErrorCount >= client.maxDecodeErrors) {
+            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) exceeded decode error limit (${client.decodeErrorCount} errors), disconnecting`);
+            client.disconnectReason = {
+              message: 'Too many malformed messages',
+              type: 1
+            };
+            try { client.socket.close(); } catch(e) {}
+          } else {
+            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) decode error ${client.decodeErrorCount}/${client.maxDecodeErrors}: ${error.message}`);
+          }
         }
       },
       close: (socket, code) => {
@@ -313,9 +312,9 @@ class Server {
       } else {
         attemptData.attempts++;
         if (attemptData.attempts > this.maxConnectionAttemptsPerMinute) {
-          console.warn(`[RATE_LIMIT] IP ${ip} exceeded connection attempt limit (${attemptData.attempts} attempts/min). Auto-banning for 5 minutes.`);
-          // Temporary ban for 5 minutes
-          this.tempBannedIPs.set(ip, now + 300000);
+          console.warn(`[RATE_LIMIT] IP ${ip} exceeded connection attempt limit (${attemptData.attempts} attempts/min). Auto-banning for 2 minutes.`);
+          // Temporary ban for 2 minutes
+          this.tempBannedIPs.set(ip, now + 120000);
           res.writeStatus('429 Too Many Requests');
           res.end('Rate limit exceeded - temporarily banned');
           return;
@@ -328,11 +327,11 @@ class Server {
         attemptData.shortTermResetTime = now + 10000;
       } else {
         attemptData.shortTermAttempts++;
-        // Burst protection: 3 connections in 10 seconds triggers temp ban
+        // Burst protection: max connections in 10 seconds triggers temp ban
         if (attemptData.shortTermAttempts > this.maxConnectionAttemptsPer10Seconds) {
-          console.warn(`[BURST_PROTECTION] IP ${ip} exceeded burst limit (${attemptData.shortTermAttempts} attempts/10s). Auto-banning for 10 minutes.`);
-          // Temporary ban for 10 minutes for burst attacks
-          this.tempBannedIPs.set(ip, now + 600000);
+          console.warn(`[BURST_PROTECTION] IP ${ip} exceeded burst limit (${attemptData.shortTermAttempts} attempts/10s). Auto-banning for 1 minute.`);
+          // Temporary ban for 1 minute for burst attacks
+          this.tempBannedIPs.set(ip, now + 60000);
           res.writeStatus('429 Too Many Requests');
           res.end('Burst rate limit exceeded - temporarily banned');
           return;

@@ -57,10 +57,10 @@ const MAX_HEADER_LENGTH = 8192;
 const rateLimitMap = new Map(); // IP -> { count, resetTime, errorCount, lastError }
 const bannedIPs = new Set(); // Permanently banned IPs for this session
 const TEMP_BAN_DURATION = 60000; // 1 minute
-const MAX_REQUESTS_PER_MINUTE = 300;
+const MAX_REQUESTS_PER_MINUTE = 600;
 const ERROR_BAN_THRESHOLD = 10;
 const ERROR_WINDOW = 20000;
-const CONCURRENT_CONN_LIMIT = 100;
+const CONCURRENT_CONN_LIMIT = 50;
 const SUSPICIOUS_SIZE = 1982; // The suspicious message size
 let currentConnections = 0;
 
@@ -77,9 +77,9 @@ const CONN_HISTORY_SIZE = 5; // Track last 5 connections
 
 const homepageIpRate = new Map();
 const homepageGlobal = { count: 0, reset: 0 };
-const HOMEPAGE_IP_LIMIT = 100;
+const HOMEPAGE_IP_LIMIT = 200;
 const HOMEPAGE_IP_TTL = 30000;
-const HOMEPAGE_GLOBAL_LIMIT = 1000;
+const HOMEPAGE_GLOBAL_LIMIT = 2000;
 const HOMEPAGE_GLOBAL_TTL = 30000;
 const HOMEPAGE_CACHE = Buffer.from('<!DOCTYPE html><html><head><title>Swordbattle</title></head><body><h1>Swordbattle</h1><p>Server is up.</p></body></html>');
 
@@ -241,9 +241,7 @@ const server = http.createServer((req, res) => {
     // Track concurrent connections per IP
     const current = activeConnections.get(clientIP) || 0;
     if (current >= CONCURRENT_CONN_LIMIT) {
-      console.warn(`[SECURITY] Too many concurrent connections from ${clientIP} (${current}). Temporarily banning.`);
-      bannedIPs.add(clientIP);
-      setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION);
+      console.warn(`[SECURITY] Too many concurrent connections from ${clientIP} (${current}). Rejecting request.`);
       if (!res.headersSent) {
         res.writeHead(429, { 'Content-Type': 'text/plain' });
         res.end('Too Many Requests');
@@ -251,6 +249,15 @@ const server = http.createServer((req, res) => {
       return;
     }
     activeConnections.set(clientIP, current + 1);
+
+    res.on('finish', () => {
+      const count = activeConnections.get(clientIP) || 0;
+      if (count <= 1) {
+        activeConnections.delete(clientIP);
+      } else {
+        activeConnections.set(clientIP, count - 1);
+      }
+    });
 
     // Handle homepage requests
     if (req.method === 'GET' && req.url === '/') {

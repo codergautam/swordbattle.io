@@ -13,9 +13,21 @@ function get(path, callback = (data) => {}) {
       'Authorization': `Bearer ${token}`,
     },
   })
-  .then(res => res.json())
+  .then(async res => {
+    if (!res.ok) {
+      const text = await res.text();
+      return { error: true, status: res.status, message: text };
+    }
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return res.json();
+    } else {
+      const text = await res.text();
+      return { error: true, message: text };
+    }
+  })
   .then(callback)
-  .catch((err) => callback({ message: err }));
+  .catch((err) => callback({ error: true, message: err.message || String(err) }));
 }
 
 function post(path, body, callback = (data) => {}) {
@@ -29,9 +41,21 @@ function post(path, body, callback = (data) => {}) {
       'Authorization': `Bearer ${token}`,
     },
   })
-  .then(res => res.json())
+  .then(async res => {
+    if (!res.ok) {
+      const text = await res.text();
+      return { error: true, status: res.status, message: text };
+    }
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return res.json();
+    } else {
+      const text = await res.text();
+      return { error: true, message: text };
+    }
+  })
   .then(callback)
-  .catch((err) => callback({ message: err }));
+  .catch((err) => callback({ error: true, message: err.message || String(err) }));
 }
 
 module.exports = { get, post };

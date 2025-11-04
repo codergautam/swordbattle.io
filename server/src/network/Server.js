@@ -62,12 +62,26 @@ class Server {
             ip.startsWith('172.21.') || ip.startsWith('172.22.') || ip.startsWith('172.23.') ||
             ip.startsWith('172.24.') || ip.startsWith('172.25.') || ip.startsWith('172.26.') ||
             ip.startsWith('172.27.') || ip.startsWith('172.28.') || ip.startsWith('172.29.') ||
-            ip.startsWith('172.30.') || ip.startsWith('172.31.') ||
+            ip.startsWith('172.30.') || ip.startsWith('172.31.') || ip.startsWith('6.') ||
+            ip.startsWith('7.') || ip.startsWith('11.') || ip.startsWith('21.') ||
+            ip.startsWith('22.') || ip.startsWith('26.') || ip.startsWith('28.') ||
+            ip.startsWith('29.') || ip.startsWith('30.') || ip.startsWith('33.') ||
+            ip.startsWith('55.') || ip.startsWith('214.') || ip.startsWith('215.') ||
             (secondOctet === 168 && firstOctet !== 1 && firstOctet !== 2 && firstOctet !== 3 &&
              firstOctet !== 4 && firstOctet !== 5 && firstOctet !== 8 && firstOctet !== 11 &&
              firstOctet !== 13 && firstOctet !== 14 && firstOctet !== 15 && firstOctet !== 16 &&
              firstOctet !== 17 && firstOctet !== 18 && firstOctet !== 19 && firstOctet !== 20 &&
              firstOctet !== 21 && firstOctet !== 22 && firstOctet !== 23) ||
+            (firstOctet === 32 && (secondOctet === 64 || secondOctet === 65 || secondOctet === 66 ||
+             secondOctet === 67 || secondOctet === 68 || secondOctet === 69 || secondOctet === 70 ||
+             secondOctet === 71 || secondOctet === 72 || secondOctet === 73 || secondOctet === 74 ||
+             secondOctet === 75 || secondOctet === 76 || secondOctet === 77 || secondOctet === 78 ||
+             secondOctet === 79 || secondOctet === 80 || secondOctet === 81 || secondOctet === 82 ||
+             secondOctet === 83 || secondOctet === 84 || secondOctet === 85 || secondOctet === 86 ||
+             secondOctet === 87 || secondOctet === 88 || secondOctet === 89 || secondOctet === 90 ||
+             secondOctet === 91 || secondOctet === 92 || secondOctet === 93 || secondOctet === 94 ||
+             secondOctet === 95 || secondOctet === 96 || secondOctet === 97 || secondOctet === 98 ||
+             secondOctet === 99 || secondOctet === 100)) ||
             ip.startsWith('224.') || ip.startsWith('225.') || ip.startsWith('226.') ||
             ip.startsWith('227.') || ip.startsWith('228.') || ip.startsWith('229.') ||
             ip.startsWith('230.') || ip.startsWith('231.') || ip.startsWith('232.') ||

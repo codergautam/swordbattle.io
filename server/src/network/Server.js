@@ -35,6 +35,10 @@ class Server {
     this.circuitBreakerDuration = 10000;
     this.rejectionCountLastSecond = 0;
     this.rejectionCountResetTime = Date.now() + 1000;
+    this.patternTracker = new Map();
+    this.blockedPatterns = new Map();
+    this.patternDetectionWindow = 10000;
+    this.patternDetectionThreshold = 8;
   }
 
   get online() {
@@ -56,6 +60,43 @@ class Server {
         const firstOctet = parseInt(octets[0]);
         const secondOctet = parseInt(octets[1]);
 
+        const patternKey = `${firstOctet}.${secondOctet}`;
+        const blockedPattern = this.blockedPatterns.get(patternKey);
+        if (blockedPattern && now < blockedPattern.unblockTime) {
+          res.writeStatus('403 Forbidden');
+          res.end();
+          return;
+        }
+
+        if (!this.patternTracker.has(patternKey)) {
+          this.patternTracker.set(patternKey, { connections: [], firstSeen: now });
+        }
+        const pattern = this.patternTracker.get(patternKey);
+        pattern.connections.push(now);
+        pattern.connections = pattern.connections.filter(t => now - t < this.patternDetectionWindow);
+
+        if (pattern.connections.length >= this.patternDetectionThreshold) {
+          const timeSpan = now - pattern.connections[0];
+          if (timeSpan < this.patternDetectionWindow) {
+            this.blockedPatterns.set(patternKey, {
+              unblockTime: now + 300000,
+              detectedAt: now
+            });
+            console.warn(`[PATTERN_DETECTION] Blocked pattern ${patternKey}.x.x - ${pattern.connections.length} connections in ${timeSpan}ms`);
+
+            for (const c of this.clients.values()) {
+              if (c.ip.startsWith(patternKey + '.')) {
+                c.disconnectReason = { message: 'Suspicious pattern detected', type: 1 };
+                try { c.socket.close(); } catch(e) {}
+              }
+            }
+
+            res.writeStatus('403 Forbidden');
+            res.end();
+            return;
+          }
+        }
+
         if (ip.startsWith('10.') || ip.startsWith('127.') || ip.startsWith('0.') ||
             ip.startsWith('169.254.') || ip.startsWith('172.16.') || ip.startsWith('172.17.') ||
             ip.startsWith('172.18.') || ip.startsWith('172.19.') || ip.startsWith('172.20.') ||
@@ -72,16 +113,13 @@ class Server {
              firstOctet !== 13 && firstOctet !== 14 && firstOctet !== 15 && firstOctet !== 16 &&
              firstOctet !== 17 && firstOctet !== 18 && firstOctet !== 19 && firstOctet !== 20 &&
              firstOctet !== 21 && firstOctet !== 22 && firstOctet !== 23) ||
-            (firstOctet === 32 && (secondOctet === 64 || secondOctet === 65 || secondOctet === 66 ||
-             secondOctet === 67 || secondOctet === 68 || secondOctet === 69 || secondOctet === 70 ||
-             secondOctet === 71 || secondOctet === 72 || secondOctet === 73 || secondOctet === 74 ||
-             secondOctet === 75 || secondOctet === 76 || secondOctet === 77 || secondOctet === 78 ||
-             secondOctet === 79 || secondOctet === 80 || secondOctet === 81 || secondOctet === 82 ||
-             secondOctet === 83 || secondOctet === 84 || secondOctet === 85 || secondOctet === 86 ||
-             secondOctet === 87 || secondOctet === 88 || secondOctet === 89 || secondOctet === 90 ||
-             secondOctet === 91 || secondOctet === 92 || secondOctet === 93 || secondOctet === 94 ||
-             secondOctet === 95 || secondOctet === 96 || secondOctet === 97 || secondOctet === 98 ||
-             secondOctet === 99 || secondOctet === 100)) ||
+            (firstOctet === 32 && secondOctet >= 54 && secondOctet <= 100) ||
+            (firstOctet >= 24 && firstOctet <= 32) ||
+            (firstOctet >= 56 && firstOctet <= 63) ||
+            (firstOctet >= 100 && firstOctet <= 126) ||
+            (firstOctet >= 128 && firstOctet <= 169 && firstOctet !== 157 && firstOctet !== 167) ||
+            (firstOctet >= 175 && firstOctet <= 191) ||
+            (firstOctet >= 241 && firstOctet <= 255) ||
             ip.startsWith('224.') || ip.startsWith('225.') || ip.startsWith('226.') ||
             ip.startsWith('227.') || ip.startsWith('228.') || ip.startsWith('229.') ||
             ip.startsWith('230.') || ip.startsWith('231.') || ip.startsWith('232.') ||
@@ -487,6 +525,20 @@ class Server {
     for (const [ip, errorData] of this.decodeErrorsByIP.entries()) {
       if (now > errorData.resetTime) {
         this.decodeErrorsByIP.delete(ip);
+      }
+    }
+
+    for (const [pattern, data] of this.blockedPatterns.entries()) {
+      if (now > data.unblockTime) {
+        console.log(`[PATTERN_DETECTION] Unblocked pattern ${pattern}.x.x`);
+        this.blockedPatterns.delete(pattern);
+      }
+    }
+
+    for (const [pattern, data] of this.patternTracker.entries()) {
+      data.connections = data.connections.filter(t => now - t < this.patternDetectionWindow);
+      if (data.connections.length === 0 && now - data.firstSeen > 60000) {
+        this.patternTracker.delete(pattern);
       }
     }
   }

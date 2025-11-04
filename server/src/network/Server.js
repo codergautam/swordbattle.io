@@ -29,7 +29,12 @@ class Server {
     this.decodeErrorsByIP = new Map();
     this.globalConnectionsLastSecond = 0;
     this.globalConnectionsResetTime = Date.now() + 1000;
-    this.maxGlobalConnectionsPerSecond = 50;
+    this.maxGlobalConnectionsPerSecond = 20;
+    this.circuitBreakerTripped = false;
+    this.circuitBreakerResetTime = 0;
+    this.circuitBreakerDuration = 10000;
+    this.rejectionCountLastSecond = 0;
+    this.rejectionCountResetTime = Date.now() + 1000;
   }
 
   get online() {
@@ -42,8 +47,25 @@ class Server {
       idleTimeout: 60,
       maxPayloadLength: 2048,
       upgrade: (res, req, context) => {
-        const ip = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
+        const forwardedFor = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
+        const ip = forwardedFor.split(',')[0].trim();
         const now = Date.now();
+
+        if (this.circuitBreakerTripped) {
+          if (now < this.circuitBreakerResetTime) {
+            res.writeStatus('503 Service Unavailable');
+            res.end();
+            return;
+          } else {
+            this.circuitBreakerTripped = false;
+            console.log('[CIRCUIT_BREAKER] Reset - accepting connections again');
+          }
+        }
+
+        if (now > this.rejectionCountResetTime) {
+          this.rejectionCountLastSecond = 0;
+          this.rejectionCountResetTime = now + 1000;
+        }
 
         if (now > this.globalConnectionsResetTime) {
           this.globalConnectionsLastSecond = 0;
@@ -53,8 +75,16 @@ class Server {
         this.globalConnectionsLastSecond++;
 
         if (this.globalConnectionsLastSecond > this.maxGlobalConnectionsPerSecond) {
+          this.rejectionCountLastSecond++;
+
+          if (this.rejectionCountLastSecond > 30) {
+            this.circuitBreakerTripped = true;
+            this.circuitBreakerResetTime = now + this.circuitBreakerDuration;
+            console.warn('[CIRCUIT_BREAKER] TRIPPED - Too many rejections, blocking all connections for 10s');
+          }
+
           res.writeStatus('503 Service Unavailable');
-          res.end('Server overloaded');
+          res.end();
           return;
         }
 
@@ -232,99 +262,6 @@ class Server {
     });
   }
 
-  _handleUpgrade(res, req, context, ip, now) {
-    // CRITICAL: Check if IP is banned BEFORE accepting connection
-    if (getBannedIps().includes(ip)) {
-      console.log(`[BAN] IP ${ip} tried to upgrade WebSocket but is banned. Rejecting connection.`);
-      res.writeStatus('403 Forbidden');
-      res.end('Banned');
-      return;
-    }
-
-    // Check temporary auto-ban (for flood attackers)
-    if (this.tempBannedIPs.has(ip)) {
-      const unbanTime = this.tempBannedIPs.get(ip);
-      if (now < unbanTime) {
-        const remainingSeconds = Math.ceil((unbanTime - now) / 1000);
-        console.warn(`[TEMP_BAN] IP ${ip} is temporarily banned. ${remainingSeconds}s remaining.`);
-        res.writeStatus('403 Forbidden');
-        res.end('Temporarily banned for suspicious activity');
-        return;
-      } else {
-        // Ban expired, remove it
-        this.tempBannedIPs.delete(ip);
-      }
-    }
-
-    // Enhanced connection attempts rate limiting with burst protection
-    if (!this.connectionAttemptsByIP.has(ip)) {
-      this.connectionAttemptsByIP.set(ip, {
-        attempts: 1,
-        resetTime: now + 60000,
-        shortTermAttempts: 1,
-        shortTermResetTime: now + 10000
-      });
-    } else {
-      const attemptData = this.connectionAttemptsByIP.get(ip);
-
-      // Reset 1-minute counter if expired
-      if (now > attemptData.resetTime) {
-        attemptData.attempts = 1;
-        attemptData.resetTime = now + 60000;
-      } else {
-        attemptData.attempts++;
-        if (attemptData.attempts > this.maxConnectionAttemptsPerMinute) {
-          console.warn(`[RATE_LIMIT] IP ${ip} exceeded connection attempt limit (${attemptData.attempts} attempts/min). Auto-banning for 1 minute.`);
-          // Temporary ban for 1 minute
-          this.tempBannedIPs.set(ip, now + 60000);
-          res.writeStatus('429 Too Many Requests');
-          res.end('Rate limit exceeded - temporarily banned');
-          return;
-        }
-      }
-
-      // Reset 10-second counter if expired
-      if (now > attemptData.shortTermResetTime) {
-        attemptData.shortTermAttempts = 1;
-        attemptData.shortTermResetTime = now + 10000;
-      } else {
-        attemptData.shortTermAttempts++;
-        // Burst protection: 7 connections in 10 seconds triggers temp ban
-        if (attemptData.shortTermAttempts > this.maxConnectionAttemptsPer10Seconds) {
-          console.warn(`[BURST_PROTECTION] IP ${ip} exceeded burst limit (${attemptData.shortTermAttempts} attempts/10s). Auto-banning for 30 seconds.`);
-          this.tempBannedIPs.set(ip, now + 30000);
-          res.writeStatus('429 Too Many Requests');
-          res.end('Burst rate limit exceeded - temporarily banned');
-          return;
-        }
-      }
-    }
-
-    // Count current connections from this IP BEFORE accepting
-    let connectionsFromIP = 0;
-    for (const existingClient of this.clients.values()) {
-      if (existingClient.ip === ip) {
-        connectionsFromIP++;
-      }
-    }
-
-    // Check concurrent connection limit per IP BEFORE accepting
-    if (connectionsFromIP >= this.maxConnectionsPerIP) {
-      console.warn(`[RATE_LIMIT] IP ${ip} exceeded concurrent connection limit (${connectionsFromIP} connections). Rejecting connection.`);
-      res.writeStatus('429 Too Many Requests');
-      res.end('Too many connections');
-      return;
-    }
-
-    // Only upgrade if all checks pass
-    res.upgrade({ id: uuidv4(), ip },
-      req.getHeader('sec-websocket-key'),
-      req.getHeader('sec-websocket-protocol'),
-      req.getHeader('sec-websocket-extensions'), context,
-    );
-  }
-
-  // Proper class method
   _handleUpgrade(res, req, context, ip, now) {
     // CRITICAL: Check if IP is banned BEFORE accepting connection
     if (getBannedIps().includes(ip)) {

@@ -6,7 +6,7 @@ const { getBannedIps, addBannedIp } = require('../moderation');
 
 class Server {
   constructor(game) {
-    this.globalConnectionLimit = 2000;
+    this.globalConnectionLimit = 500;
     this.connectionDelayMs = 0; // Dynamic delay for new connections under load
     this.game = game;
     this.clients = new Map();
@@ -14,19 +14,22 @@ class Server {
 
     // Enhanced DDoS Protection Settings
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-    this.maxConnectionsPerIP = 50;
+    this.maxConnectionsPerIP = 3;
     this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
-    this.maxConnectionAttemptsPerMinute = 120;
-    this.maxConnectionAttemptsPer10Seconds = 20;
+    this.maxConnectionAttemptsPerMinute = 30;
+    this.maxConnectionAttemptsPer10Seconds = 5;
     this.tempBannedIPs = new Map(); // ip -> { unbanTime, banCount }
     this.banDurations = [
-      2 * 60 * 1000,
-      10 * 60 * 1000,
-      60 * 60 * 1000
+      5 * 60 * 1000,
+      30 * 60 * 1000,
+      120 * 60 * 1000
     ];
     this.suspiciousIPs = new Map(); // Track suspicious behavior
     this.lastCleanup = Date.now();
     this.decodeErrorsByIP = new Map();
+    this.globalConnectionsLastSecond = 0;
+    this.globalConnectionsResetTime = Date.now() + 1000;
+    this.maxGlobalConnectionsPerSecond = 50;
   }
 
   get online() {
@@ -42,7 +45,19 @@ class Server {
         const ip = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
         const now = Date.now();
 
-        // Check if IP is banned
+        if (now > this.globalConnectionsResetTime) {
+          this.globalConnectionsLastSecond = 0;
+          this.globalConnectionsResetTime = now + 1000;
+        }
+
+        this.globalConnectionsLastSecond++;
+
+        if (this.globalConnectionsLastSecond > this.maxGlobalConnectionsPerSecond) {
+          res.writeStatus('503 Service Unavailable');
+          res.end('Server overloaded');
+          return;
+        }
+
         const banData = this.tempBannedIPs.get(ip);
         if (banData && now < banData.unbanTime) {
           res.writeStatus('403 Forbidden');

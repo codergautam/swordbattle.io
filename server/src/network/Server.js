@@ -14,7 +14,7 @@ class Server {
 
     // Enhanced DDoS Protection Settings
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-    this.maxConnectionsPerIP = 10; 
+    this.maxConnectionsPerIP = 30; 
     this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
     this.maxConnectionAttemptsPerMinute = 20; 
     this.maxConnectionAttemptsPer10Seconds = 4;

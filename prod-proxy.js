@@ -2,11 +2,33 @@ const http = require('http');
 const httpProxy = require('http-proxy');
 const net = require('net');
 
-// Create a proxy server for the API
-const apiProxy = httpProxy.createProxyServer({ target: 'http://localhost:3000', ws: true });
+// Increase max sockets and file descriptors
+require('http').globalAgent.maxSockets = 2048;
+require('https').globalAgent.maxSockets = 2048;
+if (process.platform === 'linux') {
+  try {
+    const limit = require('os').cpus().length * 2048;
+    require('child_process').execSync(`ulimit -n ${limit}`);
+  } catch (e) {
+    console.warn('[WARN] Failed to set file descriptor limit:', e.message);
+  }
+}
 
-// Create a proxy server for the main server
-const mainProxy = httpProxy.createProxyServer({ target: 'http://localhost:8080', ws: true });
+// Create a proxy server for the API with increased buffer size
+const apiProxy = httpProxy.createProxyServer({ 
+  target: 'http://localhost:3000',
+  ws: true,
+  buffer: Buffer.alloc(8192), // 8KB buffer for protobuf messages
+  proxyTimeout: 5000 // 5 second timeout
+});
+
+// Create a proxy server for the main server with increased buffer size
+const mainProxy = httpProxy.createProxyServer({ 
+  target: 'http://localhost:8080',
+  ws: true, 
+  buffer: Buffer.alloc(8192), // 8KB buffer for protobuf messages
+  proxyTimeout: 5000 // 5 second timeout
+});
 
 // Maximum header length to prevent DoS attacks (8KB is a reasonable limit)
 const MAX_HEADER_LENGTH = 8192;
@@ -16,19 +38,94 @@ const rateLimitMap = new Map(); // IP -> { count, resetTime }
 const bannedIPs = new Set(); // Permanently banned IPs for this session
 const TEMP_BAN_DURATION = 300000; // 5 minutes
 const MAX_REQUESTS_PER_MINUTE = 60;
-// Track concurrent requests/connections per IP
-const activeConnections = new Map(); // IP -> count
-const MAX_CONCURRENT_PER_IP = 12; // concurrent sockets/requests per IP before temporary ban
-const MAX_URL_LENGTH = 2000; // reject and ban if extremely long URL
 
-// Get client IP from request
+// Track concurrent requests/connections per IP
+const activeConnections = new Map();
+const protobufErrorCounts = new Map();
+const MAX_CONCURRENT_PER_IP = 12;
+const MAX_URL_LENGTH = 2000;
+const PROTOBUF_ERROR_THRESHOLD = 3; // Ban after this many errors
+const PROTOBUF_ERROR_WINDOW = 60000; // 1 minute window
+const SUSPICIOUS_XFF_IPS = new Set();
+
+const homepageIpRate = new Map();
+const homepageGlobal = { count: 0, reset: 0 };
+const HOMEPAGE_IP_LIMIT = 10;
+const HOMEPAGE_IP_TTL = 10000;
+const HOMEPAGE_GLOBAL_LIMIT = 100;
+const HOMEPAGE_GLOBAL_TTL = 10000;
+const HOMEPAGE_CACHE = Buffer.from('<!DOCTYPE html><html><head><title>Swordbattle</title></head><body><h1>Swordbattle</h1><p>Server is up.</p></body></html>');
+
+function shouldLogOnce(key) {
+  const now = Date.now();
+  const last = recentLogEvents.get(key) || 0;
+  if (now - last > LOG_SUPPRESSION_TTL) {
+    recentLogEvents.set(key, now);
+    return true;
+  }
+  return false;
+}
+
+// Track protobuf errors per IP
+function trackProtobufError(ip) {
+  const now = Date.now();
+  const stats = protobufErrorCounts.get(ip) || {
+    count: 0, 
+    firstError: now,
+    recentErrors: 0
+  };
+
+  // Reset if outside window
+  if (now - stats.firstError > PROTOBUF_ERROR_WINDOW) {
+    stats.count = 1;
+    stats.firstError = now;
+    stats.recentErrors = 1;
+  } else {
+    stats.count++;
+    stats.recentErrors++;
+  }
+
+  protobufErrorCounts.set(ip, stats);
+
+  if (stats.recentErrors >= PROTOBUF_ERROR_THRESHOLD) {
+    console.warn(`[SECURITY] IP ${ip} exceeded protobuf error threshold (${stats.recentErrors}). Banning.`);
+    bannedIPs.add(ip);
+    return false;
+  }
+  return true;
+}
+
+// Get client IP from request 
+function checkSuspiciousXFF(xff, clientIP) {
+  if (!xff) return false;
+  
+  const ips = xff.split(',').map(ip => ip.trim());
+  for (const ip of ips) {
+    if (SUSPICIOUS_XFF_IPS.has(ip)) {
+      return true;
+    }
+  }
+
+  // Look for IPs that appear in many XFF chains
+  const now = Date.now();
+  for (const ip of ips) {
+    const stats = protobufErrorCounts.get(ip) || {count: 0, firstError: now, recentErrors: 0};
+    if (stats.recentErrors >= PROTOBUF_ERROR_THRESHOLD) {
+      SUSPICIOUS_XFF_IPS.add(ip);
+      return true; 
+    }
+  }
+  
+  return false;
+}
+
 function getClientIP(req) {
   const xForwardedFor = req.headers['x-forwarded-for'];
   if (xForwardedFor) {
     try {
       const raw = String(xForwardedFor);
       // If header too long or contains weird data, treat as malicious
-      if (raw.length > 200) {
+      if (raw.length > MAX_HEADER_LENGTH) {
         // Ban the connecting socket IP (not the forged header)
         const sockIp = req.socket && req.socket.remoteAddress;
         if (sockIp) {
@@ -38,7 +135,15 @@ function getClientIP(req) {
         return req.socket.remoteAddress;
       }
 
-      const ips = raw.split(',').map(s => s.trim()).filter(Boolean);
+      // Check for suspicious XFF patterns
+      if (checkSuspiciousXFF(raw, req.socket.remoteAddress)) {
+        const sockIp = req.socket.remoteAddress;
+        console.warn(`[SECURITY] Suspicious XFF chain detected from ${sockIp}. Chain: ${raw}`);
+        bannedIPs.add(sockIp);
+        return sockIp;
+      }
+
+      const ips = raw.split(',').map(s => s.trim());
       // Validate first entry is an IP; if not, fallback to socket remoteAddress and ban
       const candidate = ips[0];
       if (net.isIP(candidate)) {
@@ -50,8 +155,8 @@ function getClientIP(req) {
         bannedIPs.add(sockIp2);
       }
       return req.socket.remoteAddress;
-    } catch (e) {
-      return req.socket.remoteAddress;
+    } catch(err) {
+      return req.socket.remoteAddress; 
     }
   }
   return req.socket.remoteAddress;
@@ -116,6 +221,7 @@ const server = http.createServer((req, res) => {
   try {
     // Get client IP
     const clientIP = getClientIP(req);
+
     // Basic URL length protection (very long URLs are often malicious)
     if (req.url && req.url.length > MAX_URL_LENGTH) {
       console.warn(`[SECURITY] Oversized URL from ${clientIP} (len=${req.url.length}). Banning.`);
@@ -140,7 +246,7 @@ const server = http.createServer((req, res) => {
       return;
     }
     activeConnections.set(clientIP, current + 1);
-    
+
     // Check if IP is banned
     if (bannedIPs.has(clientIP)) {
       console.warn(`[SECURITY] Blocked request from banned IP: ${clientIP}`);
@@ -150,8 +256,45 @@ const server = http.createServer((req, res) => {
       }
       return;
     }
-    
-    // Check rate limit
+
+    if (req.method === 'GET' && req.url === '/') {
+      const now = Date.now();
+      let ipData = homepageIpRate.get(clientIP);
+      if (!ipData || now > ipData.reset) {
+        ipData = { count: 1, reset: now + HOMEPAGE_IP_TTL };
+        homepageIpRate.set(clientIP, ipData);
+      } else {
+        ipData.count++;
+        if (ipData.count > HOMEPAGE_IP_LIMIT) {
+          console.warn(`[SECURITY] IP ${clientIP} exceeded homepage GET / rate (${ipData.count}/${HOMEPAGE_IP_TTL/1000}s). Banning.`);
+          bannedIPs.add(clientIP);
+          setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION);
+          if (!res.headersSent) {
+            res.writeHead(429, { 'Content-Type': 'text/plain' });
+            res.end('Too Many Requests');
+          }
+          return;
+        }
+      }
+      if (now > homepageGlobal.reset) {
+        homepageGlobal.count = 1;
+        homepageGlobal.reset = now + HOMEPAGE_GLOBAL_TTL;
+      } else {
+        homepageGlobal.count++;
+        if (homepageGlobal.count > HOMEPAGE_GLOBAL_LIMIT) {
+          console.warn(`[SECURITY] GLOBAL homepage GET / rate exceeded (${homepageGlobal.count}/${HOMEPAGE_GLOBAL_TTL/1000}s). Dropping requests.`);
+          if (!res.headersSent) {
+            res.writeHead(503, { 'Content-Type': 'text/plain' });
+            res.end('Server busy');
+          }
+          return;
+        }
+      }
+      res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'public, max-age=60' });
+      res.end(HOMEPAGE_CACHE);
+      return;
+    }
+
     if (!checkRateLimit(clientIP)) {
       if (!res.headersSent) {
         res.writeHead(429, { 'Content-Type': 'text/plain' });
@@ -159,10 +302,10 @@ const server = http.createServer((req, res) => {
       }
       return;
     }
-    
+
     // Sanitize headers before processing
     sanitizeHeaders(req);
-    
+
     // Check the host header to determine where to route the request
     const host = req.headers.host;
 
@@ -214,6 +357,13 @@ server.keepAliveTimeout = 5000; // 5 seconds
 function attachProxyErrorHandlers(proxy, name) {
   proxy.on('error', (err, req, res) => {
     console.error(`${name} proxy error:`, err && err.code ? `${err.code} ${err.message}` : err);
+    
+    // Track protobuf errors if detected
+    if (err.code === 'PROTOBUF_ERROR' && req) {
+      const ip = getClientIP(req);
+      trackProtobufError(ip);
+    }
+    
     // If response is available, try to return a 502 to the client instead of letting process throw
     if (res && !res.headersSent) {
       try {
@@ -245,6 +395,12 @@ server.on('upgrade', (req, socket, head) => {
     // Get client IP
     const clientIP = getClientIP(req);
     
+    if (req.url === '/') {
+      console.warn(`[SECURITY] Blocked WebSocket upgrade to '/' from ${clientIP}`);
+      try { socket.end('HTTP/1.1 403 Forbidden\r\n\r\n'); } catch (e) {}
+      return;
+    }
+    
     // Check if IP is banned
     if (bannedIPs.has(clientIP)) {
       console.warn(`[SECURITY] Blocked WebSocket upgrade from banned IP: ${clientIP}`);
@@ -253,6 +409,7 @@ server.on('upgrade', (req, socket, head) => {
       } catch (e) {}
       return;
     }
+    
     // Track concurrent connections for WS too
     const cur = activeConnections.get(clientIP) || 0;
     if (cur >= MAX_CONCURRENT_PER_IP) {
@@ -311,9 +468,27 @@ process.on('unhandledRejection', (reason, promise) => {
   // Don't exit - continue running
 });
 
+// Periodic cleanup of tracking maps
+setInterval(() => {
+  const now = Date.now();
+  
+  // Clean up protobuf error counts older than window
+  for (const [ip, stats] of protobufErrorCounts) {
+    if (now - stats.firstError > PROTOBUF_ERROR_WINDOW) {
+      protobufErrorCounts.delete(ip);
+    }
+  }
+  
+  // Clean up homepage rate limits
+  for (const [ip, data] of homepageIpRate) {
+    if (now > data.reset) homepageIpRate.delete(ip);
+  }
+}, 60000);
+
 // Start the server
-server.listen(process.env.PORT, () => {
-  console.log(`Reverse proxy server running on port ${process.env.PORT}`);
+server.listen(process.env.PORT || 80, () => {
+  console.log(`Reverse proxy server running on port ${process.env.PORT || 80}`);
   console.log('[SECURITY] Header protection enabled with max size: 8KB');
   console.log('[SECURITY] Rate limiting enabled: 60 req/min');
+  console.log('[SECURITY] Protobuf error tracking enabled');
 });

@@ -23,6 +23,7 @@ export SERVER_PORT=8080
 echo "Deployment complete"
 echo "Starting proxy server..."
 
-# Start proxy with NODE_OPTIONS explicitly set
-NODE_OPTIONS="--max-http-header-size=8192" pm2 start prod-proxy.js --name proxy
+# Start proxy with increased file descriptors and max old space size
+NODE_OPTIONS="--max-http-header-size=8192 --max-old-space-size=2048" pm2 start prod-proxy.js --name proxy --node-args="--max-http-header-size=8192" -- --max-old-space-size=2048
+ulimit -n 65536 # Increase max file descriptors
 pm2 logs

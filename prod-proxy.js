@@ -243,7 +243,7 @@ const server = http.createServer((req, res) => {
 
     // Track concurrent connections per IP
     const current = activeConnections.get(clientIP) || 0;
-    if (current >= MAX_CONCURRENT_PER_IP) {
+    if (current >= CONCURRENT_CONN_LIMIT) {
       console.warn(`[SECURITY] Too many concurrent connections from ${clientIP} (${current}). Temporarily banning.`);
       bannedIPs.add(clientIP);
       setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION);
@@ -345,7 +345,7 @@ server.on('upgrade', (req, socket, head) => {
     
     // Track concurrent connections for WS too
     const cur = activeConnections.get(clientIP) || 0;
-    if (cur >= MAX_CONCURRENT_PER_IP) {
+    if (cur >= CONCURRENT_CONN_LIMIT) {
       console.warn(`[SECURITY] Too many concurrent WS connections from ${clientIP} (${cur}). Rejecting.`);
       try { socket.end('HTTP/1.1 429 Too Many Requests\r\n\r\n'); } catch (e) {}
       return;

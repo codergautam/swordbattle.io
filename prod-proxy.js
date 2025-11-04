@@ -14,20 +14,40 @@ if (process.platform === 'linux') {
   }
 }
 
-// Create a proxy server for the API with increased buffer size
+// Create a proxy server for the API with proper configuration
 const apiProxy = httpProxy.createProxyServer({ 
   target: 'http://localhost:3000',
   ws: true,
-  buffer: Buffer.alloc(8192), // 8KB buffer for protobuf messages
-  proxyTimeout: 5000 // 5 second timeout
+  xfwd: true,
+  proxyTimeout: 30000, // 30 second timeout
+  timeout: 30000,
+  keepAlive: true,
+  followRedirects: true,
+  // Handle buffer size through agent settings
+  agent: new http.Agent({
+    keepAlive: true,
+    maxSockets: 100,
+    keepAliveMsecs: 30000,
+    maxFreeSockets: 10
+  })
 });
 
-// Create a proxy server for the main server with increased buffer size
+// Create a proxy server for the main server with proper configuration
 const mainProxy = httpProxy.createProxyServer({ 
   target: 'http://localhost:8080',
-  ws: true, 
-  buffer: Buffer.alloc(8192), // 8KB buffer for protobuf messages
-  proxyTimeout: 5000 // 5 second timeout
+  ws: true,
+  xfwd: true,
+  proxyTimeout: 30000, // 30 second timeout
+  timeout: 30000,
+  keepAlive: true,
+  followRedirects: true,
+  // Handle buffer size through agent settings
+  agent: new http.Agent({
+    keepAlive: true,
+    maxSockets: 100,
+    keepAliveMsecs: 30000,
+    maxFreeSockets: 10
+  })
 });
 
 // Maximum header length to prevent DoS attacks (8KB is a reasonable limit)
@@ -356,6 +376,12 @@ server.keepAliveTimeout = 5000; // 5 seconds
 // Generic HTTP proxy error handler (for web requests)
 function attachProxyErrorHandlers(proxy, name) {
   proxy.on('error', (err, req, res) => {
+    if (err.code === 'ECONNRESET') {
+      // Connection reset is common for websockets, just debug log
+      console.debug(`${name} proxy connection reset:`, err.message);
+      return;
+    }
+    
     console.error(`${name} proxy error:`, err && err.code ? `${err.code} ${err.message}` : err);
     
     // Track protobuf errors if detected
@@ -373,16 +399,51 @@ function attachProxyErrorHandlers(proxy, name) {
     }
   });
 
-  // protect underlying proxy request sockets too
-  proxy.on('proxyReq', (proxyReq) => {
+  // Handle proxy request errors
+  proxy.on('proxyReq', (proxyReq, req, res) => {
     proxyReq.on('error', (err) => {
+      if (err.code === 'ECONNRESET') {
+        console.debug(`${name} proxyReq connection reset:`, err.message);
+        return;
+      }
       console.error(`${name} proxyReq error:`, err);
+    });
+
+    // Set timeout and keepalive
+    proxyReq.setNoDelay(true);
+    proxyReq.setTimeout(30000);
+  });
+
+  // Handle proxy response setup
+  proxy.on('proxyRes', (proxyRes, req, res) => {
+    // Ensure proper cleanup of sockets
+    proxyRes.on('end', () => {
+      if (proxyRes.socket) {
+        proxyRes.socket.destroy();
+      }
     });
   });
 
-  // websocket-level errors
-  proxy.on('error', (err) => {
-    console.error(`${name} ws error:`, err);
+  // Handle websocket upgrade
+  proxy.on('upgrade', (req, socket) => {
+    socket.on('error', (err) => {
+      if (err.code === 'ECONNRESET') {
+        console.debug(`${name} ws connection reset:`, err.message);
+        return;
+      }
+      console.error(`${name} ws error:`, err);
+    });
+
+    // Set socket timeout and keepalive
+    socket.setTimeout(30000);
+    socket.setKeepAlive(true, 10000);
+  });
+
+  // Handle websocket close
+  proxy.on('close', (res, socket, head) => {
+    if (socket && !socket.destroyed) {
+      socket.destroy();
+    }
   });
 }
 

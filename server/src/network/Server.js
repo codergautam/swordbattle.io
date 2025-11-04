@@ -48,20 +48,29 @@ class Server {
       maxPayloadLength: 2048,
       upgrade: (res, req, context) => {
         const forwardedFor = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
-        const ip = forwardedFor.split(',')[0].trim();
+        const ips = forwardedFor.split(',').map(i => i.trim());
+        const ip = ips[0];
         const now = Date.now();
 
-        if (getBannedIps().includes(ip)) {
+        if (ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.')) {
           res.writeStatus('403 Forbidden');
           res.end();
           return;
         }
 
-        const banData = this.tempBannedIPs.get(ip);
-        if (banData && now < banData.unbanTime) {
-          res.writeStatus('403 Forbidden');
-          res.end();
-          return;
+        for (const checkIp of ips) {
+          if (getBannedIps().includes(checkIp)) {
+            res.writeStatus('403 Forbidden');
+            res.end();
+            return;
+          }
+
+          const banData = this.tempBannedIPs.get(checkIp);
+          if (banData && now < banData.unbanTime) {
+            res.writeStatus('403 Forbidden');
+            res.end();
+            return;
+          }
         }
 
         if (this.circuitBreakerTripped) {

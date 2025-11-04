@@ -19,16 +19,17 @@ const apiProxy = httpProxy.createProxyServer({
   target: 'http://localhost:3000',
   ws: true,
   xfwd: true,
-  proxyTimeout: 30000, // 30 second timeout
-  timeout: 30000,
+  proxyTimeout: 15000, // Reduced timeout
+  timeout: 15000,
   keepAlive: true,
   followRedirects: true,
+  buffer: Buffer.alloc(1024), // Smaller initial buffer size
   // Handle buffer size through agent settings
   agent: new http.Agent({
     keepAlive: true,
-    maxSockets: 100,
-    keepAliveMsecs: 30000,
-    maxFreeSockets: 10
+    maxSockets: 50, // Reduced concurrent connections
+    keepAliveMsecs: 10000,
+    maxFreeSockets: 5
   })
 });
 
@@ -37,36 +38,45 @@ const mainProxy = httpProxy.createProxyServer({
   target: 'http://localhost:8080',
   ws: true,
   xfwd: true,
-  proxyTimeout: 30000, // 30 second timeout
-  timeout: 30000,
+  proxyTimeout: 15000, // Reduced timeout
+  timeout: 15000,
   keepAlive: true,
   followRedirects: true,
+  buffer: Buffer.alloc(1024), // Smaller initial buffer size
   // Handle buffer size through agent settings
   agent: new http.Agent({
     keepAlive: true,
-    maxSockets: 100,
-    keepAliveMsecs: 30000,
-    maxFreeSockets: 10
+    maxSockets: 50, // Reduced concurrent connections
+    keepAliveMsecs: 10000,
+    maxFreeSockets: 5
   })
 });
 
 // Maximum header length to prevent DoS attacks (8KB is a reasonable limit)
 const MAX_HEADER_LENGTH = 8192;
 
-// Rate limiting and temporary ban tracking
-const rateLimitMap = new Map(); // IP -> { count, resetTime }
+// Enhanced rate limiting and ban tracking
+const rateLimitMap = new Map(); // IP -> { count, resetTime, errorCount, lastError }
 const bannedIPs = new Set(); // Permanently banned IPs for this session
 const TEMP_BAN_DURATION = 300000; // 5 minutes
-const MAX_REQUESTS_PER_MINUTE = 60;
+const MAX_REQUESTS_PER_MINUTE = 30; // Reduced rate limit
+const ERROR_BAN_THRESHOLD = 3; // Ban after this many errors in the window
+const ERROR_WINDOW = 10000; // 10 second window for error counting
+const CONCURRENT_CONN_LIMIT = 5; // Max concurrent connections per IP
+const GLOBAL_CONN_LIMIT = 200; // Global connection limit
+const SUSPICIOUS_SIZE = 1982; // The suspicious message size
+let currentConnections = 0;
 
-// Track concurrent requests/connections per IP
-const activeConnections = new Map();
+// Enhanced connection tracking
+const activeConnections = new Map(); // IP -> {count, firstConn, connHistory}
 const protobufErrorCounts = new Map();
-const MAX_CONCURRENT_PER_IP = 12;
 const MAX_URL_LENGTH = 2000;
-const PROTOBUF_ERROR_THRESHOLD = 3; // Ban after this many errors
-const PROTOBUF_ERROR_WINDOW = 60000; // 1 minute window
 const SUSPICIOUS_XFF_IPS = new Set();
+
+// Connection rate tracking
+const CONN_RATE_WINDOW = 10000; // 10 second window
+const MAX_CONN_PER_WINDOW = 10; // Max new connections per window
+const CONN_HISTORY_SIZE = 5; // Track last 5 connections
 
 const homepageIpRate = new Map();
 const homepageGlobal = { count: 0, reset: 0 };
@@ -77,28 +87,39 @@ const HOMEPAGE_GLOBAL_TTL = 10000;
 const HOMEPAGE_CACHE = Buffer.from('<!DOCTYPE html><html><head><title>Swordbattle</title></head><body><h1>Swordbattle</h1><p>Server is up.</p></body></html>');
 
 // Track protobuf errors per IP
-function trackProtobufError(ip) {
+function trackProtobufError(ip, msgSize) {
   const now = Date.now();
   const stats = protobufErrorCounts.get(ip) || {
     count: 0, 
     firstError: now,
-    recentErrors: 0
+    recentErrors: 0,
+    suspiciousCount: 0
   };
 
+  // Immediate ban for known malicious message size
+  if (msgSize === SUSPICIOUS_SIZE || msgSize === SUSPICIOUS_SIZE + 97) {
+    console.warn(`[SECURITY] IP ${ip} sent known malicious message size (${msgSize}). Immediate ban.`);
+    bannedIPs.add(ip);
+    return false;
+  }
+
   // Reset if outside window
-  if (now - stats.firstError > PROTOBUF_ERROR_WINDOW) {
+  if (now - stats.firstError > ERROR_WINDOW) {
     stats.count = 1;
     stats.firstError = now;
     stats.recentErrors = 1;
+    stats.suspiciousCount = 0;
   } else {
     stats.count++;
     stats.recentErrors++;
+    if (msgSize > 1024) stats.suspiciousCount++;
   }
 
   protobufErrorCounts.set(ip, stats);
 
-  if (stats.recentErrors >= PROTOBUF_ERROR_THRESHOLD) {
-    console.warn(`[SECURITY] IP ${ip} exceeded protobuf error threshold (${stats.recentErrors}). Banning.`);
+  // Ban for rapid errors or suspicious patterns
+  if (stats.recentErrors >= ERROR_BAN_THRESHOLD || stats.suspiciousCount >= 2) {
+    console.warn(`[SECURITY] IP ${ip} triggered protobuf protection (errors=${stats.recentErrors}, suspicious=${stats.suspiciousCount}). Banning.`);
     bannedIPs.add(ip);
     return false;
   }

@@ -51,6 +51,19 @@ class Server {
         const ip = forwardedFor.split(',')[0].trim();
         const now = Date.now();
 
+        if (getBannedIps().includes(ip)) {
+          res.writeStatus('403 Forbidden');
+          res.end();
+          return;
+        }
+
+        const banData = this.tempBannedIPs.get(ip);
+        if (banData && now < banData.unbanTime) {
+          res.writeStatus('403 Forbidden');
+          res.end();
+          return;
+        }
+
         if (this.circuitBreakerTripped) {
           if (now < this.circuitBreakerResetTime) {
             res.writeStatus('503 Service Unavailable');
@@ -77,7 +90,7 @@ class Server {
         if (this.globalConnectionsLastSecond > this.maxGlobalConnectionsPerSecond) {
           this.rejectionCountLastSecond++;
 
-          if (this.rejectionCountLastSecond > 30) {
+          if (this.rejectionCountLastSecond > 50) {
             this.circuitBreakerTripped = true;
             this.circuitBreakerResetTime = now + this.circuitBreakerDuration;
             console.warn('[CIRCUIT_BREAKER] TRIPPED - Too many rejections, blocking all connections for 10s');
@@ -85,13 +98,6 @@ class Server {
 
           res.writeStatus('503 Service Unavailable');
           res.end();
-          return;
-        }
-
-        const banData = this.tempBannedIPs.get(ip);
-        if (banData && now < banData.unbanTime) {
-          res.writeStatus('403 Forbidden');
-          res.end('Access denied');
           return;
         }
 

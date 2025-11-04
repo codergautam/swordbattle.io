@@ -48,7 +48,7 @@ class Client {
 
     // Malformed message tracking
     this.decodeErrorCount = 0;
-    this.maxDecodeErrors = 5; // Disconnect after 5 decode errors
+    this.maxDecodeErrors = 2;
     this.decodeErrorResetTimer = 0;
   }
 

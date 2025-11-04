@@ -26,6 +26,7 @@ class Server {
     ];
     this.suspiciousIPs = new Map(); // Track suspicious behavior
     this.lastCleanup = Date.now();
+    this.decodeErrorsByIP = new Map();
   }
 
   get online() {
@@ -148,16 +149,55 @@ class Server {
             client.addMessage(data);
           }
         } catch (error) {
+          const now = Date.now();
+          const ip = client.ip;
+
+          if (!this.decodeErrorsByIP.has(ip)) {
+            this.decodeErrorsByIP.set(ip, {
+              count: 0,
+              firstError: now,
+              resetTime: now + 60000
+            });
+          }
+
+          const ipErrors = this.decodeErrorsByIP.get(ip);
+
+          if (now > ipErrors.resetTime) {
+            ipErrors.count = 0;
+            ipErrors.firstError = now;
+            ipErrors.resetTime = now + 60000;
+          }
+
+          ipErrors.count++;
           client.decodeErrorCount++;
-          if (client.decodeErrorCount >= client.maxDecodeErrors) {
-            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) exceeded decode error limit (${client.decodeErrorCount} errors), disconnecting`);
-            client.disconnectReason = {
-              message: 'Too many malformed messages',
-              type: 1
-            };
-            try { client.socket.close(); } catch(e) {}
+
+          const isFloodAttack = ipErrors.count >= 3 || client.decodeErrorCount >= 2;
+
+          if (isFloodAttack) {
+            console.warn(`[SECURITY] IP ${ip} decode error flood detected (${ipErrors.count} errors from IP, ${client.decodeErrorCount} from client), banning IP`);
+
+            const banData = this.tempBannedIPs.get(ip) || { banCount: 0 };
+            const banCount = Math.min(banData.banCount || 0, this.banDurations.length - 1);
+            const banDuration = this.banDurations[banCount];
+
+            this.tempBannedIPs.set(ip, {
+              unbanTime: now + banDuration,
+              banCount: banCount + 1
+            });
+
+            console.warn(`[SECURITY] IP ${ip} temporarily banned for ${banDuration/1000}s due to malformed message attack`);
+
+            for (const c of this.clients.values()) {
+              if (c.ip === ip) {
+                c.disconnectReason = {
+                  message: 'Malformed message attack detected',
+                  type: 1
+                };
+                try { c.socket.close(); } catch(e) {}
+              }
+            }
           } else {
-            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) decode error ${client.decodeErrorCount}/${client.maxDecodeErrors}: ${error.message}`);
+            console.warn(`[SECURITY] Client ${client.id} (${client.ip}) decode error ${client.decodeErrorCount}: ${error.message}`);
           }
         }
       },
@@ -435,10 +475,16 @@ class Server {
     }
 
     // Clean up expired temporary bans
-    for (const [ip, unbanTime] of this.tempBannedIPs.entries()) {
-      if (now > unbanTime) {
+    for (const [ip, banData] of this.tempBannedIPs.entries()) {
+      if (now > banData.unbanTime) {
         console.log(`[TEMP_BAN] Temporary ban expired for IP ${ip}`);
         this.tempBannedIPs.delete(ip);
+      }
+    }
+
+    for (const [ip, errorData] of this.decodeErrorsByIP.entries()) {
+      if (now > errorData.resetTime) {
+        this.decodeErrorsByIP.delete(ip);
       }
     }
   }

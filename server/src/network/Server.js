@@ -6,19 +6,26 @@ const { getBannedIps, addBannedIp } = require('../moderation');
 
 class Server {
   constructor(game) {
-  this.globalConnectionLimit = 400; // Higher max open connections
-  this.connectionDelayMs = 0; // Dynamic delay for new connections under load
+    this.globalConnectionLimit = 400; // Higher max open connections
+    this.connectionDelayMs = 0; // Dynamic delay for new connections under load
     this.game = game;
     this.clients = new Map();
     this.disconnectedClients = new Set();
 
-    // Connection rate limiting per IP
+    // Enhanced DDoS Protection Settings
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-  this.maxConnectionsPerIP = 8; // More forgiving for real users
-  this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
-  this.maxConnectionAttemptsPerMinute = 30; // More forgiving
-  this.maxConnectionAttemptsPer10Seconds = 6; // More forgiving
-  this.tempBannedIPs = new Map(); // ip -> unbanTime (temporary auto-bans for flood attacks)
+    this.maxConnectionsPerIP = 10; 
+    this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
+    this.maxConnectionAttemptsPerMinute = 20; 
+    this.maxConnectionAttemptsPer10Seconds = 4;
+    this.tempBannedIPs = new Map(); // ip -> { unbanTime, banCount }
+    this.banDurations = [
+      5 * 60 * 1000,    // 5 minutes for first offense
+      30 * 60 * 1000,   // 30 minutes for second offense
+      24 * 60 * 60 * 1000 // 24 hours for third+ offense
+    ];
+    this.suspiciousIPs = new Map(); // Track suspicious behavior
+    this.lastCleanup = Date.now();
   }
 
   get online() {
@@ -33,7 +40,69 @@ class Server {
       upgrade: (res, req, context) => {
         const ip = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
         const now = Date.now();
-        // GLOBAL CONNECTION LIMIT: count all open clients
+
+        // Check if IP is banned
+        const banData = this.tempBannedIPs.get(ip);
+        if (banData && now < banData.unbanTime) {
+          res.writeStatus('403 Forbidden');
+          res.end('Access denied');
+          return;
+        }
+
+        // Check for rate limiting
+        const attempts = this.connectionAttemptsByIP.get(ip) || { 
+          attempts: 0, 
+          resetTime: now + 60000,
+          shortTermAttempts: 0,
+          shortTermResetTime: now + 10000
+        };
+
+        // Reset counters if time window expired
+        if (now > attempts.resetTime) {
+          attempts.attempts = 0;
+          attempts.resetTime = now + 60000;
+        }
+        if (now > attempts.shortTermResetTime) {
+          attempts.shortTermAttempts = 0;
+          attempts.shortTermResetTime = now + 10000;
+        }
+
+        // Increment attempt counters
+        attempts.attempts++;
+        attempts.shortTermAttempts++;
+        this.connectionAttemptsByIP.set(ip, attempts);
+
+        // Check rate limits
+        if (attempts.attempts > this.maxConnectionAttemptsPerMinute || 
+            attempts.shortTermAttempts > this.maxConnectionAttemptsPer10Seconds) {
+          // Apply progressive ban
+          const prevBan = this.tempBannedIPs.get(ip) || { banCount: 0 };
+          const banCount = Math.min(prevBan.banCount || 0, this.banDurations.length - 1);
+          const banDuration = this.banDurations[banCount];
+          
+          this.tempBannedIPs.set(ip, {
+            unbanTime: now + banDuration,
+            banCount: banCount + 1
+          });
+          
+          console.warn(`[RATE_LIMIT] IP ${ip} banned for ${banDuration/1000}s (violation: ${attempts.attempts} attempts/min, ${attempts.shortTermAttempts} attempts/10s)`);
+          res.writeStatus('429 Too Many Requests');
+          res.end('Too many connection attempts');
+          return;
+        }
+
+        // Check current connections from this IP
+        const currentConnections = Array.from(this.clients.values())
+          .filter(client => client.ip === ip).length;
+        
+        if (currentConnections >= this.maxConnectionsPerIP) {
+          console.warn(`[CONN_LIMIT] IP ${ip} exceeded max connections (${currentConnections}/${this.maxConnectionsPerIP})`);
+          res.writeStatus('429 Too Many Requests');
+          res.end('Too many connections from your IP');
+          return;
+        }
+
+        // GLOBAL CONNECTION LIMIT
         const totalConnections = this.clients.size;
         if (totalConnections >= this.globalConnectionLimit) {
           console.warn(`[GLOBAL_LIMIT] Too many open connections (${totalConnections}), rejecting new connection.`);
@@ -42,9 +111,9 @@ class Server {
           return;
         }
 
-        // If under heavy load, add a small random delay before accepting
+        // Dynamic delay under load
         if (totalConnections > this.globalConnectionLimit * 0.8) {
-          const delay = Math.floor(Math.random() * 150) + 50; // 50-200ms
+          const delay = Math.floor(Math.random() * 300) + 100; // 100-400ms
           setTimeout(() => this._handleUpgrade(res, req, context, ip, now), delay);
           return;
         }

@@ -52,7 +52,20 @@ class Server {
         const ip = ips[0];
         const now = Date.now();
 
-        if (ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.')) {
+        if (ip.startsWith('192.168.') || ip.startsWith('193.168.') || ip.startsWith('10.') ||
+            ip.startsWith('172.16.') || ip.startsWith('172.17.') || ip.startsWith('172.18.') ||
+            ip.startsWith('172.19.') || ip.startsWith('172.20.') || ip.startsWith('172.21.') ||
+            ip.startsWith('172.22.') || ip.startsWith('172.23.') || ip.startsWith('172.24.') ||
+            ip.startsWith('172.25.') || ip.startsWith('172.26.') || ip.startsWith('172.27.') ||
+            ip.startsWith('172.28.') || ip.startsWith('172.29.') || ip.startsWith('172.30.') ||
+            ip.startsWith('172.31.') || ip.startsWith('127.') || ip.startsWith('0.') ||
+            ip.startsWith('169.254.') || ip.startsWith('224.') || ip.startsWith('225.') ||
+            ip.startsWith('226.') || ip.startsWith('227.') || ip.startsWith('228.') ||
+            ip.startsWith('229.') || ip.startsWith('230.') || ip.startsWith('231.') ||
+            ip.startsWith('232.') || ip.startsWith('233.') || ip.startsWith('234.') ||
+            ip.startsWith('235.') || ip.startsWith('236.') || ip.startsWith('237.') ||
+            ip.startsWith('238.') || ip.startsWith('239.') || ip.startsWith('240.') ||
+            ip === '255.255.255.255') {
           res.writeStatus('403 Forbidden');
           res.end();
           return;

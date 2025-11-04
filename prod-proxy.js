@@ -23,7 +23,6 @@ const apiProxy = httpProxy.createProxyServer({
   timeout: 15000,
   keepAlive: true,
   followRedirects: true,
-  buffer: Buffer.alloc(1024), // Smaller initial buffer size
   // Handle buffer size through agent settings
   agent: new http.Agent({
     keepAlive: true,
@@ -42,7 +41,6 @@ const mainProxy = httpProxy.createProxyServer({
   timeout: 15000,
   keepAlive: true,
   followRedirects: true,
-  buffer: Buffer.alloc(1024), // Smaller initial buffer size
   // Handle buffer size through agent settings
   agent: new http.Agent({
     keepAlive: true,

@@ -39,6 +39,9 @@ class Server {
     this.blockedPatterns = new Map();
     this.patternDetectionWindow = 10000;
     this.patternDetectionThreshold = 8;
+    this.proxyTracker = new Map();
+    this.proxyDetectionWindow = 10000;
+    this.proxyDetectionThreshold = 8;
   }
 
   get online() {
@@ -59,6 +62,42 @@ class Server {
         const octets = ip.split('.');
         const firstOctet = parseInt(octets[0]);
         const secondOctet = parseInt(octets[1]);
+
+        if (ips.length > 1) {
+          const proxyIp = ips[1];
+          if (getBannedIps().includes(proxyIp)) {
+            res.writeStatus('403 Forbidden');
+            res.end();
+            return;
+          }
+
+          if (!this.proxyTracker.has(proxyIp)) {
+            this.proxyTracker.set(proxyIp, { connections: [], firstSeen: now });
+          }
+          const proxyData = this.proxyTracker.get(proxyIp);
+          proxyData.connections.push(now);
+          proxyData.connections = proxyData.connections.filter(t => now - t < this.proxyDetectionWindow);
+
+          if (proxyData.connections.length >= this.proxyDetectionThreshold) {
+            const timeSpan = now - proxyData.connections[0];
+            if (timeSpan < this.proxyDetectionWindow) {
+              console.warn(`[PROXY_DETECTION] Blocking proxy ${proxyIp} - ${proxyData.connections.length} connections in ${timeSpan}ms`);
+              addBannedIp(proxyIp, 'Proxy flood attack detected');
+
+              for (const c of this.clients.values()) {
+                const clientIps = c.ip ? [c.ip] : [];
+                if (clientIps.includes(proxyIp)) {
+                  c.disconnectReason = { message: 'Proxy flood detected', type: 1 };
+                  try { c.socket.close(); } catch(e) {}
+                }
+              }
+
+              res.writeStatus('403 Forbidden');
+              res.end();
+              return;
+            }
+          }
+        }
 
         const patterns = [
           { key: `${firstOctet}.${secondOctet}`, matcher: (clientIp) => clientIp.startsWith(`${firstOctet}.${secondOctet}.`) },
@@ -527,6 +566,13 @@ class Server {
       data.connections = data.connections.filter(t => now - t < this.patternDetectionWindow);
       if (data.connections.length === 0 && now - data.firstSeen > 60000) {
         this.patternTracker.delete(pattern);
+      }
+    }
+
+    for (const [proxyIp, data] of this.proxyTracker.entries()) {
+      data.connections = data.connections.filter(t => now - t < this.proxyDetectionWindow);
+      if (data.connections.length === 0 && now - data.firstSeen > 60000) {
+        this.proxyTracker.delete(proxyIp);
       }
     }
   }

@@ -60,40 +60,47 @@ class Server {
         const firstOctet = parseInt(octets[0]);
         const secondOctet = parseInt(octets[1]);
 
-        const patternKey = `${firstOctet}.${secondOctet}`;
-        const blockedPattern = this.blockedPatterns.get(patternKey);
-        if (blockedPattern && now < blockedPattern.unblockTime) {
-          res.writeStatus('403 Forbidden');
-          res.end();
-          return;
-        }
+        const patterns = [
+          { key: `${firstOctet}.${secondOctet}`, matcher: (clientIp) => clientIp.startsWith(`${firstOctet}.${secondOctet}.`) },
+          { key: `first:${firstOctet}`, matcher: (clientIp) => clientIp.split('.')[0] === String(firstOctet) },
+          { key: `second:${secondOctet}`, matcher: (clientIp) => clientIp.split('.')[1] === String(secondOctet) }
+        ];
 
-        if (!this.patternTracker.has(patternKey)) {
-          this.patternTracker.set(patternKey, { connections: [], firstSeen: now });
-        }
-        const pattern = this.patternTracker.get(patternKey);
-        pattern.connections.push(now);
-        pattern.connections = pattern.connections.filter(t => now - t < this.patternDetectionWindow);
-
-        if (pattern.connections.length >= this.patternDetectionThreshold) {
-          const timeSpan = now - pattern.connections[0];
-          if (timeSpan < this.patternDetectionWindow) {
-            this.blockedPatterns.set(patternKey, {
-              unblockTime: now + 300000,
-              detectedAt: now
-            });
-            console.warn(`[PATTERN_DETECTION] Blocked pattern ${patternKey}.x.x - ${pattern.connections.length} connections in ${timeSpan}ms`);
-
-            for (const c of this.clients.values()) {
-              if (c.ip.startsWith(patternKey + '.')) {
-                c.disconnectReason = { message: 'Suspicious pattern detected', type: 1 };
-                try { c.socket.close(); } catch(e) {}
-              }
-            }
-
+        for (const { key, matcher } of patterns) {
+          const blockedPattern = this.blockedPatterns.get(key);
+          if (blockedPattern && now < blockedPattern.unblockTime) {
             res.writeStatus('403 Forbidden');
             res.end();
             return;
+          }
+
+          if (!this.patternTracker.has(key)) {
+            this.patternTracker.set(key, { connections: [], firstSeen: now });
+          }
+          const pattern = this.patternTracker.get(key);
+          pattern.connections.push(now);
+          pattern.connections = pattern.connections.filter(t => now - t < this.patternDetectionWindow);
+
+          if (pattern.connections.length >= this.patternDetectionThreshold) {
+            const timeSpan = now - pattern.connections[0];
+            if (timeSpan < this.patternDetectionWindow) {
+              this.blockedPatterns.set(key, {
+                unblockTime: now + 300000,
+                detectedAt: now
+              });
+              console.warn(`[PATTERN_DETECTION] Blocked pattern ${key} - ${pattern.connections.length} connections in ${timeSpan}ms`);
+
+              for (const c of this.clients.values()) {
+                if (matcher(c.ip)) {
+                  c.disconnectReason = { message: 'Suspicious pattern detected', type: 1 };
+                  try { c.socket.close(); } catch(e) {}
+                }
+              }
+
+              res.writeStatus('403 Forbidden');
+              res.end();
+              return;
+            }
           }
         }
 

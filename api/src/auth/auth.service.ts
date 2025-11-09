@@ -5,6 +5,7 @@ import { Account } from 'src/accounts/account.entity';
 import validateUsername from 'src/helpers/validateUsername';
 import validateClantag from 'src/helpers/validateClantag';
 import { v4 as uuidv4 } from 'uuid';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -135,5 +136,47 @@ export class AuthService {
 
   async validateAccount(payload: any) {
     throw new Error('DEPRECATED');
+  }
+
+  async generateApiToken() {
+    const secret = process.env.API_TOKEN_SECRET || 'default-secret-change-in-production';
+    const timestamp = Date.now();
+    const nonce = crypto.randomBytes(16).toString('hex');
+    const payload = `${timestamp}.${nonce}`;
+    const signature = crypto
+      .createHmac('sha256', secret)
+      .update(payload)
+      .digest('hex');
+
+    return `${payload}.${signature}`;
+  }
+
+  static validateApiToken(token: string): boolean {
+    const secret = process.env.API_TOKEN_SECRET || 'default-secret-change-in-production';
+
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return false;
+
+      const timestamp = parseInt(parts[0], 10);
+      const nonce = parts[1];
+      const signature = parts[2];
+
+      // Check timestamp is within 5 minutes
+      const now = Date.now();
+      const MAX_AGE = 300000; // 5 minutes
+      if (Math.abs(now - timestamp) > MAX_AGE) return false;
+
+      // Verify signature
+      const payload = `${timestamp}.${nonce}`;
+      const expectedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(payload)
+        .digest('hex');
+
+      return signature === expectedSignature;
+    } catch (e) {
+      return false;
+    }
   }
 }

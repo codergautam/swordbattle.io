@@ -205,6 +205,27 @@ function start() {
         return;
       }
 
+      // Validate timestamp freshness
+      const now = Date.now();
+      const timestampMatch = query.match(/^(\d+)/);
+      if (timestampMatch) {
+        const timestamp = parseInt(timestampMatch[1], 10);
+        const timeDiff = Math.abs(now - timestamp);
+        const MAX_TIME_DIFF = 120000; // 2 minutes tolerance
+
+        if (timeDiff > MAX_TIME_DIFF) {
+          console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo with invalid timestamp (diff: ${timeDiff}ms). Blocking.`);
+          setCorsHeaders(res);
+          res.writeStatus('403 Forbidden');
+          res.end('Forbidden');
+          serverinfoBannedIPs.add(clientIP);
+          setTimeout(() => {
+            serverinfoBannedIPs.delete(clientIP);
+          }, 600000);
+          return;
+        }
+      }
+
       if (!checkServerinfoRateLimit(clientIP, proxyIP)) {
         console.warn(`[RATE_LIMIT] /serverinfo: IP ${clientIP} exceeded rate limit`);
         setCorsHeaders(res);

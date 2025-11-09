@@ -1,6 +1,37 @@
 const http = require('http');
 const httpProxy = require('http-proxy');
 const net = require('net');
+const crypto = require('crypto');
+
+// Token validation helper
+function validateApiToken(token) {
+  const secret = process.env.API_TOKEN_SECRET || 'default-secret-change-in-production';
+
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return false;
+
+    const timestamp = parseInt(parts[0], 10);
+    const nonce = parts[1];
+    const signature = parts[2];
+
+    // Check timestamp is within 5 minutes
+    const now = Date.now();
+    const MAX_AGE = 300000; // 5 minutes
+    if (Math.abs(now - timestamp) > MAX_AGE) return false;
+
+    // Verify signature
+    const payload = `${timestamp}.${nonce}`;
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(payload)
+      .digest('hex');
+
+    return signature === expectedSignature;
+  } catch (e) {
+    return false;
+  }
+}
 
 // Increase max sockets and file descriptors
 require('http').globalAgent.maxSockets = 2048;
@@ -327,80 +358,113 @@ const server = http.createServer((req, res) => {
       const xForwardedFor = req.headers['x-forwarded-for'];
       const proxyIP = xForwardedFor ? xForwardedFor.split(',').map(s => s.trim()).pop() : null;
 
-      if (!req.url.includes('?')) {
-        console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo without query parameter. Blocking.`);
-        bannedIPs.add(clientIP);
-        setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
-        if (!res.headersSent) {
-          res.writeHead(403, { 'Content-Type': 'text/plain' });
-          res.end('Forbidden');
-        }
-        return;
-      }
+      // Check for API token (bypass rate limiting if valid)
+      const tokenMatch = req.url.match(/[?&]token=([^&]+)/);
+      const authHeader = req.headers['authorization'];
+      const token = tokenMatch ? tokenMatch[1] : (authHeader ? authHeader.replace('Bearer ', '') : null);
 
-      if (proxyIP && serverinfoBannedProxies.has(proxyIP)) {
-        console.warn(`[SERVERINFO_BLOCK] Banned proxy ${proxyIP} attempted /serverinfo request.`);
-        if (!res.headersSent) {
-          res.writeHead(403, { 'Content-Type': 'text/plain' });
-          res.end('Forbidden');
-        }
-        return;
-      }
-
-      let ipData = serverinfoIpRate.get(clientIP);
-      if (!ipData || now > ipData.reset) {
-        ipData = { count: 1, reset: now + SERVERINFO_IP_TTL, burstCount: 1, burstReset: now + SERVERINFO_BURST_TTL };
-        serverinfoIpRate.set(clientIP, ipData);
+      if (token && validateApiToken(token)) {
+        // Valid token - skip all rate limiting and validation checks
+        // Let the request through to the backend
       } else {
-        ipData.count++;
-        if (now > ipData.burstReset) {
-          ipData.burstCount = 1;
-          ipData.burstReset = now + SERVERINFO_BURST_TTL;
-        } else {
-          ipData.burstCount++;
-        }
-
-        if (ipData.count > SERVERINFO_IP_LIMIT) {
-          console.warn(`[SERVERINFO_BAN] IP ${clientIP} exceeded /serverinfo rate (${ipData.count}/${SERVERINFO_IP_TTL/1000}s). Banning.`);
+        // No valid token - apply timestamp and rate limiting checks
+        if (!req.url.includes('?')) {
+          console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo without query parameter. Blocking.`);
           bannedIPs.add(clientIP);
-          setTimeout(() => { bannedIPs.delete(clientIP); serverinfoIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 5);
+          setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
           if (!res.headersSent) {
-            res.writeHead(429, { 'Content-Type': 'text/plain' });
-            res.end('Too Many Requests');
+            res.writeHead(403, { 'Content-Type': 'text/plain' });
+            res.end('Forbidden');
           }
           return;
         }
 
-        if (ipData.burstCount > SERVERINFO_BURST_LIMIT) {
-          console.warn(`[SERVERINFO_BAN] IP ${clientIP} exceeded /serverinfo burst limit (${ipData.burstCount}/${SERVERINFO_BURST_TTL/1000}s). Banning.`);
-          bannedIPs.add(clientIP);
-          setTimeout(() => { bannedIPs.delete(clientIP); serverinfoIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 2);
-          if (!res.headersSent) {
-            res.writeHead(429, { 'Content-Type': 'text/plain' });
-            res.end('Too Many Requests');
+        // Validate timestamp freshness
+        const queryMatch = req.url.match(/\?(\d+)/);
+        if (queryMatch) {
+          const timestamp = parseInt(queryMatch[1], 10);
+          const timeDiff = Math.abs(now - timestamp);
+          const MAX_TIME_DIFF = 120000; // 2 minutes tolerance
+
+          if (timeDiff > MAX_TIME_DIFF) {
+            console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo with invalid timestamp (diff: ${timeDiff}ms). Blocking.`);
+            bannedIPs.add(clientIP);
+            setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+            if (!res.headersSent) {
+              res.writeHead(403, { 'Content-Type': 'text/plain' });
+              res.end('Forbidden');
+            }
+            return;
           }
-          return;
         }
       }
 
-      if (proxyIP) {
-        let proxyData = serverinfoProxyRate.get(proxyIP);
-        if (!proxyData || now > proxyData.reset) {
-          proxyData = { count: 1, reset: now + SERVERINFO_PROXY_TTL };
-          serverinfoProxyRate.set(proxyIP, proxyData);
+      if (!token || !validateApiToken(token)) {
+        // Apply rate limiting only if no valid token
+        if (proxyIP && serverinfoBannedProxies.has(proxyIP)) {
+          console.warn(`[SERVERINFO_BLOCK] Banned proxy ${proxyIP} attempted /serverinfo request.`);
+          if (!res.headersSent) {
+            res.writeHead(403, { 'Content-Type': 'text/plain' });
+            res.end('Forbidden');
+          }
+          return;
+        }
+
+        let ipData = serverinfoIpRate.get(clientIP);
+        if (!ipData || now > ipData.reset) {
+          ipData = { count: 1, reset: now + SERVERINFO_IP_TTL, burstCount: 1, burstReset: now + SERVERINFO_BURST_TTL };
+          serverinfoIpRate.set(clientIP, ipData);
         } else {
-          proxyData.count++;
-          if (proxyData.count > SERVERINFO_PROXY_LIMIT) {
-            console.warn(`[SERVERINFO_BAN] Proxy ${proxyIP} exceeded /serverinfo rate (${proxyData.count}/${SERVERINFO_PROXY_TTL/1000}s). Temporarily banning for 5 minutes.`);
-            serverinfoBannedProxies.add(proxyIP);
-            setTimeout(() => {
-              serverinfoBannedProxies.delete(proxyIP);
-            }, 300000);
+          ipData.count++;
+          if (now > ipData.burstReset) {
+            ipData.burstCount = 1;
+            ipData.burstReset = now + SERVERINFO_BURST_TTL;
+          } else {
+            ipData.burstCount++;
+          }
+
+          if (ipData.count > SERVERINFO_IP_LIMIT) {
+            console.warn(`[SERVERINFO_BAN] IP ${clientIP} exceeded /serverinfo rate (${ipData.count}/${SERVERINFO_IP_TTL/1000}s). Banning.`);
+            bannedIPs.add(clientIP);
+            setTimeout(() => { bannedIPs.delete(clientIP); serverinfoIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 5);
             if (!res.headersSent) {
               res.writeHead(429, { 'Content-Type': 'text/plain' });
               res.end('Too Many Requests');
             }
             return;
+          }
+
+          if (ipData.burstCount > SERVERINFO_BURST_LIMIT) {
+            console.warn(`[SERVERINFO_BAN] IP ${clientIP} exceeded /serverinfo burst limit (${ipData.burstCount}/${SERVERINFO_BURST_TTL/1000}s). Banning.`);
+            bannedIPs.add(clientIP);
+            setTimeout(() => { bannedIPs.delete(clientIP); serverinfoIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 2);
+            if (!res.headersSent) {
+              res.writeHead(429, { 'Content-Type': 'text/plain' });
+              res.end('Too Many Requests');
+            }
+            return;
+          }
+        }
+
+        if (proxyIP) {
+          let proxyData = serverinfoProxyRate.get(proxyIP);
+          if (!proxyData || now > proxyData.reset) {
+            proxyData = { count: 1, reset: now + SERVERINFO_PROXY_TTL };
+            serverinfoProxyRate.set(proxyIP, proxyData);
+          } else {
+            proxyData.count++;
+            if (proxyData.count > SERVERINFO_PROXY_LIMIT) {
+              console.warn(`[SERVERINFO_BAN] Proxy ${proxyIP} exceeded /serverinfo rate (${proxyData.count}/${SERVERINFO_PROXY_TTL/1000}s). Temporarily banning for 5 minutes.`);
+              serverinfoBannedProxies.add(proxyIP);
+              setTimeout(() => {
+                serverinfoBannedProxies.delete(proxyIP);
+              }, 300000);
+              if (!res.headersSent) {
+                res.writeHead(429, { 'Content-Type': 'text/plain' });
+                res.end('Too Many Requests');
+              }
+              return;
+            }
           }
         }
       }
@@ -421,80 +485,113 @@ const server = http.createServer((req, res) => {
       const xForwardedFor = req.headers['x-forwarded-for'];
       const proxyIP = xForwardedFor ? xForwardedFor.split(',').map(s => s.trim()).pop() : null;
 
-      if (!req.url.includes('?')) {
-        console.warn(`[GAMESPING_BLOCK] IP ${clientIP} sent /games/ping without query parameter. Blocking.`);
-        bannedIPs.add(clientIP);
-        setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
-        if (!res.headersSent) {
-          res.writeHead(403, { 'Content-Type': 'text/plain' });
-          res.end('Forbidden');
-        }
-        return;
-      }
+      // Check for API token (bypass rate limiting if valid)
+      const tokenMatch = req.url.match(/[?&]token=([^&]+)/);
+      const authHeader = req.headers['authorization'];
+      const token = tokenMatch ? tokenMatch[1] : (authHeader ? authHeader.replace('Bearer ', '') : null);
 
-      if (proxyIP && endpointBannedProxies.has(proxyIP)) {
-        console.warn(`[GAMESPING_BLOCK] Banned proxy ${proxyIP} attempted /games/ping request.`);
-        if (!res.headersSent) {
-          res.writeHead(403, { 'Content-Type': 'text/plain' });
-          res.end('Forbidden');
-        }
-        return;
-      }
-
-      let ipData = endpointIpRate.get(clientIP);
-      if (!ipData || now > ipData.reset) {
-        ipData = { count: 1, reset: now + ENDPOINT_IP_TTL, burstCount: 1, burstReset: now + ENDPOINT_BURST_TTL };
-        endpointIpRate.set(clientIP, ipData);
+      if (token && validateApiToken(token)) {
+        // Valid token - skip all rate limiting and validation checks
+        // Let the request through to the backend
       } else {
-        ipData.count++;
-        if (now > ipData.burstReset) {
-          ipData.burstCount = 1;
-          ipData.burstReset = now + ENDPOINT_BURST_TTL;
-        } else {
-          ipData.burstCount++;
-        }
-
-        if (ipData.count > ENDPOINT_IP_LIMIT) {
-          console.warn(`[GAMESPING_BAN] IP ${clientIP} exceeded /games/ping rate (${ipData.count}/${ENDPOINT_IP_TTL/1000}s). Banning.`);
+        // No valid token - apply timestamp and rate limiting checks
+        if (!req.url.includes('?')) {
+          console.warn(`[GAMESPING_BLOCK] IP ${clientIP} sent /games/ping without query parameter. Blocking.`);
           bannedIPs.add(clientIP);
-          setTimeout(() => { bannedIPs.delete(clientIP); endpointIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 5);
+          setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
           if (!res.headersSent) {
-            res.writeHead(429, { 'Content-Type': 'text/plain' });
-            res.end('Too Many Requests');
+            res.writeHead(403, { 'Content-Type': 'text/plain' });
+            res.end('Forbidden');
           }
           return;
         }
 
-        if (ipData.burstCount > ENDPOINT_BURST_LIMIT) {
-          console.warn(`[GAMESPING_BAN] IP ${clientIP} exceeded /games/ping burst limit (${ipData.burstCount}/${ENDPOINT_BURST_TTL/1000}s). Banning.`);
-          bannedIPs.add(clientIP);
-          setTimeout(() => { bannedIPs.delete(clientIP); endpointIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 2);
-          if (!res.headersSent) {
-            res.writeHead(429, { 'Content-Type': 'text/plain' });
-            res.end('Too Many Requests');
+        // Validate timestamp freshness
+        const queryMatch = req.url.match(/\?(\d+)/);
+        if (queryMatch) {
+          const timestamp = parseInt(queryMatch[1], 10);
+          const timeDiff = Math.abs(now - timestamp);
+          const MAX_TIME_DIFF = 120000; // 2 minutes tolerance
+
+          if (timeDiff > MAX_TIME_DIFF) {
+            console.warn(`[GAMESPING_BLOCK] IP ${clientIP} sent /games/ping with invalid timestamp (diff: ${timeDiff}ms). Blocking.`);
+            bannedIPs.add(clientIP);
+            setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+            if (!res.headersSent) {
+              res.writeHead(403, { 'Content-Type': 'text/plain' });
+              res.end('Forbidden');
+            }
+            return;
           }
-          return;
         }
       }
 
-      if (proxyIP) {
-        let proxyData = endpointProxyRate.get(proxyIP);
-        if (!proxyData || now > proxyData.reset) {
-          proxyData = { count: 1, reset: now + ENDPOINT_PROXY_TTL };
-          endpointProxyRate.set(proxyIP, proxyData);
+      if (!token || !validateApiToken(token)) {
+        // Apply rate limiting only if no valid token
+        if (proxyIP && endpointBannedProxies.has(proxyIP)) {
+          console.warn(`[GAMESPING_BLOCK] Banned proxy ${proxyIP} attempted /games/ping request.`);
+          if (!res.headersSent) {
+            res.writeHead(403, { 'Content-Type': 'text/plain' });
+            res.end('Forbidden');
+          }
+          return;
+        }
+
+        let ipData = endpointIpRate.get(clientIP);
+        if (!ipData || now > ipData.reset) {
+          ipData = { count: 1, reset: now + ENDPOINT_IP_TTL, burstCount: 1, burstReset: now + ENDPOINT_BURST_TTL };
+          endpointIpRate.set(clientIP, ipData);
         } else {
-          proxyData.count++;
-          if (proxyData.count > ENDPOINT_PROXY_LIMIT) {
-            console.warn(`[GAMESPING_BAN] Proxy ${proxyIP} exceeded /games/ping rate (${proxyData.count}/${ENDPOINT_PROXY_TTL/1000}s). Temporarily banning for 5 minutes.`);
-            endpointBannedProxies.add(proxyIP);
-            setTimeout(() => {
-              endpointBannedProxies.delete(proxyIP);
-            }, 300000);
+          ipData.count++;
+          if (now > ipData.burstReset) {
+            ipData.burstCount = 1;
+            ipData.burstReset = now + ENDPOINT_BURST_TTL;
+          } else {
+            ipData.burstCount++;
+          }
+
+          if (ipData.count > ENDPOINT_IP_LIMIT) {
+            console.warn(`[GAMESPING_BAN] IP ${clientIP} exceeded /games/ping rate (${ipData.count}/${ENDPOINT_IP_TTL/1000}s). Banning.`);
+            bannedIPs.add(clientIP);
+            setTimeout(() => { bannedIPs.delete(clientIP); endpointIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 5);
             if (!res.headersSent) {
               res.writeHead(429, { 'Content-Type': 'text/plain' });
               res.end('Too Many Requests');
             }
             return;
+          }
+
+          if (ipData.burstCount > ENDPOINT_BURST_LIMIT) {
+            console.warn(`[GAMESPING_BAN] IP ${clientIP} exceeded /games/ping burst limit (${ipData.burstCount}/${ENDPOINT_BURST_TTL/1000}s). Banning.`);
+            bannedIPs.add(clientIP);
+            setTimeout(() => { bannedIPs.delete(clientIP); endpointIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 2);
+            if (!res.headersSent) {
+              res.writeHead(429, { 'Content-Type': 'text/plain' });
+              res.end('Too Many Requests');
+            }
+            return;
+          }
+        }
+
+        if (proxyIP) {
+          let proxyData = endpointProxyRate.get(proxyIP);
+          if (!proxyData || now > proxyData.reset) {
+            proxyData = { count: 1, reset: now + ENDPOINT_PROXY_TTL };
+            endpointProxyRate.set(proxyIP, proxyData);
+          } else {
+            proxyData.count++;
+            if (proxyData.count > ENDPOINT_PROXY_LIMIT) {
+              console.warn(`[GAMESPING_BAN] Proxy ${proxyIP} exceeded /games/ping rate (${proxyData.count}/${ENDPOINT_PROXY_TTL/1000}s). Temporarily banning for 5 minutes.`);
+              endpointBannedProxies.add(proxyIP);
+              setTimeout(() => {
+                endpointBannedProxies.delete(proxyIP);
+              }, 300000);
+              if (!res.headersSent) {
+                res.writeHead(429, { 'Content-Type': 'text/plain' });
+                res.end('Too Many Requests');
+              }
+              return;
+            }
           }
         }
       }

@@ -89,6 +89,14 @@ export class AuthController {
     return result;
   }
 
+  @Post('request-api-token')
+  @UseGuards(RecaptchaGuard)
+  @Throttle({ short: { limit: 3, ttl: 10000 }, medium: { limit: 10, ttl: 60000 } })
+  async requestApiToken(@Req() req) {
+    const token = await this.authService.generateApiToken();
+    return { token, expiresIn: 300000 }; // 5 minutes
+  }
+
   setCookie(res: Response, key: string, value: string) {
     return res.cookie(key, value, {
       // httpOnly: true,

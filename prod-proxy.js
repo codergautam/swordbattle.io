@@ -57,22 +57,30 @@ const MAX_HEADER_LENGTH = 8192;
 const rateLimitMap = new Map();
 const bannedIPs = new Set();
 const TEMP_BAN_DURATION = 300000;
-const MAX_REQUESTS_PER_MINUTE = 120;
-const MAX_REQUESTS_PER_SECOND = 5;
-const ERROR_BAN_THRESHOLD = 3;
-const ERROR_WINDOW = 5000;
-const CONCURRENT_CONN_LIMIT = 10;
+const MAX_REQUESTS_PER_MINUTE = 60;
+const MAX_REQUESTS_PER_SECOND = 3;
+const ERROR_BAN_THRESHOLD = 2;
+const ERROR_WINDOW = 3000;
+const CONCURRENT_CONN_LIMIT = 5;
 const SUSPICIOUS_SIZE = 1982;
 const HTTP_PATH_LIMITS = {
-  serverinfo: { perSecond: 2, perMinute: 30 },
-  ping: { perSecond: 2, perMinute: 30 },
-  default: { perSecond: 3, perMinute: 60 }
+  serverinfo: { perSecond: 1, perMinute: 15, maxQueue: 10 },
+  ping: { perSecond: 1, perMinute: 15, maxQueue: 10 },
+  default: { perSecond: 2, perMinute: 30, maxQueue: 20 }
 };
 let currentConnections = 0;
 const proxyAbuseTracker = new Map();
-const PROXY_ABUSE_THRESHOLD = 10;
-const PROXY_ABUSE_WINDOW = 5000;
-const PROXY_UNIQUE_IP_THRESHOLD = 5;
+const PROXY_ABUSE_THRESHOLD = 5;
+const PROXY_ABUSE_WINDOW = 3000;
+const PROXY_UNIQUE_IP_THRESHOLD = 3;
+const requestQueue = new Map();
+const MAX_QUEUE_AGE = 5000;
+const GLOBAL_REQUEST_QUEUE = {
+  requests: [],
+  lastProcessed: Date.now(),
+  maxSize: 100,
+  processInterval: 100
+};
 
 // Enhanced connection tracking
 const activeConnections = new Map(); // IP -> {count, firstConn, connHistory}
@@ -255,7 +263,71 @@ function checkAndTrackProxyAbuse(proxyIP, clientIP) {
   return true;
 }
 
-// Create the HTTP server
+function queueRequest(req, res, clientIP) {
+  const path = req.url || '';
+  const pathType = path.includes('serverinfo') ? 'serverinfo' : 
+                   path.includes('ping') ? 'ping' : 'default';
+  const limits = HTTP_PATH_LIMITS[pathType];
+  
+  if (GLOBAL_REQUEST_QUEUE.requests.length >= GLOBAL_REQUEST_QUEUE.maxSize) {
+    res.writeHead(503);
+    res.end('Server too busy');
+    return false;
+  }
+
+  const pathQueue = requestQueue.get(pathType) || [];
+  if (pathQueue.length >= limits.maxQueue) {
+    res.writeHead(429);
+    res.end('Too many requests');
+    return false;
+  }
+
+  const queueItem = {
+    time: Date.now(),
+    clientIP,
+    path: pathType,
+    next: () => {
+      if (bannedIPs.has(clientIP)) {
+        res.writeHead(403);
+        res.end('Forbidden');
+        return;
+      }
+      
+      const host = req.headers.host;
+      if (host === 'api.swordbattle.io') {
+        apiProxy.web(req, res);
+      } else if (host === 'na.swordbattle.io') {
+        mainProxy.web(req, res);
+      }
+    }
+  };
+
+  GLOBAL_REQUEST_QUEUE.requests.push(queueItem);
+  requestQueue.set(pathType, [...pathQueue, queueItem]);
+  return true;
+}
+
+function processRequestQueue() {
+  const now = Date.now();
+  if (now - GLOBAL_REQUEST_QUEUE.lastProcessed < GLOBAL_REQUEST_QUEUE.processInterval) return;
+
+  GLOBAL_REQUEST_QUEUE.lastProcessed = now;
+  GLOBAL_REQUEST_QUEUE.requests = GLOBAL_REQUEST_QUEUE.requests.filter(r => now - r.time < MAX_QUEUE_AGE);
+  
+  while (GLOBAL_REQUEST_QUEUE.requests.length > 0) {
+    const req = GLOBAL_REQUEST_QUEUE.requests[0];
+    const pathQueue = requestQueue.get(req.path) || [];
+    const limits = HTTP_PATH_LIMITS[req.path];
+    
+    if (pathQueue.length >= limits.maxQueue) {
+      break;
+    }
+    
+    GLOBAL_REQUEST_QUEUE.requests.shift();
+    req.next();
+  }
+}
+
 const server = http.createServer((req, res) => {
   try {
     // Get client IP
@@ -357,10 +429,11 @@ const server = http.createServer((req, res) => {
 
     // Route based on host header
     const host = req.headers.host;
-    if (host === 'api.swordbattle.io') {
-      apiProxy.web(req, res);
-    } else if (host === 'na.swordbattle.io') {
-      mainProxy.web(req, res);
+    if (host === 'api.swordbattle.io' || host === 'na.swordbattle.io') {
+      if (!queueRequest(req, res, clientIP)) {
+        return;
+      }
+      processRequestQueue();
     } else {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('Not found');

@@ -96,6 +96,16 @@ let serverinfoCachedResponse = null;
 let serverinfoCacheExpiry = 0;
 const SERVERINFO_CACHE_TTL = 2000;
 
+const endpointIpRate = new Map();
+const endpointProxyRate = new Map();
+const endpointBannedProxies = new Set();
+const ENDPOINT_IP_LIMIT = 300;
+const ENDPOINT_IP_TTL = 60000;
+const ENDPOINT_PROXY_LIMIT = 500;
+const ENDPOINT_PROXY_TTL = 60000;
+const ENDPOINT_BURST_LIMIT = 100;
+const ENDPOINT_BURST_TTL = 5000;
+
 // Track protobuf errors per IP
 function trackProtobufError(ip, msgSize) {
   const now = Date.now();
@@ -406,6 +416,90 @@ const server = http.createServer((req, res) => {
       }
     }
 
+    if (req.method === 'GET' && req.url && req.url.startsWith('/games/ping')) {
+      const now = Date.now();
+      const xForwardedFor = req.headers['x-forwarded-for'];
+      const proxyIP = xForwardedFor ? xForwardedFor.split(',').map(s => s.trim()).pop() : null;
+
+      if (!req.url.includes('?')) {
+        console.warn(`[GAMESPING_BLOCK] IP ${clientIP} sent /games/ping without query parameter. Blocking.`);
+        bannedIPs.add(clientIP);
+        setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+        if (!res.headersSent) {
+          res.writeHead(403, { 'Content-Type': 'text/plain' });
+          res.end('Forbidden');
+        }
+        return;
+      }
+
+      if (proxyIP && endpointBannedProxies.has(proxyIP)) {
+        console.warn(`[GAMESPING_BLOCK] Banned proxy ${proxyIP} attempted /games/ping request.`);
+        if (!res.headersSent) {
+          res.writeHead(403, { 'Content-Type': 'text/plain' });
+          res.end('Forbidden');
+        }
+        return;
+      }
+
+      let ipData = endpointIpRate.get(clientIP);
+      if (!ipData || now > ipData.reset) {
+        ipData = { count: 1, reset: now + ENDPOINT_IP_TTL, burstCount: 1, burstReset: now + ENDPOINT_BURST_TTL };
+        endpointIpRate.set(clientIP, ipData);
+      } else {
+        ipData.count++;
+        if (now > ipData.burstReset) {
+          ipData.burstCount = 1;
+          ipData.burstReset = now + ENDPOINT_BURST_TTL;
+        } else {
+          ipData.burstCount++;
+        }
+
+        if (ipData.count > ENDPOINT_IP_LIMIT) {
+          console.warn(`[GAMESPING_BAN] IP ${clientIP} exceeded /games/ping rate (${ipData.count}/${ENDPOINT_IP_TTL/1000}s). Banning.`);
+          bannedIPs.add(clientIP);
+          setTimeout(() => { bannedIPs.delete(clientIP); endpointIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 5);
+          if (!res.headersSent) {
+            res.writeHead(429, { 'Content-Type': 'text/plain' });
+            res.end('Too Many Requests');
+          }
+          return;
+        }
+
+        if (ipData.burstCount > ENDPOINT_BURST_LIMIT) {
+          console.warn(`[GAMESPING_BAN] IP ${clientIP} exceeded /games/ping burst limit (${ipData.burstCount}/${ENDPOINT_BURST_TTL/1000}s). Banning.`);
+          bannedIPs.add(clientIP);
+          setTimeout(() => { bannedIPs.delete(clientIP); endpointIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 2);
+          if (!res.headersSent) {
+            res.writeHead(429, { 'Content-Type': 'text/plain' });
+            res.end('Too Many Requests');
+          }
+          return;
+        }
+      }
+
+      if (proxyIP) {
+        let proxyData = endpointProxyRate.get(proxyIP);
+        if (!proxyData || now > proxyData.reset) {
+          proxyData = { count: 1, reset: now + ENDPOINT_PROXY_TTL };
+          endpointProxyRate.set(proxyIP, proxyData);
+        } else {
+          proxyData.count++;
+          if (proxyData.count > ENDPOINT_PROXY_LIMIT) {
+            console.warn(`[GAMESPING_BAN] Proxy ${proxyIP} exceeded /games/ping rate (${proxyData.count}/${ENDPOINT_PROXY_TTL/1000}s). Temporarily banning for 5 minutes.`);
+            endpointBannedProxies.add(proxyIP);
+            setTimeout(() => {
+              endpointBannedProxies.delete(proxyIP);
+            }, 300000);
+            if (!res.headersSent) {
+              res.writeHead(429, { 'Content-Type': 'text/plain' });
+              res.end('Too Many Requests');
+            }
+            return;
+          }
+        }
+      }
+    }
+
     if (!checkRateLimit(clientIP)) {
       if (!res.headersSent) {
         res.writeHead(429, { 'Content-Type': 'text/plain' });
@@ -604,6 +698,14 @@ setInterval(() => {
 
   for (const [proxyIP, data] of serverinfoProxyRate) {
     if (now > data.reset) serverinfoProxyRate.delete(proxyIP);
+  }
+
+  for (const [ip, data] of endpointIpRate) {
+    if (now > data.reset && now > data.burstReset) endpointIpRate.delete(ip);
+  }
+
+  for (const [proxyIP, data] of endpointProxyRate) {
+    if (now > data.reset) endpointProxyRate.delete(proxyIP);
   }
 }, 60000);
 

@@ -12,38 +12,106 @@ const util = require('util');
 
 const readFileAsync = util.promisify(fs.readFile);
 
-// Rate limiting for serverinfo endpoint
-const serverinfoRateLimit = new Map(); // IP -> { count, resetTime }
+const serverinfoRateLimit = new Map();
 const SERVERINFO_MAX_REQUESTS_PER_MINUTE = 30;
+const SERVERINFO_MAX_REQUESTS_PER_10_SECONDS = 5;
+const serverinfoProxyTracker = new Map();
+const serverinfoBannedIPs = new Set();
+const serverinfoBannedProxies = new Set();
 
-// Check rate limit for serverinfo requests
-function checkServerinfoRateLimit(ip) {
+function checkServerinfoRateLimit(ip, proxyIp) {
   const now = Date.now();
+
+  if (serverinfoBannedIPs.has(ip)) {
+    return false;
+  }
+
+  if (proxyIp && serverinfoBannedProxies.has(proxyIp)) {
+    return false;
+  }
+
   const data = serverinfoRateLimit.get(ip);
-  
+
   if (!data) {
-    serverinfoRateLimit.set(ip, { count: 1, resetTime: now + 60000 });
+    serverinfoRateLimit.set(ip, {
+      count: 1,
+      resetTime: now + 60000,
+      shortTermCount: 1,
+      shortTermResetTime: now + 10000
+    });
     return true;
   }
-  
+
   if (now > data.resetTime) {
     data.count = 1;
     data.resetTime = now + 60000;
-    return true;
+  } else {
+    data.count++;
   }
-  
-  data.count++;
-  return data.count <= SERVERINFO_MAX_REQUESTS_PER_MINUTE;
+
+  if (now > data.shortTermResetTime) {
+    data.shortTermCount = 1;
+    data.shortTermResetTime = now + 10000;
+  } else {
+    data.shortTermCount++;
+  }
+
+  if (data.count > SERVERINFO_MAX_REQUESTS_PER_MINUTE) {
+    console.warn(`[SERVERINFO_BAN] IP ${ip} exceeded /serverinfo rate limit (${data.count} req/min). Banning for 5 minutes.`);
+    serverinfoBannedIPs.add(ip);
+    setTimeout(() => {
+      serverinfoBannedIPs.delete(ip);
+      serverinfoRateLimit.delete(ip);
+    }, 300000);
+    return false;
+  }
+
+  if (data.shortTermCount > SERVERINFO_MAX_REQUESTS_PER_10_SECONDS) {
+    console.warn(`[SERVERINFO_BAN] IP ${ip} exceeded /serverinfo burst limit (${data.shortTermCount} req/10s). Banning for 2 minutes.`);
+    serverinfoBannedIPs.add(ip);
+    setTimeout(() => {
+      serverinfoBannedIPs.delete(ip);
+      serverinfoRateLimit.delete(ip);
+    }, 120000);
+    return false;
+  }
+
+  if (proxyIp) {
+    if (!serverinfoProxyTracker.has(proxyIp)) {
+      serverinfoProxyTracker.set(proxyIp, { requests: [], firstSeen: now });
+    }
+    const proxyData = serverinfoProxyTracker.get(proxyIp);
+    proxyData.requests.push(now);
+    proxyData.requests = proxyData.requests.filter(t => now - t < 10000);
+
+    if (proxyData.requests.length > 20) {
+      console.warn(`[SERVERINFO_BAN] Proxy IP ${proxyIp} flooding /serverinfo (${proxyData.requests.length} req/10s). Permanently banning proxy.`);
+      serverinfoBannedProxies.add(proxyIp);
+      return false;
+    }
+  }
+
+  return true;
 }
 
-// Get client IP from request
 function getClientIP(req) {
   const xForwardedFor = req.getHeader('x-forwarded-for');
   if (xForwardedFor) {
-    const ips = xForwardedFor.split(',');
-    return ips[0].trim();
+    const ips = xForwardedFor.split(',').map(ip => ip.trim());
+    return ips[0];
   }
   return '';
+}
+
+function getProxyIP(req) {
+  const xForwardedFor = req.getHeader('x-forwarded-for');
+  if (xForwardedFor) {
+    const ips = xForwardedFor.split(',').map(ip => ip.trim());
+    if (ips.length > 1) {
+      return ips[ips.length - 1];
+    }
+  }
+  return null;
 }
 
 let app;
@@ -117,17 +185,35 @@ function start() {
   server.initialize(app);
   app.get('/serverinfo', (res, req) => {
     try {
+      const url = req.getUrl();
+      const query = req.getQuery();
       const clientIP = getClientIP(req);
-      
-      // Check rate limit
-      if (!checkServerinfoRateLimit(clientIP)) {
+      const proxyIP = getProxyIP(req);
+
+      if (!query || query.length === 0) {
+        console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo without query parameter. Blocking.`);
+        setCorsHeaders(res);
+        res.writeStatus('403 Forbidden');
+        res.end('Forbidden');
+        if (proxyIP) {
+          serverinfoBannedProxies.add(proxyIP);
+          console.warn(`[SERVERINFO_BAN] Proxy ${proxyIP} permanently banned for sending /serverinfo without query.`);
+        }
+        serverinfoBannedIPs.add(clientIP);
+        setTimeout(() => {
+          serverinfoBannedIPs.delete(clientIP);
+        }, 600000);
+        return;
+      }
+
+      if (!checkServerinfoRateLimit(clientIP, proxyIP)) {
         console.warn(`[RATE_LIMIT] /serverinfo: IP ${clientIP} exceeded rate limit`);
         setCorsHeaders(res);
         res.writeStatus('429 Too Many Requests');
         res.end('Too Many Requests');
         return;
       }
-      
+
       setCorsHeaders(res);
       res.writeHeader('Content-Type', 'application/json');
       res.writeStatus('200 OK');

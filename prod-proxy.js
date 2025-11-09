@@ -83,6 +83,16 @@ const HOMEPAGE_GLOBAL_LIMIT = 2000;
 const HOMEPAGE_GLOBAL_TTL = 30000;
 const HOMEPAGE_CACHE = Buffer.from('<!DOCTYPE html><html><head><title>Swordbattle</title></head><body><h1>Swordbattle</h1><p>Server is up.</p></body></html>');
 
+const serverinfoIpRate = new Map();
+const serverinfoProxyRate = new Map();
+const serverinfoBannedProxies = new Set();
+const SERVERINFO_IP_LIMIT = 60;
+const SERVERINFO_IP_TTL = 60000;
+const SERVERINFO_PROXY_LIMIT = 100;
+const SERVERINFO_PROXY_TTL = 60000;
+const SERVERINFO_BURST_LIMIT = 10;
+const SERVERINFO_BURST_TTL = 5000;
+
 // Track protobuf errors per IP
 function trackProtobufError(ip, msgSize) {
   const now = Date.now();
@@ -259,7 +269,6 @@ const server = http.createServer((req, res) => {
       }
     });
 
-    // Handle homepage requests
     if (req.method === 'GET' && req.url === '/') {
       const now = Date.now();
       let ipData = homepageIpRate.get(clientIP);
@@ -298,6 +307,91 @@ const server = http.createServer((req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'public, max-age=60' });
       res.end(HOMEPAGE_CACHE);
       return;
+    }
+
+    if (req.method === 'GET' && req.url && req.url.startsWith('/serverinfo')) {
+      const now = Date.now();
+      const xForwardedFor = req.headers['x-forwarded-for'];
+      const proxyIP = xForwardedFor ? xForwardedFor.split(',').map(s => s.trim()).pop() : null;
+
+      if (!req.url.includes('?')) {
+        console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo without query parameter. Blocking.`);
+        if (proxyIP) {
+          serverinfoBannedProxies.add(proxyIP);
+          console.warn(`[SERVERINFO_BAN] Proxy ${proxyIP} permanently banned for malicious /serverinfo requests.`);
+        }
+        bannedIPs.add(clientIP);
+        setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+        if (!res.headersSent) {
+          res.writeHead(403, { 'Content-Type': 'text/plain' });
+          res.end('Forbidden');
+        }
+        return;
+      }
+
+      if (proxyIP && serverinfoBannedProxies.has(proxyIP)) {
+        console.warn(`[SERVERINFO_BLOCK] Banned proxy ${proxyIP} attempted /serverinfo request.`);
+        if (!res.headersSent) {
+          res.writeHead(403, { 'Content-Type': 'text/plain' });
+          res.end('Forbidden');
+        }
+        return;
+      }
+
+      let ipData = serverinfoIpRate.get(clientIP);
+      if (!ipData || now > ipData.reset) {
+        ipData = { count: 1, reset: now + SERVERINFO_IP_TTL, burstCount: 1, burstReset: now + SERVERINFO_BURST_TTL };
+        serverinfoIpRate.set(clientIP, ipData);
+      } else {
+        ipData.count++;
+        if (now > ipData.burstReset) {
+          ipData.burstCount = 1;
+          ipData.burstReset = now + SERVERINFO_BURST_TTL;
+        } else {
+          ipData.burstCount++;
+        }
+
+        if (ipData.count > SERVERINFO_IP_LIMIT) {
+          console.warn(`[SERVERINFO_BAN] IP ${clientIP} exceeded /serverinfo rate (${ipData.count}/${SERVERINFO_IP_TTL/1000}s). Banning.`);
+          bannedIPs.add(clientIP);
+          setTimeout(() => { bannedIPs.delete(clientIP); serverinfoIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 5);
+          if (!res.headersSent) {
+            res.writeHead(429, { 'Content-Type': 'text/plain' });
+            res.end('Too Many Requests');
+          }
+          return;
+        }
+
+        if (ipData.burstCount > SERVERINFO_BURST_LIMIT) {
+          console.warn(`[SERVERINFO_BAN] IP ${clientIP} exceeded /serverinfo burst limit (${ipData.burstCount}/${SERVERINFO_BURST_TTL/1000}s). Banning.`);
+          bannedIPs.add(clientIP);
+          setTimeout(() => { bannedIPs.delete(clientIP); serverinfoIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 2);
+          if (!res.headersSent) {
+            res.writeHead(429, { 'Content-Type': 'text/plain' });
+            res.end('Too Many Requests');
+          }
+          return;
+        }
+      }
+
+      if (proxyIP) {
+        let proxyData = serverinfoProxyRate.get(proxyIP);
+        if (!proxyData || now > proxyData.reset) {
+          proxyData = { count: 1, reset: now + SERVERINFO_PROXY_TTL };
+          serverinfoProxyRate.set(proxyIP, proxyData);
+        } else {
+          proxyData.count++;
+          if (proxyData.count > SERVERINFO_PROXY_LIMIT) {
+            console.warn(`[SERVERINFO_BAN] Proxy ${proxyIP} exceeded /serverinfo rate (${proxyData.count}/${SERVERINFO_PROXY_TTL/1000}s). Permanently banning.`);
+            serverinfoBannedProxies.add(proxyIP);
+            if (!res.headersSent) {
+              res.writeHead(429, { 'Content-Type': 'text/plain' });
+              res.end('Too Many Requests');
+            }
+            return;
+          }
+        }
+      }
     }
 
     if (!checkRateLimit(clientIP)) {
@@ -481,17 +575,23 @@ server.on('clientError', (err, socket) => {
 // Periodic cleanup
 setInterval(() => {
   const now = Date.now();
-  
-  // Clean up protobuf error counts older than window
+
   for (const [ip, stats] of protobufErrorCounts) {
-    if (now - stats.firstError > PROTOBUF_ERROR_WINDOW) {
+    if (now - stats.firstError > ERROR_WINDOW) {
       protobufErrorCounts.delete(ip);
     }
   }
-  
-  // Clean up homepage rate limits
+
   for (const [ip, data] of homepageIpRate) {
     if (now > data.reset) homepageIpRate.delete(ip);
+  }
+
+  for (const [ip, data] of serverinfoIpRate) {
+    if (now > data.reset && now > data.burstReset) serverinfoIpRate.delete(ip);
+  }
+
+  for (const [proxyIP, data] of serverinfoProxyRate) {
+    if (now > data.reset) serverinfoProxyRate.delete(proxyIP);
   }
 }, 60000);
 

@@ -232,48 +232,59 @@ function sanitizeHeaders(req) {
 
 function checkAndTrackProxyAbuse(proxyIP, clientIP) {
   const now = Date.now();
-  const data = proxyAbuseTracker.get(proxyIP) || {
-    uniqueIPs: new Set(),
-    requestCount: 0,
-    firstSeen: now,
-    lastSeen: now,
-    recentRequests: []
-  };
-
-  data.uniqueIPs.add(clientIP);
-  data.requestCount++;
-  data.lastSeen = now;
-  data.recentRequests.push(now);
-  data.recentRequests = data.recentRequests.filter(t => now - t < PROXY_ABUSE_WINDOW);
-  
-  const recentRequestCount = data.recentRequests.length;
-  if (recentRequestCount >= PROXY_ABUSE_THRESHOLD || data.uniqueIPs.size >= PROXY_UNIQUE_IP_THRESHOLD) {
-    console.warn(`[SECURITY] Banning proxy ${proxyIP} (${recentRequestCount} requests/${PROXY_ABUSE_WINDOW}ms, ${data.uniqueIPs.size} IPs)`);
-    bannedIPs.add(proxyIP);
-    return false;
+  const xff = proxyIP.split(',').map(ip => ip.trim());
+  if (xff.length > 1) {
+    const lastProxy = xff[xff.length - 1];
+    const data = proxyAbuseTracker.get(lastProxy) || {
+      uniqueIPs: new Set(),
+      requestCount: 0,
+      firstSeen: now,
+      lastSeen: now,
+      requests: [],
+      windowStart: now
+    };
+    
+    data.uniqueIPs.add(clientIP);
+    data.requestCount++;
+    data.lastSeen = now;
+    data.requests.push(now);
+    
+    if (now - data.windowStart > PROXY_ABUSE_WINDOW) {
+      data.requests = data.requests.filter(t => now - t < PROXY_ABUSE_WINDOW);
+      data.windowStart = now;
+      data.uniqueIPs.clear();
+      data.uniqueIPs.add(clientIP);
+    }
+    
+    if (data.requests.length > 10 && data.requests[data.requests.length - 1] - data.requests[data.requests.length - 10] < 1000) {
+      bannedIPs.add(lastProxy);
+      return false;
+    }
+    
+    if (data.uniqueIPs.size > 5 && data.requests.length > 20) {
+      bannedIPs.add(lastProxy);
+      return false;
+    }
+    
+    proxyAbuseTracker.set(lastProxy, data);
   }
-  
-  if (now - data.firstSeen > PROXY_ABUSE_WINDOW) {
-    data.firstSeen = now;
-    data.requestCount = 1;
-    data.uniqueIPs = new Set([clientIP]);
-  }
-
-  proxyAbuseTracker.set(proxyIP, data);
   return true;
 }
 
 function queueRequest(req, res, clientIP) {
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) {
+    if (!checkAndTrackProxyAbuse(xff, clientIP)) {
+      res.writeHead(403);
+      res.end('Forbidden');
+      return false;
+    }
+  }
   const path = req.url || '';
   const pathType = path.includes('serverinfo') ? 'serverinfo' : 
                    path.includes('ping') ? 'ping' : 'default';
   const limits = HTTP_PATH_LIMITS[pathType];
-  
-  const isAuthRequest = req.headers['authorization'] || 
-                       path.includes('auth/verify') || 
-                       path.includes('auth/loginWithSecret') ||
-                       req.headers['cookie']?.includes('token=');
-  
+  const isAuthRequest = path.includes('auth/verify') || path.includes('auth/loginWithSecret');
   const isApiRequest = req.headers.host === 'api.swordbattle.io';
   
   if (!isAuthRequest && !isApiRequest && GLOBAL_REQUEST_QUEUE.requests.length >= GLOBAL_REQUEST_QUEUE.maxSize) {
@@ -345,6 +356,18 @@ function processRequestQueue() {
 }
 
 const server = http.createServer((req, res) => {
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) {
+    const proxies = xff.split(',').map(ip => ip.trim());
+    if (proxies.length > 1) {
+      const lastProxy = proxies[proxies.length - 1];
+      if (bannedIPs.has(lastProxy)) {
+        res.writeHead(403);
+        res.end('Forbidden');
+        return;
+      }
+    }
+  }
   try {
     // Get client IP
     const clientIP = getClientIP(req);

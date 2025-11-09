@@ -269,14 +269,27 @@ function queueRequest(req, res, clientIP) {
                    path.includes('ping') ? 'ping' : 'default';
   const limits = HTTP_PATH_LIMITS[pathType];
   
-  if (GLOBAL_REQUEST_QUEUE.requests.length >= GLOBAL_REQUEST_QUEUE.maxSize) {
+  const isAuthRequest = req.headers['authorization'] || 
+                       path.includes('auth/verify') || 
+                       path.includes('auth/loginWithSecret') ||
+                       req.headers['cookie']?.includes('token=');
+  
+  const isApiRequest = req.headers.host === 'api.swordbattle.io';
+  
+  if (!isAuthRequest && !isApiRequest && GLOBAL_REQUEST_QUEUE.requests.length >= GLOBAL_REQUEST_QUEUE.maxSize) {
     res.writeHead(503);
     res.end('Server too busy');
     return false;
   }
 
   const pathQueue = requestQueue.get(pathType) || [];
-  if (pathQueue.length >= limits.maxQueue) {
+  if (!isAuthRequest && pathQueue.length >= limits.maxQueue) {
+    const xForwardedFor = req.headers['x-forwarded-for'] || '';
+    if (xForwardedFor.includes('160.202.129.203')) {
+      res.writeHead(403);
+      res.end('Forbidden');
+      return false;
+    }
     res.writeHead(429);
     res.end('Too many requests');
     return false;
@@ -286,6 +299,7 @@ function queueRequest(req, res, clientIP) {
     time: Date.now(),
     clientIP,
     path: pathType,
+    priority: isAuthRequest ? 1 : 0,
     next: () => {
       if (bannedIPs.has(clientIP)) {
         res.writeHead(403);
@@ -314,12 +328,14 @@ function processRequestQueue() {
   GLOBAL_REQUEST_QUEUE.lastProcessed = now;
   GLOBAL_REQUEST_QUEUE.requests = GLOBAL_REQUEST_QUEUE.requests.filter(r => now - r.time < MAX_QUEUE_AGE);
   
+  GLOBAL_REQUEST_QUEUE.requests.sort((a, b) => b.priority - a.priority);
+  
   while (GLOBAL_REQUEST_QUEUE.requests.length > 0) {
     const req = GLOBAL_REQUEST_QUEUE.requests[0];
     const pathQueue = requestQueue.get(req.path) || [];
     const limits = HTTP_PATH_LIMITS[req.path];
     
-    if (pathQueue.length >= limits.maxQueue) {
+    if (!req.priority && pathQueue.length >= limits.maxQueue) {
       break;
     }
     

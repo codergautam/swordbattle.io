@@ -14,7 +14,7 @@ try {
 async function checkEndpoint() {
   if (!currentEndpoint) {
     currentEndpoint = endpoint;
-    await fetch(`${currentEndpoint}/games/ping`, {
+    await fetch(`${currentEndpoint}/games/ping?${Date.now()}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'text/plain',

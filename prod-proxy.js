@@ -86,12 +86,15 @@ const HOMEPAGE_CACHE = Buffer.from('<!DOCTYPE html><html><head><title>Swordbattl
 const serverinfoIpRate = new Map();
 const serverinfoProxyRate = new Map();
 const serverinfoBannedProxies = new Set();
-const SERVERINFO_IP_LIMIT = 60;
+const SERVERINFO_IP_LIMIT = 300;
 const SERVERINFO_IP_TTL = 60000;
-const SERVERINFO_PROXY_LIMIT = 100;
+const SERVERINFO_PROXY_LIMIT = 500;
 const SERVERINFO_PROXY_TTL = 60000;
-const SERVERINFO_BURST_LIMIT = 10;
+const SERVERINFO_BURST_LIMIT = 100;
 const SERVERINFO_BURST_TTL = 5000;
+let serverinfoCachedResponse = null;
+let serverinfoCacheExpiry = 0;
+const SERVERINFO_CACHE_TTL = 2000;
 
 // Track protobuf errors per IP
 function trackProtobufError(ip, msgSize) {
@@ -391,6 +394,16 @@ const server = http.createServer((req, res) => {
             return;
           }
         }
+      }
+
+      if (serverinfoCachedResponse && now < serverinfoCacheExpiry) {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'public, max-age=2'
+        });
+        res.end(serverinfoCachedResponse);
+        return;
       }
     }
 

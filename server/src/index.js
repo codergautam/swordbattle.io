@@ -13,8 +13,8 @@ const util = require('util');
 const readFileAsync = util.promisify(fs.readFile);
 
 const serverinfoRateLimit = new Map();
-const SERVERINFO_MAX_REQUESTS_PER_MINUTE = 30;
-const SERVERINFO_MAX_REQUESTS_PER_10_SECONDS = 5;
+const SERVERINFO_MAX_REQUESTS_PER_MINUTE = 200;
+const SERVERINFO_MAX_REQUESTS_PER_10_SECONDS = 50;
 const serverinfoProxyTracker = new Map();
 const serverinfoBannedIPs = new Set();
 const serverinfoBannedProxies = new Set();

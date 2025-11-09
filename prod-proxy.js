@@ -54,33 +54,15 @@ const mainProxy = httpProxy.createProxyServer({
 const MAX_HEADER_LENGTH = 8192;
 
 // Enhanced rate limiting and ban tracking
-const rateLimitMap = new Map();
-const bannedIPs = new Set();
-const TEMP_BAN_DURATION = 300000;
-const MAX_REQUESTS_PER_MINUTE = 60;
-const MAX_REQUESTS_PER_SECOND = 3;
-const ERROR_BAN_THRESHOLD = 2;
-const ERROR_WINDOW = 3000;
-const CONCURRENT_CONN_LIMIT = 5;
-const SUSPICIOUS_SIZE = 1982;
-const HTTP_PATH_LIMITS = {
-  serverinfo: { perSecond: 1, perMinute: 15, maxQueue: 10 },
-  ping: { perSecond: 1, perMinute: 15, maxQueue: 10 },
-  default: { perSecond: 2, perMinute: 30, maxQueue: 20 }
-};
+const rateLimitMap = new Map(); // IP -> { count, resetTime, errorCount, lastError }
+const bannedIPs = new Set(); // Permanently banned IPs for this session
+const TEMP_BAN_DURATION = 60000; // 1 minute
+const MAX_REQUESTS_PER_MINUTE = 600;
+const ERROR_BAN_THRESHOLD = 10;
+const ERROR_WINDOW = 20000;
+const CONCURRENT_CONN_LIMIT = 50;
+const SUSPICIOUS_SIZE = 1982; // The suspicious message size
 let currentConnections = 0;
-const proxyAbuseTracker = new Map();
-const PROXY_ABUSE_THRESHOLD = 5;
-const PROXY_ABUSE_WINDOW = 3000;
-const PROXY_UNIQUE_IP_THRESHOLD = 3;
-const requestQueue = new Map();
-const MAX_QUEUE_AGE = 5000;
-const GLOBAL_REQUEST_QUEUE = {
-  requests: [],
-  lastProcessed: Date.now(),
-  maxSize: 100,
-  processInterval: 100
-};
 
 // Enhanced connection tracking
 const activeConnections = new Map(); // IP -> {count, firstConn, connHistory}
@@ -176,16 +158,15 @@ function getClientIP(req) {
   return req.socket.remoteAddress;
 }
 
-// Check rate limiting for an IP and path
-function checkRateLimit(ip, path = '') {
+// Check rate limiting for an IP
+function checkRateLimit(ip) {
   const now = Date.now();
-  const data = rateLimitMap.get(ip) || {
-    count: 0,
-    resetTime: now + 60000,
-    secondCount: 0,
-    secondResetTime: now + 1000,
-    path: {}
-  };
+  const data = rateLimitMap.get(ip);
+  
+  if (!data) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 });
+    return true;
+  }
   
   // Reset counter if expired
   if (now > data.resetTime) {
@@ -230,118 +211,8 @@ function sanitizeHeaders(req) {
   }
 }
 
-function checkAndTrackProxyAbuse(proxyIP, clientIP) {
-  const now = Date.now();
-  const xff = proxyIP.split(',').map(ip => ip.trim());
-  const firstIP = xff[0];
-  const lastProxy = xff[xff.length - 1];
-  if (!lastProxy) return true;
-  const data = proxyAbuseTracker.get(lastProxy) || {
-    uniqueIPs: new Set(),
-    requests: [],
-    windowStart: now
-  };
-  data.uniqueIPs.add(firstIP);
-  data.requests.push(now);
-  data.requests = data.requests.filter(t => now - t < 1000);
-  if (data.requests.length >= 10 || data.uniqueIPs.size >= 20) {
-    bannedIPs.add(lastProxy);
-    return false;
-  }
-  proxyAbuseTracker.set(lastProxy, data);
-  return true;
-}
-
-function queueRequest(req, res, clientIP) {
-  const path = req.url || '';
-  const pathType = path.includes('serverinfo') ? 'serverinfo' : 
-                   path.includes('ping') ? 'ping' : 'default';
-  const xff = req.headers['x-forwarded-for'];
-  const firstIP = xff ? xff.split(',')[0].trim() : clientIP;
-  const isProxyAbuse = xff && xff.includes('160.202.129.203') && !path.includes('auth') && xff.split(',').length > 5;
-  const limits = HTTP_PATH_LIMITS[pathType];
-  const isAuthRequest = path.includes('auth/verify') || path.includes('auth/loginWithSecret');
-  const isApiRequest = req.headers.host === 'api.swordbattle.io';
-  
-  if (!isAuthRequest && !isApiRequest && GLOBAL_REQUEST_QUEUE.requests.length >= GLOBAL_REQUEST_QUEUE.maxSize) {
-    res.writeHead(503);
-    res.end('Server too busy');
-    return false;
-  }
-
-  const pathQueue = requestQueue.get(pathType) || [];
-  if (!isAuthRequest && pathQueue.length >= limits.maxQueue) {
-    const xForwardedFor = req.headers['x-forwarded-for'] || '';
-    if (xForwardedFor.includes('160.202.129.203')) {
-      res.writeHead(403);
-      res.end('Forbidden');
-      return false;
-    }
-    res.writeHead(429);
-    res.end('Too many requests');
-    return false;
-  }
-
-  const queueItem = {
-    time: Date.now(),
-    clientIP,
-    path: pathType,
-    priority: isAuthRequest ? 1 : 0,
-    next: () => {
-      if (bannedIPs.has(clientIP)) {
-        res.writeHead(403);
-        res.end('Forbidden');
-        return;
-      }
-      
-      const host = req.headers.host;
-      if (host === 'api.swordbattle.io') {
-        apiProxy.web(req, res);
-      } else if (host === 'na.swordbattle.io') {
-        mainProxy.web(req, res);
-      }
-    }
-  };
-
-  GLOBAL_REQUEST_QUEUE.requests.push(queueItem);
-  requestQueue.set(pathType, [...pathQueue, queueItem]);
-  return true;
-}
-
-function processRequestQueue() {
-  const now = Date.now();
-  if (now - GLOBAL_REQUEST_QUEUE.lastProcessed < GLOBAL_REQUEST_QUEUE.processInterval) return;
-
-  GLOBAL_REQUEST_QUEUE.lastProcessed = now;
-  GLOBAL_REQUEST_QUEUE.requests = GLOBAL_REQUEST_QUEUE.requests.filter(r => now - r.time < MAX_QUEUE_AGE);
-  
-  GLOBAL_REQUEST_QUEUE.requests.sort((a, b) => b.priority - a.priority);
-  
-  while (GLOBAL_REQUEST_QUEUE.requests.length > 0) {
-    const req = GLOBAL_REQUEST_QUEUE.requests[0];
-    const pathQueue = requestQueue.get(req.path) || [];
-    const limits = HTTP_PATH_LIMITS[req.path];
-    
-    if (!req.priority && pathQueue.length >= limits.maxQueue) {
-      break;
-    }
-    
-    GLOBAL_REQUEST_QUEUE.requests.shift();
-    req.next();
-  }
-}
-
+// Create the HTTP server
 const server = http.createServer((req, res) => {
-  const xff = req.headers['x-forwarded-for'];
-  const realIP = xff ? xff.split(',')[0].trim() : req.socket.remoteAddress;
-  if (xff && xff.includes('160.202.129.203')) {
-    const proxyChain = xff.split(',');
-    if (proxyChain.length > 5 && !req.url.includes('auth')) {
-      res.writeHead(403);
-      res.end('Forbidden');
-      return;
-    }
-  }
   try {
     // Get client IP
     const clientIP = getClientIP(req);
@@ -442,11 +313,10 @@ const server = http.createServer((req, res) => {
 
     // Route based on host header
     const host = req.headers.host;
-    if (host === 'api.swordbattle.io' || host === 'na.swordbattle.io') {
-      if (!queueRequest(req, res, clientIP)) {
-        return;
-      }
-      processRequestQueue();
+    if (host === 'api.swordbattle.io') {
+      apiProxy.web(req, res);
+    } else if (host === 'na.swordbattle.io') {
+      mainProxy.web(req, res);
     } else {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('Not found');

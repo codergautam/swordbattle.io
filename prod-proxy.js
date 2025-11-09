@@ -54,15 +54,24 @@ const mainProxy = httpProxy.createProxyServer({
 const MAX_HEADER_LENGTH = 8192;
 
 // Enhanced rate limiting and ban tracking
-const rateLimitMap = new Map(); // IP -> { count, resetTime, errorCount, lastError }
-const bannedIPs = new Set(); // Permanently banned IPs for this session
-const TEMP_BAN_DURATION = 60000; // 1 minute
-const MAX_REQUESTS_PER_MINUTE = 600;
-const ERROR_BAN_THRESHOLD = 10;
-const ERROR_WINDOW = 20000;
-const CONCURRENT_CONN_LIMIT = 50;
-const SUSPICIOUS_SIZE = 1982; // The suspicious message size
+const rateLimitMap = new Map();
+const bannedIPs = new Set();
+const TEMP_BAN_DURATION = 300000;
+const MAX_REQUESTS_PER_MINUTE = 300;
+const MAX_REQUESTS_PER_SECOND = 10;
+const ERROR_BAN_THRESHOLD = 5;
+const ERROR_WINDOW = 10000;
+const CONCURRENT_CONN_LIMIT = 25;
+const SUSPICIOUS_SIZE = 1982;
+const HTTP_PATH_LIMITS = {
+  serverinfo: { perSecond: 3, perMinute: 60 },
+  ping: { perSecond: 5, perMinute: 100 },
+  default: { perSecond: 8, perMinute: 200 }
+};
 let currentConnections = 0;
+const proxyAbuseTracker = new Map();
+const PROXY_ABUSE_THRESHOLD = 50;
+const PROXY_ABUSE_WINDOW = 30000;
 
 // Enhanced connection tracking
 const activeConnections = new Map(); // IP -> {count, firstConn, connHistory}
@@ -158,15 +167,16 @@ function getClientIP(req) {
   return req.socket.remoteAddress;
 }
 
-// Check rate limiting for an IP
-function checkRateLimit(ip) {
+// Check rate limiting for an IP and path
+function checkRateLimit(ip, path = '') {
   const now = Date.now();
-  const data = rateLimitMap.get(ip);
-  
-  if (!data) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 });
-    return true;
-  }
+  const data = rateLimitMap.get(ip) || {
+    count: 0,
+    resetTime: now + 60000,
+    secondCount: 0,
+    secondResetTime: now + 1000,
+    path: {}
+  };
   
   // Reset counter if expired
   if (now > data.resetTime) {
@@ -209,6 +219,35 @@ function sanitizeHeaders(req) {
       }
     }
   }
+}
+
+function checkAndTrackProxyAbuse(proxyIP, clientIP) {
+  const now = Date.now();
+  const data = proxyAbuseTracker.get(proxyIP) || {
+    uniqueIPs: new Set(),
+    requestCount: 0,
+    firstSeen: now,
+    lastSeen: now
+  };
+
+  data.uniqueIPs.add(clientIP);
+  data.requestCount++;
+  data.lastSeen = now;
+
+  if (now - data.firstSeen <= PROXY_ABUSE_WINDOW) {
+    if (data.requestCount >= PROXY_ABUSE_THRESHOLD || data.uniqueIPs.size >= PROXY_ABUSE_THRESHOLD) {
+      console.warn(`[SECURITY] Proxy IP ${proxyIP} detected as abusive (${data.requestCount} requests, ${data.uniqueIPs.size} unique IPs)`);
+      bannedIPs.add(proxyIP);
+      return false;
+    }
+  } else {
+    data.firstSeen = now;
+    data.requestCount = 1;
+    data.uniqueIPs = new Set([clientIP]);
+  }
+
+  proxyAbuseTracker.set(proxyIP, data);
+  return true;
 }
 
 // Create the HTTP server

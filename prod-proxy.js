@@ -57,21 +57,22 @@ const MAX_HEADER_LENGTH = 8192;
 const rateLimitMap = new Map();
 const bannedIPs = new Set();
 const TEMP_BAN_DURATION = 300000;
-const MAX_REQUESTS_PER_MINUTE = 300;
-const MAX_REQUESTS_PER_SECOND = 10;
-const ERROR_BAN_THRESHOLD = 5;
-const ERROR_WINDOW = 10000;
-const CONCURRENT_CONN_LIMIT = 25;
+const MAX_REQUESTS_PER_MINUTE = 120;
+const MAX_REQUESTS_PER_SECOND = 5;
+const ERROR_BAN_THRESHOLD = 3;
+const ERROR_WINDOW = 5000;
+const CONCURRENT_CONN_LIMIT = 10;
 const SUSPICIOUS_SIZE = 1982;
 const HTTP_PATH_LIMITS = {
-  serverinfo: { perSecond: 3, perMinute: 60 },
-  ping: { perSecond: 5, perMinute: 100 },
-  default: { perSecond: 8, perMinute: 200 }
+  serverinfo: { perSecond: 2, perMinute: 30 },
+  ping: { perSecond: 2, perMinute: 30 },
+  default: { perSecond: 3, perMinute: 60 }
 };
 let currentConnections = 0;
 const proxyAbuseTracker = new Map();
-const PROXY_ABUSE_THRESHOLD = 50;
-const PROXY_ABUSE_WINDOW = 30000;
+const PROXY_ABUSE_THRESHOLD = 10;
+const PROXY_ABUSE_WINDOW = 5000;
+const PROXY_UNIQUE_IP_THRESHOLD = 5;
 
 // Enhanced connection tracking
 const activeConnections = new Map(); // IP -> {count, firstConn, connHistory}
@@ -227,20 +228,24 @@ function checkAndTrackProxyAbuse(proxyIP, clientIP) {
     uniqueIPs: new Set(),
     requestCount: 0,
     firstSeen: now,
-    lastSeen: now
+    lastSeen: now,
+    recentRequests: []
   };
 
   data.uniqueIPs.add(clientIP);
   data.requestCount++;
   data.lastSeen = now;
-
-  if (now - data.firstSeen <= PROXY_ABUSE_WINDOW) {
-    if (data.requestCount >= PROXY_ABUSE_THRESHOLD || data.uniqueIPs.size >= PROXY_ABUSE_THRESHOLD) {
-      console.warn(`[SECURITY] Proxy IP ${proxyIP} detected as abusive (${data.requestCount} requests, ${data.uniqueIPs.size} unique IPs)`);
-      bannedIPs.add(proxyIP);
-      return false;
-    }
-  } else {
+  data.recentRequests.push(now);
+  data.recentRequests = data.recentRequests.filter(t => now - t < PROXY_ABUSE_WINDOW);
+  
+  const recentRequestCount = data.recentRequests.length;
+  if (recentRequestCount >= PROXY_ABUSE_THRESHOLD || data.uniqueIPs.size >= PROXY_UNIQUE_IP_THRESHOLD) {
+    console.warn(`[SECURITY] Banning proxy ${proxyIP} (${recentRequestCount} requests/${PROXY_ABUSE_WINDOW}ms, ${data.uniqueIPs.size} IPs)`);
+    bannedIPs.add(proxyIP);
+    return false;
+  }
+  
+  if (now - data.firstSeen > PROXY_ABUSE_WINDOW) {
     data.firstSeen = now;
     data.requestCount = 1;
     data.uniqueIPs = new Set([clientIP]);

@@ -84,9 +84,12 @@ function checkServerinfoRateLimit(ip, proxyIp) {
     proxyData.requests.push(now);
     proxyData.requests = proxyData.requests.filter(t => now - t < 10000);
 
-    if (proxyData.requests.length > 20) {
-      console.warn(`[SERVERINFO_BAN] Proxy IP ${proxyIp} flooding /serverinfo (${proxyData.requests.length} req/10s). Permanently banning proxy.`);
+    if (proxyData.requests.length > 100) {
+      console.warn(`[SERVERINFO_BAN] Proxy IP ${proxyIp} flooding /serverinfo (${proxyData.requests.length} req/10s). Temporarily banning proxy for 5 minutes.`);
       serverinfoBannedProxies.add(proxyIp);
+      setTimeout(() => {
+        serverinfoBannedProxies.delete(proxyIp);
+      }, 300000);
       return false;
     }
   }
@@ -195,10 +198,6 @@ function start() {
         setCorsHeaders(res);
         res.writeStatus('403 Forbidden');
         res.end('Forbidden');
-        if (proxyIP) {
-          serverinfoBannedProxies.add(proxyIP);
-          console.warn(`[SERVERINFO_BAN] Proxy ${proxyIP} permanently banned for sending /serverinfo without query.`);
-        }
         serverinfoBannedIPs.add(clientIP);
         setTimeout(() => {
           serverinfoBannedIPs.delete(clientIP);

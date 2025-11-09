@@ -319,10 +319,6 @@ const server = http.createServer((req, res) => {
 
       if (!req.url.includes('?')) {
         console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo without query parameter. Blocking.`);
-        if (proxyIP) {
-          serverinfoBannedProxies.add(proxyIP);
-          console.warn(`[SERVERINFO_BAN] Proxy ${proxyIP} permanently banned for malicious /serverinfo requests.`);
-        }
         bannedIPs.add(clientIP);
         setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
         if (!res.headersSent) {
@@ -385,8 +381,11 @@ const server = http.createServer((req, res) => {
         } else {
           proxyData.count++;
           if (proxyData.count > SERVERINFO_PROXY_LIMIT) {
-            console.warn(`[SERVERINFO_BAN] Proxy ${proxyIP} exceeded /serverinfo rate (${proxyData.count}/${SERVERINFO_PROXY_TTL/1000}s). Permanently banning.`);
+            console.warn(`[SERVERINFO_BAN] Proxy ${proxyIP} exceeded /serverinfo rate (${proxyData.count}/${SERVERINFO_PROXY_TTL/1000}s). Temporarily banning for 5 minutes.`);
             serverinfoBannedProxies.add(proxyIP);
+            setTimeout(() => {
+              serverinfoBannedProxies.delete(proxyIP);
+            }, 300000);
             if (!res.headersSent) {
               res.writeHead(429, { 'Content-Type': 'text/plain' });
               res.end('Too Many Requests');

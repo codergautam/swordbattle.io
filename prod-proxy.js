@@ -91,7 +91,7 @@ const TEMP_BAN_DURATION = 60000; // 1 minute
 const MAX_REQUESTS_PER_MINUTE = 600;
 const ERROR_BAN_THRESHOLD = 10;
 const ERROR_WINDOW = 20000;
-const CONCURRENT_CONN_LIMIT = 50;
+const CONCURRENT_CONN_LIMIT = 100;
 const SUSPICIOUS_SIZE = 1982; // The suspicious message size
 let currentConnections = 0;
 

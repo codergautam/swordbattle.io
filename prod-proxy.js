@@ -274,7 +274,20 @@ const server = http.createServer((req, res) => {
   try {
     // Get client IP
     const clientIP = getClientIP(req);
-    
+
+    // Early check for banned proxy IPs before any processing
+    const xForwardedFor = req.headers['x-forwarded-for'];
+    if (xForwardedFor) {
+      const proxyIP = xForwardedFor.split(',').map(s => s.trim()).pop();
+      if (proxyIP && (serverinfoBannedProxies.has(proxyIP) || endpointBannedProxies.has(proxyIP))) {
+        if (!res.headersSent) {
+          res.writeHead(403);
+          res.end();
+        }
+        return;
+      }
+    }
+
     // Check if IP is banned
     if (bannedIPs.has(clientIP)) {
       console.warn(`[SECURITY] Blocked request from banned IP: ${clientIP}`);
@@ -364,7 +377,6 @@ const server = http.createServer((req, res) => {
 
       const malformedMatch = req.url.match(/^\/serverinfo\d+/);
       if (malformedMatch) {
-        console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} (proxy: ${proxyIP}) sent malformed /serverinfo path: ${req.url}. Blocking.`);
         bannedIPs.add(clientIP);
         setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
 
@@ -373,6 +385,7 @@ const server = http.createServer((req, res) => {
           if (!proxyData || now - proxyData.reset > SERVERINFO_PROXY_TTL) {
             proxyData = { count: 1, reset: now + SERVERINFO_PROXY_TTL, malformedCount: 1 };
             serverinfoProxyRate.set(proxyIP, proxyData);
+            console.warn(`[SERVERINFO_BLOCK] First malformed /serverinfo from proxy ${proxyIP}`);
           } else {
             proxyData.malformedCount = (proxyData.malformedCount || 0) + 1;
             if (proxyData.malformedCount > 50) {
@@ -399,7 +412,6 @@ const server = http.createServer((req, res) => {
       if (token && validateApiToken(token)) {
       } else {
         if (!req.url.includes('?')) {
-          console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo without query parameter. Blocking.`);
           bannedIPs.add(clientIP);
           setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
           if (!res.headersSent) {
@@ -533,7 +545,6 @@ const server = http.createServer((req, res) => {
 
       const malformedMatch = req.url.match(/^\/games\/ping\d+/);
       if (malformedMatch) {
-        console.warn(`[GAMESPING_BLOCK] IP ${clientIP} (proxy: ${proxyIP}) sent malformed /games/ping path: ${req.url}. Blocking.`);
         bannedIPs.add(clientIP);
         setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
 
@@ -542,6 +553,7 @@ const server = http.createServer((req, res) => {
           if (!proxyData || now - proxyData.reset > ENDPOINT_PROXY_TTL) {
             proxyData = { count: 1, reset: now + ENDPOINT_PROXY_TTL, malformedCount: 1 };
             endpointProxyRate.set(proxyIP, proxyData);
+            console.warn(`[GAMESPING_BLOCK] First malformed /games/ping from proxy ${proxyIP}`);
           } else {
             proxyData.malformedCount = (proxyData.malformedCount || 0) + 1;
             if (proxyData.malformedCount > 50) {
@@ -568,7 +580,6 @@ const server = http.createServer((req, res) => {
       if (token && validateApiToken(token)) {
       } else {
         if (!req.url.includes('?')) {
-          console.warn(`[GAMESPING_BLOCK] IP ${clientIP} sent /games/ping without query parameter. Blocking.`);
           bannedIPs.add(clientIP);
           setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
           if (!res.headersSent) {

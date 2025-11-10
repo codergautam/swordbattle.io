@@ -12,6 +12,10 @@ const util = require('util');
 
 const readFileAsync = util.promisify(fs.readFile);
 
+const timestampFailures = new Map();
+const TIMESTAMP_FAIL_THRESHOLD = 5;
+const TIMESTAMP_FAIL_WINDOW = 300000;
+
 const serverinfoRateLimit = new Map();
 const SERVERINFO_MAX_REQUESTS_PER_MINUTE = 200;
 const SERVERINFO_MAX_REQUESTS_PER_10_SECONDS = 50;
@@ -211,18 +215,34 @@ function start() {
       if (timestampMatch) {
         const timestamp = parseInt(timestampMatch[1], 10);
         const timeDiff = Math.abs(now - timestamp);
-        const MAX_TIME_DIFF = 120000; // 2 minutes tolerance
+        const MAX_TIME_DIFF = 120000;
 
         if (timeDiff > MAX_TIME_DIFF) {
-          console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo with invalid timestamp (diff: ${timeDiff}ms). Blocking.`);
-          setCorsHeaders(res);
-          res.writeStatus('403 Forbidden');
-          res.end('Forbidden');
-          serverinfoBannedIPs.add(clientIP);
-          setTimeout(() => {
-            serverinfoBannedIPs.delete(clientIP);
-          }, 600000);
-          return;
+          let failData = timestampFailures.get(clientIP);
+          if (!failData || now - failData.firstFail > TIMESTAMP_FAIL_WINDOW) {
+            failData = { count: 1, firstFail: now };
+            timestampFailures.set(clientIP, failData);
+          } else {
+            failData.count++;
+          }
+
+          if (failData.count >= TIMESTAMP_FAIL_THRESHOLD) {
+            console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo with invalid timestamp ${failData.count} times (diff: ${timeDiff}ms). Blocking.`);
+            setCorsHeaders(res);
+            res.writeStatus('403 Forbidden');
+            res.end('Forbidden');
+            serverinfoBannedIPs.add(clientIP);
+            setTimeout(() => {
+              serverinfoBannedIPs.delete(clientIP);
+              timestampFailures.delete(clientIP);
+            }, 600000);
+            return;
+          } else {
+            setCorsHeaders(res);
+            res.writeStatus('403 Forbidden');
+            res.end('Forbidden');
+            return;
+          }
         }
       }
 

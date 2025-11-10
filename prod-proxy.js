@@ -114,6 +114,10 @@ const HOMEPAGE_GLOBAL_LIMIT = 2000;
 const HOMEPAGE_GLOBAL_TTL = 30000;
 const HOMEPAGE_CACHE = Buffer.from('<!DOCTYPE html><html><head><title>Swordbattle</title></head><body><h1>Swordbattle</h1><p>Server is up.</p></body></html>');
 
+const timestampFailures = new Map();
+const TIMESTAMP_FAIL_THRESHOLD = 5;
+const TIMESTAMP_FAIL_WINDOW = 300000;
+
 const serverinfoIpRate = new Map();
 const serverinfoProxyRate = new Map();
 const serverinfoBannedProxies = new Set();
@@ -358,16 +362,42 @@ const server = http.createServer((req, res) => {
       const xForwardedFor = req.headers['x-forwarded-for'];
       const proxyIP = xForwardedFor ? xForwardedFor.split(',').map(s => s.trim()).pop() : null;
 
-      // Check for API token (bypass rate limiting if valid)
+      const malformedMatch = req.url.match(/^\/serverinfo\d+/);
+      if (malformedMatch) {
+        console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} (proxy: ${proxyIP}) sent malformed /serverinfo path: ${req.url}. Blocking.`);
+        bannedIPs.add(clientIP);
+        setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+
+        if (proxyIP && !serverinfoBannedProxies.has(proxyIP)) {
+          let proxyData = serverinfoProxyRate.get(proxyIP);
+          if (!proxyData || now - proxyData.reset > SERVERINFO_PROXY_TTL) {
+            proxyData = { count: 1, reset: now + SERVERINFO_PROXY_TTL, malformedCount: 1 };
+            serverinfoProxyRate.set(proxyIP, proxyData);
+          } else {
+            proxyData.malformedCount = (proxyData.malformedCount || 0) + 1;
+            if (proxyData.malformedCount > 50) {
+              console.warn(`[SERVERINFO_BAN] Proxy ${proxyIP} sent ${proxyData.malformedCount} malformed /serverinfo requests. Banning for 1 hour.`);
+              serverinfoBannedProxies.add(proxyIP);
+              setTimeout(() => {
+                serverinfoBannedProxies.delete(proxyIP);
+              }, 3600000);
+            }
+          }
+        }
+
+        if (!res.headersSent) {
+          res.writeHead(403, { 'Content-Type': 'text/plain' });
+          res.end('Forbidden');
+        }
+        return;
+      }
+
       const tokenMatch = req.url.match(/[?&]token=([^&]+)/);
       const authHeader = req.headers['authorization'];
       const token = tokenMatch ? tokenMatch[1] : (authHeader ? authHeader.replace('Bearer ', '') : null);
 
       if (token && validateApiToken(token)) {
-        // Valid token - skip all rate limiting and validation checks
-        // Let the request through to the backend
       } else {
-        // No valid token - apply timestamp and rate limiting checks
         if (!req.url.includes('?')) {
           console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo without query parameter. Blocking.`);
           bannedIPs.add(clientIP);
@@ -384,17 +414,33 @@ const server = http.createServer((req, res) => {
         if (queryMatch) {
           const timestamp = parseInt(queryMatch[1], 10);
           const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 120000; // 2 minutes tolerance
+          const MAX_TIME_DIFF = 120000;
 
           if (timeDiff > MAX_TIME_DIFF) {
-            console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo with invalid timestamp (diff: ${timeDiff}ms). Blocking.`);
-            bannedIPs.add(clientIP);
-            setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
-            if (!res.headersSent) {
-              res.writeHead(403, { 'Content-Type': 'text/plain' });
-              res.end('Forbidden');
+            let failData = timestampFailures.get(clientIP);
+            if (!failData || now - failData.firstFail > TIMESTAMP_FAIL_WINDOW) {
+              failData = { count: 1, firstFail: now };
+              timestampFailures.set(clientIP, failData);
+            } else {
+              failData.count++;
             }
-            return;
+
+            if (failData.count >= TIMESTAMP_FAIL_THRESHOLD) {
+              console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo with invalid timestamp ${failData.count} times (diff: ${timeDiff}ms). Blocking.`);
+              bannedIPs.add(clientIP);
+              setTimeout(() => { bannedIPs.delete(clientIP); timestampFailures.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+              if (!res.headersSent) {
+                res.writeHead(403, { 'Content-Type': 'text/plain' });
+                res.end('Forbidden');
+              }
+              return;
+            } else {
+              if (!res.headersSent) {
+                res.writeHead(403, { 'Content-Type': 'text/plain' });
+                res.end('Forbidden');
+              }
+              return;
+            }
           }
         }
       }
@@ -485,16 +531,42 @@ const server = http.createServer((req, res) => {
       const xForwardedFor = req.headers['x-forwarded-for'];
       const proxyIP = xForwardedFor ? xForwardedFor.split(',').map(s => s.trim()).pop() : null;
 
-      // Check for API token (bypass rate limiting if valid)
+      const malformedMatch = req.url.match(/^\/games\/ping\d+/);
+      if (malformedMatch) {
+        console.warn(`[GAMESPING_BLOCK] IP ${clientIP} (proxy: ${proxyIP}) sent malformed /games/ping path: ${req.url}. Blocking.`);
+        bannedIPs.add(clientIP);
+        setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+
+        if (proxyIP && !endpointBannedProxies.has(proxyIP)) {
+          let proxyData = endpointProxyRate.get(proxyIP);
+          if (!proxyData || now - proxyData.reset > ENDPOINT_PROXY_TTL) {
+            proxyData = { count: 1, reset: now + ENDPOINT_PROXY_TTL, malformedCount: 1 };
+            endpointProxyRate.set(proxyIP, proxyData);
+          } else {
+            proxyData.malformedCount = (proxyData.malformedCount || 0) + 1;
+            if (proxyData.malformedCount > 50) {
+              console.warn(`[GAMESPING_BAN] Proxy ${proxyIP} sent ${proxyData.malformedCount} malformed /games/ping requests. Banning for 1 hour.`);
+              endpointBannedProxies.add(proxyIP);
+              setTimeout(() => {
+                endpointBannedProxies.delete(proxyIP);
+              }, 3600000);
+            }
+          }
+        }
+
+        if (!res.headersSent) {
+          res.writeHead(403, { 'Content-Type': 'text/plain' });
+          res.end('Forbidden');
+        }
+        return;
+      }
+
       const tokenMatch = req.url.match(/[?&]token=([^&]+)/);
       const authHeader = req.headers['authorization'];
       const token = tokenMatch ? tokenMatch[1] : (authHeader ? authHeader.replace('Bearer ', '') : null);
 
       if (token && validateApiToken(token)) {
-        // Valid token - skip all rate limiting and validation checks
-        // Let the request through to the backend
       } else {
-        // No valid token - apply timestamp and rate limiting checks
         if (!req.url.includes('?')) {
           console.warn(`[GAMESPING_BLOCK] IP ${clientIP} sent /games/ping without query parameter. Blocking.`);
           bannedIPs.add(clientIP);
@@ -506,22 +578,37 @@ const server = http.createServer((req, res) => {
           return;
         }
 
-        // Validate timestamp freshness
         const queryMatch = req.url.match(/\?(\d+)/);
         if (queryMatch) {
           const timestamp = parseInt(queryMatch[1], 10);
           const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 120000; // 2 minutes tolerance
+          const MAX_TIME_DIFF = 120000;
 
           if (timeDiff > MAX_TIME_DIFF) {
-            console.warn(`[GAMESPING_BLOCK] IP ${clientIP} sent /games/ping with invalid timestamp (diff: ${timeDiff}ms). Blocking.`);
-            bannedIPs.add(clientIP);
-            setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
-            if (!res.headersSent) {
-              res.writeHead(403, { 'Content-Type': 'text/plain' });
-              res.end('Forbidden');
+            let failData = timestampFailures.get(clientIP);
+            if (!failData || now - failData.firstFail > TIMESTAMP_FAIL_WINDOW) {
+              failData = { count: 1, firstFail: now };
+              timestampFailures.set(clientIP, failData);
+            } else {
+              failData.count++;
             }
-            return;
+
+            if (failData.count >= TIMESTAMP_FAIL_THRESHOLD) {
+              console.warn(`[GAMESPING_BLOCK] IP ${clientIP} sent /games/ping with invalid timestamp ${failData.count} times (diff: ${timeDiff}ms). Blocking.`);
+              bannedIPs.add(clientIP);
+              setTimeout(() => { bannedIPs.delete(clientIP); timestampFailures.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+              if (!res.headersSent) {
+                res.writeHead(403, { 'Content-Type': 'text/plain' });
+                res.end('Forbidden');
+              }
+              return;
+            } else {
+              if (!res.headersSent) {
+                res.writeHead(403, { 'Content-Type': 'text/plain' });
+                res.end('Forbidden');
+              }
+              return;
+            }
           }
         }
       }
@@ -803,6 +890,10 @@ setInterval(() => {
 
   for (const [proxyIP, data] of endpointProxyRate) {
     if (now > data.reset) endpointProxyRate.delete(proxyIP);
+  }
+
+  for (const [ip, data] of timestampFailures) {
+    if (now - data.firstFail > TIMESTAMP_FAIL_WINDOW) timestampFailures.delete(ip);
   }
 }, 60000);
 

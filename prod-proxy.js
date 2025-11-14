@@ -695,6 +695,318 @@ const server = http.createServer((req, res) => {
       }
     }
 
+    if (req.method === 'POST' && req.url && req.url.startsWith('/profile/search')) {
+      const now = Date.now();
+      const xForwardedFor = req.headers['x-forwarded-for'];
+      const proxyIP = xForwardedFor ? xForwardedFor.split(',').map(s => s.trim()).pop() : null;
+
+      const malformedMatch = req.url.match(/^\/profile\/search\d+/);
+      if (malformedMatch) {
+        bannedIPs.add(clientIP);
+        setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+
+        if (proxyIP && !endpointBannedProxies.has(proxyIP)) {
+          let proxyData = endpointProxyRate.get(proxyIP);
+          if (!proxyData || now - proxyData.reset > ENDPOINT_PROXY_TTL) {
+            proxyData = { count: 1, reset: now + ENDPOINT_PROXY_TTL, malformedCount: 1 };
+            endpointProxyRate.set(proxyIP, proxyData);
+            console.warn(`[PROFILESEARCH_BLOCK] First malformed /profile/search from proxy ${proxyIP}`);
+          } else {
+            proxyData.malformedCount = (proxyData.malformedCount || 0) + 1;
+            if (proxyData.malformedCount > 50) {
+              console.warn(`[PROFILESEARCH_BAN] Proxy ${proxyIP} sent ${proxyData.malformedCount} malformed /profile/search requests. Banning for 1 hour.`);
+              endpointBannedProxies.add(proxyIP);
+              setTimeout(() => {
+                endpointBannedProxies.delete(proxyIP);
+              }, 3600000);
+            }
+          }
+        }
+
+        if (!res.headersSent) {
+          res.writeHead(403, { 'Content-Type': 'text/plain' });
+          res.end('Forbidden');
+        }
+        return;
+      }
+
+      const tokenMatch = req.url.match(/[?&]token=([^&]+)/);
+      const authHeader = req.headers['authorization'];
+      const token = tokenMatch ? tokenMatch[1] : (authHeader ? authHeader.replace('Bearer ', '') : null);
+
+      if (token && validateApiToken(token)) {
+      } else {
+        if (!req.url.includes('?')) {
+          bannedIPs.add(clientIP);
+          setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+          if (!res.headersSent) {
+            res.writeHead(403, { 'Content-Type': 'text/plain' });
+            res.end('Forbidden');
+          }
+          return;
+        }
+
+        const queryMatch = req.url.match(/\?(\d+)/);
+        if (queryMatch) {
+          const timestamp = parseInt(queryMatch[1], 10);
+          const timeDiff = Math.abs(now - timestamp);
+          const MAX_TIME_DIFF = 120000;
+
+          if (timeDiff > MAX_TIME_DIFF) {
+            let failData = timestampFailures.get(clientIP);
+            if (!failData || now - failData.firstFail > TIMESTAMP_FAIL_WINDOW) {
+              failData = { count: 1, firstFail: now };
+              timestampFailures.set(clientIP, failData);
+            } else {
+              failData.count++;
+            }
+
+            if (failData.count >= TIMESTAMP_FAIL_THRESHOLD) {
+              console.warn(`[PROFILESEARCH_BLOCK] IP ${clientIP} sent /profile/search with invalid timestamp ${failData.count} times (diff: ${timeDiff}ms). Blocking.`);
+              bannedIPs.add(clientIP);
+              setTimeout(() => { bannedIPs.delete(clientIP); timestampFailures.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+              if (!res.headersSent) {
+                res.writeHead(403, { 'Content-Type': 'text/plain' });
+                res.end('Forbidden');
+              }
+              return;
+            } else {
+              if (!res.headersSent) {
+                res.writeHead(403, { 'Content-Type': 'text/plain' });
+                res.end('Forbidden');
+              }
+              return;
+            }
+          }
+        }
+      }
+
+      if (!token || !validateApiToken(token)) {
+        if (proxyIP && endpointBannedProxies.has(proxyIP)) {
+          console.warn(`[PROFILESEARCH_BLOCK] Banned proxy ${proxyIP} attempted /profile/search request.`);
+          if (!res.headersSent) {
+            res.writeHead(403, { 'Content-Type': 'text/plain' });
+            res.end('Forbidden');
+          }
+          return;
+        }
+
+        let ipData = endpointIpRate.get(clientIP);
+        if (!ipData || now > ipData.reset) {
+          ipData = { count: 1, reset: now + ENDPOINT_IP_TTL, burstCount: 1, burstReset: now + ENDPOINT_BURST_TTL };
+          endpointIpRate.set(clientIP, ipData);
+        } else {
+          ipData.count++;
+          if (now > ipData.burstReset) {
+            ipData.burstCount = 1;
+            ipData.burstReset = now + ENDPOINT_BURST_TTL;
+          } else {
+            ipData.burstCount++;
+          }
+
+          if (ipData.count > ENDPOINT_IP_LIMIT) {
+            console.warn(`[PROFILESEARCH_BAN] IP ${clientIP} exceeded /profile/search rate (${ipData.count}/${ENDPOINT_IP_TTL/1000}s). Banning.`);
+            bannedIPs.add(clientIP);
+            setTimeout(() => { bannedIPs.delete(clientIP); endpointIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 5);
+            if (!res.headersSent) {
+              res.writeHead(429, { 'Content-Type': 'text/plain' });
+              res.end('Too Many Requests');
+            }
+            return;
+          }
+
+          if (ipData.burstCount > ENDPOINT_BURST_LIMIT) {
+            console.warn(`[PROFILESEARCH_BAN] IP ${clientIP} exceeded /profile/search burst limit (${ipData.burstCount}/${ENDPOINT_BURST_TTL/1000}s). Banning.`);
+            bannedIPs.add(clientIP);
+            setTimeout(() => { bannedIPs.delete(clientIP); endpointIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 2);
+            if (!res.headersSent) {
+              res.writeHead(429, { 'Content-Type': 'text/plain' });
+              res.end('Too Many Requests');
+            }
+            return;
+          }
+        }
+
+        if (proxyIP) {
+          let proxyData = endpointProxyRate.get(proxyIP);
+          if (!proxyData || now > proxyData.reset) {
+            proxyData = { count: 1, reset: now + ENDPOINT_PROXY_TTL };
+            endpointProxyRate.set(proxyIP, proxyData);
+          } else {
+            proxyData.count++;
+            if (proxyData.count > ENDPOINT_PROXY_LIMIT) {
+              console.warn(`[PROFILESEARCH_BAN] Proxy ${proxyIP} exceeded /profile/search rate (${proxyData.count}/${ENDPOINT_PROXY_TTL/1000}s). Temporarily banning for 5 minutes.`);
+              endpointBannedProxies.add(proxyIP);
+              setTimeout(() => {
+                endpointBannedProxies.delete(proxyIP);
+              }, 300000);
+              if (!res.headersSent) {
+                res.writeHead(429, { 'Content-Type': 'text/plain' });
+                res.end('Too Many Requests');
+              }
+              return;
+            }
+          }
+        }
+      }
+    }
+
+    if (req.method === 'GET' && req.url && req.url.startsWith('/profile/skins/buys')) {
+      const now = Date.now();
+      const xForwardedFor = req.headers['x-forwarded-for'];
+      const proxyIP = xForwardedFor ? xForwardedFor.split(',').map(s => s.trim()).pop() : null;
+
+      const malformedMatch = req.url.match(/^\/profile\/skins\/buys\d+/);
+      if (malformedMatch) {
+        bannedIPs.add(clientIP);
+        setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+
+        if (proxyIP && !endpointBannedProxies.has(proxyIP)) {
+          let proxyData = endpointProxyRate.get(proxyIP);
+          if (!proxyData || now - proxyData.reset > ENDPOINT_PROXY_TTL) {
+            proxyData = { count: 1, reset: now + ENDPOINT_PROXY_TTL, malformedCount: 1 };
+            endpointProxyRate.set(proxyIP, proxyData);
+            console.warn(`[SKINSBUYS_BLOCK] First malformed /profile/skins/buys from proxy ${proxyIP}`);
+          } else {
+            proxyData.malformedCount = (proxyData.malformedCount || 0) + 1;
+            if (proxyData.malformedCount > 50) {
+              console.warn(`[SKINSBUYS_BAN] Proxy ${proxyIP} sent ${proxyData.malformedCount} malformed /profile/skins/buys requests. Banning for 1 hour.`);
+              endpointBannedProxies.add(proxyIP);
+              setTimeout(() => {
+                endpointBannedProxies.delete(proxyIP);
+              }, 3600000);
+            }
+          }
+        }
+
+        if (!res.headersSent) {
+          res.writeHead(403, { 'Content-Type': 'text/plain' });
+          res.end('Forbidden');
+        }
+        return;
+      }
+
+      const tokenMatch = req.url.match(/[?&]token=([^&]+)/);
+      const authHeader = req.headers['authorization'];
+      const token = tokenMatch ? tokenMatch[1] : (authHeader ? authHeader.replace('Bearer ', '') : null);
+
+      if (token && validateApiToken(token)) {
+      } else {
+        if (!req.url.includes('?')) {
+          bannedIPs.add(clientIP);
+          setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+          if (!res.headersSent) {
+            res.writeHead(403, { 'Content-Type': 'text/plain' });
+            res.end('Forbidden');
+          }
+          return;
+        }
+
+        const queryMatch = req.url.match(/\?(\d+)/);
+        if (queryMatch) {
+          const timestamp = parseInt(queryMatch[1], 10);
+          const timeDiff = Math.abs(now - timestamp);
+          const MAX_TIME_DIFF = 120000;
+
+          if (timeDiff > MAX_TIME_DIFF) {
+            let failData = timestampFailures.get(clientIP);
+            if (!failData || now - failData.firstFail > TIMESTAMP_FAIL_WINDOW) {
+              failData = { count: 1, firstFail: now };
+              timestampFailures.set(clientIP, failData);
+            } else {
+              failData.count++;
+            }
+
+            if (failData.count >= TIMESTAMP_FAIL_THRESHOLD) {
+              console.warn(`[SKINSBUYS_BLOCK] IP ${clientIP} sent /profile/skins/buys with invalid timestamp ${failData.count} times (diff: ${timeDiff}ms). Blocking.`);
+              bannedIPs.add(clientIP);
+              setTimeout(() => { bannedIPs.delete(clientIP); timestampFailures.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+              if (!res.headersSent) {
+                res.writeHead(403, { 'Content-Type': 'text/plain' });
+                res.end('Forbidden');
+              }
+              return;
+            } else {
+              if (!res.headersSent) {
+                res.writeHead(403, { 'Content-Type': 'text/plain' });
+                res.end('Forbidden');
+              }
+              return;
+            }
+          }
+        }
+      }
+
+      if (!token || !validateApiToken(token)) {
+        if (proxyIP && endpointBannedProxies.has(proxyIP)) {
+          console.warn(`[SKINSBUYS_BLOCK] Banned proxy ${proxyIP} attempted /profile/skins/buys request.`);
+          if (!res.headersSent) {
+            res.writeHead(403, { 'Content-Type': 'text/plain' });
+            res.end('Forbidden');
+          }
+          return;
+        }
+
+        let ipData = endpointIpRate.get(clientIP);
+        if (!ipData || now > ipData.reset) {
+          ipData = { count: 1, reset: now + ENDPOINT_IP_TTL, burstCount: 1, burstReset: now + ENDPOINT_BURST_TTL };
+          endpointIpRate.set(clientIP, ipData);
+        } else {
+          ipData.count++;
+          if (now > ipData.burstReset) {
+            ipData.burstCount = 1;
+            ipData.burstReset = now + ENDPOINT_BURST_TTL;
+          } else {
+            ipData.burstCount++;
+          }
+
+          if (ipData.count > ENDPOINT_IP_LIMIT) {
+            console.warn(`[SKINSBUYS_BAN] IP ${clientIP} exceeded /profile/skins/buys rate (${ipData.count}/${ENDPOINT_IP_TTL/1000}s). Banning.`);
+            bannedIPs.add(clientIP);
+            setTimeout(() => { bannedIPs.delete(clientIP); endpointIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 5);
+            if (!res.headersSent) {
+              res.writeHead(429, { 'Content-Type': 'text/plain' });
+              res.end('Too Many Requests');
+            }
+            return;
+          }
+
+          if (ipData.burstCount > ENDPOINT_BURST_LIMIT) {
+            console.warn(`[SKINSBUYS_BAN] IP ${clientIP} exceeded /profile/skins/buys burst limit (${ipData.burstCount}/${ENDPOINT_BURST_TTL/1000}s). Banning.`);
+            bannedIPs.add(clientIP);
+            setTimeout(() => { bannedIPs.delete(clientIP); endpointIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 2);
+            if (!res.headersSent) {
+              res.writeHead(429, { 'Content-Type': 'text/plain' });
+              res.end('Too Many Requests');
+            }
+            return;
+          }
+        }
+
+        if (proxyIP) {
+          let proxyData = endpointProxyRate.get(proxyIP);
+          if (!proxyData || now > proxyData.reset) {
+            proxyData = { count: 1, reset: now + ENDPOINT_PROXY_TTL };
+            endpointProxyRate.set(proxyIP, proxyData);
+          } else {
+            proxyData.count++;
+            if (proxyData.count > ENDPOINT_PROXY_LIMIT) {
+              console.warn(`[SKINSBUYS_BAN] Proxy ${proxyIP} exceeded /profile/skins/buys rate (${proxyData.count}/${ENDPOINT_PROXY_TTL/1000}s). Temporarily banning for 5 minutes.`);
+              endpointBannedProxies.add(proxyIP);
+              setTimeout(() => {
+                endpointBannedProxies.delete(proxyIP);
+              }, 300000);
+              if (!res.headersSent) {
+                res.writeHead(429, { 'Content-Type': 'text/plain' });
+                res.end('Too Many Requests');
+              }
+              return;
+            }
+          }
+        }
+      }
+    }
+
     if (!checkRateLimit(clientIP)) {
       if (!res.headersSent) {
         res.writeHead(429, { 'Content-Type': 'text/plain' });

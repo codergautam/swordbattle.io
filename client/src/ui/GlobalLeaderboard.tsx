@@ -98,7 +98,7 @@ export function GlobalLeaderboard() {
     const q = searchTerm.trim();
     setIsSearching(true);
     const timeout = setTimeout(() => {
-      api.post(`${api.endpoint}/profile/search`, { q, limit: 25 }, (res: any) => {
+      api.post(`${api.endpoint}/profile/search?${Date.now()}`, { q, limit: 25 }, (res: any) => {
         if (!Array.isArray(res)) {
           setServerSuggestions([]);
           setIsSearching(false);

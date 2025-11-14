@@ -17,11 +17,10 @@ export class AccountsController {
     private readonly authService: AuthService,
   ) {}
 
-  // DISABLED: This endpoint was being abused to crash servers
-  // @Get('skins/buys')
-  // async getSkinBuys() {
-  //   return this.accountsService.getCosmeticCnts('skins');
-  // }
+  @Get('skins/buys')
+  async getSkinBuys() {
+    return this.accountsService.getCosmeticCnts('skins');
+  }
 
   @UseGuards(AccountGuard)
   @Throttle({ short: { limit: 2, ttl: 1000 }, medium: { limit: 10, ttl: 60000 } })

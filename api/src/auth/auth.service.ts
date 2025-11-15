@@ -6,6 +6,8 @@ import validateUsername from 'src/helpers/validateUsername';
 import validateClantag from 'src/helpers/validateClantag';
 import { v4 as uuidv4 } from 'uuid';
 import * as crypto from 'crypto';
+import axios from 'axios';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -63,6 +65,92 @@ export class AuthService {
 
     const secret = account.secret;
     return { account: this.accountsService.sanitizeAccount(account), secret };
+  }
+
+  async crazygamesLogin(token: string, crazygamesUserId: string, username: string) {
+    try {
+      const verified = await this.verifyCrazygamesToken(token);
+      if (!verified || verified.userId !== crazygamesUserId) {
+        throw new UnauthorizedException('Invalid CrazyGames token');
+      }
+
+      // Check if account with this CrazyGames user ID already exists
+      let account = await this.accountsService.findOne({
+        where: { crazygamesUserId }
+      });
+
+      if (account) {
+        return { account: this.accountsService.sanitizeAccount(account), secret: account.secret };
+      }
+
+      // Account doesn't exist, create a new one
+      let finalUsername = username;
+      let counter = 1;
+      while (await this.accountsService.findOneWithLowercase({ where: { username: finalUsername } })) {
+        finalUsername = `${username}${counter}`;
+        counter++;
+      }
+
+      const secret = uuidv4();
+      const newAccount = await this.accountsService.create({
+        username: finalUsername,
+        password: crypto.randomBytes(32).toString('hex'), // Random password (won't be used)
+        email: '',
+        secret,
+        isCrazygames: true,
+        crazygamesUserId,
+      });
+
+      return { account: this.accountsService.sanitizeAccount(newAccount), secret };
+    } catch (error) {
+      console.error('[CrazyGames Auth] Error:', error);
+      throw new UnauthorizedException('CrazyGames authentication failed');
+    }
+  }
+
+  private async verifyCrazygamesToken(token: string): Promise<{ userId: string; username: string; gameId: string } | null> {
+    try {
+      let publicKey = '';
+
+      try {
+        const response = await axios.get('https://sdk.crazygames.com/publicKey.json');
+        publicKey = response.data.publicKey;
+      } catch (error) {
+        console.error('[CrazyGames] Failed to fetch public key:', error);
+        return null;
+      }
+
+      if (!publicKey) {
+        console.error('[CrazyGames] Public key is empty');
+        return null;
+      }
+
+      const decoded = jwt.verify(token, publicKey, {
+        algorithms: ['RS256']
+      }) as any;
+
+      if (!decoded.userId || !decoded.username || !decoded.gameId) {
+        console.error('[CrazyGames] Token missing required fields');
+        return null;
+      }
+
+      console.log('[CrazyGames] Token verified successfully');
+
+      return {
+        userId: decoded.userId,
+        username: decoded.username,
+        gameId: decoded.gameId
+      };
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        console.error('[CrazyGames] Token has expired');
+      } else if (error.name === 'JsonWebTokenError') {
+        console.error('[CrazyGames] Invalid token signature');
+      } else {
+        console.error('[CrazyGames] Token verification error:', error);
+      }
+      return null;
+    }
   }
 
   async getToken(account: Account) {

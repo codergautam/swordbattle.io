@@ -33,6 +33,9 @@ export class Account {
 
   @Column({ default: false }) recovered: boolean;
 
+  @Column({ default: false }) isCrazygames: boolean;
+  @Column({ nullable: true, unique: true }) crazygamesUserId: string;
+
   @Column({ default: 0 }) profile_views: number;
 
   @Column({ nullable: true })  lastUsernameChange: Date;

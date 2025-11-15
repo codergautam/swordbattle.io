@@ -6,6 +6,7 @@ class Chat extends HudComponent {
   input!: Phaser.GameObjects.DOMElement;
   isOpen = false;
   sendButton: Phaser.GameObjects.DOMElement;
+  isDisabled = false;
 
   initialize() {
     this.input = this.hud.scene.add.dom(0, 0, ChatInput.input)
@@ -30,7 +31,30 @@ class Chat extends HudComponent {
     this.hud.add(this.container);
   }
 
+  /* Disable chat (called when CrazyGames disableChat setting is true) */
+  disable() {
+    this.isDisabled = true;
+    if (this.isOpen) {
+      this.toggle(false);
+    }
+    // Hide chat UI
+    this.container.setVisible(false);
+    console.log('[Chat] Chat has been disabled by CrazyGames settings');
+  }
+
+  /* Enable chat */
+  enable() {
+    this.isDisabled = false;
+    this.container.setVisible(true);
+    console.log('[Chat] Chat has been enabled');
+  }
+
   toggle(send = true) {
+    // Don't allow toggling if chat is disabled
+    if (this.isDisabled) {
+      return;
+    }
+
     const input = this.input.node as HTMLInputElement;
     if (this.isOpen) {
       const message = input.value;

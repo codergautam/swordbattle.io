@@ -1,5 +1,6 @@
 import Coin from "./game/entities/Coin";
 import Player from "./game/entities/Player";
+import { crazygamesSDK, InviteParams } from "./crazygames/sdk";
 
 export function random(min: number, max: number) {
   return min + (Math.random() * (max - min));
@@ -188,9 +189,31 @@ export function findCoinCollector(coin: Coin, players: Player[]) {
 export const playVideoAd = () => {
   const windowAny = window as any;
   return new Promise<void>((resolve, reject) => {
-    // checking if playing ad less than 2 minutes ago, gamemonetize exists and loaded
   if(Date.now() - windowAny?.lastVidAdTime > windowAny?.vidAdDelay) {
-    if(windowAny?.adProvider === 'gamemonetize' && typeof windowAny.sdk !== 'undefined' && windowAny.sdk.showBanner !== 'undefined') {
+    // CrazyGames SDK
+    if(windowAny?.adProvider === 'crazygames') {
+      console.log('Playing video ad from CrazyGames');
+
+      crazygamesSDK.requestAd('midgame', {
+        adStarted: () => {
+          console.log('[CrazyGames] Video ad started');
+          const event = new CustomEvent('crazyGamesAdStarted');
+          window.dispatchEvent(event);
+        },
+        adFinished: () => {
+          console.log('[CrazyGames] Video ad finished');
+          const event = new CustomEvent('crazyGamesAdFinished');
+          window.dispatchEvent(event);
+          resolve();
+        },
+        adError: (error) => {
+          console.log('[CrazyGames] Video ad error:', error);
+          const event = new CustomEvent('crazyGamesAdFinished');
+          window.dispatchEvent(event);
+          resolve();
+        }
+      });
+    } else if (windowAny?.adProvider === 'gamemonetize' && typeof windowAny.sdk !== 'undefined' && windowAny.sdk.showBanner !== 'undefined') {
     console.log('Playing video ad from gamemonetize');
     const sdk = windowAny.sdk;
     sdk?.showBanner();
@@ -319,4 +342,59 @@ export const playVideoAd = () => {
   resolve();
 }
 });
+}
+
+export const playRewardedAd = () => {
+  const windowAny = window as any;
+  return new Promise<{ success: boolean }>((resolve, reject) => {
+    if(windowAny?.adProvider === 'crazygames') {
+      console.log('Playing rewarded ad from CrazyGames');
+
+      crazygamesSDK.requestAd('rewarded', {
+        adStarted: () => {
+          console.log('[CrazyGames] Rewarded ad started');
+          const event = new CustomEvent('crazyGamesAdStarted');
+          window.dispatchEvent(event);
+        },
+        adFinished: () => {
+          console.log('[CrazyGames] Rewarded ad finished - user should receive reward');
+          const event = new CustomEvent('crazyGamesAdFinished');
+          window.dispatchEvent(event);
+          resolve({ success: true });
+        },
+        adError: (error) => {
+          console.log('[CrazyGames] Rewarded ad error:', error);
+          const event = new CustomEvent('crazyGamesAdFinished');
+          window.dispatchEvent(event);
+
+          // Don't give reward if ad failed
+          resolve({ success: false });
+        }
+      });
+    } else {
+      console.log('Rewarded ads not supported for provider:', windowAny?.adProvider);
+      resolve({ success: false });
+    }
+  });
+}
+
+export async function generateInviteLink(params?: InviteParams): Promise<string | null> {
+  try {
+    const defaultParams: InviteParams = {
+      timestamp: Date.now(),
+      ...params
+    };
+
+    const result = await crazygamesSDK.getInviteLink(defaultParams);
+
+    if (result && result.inviteUrl) {
+      console.log('[Invite] Generated invite link:', result.inviteUrl);
+      return result.inviteUrl;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('[Invite] Error generating invite link:', error);
+    return null;
+  }
 }

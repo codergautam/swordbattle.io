@@ -7,6 +7,7 @@ import BuffsSelect from './BuffsSelect';
 import Chat from './Chat';
 import MobileControls from './MobileControls';
 import CoinCounter from './CoinCounter';
+import { crazygamesSDK } from '../../crazygames/sdk';
 
 class HUD {
   game: Game;
@@ -39,6 +40,23 @@ class HUD {
   initialize() {
     this.scene = this.game.scene.add('HUD', {}, true) as Phaser.Scene;
     this.components.forEach(component => component.initialize());
+
+    this.applyCrazyGamesSettings();
+  }
+
+  applyCrazyGamesSettings() {
+    try {
+      const settings = crazygamesSDK.getSettings();
+
+      if (settings.disableChat) {
+        console.log('[HUD] Disabling chat per CrazyGames settings');
+        this.chat.disable();
+      } else {
+        console.log('[HUD] Chat enabled');
+      }
+    } catch (error) {
+      console.error('[HUD] Error applying CrazyGames settings:', error);
+    }
   }
 
   add(container: any) {

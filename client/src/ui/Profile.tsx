@@ -8,6 +8,8 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import './Profile.scss';
 import cosmetics from '../game/cosmetics.json';
 import clsx from 'clsx';
+import Ad from './Ad';
+import { crazygamesSDK } from '../crazygames/sdk';
 interface Stats {
   date: string;
   xp: number;
@@ -52,6 +54,7 @@ export default function Profile() {
   const [isLoading, setLoading] = useState(true);
   const [gameSort, setGameSort] = useState<'coins' | 'kills' | 'playtime'>('coins');
   const [games, setGames] = useState<any[]>([]);
+  const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
   useEffect(() => {
     let endpoint = '';
@@ -90,6 +93,14 @@ export default function Profile() {
   }, [data?.account, gameSort]);
 
   const sortedGames = [...(games || [])].sort((a, b) => b[gameSort] - a[gameSort]).slice(0, 5);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const currentProfileId = data?.account?.profiles?.equipped ?? 1;
@@ -215,19 +226,21 @@ export default function Profile() {
           </div>
         )}
         <br />
-        <div className='smallcluster'>
-          <center>
-            <br />
-            {data.account.bio === ".ban" ? (
-              <h4 className="graystat">Bio has been removed for violating rules.</h4>
-            ) : data.account.bio ? (
-              <h4 className="stat">"{data.account.bio}"</h4>
-            ) : (
-              <h4 className="graystat">No bio set.</h4>
-            )}
-            <br />
-          </center>
-        </div>
+        {!crazygamesSDK.getSettings().disableChat && (
+          <div className='smallcluster'>
+            <center>
+              <br />
+              {data.account.bio === ".ban" ? (
+                <h4 className="graystat">Bio has been removed for violating rules.</h4>
+              ) : data.account.bio ? (
+                <h4 className="stat">"{data.account.bio}"</h4>
+              ) : (
+                <h4 className="graystat">No bio set.</h4>
+              )}
+              <br />
+            </center>
+          </div>
+        )}
         <br />
         <div className='cluster'>
           <center>
@@ -383,6 +396,21 @@ export default function Profile() {
           }
           </>
         )}
+        </div>
+
+        <div style={{
+          marginTop: '40px',
+          marginBottom: '20px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <Ad
+            screenW={dimensions.width}
+            screenH={dimensions.height}
+            types={[[728, 90]]}
+            horizThresh={0.15}
+          />
         </div>
       </div>
     </section>

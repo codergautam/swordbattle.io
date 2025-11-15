@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import CountUp from 'react-countup';
 import { useScale } from '../Scale';
 
@@ -6,8 +7,80 @@ import HomeImg from '../../assets/img/home.png';
 import './GameResults.scss';
 import { DisconnectTypes } from '../../game/Types';
 import { calculateGemsXP, playVideoAd } from '../../helpers';
+import { crazygamesSDK } from '../../crazygames/sdk';
+
+// Smarter video ad logic to prevent spammed ads
+const DEATHS_BETWEEN_ADS = 1;
+const MIN_TIME_BETWEEN_ADS_MS = 1000 * 60 * 1;
+
+function shouldShowVideoAd(): boolean {
+  const windowAny = window as any;
+  const adProvider = windowAny?.adProvider || 'adinplay';
+
+  // Only show video ads for CrazyGames
+  if (adProvider !== 'crazygames') {
+    return false;
+  }
+
+  try {
+    // Get death count
+    const deathCount = parseInt(localStorage.getItem('deathCountForAds') || '0');
+    const newDeathCount = deathCount + 1;
+    localStorage.setItem('deathCountForAds', newDeathCount.toString());
+
+    // Get last ad time
+    const lastAdTime = parseInt(localStorage.getItem('lastDeathAdTime') || '0');
+    const timeSinceLastAd = Date.now() - lastAdTime;
+
+    // Show ad if applicable
+    if (newDeathCount >= DEATHS_BETWEEN_ADS && timeSinceLastAd > MIN_TIME_BETWEEN_ADS_MS) {
+      // Reset counter and update last ad time
+      localStorage.setItem('deathCountForAds', '0');
+      localStorage.setItem('lastDeathAdTime', Date.now().toString());
+      return true;
+    }
+
+    return false;
+  } catch (e) {
+    console.error('Error in shouldShowVideoAd:', e);
+    return false;
+  }
+}
 
 function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
+  useEffect(() => {
+    if (shouldShowVideoAd()) {
+      console.log('[GameResults] Showing video ad after death');
+      playVideoAd().then(() => {
+        console.log('[GameResults] Video ad completed or skipped');
+      });
+    } else {
+      console.log('[GameResults] Skipping video ad this time');
+    }
+  }, []);
+
+  // Trigger happy time for good games
+  useEffect(() => {
+    try {
+      const coins = results?.coins || 0;
+      const kills = results?.kills || 0;
+      const survivalTime = results?.survivalTime || 0;
+
+      if (coins >= 1000000) {
+        console.log('[CrazyGames] Happy time! 1M+ coins achieved!');
+        crazygamesSDK.happytime();
+      } else if (kills >= 200) {
+        console.log('[CrazyGames] Happy time! 200+ kills achieved!');
+        crazygamesSDK.happytime();
+            } else if (survivalTime >= 3600) { // 1 hour
+        console.log('[CrazyGames] Happy time! Survived 1+ hours!');
+        crazygamesSDK.happytime();
+      }
+    } catch (error) {
+      console.error('[CrazyGames] Error triggering happy time:', error);
+    }
+  }, [results]);
+
   const onHomeClick = () => {
 
     function go() {

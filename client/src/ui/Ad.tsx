@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { config } from "../config";
+import { crazygamesSDK } from "../crazygames/sdk";
 
 const AD_REFRESH_MS = 30000; // refresh ad every 30 seconds
+const CRAZYGAMES_AD_REFRESH_MS = 60000; // CrazyGames requires minimum 60 seconds between refreshes
 const debug = config.isDev;
 
 function findAdType(screenW: number, screenH: number, types: [number, number][], horizThresh: number): number {
@@ -27,7 +29,37 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
 
   useEffect(() => {
     const windowAny = window as any;
-    // clear ads
+    const adProvider = windowAny.adProvider || 'adinplay';
+
+    // CrazyGames banner ads
+    if (adProvider === 'crazygames') {
+      if (type === -1) return;
+
+      const containerId = `swordbattle-io_${types[type][0]}x${types[type][1]}`;
+
+      const displayCrazyGamesBanner = async () => {
+        try {
+          await crazygamesSDK.requestResponsiveBanner(containerId);
+          console.log(`[CrazyGames] Banner requested: ${containerId}`);
+        } catch (error) {
+          console.error('[CrazyGames] Error requesting banner:', error);
+        }
+      };
+
+      displayCrazyGamesBanner();
+
+      // Refresh banner every 60 seconds
+      const timerId = setInterval(() => {
+        displayCrazyGamesBanner();
+      }, CRAZYGAMES_AD_REFRESH_MS);
+
+      return () => {
+        clearInterval(timerId);
+        crazygamesSDK.clearBanner(containerId);
+      };
+    }
+
+    // other ad provider logic
     const displayNewAd = () => {
     try {
     if(windowAny.aipDisplayTag && windowAny.aipDisplayTag.clear) {
@@ -52,7 +84,7 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
     }, AD_REFRESH_MS);
     displayNewAd();
     return () => clearInterval(timerId);
-  }, [type]);
+  }, [type, types]);
 
 
   if(type === -1) return null;

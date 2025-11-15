@@ -5,6 +5,7 @@ import Leaderboard from './Leaderboard';
 import GameResults from './GameResults';
 import './GameComponent.scss';
 import Ad from '../Ad';
+import { crazygamesSDK } from '../../crazygames/sdk';
 
 declare global {
   interface Window {
@@ -30,12 +31,18 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
       game.events.on('setGameResults', (results: any) => {
         setGameResults(results);
         setPlaying(false);
+        // Signal that gameplay has stopped
+        crazygamesSDK.gameplayStop();
       });
       game.events.on('restartGame', (name: string) => {
         setPlaying(true);
+        // Signal that gameplay has started (restart)
+        crazygamesSDK.gameplayStart();
       });
       game.events.on('startGame', (name: string) => {
         setPlaying(true);
+        // Signal that gameplay has started
+        crazygamesSDK.gameplayStart();
       });
     }
   }, []);

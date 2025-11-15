@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { numberWithCommas, secondsToTime, sinceFrom } from '../helpers';
 import api from '../api';
+import Ad from './Ad';
 
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './GlobalLeaderboard.scss';
@@ -157,6 +158,16 @@ export function GlobalLeaderboard() {
     
     return topGames;
   })() : data;
+
+  const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <section className="main-content">
@@ -362,6 +373,21 @@ export function GlobalLeaderboard() {
             })}
           </tbody>
         </table>
+
+        <div style={{
+          marginTop: '40px',
+          marginBottom: '20px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <Ad
+            screenW={dimensions.width}
+            screenH={dimensions.height}
+            types={[[728, 90]]}
+            horizThresh={0.15}
+          />
+        </div>
       </div>
 
     </section>

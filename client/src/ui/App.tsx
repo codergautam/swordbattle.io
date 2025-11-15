@@ -42,6 +42,8 @@ import ChangelogCard from './ChangelogCard';
 // import Game from '../game/scenes/Game';
 import titleImg from '../assets/img/final.png';
 import Leaderboard from './game/Leaderboard';
+import { crazygamesSDK } from '../crazygames/sdk';
+import { initializeDataStorage } from '../crazygames/dataStorage';
 
 import * as cosmetics from '../game/cosmetics.json'
 
@@ -355,6 +357,99 @@ function App() {
   useEffect(() => {
     console.log('Getting server list');
     getServerList().then(setServers);
+
+    // Check for CrazyGames instant multiplayer or invite params
+    try {
+      const roomId = crazygamesSDK.getInviteParam('roomId');
+      const region = crazygamesSDK.getInviteParam('region');
+
+      if (roomId) {
+        console.log('[CrazyGames] Joining via invite link - Room ID:', roomId);
+        if (region) {
+          console.log('[CrazyGames] Setting region from invite:', region);
+        }
+      }
+
+      // Check for instant multiplayer mode
+      if (crazygamesSDK.isInstantMultiplayer()) {
+        console.log('[CrazyGames] Instant multiplayer mode enabled');
+        // For swordbattle this just means join game immediately
+      }
+    } catch (error) {
+      console.error('[CrazyGames] Error checking multiplayer settings:', error);
+    }
+
+    // Automatic CrazyGames login
+    const attemptCrazygamesLogin = async () => {
+      try {
+        // Only attempt login if on CrazyGames and no existing account
+        if (!crazygamesSDK.shouldUseSDK() || !crazygamesSDK.isUserAccountAvailable()) {
+          console.log('[CrazyGames] SDK not available or user accounts not supported');
+          return;
+        }
+
+        // Check if already logged in
+        const existingSecret = window.localStorage.getItem('secret');
+        if (existingSecret) {
+          console.log('[CrazyGames] Already logged in with existing account');
+          return;
+        }
+
+        console.log('[CrazyGames] Attempting automatic login');
+
+        const user = await crazygamesSDK.getUser();
+        if (!user) {
+          console.log('[CrazyGames] No user logged in');
+          return;
+        }
+
+        const token = await crazygamesSDK.getUserToken();
+        if (!token) {
+          console.error('[CrazyGames] Failed to get user token');
+          return;
+        }
+
+        console.log('[CrazyGames] User found:', user.username);
+
+        // Call backend to create/login account
+        api.post(`${api.endpoint}/auth/crazygames/login`, {
+          token,
+          userId: user.userId,
+          username: user.username,
+        }, (data: any) => {
+          if (data.error) {
+            console.error('[CrazyGames] Login failed:', data.error);
+            return;
+          }
+
+          if (data.account && data.secret) {
+            console.log('[CrazyGames] Login successful');
+
+            // Store the secret
+            try {
+              window.localStorage.setItem('secret', data.secret);
+            } catch (e) {
+              console.error('[CrazyGames] Error storing secret:', e);
+            }
+
+            // Set the account in Redux
+            dispatch(setAccount(data.account));
+
+            initializeDataStorage().then(() => {
+              console.log('[CrazyGames] Data storage re-initialized after login');
+            }).catch(error => {
+              console.error('[CrazyGames] Error re-initializing data storage:', error);
+            });
+          }
+        });
+      } catch (error) {
+        console.error('[CrazyGames] Auto-login error:', error);
+      }
+    };
+
+    setTimeout(() => {
+      attemptCrazygamesLogin();
+    }, 500);
   }, []);
 
   useEffect(() => {
@@ -633,11 +728,13 @@ function App() {
                      <FontAwesomeIcon icon={faICursor} /> Change Name
                    </a>
                     </li>
-                    <li>
-                   <a className="dropdown-item" href="#" onClick={onChangeBio}>
-                     <FontAwesomeIcon icon={faICursor} /> Change Bio
-                   </a>
-                   </li>
+                    {!crazygamesSDK.getSettings().disableChat && (
+                      <li>
+                        <a className="dropdown-item" href="#" onClick={onChangeBio}>
+                          <FontAwesomeIcon icon={faICursor} /> Change Bio
+                        </a>
+                      </li>
+                    )}
                     <li>
                    <a className="dropdown-item" href="#" onClick={onChangeClan}>
                      <FontAwesomeIcon icon={faICursor} /> Change Clan
@@ -648,9 +745,11 @@ function App() {
                      <FontAwesomeIcon icon={faX} /> Remove Clan
                    </a>
                    </li>
-                   <li><a className="dropdown-item" href="#" onClick={onLogout}>
-                     <FontAwesomeIcon icon={faSignOut} /> Logout
-                   </a></li>
+                   {!account.isCrazygames && (
+                     <li><a className="dropdown-item" href="#" onClick={onLogout}>
+                       <FontAwesomeIcon icon={faSignOut} /> Logout
+                     </a></li>
+                   )}
                  </ul>
                </div>
              ) : (

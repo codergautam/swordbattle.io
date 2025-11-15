@@ -16,6 +16,8 @@ export type AccountState = {
   profiles: { equipped: number; owned: number[] };
   bio: string;
   tags: { tags: string[]; colors: string[] };
+  isCrazygames: boolean;
+  crazygamesUserId?: string;
 }
 
 const initialState: AccountState = {
@@ -33,6 +35,8 @@ const initialState: AccountState = {
   profiles: { equipped: 1, owned: [1] },
   bio: '',
   tags: { tags: [], colors: [] },
+  isCrazygames: false,
+  crazygamesUserId: undefined,
 };
 
 // Async Thunks
@@ -166,6 +170,8 @@ const accountSlice = createSlice({
       state.profiles = { equipped: 1, owned: [1] };
       state.bio = '';
       state.tags = { tags: [], colors: [] };
+      state.isCrazygames = false;
+      state.crazygamesUserId = undefined;
     },
     setAccount: (state, action) => {
       state.email = action.payload.email;
@@ -183,6 +189,8 @@ const accountSlice = createSlice({
       state.profiles = action.payload.profiles;
       state.bio = action.payload.bio;
       state.tags = action.payload.tags;
+      state.isCrazygames = action.payload.isCrazygames || false;
+      state.crazygamesUserId = action.payload.crazygamesUserId;
       if (previousToken !== state.secret) {
         console.log('Token updated');
         window.phaser_game?.events.emit('tokenUpdate', state.secret);

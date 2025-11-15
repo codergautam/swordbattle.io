@@ -7,6 +7,9 @@ import Profile from './ui/Profile';
 import { store } from './redux/store';
 import { config } from './config';
 import { load } from 'recaptcha-v3'
+import { crazygamesSDK } from './crazygames/sdk';
+import { detectAdblock } from './crazygames/adblock';
+import { initializeDataStorage } from './crazygames/dataStorage';
 
 import './global.scss';
 
@@ -42,6 +45,21 @@ load(config.recaptchaClientKey).then((recaptcha) => {
   (window as any).recaptcha = recaptcha as  any;
 });
 }
+
+// Initialize CrazyGames SDK
+crazygamesSDK.init().then(async () => {
+  console.log('CrazyGames SDK ready');
+  if(debugMode) alert('CrazyGames SDK loaded');
+
+  (window as any).crazygamesSDK = crazygamesSDK;
+
+  await detectAdblock();
+
+  await initializeDataStorage();
+  console.log('CrazyGames data storage initialized');
+}).catch((error) => {
+  console.log('CrazyGames SDK not available:', error);
+});
 
 // check if have queryparam called instantStart=true
 // if so, start the game instantly

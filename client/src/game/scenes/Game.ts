@@ -9,6 +9,7 @@ import { BaseEntity } from '../entities/BaseEntity';
 import { Settings } from '../Settings';
 import { config } from '../../config';
 import { Controls } from '../Controls';
+import { crazygamesSDK } from '../../crazygames/sdk';
 import * as cosmetics from '../cosmetics.json';
 const {skins} = cosmetics;
 
@@ -41,6 +42,9 @@ export default class Game extends Phaser.Scene {
   }
 
   preload() {
+    // Signal that asset loading has started
+    crazygamesSDK.loadingStart();
+
     this.load.image('fireTile', publicPath + '/assets/game/tiles/fire.jpg');
     this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice.png');
@@ -154,6 +158,9 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
+    // Signal that asset loading has finished
+    crazygamesSDK.loadingStop();
+
     this.cameras.main.setBackgroundColor('#006400');
 
     this.soundManager.initialize();
@@ -171,6 +178,21 @@ export default class Game extends Phaser.Scene {
       } else { // Landscape
         // this.scale.startFullscreen();
       }
+    });
+
+    // CrazyGames ad pause/mute handling
+    let previousVolume = this.soundManager.volume;
+    window.addEventListener('crazyGamesAdStarted', () => {
+      console.log('[Game] Ad started - pausing and muting game');
+      previousVolume = this.soundManager.volume;
+      this.soundManager.setVolume(0); // Mute audio
+      this.scene.pause(); // Pause game
+    });
+
+    window.addEventListener('crazyGamesAdFinished', () => {
+      console.log('[Game] Ad finished - resuming and unmuting game');
+      this.soundManager.setVolume(previousVolume); // Restore audio
+      this.scene.resume(); // Resume game
     });
   }
 

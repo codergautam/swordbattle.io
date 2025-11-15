@@ -49,6 +49,18 @@ export class AuthController {
     return data;
   }
 
+  @Post('crazygames/login')
+  async crazygamesLogin(@Body() body: { token: string; userId: string; username: string }) {
+    const { token, userId, username } = body;
+
+    if (!token || !userId || !username) {
+      throw new UnauthorizedException('Missing required fields');
+    }
+
+    const data = await this.authService.crazygamesLogin(token, userId, username);
+    return data;
+  }
+
   @Get('account')
   async account(@Req() req) {
     throw new Error('DEPRECATED');

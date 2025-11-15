@@ -45,31 +45,35 @@
     gtag('config', 'G-35EKK5X5R4');
   </script>
 
-  <!-- Ads -->
+  <!-- CrazyGames SDK -->
+  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
+
+    <!-- Ads -->
 
   <script async
   data-ad-frequency-hint="30s"
   src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3340825671684972"
   crossorigin="anonymous">
-</script>
-<script>
- window.adsbygoogle = window.adsbygoogle || [];
- var adBreak = adConfig = function(o) {adsbygoogle.push(o);}
- adConfig({preloadAdBreaks: 'on'});
- window.adBreak =adBreak;
-</script>
+  </script>
+  <script>
+    window.adsbygoogle = window.adsbygoogle || [];
+    var adBreak = adConfig = function(o) {adsbygoogle.push(o);}
+    adConfig({preloadAdBreaks: 'on'});
+    window.adBreak =adBreak;
+  </script>
 
   <script>
     const vidAdDelay = {
       adinplay: 1000 * 60 * 5, // 5 minutes
       gamemonetize: 1000 * 60 * 2, // 2 minutes
-      gamepix: 0 // gamepix has its own logic it seems
+      gamepix: 0, // gamepix has its own logic it seems
+      crazygames: 0 // Crazygames handles timing automatically
     };
 
     function checkAdProvider() {
       let adProvider = '<%= htmlWebpackPlugin.options.adProvider %>' || "adinplay";
       // get query string in url check if other ad provider is set
-      const validAdProviders = ["adinplay", "gamemonetize", "gamepix"];
+      const validAdProviders = ["adinplay", "gamemonetize", "gamepix", "crazygames"];
       const urlParams = new URLSearchParams(window.location.search);
       const adProviderParam = urlParams.get("adprovider");
       if (adProviderParam && validAdProviders.includes(adProviderParam)) {

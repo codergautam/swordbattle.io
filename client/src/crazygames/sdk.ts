@@ -282,11 +282,15 @@ class CrazyGamesSDK {
   }
 
   /* Set the invite mode to enable/disable invite functionality */
-  setInviteMode(mode: 'playing' | 'disabled'): void {
+  setInviteMode(mode: 'playing' | 'disabled', params?: { roomId?: string }): void {
     if (!this.shouldUseSDK() || !this.initialized) return;
 
     try {
-      (window.CrazyGames.SDK.game as any).setInviteMode(mode);
+      if (mode === 'playing') {
+        this.showInviteButton(params || {});
+      } else {
+        this.hideInviteButton();
+      }
       console.log('[CrazyGames] Invite mode set to:', mode);
     } catch (error) {
       console.error('Error setting invite mode:', error);

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, Res, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Res, Req, UnauthorizedException } from '@nestjs/common';
 import { Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { RegisterDTO, LoginDTO, SecretLoginDTO } from './auth.dto';

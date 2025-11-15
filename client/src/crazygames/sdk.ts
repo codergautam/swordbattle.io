@@ -281,6 +281,18 @@ class CrazyGamesSDK {
     }
   }
 
+  /* Set the invite mode to enable/disable invite functionality */
+  setInviteMode(mode: 'playing' | 'disabled'): void {
+    if (!this.shouldUseSDK() || !this.initialized) return;
+
+    try {
+      (window.CrazyGames.SDK.game as any).setInviteMode(mode);
+      console.log('[CrazyGames] Invite mode set to:', mode);
+    } catch (error) {
+      console.error('Error setting invite mode:', error);
+    }
+  }
+
   /* Get an invite link for multiplayer */
   async getInviteLink(params: InviteParams): Promise<InviteLink | null> {
     if (!this.shouldUseSDK() || !this.initialized) {

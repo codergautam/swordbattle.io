@@ -754,8 +754,12 @@ function App() {
                </div>
              ) : (
                <>
-               <img src={LoginImg} alt="Login" role="button" className="auth-btn" onClick={onLogin} />
-               <img src={SignupImg} alt="Signup" role="button" className="auth-btn" onClick={onSignup} />
+               {!crazygamesSDK.shouldUseSDK() && (
+                 <>
+                   <img src={LoginImg} alt="Login" role="button" className="auth-btn" onClick={onLogin} />
+                   <img src={SignupImg} alt="Signup" role="button" className="auth-btn" onClick={onSignup} />
+                 </>
+               )}
                </>
              )}
            </div>

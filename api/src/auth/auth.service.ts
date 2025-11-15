@@ -69,10 +69,20 @@ export class AuthService {
 
   async crazygamesLogin(token: string, crazygamesUserId: string, username: string) {
     try {
+      console.log('[CrazyGames Auth] Starting login for user:', crazygamesUserId, 'username:', username);
       const verified = await this.verifyCrazygamesToken(token);
-      if (!verified || verified.userId !== crazygamesUserId) {
-        throw new UnauthorizedException('Invalid CrazyGames token');
+
+      if (!verified) {
+        console.error('[CrazyGames Auth] Token verification returned null');
+        throw new UnauthorizedException('Token verification failed');
       }
+
+      if (verified.userId !== crazygamesUserId) {
+        console.error('[CrazyGames Auth] User ID mismatch:', verified.userId, '!==', crazygamesUserId);
+        throw new UnauthorizedException('User ID mismatch');
+      }
+
+      console.log('[CrazyGames Auth] Token verified successfully for user:', verified.userId);
 
       // Check if account with this CrazyGames user ID already exists
       let account = await this.accountsService.findOne({
@@ -104,7 +114,11 @@ export class AuthService {
       return { account: this.accountsService.sanitizeAccount(newAccount), secret };
     } catch (error) {
       console.error('[CrazyGames Auth] Error:', error);
-      throw new UnauthorizedException('CrazyGames authentication failed');
+      // Re-throw the error as-is to preserve the original error message
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new UnauthorizedException('CrazyGames authentication failed: ' + error.message);
     }
   }
 

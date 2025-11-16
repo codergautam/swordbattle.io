@@ -433,30 +433,53 @@ function App() {
           return;
         }
 
-        // Call backend to create/login account
+        console.log('[CrazyGames] Sending login request to backend...');
+
         api.post(`${api.endpoint}/auth/crazygames/login`, {
           token,
           userId,
           username: user.username,
         }, (data: any) => {
+          console.log('[CrazyGames] ===== CALLBACK EXECUTED =====');
+          console.log('[CrazyGames] Raw response data:', JSON.stringify(data));
+          console.log('[CrazyGames] data.error:', data.error);
+          console.log('[CrazyGames] data.message:', data.message);
+          console.log('[CrazyGames] data.account:', data.account);
+          console.log('[CrazyGames] data.secret:', data.secret);
+
           if (data.error) {
-            console.error('[CrazyGames] Login failed:', data.error);
+            console.error('[CrazyGames] Login failed with error:', data.error);
+            return;
+          }
+
+          if (data.message) {
+            console.error('[CrazyGames] Login failed with message:', data.message);
             return;
           }
 
           console.log('[CrazyGames] Received login response:', { hasAccount: !!data.account, hasSecret: !!data.secret, secretValue: data.secret });
 
           if (data.account && data.secret) {
-            console.log('[CrazyGames] Login successful');
+            console.log('[CrazyGames] Login successful - setting account data');
+            console.log('[CrazyGames] Account username:', data.account.username);
+            console.log('[CrazyGames] CrazyGames User ID:', data.account.crazygamesUserId);
+            console.log('[CrazyGames] Secret to be set:', data.secret);
 
             data.account.secret = data.secret;
+
+            console.log('[CrazyGames] Dispatching setAccount with secret:', data.account.secret);
             dispatch(setAccount(data.account));
+            console.log('[CrazyGames] setAccount dispatched');
 
             initializeDataStorage().then(() => {
               console.log('[CrazyGames] Data storage re-initialized after login');
             }).catch(error => {
               console.error('[CrazyGames] Error re-initializing data storage:', error);
             });
+          } else {
+            console.error('[CrazyGames] Missing account or secret in response');
+            console.error('[CrazyGames] hasAccount:', !!data.account);
+            console.error('[CrazyGames] hasSecret:', !!data.secret);
           }
         });
       } catch (error) {
@@ -479,6 +502,18 @@ function App() {
     });
   }
 }, [account?.clan]);
+
+  useEffect(() => {
+    console.log('[DEBUG] Account state changed:', {
+      hasAccount: !!account,
+      username: account?.username,
+      hasSecret: !!account?.secret,
+      secretValue: account?.secret,
+      isCrazygames: account?.isCrazygames,
+      crazygamesUserId: account?.crazygamesUserId,
+      isLoggedIn: account?.isLoggedIn
+    });
+  }, [account]);
 
   const onStart = () => {
     console.log('Starting game');

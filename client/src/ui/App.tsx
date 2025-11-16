@@ -286,7 +286,14 @@ function App() {
       } catch(e) {
         console.log('Error getting secret', e);
       }
-    if(!secret) {
+    if(!secret || secret === 'undefined' || secret === 'null') {
+      if(secret === 'undefined' || secret === 'null') {
+        try {
+          window.localStorage.removeItem('secret');
+        } catch(e) {
+          console.log('Error removing bad secret', e);
+        }
+      }
       dispatch(clearAccount());
       setAccountReady(true);
     } else {
@@ -388,9 +395,8 @@ function App() {
           return;
         }
 
-        // Check if already logged in
         const existingSecret = window.localStorage.getItem('secret');
-        if (existingSecret) {
+        if (existingSecret && existingSecret !== 'undefined' && existingSecret !== 'null') {
           console.log('[CrazyGames] Already logged in with existing account');
           return;
         }

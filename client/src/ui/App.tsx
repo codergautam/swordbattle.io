@@ -411,10 +411,26 @@ function App() {
 
         console.log('[CrazyGames] User found:', user.username);
 
+        // Decode JWT to get userId (since SDK doesn't return it in user object)
+        let userId: string;
+        try {
+          const tokenParts = token.split('.');
+          if (tokenParts.length !== 3) {
+            console.error('[CrazyGames] Invalid token format');
+            return;
+          }
+          const payload = JSON.parse(atob(tokenParts[1]));
+          userId = payload.userId;
+          console.log('[CrazyGames] Decoded userId from token:', userId);
+        } catch (error) {
+          console.error('[CrazyGames] Failed to decode token:', error);
+          return;
+        }
+
         // Call backend to create/login account
         api.post(`${api.endpoint}/auth/crazygames/login`, {
           token,
-          userId: user.userId,
+          userId,
           username: user.username,
         }, (data: any) => {
           if (data.error) {

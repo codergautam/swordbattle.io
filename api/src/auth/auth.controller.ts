@@ -63,6 +63,12 @@ export class AuthController {
 
     console.log('[AUTH CONTROLLER] Calling authService.crazygamesLogin...');
     const data = await this.authService.crazygamesLogin(token, userId, username);
+    console.log('[AUTH CONTROLLER] Data from service:', JSON.stringify({
+      hasAccount: !!data.account,
+      hasSecret: !!data.secret,
+      secretValue: data.secret,
+      accountUsername: data.account?.username
+    }));
     console.log('[AUTH CONTROLLER] Login successful, returning data');
     return data;
   }

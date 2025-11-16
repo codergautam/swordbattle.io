@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AccountsService } from '../accounts/accounts.service';
 import { SecretLoginDTO, LoginDTO, RegisterDTO } from './auth.dto';
 import { Account } from 'src/accounts/account.entity';
+import { AuthResponseDTO } from './auth-response.dto';
 import validateUsername from 'src/helpers/validateUsername';
 import validateClantag from 'src/helpers/validateClantag';
 import { v4 as uuidv4 } from 'uuid';
@@ -90,7 +91,11 @@ export class AuthService {
       });
 
       if (account) {
-        return { account: this.accountsService.sanitizeAccount(account), secret: account.secret };
+        const response = new AuthResponseDTO(
+          this.accountsService.sanitizeAccount(account),
+          account.secret
+        );
+        return response;
       }
 
       // Account doesn't exist, create a new one
@@ -104,14 +109,18 @@ export class AuthService {
       const secret = uuidv4();
       const newAccount = await this.accountsService.create({
         username: finalUsername,
-        password: crypto.randomBytes(32).toString('hex'), // Random password (won't be used)
+        password: crypto.randomBytes(32).toString('hex'),
         email: '',
         secret,
         isCrazygames: true,
         crazygamesUserId,
       });
 
-      return { account: this.accountsService.sanitizeAccount(newAccount), secret };
+      const response = new AuthResponseDTO(
+        this.accountsService.sanitizeAccount(newAccount),
+        secret
+      );
+      return response;
     } catch (error) {
       console.error('[CrazyGames Auth] Error:', error);
       // Re-throw the error as-is to preserve the original error message

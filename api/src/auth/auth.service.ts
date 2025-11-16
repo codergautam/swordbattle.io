@@ -2,7 +2,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AccountsService } from '../accounts/accounts.service';
 import { SecretLoginDTO, LoginDTO, RegisterDTO } from './auth.dto';
 import { Account } from 'src/accounts/account.entity';
-import { AuthResponseDTO } from './auth-response.dto';
 import validateUsername from 'src/helpers/validateUsername';
 import validateClantag from 'src/helpers/validateClantag';
 import { v4 as uuidv4 } from 'uuid';
@@ -91,11 +90,17 @@ export class AuthService {
       });
 
       if (account) {
-        const response = new AuthResponseDTO(
-          this.accountsService.sanitizeAccount(account),
-          account.secret
-        );
-        return response;
+        // IMPORTANT: Save the secret BEFORE sanitizing the account
+        const secret = account.secret;
+        console.log('[CrazyGames Auth] Found existing account, secret exists:', !!secret);
+
+        const sanitizedAccount = this.accountsService.sanitizeAccount(account);
+
+        // Return a plain object to ensure proper serialization
+        return {
+          account: sanitizedAccount,
+          secret: secret
+        };
       }
 
       // Account doesn't exist, create a new one
@@ -116,11 +121,15 @@ export class AuthService {
         crazygamesUserId,
       });
 
-      const response = new AuthResponseDTO(
-        this.accountsService.sanitizeAccount(newAccount),
-        secret
-      );
-      return response;
+      console.log('[CrazyGames Auth] Created new account with username:', finalUsername, 'secret exists:', !!secret);
+
+      const sanitizedAccount = this.accountsService.sanitizeAccount(newAccount);
+
+      // Return a plain object to ensure proper serialization
+      return {
+        account: sanitizedAccount,
+        secret: secret
+      };
     } catch (error) {
       console.error('[CrazyGames Auth] Error:', error);
       // Re-throw the error as-is to preserve the original error message

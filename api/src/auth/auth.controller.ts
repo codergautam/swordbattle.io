@@ -51,13 +51,19 @@ export class AuthController {
 
   @Post('crazygames/login')
   async crazygamesLogin(@Body() body: { token: string; userId: string; username: string }) {
+    console.log('[AUTH CONTROLLER] ===== CRAZYGAMES LOGIN ENDPOINT HIT =====');
+    console.log('[AUTH CONTROLLER] Request body:', JSON.stringify(body));
+
     const { token, userId, username } = body;
 
     if (!token || !userId || !username) {
+      console.error('[AUTH CONTROLLER] Missing required fields. token:', !!token, 'userId:', !!userId, 'username:', !!username);
       throw new UnauthorizedException('Missing required fields');
     }
 
+    console.log('[AUTH CONTROLLER] Calling authService.crazygamesLogin...');
     const data = await this.authService.crazygamesLogin(token, userId, username);
+    console.log('[AUTH CONTROLLER] Login successful, returning data');
     return data;
   }
 

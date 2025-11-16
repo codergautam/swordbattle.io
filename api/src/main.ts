@@ -27,5 +27,9 @@ async function bootstrap() {
 
   await app.listen(config.port);
   console.log(`Server is running on: ${await app.getUrl()}\nProduction mode ${config.isProduction ? 'enabled' : 'disabled'}`);
+  console.log('=====================================================');
+  console.log('SERVER STARTED - BUILD TIMESTAMP:', new Date().toISOString());
+  console.log('CrazyGames auth endpoint available at /auth/crazygames/login');
+  console.log('=====================================================');
 }
 bootstrap();

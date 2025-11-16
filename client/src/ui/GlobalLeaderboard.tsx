@@ -72,12 +72,65 @@ export function GlobalLeaderboard() {
   
   const fetchData = () => {
     const isGames = type === 'coins' || type === 'kills' || type === 'playtime';
+    const isAllTimeGames = isGames && range === 'all';
     const url = `${api.endpoint}/${isGames ? 'games' : 'stats'}/fetch`;
-    api.post(url, {
-      sortBy: type.startsWith('total') ? type.slice(6) : type,
-      timeRange: range,
-      limit: 100,
-    }, (data: any) => setData(!data.message ? data : []));
+
+    if (isAllTimeGames) {
+      const fetchBatch = (offset: number, accumulatedData: any[]) => {
+        api.post(url, {
+          sortBy: type.startsWith('total') ? type.slice(6) : type,
+          timeRange: range,
+          limit: 200,
+          offset: offset,
+        }, (batchData: any) => {
+          if (batchData.message || !Array.isArray(batchData) || batchData.length === 0) {
+            setData(accumulatedData);
+            return;
+          }
+
+          const allData = [...accumulatedData, ...batchData];
+
+          const gamesByAccount = new Map<string, any[]>();
+          allData.forEach((row) => {
+            const accountKey = row.username || row.accountId || 'unknown';
+            if (!gamesByAccount.has(accountKey)) {
+              gamesByAccount.set(accountKey, []);
+            }
+            gamesByAccount.get(accountKey)!.push(row);
+          });
+
+          const sortBy = type;
+          const sortFunc = (a: any, b: any) => {
+            if (sortBy === 'coins') return b.coins - a.coins;
+            if (sortBy === 'kills') return b.kills - a.kills;
+            if (sortBy === 'playtime') return b.playtime - a.playtime;
+            return 0;
+          };
+
+          const topGames: any[] = [];
+          gamesByAccount.forEach((games) => {
+            const sortedGames = [...games].sort(sortFunc);
+            topGames.push(...sortedGames.slice(0, 5));
+          });
+
+          topGames.sort(sortFunc);
+
+          if (topGames.length >= 100 || batchData.length < 200) {
+            setData(topGames.slice(0, 100));
+          } else {
+            fetchBatch(offset + 200, allData);
+          }
+        });
+      };
+
+      fetchBatch(0, []);
+    } else {
+      api.post(url, {
+        sortBy: type.startsWith('total') ? type.slice(6) : type,
+        timeRange: range,
+        limit: 100,
+      }, (data: any) => setData(!data.message ? data : []));
+    }
   };
   const changeType = (type: string) => {
     setData([]);
@@ -126,38 +179,10 @@ export function GlobalLeaderboard() {
     navigate(`/profile?username=${encodeURIComponent(username)}`);
   };
 
-  // Only show max 5 games per account
   const isGameLeaderboard = type === 'coins' || type === 'kills' || type === 'playtime';
   const isAllTimeGameLeaderboard = isGameLeaderboard && range === 'all';
-  
-  const filteredData = isAllTimeGameLeaderboard ? (() => {
-    const gamesByAccount = new Map<string, any[]>();
-    data.forEach((row) => {
-      const accountKey = row.username || row.accountId || 'unknown';
-      if (!gamesByAccount.has(accountKey)) {
-        gamesByAccount.set(accountKey, []);
-      }
-      gamesByAccount.get(accountKey)!.push(row);
-    });
-    
-    const sortBy = type;
-    const sortFunc = (a: any, b: any) => {
-      if (sortBy === 'coins') return b.coins - a.coins;
-      if (sortBy === 'kills') return b.kills - a.kills;
-      if (sortBy === 'playtime') return b.playtime - a.playtime;
-      return 0;
-    };
-    
-    const topGames: any[] = [];
-    gamesByAccount.forEach((games) => {
-      const sortedGames = [...games].sort(sortFunc);
-      topGames.push(...sortedGames.slice(0, 5));
-    });
-    
-    topGames.sort(sortFunc);
-    
-    return topGames;
-  })() : data;
+
+  const filteredData = data;
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 

@@ -11,6 +11,7 @@ function SettingsModal() {
   const [resolution, setResolution] = useState(Settings.resolution);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
   const [sound, setSound] = useState(Settings.sound);
+  const [disableChat, setDisableChat] = useState(Settings.coins);
   // const [server, setServer] = useState(Settings.server);
   // const [servers, setServers] = useState<any[]>([]);
 
@@ -46,6 +47,10 @@ function SettingsModal() {
     setSound(value);
     Settings.sound = value;
   }
+  const updateDisableChat = (value: any) => {
+    setDisableChat(value);
+    Settings.disableChat = value;
+  }
   // const updateServer = (value: any) => {
   //   setServer(value);
   //   Settings.server = value;
@@ -66,6 +71,16 @@ function SettingsModal() {
           <span className="slider round"></span>
         </label>
       </div>
+      {/* <div className="settings-line">
+        <label htmlFor="disableChat">Disable chat: </label>
+        <label className="switch">
+          <input type="checkbox" name="disableChat" id="disableChat"
+            checked={disableChat}
+            onChange={(e) => updateDisableChat(e.target.checked)}
+          />
+          <span className="slider round"></span>
+        </label>
+      </div> */}
     <br /><h3 className="section">Performance</h3>
       <div className="settings-line">
         <label htmlFor="useWebGL">Use WebGL (requires reload):</label>

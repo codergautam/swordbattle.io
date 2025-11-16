@@ -8,6 +8,7 @@ import Chat from './Chat';
 import MobileControls from './MobileControls';
 import CoinCounter from './CoinCounter';
 import { crazygamesSDK } from '../../crazygames/sdk';
+import { Settings } from '../Settings';
 
 class HUD {
   game: Game;
@@ -46,16 +47,17 @@ class HUD {
 
   applyCrazyGamesSettings() {
     try {
-      const settings = crazygamesSDK.getSettings();
+      const cgSettings = crazygamesSDK.getSettings();
 
-      if (settings.disableChat) {
-        console.log('[HUD] Disabling chat per CrazyGames settings');
+      // Check both CrazyGames settings and user's custom settings
+      if (cgSettings.disableChat || Settings.disableChat) {
+        console.log('[HUD] Disabling chat per settings');
         this.chat.disable();
       } else {
         console.log('[HUD] Chat enabled');
       }
     } catch (error) {
-      console.error('[HUD] Error applying CrazyGames settings:', error);
+      console.error('[HUD] Error applying settings:', error);
     }
   }
 

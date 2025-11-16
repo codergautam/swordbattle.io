@@ -599,6 +599,28 @@ span {
   transform: translate(-50%, -120%);
 }
 
+// Special handling for small desktop iframes (like CrazyGames)
+#menuCardHolder.small-iframe {
+  transform: translate(-50%, -25%) scale(0.75) !important;
+
+  .menu {
+    flex-direction: row !important;
+  }
+
+  #adBelow {
+    display: none;
+  }
+
+  .tipCard {
+    display: none !important;
+  }
+}
+
+// Scale down title image for small iframes
+body:has(#menuCardHolder.small-iframe) .title-img {
+  transform: translate(-50%, -100%) scale(0.75) !important;
+}
+
 @media only screen and (max-width: 1040px) {
   #menuCardHolder #adBelow {
     display: none;
@@ -606,15 +628,18 @@ span {
   .forumCard {
     display: none;
   }
-  #menuCardHolder .menu {
+
+  // Only apply stacking on non-landscape or mobile
+  #menuCardHolder:not(.small-iframe) .menu {
     flex-direction: column;
   }
-  #menuCardHolder .menu .menuCard {
+  #menuCardHolder:not(.small-iframe) .menu .menuCard {
     width: 85vw !important;
   }
-  #menuCardHolder .menu .joinCard {
+  #menuCardHolder:not(.small-iframe) .menu .joinCard {
     order: -1;
   }
+
   .tipCard {
     display: none !important;
   }

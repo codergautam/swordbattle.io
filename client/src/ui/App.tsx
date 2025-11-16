@@ -152,6 +152,19 @@ function App() {
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
+  // Detect if we're in a small desktop iframe (like CrazyGames)
+  const isSmallDesktopIframe = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const isLandscape = width > height;
+    const isSmall = width < 1040;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    return isSmall && isLandscape && !isMobile;
+  };
+
+  const [isSmallIframe, setIsSmallIframe] = useState(isSmallDesktopIframe());
+
   const messages = [
     "Tip: The Lumberjack's ability has multiple uses: finding chests, defending against enemies, and breaking chests faster!",
     "Tip: The Super Archer's ability cancels its current swordthrow and resets its throw cooldown, allowing you to throw twice!",
@@ -228,6 +241,7 @@ function App() {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         setDimensions({ width: window.innerWidth, height: window.innerHeight });
+        setIsSmallIframe(isSmallDesktopIframe());
       }, 100);
     };
     window.addEventListener('resize', onResize);
@@ -639,7 +653,7 @@ function App() {
 
             {/* <!-- LOADING TEXT --> */}
             {/* <!-- MENU CARDS --> */}
-            <div id="menuCardHolder" style={{ display: 'inline-block', height: 'auto !important', position: 'fixed',
+            <div id="menuCardHolder" className={isSmallIframe ? 'small-iframe' : ''} style={{ display: 'inline-block', height: 'auto !important', position: 'fixed',
     top: '-50%',
     left: '50%',
     transform: 'translate(-50%, -25%)' }} >
@@ -746,15 +760,17 @@ function App() {
           <a id="discordButton" className="altLink imgPanel" href="https://discord.com/invite/9A9dNTGWb9" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
             <img src={DiscordLogo} width={60} alt="Discord" />
           </a>
-          <div id="playlightButton" className="imgPanel" style={{ pointerEvents: 'auto' }} onClick={() => {
-              try {
-                (window as any)?.showPlaylight();
-              } catch (e) {
-                console.log('Error showing playlight', e);
-              }
-            }}>
-            More Games
-          </div>
+          {!crazygamesSDK.shouldUseSDK() && (
+            <div id="playlightButton" className="imgPanel" style={{ pointerEvents: 'auto' }} onClick={() => {
+                try {
+                  (window as any)?.showPlaylight();
+                } catch (e) {
+                  console.log('Error showing playlight', e);
+                }
+              }}>
+              More Games
+            </div>
+          )}
           </div>
           {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal'} />}
 
@@ -780,7 +796,7 @@ function App() {
                      <FontAwesomeIcon icon={faICursor} /> Change Name
                    </a>
                     </li>
-                    {!crazygamesSDK.getSettings().disableChat && (
+                    {!crazygamesSDK.getSettings().disableChat && !Settings.disableChat && (
                       <li>
                         <a className="dropdown-item" href="#" onClick={onChangeBio}>
                           <FontAwesomeIcon icon={faICursor} /> Change Bio

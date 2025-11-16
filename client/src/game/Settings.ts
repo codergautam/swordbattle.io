@@ -100,6 +100,16 @@ export const settingsList: Record<string, SettingType> = {
     name: 'Server',
     default: 'auto',
   },
+  // disableChat: {
+  //   name: 'Disable Chat',
+  //   type: 'toggle',
+  //   default: false,
+  //   onChange: () => {
+  //     if (isLoaded) {
+  //       window.location.reload();
+  //     }
+  //   },
+  // },
 };
 
 export const Settings: any = {};

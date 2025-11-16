@@ -75,62 +75,48 @@ export function GlobalLeaderboard() {
     const isAllTimeGames = isGames && range === 'all';
     const url = `${api.endpoint}/${isGames ? 'games' : 'stats'}/fetch`;
 
-    if (isAllTimeGames) {
-      const fetchBatch = (offset: number, accumulatedData: any[]) => {
-        api.post(url, {
-          sortBy: type.startsWith('total') ? type.slice(6) : type,
-          timeRange: range,
-          limit: 200,
-          offset: offset,
-        }, (batchData: any) => {
-          if (batchData.message || !Array.isArray(batchData) || batchData.length === 0) {
-            setData(accumulatedData);
-            return;
+    const limit = isAllTimeGames ? 500 : 100;
+
+    api.post(url, {
+      sortBy: type.startsWith('total') ? type.slice(6) : type,
+      timeRange: range,
+      limit: limit,
+    }, (data: any) => {
+      if (data.message || !Array.isArray(data)) {
+        setData([]);
+        return;
+      }
+
+      if (isAllTimeGames) {
+        const gamesByAccount = new Map<string, any[]>();
+        data.forEach((row) => {
+          const accountKey = row.username || row.accountId || 'unknown';
+          if (!gamesByAccount.has(accountKey)) {
+            gamesByAccount.set(accountKey, []);
           }
-
-          const allData = [...accumulatedData, ...batchData];
-
-          const gamesByAccount = new Map<string, any[]>();
-          allData.forEach((row) => {
-            const accountKey = row.username || row.accountId || 'unknown';
-            if (!gamesByAccount.has(accountKey)) {
-              gamesByAccount.set(accountKey, []);
-            }
-            gamesByAccount.get(accountKey)!.push(row);
-          });
-
-          const sortBy = type;
-          const sortFunc = (a: any, b: any) => {
-            if (sortBy === 'coins') return b.coins - a.coins;
-            if (sortBy === 'kills') return b.kills - a.kills;
-            if (sortBy === 'playtime') return b.playtime - a.playtime;
-            return 0;
-          };
-
-          const topGames: any[] = [];
-          gamesByAccount.forEach((games) => {
-            const sortedGames = [...games].sort(sortFunc);
-            topGames.push(...sortedGames.slice(0, 5));
-          });
-
-          topGames.sort(sortFunc);
-
-          if (topGames.length >= 100 || batchData.length < 200) {
-            setData(topGames.slice(0, 100));
-          } else {
-            fetchBatch(offset + 200, allData);
-          }
+          gamesByAccount.get(accountKey)!.push(row);
         });
-      };
 
-      fetchBatch(0, []);
-    } else {
-      api.post(url, {
-        sortBy: type.startsWith('total') ? type.slice(6) : type,
-        timeRange: range,
-        limit: 100,
-      }, (data: any) => setData(!data.message ? data : []));
-    }
+        const sortBy = type;
+        const sortFunc = (a: any, b: any) => {
+          if (sortBy === 'coins') return b.coins - a.coins;
+          if (sortBy === 'kills') return b.kills - a.kills;
+          if (sortBy === 'playtime') return b.playtime - a.playtime;
+          return 0;
+        };
+
+        const topGames: any[] = [];
+        gamesByAccount.forEach((games) => {
+          const sortedGames = [...games].sort(sortFunc);
+          topGames.push(...sortedGames.slice(0, 5));
+        });
+
+        topGames.sort(sortFunc);
+        setData(topGames.slice(0, 100));
+      } else {
+        setData(data);
+      }
+    });
   };
   const changeType = (type: string) => {
     setData([]);

@@ -22,8 +22,8 @@ export class GamesService {
 
   async fetch(fetchData: FetchGamesDTO & { accountId?: number }) {
     let { sortBy, timeRange, limit } = fetchData;
-    if (limit > 100) {
-      limit = 100;
+    if (limit > 1000) {
+      limit = 1000;
     }
     let where = {};
     const today = new Date();

@@ -379,6 +379,35 @@ function App() {
     console.log('Getting server list');
     getServerList().then(setServers);
 
+    // Check for CrazyGames instant multiplayer or invite params
+    let isInstantMultiplayerMode = false;
+    try {
+      const roomId = crazygamesSDK.getInviteParam('roomId');
+      const region = crazygamesSDK.getInviteParam('region');
+
+      if (roomId) {
+        console.log('[CrazyGames] Joining via invite link - Room ID:', roomId);
+        if (region) {
+          console.log('[CrazyGames] Setting region from invite:', region);
+        }
+        isInstantMultiplayerMode = true;
+      }
+
+      // Check for instant multiplayer mode
+      if (crazygamesSDK.isInstantMultiplayer()) {
+        console.log('[CrazyGames] Instant multiplayer mode enabled');
+        isInstantMultiplayerMode = true;
+      }
+
+      // Set instant start flag for loading screen
+      if (isInstantMultiplayerMode) {
+        (window as any).instantStart = true;
+        console.log('[CrazyGames] Instant multiplayer detected - setting instantStart flag');
+      }
+    } catch (error) {
+      console.error('[CrazyGames] Error checking multiplayer settings:', error);
+    }
+
     // Automatic CrazyGames login
     const attemptCrazygamesLogin = async () => {
       try {
@@ -388,19 +417,37 @@ function App() {
           return;
         }
 
+        console.log('[CrazyGames] Checking current user status...');
+
+        const user = await crazygamesSDK.getUser();
         const existingSecret = window.localStorage.getItem('secret');
-        if (existingSecret && existingSecret !== 'undefined' && existingSecret !== 'null') {
-          console.log('[CrazyGames] Already logged in with existing account');
+        const hasValidSecret = existingSecret && existingSecret !== 'undefined' && existingSecret !== 'null';
+
+        // If no CrazyGames user is logged in but we have a secret, clear it
+        if (!user && hasValidSecret) {
+          console.log('[CrazyGames] No CrazyGames user logged in but secret exists - clearing secret');
+          try {
+            window.localStorage.removeItem('secret');
+            dispatch(clearAccount());
+          } catch (e) {
+            console.error('[CrazyGames] Error clearing secret:', e);
+          }
           return;
         }
 
-        console.log('[CrazyGames] Attempting automatic login');
+        // If we already have a secret and user is logged in, we're done
+        if (hasValidSecret && user) {
+          console.log('[CrazyGames] Already logged in with existing account for user:', user.username);
+          return;
+        }
 
-        const user = await crazygamesSDK.getUser();
+        // If no user is logged in, nothing to do
         if (!user) {
           console.log('[CrazyGames] No user logged in');
           return;
         }
+
+        console.log('[CrazyGames] User logged in but no secret found - attempting automatic login');
 
         const token = await crazygamesSDK.getUserToken();
         if (!token) {
@@ -484,73 +531,100 @@ function App() {
       attemptCrazygamesLogin();
     }, 500);
 
-    // Monitor cg user account changes
+    // Monitor CrazyGames user account changes (login/logout)
     if (crazygamesSDK.shouldUseSDK() && crazygamesSDK.isUserAccountAvailable()) {
-      const previousUserIdRef = { current: null as string | null };
+      let previousUserId: string | null = null;
+      let isInitialized = false;
 
       const checkUserAccountChange = async () => {
         try {
-          const user = await crazygamesSDK.getUser();
+          const user = await crazygamesSDK.getUser().catch(() => null);
           const currentUserId = user?.userId || null;
-          const previousUserId = previousUserIdRef.current;
+          const existingSecret = window.localStorage.getItem('secret');
+          const hasValidSecret = existingSecret && existingSecret !== 'undefined' && existingSecret !== 'null';
 
-          if (previousUserId === null && previousUserIdRef.current !== 'initialized') {
-            previousUserIdRef.current = currentUserId || 'initialized';
+          console.log('[CrazyGames Monitor] Check:', {
+            currentUserId,
+            previousUserId,
+            hasSecret: hasValidSecret,
+            isInitialized
+          });
+
+          // First time - just initialize
+          if (!isInitialized) {
+            previousUserId = currentUserId;
+            isInitialized = true;
+            console.log('[CrazyGames Monitor] Initialized with userId:', currentUserId);
             return;
           }
 
-          // User logged out=
-          if (previousUserId && previousUserId !== 'initialized' && !currentUserId) {
-            console.log('[CrazyGames] User logged out - clearing account');
+          // User logged out (was logged in, now logged out)
+          if (previousUserId && !currentUserId) {
+            console.log('[CrazyGames Monitor] User logged out - clearing account');
 
             // Clear stored secret
-            try {
-              window.localStorage.removeItem('secret');
-              console.log('[CrazyGames] Secret cleared from localStorage');
-            } catch (e) {
-              console.error('[CrazyGames] Error clearing secret:', e);
+            if (hasValidSecret) {
+              try {
+                window.localStorage.removeItem('secret');
+                console.log('[CrazyGames Monitor] Secret cleared from localStorage');
+              } catch (e) {
+                console.error('[CrazyGames Monitor] Error clearing secret:', e);
+              }
             }
 
             // Clear account from Redux store
             dispatch(clearAccount());
 
-            previousUserIdRef.current = null;
+            previousUserId = null;
           }
-          // User logged in
-          else if ((!previousUserId || previousUserId === 'initialized') && currentUserId) {
-            console.log('[CrazyGames] User logged in - reloading page to authenticate');
+          // User logged in (was logged out, now logged in)
+          else if (!previousUserId && currentUserId) {
+            console.log('[CrazyGames Monitor] User logged in - reloading page to authenticate');
 
-            // Reload the page to trigger autologin
+            // Reload the page to trigger auto-login flow
             window.location.reload();
           }
-          // User changed account
-          else if (previousUserId && currentUserId && previousUserId !== currentUserId && previousUserId !== 'initialized') {
-            console.log('[CrazyGames] User account changed - reloading page');
+          // User changed account (different userId)
+          else if (previousUserId && currentUserId && previousUserId !== currentUserId) {
+            console.log('[CrazyGames Monitor] User account changed - reloading page');
 
             // Clear old secret and reload
-            try {
-              window.localStorage.removeItem('secret');
-            } catch (e) {
-              console.error('[CrazyGames] Error clearing secret:', e);
+            if (hasValidSecret) {
+              try {
+                window.localStorage.removeItem('secret');
+              } catch (e) {
+                console.error('[CrazyGames Monitor] Error clearing secret:', e);
+              }
             }
 
             window.location.reload();
           }
+          // Secret exists but no user - clear it
+          else if (!currentUserId && hasValidSecret) {
+            console.log('[CrazyGames Monitor] No user but secret exists - clearing secret');
+            try {
+              window.localStorage.removeItem('secret');
+              dispatch(clearAccount());
+            } catch (e) {
+              console.error('[CrazyGames Monitor] Error clearing secret:', e);
+            }
+          }
 
-          previousUserIdRef.current = currentUserId;
+          previousUserId = currentUserId;
         } catch (error) {
-          console.error('[CrazyGames] Error checking user account change:', error);
+          console.error('[CrazyGames Monitor] Error checking user account change:', error);
         }
       };
 
-      // Check every second
-      const intervalId = setInterval(checkUserAccountChange, 1000);
+      // Check every 2 seconds
+      const intervalId = setInterval(checkUserAccountChange, 2000);
 
-      checkUserAccountChange();
+      // Initial check after a short delay to let SDK fully initialize
+      setTimeout(checkUserAccountChange, 100);
 
       return () => clearInterval(intervalId);
     }
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
   if (account?.clan) {
@@ -656,11 +730,12 @@ function App() {
   }, [account]);
 
   useEffect(() => {
-    if(loadingProgress === 100 && (window as any).instantStart) {
+    if(loadingProgress === 100 && accountReady && (window as any).instantStart) {
+      console.log('[CrazyGames] Instant multiplayer - Auto-starting game');
       (window as any).instantStart = false;
       onStart();
     }
-  }, [loadingProgress]);
+  }, [loadingProgress, accountReady]);
   const isLoaded = loadingProgress === 100;
   return (
     <div className="App">

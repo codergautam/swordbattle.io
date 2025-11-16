@@ -104,10 +104,11 @@ export class AuthService {
       }
 
       // Account doesn't exist, create a new one
-      let finalUsername = username;
+      let sanitizedUsername = username.replace(/\./g, '_');
+      let finalUsername = sanitizedUsername;
       let counter = 1;
       while (await this.accountsService.findOneWithLowercase({ where: { username: finalUsername } })) {
-        finalUsername = `${username}${counter}`;
+        finalUsername = `${sanitizedUsername}${counter}`;
         counter++;
       }
 

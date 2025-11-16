@@ -379,27 +379,6 @@ function App() {
     console.log('Getting server list');
     getServerList().then(setServers);
 
-    // Check for CrazyGames instant multiplayer or invite params
-    try {
-      const roomId = crazygamesSDK.getInviteParam('roomId');
-      const region = crazygamesSDK.getInviteParam('region');
-
-      if (roomId) {
-        console.log('[CrazyGames] Joining via invite link - Room ID:', roomId);
-        if (region) {
-          console.log('[CrazyGames] Setting region from invite:', region);
-        }
-      }
-
-      // Check for instant multiplayer mode
-      if (crazygamesSDK.isInstantMultiplayer()) {
-        console.log('[CrazyGames] Instant multiplayer mode enabled');
-        // For swordbattle this just means join game immediately
-      }
-    } catch (error) {
-      console.error('[CrazyGames] Error checking multiplayer settings:', error);
-    }
-
     // Automatic CrazyGames login
     const attemptCrazygamesLogin = async () => {
       try {
@@ -504,6 +483,73 @@ function App() {
     setTimeout(() => {
       attemptCrazygamesLogin();
     }, 500);
+
+    // Monitor cg user account changes
+    if (crazygamesSDK.shouldUseSDK() && crazygamesSDK.isUserAccountAvailable()) {
+      const previousUserIdRef = { current: null as string | null };
+
+      const checkUserAccountChange = async () => {
+        try {
+          const user = await crazygamesSDK.getUser();
+          const currentUserId = user?.userId || null;
+          const previousUserId = previousUserIdRef.current;
+
+          if (previousUserId === null && previousUserIdRef.current !== 'initialized') {
+            previousUserIdRef.current = currentUserId || 'initialized';
+            return;
+          }
+
+          // User logged out=
+          if (previousUserId && previousUserId !== 'initialized' && !currentUserId) {
+            console.log('[CrazyGames] User logged out - clearing account');
+
+            // Clear stored secret
+            try {
+              window.localStorage.removeItem('secret');
+              console.log('[CrazyGames] Secret cleared from localStorage');
+            } catch (e) {
+              console.error('[CrazyGames] Error clearing secret:', e);
+            }
+
+            // Clear account from Redux store
+            dispatch(clearAccount());
+
+            previousUserIdRef.current = null;
+          }
+          // User logged in
+          else if ((!previousUserId || previousUserId === 'initialized') && currentUserId) {
+            console.log('[CrazyGames] User logged in - reloading page to authenticate');
+
+            // Reload the page to trigger autologin
+            window.location.reload();
+          }
+          // User changed account
+          else if (previousUserId && currentUserId && previousUserId !== currentUserId && previousUserId !== 'initialized') {
+            console.log('[CrazyGames] User account changed - reloading page');
+
+            // Clear old secret and reload
+            try {
+              window.localStorage.removeItem('secret');
+            } catch (e) {
+              console.error('[CrazyGames] Error clearing secret:', e);
+            }
+
+            window.location.reload();
+          }
+
+          previousUserIdRef.current = currentUserId;
+        } catch (error) {
+          console.error('[CrazyGames] Error checking user account change:', error);
+        }
+      };
+
+      // Check every second
+      const intervalId = setInterval(checkUserAccountChange, 1000);
+
+      checkUserAccountChange();
+
+      return () => clearInterval(intervalId);
+    }
   }, []);
 
   useEffect(() => {

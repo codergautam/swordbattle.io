@@ -214,17 +214,11 @@ class GameState {
   onServerOpen() {
     this.spectate();
     console.log('server connected', Date.now());
-
-    // Enable CrazyGames invite button when game starts
-    crazygamesSDK.setInviteMode('playing');
   }
 
   onServerClose(event: CloseEvent, endpoint?: string) {
     Socket.close();
     clearInterval(this.interval);
-
-    // Disable CrazyGames invite button when game ends
-    crazygamesSDK.setInviteMode('disabled');
 
     let reason = event.reason || 'Connection failed';
     if(endpoint) {

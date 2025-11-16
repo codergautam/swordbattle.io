@@ -621,6 +621,28 @@ body:has(#menuCardHolder.small-iframe) .title-img {
   transform: translate(-50%, -100%) scale(0.75) !important;
 }
 
+@media only screen and (min-width: 800px) and (max-width: 1080px) and (min-height: 450px) and (max-height: 650px) {
+  #menuCardHolder {
+    transform: translate(-50%, -25%) scale(0.6) !important;
+  }
+
+  #menuCardHolder .menu {
+    flex-direction: row !important;
+  }
+
+  #menuCardHolder .menuCard {
+    width: 400px !important;
+  }
+
+  #menuCardHolder #adBelow {
+    display: none;
+  }
+
+  .title-img {
+    transform: translate(-50%, -90%) scale(0.65) !important;
+  }
+}
+
 @media only screen and (max-width: 1040px) {
   #menuCardHolder #adBelow {
     display: none;
@@ -629,7 +651,16 @@ body:has(#menuCardHolder.small-iframe) .title-img {
     display: none;
   }
 
-  // Only apply stacking on non-landscape or mobile
+  .title-img {
+    top: -70%;
+    transform: translate(-50%, -160%);
+  }
+}
+
+@media only screen and (max-width: 1040px) and (max-height: 449px),
+       only screen and (max-width: 1040px) and (min-height: 651px),
+       only screen and (max-width: 799px) {
+  // only apply stacking on non-landscape or mobile
   #menuCardHolder:not(.small-iframe) .menu {
     flex-direction: column;
   }
@@ -639,13 +670,8 @@ body:has(#menuCardHolder.small-iframe) .title-img {
   #menuCardHolder:not(.small-iframe) .menu .joinCard {
     order: -1;
   }
-
   .tipCard {
     display: none !important;
-  }
-  .title-img {
-    top: -70%;
-    transform: translate(-50%, -160%);
   }
 }
 @media only screen and (max-width: 768px) {

@@ -40,16 +40,8 @@ export interface SystemInfo {
   };
 }
 
-export interface InviteLink {
-  inviteUrl: string;
-}
-
 export interface GameSettings {
   disableChat: boolean;
-}
-
-export interface InviteParams {
-  [key: string]: string | number;
 }
 
 class CrazyGamesSDK {
@@ -102,6 +94,10 @@ class CrazyGamesSDK {
   }
 
   shouldUseSDK(): boolean {
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      return false; // change to false for no sdk on localhos
+    }
+
     const env = this.getEnvironment();
     return env === 'crazygames' || env === 'local';
   }
@@ -257,62 +253,6 @@ class CrazyGamesSDK {
     }
   }
 
-  /* Display an invite button */
-  showInviteButton(params: { roomId?: string }): void {
-    if (!this.shouldUseSDK() || !this.initialized) return;
-
-    try {
-      window.CrazyGames.SDK.game.showInviteButton(params);
-      console.log('[CrazyGames] Invite button shown');
-    } catch (error) {
-      console.error('Error showing invite button:', error);
-    }
-  }
-
-  /* Hide the invite button */
-  hideInviteButton(): void {
-    if (!this.shouldUseSDK() || !this.initialized) return;
-
-    try {
-      window.CrazyGames.SDK.game.hideInviteButton();
-      console.log('[CrazyGames] Invite button hidden');
-    } catch (error) {
-      console.error('Error hiding invite button:', error);
-    }
-  }
-
-  /* Set the invite mode to enable/disable invite functionality */
-  setInviteMode(mode: 'playing' | 'disabled', params?: { roomId?: string }): void {
-    if (!this.shouldUseSDK() || !this.initialized) return;
-
-    try {
-      if (mode === 'playing') {
-        this.showInviteButton(params || {});
-      } else {
-        this.hideInviteButton();
-      }
-      console.log('[CrazyGames] Invite mode set to:', mode);
-    } catch (error) {
-      console.error('Error setting invite mode:', error);
-    }
-  }
-
-  /* Get an invite link for multiplayer */
-  async getInviteLink(params: InviteParams): Promise<InviteLink | null> {
-    if (!this.shouldUseSDK() || !this.initialized) {
-      return null;
-    }
-
-    try {
-      const link = await window.CrazyGames.SDK.game.inviteLink(params);
-      console.log('[CrazyGames] Invite link generated:', link);
-      return link;
-    } catch (error) {
-      console.error('Error getting invite link:', error);
-      return null;
-    }
-  }
-
   /* Get game settings (like disableChat) */
   getSettings(): GameSettings {
     if (!this.shouldUseSDK() || !this.initialized) {
@@ -324,32 +264,6 @@ class CrazyGamesSDK {
     } catch (error) {
       console.error('Error getting game settings:', error);
       return { disableChat: false };
-    }
-  }
-
-  isInstantMultiplayer(): boolean {
-    if (!this.shouldUseSDK() || !this.initialized) {
-      return false;
-    }
-
-    try {
-      return window.CrazyGames.SDK.game.isInstantMultiplayer || false;
-    } catch (error) {
-      console.error('Error checking instant multiplayer:', error);
-      return false;
-    }
-  }
-
-  getInviteParam(paramName: string): string | null {
-    if (!this.shouldUseSDK() || !this.initialized) {
-      return null;
-    }
-
-    try {
-      return window.CrazyGames.SDK.game.getInviteParam(paramName);
-    } catch (error) {
-      console.error('Error getting invite param:', error);
-      return null;
     }
   }
 
@@ -517,12 +431,7 @@ declare global {
           gameplayStop: () => void;
           loadingStart: () => void;
           loadingStop: () => void;
-          showInviteButton: (params: InviteParams) => void;
-          hideInviteButton: () => void;
-          inviteLink: (params: InviteParams) => Promise<InviteLink>;
           settings: GameSettings;
-          isInstantMultiplayer: boolean;
-          getInviteParam: (paramName: string) => string | null;
           happytime: () => void;
         };
         user: {

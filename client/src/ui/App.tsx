@@ -438,17 +438,19 @@ function App() {
             return;
           }
 
-          if (data.account && data.secret) {
-            console.log('[CrazyGames] Login successful');
+          console.log('[CrazyGames] Received login response:', { hasAccount: !!data.account, hasSecret: !!data.secret, secretValue: data.secret });
 
-            // Store the secret
+          if (data.account && data.secret) {
+            console.log('[CrazyGames] Login successful, storing secret:', data.secret);
+
             try {
               window.localStorage.setItem('secret', data.secret);
+              const storedSecret = window.localStorage.getItem('secret');
+              console.log('[CrazyGames] Secret stored, verification read:', storedSecret);
             } catch (e) {
               console.error('[CrazyGames] Error storing secret:', e);
             }
 
-            // Set the account in Redux
             dispatch(setAccount(data.account));
 
             initializeDataStorage().then(() => {

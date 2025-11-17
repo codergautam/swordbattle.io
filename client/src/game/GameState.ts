@@ -106,6 +106,12 @@ class GameState {
 
     console.log('[CAPTCHA] start() - recaptchaClientKey:', config.recaptchaClientKey);
 
+    // Check if there's an invite roomId from CrazyGames invite link
+    const inviteRoomId = (window as any).inviteRoomId;
+    if (inviteRoomId) {
+      console.log('[Invite] Using invite roomId:', inviteRoomId);
+    }
+
     if(config.recaptchaClientKey) {
       console.log('[CAPTCHA] Waiting for reCAPTCHA to load...');
       const waitForRecaptcha = () => {
@@ -115,7 +121,12 @@ class GameState {
             console.log('[CAPTCHA] Received captcha token, length:', captcha?.length);
             const captchaData = exportCaptcha(captcha);
             console.log('[CAPTCHA] Sending play request with captcha data:', Object.keys(captchaData));
-            Socket.emit({ play: true, name, ...captchaData });
+            const playRequest: any = { play: true, name, ...captchaData };
+            if (inviteRoomId) {
+              playRequest.roomId = inviteRoomId;
+              console.log('[Invite] Added roomId to play request');
+            }
+            Socket.emit(playRequest);
             afterSent();
           }).catch((err: any) => {
             console.error('[CAPTCHA] Error executing captcha:', err);
@@ -128,7 +139,12 @@ class GameState {
       waitForRecaptcha();
     } else {
       console.log('[CAPTCHA] Sending play request without captcha (disabled)');
-      Socket.emit({ play: true, name });
+      const playRequest: any = { play: true, name };
+      if (inviteRoomId) {
+        playRequest.roomId = inviteRoomId;
+        console.log('[Invite] Added roomId to play request');
+      }
+      Socket.emit(playRequest);
       afterSent();
     }
   }
@@ -141,6 +157,9 @@ class GameState {
 
     console.log('[CAPTCHA] restart() - recaptchaClientKey:', config.recaptchaClientKey);
 
+    // Check if there's an invite roomId from CrazyGames invite link
+    const inviteRoomId = (window as any).inviteRoomId;
+
     if(config.recaptchaClientKey) {
       console.log('[CAPTCHA] Waiting for reCAPTCHA to load...');
       const waitForRecaptcha = () => {
@@ -150,7 +169,12 @@ class GameState {
             console.log('[CAPTCHA] Received captcha token, length:', captcha?.length);
             const captchaData = exportCaptcha(captcha);
             console.log('[CAPTCHA] Sending play request with captcha data:', Object.keys(captchaData));
-            Socket.emit({ play: true, ...captchaData });
+            const playRequest: any = { play: true, ...captchaData };
+            if (inviteRoomId) {
+              playRequest.roomId = inviteRoomId;
+              console.log('[Invite] Added roomId to restart request');
+            }
+            Socket.emit(playRequest);
             afterSent();
           }).catch((err: any) => {
             console.error('[CAPTCHA] Error executing captcha:', err);
@@ -163,7 +187,12 @@ class GameState {
       waitForRecaptcha();
     } else {
       console.log('[CAPTCHA] Sending play request without captcha (disabled)');
-      Socket.emit({ play: true });
+      const playRequest: any = { play: true };
+      if (inviteRoomId) {
+        playRequest.roomId = inviteRoomId;
+        console.log('[Invite] Added roomId to restart request');
+      }
+      Socket.emit(playRequest);
       afterSent();
     }
   }

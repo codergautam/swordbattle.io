@@ -258,9 +258,8 @@ function App() {
       const isCrazygames = crazygamesSDK.shouldUseSDK() && crazygamesSDK.isUserAccountAvailable();
 
       if (isCrazygames) {
-        // For CrazyGames, don't set accountReady here - let CrazyGames auth handle it
-        // Just ensure the secret-based login still works as fallback
         console.log('[Auth] Skipping initial login for CrazyGames environment');
+        setAccountReady(true);
         return;
       }
 

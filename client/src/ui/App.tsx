@@ -584,9 +584,35 @@ function App() {
       }
     };
 
-    setTimeout(() => {
-      attemptCrazygamesLogin();
-    }, 500);
+    // Wait for CrazyGames SDK to be initialized before attempting login
+    if (crazygamesSDK.shouldUseSDK()) {
+      // SDK should be initializing, wait for it
+      const checkSDKReady = async () => {
+        let attempts = 0;
+        const maxAttempts = 100; // 10 seconds (100 * 100ms)
+
+        while (!crazygamesSDK.isInitialized() && attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+        }
+
+        if (!crazygamesSDK.isInitialized()) {
+          console.warn('[CrazyGames] SDK initialization timeout');
+          setCrazygamesAuthReady(true);
+          return;
+        }
+
+        console.log('[CrazyGames] SDK initialized after', attempts * 100, 'ms');
+        await attemptCrazygamesLogin();
+      };
+
+      checkSDKReady();
+    } else {
+      // Not on CrazyGames, just call attemptCrazygamesLogin normally
+      setTimeout(() => {
+        attemptCrazygamesLogin();
+      }, 500);
+    }
 
     // Monitor CrazyGames user account changes (login/logout)
     if (crazygamesSDK.shouldUseSDK() && crazygamesSDK.isUserAccountAvailable()) {

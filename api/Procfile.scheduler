@@ -1,2 +1,2 @@
-update_skin_counts: node dist/bin/update-skin-counts.js
-generate_daily_skins: node dist/bin/generate-daily-skins.js 60
+update_skin_counts: cd /app/api && node dist/bin/update-skin-counts.js
+generate_daily_skins: cd /app/api && node dist/bin/generate-daily-skins.js 60

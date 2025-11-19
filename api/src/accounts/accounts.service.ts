@@ -8,7 +8,7 @@ import validateClantag from 'src/helpers/validateClantag';
 import validateUserbio from 'src/helpers/validateUserbio';
 import { Transaction } from 'src/transactions/transactions.entity';
 import * as cosmetics from '../cosmetics.json';
-import CacheObj from 'src/Cache';
+import { CosmeticsService } from 'src/cosmetics/cosmetics.service';
 
 const usernameWaitTime = config.config.usernameWaitTime;
 const clanWaitTime = config.config.clanWaitTime;
@@ -16,107 +16,14 @@ const clanWaitTime = config.config.clanWaitTime;
 
 @Injectable()
 export class AccountsService {
-  private cosmeticCountsCache = new CacheObj<{ [key: number]: number }>(7200000) // 2 hours in milliseconds
-
   constructor(
     @InjectRepository(Account)
     private readonly accountsRepository: Repository<Account>,
     @InjectRepository(Transaction)
     private readonly transactionsRepository: Repository<Transaction>,
-
+    private readonly cosmeticsService: CosmeticsService,
   ) {}
 
-  private timereset = 23; // 0-23 utc
-
-  private seedFromString(s: string) {
-    let h = 2166136261 >>> 0;
-    for (let i = 0; i < s.length; i++) {
-      h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-    }
-    return h >>> 0;
-  }
-
-  private mulberry32(seed: number) {
-    return function() {
-      let t = (seed += 0x6D2B79F5) >>> 0;
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-
-  private seededShuffle<T>(arr: T[], seedStr: string) {
-    const a = arr.slice();
-    const rng = this.mulberry32(this.seedFromString(seedStr));
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(rng() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
-  private getShopDayKey(now = new Date()) {
-    const shifted = new Date(now.getTime() - this.timereset * 60 * 60 * 1000);
-    const y = shifted.getUTCFullYear();
-    const m = String(shifted.getUTCMonth() + 1).padStart(2, '0');
-    const d = String(shifted.getUTCDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-
-  private computeGlobalSkinList(dayKey?: string): number[] {
-    const shopDayKey = dayKey ?? this.getShopDayKey();
-    const allSkins = Object.values((cosmetics as any)['skins']) as any[];
-    const eligible = allSkins.filter((skin: any) =>
-      !skin.event &&
-      !skin.og &&
-      !skin.ultimate &&
-      !skin.eventoffsale &&
-      skin.price > 0 &&
-      skin.buyable &&
-      !(skin.description || '').includes('Given') &&
-      !skin.currency
-    );
-
-    const sortedByPriceDesc = [...eligible].sort((a, b) => (b.price || 0) - (a.price || 0));
-    const top15 = sortedByPriceDesc.slice(0, 15).map(s => s.id);
-    const topSet = new Set(top15);
-
-    const shuffleArray = <T,>(arr: T[]) => this.seededShuffle(arr, shopDayKey);
-
-    const pickUnique = (pool: any[], count: number, selected: Set<number>) => {
-      const candidates = shuffleArray(pool.map((s: any) => s.id)).filter((id: number) => !selected.has(id) && !topSet.has(id));
-      const picked = candidates.slice(0, count);
-      picked.forEach((id: number) => selected.add(id));
-      return picked;
-    };
-
-    const bucket1 = eligible.filter(s => s.price >= 1 && s.price <= 500);
-    const bucket2 = eligible.filter(s => s.price > 500 && s.price <= 5000);
-    const bucket3 = eligible.filter(s => s.price > 5000);
-
-    const selectedSet = new Set<number>();
-    const picks: number[] = [];
-    picks.push(...pickUnique(bucket1, 15, selectedSet));
-    picks.push(...pickUnique(bucket2, 15, selectedSet));
-    picks.push(...pickUnique(bucket3, 15, selectedSet));
-
-    const needed = 45 - picks.length;
-    if (needed > 0) {
-      const remainingPool = shuffleArray(eligible.map(s => s.id)).filter((id: number) => !selectedSet.has(id) && !topSet.has(id));
-      const fill = remainingPool.slice(0, needed);
-      fill.forEach((id: number) => selectedSet.add(id));
-      picks.push(...fill);
-    }
-
-    let newSkinList = [...picks.slice(0, 45), ...top15];
-    if (newSkinList.length < 60) {
-      const remaining = shuffleArray(eligible.map(s => s.id)).filter((id: number) => !newSkinList.includes(id));
-      newSkinList.push(...remaining.slice(0, 60 - newSkinList.length));
-    }
-    const uniqueList = Array.from(new Set(newSkinList)).slice(0, 60);
-    const finalList = uniqueList.length === 60 ? uniqueList : newSkinList.slice(0, 60);
-    return finalList;
-  }
 
   async create(data: Partial<Account>) {
     const account = this.accountsRepository.create(data);
@@ -171,37 +78,6 @@ export class AccountsService {
     return account;
   }
 
-  async getCosmeticCnts(type: 'skins') {
-    // TODO: Add support for other types cache
-    // Check if cache is stale
-    if (this.cosmeticCountsCache.isStale()) {
-      // Fetch new data from database and update cache
-      const counts = await this.fetchAndCountCosmeticsFromDB(type);
-      this.cosmeticCountsCache.updateData(counts);
-    }
-
-    // Return data from cache
-    return this.cosmeticCountsCache.getData();
-  }
-
-  async fetchAndCountCosmeticsFromDB(type: 'skins') {
-    const skinIds = Object.values(cosmetics[type]).map((c: any) => c.id);
-
-    // Prepare an object to hold the counts
-    const counts = skinIds.reduce((acc, id) => ({ ...acc, [id]: 0 }), {});
-
-    // Iterate over each skinId and count occurrences in the database
-    for (const skinId of skinIds) {
-      const countResult = await this.accountsRepository.createQueryBuilder()
-        .select("COUNT(*)", "count")
-        .where("skins @> :skinId", { skinId: `{"owned": [${skinId}]}` }) // Adjust the condition according to your database type and schema
-        .getRawOne();
-
-      counts[skinId] = parseInt(countResult.count);
-    }
-
-    return counts;
-  }
 
   async equipSkin(userId: number, skinId: number) {
     // Fetch the user's current skin data
@@ -263,7 +139,7 @@ export class AccountsService {
     }
 
     // Check if the skin is still available (Today's Skins)
-    const todays = this.computeGlobalSkinList();
+    const todays = await this.cosmeticsService.getTodaysSkins();
     if (!todays.includes(itemId) && !cosmetic.event && !cosmetic.ultimate && !cosmetic.currency && !cosmetic.sale) {
       return { error: "Skin is no longer available in today's shop; refresh the page for new available skins" };
     }

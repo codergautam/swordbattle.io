@@ -4,6 +4,7 @@ import { Throttle } from '@nestjs/throttler';
 import { AccountsService } from './accounts.service';
 import { StatsService } from 'src/stats/stats.service';
 import { AuthService } from 'src/auth/auth.service';
+import { CosmeticsService } from 'src/cosmetics/cosmetics.service';
 import { ServerGuard } from 'src/auth/guards/server.guard';
 import { AccountGuard, AccountRequest } from 'src/auth/guards/account.guard';
 
@@ -15,11 +16,17 @@ export class AccountsController {
     private readonly statsService: StatsService,
     private readonly accountsService: AccountsService,
     private readonly authService: AuthService,
+    private readonly cosmeticsService: CosmeticsService,
   ) {}
 
   @Get('skins/buys')
   async getSkinBuys() {
-    return this.accountsService.getCosmeticCnts('skins');
+    return this.cosmeticsService.getSkinBuyCounts();
+  }
+
+  @Get('skins/daily')
+  async getDailySkins() {
+    return this.cosmeticsService.getTodaysSkins();
   }
 
   @UseGuards(AccountGuard)

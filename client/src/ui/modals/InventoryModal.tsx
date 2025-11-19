@@ -6,7 +6,7 @@ import api from '../../api';
 import * as cosmetics from '../../game/cosmetics.json'
 
 import './InventoryModal.scss'
-import { numberWithCommas, sinceFrom } from '../../helpers';
+import { buyFormats, numberWithCommas, sinceFrom } from '../../helpers';
 import { Id } from '@reduxjs/toolkit/dist/tsHelpers';
 let { skins } = cosmetics;
 
@@ -49,6 +49,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
   const dispatch = useDispatch();
   const [skinStatus, setSkinStatus] = useState<{ [id: number]: string }>({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [skinCounts, setSkinCounts] = useState<{ [id: number]: number }>({});
   const [selectedBadge, setSelectedBadge] = useState('norm');
 
   const [showUltimate, setUltimate] = useState(Settings.showUltimate);
@@ -193,6 +194,12 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
     if(rotate) {
     modal.addEventListener('mousemove', handleMouseMove);
     }
+
+    // Fetch skin counts
+      api.get(`${api.endpoint}/profile/skins/buys?${Date.now()}`, (data) => {
+        if (data.error) return alert('Error fetching skin cnts '+ data.error);
+        setSkinCounts(data);
+      });
 
     return () => {
       if (modal && rotate) {
@@ -410,7 +417,8 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
             }}
             data-selected='skin'
             />
-          <h4 className='skin-count'>
+          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
+                    <br/>
           <p className='skin-desc'>{skin.description}</p>
           {
   (skin?.price ?? 0) > 0 ? (
@@ -562,7 +570,8 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
             }}
             data-selected='skin'
             />
-          <h4 className='skin-count'>
+          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
+                    <br/>
           <p className='skin-desc'>{skin.description}</p>
           {
   (skin?.price ?? 0) > 0 ? (

@@ -75,7 +75,7 @@ const mainProxy = httpProxy.createProxyServer({
   // Handle buffer size through agent settings
   agent: new http.Agent({
     keepAlive: true,
-    maxSockets: 50, // Reduced concurrent connections
+    maxSockets: 250,
     keepAliveMsecs: 10000,
     maxFreeSockets: 5
   })
@@ -91,20 +91,13 @@ const TEMP_BAN_DURATION = 60000; // 1 minute
 const MAX_REQUESTS_PER_MINUTE = 600;
 const ERROR_BAN_THRESHOLD = 10;
 const ERROR_WINDOW = 20000;
-const CONCURRENT_CONN_LIMIT = 100;
+const CONCURRENT_CONN_LIMIT = 250;
 const SUSPICIOUS_SIZE = 1982; // The suspicious message size
-let currentConnections = 0;
 
 // Enhanced connection tracking
 const activeConnections = new Map(); // IP -> {count, firstConn, connHistory}
 const protobufErrorCounts = new Map();
 const MAX_URL_LENGTH = 2000;
-const SUSPICIOUS_XFF_IPS = new Set();
-
-// Connection rate tracking
-const CONN_RATE_WINDOW = 10000; // 10 second window
-const MAX_CONN_PER_WINDOW = 20; // More forgiving burst connection rate
-const CONN_HISTORY_SIZE = 5; // Track last 5 connections
 
 const homepageIpRate = new Map();
 const homepageGlobal = { count: 0, reset: 0 };

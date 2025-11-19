@@ -54,87 +54,10 @@ try {
 
 function App() {
   let { skins } = cosmetics;
-  const timereset = 23; // 0-23 utc
-  
+  const RESET_HOUR = 23; // 0-23 utc
+
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
-  function getShopDayKey(now = new Date()) {
-    const shifted = new Date(now.getTime() - timereset * 60 * 60 * 1000);
-    const y = shifted.getUTCFullYear();
-    const m = String(shifted.getUTCMonth() + 1).padStart(2, '0');
-    const d = String(shifted.getUTCDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-  function seedFromString(s: string) {
-    let h = 2166136261 >>> 0;
-    for (let i = 0; i < s.length; i++) {
-      h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-    }
-    return h >>> 0;
-  }
-  function mulberry32(seed: number) {
-    return function() {
-      let t = (seed += 0x6D2B79F5) >>> 0;
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-  function seededShuffle<T>(arr: T[], seedStr: string) {
-    const a = arr.slice();
-    const rng = mulberry32(seedFromString(seedStr));
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(rng() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-  function computeGlobalSkinList(dayKey: string) {
-    const allSkins = Object.values(skins) as any[];
-    const eligible = allSkins.filter((skin: any) =>
-      !skin.event &&
-      !skin.og &&
-      !skin.ultimate &&
-      !skin.eventoffsale &&
-      skin.price > 0 &&
-      skin.buyable &&
-      !skin.description.includes('Given') &&
-      !skin.currency
-    );
-    const sortedByPriceDesc = [...eligible].sort((a, b) => (b.price || 0) - (a.price || 0));
-    const top15 = sortedByPriceDesc.slice(0, 15).map(s => s.id);
-    const topSet = new Set(top15);
-    const shuffleArray = <T,>(arr: T[]) => seededShuffle(arr, dayKey);
-    const pickUnique = (pool: any[], count: number, selected: Set<number>) => {
-      const candidates = shuffleArray(pool.map(s => s.id)).filter(id => !selected.has(id) && !topSet.has(id));
-      const picked = candidates.slice(0, count);
-      picked.forEach(id => selected.add(id));
-      return picked;
-    };
-    const bucket1 = eligible.filter(s => s.price >= 1 && s.price <= 500);
-    const bucket2 = eligible.filter(s => s.price > 500 && s.price <= 5000);
-    const bucket3 = eligible.filter(s => s.price > 5000);
-    const selectedSet = new Set<number>();
-    const picks: number[] = [];
-    picks.push(...pickUnique(bucket1, 15, selectedSet));
-    picks.push(...pickUnique(bucket2, 15, selectedSet));
-    picks.push(...pickUnique(bucket3, 15, selectedSet));
-    const needed = 45 - picks.length;
-    if (needed > 0) {
-      const remainingPool = shuffleArray(eligible.map(s => s.id)).filter(id => !selectedSet.has(id) && !topSet.has(id));
-      const fill = remainingPool.slice(0, needed);
-      fill.forEach(id => selectedSet.add(id));
-      picks.push(...fill);
-    }
-    let newSkinList = [...picks.slice(0, 45), ...top15];
-    if (newSkinList.length < 60) {
-      const remaining = shuffleArray(eligible.map(s => s.id)).filter(id => !newSkinList.includes(id));
-      newSkinList.push(...remaining.slice(0, 60 - newSkinList.length));
-    }
-    const uniqueList = Array.from(new Set(newSkinList)).slice(0, 60);
-    const finalList = uniqueList.length === 60 ? uniqueList : newSkinList.slice(0, 60);
-    return finalList;
-  }
 
   const scale = useScale(false);
   const [name, setName] = useState('');
@@ -388,11 +311,16 @@ function App() {
     // Helper function to handle the loginWithSecret callback and return a promise
     const verifyStoredAccount = (existingSecret: string, currentUserId: string): Promise<'match' | 'mismatch' | 'invalid'> => {
       return new Promise((resolve) => {
+        console.log('[CrazyGames] verifyStoredAccount called for currentUserId:', currentUserId);
+        console.log('[CrazyGames] Sending loginWithSecret request to verify account...');
+
         api.post(`${api.endpoint}/auth/loginWithSecret`,
           { secret: existingSecret },
           (secretLoginData: any) => {
+            console.log('[CrazyGames] verifyStoredAccount callback received:', secretLoginData);
+
             if (secretLoginData.error || !secretLoginData.account) {
-              console.error('[CrazyGames] Error retrieving stored account via secret');
+              console.error('[CrazyGames] Error retrieving stored account via secret:', secretLoginData.error);
               resolve('invalid');
               return;
             }
@@ -422,9 +350,13 @@ function App() {
     // Automatic CrazyGames login with user verification
     const attemptCrazygamesLogin = async () => {
       try {
+        console.log('[CrazyGames] attemptCrazygamesLogin called');
+        console.log('[CrazyGames] shouldUseSDK:', crazygamesSDK.shouldUseSDK());
+        console.log('[CrazyGames] isUserAccountAvailable:', crazygamesSDK.isUserAccountAvailable());
+
         // Only attempt login if on CrazyGames and user accounts are available
         if (!crazygamesSDK.shouldUseSDK() || !crazygamesSDK.isUserAccountAvailable()) {
-          console.log('[CrazyGames] SDK not available or user accounts not supported');
+          console.log('[CrazyGames] SDK not available or user accounts not supported - returning');
           setCrazygamesAuthReady(true);
           return;
         }
@@ -432,9 +364,11 @@ function App() {
         console.log('[CrazyGames] Starting authentication flow...');
 
         // Get current CrazyGames user
+        console.log('[CrazyGames] Calling crazygamesSDK.getUser()...');
         const currentUser = await crazygamesSDK.getUser();
         const currentUserId = currentUser?.userId;
 
+        console.log('[CrazyGames] Current CrazyGames user:', currentUser);
         console.log('[CrazyGames] Current CrazyGames user ID:', currentUserId);
 
         // Get the stored secret
@@ -516,9 +450,14 @@ function App() {
     // Helper function to login with current CrazyGames user
     const loginWithCurrentCrazygamesUser = async (currentUser: any) => {
       try {
+        console.log('[CrazyGames] loginWithCurrentCrazygamesUser called for user:', currentUser?.username);
+
+        console.log('[CrazyGames] Requesting user token from SDK...');
         const token = await crazygamesSDK.getUserToken();
+        console.log('[CrazyGames] Token received:', token ? 'Yes (length: ' + token.length + ')' : 'null/undefined');
+
         if (!token) {
-          console.error('[CrazyGames] Failed to get user token');
+          console.error('[CrazyGames] Failed to get user token - token is null/undefined');
           return;
         }
 
@@ -526,10 +465,13 @@ function App() {
         let userId: string;
         try {
           const tokenParts = token.split('.');
+          console.log('[CrazyGames] Token parts count:', tokenParts.length);
+
           if (tokenParts.length !== 3) {
-            console.error('[CrazyGames] Invalid token format');
+            console.error('[CrazyGames] Invalid token format - expected 3 parts, got', tokenParts.length);
             return;
           }
+
           const payload = JSON.parse(atob(tokenParts[1]));
           userId = payload.userId;
           console.log('[CrazyGames] Decoded userId from token:', userId);
@@ -538,7 +480,8 @@ function App() {
           return;
         }
 
-        console.log('[CrazyGames] Sending login request for user:', currentUser.username);
+        console.log('[CrazyGames] Sending login request to', `${api.endpoint}/auth/crazygames/login`);
+        console.log('[CrazyGames] Login request payload:', { userId, username: currentUser.username });
 
         // Return a promise that resolves when the login is complete
         return new Promise<void>((resolve) => {
@@ -547,7 +490,7 @@ function App() {
             userId,
             username: currentUser.username,
           }, (data: any) => {
-            console.log('[CrazyGames] Login callback received');
+            console.log('[CrazyGames] Login API callback received with data:', data);
 
             if (data.error) {
               console.error('[CrazyGames] Login failed with error:', data.error);
@@ -575,6 +518,7 @@ function App() {
               });
             } else {
               console.error('[CrazyGames] Missing account or secret in response');
+              console.log('[CrazyGames] Response had account?', !!data.account, 'secret?', !!data.secret);
               resolve();
             }
           });
@@ -585,30 +529,42 @@ function App() {
     };
 
     // Wait for CrazyGames SDK to be initialized before attempting login
+    console.log('[CrazyGames] Initial setup - shouldUseSDK:', crazygamesSDK.shouldUseSDK());
+
     if (crazygamesSDK.shouldUseSDK()) {
       // SDK should be initializing, wait for it
       const checkSDKReady = async () => {
+        console.log('[CrazyGames] checkSDKReady: Starting SDK initialization check');
         let attempts = 0;
         const maxAttempts = 100; // 10 seconds (100 * 100ms)
 
         while (!crazygamesSDK.isInitialized() && attempts < maxAttempts) {
+          if (attempts % 10 === 0) {
+            console.log('[CrazyGames] checkSDKReady: Waiting for SDK... attempt', attempts, 'isInitialized:', crazygamesSDK.isInitialized());
+          }
           await new Promise(resolve => setTimeout(resolve, 100));
           attempts++;
         }
 
+        console.log('[CrazyGames] checkSDKReady: Final check - isInitialized:', crazygamesSDK.isInitialized(), 'attempts:', attempts);
+
         if (!crazygamesSDK.isInitialized()) {
-          console.warn('[CrazyGames] SDK initialization timeout');
+          console.warn('[CrazyGames] SDK initialization timeout after', attempts * 100, 'ms');
           setCrazygamesAuthReady(true);
           return;
         }
 
-        console.log('[CrazyGames] SDK initialized after', attempts * 100, 'ms');
+        console.log('[CrazyGames] SDK initialized after', attempts * 100, 'ms - calling attemptCrazygamesLogin');
         await attemptCrazygamesLogin();
       };
 
-      checkSDKReady();
+      checkSDKReady().catch(err => {
+        console.error('[CrazyGames] checkSDKReady error:', err);
+        setCrazygamesAuthReady(true);
+      });
     } else {
       // Not on CrazyGames, just call attemptCrazygamesLogin normally
+      console.log('[CrazyGames] Not on CrazyGames, calling attemptCrazygamesLogin with delay');
       setTimeout(() => {
         attemptCrazygamesLogin();
       }, 500);

@@ -37,7 +37,7 @@ class Client {
     // Rate limiting
     this.messageCount = 0;
     this.messageResetTimer = 0;
-    this.maxMessagesPerSecond = 120; // 120 messages per second (2 per tick at 60 TPS)
+    this.maxMessagesPerSecond = 500; 
     this.maxQueueSize = 100; // Maximum queued messages
 
     this.lastPlayTime = 0;

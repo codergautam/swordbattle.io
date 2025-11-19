@@ -12,7 +12,7 @@ let { skins } = cosmetics;
 
 const basePath = 'assets/game/player/';
 
-const timereset = 23;
+const RESET_HOUR = 23;
 
 interface ShopModalProps {
   account: AccountState;
@@ -51,6 +51,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   const dispatch = useDispatch();
   const [skinStatus, setSkinStatus] = useState<{ [id: number]: string }>({});
   const [skinCounts, setSkinCounts] = useState<{ [id: number]: number }>({});
+  const [todaysGlobalSkinList, setTodaysGlobalSkinList] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBadge, setSelectedBadge] = useState('norm');
   const [shopDayKey, setShopDayKey] = useState<string>(() => getShopDayKey());
@@ -200,7 +201,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   };
 
   function getShopDayKey(now = new Date()) {
-    const shifted = new Date(now.getTime() - timereset * 60 * 60 * 1000);
+    const shifted = new Date(now.getTime() - RESET_HOUR * 60 * 60 * 1000);
     const y = shifted.getUTCFullYear();
     const m = String(shifted.getUTCMonth() + 1).padStart(2, '0');
     const d = String(shifted.getUTCDate()).padStart(2, '0');
@@ -212,114 +213,51 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
     const year = nowDate.getUTCFullYear();
     const month = nowDate.getUTCMonth();
     const date = nowDate.getUTCDate();
-    let resetMs = Date.UTC(year, month, date, timereset, 0, 0);
+    let resetMs = Date.UTC(year, month, date, RESET_HOUR, 0, 0);
     if (now >= resetMs) resetMs += 24 * 60 * 60 * 1000;
     return resetMs - now;
   }
-
-  function seedFromString(s: string) {
-    let h = 2166136261 >>> 0;
-    for (let i = 0; i < s.length; i++) {
-      h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-    }
-    return h >>> 0;
-  }
-  function mulberry32(seed: number) {
-    return function() {
-      let t = (seed += 0x6D2B79F5) >>> 0;
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-  function seededShuffle<T>(arr: T[], seedStr: string) {
-    const a = arr.slice();
-    const rng = mulberry32(seedFromString(seedStr));
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(rng() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
-  function computeGlobalSkinList(): number[] {
-    const allSkins = Object.values(skins) as any[];
-    const eligible = allSkins.filter((skin: any) =>
-      !skin.event &&
-      !skin.og &&
-      !skin.ultimate &&
-      !skin.eventoffsale &&
-      skin.price > 0 &&
-      skin.buyable &&
-      !(skin.description || '').includes('Given') &&
-      !skin.currency
-    );
-
-    const sortedByPriceDesc = [...eligible].sort((a, b) => (b.price || 0) - (a.price || 0));
-    const top15 = sortedByPriceDesc.slice(0, 15).map(s => s.id);
-    const topSet = new Set(top15);
-
-    const shuffleArray = <T,>(arr: T[]) => seededShuffle(arr, shopDayKey);
-
-    const pickUnique = (pool: any[], count: number, selected: Set<number>) => {
-      const candidates = shuffleArray(pool.map((s: any) => s.id)).filter((id: number) => !selected.has(id) && !topSet.has(id));
-      const picked = candidates.slice(0, count);
-      picked.forEach((id: number) => selected.add(id));
-      return picked;
-    };
-
-    const bucket1 = eligible.filter(s => s.price >= 1 && s.price <= 500);
-    const bucket2 = eligible.filter(s => s.price > 500 && s.price <= 5000);
-    const bucket3 = eligible.filter(s => s.price > 5000);
-
-    const selectedSet = new Set<number>();
-    const picks: number[] = [];
-    picks.push(...pickUnique(bucket1, 15, selectedSet));
-    picks.push(...pickUnique(bucket2, 15, selectedSet));
-    picks.push(...pickUnique(bucket3, 15, selectedSet));
-
-    const needed = 45 - picks.length;
-    if (needed > 0) {
-      const remainingPool = shuffleArray(eligible.map(s => s.id)).filter((id: number) => !selectedSet.has(id) && !topSet.has(id));
-      const fill = remainingPool.slice(0, needed);
-      fill.forEach((id: number) => selectedSet.add(id));
-      picks.push(...fill);
-    }
-
-    let newSkinList = [...picks.slice(0, 45), ...top15];
-    if (newSkinList.length < 60) {
-      const remaining = shuffleArray(eligible.map(s => s.id)).filter((id: number) => !newSkinList.includes(id));
-      newSkinList.push(...remaining.slice(0, 60 - newSkinList.length));
-    }
-    const uniqueList = Array.from(new Set(newSkinList)).slice(0, 60);
-    const finalList = uniqueList.length === 60 ? uniqueList : newSkinList.slice(0, 60);
-    return finalList;
-  }
   useEffect(() => {
-    // initial fetch
-    api.get(`${api.endpoint}/profile/skins/buys?${Date.now()}`, (data) => {
-      if (data.error) return alert('Error fetching skin cnts '+ data.error);
-      setSkinCounts(data);
-    });
+    // Fetch daily skins
+    const fetchDailySkins = () => {
+      api.get(`${api.endpoint}/profile/skins/daily`, (data) => {
+        if (data.error) {
+          console.error('Error fetching daily skins:', data.error);
+          setTodaysGlobalSkinList([]);
+        } else if (Array.isArray(data)) {
+          setTodaysGlobalSkinList(data);
+        }
+      });
+    };
 
-    // countdown update every second
+    // Fetch buy counts
+    const fetchBuyCounts = () => {
+      api.get(`${api.endpoint}/profile/skins/buys?${Date.now()}`, (data) => {
+        if (data.error) return alert('Error fetching skin cnts '+ data.error);
+        setSkinCounts(data);
+      });
+    };
+
+    // Initial fetch
+    fetchDailySkins();
+    fetchBuyCounts();
+
+    // Countdown update every second
     const tick = () => {
       setTimeUntilResetMs(msUntilNextReset());
     };
     tick();
     const intervalId = setInterval(tick, 1000);
 
-    // schedule exact reset action
+    // Schedule exact reset action
     let timeoutId: any;
     const schedule = () => {
       const ms = msUntilNextReset();
       timeoutId = setTimeout(() => {
-        setShopDayKey(getShopDayKey(new Date()));
-        // refresh counts and images on reset
-        api.get(`${api.endpoint}/profile/skins/buys?${Date.now()}`, (data) => {
-          if (!data?.error) setSkinCounts(data);
-        });
-        // re-schedule for next day
+        // Fetch new daily skins and counts on reset
+        fetchDailySkins();
+        fetchBuyCounts();
+        // Re-schedule for next day
         schedule();
       }, ms + 50); // slight buffer
     };
@@ -330,9 +268,6 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       clearTimeout(timeoutId);
     };
   }, []);
-
-  // compute today's global shop list based on UTC 03:00
-  const todaysGlobalSkinList = computeGlobalSkinList();
 
   return (
     <div className="shop-modal">

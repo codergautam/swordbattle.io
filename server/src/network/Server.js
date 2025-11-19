@@ -14,10 +14,10 @@ class Server {
 
     // Enhanced DDoS Protection Settings
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-    this.maxConnectionsPerIP = 10;
+    this.maxConnectionsPerIP = 25;
     this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
-    this.maxConnectionAttemptsPerMinute = 30;
-    this.maxConnectionAttemptsPer10Seconds = 5;
+    this.maxConnectionAttemptsPerMinute = 60;
+    this.maxConnectionAttemptsPer10Seconds = 10;
     this.tempBannedIPs = new Map(); // ip -> { unbanTime, banCount }
     this.banDurations = [
       5 * 60 * 1000,

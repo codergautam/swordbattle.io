@@ -1,2 +1,2 @@
-update_skin_counts: npx ts-node -r tsconfig-paths/register src/bin/update-skin-counts.ts
-generate_daily_skins: npx ts-node -r tsconfig-paths/register src/bin/generate-daily-skins.ts 60
+update_skin_counts: npm run update-skin-counts
+generate_daily_skins: npm run generate-daily-skins

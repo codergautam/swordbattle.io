@@ -6,8 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "npx tsc",
-    "heroku-postbuild": "npm run build",
+    "build": "npx @nestjs/cli build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -15,8 +14,8 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "foreverprod": "yarn build && forever start dist/main.js",
-    "update-skin-counts": "npx ts-node -r tsconfig-paths/register src/bin/update-skin-counts.ts",
-    "generate-daily-skins": "npx ts-node -r tsconfig-paths/register src/bin/generate-daily-skins.ts"
+    "update-skin-counts": "node dist/bin/update-skin-counts",
+    "generate-daily-skins": "node dist/bin/generate-daily-skins"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

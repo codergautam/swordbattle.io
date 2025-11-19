@@ -14,8 +14,8 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "foreverprod": "yarn build && forever start dist/main.js",
-    "update-skin-counts": "node dist/bin/update-skin-counts",
-    "generate-daily-skins": "node dist/bin/generate-daily-skins"
+    "update-skin-counts": "node dist/bin/update-skin-counts.js",
+    "generate-daily-skins": "node dist/bin/generate-daily-skins.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

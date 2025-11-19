@@ -1,2 +1,2 @@
-update_skin_counts: npm run update-skin-counts
-generate_daily_skins: npm run generate-daily-skins
+update_skin_counts: node dist/bin/update-skin-counts.js
+generate_daily_skins: node dist/bin/generate-daily-skins.js 60

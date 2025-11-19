@@ -384,9 +384,11 @@ function App() {
         // Get current CrazyGames user
         console.log('[CrazyGames] Calling crazygamesSDK.getUser()...');
         const currentUser = await crazygamesSDK.getUser();
-        const currentUserId = currentUser?.userId;
+        console.log('[CrazyGames] Current CrazyGames user (raw):', currentUser);
+        console.log('[CrazyGames] Current CrazyGames user (JSON):', JSON.stringify(currentUser));
+        console.log('[CrazyGames] Current CrazyGames user keys:', currentUser ? Object.keys(currentUser) : 'null');
 
-        console.log('[CrazyGames] Current CrazyGames user:', currentUser);
+        const currentUserId = currentUser?.userId;
         console.log('[CrazyGames] Current CrazyGames user ID:', currentUserId);
 
         // Get the stored secret

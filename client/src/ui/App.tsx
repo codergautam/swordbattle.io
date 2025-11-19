@@ -388,8 +388,31 @@ function App() {
         console.log('[CrazyGames] Current CrazyGames user (JSON):', JSON.stringify(currentUser));
         console.log('[CrazyGames] Current CrazyGames user keys:', currentUser ? Object.keys(currentUser) : 'null');
 
-        const currentUserId = currentUser?.userId;
-        console.log('[CrazyGames] Current CrazyGames user ID:', currentUserId);
+        let currentUserId: string | undefined = undefined;
+
+        if (currentUser) {
+          try {
+            console.log('[CrazyGames] User object exists, requesting token to get userId...');
+            const token = await crazygamesSDK.getUserToken();
+
+            if (token) {
+              const tokenParts = token.split('.');
+              if (tokenParts.length === 3) {
+                const payload = JSON.parse(atob(tokenParts[1]));
+                currentUserId = payload.userId;
+                console.log('[CrazyGames] Decoded userId from token:', currentUserId);
+              } else {
+                console.error('[CrazyGames] Invalid token format - expected 3 parts, got', tokenParts.length);
+              }
+            } else {
+              console.error('[CrazyGames] Failed to get user token');
+            }
+          } catch (error) {
+            console.error('[CrazyGames] Error getting userId from token:', error);
+          }
+        }
+
+        console.log('[CrazyGames] Final user ID:', currentUserId);
 
         // Get the stored secret
         const existingSecret = window.localStorage.getItem('secret');

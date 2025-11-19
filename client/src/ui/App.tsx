@@ -178,13 +178,26 @@ function App() {
     setTimeout(() => {
       // Only handle initial login for non-CrazyGames environments
       // CrazyGames auth is handled separately in the other useEffect
-      const isCrazygames = crazygamesSDK.shouldUseSDK() && crazygamesSDK.isUserAccountAvailable();
 
-      if (isCrazygames) {
-        console.log('[Auth] Skipping initial login for CrazyGames environment');
+      const isPotentiallyCrazygames = typeof window !== 'undefined' &&
+                                      (window.CrazyGames !== undefined ||
+                                       window.location.hostname.includes('crazygames'));
+
+      const shouldUse = crazygamesSDK.shouldUseSDK();
+      const isUserAvailable = crazygamesSDK.isUserAccountAvailable();
+      const isCrazygames = shouldUse && isUserAvailable;
+
+      console.log('[Auth Initial] isPotentiallyCrazygames:', isPotentiallyCrazygames);
+      console.log('[Auth Initial] shouldUseSDK:', shouldUse, 'isUserAccountAvailable:', isUserAvailable, 'isCrazygames:', isCrazygames);
+      console.log('[Auth Initial] SDK initialized:', crazygamesSDK.isInitialized());
+
+      if (isPotentiallyCrazygames || isCrazygames) {
+        console.log('[Auth] Skipping initial login for CrazyGames environment (will be handled by CrazyGames login flow)');
         setAccountReady(true);
         return;
       }
+
+      console.log('[Auth Initial] Not CrazyGames environment, checking localStorage secret...');
 
       let secret: string | null = null;
       try {
@@ -192,7 +205,10 @@ function App() {
       } catch(e) {
         console.log('Error getting secret', e);
       }
+      console.log('[Auth Initial] localStorage secret:', secret ? 'exists (length: ' + secret.length + ')' : 'null/empty');
+
     if(!secret || secret === 'undefined' || secret === 'null') {
+      console.log('[Auth Initial] No valid secret found, setting guest account');
       if(secret === 'undefined' || secret === 'null') {
         try {
           window.localStorage.removeItem('secret');
@@ -203,7 +219,9 @@ function App() {
       dispatch(clearAccount());
       setAccountReady(true);
     } else {
+      console.log('[Auth Initial] Valid secret found, attempting loginWithSecret...');
       api.post(`${api.endpoint}/auth/loginWithSecret`, null, (data) => {
+        console.log('[Auth Initial] loginWithSecret response:', data);
         setAccountReady(true);
         if (data.account) {
           data.account.secret = data.secret;

@@ -6,12 +6,13 @@
     "heroku-postbuild": "sh herokuinit.sh"
   },
   "engines": {
-  "node": "22.x"
-},
+    "node": "22.x"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@nestjs/schedule": "^6.0.1",
     "http-proxy": "^1.18.1",
     "pm2": "^5.4.2"
   }

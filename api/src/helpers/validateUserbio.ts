@@ -16,9 +16,9 @@ export default function validateUserbio(bio: string): string {
   if(bio.includes("  ")) {
     return "Bio can't have two spaces in a row";
   }
-  var regex = /^[a-zA-Z0-9!@"$%&:';()*\+,;\-=[\]\^_{|}<>~` ]+$/g;
+  var regex = /^[a-zA-Z0-9!@"$%&:';()*\+,;\-=[\]\^_{|}<>~`. ]+$/g;
   if(!bio.match(regex)) {
-    return "Bio can only contain letters, numbers, spaces, and the following symbols: !@\"$%&:';()*\+,-=[\]\^_{|}<>~`";
+    return "Bio can only contain letters, numbers, spaces, and the following symbols: .!@\"$%&:';()*\+,-=[\]\^_{|}<>~`";
   }
   var containsProfanity = filter.check(bio);
   if(containsProfanity) {

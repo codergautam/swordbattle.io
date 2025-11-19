@@ -38,7 +38,7 @@ class Client {
     this.messageCount = 0;
     this.messageResetTimer = 0;
     this.maxMessagesPerSecond = 500; 
-    this.maxQueueSize = 100; // Maximum queued messages
+    this.maxQueueSize = 250;
 
     this.lastPlayTime = 0;
     this.playCount = 0;

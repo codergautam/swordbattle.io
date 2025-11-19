@@ -33,7 +33,7 @@ export class CosmeticsService {
     }
   }
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_DAY_AT_11PM)
   async updateSkinBuyCounts() {
     this.logger.log('Starting skin buy count update...');
     try {

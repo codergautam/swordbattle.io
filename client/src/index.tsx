@@ -64,10 +64,17 @@ crazygamesSDK.init().then(async () => {
 (window as any).instantStart = false;
 try {
   const urlParams = window.location.search;
-  (window as any).instantStart = urlParams.includes("instantStart=true") ||
-                                   urlParams.includes("instantJoin=true") ||
-                                   urlParams.includes("czy_invite=true");
-} catch(e) {}
+  const hasInstantStart = urlParams.includes("instantStart=true");
+  const hasInstantJoin = urlParams.includes("instantJoin=true");
+  const hasCzyInvite = urlParams.includes("czy_invite=true");
+  (window as any).instantStart = hasInstantStart || hasInstantJoin || hasCzyInvite;
+
+  if ((window as any).instantStart) {
+    console.log('[InstantStart] Enabled via URL params - instantStart:', hasInstantStart, 'instantJoin:', hasInstantJoin, 'czy_invite:', hasCzyInvite);
+  }
+} catch(e) {
+  console.error('[InstantStart] Error checking URL params:', e);
+}
 const root = ReactDOM.createRoot(document.getElementById('root') as Element);
 document.addEventListener('contextmenu',function(e) {
   e.preventDefault();

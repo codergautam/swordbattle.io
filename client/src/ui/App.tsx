@@ -180,8 +180,7 @@ function App() {
       // CrazyGames auth is handled separately in the other useEffect
 
       const isPotentiallyCrazygames = typeof window !== 'undefined' &&
-                                      (window.CrazyGames !== undefined ||
-                                       window.location.hostname.includes('crazygames'));
+                                      window.location.hostname.includes('crazygames');
 
       const shouldUse = crazygamesSDK.shouldUseSDK();
       const isUserAvailable = crazygamesSDK.isUserAccountAvailable();

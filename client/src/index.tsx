@@ -61,11 +61,12 @@ crazygamesSDK.init().then(async () => {
   console.log('CrazyGames SDK not available:', error);
 });
 
-// check if have queryparam called instantStart=true
-// if so, start the game instantly
 (window as any).instantStart = false;
 try {
-  (window as any).instantStart = window.location.search.includes("instantStart=true");
+  const urlParams = window.location.search;
+  (window as any).instantStart = urlParams.includes("instantStart=true") ||
+                                   urlParams.includes("instantJoin=true") ||
+                                   urlParams.includes("czy_invite=true");
 } catch(e) {}
 const root = ReactDOM.createRoot(document.getElementById('root') as Element);
 document.addEventListener('contextmenu',function(e) {

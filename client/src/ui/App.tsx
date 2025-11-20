@@ -833,12 +833,17 @@ function App() {
     const isCrazygames = crazygamesSDK.shouldUseSDK() && crazygamesSDK.isUserAccountAvailable();
     const isAuthReady = isCrazygames ? crazygamesAuthReady : accountReady;
 
-    if(loadingProgress === 100 && isAuthReady && (window as any).instantStart) {
+    if(loadingProgress === 100 && isAuthReady && isConnected && (window as any).instantStart) {
       console.log('[CrazyGames] Instant multiplayer - Auto-starting game');
+      console.log('[CrazyGames] Conditions met - loadingProgress:', loadingProgress, 'isAuthReady:', isAuthReady, 'isConnected:', isConnected);
       (window as any).instantStart = false;
-      onStart();
+
+      setTimeout(() => {
+        console.log('[CrazyGames] Triggering auto-start now');
+        onStart();
+      }, 100);
     }
-  }, [loadingProgress, accountReady, crazygamesAuthReady]);
+  }, [loadingProgress, accountReady, crazygamesAuthReady, isConnected]);
   const isLoaded = loadingProgress === 100;
   return (
     <div className="App">

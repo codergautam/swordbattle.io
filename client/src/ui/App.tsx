@@ -667,31 +667,19 @@ function App() {
 
             previousUserId = null;
           }
-          // User logged in (was logged out, now logged in) - trigger auth flow instead of reload
+          // User logged in (was logged out, now logged in)
           else if (!previousUserId && currentUserId) {
-            console.log('[CrazyGames Monitor] User logged in - triggering authentication flow');
-            isProcessingChange = true;
+            console.log('[CrazyGames Monitor] User logged in - reloading page to apply authentication');
 
-            try {
-              // Reset the auth ready state so loading screen waits for completion
-              setCrazygamesAuthReady(false);
+            window.onbeforeunload = null;
 
-              // Trigger the authentication flow
-              await attemptCrazygamesLogin();
-
-              console.log('[CrazyGames Monitor] Authentication flow completed');
-            } catch (error) {
-              console.error('[CrazyGames Monitor] Error during authentication flow:', error);
-            } finally {
-              isProcessingChange = false;
-            }
+            window.location.reload();
 
             previousUserId = currentUserId;
           }
           // User changed account (different userId)
           else if (previousUserId && currentUserId && previousUserId !== currentUserId) {
-            console.log('[CrazyGames Monitor] User account changed - triggering re-authentication');
-            isProcessingChange = true;
+            console.log('[CrazyGames Monitor] User account changed - reloading page to switch accounts');
 
             // Clear old secret
             if (hasValidSecret) {
@@ -702,19 +690,9 @@ function App() {
               }
             }
 
-            try {
-              // Reset the auth ready state so loading screen waits for completion
-              setCrazygamesAuthReady(false);
+            window.onbeforeunload = null;
 
-              // Trigger the authentication flow for the new account
-              await attemptCrazygamesLogin();
-
-              console.log('[CrazyGames Monitor] Re-authentication flow completed');
-            } catch (error) {
-              console.error('[CrazyGames Monitor] Error during re-authentication flow:', error);
-            } finally {
-              isProcessingChange = false;
-            }
+            window.location.reload();
 
             previousUserId = currentUserId;
           }

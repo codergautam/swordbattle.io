@@ -100,22 +100,21 @@ const protobufErrorCounts = new Map();
 const MAX_URL_LENGTH = 2000;
 
 const homepageIpRate = new Map();
-const homepageGlobal = { count: 0, reset: 0 };
-const HOMEPAGE_IP_LIMIT = 30;
-const HOMEPAGE_IP_TTL = 10000;
-const HOMEPAGE_GLOBAL_LIMIT = 300;
-const HOMEPAGE_GLOBAL_TTL = 10000;
+const HOMEPAGE_IP_LIMIT = 15;
+const HOMEPAGE_IP_TTL = 5000;
 const HOMEPAGE_CACHE = Buffer.from('<!DOCTYPE html><html><head><title>Swordbattle</title></head><body><h1>Swordbattle</h1><p>Server is up.</p></body></html>');
 
 const bannedIPsLog = new Map();
 const BAN_LOG_THROTTLE = 10000;
 const permanentBans = new Map();
-const PERMANENT_BAN_THRESHOLD = 20;
-const PERMANENT_BAN_WINDOW = 30000;
+const PERMANENT_BAN_THRESHOLD = 10;
+const PERMANENT_BAN_WINDOW = 15000;
 let droppedRequestCount = 0;
 let lastDropReportTime = Date.now();
 
 const emergencyBanList = new Set();
+const suspiciousProxyIPs = new Map();
+const bannedProxyIPs = new Set();
 
 const timestampFailures = new Map();
 const TIMESTAMP_FAIL_THRESHOLD = 5;
@@ -278,6 +277,22 @@ const server = http.createServer((req, res) => {
     const clientIP = getClientIP(req);
     const now = Date.now();
 
+    const xForwardedFor = req.headers['x-forwarded-for'];
+    let proxyIP = null;
+    if (xForwardedFor) {
+      const ips = xForwardedFor.split(',').map(s => s.trim());
+      proxyIP = ips[ips.length - 1];
+
+      if (bannedProxyIPs.has(proxyIP)) {
+        droppedRequestCount++;
+        if (!res.headersSent) {
+          res.writeHead(403, { 'Connection': 'close' });
+          res.end();
+        }
+        return;
+      }
+    }
+
     if (emergencyBanList.has(clientIP) || permanentBans.has(clientIP)) {
       droppedRequestCount++;
       if (now - lastDropReportTime > 5000) {
@@ -285,22 +300,20 @@ const server = http.createServer((req, res) => {
         droppedRequestCount = 0;
         lastDropReportTime = now;
       }
-      try {
-        req.socket.destroy();
-      } catch (e) {}
+      if (!res.headersSent) {
+        res.writeHead(403, { 'Connection': 'close' });
+        res.end();
+      }
       return;
     }
 
-    const xForwardedFor = req.headers['x-forwarded-for'];
-    if (xForwardedFor) {
-      const proxyIP = xForwardedFor.split(',').map(s => s.trim()).pop();
-      if (proxyIP && (serverinfoBannedProxies.has(proxyIP) || endpointBannedProxies.has(proxyIP))) {
-        droppedRequestCount++;
-        try {
-          req.socket.destroy();
-        } catch (e) {}
-        return;
+    if (xForwardedFor && (serverinfoBannedProxies.has(proxyIP) || endpointBannedProxies.has(proxyIP))) {
+      droppedRequestCount++;
+      if (!res.headersSent) {
+        res.writeHead(403, { 'Connection': 'close' });
+        res.end();
       }
+      return;
     }
 
     if (bannedIPs.has(clientIP)) {
@@ -321,15 +334,27 @@ const server = http.createServer((req, res) => {
           console.error(`[EMERGENCY_BAN] IP ${clientIP} added to emergency ban list - ${permBanData.violations} violations in ${PERMANENT_BAN_WINDOW/1000}s`);
           emergencyBanList.add(clientIP);
           permanentBans.set(clientIP, { permanent: true, bannedAt: now });
+
+          if (proxyIP) {
+            const proxyData = suspiciousProxyIPs.get(proxyIP) || { count: 0, firstSeen: now };
+            proxyData.count++;
+            suspiciousProxyIPs.set(proxyIP, proxyData);
+
+            if (proxyData.count >= 5) {
+              console.error(`[PROXY_BAN] Banning proxy IP ${proxyIP} - ${proxyData.count} emergency bans`);
+              bannedProxyIPs.add(proxyIP);
+            }
+          }
         }
       } else {
         permBanData.violations = 1;
         permBanData.firstViolation = now;
       }
 
-      try {
-        req.socket.destroy();
-      } catch (e) {}
+      if (!res.headersSent) {
+        res.writeHead(403, { 'Connection': 'close' });
+        res.end();
+      }
       return;
     }
 
@@ -386,34 +411,29 @@ const server = http.createServer((req, res) => {
               console.error(`[EMERGENCY_BAN] IP ${clientIP} added to emergency ban list - homepage spam`);
               emergencyBanList.add(clientIP);
               permanentBans.set(clientIP, { permanent: true, bannedAt: now });
+
+              if (proxyIP) {
+                const proxyData = suspiciousProxyIPs.get(proxyIP) || { count: 0, firstSeen: now };
+                proxyData.count++;
+                suspiciousProxyIPs.set(proxyIP, proxyData);
+
+                if (proxyData.count >= 5) {
+                  console.error(`[PROXY_BAN] Banning proxy IP ${proxyIP} - ${proxyData.count} emergency bans through this proxy`);
+                  bannedProxyIPs.add(proxyIP);
+                }
+              }
             }
           }
 
-          try {
-            req.socket.destroy();
-          } catch (e) {}
-          return;
-        }
-      }
-
-      if (now > homepageGlobal.reset) {
-        homepageGlobal.count = 1;
-        homepageGlobal.reset = now + HOMEPAGE_GLOBAL_TTL;
-      } else {
-        homepageGlobal.count++;
-        if (homepageGlobal.count > HOMEPAGE_GLOBAL_LIMIT) {
-          if (homepageGlobal.count === HOMEPAGE_GLOBAL_LIMIT + 1) {
-            console.warn(`[SECURITY] GLOBAL homepage rate exceeded. Dropping excess requests.`);
+          if (!res.headersSent) {
+            res.writeHead(403, { 'Connection': 'close' });
+            res.end();
           }
-          droppedRequestCount++;
-          try {
-            req.socket.destroy();
-          } catch (e) {}
           return;
         }
       }
 
-      res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'public, max-age=60' });
+      res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'public, max-age=60', 'Connection': 'close' });
       res.end(HOMEPAGE_CACHE);
       return;
     }
@@ -1282,6 +1302,17 @@ setInterval(() => {
   const emergencyBanCount = emergencyBanList.size;
   if (emergencyBanCount > 0) {
     console.log(`[STATS] Emergency ban list size: ${emergencyBanCount}`);
+  }
+
+  const bannedProxyCount = bannedProxyIPs.size;
+  if (bannedProxyCount > 0) {
+    console.log(`[STATS] Banned proxy IPs: ${bannedProxyCount}`);
+  }
+
+  for (const [proxyIP, data] of suspiciousProxyIPs) {
+    if (now - data.firstSeen > 300000) {
+      suspiciousProxyIPs.delete(proxyIP);
+    }
   }
 
   if (droppedRequestCount > 0) {

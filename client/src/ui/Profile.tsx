@@ -78,7 +78,7 @@ export default function Profile() {
   useEffect(() => {
     if (!data?.account) return;
     api.post(
-      `${api.endpoint}/games/fetch`,
+      `${api.endpoint}/games/fetch?${Date.now()}`,
       {
         sortBy: gameSort,
         timeRange: 'all',

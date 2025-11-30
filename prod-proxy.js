@@ -100,15 +100,15 @@ const protobufErrorCounts = new Map();
 const MAX_URL_LENGTH = 2000;
 
 const homepageIpRate = new Map();
-const HOMEPAGE_IP_LIMIT = 15;
-const HOMEPAGE_IP_TTL = 5000;
+const HOMEPAGE_IP_LIMIT = 40;
+const HOMEPAGE_IP_TTL = 10000;
 const HOMEPAGE_CACHE = Buffer.from('<!DOCTYPE html><html><head><title>Swordbattle</title></head><body><h1>Swordbattle</h1><p>Server is up.</p></body></html>');
 
 const bannedIPsLog = new Map();
 const BAN_LOG_THROTTLE = 10000;
 const permanentBans = new Map();
-const PERMANENT_BAN_THRESHOLD = 10;
-const PERMANENT_BAN_WINDOW = 15000;
+const PERMANENT_BAN_THRESHOLD = 25;
+const PERMANENT_BAN_WINDOW = 20000;
 let droppedRequestCount = 0;
 let lastDropReportTime = Date.now();
 
@@ -116,8 +116,15 @@ const emergencyBanList = new Set();
 const suspiciousProxyIPs = new Map();
 const bannedProxyIPs = new Set();
 
+const proxyRateLimit = new Map();
+const PROXY_RATE_LIMIT = 150;
+const PROXY_RATE_WINDOW = 5000;
+const proxyBurstLimit = new Map();
+const PROXY_BURST_LIMIT = 60;
+const PROXY_BURST_WINDOW = 1000;
+
 const timestampFailures = new Map();
-const TIMESTAMP_FAIL_THRESHOLD = 5;
+const TIMESTAMP_FAIL_THRESHOLD = 15;
 const TIMESTAMP_FAIL_WINDOW = 300000;
 
 const serverinfoIpRate = new Map();
@@ -290,6 +297,55 @@ const server = http.createServer((req, res) => {
           res.end();
         }
         return;
+      }
+
+      let burstData = proxyBurstLimit.get(proxyIP);
+      if (!burstData || now - burstData.windowStart > PROXY_BURST_WINDOW) {
+        burstData = { count: 1, windowStart: now };
+        proxyBurstLimit.set(proxyIP, burstData);
+      } else {
+        burstData.count++;
+        if (burstData.count > PROXY_BURST_LIMIT) {
+          console.error(`[PROXY_BAN] Proxy ${proxyIP} exceeded burst limit (${burstData.count} req in ${PROXY_BURST_WINDOW}ms). Instant ban.`);
+          bannedProxyIPs.add(proxyIP);
+          droppedRequestCount++;
+          if (!res.headersSent) {
+            res.writeHead(403, { 'Connection': 'close' });
+            res.end();
+          }
+          return;
+        }
+      }
+
+      let rateData = proxyRateLimit.get(proxyIP);
+      if (!rateData || now - rateData.reset > PROXY_RATE_WINDOW) {
+        rateData = { count: 1, reset: now + PROXY_RATE_WINDOW, ips: new Set([clientIP]) };
+        proxyRateLimit.set(proxyIP, rateData);
+      } else {
+        rateData.count++;
+        rateData.ips.add(clientIP);
+
+        if (rateData.count > PROXY_RATE_LIMIT) {
+          console.error(`[PROXY_BAN] Proxy ${proxyIP} exceeded rate limit (${rateData.count} req in ${PROXY_RATE_WINDOW}ms, ${rateData.ips.size} unique IPs). Banning.`);
+          bannedProxyIPs.add(proxyIP);
+          droppedRequestCount++;
+          if (!res.headersSent) {
+            res.writeHead(403, { 'Connection': 'close' });
+            res.end();
+          }
+          return;
+        }
+
+        if (rateData.ips.size > 20 && rateData.count > 60) {
+          console.error(`[PROXY_BAN] Proxy ${proxyIP} shows IP rotation attack (${rateData.ips.size} IPs, ${rateData.count} requests). Banning.`);
+          bannedProxyIPs.add(proxyIP);
+          droppedRequestCount++;
+          if (!res.headersSent) {
+            res.writeHead(403, { 'Connection': 'close' });
+            res.end();
+          }
+          return;
+        }
       }
     }
 
@@ -494,7 +550,7 @@ const server = http.createServer((req, res) => {
         if (queryMatch) {
           const timestamp = parseInt(queryMatch[1], 10);
           const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 120000;
+          const MAX_TIME_DIFF = 300000;
 
           if (timeDiff > MAX_TIME_DIFF) {
             let failData = timestampFailures.get(clientIP);
@@ -661,7 +717,7 @@ const server = http.createServer((req, res) => {
         if (queryMatch) {
           const timestamp = parseInt(queryMatch[1], 10);
           const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 120000;
+          const MAX_TIME_DIFF = 300000;
 
           if (timeDiff > MAX_TIME_DIFF) {
             let failData = timestampFailures.get(clientIP);
@@ -818,7 +874,7 @@ const server = http.createServer((req, res) => {
         if (queryMatch) {
           const timestamp = parseInt(queryMatch[1], 10);
           const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 120000;
+          const MAX_TIME_DIFF = 300000;
 
           if (timeDiff > MAX_TIME_DIFF) {
             let failData = timestampFailures.get(clientIP);
@@ -974,7 +1030,7 @@ const server = http.createServer((req, res) => {
         if (queryMatch) {
           const timestamp = parseInt(queryMatch[1], 10);
           const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 120000;
+          const MAX_TIME_DIFF = 300000;
 
           if (timeDiff > MAX_TIME_DIFF) {
             let failData = timestampFailures.get(clientIP);
@@ -1060,6 +1116,161 @@ const server = http.createServer((req, res) => {
             proxyData.count++;
             if (proxyData.count > ENDPOINT_PROXY_LIMIT) {
               console.warn(`[SKINSBUYS_BAN] Proxy ${proxyIP} exceeded /profile/skins/buys rate (${proxyData.count}/${ENDPOINT_PROXY_TTL/1000}s). Temporarily banning for 5 minutes.`);
+              endpointBannedProxies.add(proxyIP);
+              setTimeout(() => {
+                endpointBannedProxies.delete(proxyIP);
+              }, 300000);
+              if (!res.headersSent) {
+                res.writeHead(429, { 'Content-Type': 'text/plain' });
+                res.end('Too Many Requests');
+              }
+              return;
+            }
+          }
+        }
+      }
+    }
+
+    if ((req.method === 'POST' && req.url && req.url.startsWith('/stats/fetch')) ||
+        (req.method === 'POST' && req.url && req.url.startsWith('/games/fetch'))) {
+      const endpointName = req.url.startsWith('/stats/fetch') ? 'stats/fetch' : 'games/fetch';
+
+      const malformedMatch = req.url.match(/^\/(stats|games)\/fetch\d+/);
+      if (malformedMatch) {
+        bannedIPs.add(clientIP);
+        setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+
+        if (proxyIP && !endpointBannedProxies.has(proxyIP)) {
+          let proxyData = endpointProxyRate.get(proxyIP);
+          if (!proxyData || now - proxyData.reset > ENDPOINT_PROXY_TTL) {
+            proxyData = { count: 1, reset: now + ENDPOINT_PROXY_TTL, malformedCount: 1 };
+            endpointProxyRate.set(proxyIP, proxyData);
+            console.warn(`[${endpointName.toUpperCase()}_BLOCK] First malformed /${endpointName} from proxy ${proxyIP}`);
+          } else {
+            proxyData.malformedCount = (proxyData.malformedCount || 0) + 1;
+            if (proxyData.malformedCount > 50) {
+              console.warn(`[${endpointName.toUpperCase()}_BAN] Proxy ${proxyIP} sent ${proxyData.malformedCount} malformed /${endpointName} requests. Banning for 1 hour.`);
+              endpointBannedProxies.add(proxyIP);
+              setTimeout(() => {
+                endpointBannedProxies.delete(proxyIP);
+              }, 3600000);
+            }
+          }
+        }
+
+        if (!res.headersSent) {
+          res.writeHead(403, { 'Content-Type': 'text/plain' });
+          res.end('Forbidden');
+        }
+        return;
+      }
+
+      const tokenMatch = req.url.match(/[?&]token=([^&]+)/);
+      const authHeader = req.headers['authorization'];
+      const token = tokenMatch ? tokenMatch[1] : (authHeader ? authHeader.replace('Bearer ', '') : null);
+
+      if (token && validateApiToken(token)) {
+      } else {
+        if (!req.url.includes('?')) {
+          bannedIPs.add(clientIP);
+          setTimeout(() => { bannedIPs.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+          if (!res.headersSent) {
+            res.writeHead(403, { 'Content-Type': 'text/plain' });
+            res.end('Forbidden');
+          }
+          return;
+        }
+
+        const queryMatch = req.url.match(/\?(\d+)/);
+        if (queryMatch) {
+          const timestamp = parseInt(queryMatch[1], 10);
+          const timeDiff = Math.abs(now - timestamp);
+          const MAX_TIME_DIFF = 300000;
+
+          if (timeDiff > MAX_TIME_DIFF) {
+            let failData = timestampFailures.get(clientIP);
+            if (!failData || now - failData.firstFail > TIMESTAMP_FAIL_WINDOW) {
+              failData = { count: 1, firstFail: now };
+              timestampFailures.set(clientIP, failData);
+            } else {
+              failData.count++;
+            }
+
+            if (failData.count >= TIMESTAMP_FAIL_THRESHOLD) {
+              console.warn(`[${endpointName.toUpperCase()}_BLOCK] IP ${clientIP} sent /${endpointName} with invalid timestamp ${failData.count} times (diff: ${timeDiff}ms). Blocking.`);
+              bannedIPs.add(clientIP);
+              setTimeout(() => { bannedIPs.delete(clientIP); timestampFailures.delete(clientIP); }, TEMP_BAN_DURATION * 10);
+              if (!res.headersSent) {
+                res.writeHead(403, { 'Content-Type': 'text/plain' });
+                res.end('Forbidden');
+              }
+              return;
+            } else {
+              if (!res.headersSent) {
+                res.writeHead(403, { 'Content-Type': 'text/plain' });
+                res.end('Forbidden');
+              }
+              return;
+            }
+          }
+        }
+      }
+
+      if (!token || !validateApiToken(token)) {
+        if (proxyIP && endpointBannedProxies.has(proxyIP)) {
+          console.warn(`[${endpointName.toUpperCase()}_BLOCK] Banned proxy ${proxyIP} attempted /${endpointName} request.`);
+          if (!res.headersSent) {
+            res.writeHead(403, { 'Content-Type': 'text/plain' });
+            res.end('Forbidden');
+          }
+          return;
+        }
+
+        let ipData = endpointIpRate.get(clientIP);
+        if (!ipData || now > ipData.reset) {
+          ipData = { count: 1, reset: now + ENDPOINT_IP_TTL, burstCount: 1, burstReset: now + ENDPOINT_BURST_TTL };
+          endpointIpRate.set(clientIP, ipData);
+        } else {
+          ipData.count++;
+          if (now > ipData.burstReset) {
+            ipData.burstCount = 1;
+            ipData.burstReset = now + ENDPOINT_BURST_TTL;
+          } else {
+            ipData.burstCount++;
+          }
+
+          if (ipData.count > ENDPOINT_IP_LIMIT) {
+            console.warn(`[${endpointName.toUpperCase()}_BAN] IP ${clientIP} exceeded /${endpointName} rate (${ipData.count}/${ENDPOINT_IP_TTL/1000}s). Banning.`);
+            bannedIPs.add(clientIP);
+            setTimeout(() => { bannedIPs.delete(clientIP); endpointIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 5);
+            if (!res.headersSent) {
+              res.writeHead(429, { 'Content-Type': 'text/plain' });
+              res.end('Too Many Requests');
+            }
+            return;
+          }
+
+          if (ipData.burstCount > ENDPOINT_BURST_LIMIT) {
+            console.warn(`[${endpointName.toUpperCase()}_BAN] IP ${clientIP} exceeded /${endpointName} burst limit (${ipData.burstCount}/${ENDPOINT_BURST_TTL/1000}s). Banning.`);
+            bannedIPs.add(clientIP);
+            setTimeout(() => { bannedIPs.delete(clientIP); endpointIpRate.delete(clientIP); }, TEMP_BAN_DURATION * 2);
+            if (!res.headersSent) {
+              res.writeHead(429, { 'Content-Type': 'text/plain' });
+              res.end('Too Many Requests');
+            }
+            return;
+          }
+        }
+
+        if (proxyIP) {
+          let proxyData = endpointProxyRate.get(proxyIP);
+          if (!proxyData || now > proxyData.reset) {
+            proxyData = { count: 1, reset: now + ENDPOINT_PROXY_TTL };
+            endpointProxyRate.set(proxyIP, proxyData);
+          } else {
+            proxyData.count++;
+            if (proxyData.count > ENDPOINT_PROXY_LIMIT) {
+              console.warn(`[${endpointName.toUpperCase()}_BAN] Proxy ${proxyIP} exceeded /${endpointName} rate (${proxyData.count}/${ENDPOINT_PROXY_TTL/1000}s). Temporarily banning for 5 minutes.`);
               endpointBannedProxies.add(proxyIP);
               setTimeout(() => {
                 endpointBannedProxies.delete(proxyIP);
@@ -1312,6 +1523,18 @@ setInterval(() => {
   for (const [proxyIP, data] of suspiciousProxyIPs) {
     if (now - data.firstSeen > 300000) {
       suspiciousProxyIPs.delete(proxyIP);
+    }
+  }
+
+  for (const [proxyIP, data] of proxyRateLimit) {
+    if (now - data.reset > PROXY_RATE_WINDOW * 2) {
+      proxyRateLimit.delete(proxyIP);
+    }
+  }
+
+  for (const [proxyIP, data] of proxyBurstLimit) {
+    if (now - data.windowStart > PROXY_BURST_WINDOW * 10) {
+      proxyBurstLimit.delete(proxyIP);
     }
   }
 

@@ -73,7 +73,7 @@ export function GlobalLeaderboard() {
   const fetchData = () => {
     const isGames = type === 'coins' || type === 'kills' || type === 'playtime';
     const isAllTimeGames = isGames && range === 'all';
-    const url = `${api.endpoint}/${isGames ? 'games' : 'stats'}/fetch`;
+    const url = `${api.endpoint}/${isGames ? 'games' : 'stats'}/fetch?${Date.now()}`;
 
     const limit = isAllTimeGames ? 500 : 100;
 

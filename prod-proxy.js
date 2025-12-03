@@ -1518,6 +1518,9 @@ setInterval(() => {
   const bannedProxyCount = bannedProxyIPs.size;
   if (bannedProxyCount > 0) {
     console.log(`[STATS] Banned proxy IPs: ${bannedProxyCount}`);
+    for (const ip of bannedProxyIPs) {
+      console.log(`  - ${ip}`);
+    }
   }
 
   for (const [proxyIP, data] of suspiciousProxyIPs) {
@@ -1542,7 +1545,7 @@ setInterval(() => {
     console.log(`[STATS] Total dropped requests in last minute: ${droppedRequestCount}`);
     droppedRequestCount = 0;
   }
-}, 60000);
+}, 300000);
 
 // Start the server
 server.listen(process.env.PORT || 80, () => {
@@ -1551,3 +1554,10 @@ server.listen(process.env.PORT || 80, () => {
   console.log('[SECURITY] Rate limiting enabled: 60 req/min');
   console.log('[SECURITY] WebSocket handling improved');
 });
+
+global.clearBannedProxies = function() {
+  const count = bannedProxyIPs.size;
+  bannedProxyIPs.clear();
+  console.log(`[ADMIN] Cleared ${count} banned proxy IPs`);
+  return count;
+};

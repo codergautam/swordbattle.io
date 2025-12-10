@@ -64,10 +64,10 @@ export default class Game extends Phaser.Scene {
     this.load.image('pond', publicPath + '/assets/game/Pond_Earth-winter.png');
     this.load.image('bush', publicPath + '/assets/game/grass-winter.png');
     this.load.image('bushFaded', publicPath + '/assets/game/grass-winter-50.png');
-    this.load.image('iceMound', publicPath + '/assets/game/Ice_Mound.png');
+    this.load.image('iceMound', publicPath + '/assets/game/Ice_Mound-new.png');
     this.load.image('iceMoundFaded', publicPath + '/assets/game/Ice_Mound-50.png');
     this.load.image('iceSpike', publicPath + '/assets/game/Ice_Spike-winter.png');
-    this.load.image('icePond', publicPath + '/assets/game/Ice_Pond.png');
+    this.load.image('icePond', publicPath + '/assets/game/Ice_Pond-new.png');
     this.load.image('rock', publicPath + '/assets/game/Rock-winter.png');
     this.load.image('lavaRock', publicPath + '/assets/game/Lava_Rock-winter.png');
     this.load.image('lavaPool', publicPath + '/assets/game/Lava_Pool-winter.png');

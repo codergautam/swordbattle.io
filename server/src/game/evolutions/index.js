@@ -78,6 +78,7 @@ class EvolutionSystem {
     const Evolution = evolutions[key];
     if (!Evolution) return;
     this.player.effects.delete('evolution');
+    this.evolutionEffect.remove();
     this.evolutionEffect = new Evolution(this.player);
     this.evolution = Evolution.type;
     this.player.effects.set('evolution', this.evolutionEffect);

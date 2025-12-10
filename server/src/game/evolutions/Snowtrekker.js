@@ -6,7 +6,7 @@ module.exports = class Snowtrekker extends Evolution {
   static level = 27;
   static previousEvol = Types.Evolution.Snowboarder;
   static abilityDuration = 0.01;
-  static abilityCooldown = 30;
+  static abilityCooldown = 20;
   static shockwaveRadius = 2000;
 
   constructor(player) {

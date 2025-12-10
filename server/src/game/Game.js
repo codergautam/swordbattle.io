@@ -375,16 +375,22 @@ class Game {
 
   getAllEntities(player) {
     const entities = {};
-    for (const entityId of player.getEntitiesInViewport()) {
-      // const entity = [...this.entities].find(e => e.id === entityId);
-      const entity = this.entities.get(entityId);
-      if (!entity) continue;
+
+    // First, add ALL static entities (they should be sent once and cached client-side)
+    for (const entity of this.entities.values()) {
       if (entity.isStatic) {
         entities[entity.id] = entity.state.get();
-        continue;
       }
+    }
+
+    // Then add dynamic entities in viewport
+    for (const entityId of player.getEntitiesInViewport()) {
+      const entity = this.entities.get(entityId);
+      if (!entity) continue;
+      if (entity.isStatic) continue; // Already added above
       entities[entity.id] = entity.state.get();
     }
+
     return entities;
   }
 

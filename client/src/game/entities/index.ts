@@ -2,9 +2,11 @@ import { EntityTypes } from '../Types';
 import { BaseEntity } from './BaseEntity';
 import Chest from './Chest';
 import Coin from './Coin';
+import Token from './Token';
 import Fireball from './Fireball';
 import Boulder from './Boulder';
 import SwordProj from './SwordProj';
+import Ornament from './Ornament';
 import Player from './Player';
 import Snowball from './Snowball';
 import Sword from './Sword';
@@ -29,6 +31,7 @@ import YetiMob from './mobs/Yeti';
 import SantaMob from './mobs/Santa';
 import FishMob from './mobs/Fish';
 import AngryFishMob from './mobs/AngryFish';
+import IceSpiritMob from './mobs/IceSpirit';
 
 export const EntityDepth: Record<any, number> = {
   [EntityTypes.Pond]: 1,
@@ -36,6 +39,7 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.IcePond]: 3,
   [EntityTypes.IceSpike]: 4,
   [EntityTypes.Coin]: 5,
+  [EntityTypes.Token]: 5.5,
   [EntityTypes.Chest]: 6,
 
   [EntityTypes.Rock]: 10,
@@ -48,6 +52,7 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.Moose]: 11,
   [EntityTypes.Fish]: 11,
   [EntityTypes.AngryFish]: 11,
+  [EntityTypes.IceSpirit]: 11,
 
   [EntityTypes.Player]: 20,
   [EntityTypes.Sword]: 21,
@@ -55,6 +60,7 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.Boulder]: 22,
   [EntityTypes.SwordProj]: 22,
   [EntityTypes.Snowball]: 22,
+  [EntityTypes.Ornament]: 22,
   [EntityTypes.Roku]: 23,
   [EntityTypes.Ancient]: 23,
   [EntityTypes.Yeti]: 23,
@@ -70,6 +76,7 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
   switch (type) {
     case EntityTypes.Player: return Player;
     case EntityTypes.Coin: return Coin;
+    case EntityTypes.Token: return Token;
     case EntityTypes.House1: return House1;
     case EntityTypes.Chest: return Chest;
     case EntityTypes.Sword: return Sword;
@@ -80,6 +87,7 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.Moose: return MooseMob;
     case EntityTypes.Fish: return FishMob;
     case EntityTypes.AngryFish: return AngryFishMob;
+    case EntityTypes.IceSpirit: return IceSpiritMob;
     case EntityTypes.Chimera: return ChimeraMob;
     case EntityTypes.Yeti: return YetiMob;
     case EntityTypes.Santa: return SantaMob;
@@ -89,6 +97,7 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.Boulder: return Boulder;
     case EntityTypes.SwordProj: return SwordProj;
     case EntityTypes.Snowball: return Snowball;
+    case EntityTypes.Ornament: return Ornament;
 
     case EntityTypes.Rock: return Rock;
     case EntityTypes.Bush: return Bush;

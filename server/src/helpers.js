@@ -44,19 +44,21 @@ module.exports = {
     return Math.max(min, Math.min(max, value));
   },
 
- calculateGemsXP(coins, kills) {
+ calculateGemsXP(coins, kills, tokens) {
     const xp = Math.floor(coins / 20) + (kills * 50)
     if (coins >= 1250000) {
       return {
         xp,
         gems: Math.floor(xp / 5),
         mastery: Math.floor((coins / 794) ** 1.5),
+        tokens: tokens,
       };
     } else {
       return {
         xp,
         gems: Math.floor(xp / 5),
         mastery: Math.floor((coins / 5000) ** 2),
+        tokens: tokens,
       };
     }
   },

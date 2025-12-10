@@ -51,6 +51,7 @@ class LevelSystem {
     this.level = 1;
     this.maxLevel = levels.length-1;
     this.coins = 0;
+    this.tokens = 0;
     this.previousLevelCoins = 0;
     this.nextLevelCoins = levels[this.level].coins;
     this.upgradePoints = 0;
@@ -96,6 +97,10 @@ class LevelSystem {
 
       this.levelUp();
     }
+  }
+
+  addTokens(tokens) {
+    this.tokens += tokens;
   }
 
   canBuff(type) {

@@ -13,8 +13,8 @@ module.exports = class Vampire extends Evolution {
     this.player.shape.setScale(0.925);
     this.player.modifiers.leech = 1.1;
     this.player.sword.knockback.multiplier['ability'] = 3;
-    this.player.speed.multiplier *= 1.55;
-    this.player.sword.damage.multiplier *= 1.5;
+    this.player.speed.multiplier *= 1.5;
+    this.player.sword.damage.multiplier *= 1.4;
     this.player.sword.swingDuration.multiplier['ability'] = 1.55;
     this.player.health.max.multiplier *= 0.925;
   }

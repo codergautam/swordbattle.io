@@ -20,7 +20,7 @@ class Safezone extends Biome {
         type: Types.Entity.Bush,
         position: [
           Math.cos(angle) * this.shape.radius,
-          Math.sin(angle) * this.shape.radius,
+          Math.sin(angle) * this.shape.radius + 2500
         ],
         size,
       });

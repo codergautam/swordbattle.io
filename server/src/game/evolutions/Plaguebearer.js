@@ -3,7 +3,7 @@ const Types = require('../Types');
 
 module.exports = class Plaguebearer extends Evolution {
   static type = Types.Evolution.Plaguebearer;
-  static level = 29;
+  static level = 1000; // Plaguebearer not in rotation
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
   static abilityDuration = 6;
   static abilityCooldown = 90;

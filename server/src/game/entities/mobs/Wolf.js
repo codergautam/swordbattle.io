@@ -20,6 +20,7 @@ class WolfMob extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = 1000;
+    this.tokensDrop = 250;
 
     this.tamedBy = null;
 
@@ -158,6 +159,7 @@ class WolfMob extends Entity {
     if (this.removed) return;
     super.remove();
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
+    this.game.map.spawnTokensInShape(this.shape, this.tokensDrop);
     if(this.tamedBy) {
       const tamer = this.game.entities.get(this.tamedBy);
       tamer.tamedEntities.delete(this.id);

@@ -9,6 +9,7 @@ export type AccountState = {
   secret: string;
   gems: number;
   mastery: number;
+  tokens: number;
   skins: { equipped: number; owned: number[] };
   is_v1: boolean;
   xp: number;
@@ -28,6 +29,7 @@ const initialState: AccountState = {
   isLoggedIn: false,
   gems: 0,
   mastery: 0,
+  tokens: 0,
   skins: { equipped: 1, owned: [1] },
   is_v1: false,
   xp: 0,
@@ -161,6 +163,7 @@ const accountSlice = createSlice({
       state.secret = '';
       state.gems = 0;
       state.mastery = 0;
+      state.tokens = 0;
       state.isLoggedIn = false;
       state.skins = { equipped: 1, owned: [1] };
       window.phaser_game?.events.emit('tokenUpdate', '');
@@ -182,6 +185,7 @@ const accountSlice = createSlice({
       state.secret = action.payload.secret;
       state.gems = action.payload.gems;
       state.mastery = action.payload.mastery;
+      state.tokens = action.payload.tokens;
       state.skins = action.payload.skins;
       state.is_v1 = action.payload.is_v1;
       state.xp = action.payload.xp;
@@ -189,7 +193,7 @@ const accountSlice = createSlice({
       state.profiles = action.payload.profiles;
       state.bio = action.payload.bio;
       state.tags = action.payload.tags;
-      state.isCrazygames = action.payload.isCrazygames || false;
+      state.isCrazygames = action.payload.isCrazygames;
       state.crazygamesUserId = action.payload.crazygamesUserId;
       if (previousToken !== state.secret) {
         console.log('Token updated');

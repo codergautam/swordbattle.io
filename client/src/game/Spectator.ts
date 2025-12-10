@@ -23,7 +23,9 @@ export class Spectator {
       if (this.initialized) {
         camera.pan(x, y, 10000, Phaser.Math.Easing.Linear, true);
       } else {
-        camera.centerOn(0, 0);
+        const positions = [[-2500, -250], [2500, -250], [0, 6500]];
+        const [xPos, yPos] = positions[Math.floor(Math.random() * positions.length)];
+        camera.centerOn(xPos, yPos);
         camera.pan(x, y, 4000, Phaser.Math.Easing.Linear, true);
       }
       this.initialized = true;

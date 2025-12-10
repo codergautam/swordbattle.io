@@ -138,15 +138,24 @@ export class AccountsService {
       return { error: 'Invalid skin id' };
     }
 
-    // Check if the skin is still available (Today's Skins)
-    const todays = await this.cosmeticsService.getTodaysSkins();
-    if (!todays.includes(itemId) && !cosmetic.event && !cosmetic.ultimate && !cosmetic.currency && !cosmetic.sale) {
-      return { error: "Skin is no longer available in today's shop; refresh the page for new available skins" };
-    }
+    // // Check if the skin is still available (Today's Skins)
+    // const todays = await this.cosmeticsService.getTodaysSkins();
+    // if (!todays.includes(itemId) && !cosmetic.event && !cosmetic.ultimate && !cosmetic.currency && !cosmetic.sale) {
+    //   return { error: "Skin is no longer available in today's shop; refresh the page for new available skins" };
+    // }
 
 
     // Check if the user has enough gems
     const skinPrice = cosmetic.price;
+    const tokenPrice = cosmetic.tokenprice;
+    if (cosmetic.event || cosmetic.eventoffsale) {
+      if (user.tokens < tokenPrice) {
+        return { error: 'Not enough snowtokens' };
+      }
+      if (user.gems < skinPrice && !cosmetic.currency) {
+        return { error: 'Not enough gems' };
+      }
+    } else {
     if (cosmetic.ultimate) {
       if (user.mastery < skinPrice) {
         return { error: 'Not enough mastery' };
@@ -155,6 +164,7 @@ export class AccountsService {
       if (user.gems < skinPrice && !cosmetic.currency) {
         return { error: 'Not enough gems' };
       }
+    }
     }
 
     // Check if prerequisite skins are bought
@@ -172,6 +182,10 @@ export class AccountsService {
     // Deduct the gems from the user's account
     if (!cosmetic.ultimate && !cosmetic.currency) {
       user.gems -= skinPrice;
+    }
+
+    if (cosmetic.tokenprice) {
+      user.tokens -= tokenPrice;
     }
 
     if (cosmetic.currency) {
@@ -244,6 +258,20 @@ export class AccountsService {
     if(xp === 0) return account;
     account.xp += xp;
     await this.accountsRepository.save(account);
+    return account;
+  }
+
+  async addTokens(account: Account, tokens: number, reason = "server") {
+    if(tokens === 0) return account;
+    account.tokens += tokens;
+    await this.accountsRepository.save(account);
+    const transaction = this.transactionsRepository.create({
+      account: account,
+      amount: tokens,
+      description: reason,
+      transaction_id: "tokens",
+    });
+    await this.transactionsRepository.save(transaction);
     return account;
   }
 

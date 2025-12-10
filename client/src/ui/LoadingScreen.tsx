@@ -6,10 +6,44 @@ function LoadingScreen({ progress }: any) {
   const [isFading, setIsFading] = useState(false);
   const [opacity, setOpacity] = useState(1);
   const [stuckVisible, setStuckVisible] = useState(false);
+  const [backgroundLoaded, setBackgroundLoaded] = useState(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
+  const [useBackgroundImage, setUseBackgroundImage] = useState(true);
   const scale = useScale();
   const isLoaded = progress === 100;
 
   const instantStart = (window as any).instantStart;
+
+  // Preload the background image with timeout
+  useEffect(() => {
+    let imageLoaded = false;
+    const img = new Image();
+    img.src = '/assets/LoadingScreen-winter.png';
+
+    img.onload = () => {
+      imageLoaded = true;
+      setBackgroundLoaded(true);
+      setShowLoadingScreen(true);
+    };
+
+    img.onerror = () => {
+      imageLoaded = true;
+      setBackgroundLoaded(false);
+      setUseBackgroundImage(false);
+      setShowLoadingScreen(true);
+    };
+
+    // 3-second timeout
+    const timeout = setTimeout(() => {
+      if (!imageLoaded) {
+        setBackgroundLoaded(false);
+        setUseBackgroundImage(false);
+        setShowLoadingScreen(true);
+      }
+    }, 3000);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   useEffect(() => {
     setIsFading(true);
@@ -37,21 +71,41 @@ function LoadingScreen({ progress }: any) {
     return null;
   }
 
+  // Show white screen while waiting for background image or timeout
+  if (!showLoadingScreen) {
+    return (
+      <div style={{
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'white',
+        zIndex: 1000
+      }} />
+    );
+  }
+
   return (
     <div
       className="loading-screen"
-      style={{ opacity, backgroundColor: "#006400", zIndex: 1000 }}
+      style={{
+        opacity,
+        backgroundColor: "#003464",
+        backgroundImage: (useBackgroundImage && backgroundLoaded) ? "url('/assets/LoadingScreen-winter.png')" : "none",
+        backgroundRepeat: "repeat",
+        backgroundSize: "1024px 1024px",
+        zIndex: 1000
+      }}
     >
       <div className="loading-container" style={scale.styles}>
         <div className="loading-text">
           {instantStart ? 'Entering the arena' : 'Loading'}... ({progress}%)
         </div>
         <div className="progress-bar">
-          <div className="progress" style={{ width: `${progress}%` }}></div>
+          <div className={`progress ${progress === 0 ? 'no-outline' : ''}`} style={{ width: `${progress}%` }}></div>
         </div>
 
         {stuckVisible && (
-          <p>Stuck at 98%? Try refreshing or interacting with the page</p>
+          <p style={{color: 'black'}}>Stuck at 98%? Try refreshing or interacting with the page</p>
         )}
       </div>
     </div>

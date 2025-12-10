@@ -28,6 +28,10 @@ export enum EntityTypes {
   Fish = 28,
   AngryFish = 29,
 
+  IceSpirit = 30,
+  Token = 31,
+  Ornament = 32,
+
   Fireball = 21,
   Snowball = 22,
 }
@@ -45,6 +49,8 @@ export enum FlagTypes {
   PlayerDeath = 10,
   ChainDamaged = 11,
   PoisonDamaged = 12,
+  GetToken = 13,
+  ShockwaveHit = 14,
 }
 
 export enum EvolutionTypes {
@@ -69,6 +75,18 @@ export enum EvolutionTypes {
   Slasher = 18,
   Striker = 19,
   Plaguebearer = 20,
+  SnowWalker = 21,
+  CandyWalker = 22,
+  Tree = 23,
+  Festive = 24,
+  IceSniper = 25,
+  Snowboarder = 26,
+  Snowtrekker = 27,
+  IceSpike = 28,
+  IceKing = 29,
+  Drifter = 30,
+  Colossal = 31,
+  Medic = 32,
 }
 
 export enum BuffTypes {

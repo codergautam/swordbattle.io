@@ -18,6 +18,7 @@ const LavaRock = require('./entities/mapObjects/LavaRock');
 const LavaPool = require('./entities/mapObjects/LavaPool');
 const Chest = require('./entities/Chest');
 const Coin = require('./entities/Coin');
+const Token = require('./entities/Token');
 const PlayerAI = require('./entities/PlayerBot');
 const WolfMob = require('./entities/mobs/Wolf');
 const CatMob = require('./entities/mobs/Cat');
@@ -25,6 +26,7 @@ const BunnyMob = require('./entities/mobs/Bunny');
 const MooseMob = require('./entities/mobs/Moose');
 const FishMob = require('./entities/mobs/Fish');
 const AngryFishMob = require('./entities/mobs/AngryFish');
+const IceSpiritMob = require('./entities/mobs/IceSpirit');
 const ChimeraMob = require('./entities/mobs/Chimera');
 const YetiMob = require('./entities/mobs/Yeti');
 const SantaMob = require('./entities/mobs/Santa');
@@ -144,6 +146,31 @@ spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
   }
 }
 
+spawnTokensInShape(shape, totalTokenValue, droppedBy) {
+  const maxTokensCount = 50; // Fewer tokens than coins
+  const tokens = Math.min(Math.round(totalTokenValue / 2), maxTokensCount);
+  const tokenValue = totalTokenValue / tokens;
+
+  const entityBuffer = 500;
+  const availableSlots = this.game.maxEntities - this.game.entities.size - entityBuffer;
+  const tokensToSpawn = Math.min(tokens, Math.max(0, availableSlots));
+
+  if (tokensToSpawn < tokens) {
+    console.warn(`[LIMIT] Token spawn limited from ${tokens} to ${tokensToSpawn} due to entity limit (${this.game.entities.size}/${this.game.maxEntities})`);
+  }
+
+  for (let i = 0; i < tokensToSpawn; i++) {
+    // Get a random point within the shape for the token's position
+    const randomPoint = shape.getRandomPoint();
+    this.game.map.addEntity({
+      type: Types.Entity.Token,
+      position: [randomPoint.x, randomPoint.y],
+      value: tokenValue,
+      droppedBy,
+    });
+  }
+}
+
 
   addAI(objectData) {
     let ObjectClass;
@@ -176,12 +203,14 @@ spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
       case Types.Entity.LavaPool: ObjectClass = LavaPool; break;
       case Types.Entity.Chest: ObjectClass = Chest; break;
       case Types.Entity.Coin: ObjectClass = Coin; break;
+      case Types.Entity.Token: ObjectClass = Token; break;
       case Types.Entity.Wolf: ObjectClass = WolfMob; break;
       case Types.Entity.Cat: ObjectClass = CatMob; break;
       case Types.Entity.Bunny: ObjectClass = BunnyMob; break;
       case Types.Entity.Moose: ObjectClass = MooseMob; break;
       case Types.Entity.Fish: ObjectClass = FishMob; break;
       case Types.Entity.AngryFish: ObjectClass = AngryFishMob; break;
+      case Types.Entity.IceSpirit: ObjectClass = IceSpiritMob; break;
       case Types.Entity.Chimera: ObjectClass = ChimeraMob; break;
       case Types.Entity.Yeti: ObjectClass = YetiMob; break;
       case Types.Entity.Santa: ObjectClass = SantaMob; break;

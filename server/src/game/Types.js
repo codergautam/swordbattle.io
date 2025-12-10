@@ -28,18 +28,22 @@ const Entity = {
   Fish: 28,
   AngryFish: 29,
 
+  IceSpirit: 30,
+  Token: 31,
+  Ornament: 32,
+
   Fireball: 21,
   Snowball: 22,
 };
 
 const Mobs = [
-  Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Santa, Entity.Chimera, Entity.Roku, Entity.Ancient, Entity.Cat, Entity.Fish, Entity.AngryFish
+  Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Santa, Entity.Chimera, Entity.Roku, Entity.Ancient, Entity.Cat, Entity.Fish, Entity.AngryFish, Entity.IceSpirit
 ];
 const Groups = {
   Obstacles: [
-    Entity.Player, Entity.Sword, Entity.Coin,
+    Entity.Player, Entity.Sword, Entity.Coin, Entity.Token,
     Entity.IceSpike, Entity.Rock, Entity.MossyRock, Entity.LavaRock,
-    Entity.Fireball, Entity.Boulder, Entity.SwordProj, Entity.Snowball, Entity.Chest,
+    Entity.Fireball, Entity.Boulder, Entity.SwordProj, Entity.Snowball, Entity.Chest, Entity.Ornament,
     ...Mobs,
   ],
   Mobs,
@@ -73,6 +77,18 @@ module.exports = {
     Slasher: 18,
     Striker: 19,
     Plaguebearer: 20,
+    SnowWalker: 21,
+    CandyWalker: 22,
+    Tree: 23,
+    Festive: 24,
+    IceSniper: 25,
+    Snowboarder: 26,
+    Snowtrekker: 27,
+    IceSpike: 28,
+    IceKing: 29,
+    Drifter: 30,
+    Colossal: 31,
+    Medic: 32,
   },
   Buff: {
     Speed: 1,
@@ -94,12 +110,17 @@ module.exports = {
     PlayerDeath: 10,
     ChainDamaged: 11,
     PoisonDamaged: 12,
+    GetToken: 13,
+    ShockwaveHit: 14,
   },
   Effect: {
     Custom: 1,
     Speed: 2,
     Slipping: 3,
     Burning: 4,
+    SlidingKnockback: 5,
+    Stun: 6,
+    Slow: 7,
   },
   Biome: {
     Fire: 1,

@@ -3,7 +3,7 @@ const Types = require('../Types');
 
 module.exports = class Slasher extends Evolution {
   static type = Types.Evolution.Slasher;
-  static level = 29;
+  static level = 1000; // Slasher not in rotation
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
   static abilityDuration = 7;
   static abilityCooldown = 70;

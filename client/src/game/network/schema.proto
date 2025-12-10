@@ -98,6 +98,7 @@ message Entity {
   int32 biome = 15;
   int32 level = 16;
   int32 coins = 17;
+  int32 tokens = 45;
   int32 nextLevelCoins = 18;
   int32 previousLevelCoins = 19;
   int32 upgradePoints = 20;

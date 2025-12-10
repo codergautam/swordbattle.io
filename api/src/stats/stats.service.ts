@@ -29,9 +29,11 @@ export class StatsService {
     // Update gems
     let gems = data.gems;
     let mastery = data.mastery;
+    let tokens = data.tokens;
     await this.accountsService.addGems(account, gems, "game");
     await this.accountsService.addMastery(account, mastery, "game");
     await this.accountsService.addXp(account, data.xp);
+    await this.accountsService.addTokens(account, tokens, "game");
 
     return true;
   }

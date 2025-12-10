@@ -26,7 +26,7 @@ class Shape {
 
   set y(value) {
     // this.collisionPoly.pos.y = value;
-    this.collisionPoly.pos.y = helpers.clamp(value, -config.world.worldHeight, config.world.worldHeight / 2);
+    this.collisionPoly.pos.y = helpers.clamp(value, -config.world.worldHeight / 2, config.world.worldHeight / 2);
   }
 
   get boundary() {

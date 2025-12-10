@@ -13,7 +13,7 @@ class Snowball extends Entity {
     duration: [5, 10],
     position: [0, 0],
     forbiddenBiomes: [Types.Biome.River],
-    knockbackMultiplier: 0.375
+    knockbackMultiplier: 0.6
   };
 
   constructor(game, definition) {

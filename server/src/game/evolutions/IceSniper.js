@@ -51,11 +51,11 @@ module.exports = class IceSniper extends Evolution {
     this.player.health.regen.multiplier *= 0.8;
     this.player.health.regenWait.multiplier *= 1.3;
 
-    this.player.sword.damage.multiplier *= 0.65;
+    this.player.sword.damage.multiplier *= 0.85;
     this.player.modifiers.chestPower = 1.5;
     this.player.modifiers.mobPower = 1.5;
     
-    this.player.sword.knockback.multiplier['ability'] = 0.3;
+    this.player.sword.knockback.multiplier['ability'] = 2.5;
     this.player.knockbackResistance.multiplier *= 0;
 
     this.player.sword.swingDuration.multiplier['ability'] = 0.875;

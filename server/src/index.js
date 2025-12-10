@@ -331,46 +331,4 @@ function start() {
     console.error('Unhandled rejection', reason, promise);
     stop('unhandledRejection');
   });
-
-  global.logPlayerStats = function() {
-    return logPlayerStats(game);
-  };
-}
-
-
-function logPlayerStats(game) {
-  const realPlayers = [...game.players.values()].filter(p => !p.isBot);
-
-  console.log('\n========== Player Stats ==========');
-  console.log(`Real Player Count: ${realPlayers.length}`);
-  console.log(`Bot Count: ${[...game.players.values()].filter(p => p.isBot).length}`);
-  console.log(`Total Players: ${game.players.size}`);
-  console.log('==================================\n');
-
-  if (realPlayers.length === 0) {
-    console.log('No real players currently connected.\n');
-    return;
-  }
-
-  const sortedPlayers = realPlayers.sort((a, b) => {
-    const coinsA = a.levels?.coins || 0;
-    const coinsB = b.levels?.coins || 0;
-    return coinsB - coinsA;
-  });
-
-  console.log('Player Details:');
-  console.log('---------------------------------------------------');
-
-  sortedPlayers.forEach((player, index) => {
-    const coins = player.levels?.coins || 0;
-    const kills = player.kills || 0;
-    const name = player.name || 'Unknown';
-    const isLoggedIn = player.client?.userData?.accountId ? 'Yes' : 'No';
-
-    console.log(
-      `${index + 1}. ${name} | Coins: ${coins} | Kills: ${kills} | Logged In: ${isLoggedIn}`
-    );
-  });
-
-  console.log('---------------------------------------------------\n');
 }

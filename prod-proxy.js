@@ -1545,7 +1545,7 @@ setInterval(() => {
     console.log(`[STATS] Total dropped requests in last minute: ${droppedRequestCount}`);
     droppedRequestCount = 0;
   }
-}, 300000);
+}, 300000); // 5 mins
 
 // Start the server
 server.listen(process.env.PORT || 80, () => {
@@ -1554,10 +1554,3 @@ server.listen(process.env.PORT || 80, () => {
   console.log('[SECURITY] Rate limiting enabled: 60 req/min');
   console.log('[SECURITY] WebSocket handling improved');
 });
-
-global.clearBannedProxies = function() {
-  const count = bannedProxyIPs.size;
-  bannedProxyIPs.clear();
-  console.log(`[ADMIN] Cleared ${count} banned proxy IPs`);
-  return count;
-};

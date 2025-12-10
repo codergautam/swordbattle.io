@@ -69,8 +69,8 @@ module.exports = class Snowtrekker extends Evolution {
   update(dt) {
     super.update(dt);
     this.player.modifiers.bonusTokens = true;
-    this.player.speed.multiplier *= 0.925;
-    this.player.sword.damage.multiplier *= 1.1;
+    this.player.speed.multiplier *= 0.95;
+    this.player.sword.damage.multiplier *= 1.15;
 
     this.player.health.max.multiplier *= 1.25;
     this.player.health.regen.multiplier *= 0.9;

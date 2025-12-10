@@ -88,4 +88,15 @@ module.exports = class Festive extends Evolution {
     this.player.health.regen.multiplier *= 1.15;
     this.player.health.regenWait.multiplier *= 1.15;
   }
+
+  remove() {
+    // Clean up ornaments when evolving to another evolution
+    for (const ornament of this.ornaments) {
+      if (ornament && !ornament.removed) {
+        this.player.game.removeEntity(ornament);
+      }
+    }
+    this.ornaments = [];
+    super.remove();
+  }
 }

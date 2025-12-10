@@ -119,7 +119,7 @@ export class CosmeticsService {
     );
   }
 
-  async computeDailySkinList(count: number = 60): Promise<number[]> {
+  async computeDailySkinList(count: number = 30): Promise<number[]> {
     const allSkins = Object.values(cosmetics['skins']) as any[];
     const eligible = allSkins.filter((skin: any) =>
       !skin.event &&
@@ -192,7 +192,26 @@ export class CosmeticsService {
     }
 
     const uniqueList = Array.from(new Set(finalList)).slice(0, count);
-    return uniqueList.length === count ? uniqueList : finalList.slice(0, count);
+
+    // Remove skins that are currently on sale
+    const skinsOnSale = new Set(
+      allSkins
+        .filter((skin: any) => skin.sale === true)
+        .map((skin: any) => skin.id)
+    );
+
+    let filteredList = uniqueList.filter((id: number) => !skinsOnSale.has(id));
+
+    // Backfill to reach original count
+    if (filteredList.length < count) {
+      const needed = count - filteredList.length;
+      const backfillPool = shuffle(eligible.map((s) => s.id)).filter(
+        (id: number) => !filteredList.includes(id) && !skinsOnSale.has(id),
+      );
+      filteredList.push(...backfillPool.slice(0, needed));
+    }
+
+    return filteredList.slice(0, count);
   }
 
   getTodayDateString(): string {

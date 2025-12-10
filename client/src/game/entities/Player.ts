@@ -48,7 +48,7 @@ class Player extends BaseEntity {
   static stateFields = [
     ...BaseEntity.stateFields, 'name', 'angle',
     'kills', 'flags', 'biome', 'level', 'upgradePoints',
-    'coins', 'nextLevelCoins', 'previousLevelCoins',
+    'coins', 'tokens', 'nextLevelCoins', 'previousLevelCoins',
     'buffs', 'evolution', 'possibleEvolutions',
     'isAbilityAvailable', 'abilityActive', 'abilityDuration', 'abilityCooldown',
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordFlying', 'swordFlyingCooldown',
@@ -347,6 +347,10 @@ class Player extends BaseEntity {
         } catch (e) {}
         this.addLightningParticles();
       }
+
+      if (data.flags[FlagTypes.ShockwaveHit]) {
+        this.addShockwaveParticles();
+      }
     }
   }
 
@@ -401,6 +405,25 @@ class Player extends BaseEntity {
   } catch (e) {
     console.log(e);
   }
+  }
+
+  addShockwaveParticles() {
+    if (this.game.game.loop.actualFps < 30) return;
+    try {
+      // Create burst of red particles emanating from player
+      const particles = this.game.add.particles(this.container.x, this.container.y, 'hitParticle', {
+        maxParticles: 30,
+        scale: { start: 0.015, end: 0.005 },
+        speed: { min: 300, max: 600 },
+        lifespan: 800,
+        angle: { min: 0, max: 360 },
+        tint: 0xFF0000, // Red color
+      });
+      particles.setDepth(45);
+      particles.setBlendMode(Phaser.BlendModes.ADD);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   addLightningParticles() {

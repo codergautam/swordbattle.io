@@ -23,6 +23,9 @@ class SoundManager {
       [FlagTypes.GetCoin]: new Sound(FlagTypes.GetCoin, [
         'GetCoin/GetCoin1.wav', 'GetCoin/GetCoin2.wav', 'GetCoin/GetCoin3.wav',
       ], 50),
+      [FlagTypes.GetToken]: new Sound(FlagTypes.GetToken, [
+        'GetCoin/GetCoin1.wav', 'GetCoin/GetCoin2.wav', 'GetCoin/GetCoin3.wav',
+      ], 50),
       [FlagTypes.ChestHit]: new Sound(FlagTypes.ChestHit, [
         'HitChest/HitChest1.wav', 'HitChest/HitChest2.wav', 'HitChest/HitChest3.wav',
       ]),
@@ -43,6 +46,9 @@ class SoundManager {
       ]),
       [FlagTypes.PoisonDamaged]: new Sound(FlagTypes.PoisonDamaged, [
         'PoisonDamaged/PoisonDamaged1.wav', 'PoisonDamaged/PoisonDamaged2.wav', 'PoisonDamaged/PoisonDamaged3.wav',
+      ]),
+      [FlagTypes.ShockwaveHit]: new Sound(FlagTypes.ShockwaveHit, [
+        'TakeDamage/LavaDamage.mp3',
       ]),
     };
   }

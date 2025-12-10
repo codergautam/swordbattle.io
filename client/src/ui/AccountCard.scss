@@ -4,7 +4,7 @@
   .stats {
     display: flex;
     flex-direction: row;
-    margin: 0;
+    margin: -5px;
     padding: 0;
     gap: 1rem;
     align-items: center;
@@ -22,6 +22,7 @@
     user-select: none;
     pointer-events: none;
   }
+
 
   .profilebutton {
     display: flex;

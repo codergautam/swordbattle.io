@@ -2,6 +2,7 @@ import { AccountState } from "../redux/account/slice";
 import ValueCnt from "./ValueCnt";
 import GemImg from '../assets/img/gem.png';
 import UltimacyImg from '../assets/img/ultimacy.png';
+import SnowtokenImg from '../assets/img/snowtoken.png';
 import XPImg from '../assets/img/xp.png';
 import './AccountCard.scss';
 import { Link } from "react-router-dom";
@@ -14,10 +15,13 @@ export default function AccountCard({account, onLogin, onSignup}: {account: Acco
       <span id="logged-in">
         <h1>{account.username}</h1>
         <br />
-        <div className="stats"><ValueCnt scale={0.5} value={account.gems} img={GemImg}/>
+        <div className="stats"><ValueCnt scale={0.4} value={account.gems} img={GemImg}/>
         </div>
         <br />
-        <div className="stats"><ValueCnt scale={0.5} value={account.mastery} img={UltimacyImg}/>
+        <div className="stats"><ValueCnt scale={0.4} value={account.tokens} img={SnowtokenImg}/>
+        </div>
+        <br />
+        <div className="stats"><ValueCnt scale={0.4} value={account.mastery} img={UltimacyImg}/>
     
         </div>
                    <Link to={`/profile?username=${encodeURIComponent(account.username)}`} target="_blank" className="profilebutton">

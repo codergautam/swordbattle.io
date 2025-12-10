@@ -61,7 +61,8 @@ class Sword extends Entity {
     return !this.isFlying
       && this.player.inputs.isInputDown(Types.Input.SwordSwing)
       && this.isAnimationFinished
-      && this.player.modifiers.invisible == false;
+      && this.player.modifiers.invisible == false
+      && !this.player.modifiers.stunned;
   }
 
   canFly() {
@@ -69,7 +70,8 @@ class Sword extends Entity {
     return !this.isFlying && !this.restrictFly
       && this.player.inputs.isInputDown(Types.Input.SwordThrow)
       && this.flyCooldownTime <= 0
-      && this.player.modifiers.invisible == false;
+      && this.player.modifiers.invisible == false
+      && !this.player.modifiers.stunned;
   }
 
   stopFly() {
@@ -166,6 +168,15 @@ class Sword extends Entity {
       const elapsed = Date.now() - this.lastSwordSwing;
       const multiplier = elapsed / this.focusTime;
       this.focusDamageMultiplier = Math.max(0.5, Math.min(1.2, multiplier));
+
+      // Trigger onSwordSwing hook for evolution effects
+      if (this.player.evolutions && this.player.evolutions.evolutionEffect && typeof this.player.evolutions.evolutionEffect.onSwordSwing === 'function') {
+        try {
+          this.player.evolutions.evolutionEffect.onSwordSwing();
+        } catch (e) {
+          //
+        }
+      }
     }
     if (this.canFly()) {
       this.isFlying = true;
@@ -323,6 +334,17 @@ processTargetsCollision(entity) {
 
     this.collidedEntities.add(entity);
     this.player.flags.set(Types.Flags.EnemyHit, entity.id);
+
+    // Trigger onDamage hook for evolution effects when damaging a player
+    if (entity.type === Types.Entity.Player && !skipDamageDueToCoins && !entity.isBot) {
+      if (this.player.evolutions && this.player.evolutions.evolutionEffect && typeof this.player.evolutions.evolutionEffect.onDamage === 'function') {
+        try {
+          this.player.evolutions.evolutionEffect.onDamage(entity, this.isFlying);
+        } catch (e) {
+          //
+        }
+      }
+    }
 
     if (entity.type === Types.Entity.Player && !skipDamageDueToCoins && this.player.modifiers.chainDamage && !entity.isBot) {
       try { entity.flags.set(Types.Flags.ChainDamaged, entity.id); } catch (err) { /* */ }

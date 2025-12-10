@@ -13,6 +13,7 @@ class GameMap {
   y = 0;
   width = 0;
   height = 0;
+  borderGraphics: Phaser.GameObjects.Graphics | null = null;
 
   constructor(scene: Game) {
     this.scene = scene;
@@ -33,6 +34,7 @@ class GameMap {
       mapData.staticObjects.forEach(((objectData: any) => this.addStaticObject(objectData)));
     }
     this.sortBiomes();
+    this.createMapBorder();
     this.scene.hud.minimap.updateMapData();
   }
 
@@ -64,6 +66,19 @@ class GameMap {
 
   sortBiomes() {
     this.biomes.sort((a, b) => a.zIndex - b.zIndex);
+  }
+
+  createMapBorder() {
+    if (this.borderGraphics) {
+      this.borderGraphics.destroy();
+    }
+
+    this.borderGraphics = this.scene.add.graphics();
+    this.borderGraphics.setDepth(-2);
+
+    this.borderGraphics.lineStyle(35, 0x000000, 1);
+
+    this.borderGraphics.strokeRect(this.x, this.y, this.width, this.height);
   }
 }
 

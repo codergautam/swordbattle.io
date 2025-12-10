@@ -1259,6 +1259,7 @@ export interface Entity {
   biome?: number;
   level?: number;
   coins?: number;
+  tokens?: number;
   nextLevelCoins?: number;
   previousLevelCoins?: number;
   upgradePoints?: number;
@@ -1644,6 +1645,13 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
     writeVarint32(bb, 352);
     writeVarint64(bb, intToLong($coinShield));
   }
+
+  // optional int32 tokens = 45;
+  let $tokens = message.tokens;
+  if ($tokens !== undefined) {
+    writeVarint32(bb, 360);
+    writeVarint64(bb, intToLong($tokens));
+  }
 }
 
 export function decodeEntity(binary: Uint8Array): Entity {
@@ -1999,6 +2007,12 @@ function _decodeEntity(bb: ByteBuffer): Entity {
       // optional int32 coinShield = 44;
       case 44: {
         message.coinShield = readVarint32(bb);
+        break;
+      }
+
+      // optional int32 tokens = 45;
+      case 45: {
+        message.tokens = readVarint32(bb);
         break;
       }
 

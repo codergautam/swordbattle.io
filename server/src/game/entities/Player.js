@@ -7,6 +7,9 @@ const Effect = require('../effects/Effect');
 const SpeedEffect = require('../effects/SpeedEffect');
 const SlippingEffect = require('../effects/SlippingEffect');
 const BurningEffect = require('../effects/BurningEffect');
+const SlidingKnockbackEffect = require('../effects/SlidingKnockbackEffect');
+const StunEffect = require('../effects/StunEffect');
+const SlowEffect = require('../effects/SlowEffect');
 const LevelSystem = require('../components/LevelSystem');
 const Property = require('../components/Property');
 const Viewport = require('../components/Viewport');
@@ -51,12 +54,6 @@ function checkForDuplicates() {
 checkForDuplicates();
 
 const filter = require('leo-profanity');
-
-// Configure profanity filter - remove mild words and false-positive-prone words
-filter.remove(['suck', 'sucks', 'damn', 'hell', 'crap', 'shota']);
-
-// Add missing plural forms and common variants of racial slurs
-filter.add(['niggas', 'niggers']);
 
 class Player extends Entity {
   constructor(game, name) {
@@ -126,6 +123,7 @@ class Player extends Entity {
     state.biome = this.biome;
     state.level = this.levels.level;
     state.coins = this.levels.coins;
+    state.tokens = this.levels.tokens;
     state.nextLevelCoins = this.levels.nextLevelCoins;
     state.previousLevelCoins = this.levels.previousLevelCoins;
     state.upgradePoints = this.levels.upgradePoints;
@@ -167,7 +165,7 @@ class Player extends Entity {
     this.sword.flySpeed.value = clamp(this.speed.value / 10, 100, 200);
     this.sword.update(dt);
 
-    if (this.inputs.isInputDown(Types.Input.Ability) && this.evolutions.evolutionEffect.canActivateAbility) {
+    if (this.inputs.isInputDown(Types.Input.Ability) && this.evolutions.evolutionEffect.canActivateAbility && !this.modifiers.stunned) {
       this.evolutions.evolutionEffect.activateAbility();
     }
 
@@ -228,6 +226,11 @@ class Player extends Entity {
   }
 
   applyInputs(dt) {
+    // If stunned, prevent all movement
+    if (this.modifiers.stunned) {
+      return;
+    }
+
     const isMouseMovement = this.mouse !== null;
 
     let speed = this.speed.value;
@@ -290,7 +293,10 @@ class Player extends Entity {
 
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
-    this.velocity.scale(0.6);
+
+    // Use higher decay for sliding knockback effect (slower deceleration = longer slide)
+    const velocityDecay = this.modifiers.slidingKnockback || 0.6;
+    this.velocity.scale(velocityDecay);
 
     const slide = this.movedDistance;
     const friction = 1 - this.friction.value;
@@ -347,6 +353,7 @@ class Player extends Entity {
           case Types.Entity.Moose: reason = 'A Moose'; break;
           case Types.Entity.AngryFish: reason = 'A Fish'; break;
           case Types.Entity.Yeti: reason = 'A Yeti'; break;
+          case Types.Entity.IceSpirit: reason = 'An Ice Spirit'; break;
           case Types.Entity.Chimera: reason = 'A Chimera'; break;
           case Types.Entity.Roku: reason = 'Roku'; break;
           case Types.Entity.Snowball: reason = 'Big Yeti'; break; // the yeti boss throws snowballs
@@ -379,6 +386,9 @@ class Player extends Entity {
       case Types.Effect.Speed: EffectClass = SpeedEffect; break;
       case Types.Effect.Slipping: EffectClass = SlippingEffect; break;
       case Types.Effect.Burning: EffectClass = BurningEffect; break;
+      case Types.Effect.SlidingKnockback: EffectClass = SlidingKnockbackEffect; break;
+      case Types.Effect.Stun: EffectClass = StunEffect; break;
+      case Types.Effect.Slow: EffectClass = SlowEffect; break;
     }
 
     if (!id) id = Math.random();
@@ -413,6 +423,7 @@ class Player extends Entity {
       }
       const game = {
         coins: this.levels.coins,
+        tokens: this.modifiers?.bonusTokens ? this.levels.tokens * 2 : this.levels.tokens,
         kills: this.kills,
         playtime: this.playtime,
       };

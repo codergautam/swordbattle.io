@@ -487,6 +487,7 @@ class GameState {
       name: '',
       coins: 0,
       kills: 0,
+      tokens: 0,
       survivalTime: 0,
       disconnectReason: this.disconnectReason,
     };
@@ -496,6 +497,7 @@ class GameState {
       results.coins = player.coins;
       results.kills = player.kills;
       results.survivalTime = player.survivalTime;
+      results.tokens = player.tokens;
     }
 
     this.game.game.events.emit('setGameResults', results);

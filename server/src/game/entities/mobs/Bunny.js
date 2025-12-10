@@ -19,6 +19,7 @@ class BunnyMob extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = 500;
+    this.tokensDrop = 150;
 
     this.jumpTimer = new Timer(0, 2, 3);
     this.runawayTimer = new Timer(0, 10, 15);
@@ -106,6 +107,7 @@ class BunnyMob extends Entity {
     if (this.removed) return;
     super.remove();
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
+    this.game.map.spawnTokensInShape(this.shape, this.tokensDrop);
     this.createInstance();
   }
 

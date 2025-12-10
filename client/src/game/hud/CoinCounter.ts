@@ -5,7 +5,9 @@ class CoinCounter extends HudComponent {
   lastUpdate = 0;
   updateInterval = 200;
   lastCoins = 0;
+  lastTokens = 0;
   lastUltimacy = 0;
+  hasEverHadSnowWalker = false; // Toggle: true after SnowWalker evolution, false after player dies
   style: Phaser.Types.GameObjects.Text.TextStyle = {
     fontStyle: 'bold',
     stroke: '#000000',
@@ -23,7 +25,10 @@ class CoinCounter extends HudComponent {
     fontSize: '50px',
   };
   textObj: Phaser.GameObjects.Text;
+  tokenTextObj: Phaser.GameObjects.Text;
+  tokenMultiplierLabel: Phaser.GameObjects.Text;
   coinImg: Phaser.GameObjects.Image;
+  tokenImg: Phaser.GameObjects.Image;
   stabImg: Phaser.GameObjects.Image;
   ultimacyImg: Phaser.GameObjects.Image;
 
@@ -33,15 +38,28 @@ class CoinCounter extends HudComponent {
 
     this.coinImg = new Phaser.GameObjects.Image(this.game, 0, indent * 0, 'coin').setOrigin(0, 0);
     this.coinImg.setScale(0.35);
-    this.stabImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight + 3, 'kill').setOrigin(0, 0);
+    this.tokenImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight + 3, 'token').setOrigin(0, 0);
+    this.tokenImg.displayHeight = this.coinImg.displayHeight;
+    this.tokenImg.displayWidth = this.coinImg.displayWidth;
+    this.stabImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight * 2 + 6, 'kill').setOrigin(0, 0);
     this.stabImg.displayHeight = this.coinImg.displayHeight;
     this.stabImg.displayWidth = this.coinImg.displayWidth;
-    this.ultimacyImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight * 2 + 6, 'mastery').setOrigin(0, 0);
+    this.ultimacyImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight * 3 + 9, 'mastery').setOrigin(0, 0);
     this.ultimacyImg.displayHeight = this.coinImg.displayHeight;
     this.ultimacyImg.displayWidth = this.coinImg.displayWidth;
     this.textObj = new Phaser.GameObjects.Text(this.game, this.coinImg.displayWidth + 5, indent * 0, '', this.style);
 
-    this.container = new Phaser.GameObjects.Container(this.game, 0, 0, [this.textObj, this.coinImg, this.stabImg, this.ultimacyImg]);
+    // Create separate token text object for cyan color overlay
+    const tokenStyle = { ...this.style };
+    this.tokenTextObj = new Phaser.GameObjects.Text(this.game, this.coinImg.displayWidth + 5, (indent * 0) + this.coinImg.displayHeight + 3, '', tokenStyle);
+    this.tokenTextObj.setVisible(false);
+
+    // Create "2x" multiplier label (initially hidden)
+    const multiplierStyle = { ...this.style, fontSize: '30px', color: '#00ffff' };
+    this.tokenMultiplierLabel = new Phaser.GameObjects.Text(this.game, 0, 0, '2x', multiplierStyle);
+    this.tokenMultiplierLabel.setVisible(false);
+
+    this.container = new Phaser.GameObjects.Container(this.game, 0, 0, [this.textObj, this.tokenTextObj, this.tokenMultiplierLabel, this.coinImg, this.tokenImg, this.stabImg, this.ultimacyImg]);
 
 
     this.hud.add(this.container);
@@ -61,6 +79,20 @@ class CoinCounter extends HudComponent {
   if (!this.game.gameState.self.entity) return;
 
   const coins = this.game.gameState.self.entity.coins;
+  const tokens = this.game.gameState.self.entity.tokens || 0;
+  const evolution = this.game.gameState.self.entity.evolution;
+  
+  if (coins === 0 && this.lastCoins > 0) {
+    this.hasEverHadSnowWalker = false;
+  }
+  
+  if (evolution === 21) {
+    this.hasEverHadSnowWalker = true;
+  } else if (!this.hasEverHadSnowWalker && evolution !== 0) {
+    this.hasEverHadSnowWalker = false;
+  }
+  
+  const hasBonusTokens = this.hasEverHadSnowWalker;
   let newUltimacy = 0;
 
   if (coins >= 1250000) {
@@ -73,9 +105,11 @@ class CoinCounter extends HudComponent {
 
   const kills = this.game.gameState.self.entity.kills;
 
-  if (this.lastCoins !== coins || this.lastUltimacy !== newUltimacy) {
+  if (this.lastCoins !== coins || this.lastTokens !== tokens || this.lastUltimacy !== newUltimacy) {
     const fromCoins = this.lastCoins;
     const toCoins = coins;
+    const fromTokens = this.lastTokens;
+    const toTokens = tokens;
     const fromUltimacy = this.lastUltimacy;
     const toUltimacy = newUltimacy;
 
@@ -87,15 +121,40 @@ class CoinCounter extends HudComponent {
       onUpdate: (tween: Phaser.Tweens.Tween, target: any) => {
         const progress = target.progress;
         const currentCoins = Math.floor(Phaser.Math.Interpolation.Linear([fromCoins, toCoins], progress));
+        const currentTokens = Math.floor(Phaser.Math.Interpolation.Linear([fromTokens, toTokens], progress));
         const currentUltimacy = Math.floor(Phaser.Math.Interpolation.Linear([fromUltimacy, toUltimacy], progress));
-        this.textObj.text = `${currentCoins}\n${kills}\n${currentUltimacy}`;
+        this.textObj.text = `${currentCoins}\n${currentTokens}\n${kills}\n${currentUltimacy}`;
+
+        if (hasBonusTokens) {
+          this.tokenTextObj.text = `${currentTokens}`;
+        }
       },
     });
 
     this.lastCoins = coins;
+    this.lastTokens = tokens;
     this.lastUltimacy = newUltimacy;
   } else {
-    this.textObj.text = `${coins}\n${kills}\n${newUltimacy}`;
+    this.textObj.text = `${coins}\n${tokens}\n${kills}\n${newUltimacy}`;
+
+    if (hasBonusTokens) {
+      this.tokenTextObj.text = `${tokens}`;
+    }
+  }
+
+  if (hasBonusTokens) {
+    this.tokenTextObj.setVisible(true);
+    this.tokenTextObj.setColor('#00ffff');
+    this.tokenMultiplierLabel.setVisible(true);
+
+    const tokenTextWidth = this.tokenTextObj.width;
+    this.tokenMultiplierLabel.setPosition(
+      this.tokenTextObj.x + tokenTextWidth + 10,
+      this.tokenTextObj.y
+    );
+  } else {
+    this.tokenTextObj.setVisible(false);
+    this.tokenMultiplierLabel.setVisible(false);
   }
 }
 }

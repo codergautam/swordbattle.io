@@ -14,6 +14,8 @@ export class SaveGameDTO {
   @IsNumber() playtime: number;
 
   @IsNumber() gems: number;
+
+  @IsInt() tokens: number;
 }
 
 export enum TimeRange {

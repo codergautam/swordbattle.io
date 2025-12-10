@@ -1,16 +1,15 @@
 .loading-screen {
-  position: absolute;
+  position: fixed;
   display: flex;
   align-items: center;
   justify-content: center;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  top: 0;
   z-index: 2;
   background-color: #333333;
   width: 100%;
   height: 100%;
-	transition: 500ms all ease-in-out;
+  transition: opacity 500ms ease-in-out;
 
   .loading-container {
     width: 400px;
@@ -19,18 +18,33 @@
     .loading-text {
       color: #ffffff;
       font-size: 45px;
-      margin-bottom: 10px
+      margin-bottom: 10px;
+      text-shadow: 
+        -2.75px -2.75px 0 #000,
+        2.75px -2.75px 0 #000,
+        -2.75px 2.75px 0 #000,
+        2.75px 2.75px 0 #000,
+        -2.75px 0 0 #000,
+        2.75px 0 0 #000,
+        0 -2.75px 0 #000,
+        0 2.75px 0 #000;
     }
 
     .progress-bar {
       width: 100%;
       height: 20px;
       background-color: #eee;
+      outline: 5px solid #000000;
 
       .progress {
         height: 100%;
         background-color: lime;
         transition: width 0.5s ease-in-out;
+        outline: 5px solid #000000;
+
+        &.no-outline {
+          outline: none;
+        }
       }
     }
 

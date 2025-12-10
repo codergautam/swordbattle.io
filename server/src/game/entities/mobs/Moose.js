@@ -20,7 +20,7 @@ class MooseMob extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = 1500;
-    this.tokensDrop = 300;
+    this.tokensDrop = 125;
 
     this.movementTimer = new Timer(0, 3, 4);
     this.stayTimer = new Timer(3, 2, 3);

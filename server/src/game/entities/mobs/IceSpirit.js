@@ -27,7 +27,7 @@ class IceSpiritMob extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = this.definition.isBoss ? 15000 : 900;
-    this.tokensDrop = this.definition.isBoss ? 5000 : 500;
+    this.tokensDrop = this.definition.isBoss ? 2500 : 250;
 
     this.tamedBy = null;
 

@@ -38,7 +38,7 @@ class AncientMob extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = 25000;
-    this.tokensDrop = 2500;
+    this.tokensDrop = 1250;
 
     this.jumpTimer = new Timer(0, this.definition.jumpCooldown[0], this.definition.jumpCooldown[1]);
     this.angryTimer = new Timer(0, 7, 10);

@@ -20,7 +20,7 @@ class WolfMob extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = 1000;
-    this.tokensDrop = 250;
+    this.tokensDrop = 100;
 
     this.tamedBy = null;
 

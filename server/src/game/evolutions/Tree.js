@@ -70,4 +70,13 @@ module.exports = class Tree extends Evolution {
 
     //TODO: Damagecooldown: 1.1
   }
+
+  remove() {
+    // Clean up temporary bush when evolving to another evolution
+    if (this.temporaryBush) {
+      this.player.game.removeEntity(this.temporaryBush);
+      this.temporaryBush = null;
+    }
+    super.remove();
+  }
 }

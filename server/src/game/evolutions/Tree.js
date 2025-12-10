@@ -6,8 +6,8 @@ module.exports = class Tree extends Evolution {
   static type = Types.Evolution.Tree;
   static level = 27;
   static previousEvol = Types.Evolution.CandyWalker;
-  static abilityDuration = 9;
-  static abilityCooldown = 45;
+  static abilityDuration = 10;
+  static abilityCooldown = 30;
 
   constructor(player) {
     super(player);
@@ -52,7 +52,7 @@ module.exports = class Tree extends Evolution {
     const isUnderCover = this.player.effects.has('bush') || this.player.effects.has('iceMound');
 
     this.player.shape.setScale(1.075);
-    this.player.sword.damage.multiplier *= 0.975;
+    this.player.sword.damage.multiplier *= 1.025;
 
     this.player.sword.knockback.multiplier['ability'] = 1.4;
     this.player.knockbackResistance.multiplier *= 0.6;
@@ -60,7 +60,7 @@ module.exports = class Tree extends Evolution {
     this.player.health.max.multiplier *= 1.2;
     this.player.health.regenWait.multiplier *= 1.2;
 
-    this.player.health.regen.multiplier *= 1;
+    this.player.health.regen.multiplier *= 1.5;
 
     if (isUnderCover) {
       this.player.speed.multiplier *= 1.3;

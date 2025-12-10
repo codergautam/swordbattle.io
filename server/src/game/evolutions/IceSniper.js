@@ -24,7 +24,7 @@ module.exports = class IceSniper extends Evolution {
         duration: 4
       });
     } else {
-      target.addEffect(Types.Effect.Stun, 'icesniper_stun', { duration: 1.5 });
+      target.addEffect(Types.Effect.Stun, 'icesniper_stun', { duration: 1.75 });
     }
   }
 
@@ -51,16 +51,16 @@ module.exports = class IceSniper extends Evolution {
     this.player.health.regen.multiplier *= 0.8;
     this.player.health.regenWait.multiplier *= 1.3;
 
-    this.player.sword.damage.multiplier *= 0.85;
+    this.player.sword.damage.multiplier *= 0.75;
     this.player.modifiers.chestPower = 1.5;
     this.player.modifiers.mobPower = 1.5;
     
-    this.player.sword.knockback.multiplier['ability'] = 2.5;
+    this.player.sword.knockback.multiplier['default'] = 2.5;
     this.player.knockbackResistance.multiplier *= 0;
 
     this.player.sword.swingDuration.multiplier['ability'] = 0.875;
 
     this.player.sword.flyDuration.multiplier *= 0.8;
-    this.player.sword.flySpeed.multiplier *= 1.2;
+    this.player.sword.flySpeed.multiplier *= 1.1;
   }
 }

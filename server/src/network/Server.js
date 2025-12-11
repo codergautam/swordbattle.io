@@ -173,42 +173,43 @@ class Server {
           }
         }
 
-        if (this.circuitBreakerTripped) {
-          if (now < this.circuitBreakerResetTime) {
-            res.writeStatus('503 Service Unavailable');
-            res.end();
-            return;
-          } else {
-            this.circuitBreakerTripped = false;
-            console.log('[CIRCUIT_BREAKER] Reset - accepting connections again');
-          }
-        }
+        // if (this.circuitBreakerTripped) {
+        //   if (now < this.circuitBreakerResetTime) {
+        //     res.writeStatus('503 Service Unavailable');
+        //     res.end();
+        //     return;
+        //   } else {
+        //     this.circuitBreakerTripped = false;
+        //     console.log('[CIRCUIT_BREAKER] Reset - accepting connections again');
+        //   }
+        // }
 
-        if (now > this.rejectionCountResetTime) {
-          this.rejectionCountLastSecond = 0;
-          this.rejectionCountResetTime = now + 1000;
-        }
+        // Per-IP rate limiting below is sufficient to handle attacks
+        // if (now > this.rejectionCountResetTime) {
+        //   this.rejectionCountLastSecond = 0;
+        //   this.rejectionCountResetTime = now + 1000;
+        // }
 
-        if (now > this.globalConnectionsResetTime) {
-          this.globalConnectionsLastSecond = 0;
-          this.globalConnectionsResetTime = now + 1000;
-        }
+        // if (now > this.globalConnectionsResetTime) {
+        //   this.globalConnectionsLastSecond = 0;
+        //   this.globalConnectionsResetTime = now + 1000;
+        // }
 
-        this.globalConnectionsLastSecond++;
+        // this.globalConnectionsLastSecond++;
 
-        if (this.globalConnectionsLastSecond > this.maxGlobalConnectionsPerSecond) {
-          this.rejectionCountLastSecond++;
+        // if (this.globalConnectionsLastSecond > this.maxGlobalConnectionsPerSecond) {
+        //   this.rejectionCountLastSecond++;
 
-          if (this.rejectionCountLastSecond > 50) {
-            this.circuitBreakerTripped = true;
-            this.circuitBreakerResetTime = now + this.circuitBreakerDuration;
-            console.warn('[CIRCUIT_BREAKER] TRIPPED - Too many rejections, blocking all connections for 10s');
-          }
+        //   if (this.rejectionCountLastSecond > 50) {
+        //     this.circuitBreakerTripped = true;
+        //     this.circuitBreakerResetTime = now + this.circuitBreakerDuration;
+        //     console.warn('[CIRCUIT_BREAKER] TRIPPED - Too many rejections, blocking all connections for 10s');
+        //   }
 
-          res.writeStatus('503 Service Unavailable');
-          res.end();
-          return;
-        }
+        //   res.writeStatus('503 Service Unavailable');
+        //   res.end();
+        //   return;
+        // }
 
         // Check for rate limiting
         const attempts = this.connectionAttemptsByIP.get(ip) || { 

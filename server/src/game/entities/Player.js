@@ -429,6 +429,11 @@ class Player extends Entity {
       };
       this.client.saveGame(game);
     }
+
+    if (this.evolutions && this.evolutions.evolutionEffect) {
+      this.evolutions.evolutionEffect.remove();
+    }
+
     super.remove();
 
     if (this.name !== "Update Testing Account") {

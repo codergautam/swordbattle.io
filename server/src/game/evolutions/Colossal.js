@@ -39,7 +39,7 @@ module.exports = class Colossal extends Evolution {
     this.player.knockbackResistance.multiplier *= 0;
 
 
-    this.player.health.max.multiplier *= 1.175;
+    this.player.health.max.multiplier *= 1.25;
     this.player.health.regen.multiplier *= 1.175;
     this.player.health.regenWait.multiplier *= 0.975;
   }

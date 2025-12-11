@@ -23,7 +23,7 @@ module.exports = class IceKing extends Evolution {
       this.lastSpeedBoostHit = Date.now();
     } else {
       target.addEffect(Types.Effect.Slow, 'iceking_slow', {
-        slowMultiplier: 0.5,
+        slowMultiplier: 0.6,
         duration: 1.5
       });
     }
@@ -40,7 +40,6 @@ module.exports = class IceKing extends Evolution {
     super.update(dt);
     this.player.modifiers.bonusTokens = true;
     this.player.speed.multiplier *= 1.05;
-    this.player.shape.setScale(1.05);
     this.player.sword.damage.multiplier *= 1.025;
     this.player.sword.knockback.multiplier['ability'] = 1.05;
     this.player.knockbackResistance.multiplier *= 0.95;

@@ -42,7 +42,7 @@ module.exports = class Tree extends Evolution {
   applyAbilityEffects() {
     this.player.shape.setScale(1.1);
     this.player.sword.swingDuration.multiplier['ability'] = 0.6;
-    this.player.health.regen.multiplier *= 3;
+    this.player.health.regen.multiplier *= 2.5;
   }
 
   update(dt) {
@@ -51,7 +51,7 @@ module.exports = class Tree extends Evolution {
 
     const isUnderCover = this.player.effects.has('bush') || this.player.effects.has('iceMound');
 
-    this.player.shape.setScale(1.075);
+    this.player.shape.setScale(1.05);
     this.player.sword.damage.multiplier *= 1.025;
 
     this.player.sword.knockback.multiplier['ability'] = 1.4;
@@ -63,7 +63,7 @@ module.exports = class Tree extends Evolution {
     this.player.health.regen.multiplier *= 1.5;
 
     if (isUnderCover) {
-      this.player.speed.multiplier *= 1.3;
+      this.player.speed.multiplier *= 1.225;
       this.player.sword.damage.multiplier *= 1.225;
       this.player.health.regenWait.multiplier *= 0;
     }

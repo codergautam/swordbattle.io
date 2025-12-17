@@ -6,7 +6,7 @@ module.exports = class Snowtrekker extends Evolution {
   static level = 27;
   static previousEvol = Types.Evolution.Snowboarder;
   static abilityDuration = 0.01;
-  static abilityCooldown = 10;
+  static abilityCooldown = 15;
   static shockwaveRadius = 2000;
 
   constructor(player) {
@@ -41,7 +41,7 @@ module.exports = class Snowtrekker extends Evolution {
 
         const distRatio = dist / radius;
 
-        const damageMultiplier = 2 - (1.75 * distRatio);
+        const damageMultiplier = 2 - (1.4 * distRatio);
         const damage = baseDamage * damageMultiplier;
 
         const knockbackPower = 1100 - (865 * distRatio);
@@ -69,7 +69,7 @@ module.exports = class Snowtrekker extends Evolution {
   update(dt) {
     super.update(dt);
     this.player.modifiers.bonusTokens = true;
-    this.player.speed.multiplier *= 0.95;
+    this.player.speed.multiplier *= 0.925;
     this.player.sword.damage.multiplier *= 1.15;
 
     this.player.health.max.multiplier *= 1.25;

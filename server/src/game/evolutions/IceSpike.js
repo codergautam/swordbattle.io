@@ -52,7 +52,7 @@ module.exports = class IceSpike extends Evolution {
     this.player.sword.knockback.multiplier['default'] = 1.3;
     this.player.knockbackResistance.multiplier *= 0.7;
     this.player.sword.damage.multiplier *= 0.9;
-    this.player.health.regenWait.multiplier = 1.2;
+    this.player.health.regenWait.multiplier = 0.7;
 
     if (this.dashTimer > 0) {
       this.player.modifiers.dashAttack = true;

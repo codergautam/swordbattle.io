@@ -10,6 +10,7 @@ module.exports = class SnowWalker extends Evolution {
   constructor(player) {
     super(player);
     this.player.modifiers.bonusTokens = true;
+    this.player.levels.tokens *= 2;
   }
 
   applyAbilityEffects() {

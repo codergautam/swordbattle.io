@@ -956,14 +956,15 @@ function App() {
                   margin: 'auto',
                   marginTop: 5,
                   padding: 7,
-                  fontSize: 13,
+                  fontSize: 12, // change back to 13
                   boxSizing: 'border-box',
                   maxWidth: '100%',
-                  color: 'white'
+                  color: '#ffaaaa'
                 }}
-                title={randomMessage}
+                // title={randomMessage}
               >
-                {randomMessage}
+                {/* {randomMessage} */}
+                Due to a bug duplicating Snowtokens earned multiple times, some winter skins may have been refunded. Sorry for the inconvenience.
               </div>
               <br />
               <div className='fullWidth'>

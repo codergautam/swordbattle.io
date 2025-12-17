@@ -423,7 +423,7 @@ class Player extends Entity {
       }
       const game = {
         coins: this.levels.coins,
-        tokens: this.modifiers?.bonusTokens ? this.levels.tokens * 2 : this.levels.tokens,
+        tokens: this.levels.tokens,
         kills: this.kills,
         playtime: this.playtime,
       };

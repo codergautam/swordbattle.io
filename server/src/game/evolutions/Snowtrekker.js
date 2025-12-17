@@ -41,14 +41,14 @@ module.exports = class Snowtrekker extends Evolution {
 
         const distRatio = dist / radius;
 
-        const damageMultiplier = 2 - (1.4 * distRatio);
+        const damageMultiplier = 2 - (1 * distRatio);
         const damage = baseDamage * damageMultiplier;
 
         const knockbackPower = 1100 - (865 * distRatio);
 
-        if (typeof entity.damaged === 'function') {
-          entity.damaged(damage, this.player);
-        }
+        // if (typeof entity.damaged === 'function') {
+        //   entity.damaged(damage, this.player);
+        // }
 
         const direction = dist > 0 ? 1 / dist : 1;
         const knockbackResist = entity.knockbackResistance?.value || 1;

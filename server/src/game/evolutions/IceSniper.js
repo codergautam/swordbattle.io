@@ -20,11 +20,17 @@ module.exports = class IceSniper extends Evolution {
 
     if (this.isAbilityActive) {
       target.addEffect(Types.Effect.SlidingKnockback, 'icesniper_slide', {
-        velocityDecayMultiplier: 0.98, 
-        duration: 4
+        velocityDecayMultiplier: 0.98,
+        duration: 2,
       });
     } else {
-      target.addEffect(Types.Effect.Stun, 'icesniper_stun', { duration: 1.5 });
+      // Scale stun from 0.5s at close range to 2s at max range
+      const flyLog = this.player.sword.flyLog || 0;
+      const maxFlyDuration = this.player.sword.flyDuration.value;
+      const progress = Math.min(1, flyLog / maxFlyDuration);
+      const stunDuration = 0.5 + 1.5 * progress;
+
+      target.addEffect(Types.Effect.Stun, 'icesniper_stun', { duration: stunDuration });
     }
   }
 

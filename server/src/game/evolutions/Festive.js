@@ -13,7 +13,7 @@ module.exports = class Festive extends Evolution {
     super(player);
     this.player.modifiers.bonusTokens = true;
     this.ornaments = [];
-    this.baseRotationSpeed = Math.PI / 1.5; // 0.33 rps
+    this.baseRotationSpeed = Math.PI / 1.2; // 0.425 rps
     this.currentRotationSpeed = this.baseRotationSpeed;
 
     this.spawnOrnaments();

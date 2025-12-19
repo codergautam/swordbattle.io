@@ -7,7 +7,7 @@ module.exports = class Tree extends Evolution {
   static level = 27;
   static previousEvol = Types.Evolution.CandyWalker;
   static abilityDuration = 10;
-  static abilityCooldown = 30;
+  static abilityCooldown = 50;
 
   constructor(player) {
     super(player);
@@ -40,7 +40,7 @@ module.exports = class Tree extends Evolution {
   }
 
   applyAbilityEffects() {
-    this.player.shape.setScale(1.1);
+    this.player.shape.setScale(1.025);
     this.player.sword.swingDuration.multiplier['ability'] = 0.6;
     this.player.health.regen.multiplier *= 2.5;
   }
@@ -50,8 +50,6 @@ module.exports = class Tree extends Evolution {
     this.player.modifiers.bonusTokens = true;
 
     const isUnderCover = this.player.effects.has('bush') || this.player.effects.has('iceMound');
-
-    this.player.shape.setScale(1.05);
     this.player.sword.damage.multiplier *= 1.025;
 
     this.player.sword.knockback.multiplier['ability'] = 1.4;
@@ -63,8 +61,8 @@ module.exports = class Tree extends Evolution {
     this.player.health.regen.multiplier *= 1.5;
 
     if (isUnderCover) {
-      this.player.speed.multiplier *= 1.225;
-      this.player.sword.damage.multiplier *= 1.225;
+      this.player.speed.multiplier *= 1.2;
+      this.player.sword.damage.multiplier *= 1.2;
       this.player.health.regenWait.multiplier *= 0;
     }
 

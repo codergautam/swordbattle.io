@@ -122,7 +122,8 @@ module.exports = {
       'bass', 'pass', 'class', 'grass', 'sass', 'mass',
       'por', 'para', 'pero', 'como', 'con', 'sin', 'las', 'los', 'una', 'uno',
       'que', 'esta', 'ese', 'esa', 'este', 'son', 'muy', 'bien', 'mas',
-      'analyze', 'analysis', 'bass', 'bassist'
+      'analyze', 'analysis', 'bass', 'bassist',
+      'suck', 'sucks', 'sucking', 'sucked'
     ];
 
     const strictWords = ['fuck', 'nigga', 'nigger', 'niga', 'nga', 'fag', 'faggot', 'fk', 'cock', 'pussy', 'cunt'];

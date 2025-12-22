@@ -11,8 +11,8 @@ const Types = require('./Types');
 const { getBannedIps } = require('../moderation');
 const { filterChatMessage } = helpers;
 
-filter.remove(['wtf', 'stfu', 'damn', 'goddamn', 'god damn', 'hell', 'crap', 'piss']);
-filter.add(['fag', 'nga', 'niga', 'fk']);
+filter.remove(['wtf', 'stfu', 'damn', 'goddamn', 'god damn', 'hell', 'crap', 'piss', 'suck', 'sucks']);
+filter.add(['fag', 'nga', 'niga', 'fk', 'dih']);
 class Game {
   constructor() {
     this.entities = new Map();

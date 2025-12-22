@@ -86,7 +86,7 @@ module.exports = {
   normalizeText(text) {
     return text
       .toLowerCase()
-      .replace(/\s+/g, '') // no whitespace
+      .replace(/\s+/g, '')
       .replace(/0/g, 'o')
       .replace(/1/g, 'i')
       .replace(/3/g, 'e')
@@ -94,6 +94,7 @@ module.exports = {
       .replace(/5/g, 's')
       .replace(/7/g, 't')
       .replace(/8/g, 'b')
+      .replace(/9/g, 'g')
       .replace(/\$/g, 's')
       .replace(/@/g, 'a')
       .replace(/\!/g, 'i')
@@ -102,56 +103,60 @@ module.exports = {
       .replace(/\|/g, 'i')
       .replace(/\./g, '')
       .replace(/\_/g, '')
-      .replace(/-/g, '');
+      .replace(/-/g, '')
+      .replace(/[ckq]+/g, (match) => match.length === 1 ? 'c' : 'k')
+      .replace(/ph/g, 'f')
+      .replace(/x{2,}/g, 'x');
+  },
+
+  stripSuffixes(text) {
+    return text
+      .replace(/z+$/i, '')
+      .replace(/s+$/i, '')
+      .replace(/r$/i, '')
+      .replace(/er$/i, '')
+      .replace(/ed$/i, '')
+      .replace(/d$/i, '')
+      .replace(/ing$/i, '');
   },
 
   filterChatMessage(message, filter) {
     if (!message || message.length === 0) return message;
 
     const normalizeText = module.exports.normalizeText;
+    const stripSuffixes = module.exports.stripSuffixes;
     const normalizedMessage = normalizeText(message);
 
-    // Split message into words for word-boundary checking
     const words = message.toLowerCase().split(/\s+/);
 
-    // Normalize all bad words from the filter
     const badWords = filter.list();
     const hasProfanity = badWords.some(word => {
       const normalizedBadWord = normalizeText(word);
+      const strippedBadWord = stripSuffixes(normalizedBadWord);
 
-      // Check each word in the message individually (prevents "pass" from matching "ass")
       for (const messageWord of words) {
         const normalizedWord = normalizeText(messageWord);
+        const strippedWord = stripSuffixes(normalizedWord);
 
-        // 1. Exact match after normalization (catches leet speak, symbols, spaces)
-        if (normalizedWord === normalizedBadWord) {
+        if (normalizedWord === normalizedBadWord || strippedWord === strippedBadWord) {
           return true;
         }
 
-        // 2. Fuzzy vowel matching - only for short messages or single words
-        const badWordNoVowels = normalizedBadWord.replace(/[aeiou]/g, '');
-        const wordNoVowels = normalizedWord.replace(/[aeiou]/g, '');
+        if (normalizedWord.length >= 3 && strippedWord === normalizedBadWord) {
+          return true;
+        }
 
-        // Match if consonants are identical AND word is shorter (vowels removed)
-        if (badWordNoVowels.length >= 3 &&
-            wordNoVowels === badWordNoVowels &&
-            normalizedWord.length < normalizedBadWord.length) {
+        if (normalizedWord.includes(normalizedBadWord) && normalizedBadWord.length >= 4 && normalizedWord.length <= normalizedBadWord.length + 2) {
           return true;
         }
       }
 
-      // 3. Special case: check if entire message (normalized) is just the bad word with spaces
       if (normalizedMessage === normalizedBadWord) {
         return true;
       }
 
-      // 4. Special case: check if entire message has consonants matching bad word
-      const normalizedMessageNoVowels = normalizedMessage.replace(/[aeiou]/g, '');
-      const badWordNoVowels = normalizedBadWord.replace(/[aeiou]/g, '');
-
-      if (badWordNoVowels.length >= 3 &&
-          normalizedMessageNoVowels === badWordNoVowels &&
-          normalizedMessage.length < normalizedBadWord.length) {
+      const strippedMessage = stripSuffixes(normalizedMessage);
+      if (strippedMessage === strippedBadWord || strippedMessage === normalizedBadWord) {
         return true;
       }
 

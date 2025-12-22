@@ -117,10 +117,48 @@ module.exports = {
 
     const words = message.toLowerCase().split(/\s+/);
 
-    const whitelist = ['rap', 'raps', 'shot', 'shots', 'hunt', 'hunts', 'hunter', 'hunting', 'bass', 'pass', 'class', 'grass', 'sass', 'mass'];
+    const whitelist = [
+      'rap', 'raps', 'shot', 'shots', 'hunt', 'hunts', 'hunter', 'hunting',
+      'bass', 'pass', 'class', 'grass', 'sass', 'mass',
+      'por', 'para', 'pero', 'como', 'con', 'sin', 'las', 'los', 'una', 'uno',
+      'que', 'esta', 'ese', 'esa', 'este', 'son', 'muy', 'bien', 'mas',
+      'analyze', 'analysis', 'bass', 'bassist'
+    ];
+
+    const strictWords = ['fuck', 'nigga', 'nigger', 'niga', 'nga', 'fag', 'faggot', 'fk', 'cock', 'pussy', 'cunt'];
 
     const badWords = filter.list();
     const matchedWords = [];
+
+    strictWords.forEach(strictWord => {
+      const normalizedStrict = normalizeText(strictWord);
+      const dedupedStrict = normalizedStrict.replace(/(.)\1+/g, '$1');
+
+      for (const messageWord of words) {
+        if (whitelist.includes(messageWord.toLowerCase())) {
+          continue;
+        }
+
+        const normalizedWord = normalizeText(messageWord);
+        if (normalizedWord.includes(normalizedStrict) || normalizedWord.includes(dedupedStrict)) {
+          if (!matchedWords.includes(strictWord)) {
+            matchedWords.push(strictWord);
+          }
+          break;
+        }
+      }
+
+      const normalizedMessageFiltered = words
+        .filter(w => !whitelist.includes(w.toLowerCase()))
+        .map(w => normalizeText(w))
+        .join('');
+
+      if (normalizedMessageFiltered.includes(normalizedStrict) || normalizedMessageFiltered.includes(dedupedStrict)) {
+        if (!matchedWords.includes(strictWord)) {
+          matchedWords.push(strictWord);
+        }
+      }
+    });
 
     badWords.forEach(word => {
       const normalizedBadWord = normalizeText(word);
@@ -163,16 +201,11 @@ module.exports = {
             matchedWords.push(word);
             return;
           }
-          if (dedupedVariant.length >= 3 && dedupedBad.length >= 3 &&
-              (dedupedVariant.startsWith(dedupedBad) || dedupedBad.startsWith(dedupedVariant))) {
+          if (dedupedVariant.length >= 4 && dedupedBad.length >= 4 &&
+              dedupedVariant.startsWith(dedupedBad)) {
             matchedWords.push(word);
             return;
           }
-        }
-
-        if (normalizedWord.length >= 3 && normalizedWord.length < normalizedBadWord.length && normalizedBadWord.startsWith(normalizedWord)) {
-          matchedWords.push(word);
-          return;
         }
 
         if (normalizedBadWord.length >= 4) {

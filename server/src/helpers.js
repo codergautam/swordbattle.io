@@ -149,11 +149,25 @@ module.exports = {
           normalizedWord.replace(/ed$/i, ''),
           normalizedWord.replace(/ing$/i, ''),
           normalizedWord.replace(/er$/i, ''),
+          normalizedWord.replace(/y$/i, ''),
+          normalizedWord.replace(/ie$/i, ''),
         ];
 
-        if (suffixVariants.some(v => v === normalizedBadWord && v.length >= 3)) {
-          matchedWords.push(word);
-          return;
+        for (const variant of suffixVariants) {
+          if (variant.length >= 3 && variant === normalizedBadWord) {
+            matchedWords.push(word);
+            return;
+          }
+          const dedupedVariant = variant.replace(/(.)\1+/g, '$1');
+          if (dedupedVariant.length >= 2 && dedupedVariant === dedupedBad) {
+            matchedWords.push(word);
+            return;
+          }
+          if (dedupedVariant.length >= 3 && dedupedBad.length >= 3 &&
+              (dedupedVariant.startsWith(dedupedBad) || dedupedBad.startsWith(dedupedVariant))) {
+            matchedWords.push(word);
+            return;
+          }
         }
 
         if (normalizedWord.length >= 3 && normalizedWord.length < normalizedBadWord.length && normalizedBadWord.startsWith(normalizedWord)) {

@@ -121,6 +121,8 @@ module.exports = {
     const severeWords = severeIndices.map(i => bannedWords[i]);
 
     for (const word of words) {
+      if (word === 'as') continue;
+
       const normalized = normalizeText(word);
       const deduped = normalized.replace(/(.)\1+/g, '$1');
 

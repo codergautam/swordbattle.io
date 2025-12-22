@@ -155,7 +155,7 @@ module.exports = {
         const normalizedSevere = normalizeText(severe);
         const dedupedSevere = normalizedSevere.replace(/(.)\1+/g, '$1');
 
-        if (normalized === 'as' && bannedWords.indexOf(severe) === 18) continue;
+        if (normalized === 'as') continue;
 
         if (normalized.length >= normalizedSevere.length + 1) {
           if (normalized.includes(normalizedSevere) || deduped.includes(dedupedSevere)) {

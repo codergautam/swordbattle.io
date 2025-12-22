@@ -1,3 +1,5 @@
+const bannedWords = require('./bannedWords');
+
 module.exports = {
   random(min, max) {
     return min + (Math.random() * (max - min));
@@ -113,122 +115,40 @@ module.exports = {
     if (!message || message.length === 0) return { filtered: message, matched: [] };
 
     const normalizeText = module.exports.normalizeText;
-    const normalizedMessage = normalizeText(message);
-
     const words = message.toLowerCase().split(/\s+/);
-
-    const whitelist = [
-      'rap', 'raps', 'shot', 'shots', 'hunt', 'hunts', 'hunter', 'hunting',
-      'bass', 'pass', 'class', 'grass', 'sass', 'mass', 'assassin',
-      'por', 'para', 'pero', 'como', 'con', 'sin', 'las', 'los', 'una', 'uno',
-      'que', 'esta', 'ese', 'esa', 'este', 'son', 'muy', 'bien', 'mas',
-      'analyze', 'analysis', 'bass', 'bassist',
-      'suck', 'sucks', 'sucking', 'sucked',
-      'coins', 'coin', 'speed', 'dmg', 'damage', 'max', 'and', 'the'
-    ];
-
-    const strictWords = ['fuck', 'nigga', 'nigger', 'niga', 'nga', 'fag', 'faggot', 'fk'];
-
-    const badWords = filter.list();
     const matchedWords = [];
 
-    strictWords.forEach(strictWord => {
-      const normalizedStrict = normalizeText(strictWord);
-      const dedupedStrict = normalizedStrict.replace(/(.)\1+/g, '$1');
+    for (const word of words) {
+      const normalized = normalizeText(word);
+      const deduped = normalized.replace(/(.)\1+/g, '$1');
 
-      for (const messageWord of words) {
-        if (whitelist.includes(messageWord.toLowerCase())) {
-          continue;
+      for (const banned of bannedWords) {
+        const normalizedBanned = normalizeText(banned);
+        const dedupedBanned = normalizedBanned.replace(/(.)\1+/g, '$1');
+
+        if (normalized === normalizedBanned || deduped === dedupedBanned) {
+          if (!matchedWords.includes(banned)) {
+            matchedWords.push(banned);
+          }
+          break;
         }
 
-        const normalizedWord = normalizeText(messageWord);
-        if (normalizedWord.length >= 4 && (normalizedWord.includes(normalizedStrict) || normalizedWord.includes(dedupedStrict))) {
-          if (!matchedWords.includes(strictWord)) {
-            matchedWords.push(strictWord);
+        const strippedWord = normalized
+          .replace(/[sz]+$/i, '')
+          .replace(/y$/i, '')
+          .replace(/ed$/i, '')
+          .replace(/ing$/i, '')
+          .replace(/er$/i, '');
+        const strippedDeduped = strippedWord.replace(/(.)\1+/g, '$1');
+
+        if ((strippedWord === normalizedBanned || strippedDeduped === dedupedBanned) && strippedWord.length >= 3) {
+          if (!matchedWords.includes(banned)) {
+            matchedWords.push(banned);
           }
           break;
         }
       }
-    });
-
-    badWords.forEach(word => {
-      const normalizedBadWord = normalizeText(word);
-
-      for (const messageWord of words) {
-        if (whitelist.includes(messageWord.toLowerCase())) {
-          continue;
-        }
-
-        let normalizedWord = normalizeText(messageWord);
-
-        if (normalizedWord === normalizedBadWord) {
-          matchedWords.push(word);
-          return;
-        }
-
-        const dedupedWord = normalizedWord.replace(/(.)\1+/g, '$1');
-        const dedupedBad = normalizedBadWord.replace(/(.)\1+/g, '$1');
-        if (dedupedWord === dedupedBad) {
-          matchedWords.push(word);
-          return;
-        }
-
-        const suffixVariants = [
-          normalizedWord.replace(/[sz]+$/i, ''),
-          normalizedWord.replace(/ed$/i, ''),
-          normalizedWord.replace(/ing$/i, ''),
-          normalizedWord.replace(/er$/i, ''),
-          normalizedWord.replace(/y$/i, ''),
-          normalizedWord.replace(/ie$/i, ''),
-        ];
-
-        for (const variant of suffixVariants) {
-          if (variant.length >= 3 && variant === normalizedBadWord) {
-            matchedWords.push(word);
-            return;
-          }
-          const dedupedVariant = variant.replace(/(.)\1+/g, '$1');
-          if (dedupedVariant.length >= 2 && dedupedVariant === dedupedBad) {
-            matchedWords.push(word);
-            return;
-          }
-          if (dedupedVariant.length >= 4 && dedupedBad.length >= 4 &&
-              dedupedVariant.startsWith(dedupedBad)) {
-            matchedWords.push(word);
-            return;
-          }
-        }
-
-        if (normalizedBadWord.length >= 4) {
-          const wordNoVowels = normalizedWord.replace(/[aeiou]/g, '');
-          const badNoVowels = normalizedBadWord.replace(/[aeiou]/g, '');
-
-          if (wordNoVowels.length >= 2 && wordNoVowels === badNoVowels) {
-            matchedWords.push(word);
-            return;
-          }
-        }
-
-        const cleanedWord = normalizedWord.replace(/[hx]/g, '');
-        const cleanedBad = normalizedBadWord.replace(/[hx]/g, '');
-        if (cleanedWord.length >= 3 && cleanedWord === cleanedBad) {
-          matchedWords.push(word);
-          return;
-        }
-      }
-
-      if (normalizedMessage === normalizedBadWord) {
-        matchedWords.push(word);
-        return;
-      }
-
-      const dedupedMessage = normalizedMessage.replace(/(.)\1+/g, '$1');
-      const dedupedBad = normalizedBadWord.replace(/(.)\1+/g, '$1');
-      if (dedupedMessage === dedupedBad) {
-        matchedWords.push(word);
-        return;
-      }
-    });
+    }
 
     if (matchedWords.length > 0) {
       return { filtered: '*'.repeat(message.length), matched: matchedWords };

@@ -6,13 +6,11 @@ const GlobalEntities = require('./GlobalEntities');
 const Player = require('./entities/Player');
 const helpers = require('../helpers');
 const config = require('../config');
-const filter = require('leo-profanity');
+const filter = null;
 const Types = require('./Types');
 const { getBannedIps } = require('../moderation');
 const { filterChatMessage } = helpers;
 
-filter.remove(['wtf', 'stfu', 'damn', 'goddamn', 'god damn', 'hell', 'crap', 'piss', 'suck', 'sucks', 'coon', 'coons', 'nude', 'nudes', 'spic', 'spick', 'kike']);
-filter.add(['fag', 'nga', 'niga', 'fk', 'dih']);
 class Game {
   constructor() {
     this.entities = new Map();

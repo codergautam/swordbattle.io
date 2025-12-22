@@ -10,7 +10,8 @@ const words = [
   'retard', 'retrd',
   'rape', 'rpe',
   'whore', 'whor',
-  'slut'
+  'slut',
+  'ass'
 ];
 
 const severeIndices = [0, 4, 6, 7, 10, 13];

@@ -20,6 +20,7 @@ const Types = require('../Types');
 const config = require('../../config');
 const { clamp, calculateGemsXP, filterChatMessage } = require('../../helpers');
 const { skins } = require('../../cosmetics.json');
+const api = require('../../network/api');
 
 // Check if any duplicate ids in cosmetics.json
 function checkForDuplicates() {
@@ -417,7 +418,6 @@ class Player extends Entity {
   }
 
   logSwearingIncident(message, matchedWords) {
-    const api = require('../network/api');
     const data = {
       username: this.name,
       account_id: this.client?.account?.id,

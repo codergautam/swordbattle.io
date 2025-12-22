@@ -1,4 +1,4 @@
-const bannedWords = require('./bannedWords');
+const { words: bannedWords, severeIndices } = require('./bannedWords');
 
 module.exports = {
   random(min, max) {
@@ -118,6 +118,8 @@ module.exports = {
     const words = message.toLowerCase().split(/\s+/);
     const matchedWords = [];
 
+    const severeWords = severeIndices.map(i => bannedWords[i]);
+
     for (const word of words) {
       const normalized = normalizeText(word);
       const deduped = normalized.replace(/(.)\1+/g, '$1');
@@ -146,6 +148,20 @@ module.exports = {
             matchedWords.push(banned);
           }
           break;
+        }
+      }
+
+      for (const severe of severeWords) {
+        const normalizedSevere = normalizeText(severe);
+        const dedupedSevere = normalizedSevere.replace(/(.)\1+/g, '$1');
+
+        if (normalized.length >= normalizedSevere.length + 3) {
+          if (normalized.includes(normalizedSevere) || deduped.includes(dedupedSevere)) {
+            if (!matchedWords.includes(severe)) {
+              matchedWords.push(severe);
+            }
+            break;
+          }
         }
       }
     }

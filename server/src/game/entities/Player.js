@@ -56,7 +56,7 @@ checkForDuplicates();
 
 const filter = require('leo-profanity');
 
-filter.remove(['wtf', 'stfu', 'damn', 'goddamn', 'god damn', 'hell', 'crap', 'piss', 'suck', 'sucks']);
+filter.remove(['wtf', 'stfu', 'damn', 'goddamn', 'god damn', 'hell', 'crap', 'piss', 'suck', 'sucks', 'coon', 'coons', 'nude', 'nudes', 'spic', 'spick', 'kike']);
 filter.add(['fag', 'nga', 'niga', 'fk', 'dih']);
 
 class Player extends Entity {

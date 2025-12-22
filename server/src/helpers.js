@@ -119,14 +119,15 @@ module.exports = {
 
     const whitelist = [
       'rap', 'raps', 'shot', 'shots', 'hunt', 'hunts', 'hunter', 'hunting',
-      'bass', 'pass', 'class', 'grass', 'sass', 'mass',
+      'bass', 'pass', 'class', 'grass', 'sass', 'mass', 'assassin',
       'por', 'para', 'pero', 'como', 'con', 'sin', 'las', 'los', 'una', 'uno',
       'que', 'esta', 'ese', 'esa', 'este', 'son', 'muy', 'bien', 'mas',
       'analyze', 'analysis', 'bass', 'bassist',
-      'suck', 'sucks', 'sucking', 'sucked'
+      'suck', 'sucks', 'sucking', 'sucked',
+      'coins', 'coin', 'speed', 'dmg', 'damage', 'max', 'and', 'the'
     ];
 
-    const strictWords = ['fuck', 'nigga', 'nigger', 'niga', 'nga', 'fag', 'faggot', 'fk', 'cock', 'pussy', 'cunt'];
+    const strictWords = ['fuck', 'nigga', 'nigger', 'niga', 'nga', 'fag', 'faggot', 'fk'];
 
     const badWords = filter.list();
     const matchedWords = [];
@@ -141,22 +142,11 @@ module.exports = {
         }
 
         const normalizedWord = normalizeText(messageWord);
-        if (normalizedWord.includes(normalizedStrict) || normalizedWord.includes(dedupedStrict)) {
+        if (normalizedWord.length >= 4 && (normalizedWord.includes(normalizedStrict) || normalizedWord.includes(dedupedStrict))) {
           if (!matchedWords.includes(strictWord)) {
             matchedWords.push(strictWord);
           }
           break;
-        }
-      }
-
-      const normalizedMessageFiltered = words
-        .filter(w => !whitelist.includes(w.toLowerCase()))
-        .map(w => normalizeText(w))
-        .join('');
-
-      if (normalizedMessageFiltered.includes(normalizedStrict) || normalizedMessageFiltered.includes(dedupedStrict)) {
-        if (!matchedWords.includes(strictWord)) {
-          matchedWords.push(strictWord);
         }
       }
     });

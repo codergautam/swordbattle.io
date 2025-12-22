@@ -457,7 +457,7 @@ class Game {
     //   : (client.account ? client.account.username : this.handleNickname(data.name || ''));
     const name = client.account && client.account.username ? client.account.username : (
       client.player && client.player.name ? client.player.name
-        : this.handleNickname(filterChatMessage(data.name, filter) || '')
+        : this.handleNickname(filterChatMessage(data.name, filter).filtered || '')
     )
     if (data?.name && data.name !== name) {
       data.name = name;

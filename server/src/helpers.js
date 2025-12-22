@@ -109,65 +109,94 @@ module.exports = {
       .replace(/x{2,}/g, 'x');
   },
 
-  stripSuffixes(text) {
-    return text
-      .replace(/z+$/i, '')
-      .replace(/s+$/i, '')
-      .replace(/r$/i, '')
-      .replace(/er$/i, '')
-      .replace(/ed$/i, '')
-      .replace(/d$/i, '')
-      .replace(/ing$/i, '');
-  },
-
   filterChatMessage(message, filter) {
-    if (!message || message.length === 0) return message;
+    if (!message || message.length === 0) return { filtered: message, matched: [] };
 
     const normalizeText = module.exports.normalizeText;
-    const stripSuffixes = module.exports.stripSuffixes;
     const normalizedMessage = normalizeText(message);
 
     const words = message.toLowerCase().split(/\s+/);
 
+    const whitelist = ['rap', 'raps', 'shot', 'shots', 'hunt', 'hunts', 'hunter', 'hunting', 'bass', 'pass', 'class', 'grass', 'sass', 'mass'];
+
     const badWords = filter.list();
-    const hasProfanity = badWords.some(word => {
+    const matchedWords = [];
+
+    badWords.forEach(word => {
       const normalizedBadWord = normalizeText(word);
-      const strippedBadWord = stripSuffixes(normalizedBadWord);
 
       for (const messageWord of words) {
-        const normalizedWord = normalizeText(messageWord);
-        const strippedWord = stripSuffixes(normalizedWord);
-
-        if (normalizedWord === normalizedBadWord || strippedWord === strippedBadWord) {
-          return true;
+        if (whitelist.includes(messageWord.toLowerCase())) {
+          continue;
         }
 
-        if (normalizedWord.length >= 3 && strippedWord === normalizedBadWord) {
-          return true;
+        let normalizedWord = normalizeText(messageWord);
+
+        if (normalizedWord === normalizedBadWord) {
+          matchedWords.push(word);
+          return;
         }
 
-        if (normalizedWord.includes(normalizedBadWord) && normalizedBadWord.length >= 4 && normalizedWord.length <= normalizedBadWord.length + 2) {
-          return true;
+        const dedupedWord = normalizedWord.replace(/(.)\1+/g, '$1');
+        const dedupedBad = normalizedBadWord.replace(/(.)\1+/g, '$1');
+        if (dedupedWord === dedupedBad) {
+          matchedWords.push(word);
+          return;
+        }
+
+        const suffixVariants = [
+          normalizedWord.replace(/[sz]+$/i, ''),
+          normalizedWord.replace(/ed$/i, ''),
+          normalizedWord.replace(/ing$/i, ''),
+          normalizedWord.replace(/er$/i, ''),
+        ];
+
+        if (suffixVariants.some(v => v === normalizedBadWord && v.length >= 3)) {
+          matchedWords.push(word);
+          return;
+        }
+
+        if (normalizedWord.length >= 3 && normalizedWord.length < normalizedBadWord.length && normalizedBadWord.startsWith(normalizedWord)) {
+          matchedWords.push(word);
+          return;
+        }
+
+        if (normalizedBadWord.length >= 4) {
+          const wordNoVowels = normalizedWord.replace(/[aeiou]/g, '');
+          const badNoVowels = normalizedBadWord.replace(/[aeiou]/g, '');
+
+          if (wordNoVowels.length >= 2 && wordNoVowels === badNoVowels) {
+            matchedWords.push(word);
+            return;
+          }
+        }
+
+        const cleanedWord = normalizedWord.replace(/[hx]/g, '');
+        const cleanedBad = normalizedBadWord.replace(/[hx]/g, '');
+        if (cleanedWord.length >= 3 && cleanedWord === cleanedBad) {
+          matchedWords.push(word);
+          return;
         }
       }
 
       if (normalizedMessage === normalizedBadWord) {
-        return true;
+        matchedWords.push(word);
+        return;
       }
 
-      const strippedMessage = stripSuffixes(normalizedMessage);
-      if (strippedMessage === strippedBadWord || strippedMessage === normalizedBadWord) {
-        return true;
+      const dedupedMessage = normalizedMessage.replace(/(.)\1+/g, '$1');
+      const dedupedBad = normalizedBadWord.replace(/(.)\1+/g, '$1');
+      if (dedupedMessage === dedupedBad) {
+        matchedWords.push(word);
+        return;
       }
-
-      return false;
     });
 
-    if (hasProfanity) {
-      return '*'.repeat(message.length);
+    if (matchedWords.length > 0) {
+      return { filtered: '*'.repeat(message.length), matched: matchedWords };
     }
 
-    return message;
+    return { filtered: message, matched: [] };
   }
 
 };

@@ -406,10 +406,26 @@ class Player extends Entity {
   addChatMessage(message) {
     if (message.length === '') return;
 
-    message = message.slice(0, 35);
-    message = filterChatMessage(message, filter);
-    this.chatMessage = message;
+    const originalMessage = message.slice(0, 35);
+    const result = filterChatMessage(originalMessage, filter);
+    this.chatMessage = result.filtered;
     this.chatMessageTimer.renew();
+
+    if (result.matched.length > 0) {
+      this.logSwearingIncident(originalMessage, result.matched);
+    }
+  }
+
+  logSwearingIncident(message, matchedWords) {
+    const api = require('../network/api');
+    const data = {
+      username: this.name,
+      account_id: this.client?.account?.id,
+      ip: this.client?.ip,
+      message: message,
+      matched_words: matchedWords,
+    };
+    api.post('/moderation/log-swearing', data, () => {});
   }
 
   getEntitiesInViewport() {

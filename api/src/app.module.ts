@@ -8,6 +8,7 @@ import { config } from './config';
 import { GamesModule } from './games/games.module';
 import { StatsModule } from './stats/stats.module';
 import { CosmeticsModule } from './cosmetics/cosmetics.module';
+import { ModerationModule } from './moderation/moderation.module';
 import { AuthService } from './auth/auth.service';
 
 @Module({
@@ -43,6 +44,7 @@ import { AuthService } from './auth/auth.service';
     GamesModule,
     StatsModule,
     CosmeticsModule,
+    ModerationModule,
   ],
   providers: [
     AuthService,

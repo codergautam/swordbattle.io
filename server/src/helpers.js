@@ -121,14 +121,12 @@ module.exports = {
     const severeWords = severeIndices.map(i => bannedWords[i]);
 
     for (const word of words) {
-      if (word === 'as') continue;
-
       const normalized = normalizeText(word);
-      const deduped = normalized.replace(/(.)\1+/g, '$1');
+      const deduped = normalized.replace(/(.)\1{2,}/g, '$1');
 
       for (const banned of bannedWords) {
         const normalizedBanned = normalizeText(banned);
-        const dedupedBanned = normalizedBanned.replace(/(.)\1+/g, '$1');
+        const dedupedBanned = normalizedBanned.replace(/(.)\1{2,}/g, '$1');
 
         if (normalized === normalizedBanned || deduped === dedupedBanned) {
           if (!matchedWords.includes(banned)) {
@@ -143,7 +141,7 @@ module.exports = {
           .replace(/ed$/i, '')
           .replace(/ing$/i, '')
           .replace(/er$/i, '');
-        const strippedDeduped = strippedWord.replace(/(.)\1+/g, '$1');
+        const strippedDeduped = strippedWord.replace(/(.)\1{2,}/g, '$1');
 
         if ((strippedWord === normalizedBanned || strippedDeduped === dedupedBanned) && strippedWord.length >= 3) {
           if (!matchedWords.includes(banned)) {
@@ -155,9 +153,7 @@ module.exports = {
 
       for (const severe of severeWords) {
         const normalizedSevere = normalizeText(severe);
-        const dedupedSevere = normalizedSevere.replace(/(.)\1+/g, '$1');
-
-        if (normalized === 'as') continue;
+        const dedupedSevere = normalizedSevere.replace(/(.)\1{2,}/g, '$1');
 
         if (normalized.length >= normalizedSevere.length + 1) {
           if (normalized.includes(normalizedSevere) || deduped.includes(dedupedSevere)) {

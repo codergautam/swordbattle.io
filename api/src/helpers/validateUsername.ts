@@ -1,5 +1,5 @@
 import { config } from "src/config";
-import * as filter from 'leo-profanity';
+import { containsProfanity } from './profanityFilter';
 
 export default function validateUsername(username: string): string {
   // just to be safe
@@ -20,8 +20,7 @@ export default function validateUsername(username: string): string {
   if(!username.match(regex)) {
     return "Username can only contain letters, numbers, spaces, and the following symbols: !@\"$%&:';()*\+,-=[\]\^_{|}<>~`";
   }
-  var containsProfanity = filter.check(username);
-  if(containsProfanity) {
+  if(containsProfanity(username)) {
     return "Username contains a bad word!\nIf this is a mistake, please contact an admin.";
   }
   return "";

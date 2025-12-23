@@ -1,5 +1,5 @@
 import { config } from "src/config";
-import * as filter from 'leo-profanity';
+import { containsProfanity } from './profanityFilter';
 
 export default function validateClantag(clantag: string): string {
   const forbiddenTags = ["DEV", "ADMIN", "OWNER", "CODER"];
@@ -18,8 +18,7 @@ export default function validateClantag(clantag: string): string {
   if (!regex.test(clantag)) {
     return "Clan name can only contain letters and numbers";
   }
-  var containsProfanity = filter.check(clantag);
-  if(containsProfanity) {
+  if(containsProfanity(clantag)) {
     return "Clan contains a bad word!\nIf this is a mistake, please contact an admin.";
   }
   return "";

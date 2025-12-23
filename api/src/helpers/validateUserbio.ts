@@ -1,5 +1,5 @@
 import { config } from "src/config";
-import * as filter from 'leo-profanity';
+import { containsProfanity } from './profanityFilter';
 
 export default function validateUserbio(bio: string): string {
   // just to be safe
@@ -20,8 +20,7 @@ export default function validateUserbio(bio: string): string {
   if(!bio.match(regex)) {
     return "Bio can only contain letters, numbers, spaces, and the following symbols: .!@\"$%&:';()*\+,-=[\]\^_{|}<>~`";
   }
-  var containsProfanity = filter.check(bio);
-  if(containsProfanity) {
+  if(containsProfanity(bio)) {
     return "Bio contains a bad word!\nIf this is a mistake, please contact an admin.";
   }
   return "";

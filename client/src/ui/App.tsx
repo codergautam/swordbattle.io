@@ -959,12 +959,12 @@ function App() {
                   fontSize: 12, // change back to 13
                   boxSizing: 'border-box',
                   maxWidth: '100%',
-                  color: '#ffaaaa'
+                  color: 'white'
                 }}
-                // title={randomMessage}
+                title={randomMessage}
               >
-                {/* {randomMessage} */}
-                Due to a bug duplicating Snowtokens earned multiple times, some winter skins may have been refunded. Sorry for the inconvenience.
+                {randomMessage}
+                {/* Due to a bug duplicating Snowtokens earned multiple times, some winter skins may have been refunded. Sorry for the inconvenience. */}
               </div>
               <br />
               <div className='fullWidth'>

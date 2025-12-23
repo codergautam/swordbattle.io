@@ -16,7 +16,7 @@ const bannedWords = [
   'fk', 'fkc', 'fkk', 'fku', 'fkyou', 'fkuu', 'fkyouu', 'fkuuu', 'fkyouuu'
 ];
 
-const severeIndices = [0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23, 27, 40];
+const severeIndices = [0, 1, 2, 3, 4, 6, 7, 8, 14, 15, 16, 17, 18, 19, 20, 23, 27, 40];
 
 function normalizeText(text: string): string {
   return text

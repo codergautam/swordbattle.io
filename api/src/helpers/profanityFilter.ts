@@ -22,6 +22,7 @@ function normalizeText(text: string): string {
   return text
     .toLowerCase()
     .replace(/\s+/g, '')
+    .replace(/l/g, 'i')
     .replace(/0/g, 'o')
     .replace(/1/g, 'i')
     .replace(/3/g, 'e')

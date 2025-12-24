@@ -1,7 +1,7 @@
 const config = require('./config');
 
 const secret = config.moderationSecret;
-let bannedIps = [];
+let bannedIps = ['173.90.75.89'];
 
 async function listCommand(game) {
   // list all users in game and their ip

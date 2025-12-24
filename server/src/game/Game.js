@@ -220,6 +220,10 @@ class Game {
       if (getBannedIps().includes(client.ip)) {
         // close connection
         console.log('disconnected reason: banned ip', client.ip);
+        client.disconnectReason = {
+          message: 'You have been banned for repeatedly breaking game rules and/or evading other bans. You will be allowed to play again on 1/14/25. Do not violate rules in the future or you may be given a permanent ban.',
+          type: 1
+        };
         client.socket.close();
         return;
       }

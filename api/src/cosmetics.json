@@ -3084,12 +3084,12 @@
       "description": "Don't drop it!"
     },
     "christmas": {
-      "eventoffsale": true,
+      "event": true,
       "name": "christmas",
       "eventtag": "WINTER EVENT",
       "displayName": "Christmas Warrior",
       "id": 305,
-      "buyable": false,
+      "buyable": true,
       "price": 0,
       "swordFileName": "winterChristmasSword.png",
       "bodyFileName": "winterChristmasPlayer.png",

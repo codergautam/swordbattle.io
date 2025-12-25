@@ -550,7 +550,7 @@ const server = http.createServer((req, res) => {
         if (queryMatch) {
           const timestamp = parseInt(queryMatch[1], 10);
           const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 300000;
+          const MAX_TIME_DIFF = 3600000; // 1 hour - increased tolerance for clock skew
 
           if (timeDiff > MAX_TIME_DIFF) {
             let failData = timestampFailures.get(clientIP);
@@ -717,7 +717,7 @@ const server = http.createServer((req, res) => {
         if (queryMatch) {
           const timestamp = parseInt(queryMatch[1], 10);
           const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 300000;
+          const MAX_TIME_DIFF = 3600000; // 1 hour - increased tolerance for clock skew
 
           if (timeDiff > MAX_TIME_DIFF) {
             let failData = timestampFailures.get(clientIP);
@@ -874,7 +874,7 @@ const server = http.createServer((req, res) => {
         if (queryMatch) {
           const timestamp = parseInt(queryMatch[1], 10);
           const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 300000;
+          const MAX_TIME_DIFF = 3600000; // 1 hour - increased tolerance for clock skew
 
           if (timeDiff > MAX_TIME_DIFF) {
             let failData = timestampFailures.get(clientIP);
@@ -1030,7 +1030,7 @@ const server = http.createServer((req, res) => {
         if (queryMatch) {
           const timestamp = parseInt(queryMatch[1], 10);
           const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 300000;
+          const MAX_TIME_DIFF = 3600000; // 1 hour - increased tolerance for clock skew
 
           if (timeDiff > MAX_TIME_DIFF) {
             let failData = timestampFailures.get(clientIP);
@@ -1185,7 +1185,7 @@ const server = http.createServer((req, res) => {
         if (queryMatch) {
           const timestamp = parseInt(queryMatch[1], 10);
           const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 300000;
+          const MAX_TIME_DIFF = 3600000; // 1 hour - increased tolerance for clock skew
 
           if (timeDiff > MAX_TIME_DIFF) {
             let failData = timestampFailures.get(clientIP);

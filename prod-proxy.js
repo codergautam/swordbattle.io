@@ -123,10 +123,6 @@ const proxyBurstLimit = new Map();
 const PROXY_BURST_LIMIT = 60;
 const PROXY_BURST_WINDOW = 1000;
 
-const timestampFailures = new Map();
-const TIMESTAMP_FAIL_THRESHOLD = 15;
-const TIMESTAMP_FAIL_WINDOW = 300000;
-
 const serverinfoIpRate = new Map();
 const serverinfoProxyRate = new Map();
 const serverinfoBannedProxies = new Set();
@@ -545,40 +541,7 @@ const server = http.createServer((req, res) => {
           return;
         }
 
-        // Validate timestamp freshness
-        const queryMatch = req.url.match(/\?(\d+)/);
-        if (queryMatch) {
-          const timestamp = parseInt(queryMatch[1], 10);
-          const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 3600000; // 1 hour - increased tolerance for clock skew
-
-          if (timeDiff > MAX_TIME_DIFF) {
-            let failData = timestampFailures.get(clientIP);
-            if (!failData || now - failData.firstFail > TIMESTAMP_FAIL_WINDOW) {
-              failData = { count: 1, firstFail: now };
-              timestampFailures.set(clientIP, failData);
-            } else {
-              failData.count++;
-            }
-
-            if (failData.count >= TIMESTAMP_FAIL_THRESHOLD) {
-              console.warn(`[SERVERINFO_BLOCK] IP ${clientIP} sent /serverinfo with invalid timestamp ${failData.count} times (diff: ${timeDiff}ms). Blocking.`);
-              bannedIPs.add(clientIP);
-              setTimeout(() => { bannedIPs.delete(clientIP); timestampFailures.delete(clientIP); }, TEMP_BAN_DURATION * 10);
-              if (!res.headersSent) {
-                res.writeHead(403, { 'Content-Type': 'text/plain' });
-                res.end('Forbidden');
-              }
-              return;
-            } else {
-              if (!res.headersSent) {
-                res.writeHead(403, { 'Content-Type': 'text/plain' });
-                res.end('Forbidden');
-              }
-              return;
-            }
-          }
-        }
+        // Timestamp validation removed - timestamp is only for cache-busting, not security
       }
 
       if (!token || !validateApiToken(token)) {
@@ -713,39 +676,7 @@ const server = http.createServer((req, res) => {
           return;
         }
 
-        const queryMatch = req.url.match(/\?(\d+)/);
-        if (queryMatch) {
-          const timestamp = parseInt(queryMatch[1], 10);
-          const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 3600000; // 1 hour - increased tolerance for clock skew
-
-          if (timeDiff > MAX_TIME_DIFF) {
-            let failData = timestampFailures.get(clientIP);
-            if (!failData || now - failData.firstFail > TIMESTAMP_FAIL_WINDOW) {
-              failData = { count: 1, firstFail: now };
-              timestampFailures.set(clientIP, failData);
-            } else {
-              failData.count++;
-            }
-
-            if (failData.count >= TIMESTAMP_FAIL_THRESHOLD) {
-              console.warn(`[GAMESPING_BLOCK] IP ${clientIP} sent /games/ping with invalid timestamp ${failData.count} times (diff: ${timeDiff}ms). Blocking.`);
-              bannedIPs.add(clientIP);
-              setTimeout(() => { bannedIPs.delete(clientIP); timestampFailures.delete(clientIP); }, TEMP_BAN_DURATION * 10);
-              if (!res.headersSent) {
-                res.writeHead(403, { 'Content-Type': 'text/plain' });
-                res.end('Forbidden');
-              }
-              return;
-            } else {
-              if (!res.headersSent) {
-                res.writeHead(403, { 'Content-Type': 'text/plain' });
-                res.end('Forbidden');
-              }
-              return;
-            }
-          }
-        }
+        // Timestamp validation removed - timestamp is only for cache-busting, not security
       }
 
       if (!token || !validateApiToken(token)) {
@@ -870,39 +801,7 @@ const server = http.createServer((req, res) => {
           return;
         }
 
-        const queryMatch = req.url.match(/\?(\d+)/);
-        if (queryMatch) {
-          const timestamp = parseInt(queryMatch[1], 10);
-          const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 3600000; // 1 hour - increased tolerance for clock skew
-
-          if (timeDiff > MAX_TIME_DIFF) {
-            let failData = timestampFailures.get(clientIP);
-            if (!failData || now - failData.firstFail > TIMESTAMP_FAIL_WINDOW) {
-              failData = { count: 1, firstFail: now };
-              timestampFailures.set(clientIP, failData);
-            } else {
-              failData.count++;
-            }
-
-            if (failData.count >= TIMESTAMP_FAIL_THRESHOLD) {
-              console.warn(`[PROFILESEARCH_BLOCK] IP ${clientIP} sent /profile/search with invalid timestamp ${failData.count} times (diff: ${timeDiff}ms). Blocking.`);
-              bannedIPs.add(clientIP);
-              setTimeout(() => { bannedIPs.delete(clientIP); timestampFailures.delete(clientIP); }, TEMP_BAN_DURATION * 10);
-              if (!res.headersSent) {
-                res.writeHead(403, { 'Content-Type': 'text/plain' });
-                res.end('Forbidden');
-              }
-              return;
-            } else {
-              if (!res.headersSent) {
-                res.writeHead(403, { 'Content-Type': 'text/plain' });
-                res.end('Forbidden');
-              }
-              return;
-            }
-          }
-        }
+        // Timestamp validation removed - timestamp is only for cache-busting, not security
       }
 
       if (!token || !validateApiToken(token)) {
@@ -1026,39 +925,7 @@ const server = http.createServer((req, res) => {
           return;
         }
 
-        const queryMatch = req.url.match(/\?(\d+)/);
-        if (queryMatch) {
-          const timestamp = parseInt(queryMatch[1], 10);
-          const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 3600000; // 1 hour - increased tolerance for clock skew
-
-          if (timeDiff > MAX_TIME_DIFF) {
-            let failData = timestampFailures.get(clientIP);
-            if (!failData || now - failData.firstFail > TIMESTAMP_FAIL_WINDOW) {
-              failData = { count: 1, firstFail: now };
-              timestampFailures.set(clientIP, failData);
-            } else {
-              failData.count++;
-            }
-
-            if (failData.count >= TIMESTAMP_FAIL_THRESHOLD) {
-              console.warn(`[SKINSBUYS_BLOCK] IP ${clientIP} sent /profile/skins/buys with invalid timestamp ${failData.count} times (diff: ${timeDiff}ms). Blocking.`);
-              bannedIPs.add(clientIP);
-              setTimeout(() => { bannedIPs.delete(clientIP); timestampFailures.delete(clientIP); }, TEMP_BAN_DURATION * 10);
-              if (!res.headersSent) {
-                res.writeHead(403, { 'Content-Type': 'text/plain' });
-                res.end('Forbidden');
-              }
-              return;
-            } else {
-              if (!res.headersSent) {
-                res.writeHead(403, { 'Content-Type': 'text/plain' });
-                res.end('Forbidden');
-              }
-              return;
-            }
-          }
-        }
+        // Timestamp validation removed - timestamp is only for cache-busting, not security
       }
 
       if (!token || !validateApiToken(token)) {
@@ -1181,39 +1048,7 @@ const server = http.createServer((req, res) => {
           return;
         }
 
-        const queryMatch = req.url.match(/\?(\d+)/);
-        if (queryMatch) {
-          const timestamp = parseInt(queryMatch[1], 10);
-          const timeDiff = Math.abs(now - timestamp);
-          const MAX_TIME_DIFF = 3600000; // 1 hour - increased tolerance for clock skew
-
-          if (timeDiff > MAX_TIME_DIFF) {
-            let failData = timestampFailures.get(clientIP);
-            if (!failData || now - failData.firstFail > TIMESTAMP_FAIL_WINDOW) {
-              failData = { count: 1, firstFail: now };
-              timestampFailures.set(clientIP, failData);
-            } else {
-              failData.count++;
-            }
-
-            if (failData.count >= TIMESTAMP_FAIL_THRESHOLD) {
-              console.warn(`[${endpointName.toUpperCase()}_BLOCK] IP ${clientIP} sent /${endpointName} with invalid timestamp ${failData.count} times (diff: ${timeDiff}ms). Blocking.`);
-              bannedIPs.add(clientIP);
-              setTimeout(() => { bannedIPs.delete(clientIP); timestampFailures.delete(clientIP); }, TEMP_BAN_DURATION * 10);
-              if (!res.headersSent) {
-                res.writeHead(403, { 'Content-Type': 'text/plain' });
-                res.end('Forbidden');
-              }
-              return;
-            } else {
-              if (!res.headersSent) {
-                res.writeHead(403, { 'Content-Type': 'text/plain' });
-                res.end('Forbidden');
-              }
-              return;
-            }
-          }
-        }
+        // Timestamp validation removed - timestamp is only for cache-busting, not security
       }
 
       if (!token || !validateApiToken(token)) {
@@ -1494,10 +1329,6 @@ setInterval(() => {
 
   for (const [proxyIP, data] of endpointProxyRate) {
     if (now > data.reset) endpointProxyRate.delete(proxyIP);
-  }
-
-  for (const [ip, data] of timestampFailures) {
-    if (now - data.firstFail > TIMESTAMP_FAIL_WINDOW) timestampFailures.delete(ip);
   }
 
   for (const [ip, lastLog] of bannedIPsLog) {

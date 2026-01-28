@@ -16,7 +16,6 @@ import { StatsService } from "src/stats/stats.service";
 import { AuthService } from "src/auth/auth.service";
 import { CosmeticsService } from "src/cosmetics/cosmetics.service";
 import { ServerGuard } from "src/auth/guards/server.guard";
-import { SecretInterceptor } from "src/auth/interceptors/secret.interceptor";
 import { AccountGuard, AccountRequest } from "src/auth/guards/account.guard";
 
 @Controller("profile")
@@ -92,7 +91,6 @@ export class AccountsController {
   }
 
   @UseGuards(ServerGuard)
-  @UseInterceptors(SecretInterceptor)
   @Post("getTop100Rank/:username")
   async getTop100Rank(@Param("username") username: string) {
     const account = await this.accountsService.getByUsername(username);
@@ -104,7 +102,6 @@ export class AccountsController {
     short: { limit: 5, ttl: 1000 },
     medium: { limit: 30, ttl: 60000 },
   })
-  @UseInterceptors(SecretInterceptor)
   @Post("getPublicUserInfo/:username")
   async getAccount(
     @Param("username") username: string,
@@ -135,7 +132,6 @@ export class AccountsController {
     medium: { limit: 30, ttl: 60000 },
   })
   @Post("getPublicUserInfoById/:id")
-  @UseInterceptors(SecretInterceptor)
   async getAccountById(@Param("id") id: number, @Req() request: Request) {
     const account = await this.accountsService.getById(id);
     const totalStats = await this.statsService.getTotalStats(account);
@@ -158,7 +154,6 @@ export class AccountsController {
   }
 
   @Get("clanMembers")
-  @UseInterceptors(SecretInterceptor)
   async getClanMembers(@Query("clan") clan: string) {
     const members = await this.accountsService.findClanMembers(clan);
     const memberXP = await this.accountsService.findStatOfAll(
@@ -166,13 +161,16 @@ export class AccountsController {
       "xp",
     );
 
-    return { count: members.length, xp: memberXP, members };
+    const cleaned = members.map((member) => {
+      return this.accountsService.sanitizeAccount(member);
+    });
+
+    return { count: members.length, xp: memberXP, members: cleaned };
   }
 
   // Search accounts by username prefix (case-insensitive).
   // Body: { q: string, limit?: number }
   @Post("search")
-  @UseInterceptors(SecretInterceptor)
   async searchAccounts(@Body() body: { q: string; limit?: number }) {
     const q = (body?.q ?? "").toString().trim();
     const limit = Number(body?.limit) || 25;

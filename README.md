@@ -1,6 +1,6 @@
 # Welcome!
 
-Swordbattle.io is a multiplayer game where players fight each other with different 2D swords, and try to gain coins. The more coins you have, the bigger and powerful you get! Try to become the biggest of them all.
+Bladefight.io is a multiplayer game where players fight each other with different 2D swords, and try to gain coins. The more coins you have, the bigger and powerful you get! Try to become the biggest of them all.
 
 ## Special Thanks
 - Guru for helping make it less laggy

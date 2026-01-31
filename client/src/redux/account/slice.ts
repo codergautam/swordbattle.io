@@ -19,6 +19,11 @@ export type AccountState = {
   tags: { tags: string[]; colors: string[] };
   isCrazygames: boolean;
   crazygamesUserId?: string;
+  dailyLogin: { 
+    lastLogin: number; 
+    loginStreak: number; 
+    claimedToday: boolean;
+  }
 }
 
 const initialState: AccountState = {
@@ -39,6 +44,10 @@ const initialState: AccountState = {
   tags: { tags: [], colors: [] },
   isCrazygames: false,
   crazygamesUserId: undefined,
+  dailyLogin: { 
+    lastLogin: 0, 
+    loginStreak: 0, 
+    claimedToday: false, },
 };
 
 // Async Thunks
@@ -175,6 +184,10 @@ const accountSlice = createSlice({
       state.tags = { tags: [], colors: [] };
       state.isCrazygames = false;
       state.crazygamesUserId = undefined;
+      state.dailyLogin = { 
+        lastLogin: 0, 
+        loginStreak: 0, 
+        claimedToday: false, };
     },
     setAccount: (state, action) => {
       state.email = action.payload.email;
@@ -229,11 +242,14 @@ const accountSlice = createSlice({
         console.log('Error setting secret', e);
       }
     },
+    setDailyLogin: (state, action) => {
+      state.dailyLogin = action.payload;
+    },
   },
   extraReducers: (builder) => {
     // Handle async thunks here if needed
   },
 });
 
-export const { setAccount, clearAccount, setName, setClan, setBio, setSecret } = accountSlice.actions;
+export const { setAccount, clearAccount, setName, setClan, setBio, setSecret, setDailyLogin } = accountSlice.actions;
 export default accountSlice.reducer;

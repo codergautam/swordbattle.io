@@ -18,6 +18,7 @@ import ConnectionError from './modals/ConnectionError';
 
 import { clearAccount, setAccount, logoutAsync, changeNameAsync, changeClanAsync, changeBioAsync } from '../redux/account/slice';
 import { selectAccount } from '../redux/account/selector';
+import { setDailyLogin } from '../redux/account/slice';
 import api from '../api';
 
 import SettingsImg from '../assets/img/settings.png';
@@ -30,8 +31,10 @@ import GemCount from './ValueCnt';
 import ShopButton from './ShopButton';
 import InventoryButton from './InventoryButton';
 import LeaderboardButton from './LeaderboardButton';
+import DailyRewardsButton from './DailyRewardsButton'; 
 import ShopModal from './modals/ShopModal';
 import InventoryModal from './modals/InventoryModal';
+import DailyLoginModal from './modals/DailyLoginModal';
 import MigrationModal from './modals/MigrationModal';
 import { getCookies, playVideoAd } from '../helpers';
 import Ad from './Ad';
@@ -73,6 +76,39 @@ function App() {
   const [clanMemberCount, setClanMemberCount] = useState(0);
   const [clanXP, setClanXP] = useState(0);
   const [crazygamesAuthReady, setCrazygamesAuthReady] = useState(false);
+
+  useEffect(() => {
+  if (!account.isLoggedIn) return;
+
+  const saved = JSON.parse(localStorage.getItem('dailyLogin') || '{}');
+
+  const now = new Date();
+  const utcDay = Math.floor(now.getTime() / 86400000); // days since epoch
+
+  let last = saved.lastLogin ?? 0;
+  let streak = saved.loginStreak ?? 0;
+  let claimedToday = saved.claimedToday ?? false;
+
+  if (utcDay > last) {
+    streak = utcDay === last + 1 ? streak + 1 : 1;
+    claimedToday = false;
+  }
+
+  const updated = { lastLogin: utcDay, loginStreak: streak, claimedToday };
+
+  localStorage.setItem('dailyLogin', JSON.stringify(updated));
+  dispatch(setDailyLogin(updated));
+
+  if (!claimedToday) {
+    setModal(
+      <DailyLoginModal
+        streak={streak}
+        onClose={() => setModal(null)}
+      />
+    );
+  }
+}, [account.isLoggedIn]);
+
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
@@ -868,9 +904,52 @@ function App() {
         <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`}>
         <ShopButton account={account} scale={scale.factor} openShop={openShop} />
         {account?.isLoggedIn && (
-          <InventoryButton account={account} scale={scale.factor} openInventory={openInventory} />
-          )}
+          <>
+            <InventoryButton account={account} scale={scale.factor} openInventory={openInventory} />
+            <DailyRewardsButton
+                  scale={scale.factor}
+                  openDailyRewards={() => setModal(
+                    <DailyLoginModal
+                      streak={account.dailyLogin.loginStreak}
+                      onClose={() => setModal(null)} />
+                  )} account={{
+                    email: '',
+                    username: '',
+                    clan: '',
+                    isLoggedIn: false,
+                    secret: '',
+                    gems: 0,
+                    mastery: 0,
+                    tokens: 0,
+                    skins: {
+                      equipped: 0,
+                      owned: []
+                    },
+                    is_v1: false,
+                    xp: 0,
+                    recovered: false,
+                    profiles: {
+                      equipped: 0,
+                      owned: []
+                    },
+                    bio: '',
+                    tags: {
+                      tags: [],
+                      colors: []
+                    },
+                    isCrazygames: false,
+                    crazygamesUserId: undefined,
+                    dailyLogin: {
+                      lastLogin: 0,
+                      loginStreak: 0,
+                      claimedToday: false
+                    }
+                  }}            />
+          </>
+        )}
+
         <LeaderboardButton scale={scale.factor} openLeaderboard={openLeaderboard} />
+
             <div id="contentt" style={scale.styles}>
 
           <div id="menuContainer" >

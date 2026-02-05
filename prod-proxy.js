@@ -1250,9 +1250,12 @@ function attachProxyErrorHandlers(proxy, name) {
 
   // Handle proxy response setup
   proxy.on('proxyRes', (proxyRes, req, res) => {
-    // Ensure proper cleanup of sockets
+    if (proxyRes.statusCode === 101) {
+      return;
+    }
+
     proxyRes.on('end', () => {
-      if (proxyRes.socket) {
+      if (proxyRes.socket && !proxyRes.socket.destroyed && proxyRes.statusCode !== 101) {
         proxyRes.socket.destroy();
       }
     });

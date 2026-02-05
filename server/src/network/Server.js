@@ -52,7 +52,7 @@ class Server {
     app.ws('/*', {
       compression: uws.SHARED_COMPRESSOR,
       idleTimeout: 60,
-      maxPayloadLength: 2048,
+      maxPayloadLength: 4096,
       upgrade: (res, req, context) => {
         const forwardedFor = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
         const ips = forwardedFor.split(',').map(i => i.trim());
@@ -294,7 +294,7 @@ class Server {
         }
 
         // Additional validation - maxPayloadLength is set in config but double-check
-        if (message.byteLength > 2048) {
+        if (message.byteLength > 4096) {
           console.warn(`[SECURITY] Client ${client.id} (${client.ip}) sent oversized message (${message.byteLength} bytes), disconnecting`);
           client.disconnectReason = {
             message: 'Oversized message',

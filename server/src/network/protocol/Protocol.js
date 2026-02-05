@@ -27,7 +27,7 @@ const decode = (msg) => {
   if (!msg || msg.byteLength === 0) {
     throw new Error('Empty message');
   }
-  if (msg.byteLength > 2048) {
+  if (msg.byteLength > 4096) {
     throw new Error(`Message too large: ${msg.byteLength} bytes`);
   }
 

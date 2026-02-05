@@ -1,145 +1,18 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#0b1220" />
-  <title>Swordbattle.io | Maintenance</title>
-  <meta name="description" content="Swordbattle.io is temporarily down for maintenance. We'll be back soon." />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
-  <style>
-    :root{
-      --bg0:#050814;
-      --bg1:#070a18;
-      --card:#0b1224cc;
-      --stroke:#203055;
-      --text:#eaf0ff;
-      --muted:#a8b3d6;
-      --glow1:#7c3aed;
-      --glow2:#06b6d4;
-      --glow3:#f59e0b;
-      --shadow: 0 20px 80px rgba(0,0,0,.55);
-      --radius: 22px;
-    }
-
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: "Space Grotesk", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(1000px 700px at 15% 15%, rgba(124,58,237,.22), transparent 60%),
-        radial-gradient(900px 650px at 85% 20%, rgba(6,182,212,.18), transparent 60%),
-        radial-gradient(800px 600px at 60% 90%, rgba(245,158,11,.12), transparent 55%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-      overflow:hidden;
-    }
-
-    /* subtle starfield */
-    .stars{
-      position:fixed; inset:-20px;
-      background-image:
-        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,.55), transparent 60%),
-        radial-gradient(1px 1px at 90px 120px, rgba(255,255,255,.35), transparent 60%),
-        radial-gradient(1.5px 1.5px at 160px 80px, rgba(255,255,255,.45), transparent 60%),
-        radial-gradient(1px 1px at 240px 160px, rgba(255,255,255,.25), transparent 60%),
-        radial-gradient(2px 2px at 320px 40px, rgba(255,255,255,.35), transparent 60%),
-        radial-gradient(1px 1px at 380px 140px, rgba(255,255,255,.25), transparent 60%),
-        radial-gradient(1.5px 1.5px at 460px 90px, rgba(255,255,255,.35), transparent 60%);
-      background-size: 520px 220px;
-      opacity:.35;
-      filter: blur(.2px);
-      animation: drift 18s linear infinite;
-      pointer-events:none;
-    }
-    @keyframes drift{
-      from{transform:translate3d(0,0,0)}
-      to{transform:translate3d(-260px, 120px, 0)}
-    }
-
-    .wrap{
-      min-height:100%;
-      display:grid;
-      place-items:center;
-      padding:28px 16px;
-      position:relative;
-      z-index:1;
-    }
-
-    .card{
-      width:min(860px, 96vw);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(11,18,36,.78), rgba(11,18,36,.50));
-      border: 1px solid rgba(32,48,85,.65);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      position:relative;
-      overflow:hidden;
-    }
-
-    .card::before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(600px 240px at 20% 0%, rgba(124,58,237,.28), transparent 60%),
-        radial-gradient(520px 220px at 85% 10%, rgba(6,182,212,.22), transparent 60%),
-        radial-gradient(520px 240px at 60% 110%, rgba(245,158,11,.18), transparent 60%);
-      pointer-events:none;
-      opacity:.9;
-    }
-
-    .content{
-      position:relative;
-      padding: 34px 28px;
-      display:grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap:22px;
-    }
-
-    @media (max-width: 820px){
-      .content{grid-template-columns:1fr; padding:28px 18px}
-    }
-
-    .badge{
-      display:inline-flex;
-      gap:10px;
-      align-items:center;
-      padding:10px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(32,48,85,.7);
-      background: rgba(7,10,24,.55);
-      color: var(--muted);
-      font-weight:600;
-      font-size: 13px;
-      letter-spacing:.2px;
-    }
-
-    .dot{
-      width:10px; height:10px; border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.25) 40%, transparent 60%),
-                  linear-gradient(135deg, var(--glow2), var(--glow1));
-      box-shadow: 0 0 14px rgba(124,58,237,.45), 0 0 16px rgba(6,182,212,.35);
-      animation: pulse 1.4s ease-in-out infinite;
-    }
-    @keyframes pulse{
-      0%,100%{transform:scale(1); opacity:.9}
-      50%{transform:scale(1.15); opacity:1}
-    }
-
-    h1{
-      margin: 14px 0 10px;
-      font-size: clamp(28px, 4vw, 44px);
-      line-height:1.05;
-      letter-spacing:-.6px;
-    }
-    p{
-      margin: 0 0 16px;
-      color: var(--muted);
-      font-size: 16px;
-      line-height
+<!doctype html><html lang="en"><head><script>console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/codergautam","color: orange; font-size: 30px;","color: red; font-size: 30px;","color: green; font-size: 20px;","color: cyan; font-size: 20px","color: grey; font-size: 10px")</script><script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js" integrity="sha512-YQL0GVx/Too3vZjBl9plePRIYsRnd1s8N6QOvXPdZ+JMH2mtRTLQXGUDGjNW6zr1HUgcOIury67IvWe91oeEwQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><link rel="stylesheet" href="https://sdk.playlight.dev/playlight-sdk.css"><script type="module">try {
+      const module = await import("https://sdk.playlight.dev/playlight-sdk.es.js");
+      const playlightSDK = module.default;
+      await playlightSDK.init({
+        button: {
+        position: 'bottom-right',
+        visible: false
+      },
+      exitIntent: {
+        enabled: false
+      }
+      });
+      window.showPlaylight = async (visible = true) => {
+        await playlightSDK.setDiscovery(visible)
+      };
+    } catch (error) {
+      console.error("Error loading the Playlight SDK:", error);
+    }</script><script async src="https://www.googletagmanager.com/gtag/js?id=G-35EKK5X5R4"></script><script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-35EKK5X5R4")</script><script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script><script async data-ad-frequency-hint="30s" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3340825671684972" crossorigin="anonymous"></script><script>window.adsbygoogle=window.adsbygoogle||[];var adBreak=adConfig=function(a){adsbygoogle.push(a)};adConfig({preloadAdBreaks:"on"}),window.adBreak=adBreak</script><script>const vidAdDelay={adinplay:3e5,gamemonetize:12e4,gamepix:0,crazygames:0};function checkAdProvider(){if(void 0!==window.CrazyGames)return"crazygames";let e="adinplay";const i=new URLSearchParams(window.location.search).get("adprovider");return i&&["adinplay","gamemonetize","gamepix","crazygames"].includes(i)&&(e=i),e}window.adProvider=checkAdProvider(),console.log("Ad provider:",window.adProvider),window.vidAdDelay=vidAdDelay[window.adProvider],window.lastVidAdTime=0;try{window.localStorage.getItem("lastVidAdTime")&&"gamemonetize"!==window.adProvider&&(window.lastVidAdTime=parseInt(window.localStorage.getItem("lastVidAdTime"))),"adinplay"!==window.adProvider&&"gamepix"!==window.adProvider||window.localStorage.getItem("lastVidAdTime")||(console.log("New player! Resetting lastVidAdTime"),window.lastVidAdTime=Date.now())}catch(e){}if("gamemonetize"===window.adProvider)window.SDK_OPTIONS={gameId:"m2yzvbmyf75dl11i5lrtzlykjkzrgb85",onEvent:function(e){const i=new CustomEvent("gamemonetize_event_"+e.name,{detail:e});console.log("gamemonetize_event_"+e.name,e),window.dispatchEvent(i)}},function(e,i,a){var d=e.getElementsByTagName(i)[0];e.getElementById(a)||((e=e.createElement(i)).id=a,e.src="https://api.gamemonetize.com/sdk.js",d.parentNode.insertBefore(e,d))}(document,"script","gamemonetize-sdk");else if("adinplay"===window.adProvider){var aiptag=aiptag||{};aiptag.cmd=aiptag.cmd||[],aiptag.cmd.display=aiptag.cmd.display||[],aiptag.cmd.player=aiptag.cmd.player||[],aiptag.cmp={show:!0,position:"centered",button:!0,buttonText:"Privacy settings",buttonPosition:"bottom-right"}}</script><script src="//api.adinplay.com/libs/aiptag/pub/SWT/swordbattle.io/tag.min.js"></script><meta charset="utf-8"/><link rel="icon" href="./favicon.ico"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><title>Swordbattle.io</title><meta name="description" content="Swordbattle.io is an online sword fighting io game! Fight with friends and enemies in this multiplayer battle arena! Collect coins to be huge, rule the land and upgrade your character!"/><meta name="keywords" content="IOGAME, swordbattle, codergautam, swordiogame, swordio"/><meta property="og:image" content="/assets/game/player/sword.png"/><meta name="author" content="CoderGautam"/><meta name="viewport" id="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=0"/><title>Swordbattle.io</title><script defer="defer" src="./static/js/main.27600c12.js"></script><link href="./static/css/main.cedb0069.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div><div id="preroll"></div></body></html>

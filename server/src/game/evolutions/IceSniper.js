@@ -3,7 +3,7 @@ const Types = require('../Types');
 
 module.exports = class IceSniper extends Evolution {
   static type = Types.Evolution.IceSniper;
-  static level = 27;
+  static level = 9999; // No winter evols now
   static previousEvol = Types.Evolution.SnowWalker;
   static abilityDuration = 6;
   static abilityCooldown = 90;

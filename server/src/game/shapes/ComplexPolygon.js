@@ -1,7 +1,6 @@
 const SAT = require('sat');
 const Shape = require('./Shape');
 const Types = require('../Types');
-const helpers = require('../../helpers');
 
 class ComplexPolygon extends Shape {
   constructor(shapes, originalPoints) {
@@ -61,18 +60,6 @@ class ComplexPolygon extends Shape {
       height: maxY - minY,
     };
     return this.bounds;
-  }
-
-  getRandomPoint() {
-    const bounds = this.boundary;
-    const point = new SAT.Vector();
-    let tries = 0;
-    while (tries < 100 && (point.x === 0 || !this.isPointInside(point.x, point.y))) {
-      point.x = helpers.random(bounds.x, bounds.x + bounds.width);
-      point.y = helpers.random(bounds.y, bounds.y + bounds.height);
-      tries++;
-    }
-    return point;
   }
 
   isPointInside(x, y) {

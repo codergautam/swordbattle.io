@@ -71,7 +71,6 @@ class Player extends BaseEntity {
   angleLerp = 0;
   previousAngle = 0;
   following = false;
-  isLargeTexture: boolean = false;
 
   survivalStarted: number = 0;
   swordRaiseStarted: boolean = false;
@@ -188,7 +187,6 @@ class Player extends BaseEntity {
         this.loadSkin(this.skin).then(() => {
         this.body.setTexture(skins.player.name+'Body');
         this.sword.setTexture(skins.player.name+'Sword');
-        this.applyTextureScaling();
       }).catch(() => {
         console.log('failed to load skin', this.skin);
       });
@@ -196,7 +194,6 @@ class Player extends BaseEntity {
         this.loadSkin(this.skin).then(() => {
         this.body.setTexture(this.skinName+'Body');
         this.sword.setTexture(this.skinName+'Sword');
-        this.applyTextureScaling();
       }).catch(() => {
         console.log('failed to load skin', this.skin);
       });
@@ -242,40 +239,6 @@ class Player extends BaseEntity {
       }
       }
     });
-  }
-
-  applyTextureScaling() {
-    const texture = this.body.texture;
-    const frame = texture.get();
-    this.isLargeTexture = frame.width === 500 && frame.height === 500;
-
-    if (this.isLargeTexture) {
-      const bodyScale = 5 / 3;
-      const swordScale = 5 / 3;
-      const hudScale = 5 / 3;
-
-      this.body.setScale(bodyScale);
-      this.sword.setScale(swordScale);
-
-      // Update HUD elements (name, healthbar, messageText)
-      const name = this.container.list[1] as Phaser.GameObjects.Text;
-      const messageText = this.container.list[2] as Phaser.GameObjects.Text;
-
-      if (name) {
-        name.setScale(hudScale);
-        name.setY(-this.body.height * bodyScale / 2 - 50);
-      }
-      if (messageText) {
-        messageText.setScale(hudScale);
-        messageText.setY(-this.body.height * bodyScale / 2 - 100);
-      }
-      if (this.healthBar) {
-        this.healthBar.options.offsetY = -this.body.height * bodyScale / 2 - 40;
-      }
-
-      // Update evolution overlay scaling
-      this.updateEvolution();
-    }
   }
 
   updateChatMessage() {
@@ -671,11 +634,7 @@ class Player extends BaseEntity {
       this.evolutionOverlay.setVisible(true);
       this.evolutionOverlay.setTexture(evolutionClass[1]);
       this.evolutionOverlay.setOrigin(evolutionClass[3][0], evolutionClass[3][1]);
-      let overlayScale = this.body.width / this.evolutionOverlay.width * evolutionClass[2];
-      if (this.isLargeTexture) {
-        overlayScale *= 1;
-      }
-      this.evolutionOverlay.setScale(overlayScale);
+      this.evolutionOverlay.setScale(this.body.width / this.evolutionOverlay.width * evolutionClass[2]);
     }
   }
 

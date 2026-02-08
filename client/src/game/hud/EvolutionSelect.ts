@@ -127,17 +127,8 @@ class EvolutionSelect extends HudComponent {
         i += 1;
         const evolution = Evolutions[evol];
         const body = this.hud.scene.add.sprite(0, 0, this.game.gameState.self.entity!.skinName+'Body').setOrigin(0.5, 0.5);
-        const bodyTexture = body.texture.get();
-        const isLargeTexture = bodyTexture.width === 500 && bodyTexture.height === 500;
-        if (isLargeTexture) {
-          body.setScale(5 / 3);
-        }
         const overlay = this.hud.scene.add.sprite(0, 0, evolution[1]).setOrigin(evolution[3][0], evolution[3][1]);
-        let overlayScale = body.width / overlay.width * evolution[2];
-        if (isLargeTexture) {
-          overlayScale *= 1;
-        }
-        overlay.setScale(overlayScale);
+        overlay.setScale(body.width / overlay.width * evolution[2])
 
         const container = this.hud.scene.add.container((this.spriteSize + 110) * (i - (count + 1) / 2), -25, [body, overlay]);
         container.setScale(this.spriteSize / body.height).setAlpha(alpha);

@@ -3,7 +3,7 @@ const Types = require('../Types');
 
 module.exports = class Drifter extends Evolution {
   static type = Types.Evolution.Drifter;
-  static level = 29;
+  static level = 9999; // No winter evols now
   static previousEvol = [Types.Evolution.Tree, Types.Evolution.Festive, Types.Evolution.Snowtrekker, Types.Evolution.IceSpike];
   static abilityDuration = 6;
   static abilityCooldown = 75;

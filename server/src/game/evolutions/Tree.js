@@ -4,7 +4,7 @@ const Bush = require('../entities/mapObjects/Bush');
 
 module.exports = class Tree extends Evolution {
   static type = Types.Evolution.Tree;
-  static level = 27;
+  static level = 9999; // No winter evols now
   static previousEvol = Types.Evolution.CandyWalker;
   static abilityDuration = 10;
   static abilityCooldown = 50;

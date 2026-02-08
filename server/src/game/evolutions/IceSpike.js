@@ -3,7 +3,7 @@ const Types = require('../Types');
 
 module.exports = class IceSpike extends Evolution {
   static type = Types.Evolution.IceSpike;
-  static level = 27;
+  static level = 9999; // No winter evols now
   static previousEvol = Types.Evolution.Snowboarder;
   static abilityDuration = 5;
   static abilityCooldown = 65;

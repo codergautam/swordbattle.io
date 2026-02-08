@@ -32,7 +32,7 @@ class YetiMob extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = 250 * (this.definition.isBoss ? 200 : 1);
-    this.tokensDrop = 70 * (this.definition.isBoss ? 40 : 1);
+    // this.tokensDrop = 70 * (this.definition.isBoss ? 40 : 1);
     this.density = 3;
 
     this.snowballTimer = new Timer(0, this.definition.snowballCooldown[0], this.definition.snowballCooldown[1]);
@@ -199,7 +199,7 @@ class YetiMob extends Entity {
     if (this.removed) return;
     super.remove();
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
-    this.game.map.spawnTokensInShape(this.shape, this.tokensDrop);
+    // this.game.map.spawnTokensInShape(this.shape, this.tokensDrop);
     this.createInstance();
   }
 

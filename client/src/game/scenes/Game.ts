@@ -45,50 +45,50 @@ export default class Game extends Phaser.Scene {
     // Signal that asset loading has started
     crazygamesSDK.loadingStart();
 
-    this.load.image('fireTile', publicPath + '/assets/game/tiles/fire-winter.jpg');
-    this.load.image('earthTile', publicPath + '/assets/game/tiles/grass-winter.jpg');
+    this.load.image('fireTile', publicPath + '/assets/game/tiles/fire.jpg');
+    this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice-new.png');
-    this.load.image('river', publicPath + '/assets/game/tiles/river-winter.png');
+    this.load.image('river', publicPath + '/assets/game/tiles/river.png');
 
     if (Settings.coins) {
-      this.load.image('coin', publicPath + '/assets/game/coin-winter.png');
+      this.load.image('coin', publicPath + '/assets/game/coin.png');
     } else {
-      this.load.image('coin', publicPath + '/assets/game/coin-winter.png');
+      this.load.image('coin', publicPath + '/assets/game/coin-new.png');
     }
     this.load.image('token', publicPath + '/assets/game/snowtoken.png');
     this.load.image('kill', publicPath + '/assets/game/ui/kill.png');
     this.load.image('mastery', publicPath + '/assets/game/ui/mastery.png');
     this.load.image('house1', publicPath + '/assets/game/house1.png');
     this.load.image('house1roof', publicPath + '/assets/game/house1roof.png');
-    this.load.image('mossyRock', publicPath + '/assets/game/Mossy_Rock-winter.png');
-    this.load.image('pond', publicPath + '/assets/game/Pond_Earth-winter.png');
-    this.load.image('bush', publicPath + '/assets/game/grass-winter.png');
-    this.load.image('bushFaded', publicPath + '/assets/game/grass-winter-50.png');
+    this.load.image('mossyRock', publicPath + '/assets/game/Mossy_Rock.png');
+    this.load.image('pond', publicPath + '/assets/game/Pond_Earth.png');
+    this.load.image('bush', publicPath + '/assets/game/grass.png');
+    this.load.image('bushFaded', publicPath + '/assets/game/grass-50.png');
     this.load.image('iceMound', publicPath + '/assets/game/Ice_Mound-new.png');
     this.load.image('iceMoundFaded', publicPath + '/assets/game/Ice_Mound-50.png');
-    this.load.image('iceSpike', publicPath + '/assets/game/Ice_Spike-winter.png');
+    this.load.image('iceSpike', publicPath + '/assets/game/Ice_Spike.png');
     this.load.image('icePond', publicPath + '/assets/game/Ice_Pond-new.png');
-    this.load.image('rock', publicPath + '/assets/game/Rock-winter.png');
-    this.load.image('lavaRock', publicPath + '/assets/game/Lava_Rock-winter.png');
-    this.load.image('lavaPool', publicPath + '/assets/game/Lava_Pool-winter.png');
+    this.load.image('rock', publicPath + '/assets/game/Rock.png');
+    this.load.image('lavaRock', publicPath + '/assets/game/Lava_Rock.png');
+    this.load.image('lavaPool', publicPath + '/assets/game/Lava_Pool.png');
 
-    this.load.image('wolfMobPassive', publicPath + '/assets/game/mobs/wolfPassive-winter.png');
-    this.load.image('wolfMobAggressive', publicPath + '/assets/game/mobs/wolfAggressive-winter.png');
-    this.load.image('catMobPassive', publicPath + '/assets/game/mobs/cat-winter.png');
-    this.load.image('bunny', publicPath + '/assets/game/mobs/bunny.png'); // No winter for now
-    this.load.image('moose', publicPath + '/assets/game/mobs/moose-winter.png');
+    this.load.image('wolfMobPassive', publicPath + '/assets/game/mobs/wolfPassive.png');
+    this.load.image('wolfMobAggressive', publicPath + '/assets/game/mobs/wolfAggressive.png');
+    this.load.image('catMobPassive', publicPath + '/assets/game/mobs/cat.png');
+    this.load.image('bunny', publicPath + '/assets/game/mobs/bunny.png');
+    this.load.image('moose', publicPath + '/assets/game/mobs/moose.png');
     this.load.image('fish', publicPath + '/assets/game/mobs/bluefish.png');
     this.load.image('angryFish', publicPath + '/assets/game/mobs/angryfish.png');
-    this.load.image('chimera', publicPath + '/assets/game/mobs/chimera-winter.png');
-    this.load.image('yeti', publicPath + '/assets/game/mobs/yeti-winter.png'); // add winter
+    this.load.image('chimera', publicPath + '/assets/game/mobs/chimera.png');
+    this.load.image('yeti', publicPath + '/assets/game/mobs/yeti.png'); // add winter
     this.load.image('iceSpirit', publicPath + '/assets/game/mobs/icespirit.png');
     this.load.image('santa', publicPath + '/assets/game/mobs/santa.png'); // Unused for now
-    this.load.image('roku', publicPath + '/assets/game/mobs/roku-winter.png');
-    this.load.image('ancient', publicPath + '/assets/game/mobs/ancient-winter.png');
-    this.load.image('fireball', publicPath + '/assets/game/mobs/fireball-winter.png');
-    this.load.image('boulder', publicPath + '/assets/game/mobs/boulder-winter.png');
-    this.load.image('swordProj', publicPath + '/assets/game/mobs/sword-winter.png');
-    this.load.image('snowball', publicPath + '/assets/game/mobs/snowball.png'); // No winter for now
+    this.load.image('roku', publicPath + '/assets/game/mobs/roku.png');
+    this.load.image('ancient', publicPath + '/assets/game/mobs/ancient.png');
+    this.load.image('fireball', publicPath + '/assets/game/mobs/fireball.png');
+    this.load.image('boulder', publicPath + '/assets/game/mobs/boulder.png');
+    this.load.image('swordProj', publicPath + '/assets/game/mobs/sword.png');
+    this.load.image('snowball', publicPath + '/assets/game/mobs/snowball.png');
     this.load.image('ornament1', publicPath + '/assets/game/mobs/ornament1.png');
     this.load.image('ornament2', publicPath + '/assets/game/mobs/ornament2.png');
 
@@ -179,7 +179,7 @@ export default class Game extends Phaser.Scene {
     // Signal that asset loading has finished
     crazygamesSDK.loadingStop();
 
-    this.cameras.main.setBackgroundColor('#003464');
+    this.cameras.main.setBackgroundColor('#006400');
 
     this.soundManager.initialize();
     this.hud.initialize();

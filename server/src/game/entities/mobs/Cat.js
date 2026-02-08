@@ -20,7 +20,7 @@ class CatMob extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = 800;
-    this.tokensDrop = 50;
+    // this.tokensDrop = 50;
 
     this.tamedBy = null;
 
@@ -159,7 +159,7 @@ class CatMob extends Entity {
     if (this.removed) return;
     super.remove();
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
-    this.game.map.spawnTokensInShape(this.shape, this.tokensDrop);
+    // this.game.map.spawnTokensInShape(this.shape, this.tokensDrop);
     if(this.tamedBy) {
       const tamer = this.game.entities.get(this.tamedBy);
       tamer.tamedEntities.delete(this.id);

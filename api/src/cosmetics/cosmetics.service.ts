@@ -26,7 +26,7 @@ export class CosmeticsService {
     this.logger.log('Starting daily skin generation...');
     try {
       const tomorrow = this.getTomorrowDateString();
-      await this.generateAndStoreDailySkins(tomorrow, 60);
+      await this.generateAndStoreDailySkins(tomorrow, 50);
       this.logger.log(`Daily skins generated for ${tomorrow}`);
     } catch (error) {
       this.logger.error('Error generating daily skins:', error);
@@ -100,7 +100,7 @@ export class CosmeticsService {
 
     if (!dailySkins) {
       this.logger.warn(`No daily skins found for ${today}, generating...`);
-      await this.generateAndStoreDailySkins(today, 60);
+      await this.generateAndStoreDailySkins(today, 50);
       return this.getTodaysSkins();
     }
 
@@ -119,7 +119,7 @@ export class CosmeticsService {
     );
   }
 
-  async computeDailySkinList(count: number = 30): Promise<number[]> {
+  async computeDailySkinList(count: number = 50): Promise<number[]> {
     const allSkins = Object.values(cosmetics['skins']) as any[];
     const eligible = allSkins.filter((skin: any) =>
       !skin.event &&

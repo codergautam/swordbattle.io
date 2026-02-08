@@ -35,7 +35,7 @@ class RokuMob extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = 50000; // Temp fix
-    this.tokensDrop = 2500;
+    // this.tokensDrop = 2500;
 
     this.jumpTimer = new Timer(0, this.definition.jumpCooldown[0], this.definition.jumpCooldown[1]);
     this.fireballTimer = new Timer(0, this.definition.fireballCooldown[0], this.definition.fireballCooldown[1]);
@@ -190,7 +190,7 @@ class RokuMob extends Entity {
     if (this.removed) return;
     super.remove();
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
-    this.game.map.spawnTokensInShape(this.shape, this.tokensDrop);
+    // this.game.map.spawnTokensInShape(this.shape, this.tokensDrop);
     this.createInstance();
   }
 

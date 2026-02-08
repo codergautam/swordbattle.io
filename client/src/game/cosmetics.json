@@ -6,7 +6,7 @@
       "id": 1,
       "swordFileName": "sword.png",
       "bodyFileName": "player.png",
-      "buyable":true,
+      "buyable": true,
       "description": "The default skin"
     },
     "dog": {
@@ -109,15 +109,11 @@
       "price": 200
     },
     "ice cream": {
-      "sale": true,
-      "saletag": "50% OFF",
-      "ogprice": 300,
-
       "name": "ice cream",
       "displayName": "Ice Cream",
       "id": 145,
       "buyable": true,
-      "price": 150,
+      "price": 300,
       "swordFileName": "icecreamSword.png",
       "bodyFileName": "icecreamPlayer.png",
       "description": "I scream, you scream, your enemies scream"
@@ -163,57 +159,41 @@
       "description": "Given to Wasd for contributing to the community and Swordbattle as a whole. Also available to other players for 100k gems."
     },
     "pi guy": {
-      "sale": true,
-      "saletag": "18% OFF",
-      "ogprice": 314159,
-
       "name": "pi guy",
       "displayName": "Pi Guy",
       "id": 197,
       "buyable": true,
-      "price": 265358,
+      "price": 314159,
       "swordFileName": "piGuySword.png",
       "bodyFileName": "piGuyPlayer.png",
       "description": "The ratio of a circle's circumference to its diameter"
     },
     "frost ninja": {
-      "sale": true,
-      "saletag": "30% OFF",
-      "ogprice": 11111,
-
       "name": "frost ninja",
       "displayName": "Frost Ninja",
       "id": 198,
       "buyable": true,
-      "price": 7777,
+      "price": 11111,
       "swordFileName": "frostninjaSword.png",
       "bodyFileName": "frostninjaPlayer.png",
       "description": "The cold never bothered me anyway"
     },
     "penguin": {
-      "sale": true,
-      "saletag": "40% OFF",
-      "ogprice": 700,
-
       "name": "penguin",
       "displayName": "Penguin",
       "id": 199,
       "buyable": true,
-      "price": 420,
+      "price": 700,
       "swordFileName": "penguinSword.png",
       "bodyFileName": "penguinPlayer.png",
       "description": "Waddle waddle"
     },
     "snowflake": {
-      "sale": true,
-      "saletag": "60% OFF",
-      "ogprice": 950,
-
       "name": "snowflake",
       "displayName": "Snowflake",
       "id": 200,
       "buyable": true,
-      "price": 380,
+      "price": 950,
       "swordFileName": "snowflakeSword.png",
       "bodyFileName": "snowflakePlayer.png",
       "description": "Unique and beautiful"
@@ -386,7 +366,7 @@
       "og": true,
       "swordFileName": "hackerSword.png",
       "bodyFileName": "hackerPlayer.png",
-      "description": "\u2119\ud835\udd63\ud835\udd60 \ud835\udd59\ud835\udd52\ud835\udd54\ud835\udd5c\ud835\udd56\ud835\udd63"
+      "description": "ℙ𝕣𝕠 𝕙𝕒𝕔𝕜𝕖𝕣"
     },
     "red": {
       "name": "red",
@@ -588,8 +568,8 @@
       "bodyFileName": "determinedPlayer.png",
       "description": "I. Need. Coins."
     },
-    "tiger": {
-      "name": "tiger",
+    "tigerogex": {
+      "name": "tigerogex",
       "displayName": "Tiger OG",
       "id": 42,
       "buyable": false,
@@ -788,8 +768,8 @@
       "bodyFileName": "killerbotPlayer.png",
       "description": "Makes your opponents wish they were fighting an actual bot"
     },
-    "comic": {
-      "name": "comic",
+    "comicogex": {
+      "name": "comicogex",
       "displayName": "Comic OG",
       "id": 62,
       "buyable": false,
@@ -1498,8 +1478,8 @@
       "bodyFileName": "angelPlayer.png",
       "description": "The best at PVP. Ever."
     },
-    "starhog": {
-      "name": "starhog",
+    "starhogogex": {
+      "name": "starhogogex",
       "displayName": "Starhog OG",
       "id": 137,
       "buyable": false,
@@ -1528,8 +1508,8 @@
       "bodyFileName": "fishPlayer.png",
       "description": "C'est un poisson!"
     },
-    "shuriken": {
-      "name": "shuriken",
+    "shurikenogex": {
+      "name": "shurikenogex",
       "displayName": "Shuriken OG",
       "id": 140,
       "buyable": false,
@@ -1728,8 +1708,8 @@
       "bodyFileName": "cylinderPlayer.png",
       "description": "Its 3D. Its just better like that."
     },
-    "solarsystem": {
-      "name": "solarsystem",
+    "solarsystemogex": {
+      "name": "solarsystemogex",
       "displayName": "Solar System OG",
       "id": 161,
       "buyable": false,
@@ -1948,15 +1928,11 @@
       "description": "You can't fight on an empty stomach."
     },
     "gingerbread": {
-      "sale": true,
-      "saletag": "75% OFF",
-      "ogprice": 200,
-
       "name": "gingerbread",
       "displayName": "Gingerbread",
       "id": 185,
       "buyable": true,
-      "price": 50,
+      "price": 200,
       "swordFileName": "gingerbreadSword.png",
       "bodyFileName": "gingerbreadPlayer.png",
       "description": "Tis the season to eat gingerbread! Nom nom nom nom nom, Nom nom, Nom, Nom."
@@ -1992,20 +1968,15 @@
       "description": "Dig for gold!"
     },
     "snowglobe": {
-      "sale": true,
-      "saletag": "70% OFF",
-      "ogprice": 350000,
-
       "name": "snowglobe",
       "displayName": "Snow Globe",
       "id": 190,
       "buyable": true,
-      "price": 100000,
+      "price": 350000,
       "swordFileName": "snowglobeSword.png",
       "bodyFileName": "snowglobePlayer.png",
       "description": "Let it snow!"
-    }
-    ,
+    },
     "maskedPhoenix": {
       "name": "maskedPhoenix",
       "displayName": "Masked Phoenix",
@@ -2196,16 +2167,12 @@
       "bodyFileName": "applePlayer.png",
       "description": "An apple a day keeps The Roku away!"
     },
-"auroraborealis": {
-      "sale": true,
-      "saletag": "33% OFF",
-      "ogprice": 900,
-
+    "auroraborealis": {
       "name": "auroraborealis",
       "displayName": "Aurora Borealis",
       "id": 223,
       "buyable": true,
-      "price": 600,
+      "price": 900,
       "swordFileName": "auroraborealisSword.png",
       "bodyFileName": "auroraborealisPlayer.png",
       "description": "Distract your opponents with a magnificent sight to see."
@@ -2621,15 +2588,11 @@
       "description": "Hide in the clouds and strike from above!"
     },
     "summitninja": {
-      "sale": true,
-      "saletag": "60% OFF",
-      "ogprice": 55555,
-
       "name": "summitninja",
       "displayName": "Summit Ninja",
       "id": 265,
       "buyable": true,
-      "price": 22222,
+      "price": 55555,
       "swordFileName": "summitninjaSword.png",
       "bodyFileName": "summitninjaPlayer.png",
       "description": "There are always challenges to face before you reach the summit..."
@@ -2715,15 +2678,11 @@
       "description": "Death is inevitable."
     },
     "frostconjurer": {
-      "sale": true,
-      "saletag": "50% OFF",
-      "ogprice": 22500,
-
       "name": "frostconjurer",
       "displayName": "Frost Conjurer",
       "id": 274,
       "buyable": true,
-      "price": 11250,
+      "price": 22500,
       "swordFileName": "frostconjurerSword.png",
       "bodyFileName": "frostconjurerPlayer.png",
       "description": "It's a cold world out there"
@@ -2789,17 +2748,17 @@
       "description": "Shiny and polished!"
     },
     "frosthologram": {
-      "event": true,
       "name": "frosthologram",
       "eventtag": "WINTER EVENT",
       "displayName": "Frost Hologram",
       "id": 281,
-      "buyable": true,
+      "buyable": false,
       "price": 3250,
       "tokenprice": 3250,
       "swordFileName": "winterHologramSword.png",
       "bodyFileName": "winterHologramPlayer.png",
-      "description": "Perhaps nothing more than a hallucination from the frigidness..."
+      "description": "Perhaps nothing more than a hallucination from the frigidness...",
+      "eventoffsale": true
     },
     "ultrafrostninja": {
       "eventoffsale": true,
@@ -2814,69 +2773,69 @@
       "description": "A fierce warrior and frigid conjurer."
     },
     "frozenvoid": {
-      "event": true,
       "name": "frozenvoid",
       "eventtag": "WINTER EVENT",
       "displayName": "Frozen Void",
       "id": 283,
-      "buyable": true,
+      "buyable": false,
       "price": 15000,
       "tokenprice": 35000,
       "swordFileName": "winterVoidSword.png",
       "bodyFileName": "winterVoidPlayer.png",
-      "description": "A vast emptiness of ice and frigid winds..."
+      "description": "A vast emptiness of ice and frigid winds...",
+      "eventoffsale": true
     },
     "blueandwhite": {
-      "event": true,
       "name": "blueandwhite",
       "eventtag": "WINTER EVENT",
       "displayName": "Blue & White",
       "id": 284,
-      "buyable": true,
+      "buyable": false,
       "price": 12000,
       "tokenprice": 50000,
       "swordFileName": "winterBlackandwhiteSword.png",
       "bodyFileName": "winterBlackandwhitePlayer.png",
-      "description": "A balance between ice and snow"
+      "description": "A balance between ice and snow",
+      "eventoffsale": true
     },
     "icicle": {
-      "event": true,
       "name": "icicle",
       "eventtag": "WINTER EVENT",
       "displayName": "Icicle",
       "id": 285,
-      "buyable": true,
+      "buyable": false,
       "price": 9500,
       "tokenprice": 25000,
       "swordFileName": "winterIcicleSword.png",
       "bodyFileName": "winterIciclePlayer.png",
-      "description": "I think it's a bit cold outside"
+      "description": "I think it's a bit cold outside",
+      "eventoffsale": true
     },
     "icelord": {
-      "event": true,
       "name": "icelord",
       "eventtag": "WINTER EVENT",
       "displayName": "Ice Lord",
       "id": 286,
-      "buyable": true,
+      "buyable": false,
       "price": 5500,
       "tokenprice": 55000,
       "swordFileName": "winterIcelordSword.png",
       "bodyFileName": "winterIcelordPlayer.png",
-      "description": "The freezer of necromancers, summoner of glaciers, and hoarder of coins."
+      "description": "The freezer of necromancers, summoner of glaciers, and hoarder of coins.",
+      "eventoffsale": true
     },
     "cryonecromancer": {
-      "event": true,
       "name": "cryonecromancer",
       "eventtag": "WINTER EVENT",
       "displayName": "Cryorock Necromancer",
       "id": 287,
-      "buyable": true,
+      "buyable": false,
       "price": 4000,
       "tokenprice": 10000,
       "swordFileName": "winterNecromancerSword.png",
       "bodyFileName": "winterNecromancerPlayer.png",
-      "description": "When a magic force freezes something multiple times, cryorock is formed."
+      "description": "When a magic force freezes something multiple times, cryorock is formed.",
+      "eventoffsale": true
     },
     "coldcarl": {
       "eventoffsale": true,
@@ -2891,43 +2850,39 @@
       "description": "He's just cold like that."
     },
     "frozen": {
-      "event": true,
       "name": "frozen",
       "eventtag": "WINTER EVENT",
       "displayName": "Frozen",
       "id": 289,
-      "buyable": true,
+      "buyable": false,
       "price": 725,
       "swordFileName": "winterFrozenSword.png",
       "bodyFileName": "winterFrozenPlayer.png",
       "description": "At least I'm well-preserved!",
-      "tokenprice": 500
+      "tokenprice": 500,
+      "eventoffsale": true
     },
     "winterv2": {
-      "sale": true,
-      "saletag": "99% OFF",
-      "ogprice": 150,
-
       "name": "winterv2",
       "displayName": "Winter",
       "id": 290,
       "buyable": true,
-      "price": 1,
+      "price": 150,
       "swordFileName": "winterWinterSword.png",
       "bodyFileName": "winterWinterPlayer.png",
       "description": "Winter is here!"
     },
     "festive": {
-      "event": true,
       "name": "festive",
       "eventtag": "WINTER EVENT",
       "displayName": "Festive",
       "id": 291,
-      "buyable": true,
+      "buyable": false,
       "price": 0,
       "swordFileName": "winterFestiveSword.png",
       "bodyFileName": "winterFestivePlayer.png",
-      "description": "Freebie skin for playing during the winter event!"
+      "description": "Freebie skin for playing during the winter event!",
+      "eventoffsale": true
     },
     "snowfieldsharpshooter": {
       "eventoffsale": true,
@@ -2952,17 +2907,17 @@
       "description": "Scythes are always better than swords..."
     },
     "yetiscythe": {
-      "event": true,
       "name": "yetiscythe",
       "eventtag": "WINTER EVENT",
       "displayName": "Yeti Scythe",
       "id": 294,
-      "buyable": true,
+      "buyable": false,
       "price": 30000,
       "tokenprice": 100000,
       "swordFileName": "winterScytheSword.png",
       "bodyFileName": "winterScythePlayer.png",
-      "description": "I guess yetis aren't a myth..."
+      "description": "I guess yetis aren't a myth...",
+      "eventoffsale": true
     },
     "pinetreecamo": {
       "eventoffsale": true,
@@ -2987,17 +2942,17 @@
       "description": "🔥🔥🔥🔥🔥"
     },
     "cryofire": {
-      "event": true,
       "name": "cryofire",
       "eventtag": "WINTER EVENT",
       "displayName": "Cryofire",
       "id": 297,
-      "buyable": true,
+      "buyable": false,
       "price": 700,
       "tokenprice": 7000,
       "swordFileName": "winterFireSword.png",
       "bodyFileName": "winterFirePlayer.png",
-      "description": "Burn and freeze your enemies at the same time!"
+      "description": "Burn and freeze your enemies at the same time!",
+      "eventoffsale": true
     },
     "waterconjurer": {
       "name": "waterconjurer",
@@ -3010,17 +2965,17 @@
       "description": "💧💧💧💧💧"
     },
     "iceconjurer": {
-      "event": true,
       "name": "iceconjurer",
       "eventtag": "WINTER EVENT",
       "displayName": "Ice Conjurer",
       "id": 299,
-      "buyable": true,
+      "buyable": false,
       "price": 675,
       "tokenprice": 675,
       "swordFileName": "winterWaterSword.png",
       "bodyFileName": "winterWaterPlayer.png",
-      "description": "🧊🧊🧊🧊🧊"
+      "description": "🧊🧊🧊🧊🧊",
+      "eventoffsale": true
     },
     "hotchocolate": {
       "eventoffsale": true,
@@ -3045,43 +3000,43 @@
       "description": ":v"
     },
     "unknownrune": {
-      "event": true,
       "name": "unknownrune",
       "eventtag": "WINTER EVENT",
       "displayName": "Unknown Rune",
       "id": 302,
-      "buyable": true,
+      "buyable": false,
       "price": 75,
       "tokenprice": 1000,
       "swordFileName": "winterUnknownSword.png",
       "bodyFileName": "winterUnknownPlayer.png",
-      "description": "Who snows?"
+      "description": "Who snows?",
+      "eventoffsale": true
     },
     "candycane": {
-      "event": true,
       "name": "candycane",
       "eventtag": "WINTER EVENT",
       "displayName": "Candy Cane",
       "id": 303,
-      "buyable": true,
+      "buyable": false,
       "price": 900,
       "tokenprice": 2500,
       "swordFileName": "winterCaneSword.png",
       "bodyFileName": "winterCanePlayer.png",
-      "description": "Stab with stripes!"
+      "description": "Stab with stripes!",
+      "eventoffsale": true
     },
     "ornament": {
-      "event": true,
       "name": "ornament",
       "eventtag": "WINTER EVENT",
       "displayName": "Ornament",
       "id": 304,
-      "buyable": true,
+      "buyable": false,
       "price": 2345,
       "tokenprice": 5000,
       "swordFileName": "winterOrnamentSword.png",
       "bodyFileName": "winterOrnamentPlayer.png",
-      "description": "Don't drop it!"
+      "description": "Don't drop it!",
+      "eventoffsale": true
     },
     "christmas": {
       "eventoffsale": true,
@@ -3138,7 +3093,6 @@
       "ultimate": true,
       "tag": "Ultimate Emoticon",
       "original": 301,
-
       "name": "megamoticon",
       "displayName": "Megamoticon",
       "id": 309,
@@ -3240,7 +3194,6 @@
       "ultimate": true,
       "tag": "Ultimate Broken",
       "original": 229,
-
       "name": "shattermech",
       "displayName": "Shattermech",
       "id": 317,
@@ -3304,14 +3257,15 @@
       "original": 187
     },
     "antimagma": {
+      "sale": true,
       "name": "antimagma",
       "displayName": "Anti-Magma",
       "id": 328,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedAntimagmaSword.png",
-      "bodyFileName": "unreleasedAntimagmaPlayer.png",
-      "description": "Not available for sale."
+      "price": 1750,
+      "swordFileName": "antimagmaSword.png",
+      "bodyFileName": "antimagmaPlayer.png",
+      "description": "Even hotter than magma, but also colder than ice."
     },
     "fractal": {
       "name": "fractal",
@@ -3394,134 +3348,143 @@
       "original": 336
     },
     "jagged": {
+      "sale": true,
       "name": "jagged",
       "displayName": "Jagged",
       "id": 338,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedJaggedSword.png",
-      "bodyFileName": "unreleasedJaggedPlayer.png",
-      "description": "Not available for sale."
+      "price": 7777,
+      "swordFileName": "jaggedSword.png",
+      "bodyFileName": "jaggedPlayer.png",
+      "description": "Every part is as sharp as can be..."
     },
     "nugget": {
+      "sale": true,
       "name": "nugget",
       "displayName": "Nugget",
       "id": 339,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedNuggetSword.png",
-      "bodyFileName": "unreleasedNuggetPlayer.png",
-      "description": "Not available for sale."
+      "price": 100,
+      "swordFileName": "nuggetSword.png",
+      "bodyFileName": "nuggetPlayer.png",
+      "description": "Too processed to be called a “chicken” nugget."
     },
     "bamboo": {
+      "sale": true,
       "name": "bamboo",
       "displayName": "Bamboo",
       "id": 340,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedBambooSword.png",
-      "bodyFileName": "unreleasedBambooPlayer.png",
-      "description": "Not available for sale."
+      "price": 3000,
+      "swordFileName": "bambooSword.png",
+      "bodyFileName": "bambooPlayer.png",
+      "description": "Sturdy enough to fight with"
     },
     "soda": {
+      "sale": true,
       "name": "soda",
       "displayName": "Soda",
       "id": 341,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedSodaSword.png",
-      "bodyFileName": "unreleasedSodaPlayer.png",
-      "description": "Not available for sale."
+      "price": 2000,
+      "swordFileName": "sodaSword.png",
+      "bodyFileName": "sodaPlayer.png",
+      "description": "A refreshing drink to have after a long battle!"
     },
     "magev2": {
+      "sale": true,
       "name": "magev2",
-      "displayName": "Mage",
+      "displayName": "Stealthmage",
       "id": 342,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedMageSword.png",
-      "bodyFileName": "unreleasedMagePlayer.png",
-      "description": "Not available for sale."
+      "price": 20000,
+      "swordFileName": "stealthmageSword.png",
+      "bodyFileName": "stealthmagePlayer.png",
+      "description": "Only use your magic when you need it most..."
     },
     "tumbleweed": {
+      "sale": true,
       "name": "tumbleweed",
       "displayName": "Tumbleweed",
       "id": 343,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedTumbleweedSword2.png",
-      "bodyFileName": "unreleasedTumbleweedPlayer2.png",
-      "description": "Not available for sale."
+      "price": 40000,
+      "swordFileName": "tumbleweedSword.png",
+      "bodyFileName": "tumbleweedPlayer.png",
+      "description": "Tumble into battle!"
     },
     "sugar": {
+      "sale": true,
       "name": "sugar",
       "displayName": "Sugar",
       "id": 344,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedSugarSword.png",
-      "bodyFileName": "unreleasedSugarPlayer.png",
-      "description": "Not available for sale."
+      "price": 850,
+      "swordFileName": "sugarSword.png",
+      "bodyFileName": "sugarPlayer.png",
+      "description": "Don't eat too much"
     },
     "bolt": {
+      "sale": true,
       "name": "bolt",
       "displayName": "Bolt",
       "id": 345,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedBoltSword.png",
-      "bodyFileName": "unreleasedBoltPlayer.png",
-      "description": "Not available for sale."
+      "price": 1500,
+      "swordFileName": "boltSword.png",
+      "bodyFileName": "boltPlayer.png",
+      "description": "Strike so fast, you'll leave all your enemies shocked!"
     },
     "sloth": {
+      "sale": true,
       "name": "sloth",
       "displayName": "Sloth",
       "id": 346,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedSlothSword.png",
-      "bodyFileName": "unreleasedSlothPlayer.png",
-      "description": "Not available for sale."
+      "price": 4000,
+      "swordFileName": "slothSword.png",
+      "bodyFileName": "slothPlayer.png",
+      "description": "Slow and steady wins the race"
     },
     "arcticsoldier": {
+      "sale": true,
       "name": "arcticsoldier",
       "displayName": "Arctic Soldier",
       "id": 348,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedArcticsoldierSword.png",
-      "bodyFileName": "unreleasedArcticsoldierPlayer.png",
-      "description": "Not available for sale."
+      "price": 8000,
+      "swordFileName": "arcticsoldierSword.png",
+      "bodyFileName": "arcticsoldierPlayer.png",
+      "description": "Even in the coldest weather, you must finish the fight"
     },
     "snowball": {
-      "sale": true,
-      "saletag": "50% OFF",
-      "ogprice": 1250,
-
       "name": "snowball",
       "displayName": "Snowball",
       "id": 349,
       "buyable": true,
-      "price": 625,
+      "price": 1250,
       "swordFileName": "snowballSword.png",
       "bodyFileName": "snowballPlayer.png",
       "description": "Throw snowballs and swords at the same time!"
     },
     "blackhole": {
+      "sale": true,
+      "ultimate": true,
+      "tag": "Ultimate Solar System",
+      "original": 509,
       "name": "blackhole",
       "displayName": "Black Hole",
       "id": 350,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedBlackholeSword.png",
-      "bodyFileName": "unreleasedBlackholePlayer.png",
-      "description": "Not available for sale."
+      "price": 400000,
+      "swordFileName": "blackholeSword.png",
+      "bodyFileName": "blackholePlayer.png",
+      "description": "Why have a solar system, when you can have a GALAXY?!"
     },
     "haunted": {
       "ultimate": true,
       "tag": "Ultimate Possessed",
       "original": 363,
-
       "name": "haunted",
       "displayName": "Haunted",
       "id": 351,
@@ -3575,14 +3538,15 @@
       "original": 180
     },
     "turtle": {
+      "sale": true,
       "name": "turtle",
       "displayName": "Turtle",
       "id": 356,
       "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedTurtleSword.png",
-      "bodyFileName": "unreleasedTurtlePlayer.png",
-      "description": "Not available for sale."
+      "price": 15000,
+      "swordFileName": "turtleSword.png",
+      "bodyFileName": "turtlePlayer.png",
+      "description": "The true tank"
     },
     "leader": {
       "name": "leader",
@@ -3608,7 +3572,6 @@
       "ultimate": true,
       "tag": "Ultimate Steampunk",
       "original": 257,
-
       "name": "clockwork",
       "displayName": "Clockwork",
       "id": 359,
@@ -3622,7 +3585,6 @@
       "ultimate": true,
       "tag": "Ultimate Gingerbread",
       "original": 185,
-
       "name": "gingerbreadman",
       "displayName": "Gingerbread Man",
       "id": 360,
@@ -3636,7 +3598,6 @@
       "ultimate": true,
       "tag": "Ultimate Bone Dragon",
       "original": 217,
-
       "name": "deathdragon",
       "displayName": "Death Dragon",
       "id": 361,
@@ -3670,15 +3631,11 @@
       "original": 377
     },
     "emeraldwater": {
-      "sale": true,
-      "saletag": "50% OFF",
-      "ogprice": 6250,
-
       "name": "emeraldwater",
       "displayName": "Emeraldwater",
       "id": 365,
       "buyable": true,
-      "price": 3125,
+      "price": 6250,
       "swordFileName": "emeraldwaterSword.png",
       "bodyFileName": "emeraldwaterPlayer.png",
       "description": "A mixture of water and dissolved gems"
@@ -3700,7 +3657,6 @@
       "ultimate": true,
       "tag": "Ultimate Eliminator",
       "original": 378,
-
       "name": "vanguard",
       "displayName": "Vanguard",
       "id": 367,
@@ -3711,19 +3667,14 @@
       "description": "The creator of all things neon!"
     },
     "emeraldwarrior": {
-      "sale": true,
-      "saletag": "40% OFF",
-      "ogprice": 350000,
-
       "ultimate": true,
       "tag": "Ultimate Emeraldwater",
       "original": 365,
-
       "name": "emeraldwarrior",
       "displayName": "Emerald Warrior",
       "id": 368,
       "buyable": true,
-      "price": 210000,
+      "price": 350000,
       "swordFileName": "ultimateEmeraldwaterSword.png",
       "bodyFileName": "ultimatenewEmeraldwaterPlayer.png",
       "description": "Forged from emeraldwater."
@@ -3808,7 +3759,6 @@
       "ultimate": true,
       "tag": "Ultimate Digital",
       "original": 235,
-
       "name": "virtual",
       "displayName": "Virtual",
       "id": 375,
@@ -3865,7 +3815,6 @@
       "ultimate": true,
       "tag": "Ultimate Ash",
       "original": 269,
-
       "name": "darkness",
       "displayName": "Darkness",
       "id": 380,
@@ -3905,7 +3854,6 @@
       "ultimate": true,
       "tag": "Ultimate Metal",
       "original": 250,
-
       "name": "scrapper",
       "displayName": "Scrapper",
       "id": 382,
@@ -3929,32 +3877,32 @@
       "original": 246
     },
     "executor": {
-      "event": true,
       "name": "executor",
       "eventtag": "WINTER EVENT",
       "displayName": "Executor",
       "id": 383,
-      "buyable": true,
+      "buyable": false,
       "price": 20000,
       "tokenprice": 75000,
       "swordFileName": "winterEliminatorSword.png",
       "bodyFileName": "winterEliminatorPlayer.png",
-      "description": "Swing the final blow."
+      "description": "Swing the final blow.",
+      "eventoffsale": true
     },
     "vanguardborealis": {
-      "event": true,
       "name": "vanguardborealis",
       "eventtag": "WINTER EVENT",
       "displayName": "Vanguardia Borealis",
       "id": 384,
-      "buyable": true,
+      "buyable": false,
       "price": 40000,
       "tokenprice": 150000,
       "swordFileName": "winterVanguardSword.png",
       "bodyFileName": "winterVanguardPlayer.png",
-      "description": "The neon lights of the north"
+      "description": "The neon lights of the north",
+      "eventoffsale": true
     },
-    "violin": {  
+    "violin": {
       "name": "violin",
       "displayName": "Violin",
       "id": 385,
@@ -3988,7 +3936,6 @@
       "ultimate": true,
       "tag": "Ultimate Violin",
       "original": 385,
-
       "name": "bass",
       "displayName": "Bass",
       "id": 388,
@@ -3998,11 +3945,10 @@
       "bodyFileName": "ultimateViolinPlayer.png",
       "description": "Slap them with your bass"
     },
-    "fish": { 
+    "fish": {
       "ultimate": true,
       "tag": "Ultimate Fishbowl",
       "original": 386,
-
       "name": "fish",
       "displayName": "Fish",
       "id": 389,
@@ -4016,7 +3962,6 @@
       "ultimate": true,
       "tag": "Ultimate Cheeseburger",
       "original": 387,
-
       "name": "mcbattle",
       "displayName": "McBattle Deluxe",
       "id": 390,
@@ -4027,17 +3972,17 @@
       "description": "Swordbattle's favorite meal, now with extra cheese!"
     },
     "firstfrost": {
-      "event": true,
       "name": "firstfrost",
       "eventtag": "WINTER EVENT",
       "displayName": "Frozen Pi Guy",
       "id": 391,
-      "buyable": true,
+      "buyable": false,
       "price": 41592,
       "tokenprice": 314159,
       "swordFileName": "winterPiguySword.png",
       "bodyFileName": "winterPiguyPlayer.png",
-      "description": "The first one to brave the winter chill..."
+      "description": "The first one to brave the winter chill...",
+      "eventoffsale": true
     },
     "future": {
       "name": "future",
@@ -4053,7 +3998,6 @@
       "ultimate": true,
       "tag": "Ultimate Future Fighter",
       "original": 392,
-
       "name": "futurizer",
       "displayName": "Futurizer",
       "id": 393,
@@ -4077,7 +4021,6 @@
       "ultimate": true,
       "tag": "Ultimate Jellyfish",
       "original": 394,
-
       "name": "jelly",
       "displayName": "Jelly",
       "id": 395,
@@ -4101,7 +4044,6 @@
       "ultimate": true,
       "tag": "Ultimate Pi Dude",
       "original": 396,
-
       "name": "pidiver",
       "displayName": "Pi Diver",
       "id": 397,
@@ -4115,7 +4057,6 @@
       "ultimate": true,
       "tag": "Ultimate Necromancer",
       "original": 278,
-
       "name": "futuremancer",
       "displayName": "Futuremancer",
       "id": 398,
@@ -4126,19 +4067,14 @@
       "description": "The future of necromancy is here!"
     },
     "piman": {
-      "sale": true,
-      "saletag": "55% OFF",
-      "ogprice": 314159,
-
       "ultimate": true,
       "tag": "Ultimate Pi Guy",
       "original": 197,
-
       "name": "piman",
       "displayName": "Pi Man",
       "id": 399,
       "buyable": true,
-      "price": 141592,
+      "price": 314159,
       "swordFileName": "ultimatePiguySword.png",
       "bodyFileName": "ultimatePiguyPlayer.png",
       "description": "The original Pi Guy"
@@ -4147,7 +4083,6 @@
       "ultimate": true,
       "tag": "Ultimate Stained Glass",
       "original": 206,
-
       "name": "shatteredglass",
       "displayName": "Shattered Glass",
       "id": 400,
@@ -4221,7 +4156,6 @@
       "ultimate": true,
       "tag": "Ultimate Marauder",
       "original": 406,
-
       "name": "mechamarauder",
       "displayName": "Mecha Marauder",
       "id": 407,
@@ -4245,7 +4179,6 @@
       "ultimate": true,
       "tag": "Ultimate Apocalypse",
       "original": 408,
-
       "name": "atomic",
       "displayName": "Atomic",
       "id": 409,
@@ -4269,7 +4202,6 @@
       "ultimate": true,
       "tag": "Ultimate Prismatic",
       "original": 410,
-
       "name": "rainbowv2",
       "displayName": "Rainbow",
       "id": 411,
@@ -4293,7 +4225,6 @@
       "ultimate": true,
       "tag": "Ultimate Trippy",
       "original": 412,
-
       "name": "illusionaryv2",
       "displayName": "Illusionary",
       "id": 413,
@@ -4317,7 +4248,6 @@
       "ultimate": true,
       "tag": "Ultimate Tree",
       "original": 414,
-
       "name": "treedisguise",
       "displayName": "Tree Disguise",
       "id": 415,
@@ -4381,7 +4311,6 @@
       "ultimate": true,
       "tag": "Ultimate Farmer",
       "original": 419,
-      
       "name": "classicfarmer",
       "displayName": "Classic Farmer",
       "id": 421,
@@ -4395,7 +4324,6 @@
       "ultimate": true,
       "tag": "Ultimate Ghost",
       "original": 183,
-      
       "name": "ghostplayer",
       "displayName": "Ghost-Player",
       "id": 422,
@@ -4409,7 +4337,6 @@
       "ultimate": true,
       "tag": "Ultimate Triangles",
       "original": 420,
-      
       "name": "triangulation",
       "displayName": "Triangulation",
       "id": 423,
@@ -4433,7 +4360,6 @@
       "ultimate": true,
       "tag": "Ultimate Movie",
       "original": 424,
-      
       "name": "popcorn",
       "displayName": "Popcorn",
       "id": 425,
@@ -4457,7 +4383,6 @@
       "ultimate": true,
       "tag": "Ultimate Inverted",
       "original": 426,
-      
       "name": "invertedknight",
       "displayName": "Inverted Knight",
       "id": 427,
@@ -4548,95 +4473,95 @@
       "description": "Hole in one!"
     },
     "eradicator": {
-      "event": true,
       "name": "eradicator",
       "eventtag": "WINTER EVENT",
       "displayName": "Eradicator",
       "id": 436,
-      "buyable": true,
+      "buyable": false,
       "price": 100000,
       "tokenprice": 1000000,
       "swordFileName": "winterObliteratorSword.png",
       "bodyFileName": "winterObliteratorPlayer.png",
-      "description": "Instant eradication."
+      "description": "Instant eradication.",
+      "eventoffsale": true
     },
     "nocturnal": {
-      "event": true,
       "name": "nocturnal",
       "eventtag": "WINTER EVENT",
       "displayName": "Nocturnal Snow",
       "id": 437,
-      "buyable": true,
+      "buyable": false,
       "price": 7500,
       "tokenprice": 2500,
       "swordFileName": "winterMidnightSword.png",
       "bodyFileName": "winterMidnightPlayer.png",
-      "description": "When the stars and snowfall become one"
+      "description": "When the stars and snowfall become one",
+      "eventoffsale": true
     },
     "supersphere": {
-      "event": true,
       "name": "supersphere",
       "eventtag": "WINTER EVENT",
       "displayName": "Supersphere",
       "id": 438,
-      "buyable": true,
+      "buyable": false,
       "price": 15000,
       "tokenprice": 35000,
       "swordFileName": "winterHypersphereSword.png",
       "bodyFileName": "winterHyperspherePlayer.png",
-      "description": "A 2D visualization of a 4D sphere"
+      "description": "A 2D visualization of a 4D sphere",
+      "eventoffsale": true
     },
     "frostedglass": {
-      "event": true,
       "name": "frostedglass",
       "eventtag": "WINTER EVENT",
       "displayName": "Frosted Glass",
       "id": 439,
-      "buyable": true,
+      "buyable": false,
       "price": 5000,
       "tokenprice": 250,
       "swordFileName": "winterStainedglassSword.png",
       "bodyFileName": "winterStainedglassPlayer.png",
-      "description": "Not literally frosted glass but you get the idea"
+      "description": "Not literally frosted glass but you get the idea",
+      "eventoffsale": true
     },
     "igloobrick": {
-      "event": true,
       "name": "igloobrick",
       "eventtag": "WINTER EVENT",
       "displayName": "Igloo Brick",
       "id": 440,
-      "buyable": true,
+      "buyable": false,
       "price": 1500,
       "tokenprice": 10000,
       "swordFileName": "winterBrickSword.png",
       "bodyFileName": "winterBrickPlayer.png",
-      "description": "Survive the cold!"
+      "description": "Survive the cold!",
+      "eventoffsale": true
     },
     "elementalninja": {
-      "event": true,
       "name": "elementalninja",
       "eventtag": "WINTER EVENT",
       "displayName": "Elemental Ninja",
       "id": 441,
-      "buyable": true,
+      "buyable": false,
       "price": 25000,
       "tokenprice": 20000,
       "swordFileName": "winterKineticninjaSword.png",
       "bodyFileName": "winterKineticninjaPlayer.png",
-      "description": "A concealed conjurer with skills of lava, lightning, ice, and more."
+      "description": "A concealed conjurer with skills of lava, lightning, ice, and more.",
+      "eventoffsale": true
     },
     "midnightninja": {
-      "event": true,
       "name": "midnightninja",
       "eventtag": "WINTER EVENT",
       "displayName": "Midnight Ninja",
       "id": 442,
-      "buyable": true,
+      "buyable": false,
       "price": 25000,
       "tokenprice": 20000,
       "swordFileName": "winterMidnightninjaSword.png",
       "bodyFileName": "winterMidnightninjaPlayer.png",
-      "description": "Only illuminated by the moon and stars."
+      "description": "Only illuminated by the moon and stars.",
+      "eventoffsale": true
     },
     "50kfreegems": {
       "name": "50kfreegems",
@@ -4658,6 +4583,108 @@
       "swordFileName": "botterSword.png",
       "bodyFileName": "botterPlayer.png",
       "description": "The middle ground between a pro hacker and a jobless loser"
+    },
+    "pufferfish": {
+      "sale": true,
+      "name": "pufferfish",
+      "displayName": "Pufferfish",
+      "id": 502,
+      "buyable": true,
+      "price": 3750,
+      "swordFileName": "pufferfishSword.png",
+      "bodyFileName": "pufferfishPlayer.png",
+      "description": "Don't get too close or you might get pricked!"
+    },
+    "geode": {
+      "sale": true,
+      "name": "geode",
+      "displayName": "Geode",
+      "id": 503,
+      "buyable": true,
+      "price": 6000,
+      "swordFileName": "geodeSword.png",
+      "bodyFileName": "geodePlayer.png",
+      "description": "Went looking for coins and found gems instead!"
+    },
+    "starhog v2": {
+      "sale": true,
+      "name": "starhog v2",
+      "displayName": "Starhog",
+      "id": 504,
+      "buyable": true,
+      "price": 30000,
+      "swordFileName": "starhogv2Sword.png",
+      "bodyFileName": "starhogv2Player.png",
+      "description": "A hog in space doesn't seem right..."
+    },
+    "andromeda": {
+      "sale": true,
+      "ultimate": true,
+      "tag": "Ultimate Starhog",
+      "original": 504,
+      "name": "andromeda",
+      "displayName": "Andromeda",
+      "id": 505,
+      "buyable": true,
+      "price": 2000000,
+      "swordFileName": "ultimateStarhogSword.png",
+      "bodyFileName": "ultimateStarhogPlayer.png",
+      "description": "Trillions of stars, trillions of planets, trillions of fates to be decided..."
+    },
+    "tiger v2": {
+      "sale": true,
+      "name": "tiger v2",
+      "displayName": "Tiger",
+      "id": 506,
+      "buyable": true,
+      "price": 500,
+      "swordFileName": "tigerv2Sword.png",
+      "bodyFileName": "tigerv2Player.png",
+      "description": "Don't get in the way of its claws..."
+    },
+    "comic v2": {
+      "sale": true,
+      "name": "comic v2",
+      "displayName": "Comic",
+      "id": 507,
+      "buyable": true,
+      "price": 1250,
+      "swordFileName": "comicv2Sword.png",
+      "bodyFileName": "comicv2Player.png",
+      "description": "POW! BAM! WOW!"
+    },
+    "shuriken v2": {
+      "sale": true,
+      "name": "shuriken v2",
+      "displayName": "Shuriken",
+      "id": 508,
+      "buyable": true,
+      "price": 50000,
+      "swordFileName": "shurikenv2Sword.png",
+      "bodyFileName": "shurikenv2Player.png",
+      "description": "More than one edge."
+    },
+    "solar system v2": {
+      "sale": true,
+      "name": "solar system v2",
+      "displayName": "Solar System",
+      "id": 509,
+      "buyable": true,
+      "price": 100000,
+      "swordFileName": "solarsystemv2Sword.png",
+      "bodyFileName": "solarsystemv2Player.png",
+      "description": "The universe is at your fingertips..."
+    },
+    "diamond v2": {
+      "sale": true,
+      "name": "diamond v2",
+      "displayName": "Diamond",
+      "id": 510,
+      "buyable": true,
+      "price": 80000,
+      "swordFileName": "diamondSword.png",
+      "bodyFileName": "diamondPlayer.png",
+      "description": "Diamond sword? Where have I heard that before..."
     }
   }
 }

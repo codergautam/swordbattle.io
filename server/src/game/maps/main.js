@@ -6,212 +6,118 @@ module.exports = {
   biomes: [
     {
       type: Types.Biome.Safezone,
-      pos: [0, 2500],
+      pos: [0, 0],
       radius: 2000,
       objects: [
       ],
     },
     {
       type: Types.Biome.River,
-      pos: [0, 2500],
+      pos: [0, 0],
       radius: 4000,
       objects: [
-        // {
-        //   type: Types.Entity.Fish,
-        //   amount: 5,
-        //   position: 'random',
-        //   respawnable: true,
-        //   size: [53, 73],
-        // },
-        // {
-        //   type: Types.Entity.AngryFish,
-        //   amount: 5,
-        //   position: 'random',
-        //   respawnable: true,
-        //   size: [53, 73],
-        // }
+        {
+          type: Types.Entity.Fish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [53, 73],
+        },
+        {
+          type: Types.Entity.AngryFish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [53, 73],
+        }
       ]
     },
 
     {
       type: Types.Biome.River,
-      pos: [-15000, -12500],
+      pos: [-15000, -15000],
       points: [
-        [0, -2000],
+        [2000, 0],
         [13500, 11500],
         [11500, 13500],
         [0, 2000],
         [0, 0],
       ],
       objects: [
-        // {
-        //   type: Types.Entity.Fish,
-        //   amount: 5,
-        //   position: 'random',
-        //   respawnable: true,
-        //   size: [53, 73],
-        // },
-        // {
-        //   type: Types.Entity.AngryFish,
-        //   amount: 5,
-        //   position: 'random',
-        //   respawnable: true,
-        //   size: [53, 73],
-        // }
+        {
+          type: Types.Entity.Fish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [53, 73],
+        },
+        {
+          type: Types.Entity.AngryFish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [53, 73],
+        }
       ],
     },
 
     {
       type: Types.Biome.River,
-      pos: [15000, -12500],
+      pos: [15000, -15000],
       points: [
         [0, 2000],
         [-11500, 13500],
         [-13500, 11500],
-        [0, -2000],
+        [-2000, 0],
         [0, 0],
       ],
       objects: [
-        // {
-        //   type: Types.Entity.Fish,
-        //   amount: 5,
-        //   position: 'random',
-        //   respawnable: true,
-        //   size: [53, 73],
-        // },
-        // {
-        //   type: Types.Entity.AngryFish,
-        //   amount: 5,
-        //   position: 'random',
-        //   respawnable: true,
-        //   size: [53, 73],
-        // }
+        {
+          type: Types.Entity.Fish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [53, 73],
+        },
+        {
+          type: Types.Entity.AngryFish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [53, 73],
+        }
       ],
     },
     {
       type: Types.Biome.River,
-      pos: [0, 6000],
+      pos: [0, 3500],
       points: [
         [-1500, 0],
         [1500, 0],
-        [1500, 9000],
-        [-1500, 9000],
+        [1500, 11500],
+        [-1500, 11500],
       ],
       objects: [
-        // {
-        //   type: Types.Entity.Fish,
-        //   amount: 5,
-        //   position: 'random',
-        //   respawnable: true,
-        //   size: [53, 73],
-        // },
-        // {
-        //   type: Types.Entity.AngryFish,
-        //   amount: 5,
-        //   position: 'random',
-        //   respawnable: true,
-        //   size: [53, 73],
-        // }
+        {
+          type: Types.Entity.Fish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [53, 73],
+        },
+        {
+          type: Types.Entity.AngryFish,
+          amount: 5,
+          position: 'random',
+          respawnable: true,
+          size: [53, 73],
+        }
       ],
     },
 
     {
       type: Types.Biome.Ice,
-      pos: [-15000, -15000],
-      points: [
-        [30000, 0],
-        [30000, 2550],
-        [0, 2550],
-        [0, 0],
-      ],
-      objects: [
-        {
-          type: Types.Entity.IceMound,
-          amount: 20,
-          position: 'random',
-          size: [300, 700],
-        },
-        {
-          type: Types.Entity.IceSpike,
-          amount: 12,
-          position: 'random',
-          size: [200, 600],
-        },
-        {
-          type: Types.Entity.IcePond,
-          amount: 8,
-          position: 'random',
-          size: [600, 900],
-        },
-        {
-          type: Types.Entity.Yeti,
-          amount: 4,
-          position: 'random',
-          respawnable: true,
-          size: [80, 110],
-        },
-        {
-          type: Types.Entity.Wolf,
-          amount: 4,
-          position: 'random',
-          respawnable: true,
-          size: [85, 105],
-        },
-        {
-          type: Types.Entity.Yeti,
-          amount: 1,
-          position: 'random',
-          respawnable: true,
-          respawnTime: [60 * 7, 60 * 17],
-          size: [300, 400],
-          health: 750,
-          isBoss: true,
-          damage: 2,
-          speed: 15,
-        },
-        {
-          type: Types.Entity.IceSpirit,
-          amount: 10,
-          position: 'random',
-          respawnable: true,
-          size: [80, 90],
-        },
-        {
-          type: Types.Entity.IceSpirit,
-          amount: 1,
-          position: 'random',
-          respawnable: true,
-          respawnTime: [60 * 10, 60 * 15],
-          size: [150, 200],
-          health: 500,
-          isBoss: true,
-          damage: 12,
-          speed: 25,
-        },
-        {
-          type: Types.Entity.Chest,
-          amount: 12,
-          position: 'random',
-          respawnable: true,
-        },
-        {
-          type: Types.Entity.Coin,
-          amount: 300,
-          position: 'random',
-          respawnable: true,
-        },
-        {
-          type: Types.Entity.Rock,
-          amount: 4,
-          position: 'random',
-          size: [200, 400],
-        },
-      ],
-    },
-
-    {
-      type: Types.Biome.Ice,
-      pos: [-13000, -12500],
+      pos: [-13000, -15000],
       points: [
         [26000, 0],
         [14500, 11500],
@@ -240,8 +146,8 @@ module.exports = {
         {
           type: Types.Entity.IcePond,
           amount: 1,
-          position: [0, -7500],
-          size: 2000,
+          position: [0, -10000],
+          size: 3000,
         },
         /*
         {
@@ -267,6 +173,18 @@ module.exports = {
           size: [85, 105],
         },
         {
+          type: Types.Entity.Yeti,
+          amount: 1,
+          position: 'random',
+          respawnable: true,
+          respawnTime: [60 * 7, 60 * 17], // 10-30 minutes
+          size: [300, 400],
+          health: 750,
+          isBoss: true,
+          damage: 4,
+          speed: 20,
+        },
+        {
           type: Types.Entity.Chest,
           amount: 20,
           position: 'random',
@@ -289,12 +207,12 @@ module.exports = {
 
     {
       type: Types.Biome.Earth,
-      pos: [-15000, -10500],
+      pos: [-15000, -13000],
       points: [
         [11500, 11500],
         [13500, 16500],
-        [13500, 25500],
-        [0, 25500],
+        [13500, 28000],
+        [0, 28000],
         [0, 0],
       ],
       objects: [
@@ -313,7 +231,7 @@ module.exports = {
         {
           type: Types.Entity.Pond,
           amount: 1,
-          position: [-10000, 7500],
+          position: [-10000, 5000],
           size: 4500,
         },
         /*
@@ -396,35 +314,16 @@ module.exports = {
           swordSize: 100,
           boulderSize: 200,
         },
-        {
-          type: Types.Entity.IceSpirit,
-          amount: 10,
-          position: 'random',
-          respawnable: true,
-          size: [80, 90],
-        },
-        {
-          type: Types.Entity.IceSpirit,
-          amount: 1,
-          position: 'random',
-          respawnable: true,
-          respawnTime: [60 * 10, 60 * 15],
-          size: [150, 200],
-          health: 500,
-          isBoss: true,
-          damage: 12,
-          speed: 25,
-        },
       ],
     },
 
     {
       type: Types.Biome.Fire,
-      pos: [15000, -10500],
+      pos: [15000, -13000],
       points: [
         [0, 0],
-        [0, 25500],
-        [-13500, 25500],
+        [0, 28000],
+        [-13500, 28000],
         [-13500, 16500],
         [-11500, 11500],
       ],
@@ -444,7 +343,7 @@ module.exports = {
         {
           type: Types.Entity.LavaPool,
           amount: 1,
-          position: [9000, 6500],
+          position: [9000, 4000],
           size: 5000,
         },
         {
@@ -463,28 +362,9 @@ module.exports = {
           size: [500, 600],
           health: 1000,
           isBoss: true,
-          damage: 15,
+          damage: 20,
           rotationSpeed: 5,
           fireballSize: 100,
-        },
-        {
-          type: Types.Entity.IceSpirit,
-          amount: 10,
-          position: 'random',
-          respawnable: true,
-          size: [80, 90],
-        },
-        {
-          type: Types.Entity.IceSpirit,
-          amount: 1,
-          position: 'random',
-          respawnable: true,
-          respawnTime: [60 * 10, 60 * 15],
-          size: [150, 200],
-          health: 500,
-          isBoss: true,
-          damage: 12,
-          speed: 25,
         },
         {
           type: Types.Entity.Rock,

@@ -165,34 +165,26 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
             formattingFn={(s) => `${((s % 3600) / 60).toFixed(0)}m ${(s % 60).toFixed(0)}s`}
           />
         </div>
-
-        <div className="info">
-          <div className="title">Snowtokens:</div>
-          <CountUp
-            end={calculateGemsXP(results.coins, results.kills, results.tokens).tokens}
-            duration={3}
-          />
-        </div>
         { isLoggedIn && (
           <>
         <div className="info">
           <div className="title">Gems Gained</div>
           <CountUp
-            end={calculateGemsXP(results.coins, results.kills, results.tokens).gems}
+            end={calculateGemsXP(results.coins, results.kills, 0).gems}
             duration={3}
           />
         </div>
         <div className="info">
           <div className="title">XP Gained</div>
           <CountUp
-            end={calculateGemsXP(results.coins, results.kills, results.tokens).xp}
+            end={calculateGemsXP(results.coins, results.kills, 0).xp}
             duration={3}
           />
         </div>
         <div className="info">
           <div className="title">Mastery Earned</div>
           <CountUp
-            end={calculateGemsXP(results.coins, results.kills, results.tokens).mastery}
+            end={calculateGemsXP(results.coins, results.kills, 0).mastery}
             duration={3}
           />
         </div>

@@ -8,6 +8,7 @@ class CoinCounter extends HudComponent {
   lastTokens = 0;
   lastUltimacy = 0;
   hasEverHadSnowWalker = false; // Toggle: true after SnowWalker evolution, false after player dies
+  showTokens = false; // Toggle: set to true to show tokens for seasonal events
   style: Phaser.Types.GameObjects.Text.TextStyle = {
     fontStyle: 'bold',
     stroke: '#000000',
@@ -41,10 +42,16 @@ class CoinCounter extends HudComponent {
     this.tokenImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight + 3, 'token').setOrigin(0, 0);
     this.tokenImg.displayHeight = this.coinImg.displayHeight;
     this.tokenImg.displayWidth = this.coinImg.displayWidth;
-    this.stabImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight * 2 + 6, 'kill').setOrigin(0, 0);
+    this.tokenImg.setVisible(this.showTokens);
+
+    // Position kills and ultimacy based on whether tokens are shown
+    const killsYOffset = this.showTokens ? this.coinImg.displayHeight * 2 + 6 : this.coinImg.displayHeight + 3;
+    const ultimacyYOffset = this.showTokens ? this.coinImg.displayHeight * 3 + 9 : this.coinImg.displayHeight * 2 + 6;
+
+    this.stabImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + killsYOffset, 'kill').setOrigin(0, 0);
     this.stabImg.displayHeight = this.coinImg.displayHeight;
     this.stabImg.displayWidth = this.coinImg.displayWidth;
-    this.ultimacyImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight * 3 + 9, 'mastery').setOrigin(0, 0);
+    this.ultimacyImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + ultimacyYOffset, 'mastery').setOrigin(0, 0);
     this.ultimacyImg.displayHeight = this.coinImg.displayHeight;
     this.ultimacyImg.displayWidth = this.coinImg.displayWidth;
     this.textObj = new Phaser.GameObjects.Text(this.game, this.coinImg.displayWidth + 5, indent * 0, '', this.style);
@@ -123,9 +130,13 @@ class CoinCounter extends HudComponent {
         const currentCoins = Math.floor(Phaser.Math.Interpolation.Linear([fromCoins, toCoins], progress));
         const currentTokens = Math.floor(Phaser.Math.Interpolation.Linear([fromTokens, toTokens], progress));
         const currentUltimacy = Math.floor(Phaser.Math.Interpolation.Linear([fromUltimacy, toUltimacy], progress));
-        this.textObj.text = `${currentCoins}\n${currentTokens}\n${kills}\n${currentUltimacy}`;
+        if (this.showTokens) {
+          this.textObj.text = `${currentCoins}\n${currentTokens}\n${kills}\n${currentUltimacy}`;
+        } else {
+          this.textObj.text = `${currentCoins}\n${kills}\n${currentUltimacy}`;
+        }
 
-        if (hasBonusTokens) {
+        if (hasBonusTokens && this.showTokens) {
           this.tokenTextObj.text = `${currentTokens}`;
         }
       },
@@ -135,14 +146,18 @@ class CoinCounter extends HudComponent {
     this.lastTokens = tokens;
     this.lastUltimacy = newUltimacy;
   } else {
-    this.textObj.text = `${coins}\n${tokens}\n${kills}\n${newUltimacy}`;
+    if (this.showTokens) {
+      this.textObj.text = `${coins}\n${tokens}\n${kills}\n${newUltimacy}`;
+    } else {
+      this.textObj.text = `${coins}\n${kills}\n${newUltimacy}`;
+    }
 
-    if (hasBonusTokens) {
+    if (hasBonusTokens && this.showTokens) {
       this.tokenTextObj.text = `${tokens}`;
     }
   }
 
-  if (hasBonusTokens) {
+  if (hasBonusTokens && this.showTokens) {
     this.tokenTextObj.setVisible(true);
     this.tokenTextObj.setColor('#00ffff');
     this.tokenMultiplierLabel.setVisible(true);

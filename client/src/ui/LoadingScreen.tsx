@@ -18,7 +18,7 @@ function LoadingScreen({ progress }: any) {
   useEffect(() => {
     let imageLoaded = false;
     const img = new Image();
-    img.src = '/assets/LoadingScreen-winter.png';
+    img.src = '/assets/LoadingScreen.png';
 
     img.onload = () => {
       imageLoaded = true;
@@ -89,8 +89,8 @@ function LoadingScreen({ progress }: any) {
       className="loading-screen"
       style={{
         opacity,
-        backgroundColor: "#003464",
-        backgroundImage: (useBackgroundImage && backgroundLoaded) ? "url('/assets/LoadingScreen-winter.png')" : "none",
+        backgroundColor: "#006400",
+        backgroundImage: (useBackgroundImage && backgroundLoaded) ? "url('/assets/LoadingScreen.png')" : "none",
         backgroundRepeat: "repeat",
         backgroundSize: "1024px 1024px",
         zIndex: 1000
@@ -105,7 +105,7 @@ function LoadingScreen({ progress }: any) {
         </div>
 
         {stuckVisible && (
-          <p style={{color: 'black'}}>Stuck at 98%? Try refreshing or interacting with the page</p>
+          <p style={{color: 'white'}}>Stuck at 98%? Try refreshing or interacting with the page</p>
         )}
       </div>
     </div>

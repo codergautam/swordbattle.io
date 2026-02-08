@@ -6,12 +6,11 @@ export default function ChangelogCard() {
   return (
     <span>
       <h1>News and Updates</h1>
-      <h2 style={{color: '#75bcffff'}}>Winter Update</h2>
-      <ul>- 10 new winter evolutions!</ul>
-      <ul>- Winter Event Skins & Skin Sale</ul>
-      <ul>- 2 new monthly evolutions</ul>
-      <ul>- Winter graphics & improvements</ul>
-      <ul>- New Currency: Snowtokens</ul>
+      <h2 style={{color: 'rgb(255, 173, 173)'}}>February Skin Update</h2>
+      <ul style={{color: 'rgb(255, 252, 59)'}}>- Note: Snowtokens will be converted to other tokens for later events</ul>
+      <ul>- 22 new skins!</ul>
+      <ul>- New trees!</ul>
+      <ul>- Bigger updates coming soon!</ul>
 
       <a href="/changelog.html" target="_blank" rel="noopener noreferrer" className="changelogbutton">
         <FontAwesomeIcon icon={faClipboardList} /> View Changelog

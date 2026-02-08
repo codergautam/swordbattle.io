@@ -568,8 +568,8 @@
       "bodyFileName": "determinedPlayer.png",
       "description": "I. Need. Coins."
     },
-    "tiger": {
-      "name": "tiger",
+    "tigerogex": {
+      "name": "tigerogex",
       "displayName": "Tiger OG",
       "id": 42,
       "buyable": false,
@@ -768,8 +768,8 @@
       "bodyFileName": "killerbotPlayer.png",
       "description": "Makes your opponents wish they were fighting an actual bot"
     },
-    "comic": {
-      "name": "comic",
+    "comicogex": {
+      "name": "comicogex",
       "displayName": "Comic OG",
       "id": 62,
       "buyable": false,
@@ -1478,8 +1478,8 @@
       "bodyFileName": "angelPlayer.png",
       "description": "The best at PVP. Ever."
     },
-    "starhog": {
-      "name": "starhog",
+    "starhogogex": {
+      "name": "starhogogex",
       "displayName": "Starhog OG",
       "id": 137,
       "buyable": false,
@@ -1508,8 +1508,8 @@
       "bodyFileName": "fishPlayer.png",
       "description": "C'est un poisson!"
     },
-    "shuriken": {
-      "name": "shuriken",
+    "shurikenogex": {
+      "name": "shurikenogex",
       "displayName": "Shuriken OG",
       "id": 140,
       "buyable": false,
@@ -1708,8 +1708,8 @@
       "bodyFileName": "cylinderPlayer.png",
       "description": "Its 3D. Its just better like that."
     },
-    "solarsystem": {
-      "name": "solarsystem",
+    "solarsystemogex": {
+      "name": "solarsystemogex",
       "displayName": "Solar System OG",
       "id": 161,
       "buyable": false,
@@ -3257,14 +3257,15 @@
       "original": 187
     },
     "antimagma": {
+      "sale": true,
       "name": "antimagma",
       "displayName": "Anti-Magma",
       "id": 328,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedAntimagmaSword.png",
-      "bodyFileName": "unreleasedAntimagmaPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 1750,
+      "swordFileName": "antimagmaSword.png",
+      "bodyFileName": "antimagmaPlayer.png",
+      "description": "Even hotter than magma, but also colder than ice."
     },
     "fractal": {
       "name": "fractal",
@@ -3347,102 +3348,111 @@
       "original": 336
     },
     "jagged": {
+      "sale": true,
       "name": "jagged",
       "displayName": "Jagged",
       "id": 338,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedJaggedSword.png",
-      "bodyFileName": "unreleasedJaggedPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 7777,
+      "swordFileName": "jaggedSword.png",
+      "bodyFileName": "jaggedPlayer.png",
+      "description": "Every part is as sharp as can be..."
     },
     "nugget": {
+      "sale": true,
       "name": "nugget",
       "displayName": "Nugget",
       "id": 339,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedNuggetSword.png",
-      "bodyFileName": "unreleasedNuggetPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 100,
+      "swordFileName": "nuggetSword.png",
+      "bodyFileName": "nuggetPlayer.png",
+      "description": "Too processed to be called a “chicken” nugget."
     },
     "bamboo": {
+      "sale": true,
       "name": "bamboo",
       "displayName": "Bamboo",
       "id": 340,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedBambooSword.png",
-      "bodyFileName": "unreleasedBambooPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 3000,
+      "swordFileName": "bambooSword.png",
+      "bodyFileName": "bambooPlayer.png",
+      "description": "Sturdy enough to fight with"
     },
     "soda": {
+      "sale": true,
       "name": "soda",
       "displayName": "Soda",
       "id": 341,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedSodaSword.png",
-      "bodyFileName": "unreleasedSodaPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 2000,
+      "swordFileName": "sodaSword.png",
+      "bodyFileName": "sodaPlayer.png",
+      "description": "A refreshing drink to have after a long battle!"
     },
     "magev2": {
+      "sale": true,
       "name": "magev2",
-      "displayName": "Mage",
+      "displayName": "Stealthmage",
       "id": 342,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedMageSword.png",
-      "bodyFileName": "unreleasedMagePlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 20000,
+      "swordFileName": "stealthmageSword.png",
+      "bodyFileName": "stealthmagePlayer.png",
+      "description": "Only use your magic when you need it most..."
     },
     "tumbleweed": {
+      "sale": true,
       "name": "tumbleweed",
       "displayName": "Tumbleweed",
       "id": 343,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedTumbleweedSword2.png",
-      "bodyFileName": "unreleasedTumbleweedPlayer2.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 40000,
+      "swordFileName": "tumbleweedSword.png",
+      "bodyFileName": "tumbleweedPlayer.png",
+      "description": "Tumble into battle!"
     },
     "sugar": {
+      "sale": true,
       "name": "sugar",
       "displayName": "Sugar",
       "id": 344,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedSugarSword.png",
-      "bodyFileName": "unreleasedSugarPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 850,
+      "swordFileName": "sugarSword.png",
+      "bodyFileName": "sugarPlayer.png",
+      "description": "Don't eat too much"
     },
     "bolt": {
+      "sale": true,
       "name": "bolt",
       "displayName": "Bolt",
       "id": 345,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedBoltSword.png",
-      "bodyFileName": "unreleasedBoltPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 1500,
+      "swordFileName": "boltSword.png",
+      "bodyFileName": "boltPlayer.png",
+      "description": "Strike so fast, you'll leave all your enemies shocked!"
     },
     "sloth": {
+      "sale": true,
       "name": "sloth",
       "displayName": "Sloth",
       "id": 346,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedSlothSword.png",
-      "bodyFileName": "unreleasedSlothPlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 4000,
+      "swordFileName": "slothSword.png",
+      "bodyFileName": "slothPlayer.png",
+      "description": "Slow and steady wins the race"
     },
     "arcticsoldier": {
       "sale": true,
       "name": "arcticsoldier",
       "displayName": "Arctic Soldier",
       "id": 348,
-      "buyable": false,
-      "price": 0,
+      "buyable": true,
+      "price": 8000,
       "swordFileName": "arcticsoldierSword.png",
       "bodyFileName": "arcticsoldierPlayer.png",
       "description": "Even in the coldest weather, you must finish the fight"
@@ -3458,14 +3468,18 @@
       "description": "Throw snowballs and swords at the same time!"
     },
     "blackhole": {
+      "sale": true,
+      "ultimate": true,
+      "tag": "Ultimate Solar System",
+      "original": 509,
       "name": "blackhole",
       "displayName": "Black Hole",
       "id": 350,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedBlackholeSword.png",
-      "bodyFileName": "unreleasedBlackholePlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 400000,
+      "swordFileName": "blackholeSword.png",
+      "bodyFileName": "blackholePlayer.png",
+      "description": "Why have a solar system, when you can have a GALAXY?!"
     },
     "haunted": {
       "ultimate": true,
@@ -3524,14 +3538,15 @@
       "original": 180
     },
     "turtle": {
+      "sale": true,
       "name": "turtle",
       "displayName": "Turtle",
       "id": 356,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedTurtleSword.png",
-      "bodyFileName": "unreleasedTurtlePlayer.png",
-      "description": "Not available for sale."
+      "buyable": true,
+      "price": 15000,
+      "swordFileName": "turtleSword.png",
+      "bodyFileName": "turtlePlayer.png",
+      "description": "The true tank"
     },
     "leader": {
       "name": "leader",
@@ -4568,6 +4583,108 @@
       "swordFileName": "botterSword.png",
       "bodyFileName": "botterPlayer.png",
       "description": "The middle ground between a pro hacker and a jobless loser"
+    },
+    "pufferfish": {
+      "sale": true,
+      "name": "pufferfish",
+      "displayName": "Pufferfish",
+      "id": 502,
+      "buyable": true,
+      "price": 3750,
+      "swordFileName": "pufferfishSword.png",
+      "bodyFileName": "pufferfishPlayer.png",
+      "description": "Don't get too close or you might get pricked!"
+    },
+    "geode": {
+      "sale": true,
+      "name": "geode",
+      "displayName": "Geode",
+      "id": 503,
+      "buyable": true,
+      "price": 6000,
+      "swordFileName": "geodeSword.png",
+      "bodyFileName": "geodePlayer.png",
+      "description": "Went looking for coins and found gems instead!"
+    },
+    "starhog v2": {
+      "sale": true,
+      "name": "starhog v2",
+      "displayName": "Starhog",
+      "id": 504,
+      "buyable": true,
+      "price": 30000,
+      "swordFileName": "starhogv2Sword.png",
+      "bodyFileName": "starhogv2Player.png",
+      "description": "A hog in space doesn't seem right..."
+    },
+    "andromeda": {
+      "sale": true,
+      "ultimate": true,
+      "tag": "Ultimate Starhog",
+      "original": 504,
+      "name": "andromeda",
+      "displayName": "Andromeda",
+      "id": 505,
+      "buyable": true,
+      "price": 2000000,
+      "swordFileName": "ultimateStarhogSword.png",
+      "bodyFileName": "ultimateStarhogPlayer.png",
+      "description": "Trillions of stars, trillions of planets, trillions of fates to be decided..."
+    },
+    "tiger v2": {
+      "sale": true,
+      "name": "tiger v2",
+      "displayName": "Tiger",
+      "id": 506,
+      "buyable": true,
+      "price": 500,
+      "swordFileName": "tigerv2Sword.png",
+      "bodyFileName": "tigerv2Player.png",
+      "description": "Don't get in the way of its claws..."
+    },
+    "comic v2": {
+      "sale": true,
+      "name": "comic v2",
+      "displayName": "Comic",
+      "id": 507,
+      "buyable": true,
+      "price": 1250,
+      "swordFileName": "comicv2Sword.png",
+      "bodyFileName": "comicv2Player.png",
+      "description": "POW! BAM! WOW!"
+    },
+    "shuriken v2": {
+      "sale": true,
+      "name": "shuriken v2",
+      "displayName": "Shuriken",
+      "id": 508,
+      "buyable": true,
+      "price": 50000,
+      "swordFileName": "shurikenv2Sword.png",
+      "bodyFileName": "shurikenv2Player.png",
+      "description": "More than one edge."
+    },
+    "solar system v2": {
+      "sale": true,
+      "name": "solar system v2",
+      "displayName": "Solar System",
+      "id": 509,
+      "buyable": true,
+      "price": 100000,
+      "swordFileName": "solarsystemv2Sword.png",
+      "bodyFileName": "solarsystemv2Player.png",
+      "description": "The universe is at your fingertips..."
+    },
+    "diamond v2": {
+      "sale": true,
+      "name": "diamond v2",
+      "displayName": "Diamond",
+      "id": 510,
+      "buyable": true,
+      "price": 80000,
+      "swordFileName": "diamondSword.png",
+      "bodyFileName": "diamondPlayer.png",
+      "description": "Diamond sword? Where have I heard that before..."
     }
   }
 }

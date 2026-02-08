@@ -586,18 +586,10 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
-        if (!skin.event &&
-      !skin.og &&
-      !skin.ultimate &&
-      !skin.eventoffsale &&
-      (skin.price ?? 0) > 0 &&
-      skin.buyable &&
-      !(skin.description || '').includes('Given') &&
-      !skin.currency) {
-        // if (skin.sale) return false;
-        return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
-      }
-        return false;
+        if (!todaysGlobalSkinList.includes(skin.id)) return false;
+        if (skin.sale) return false; {
+          return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+        }
       }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
         const skin = skinData as Skin;
         return (

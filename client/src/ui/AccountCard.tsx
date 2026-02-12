@@ -17,9 +17,9 @@ export default function AccountCard({account, onLogin, onSignup}: {account: Acco
         <br />
         <div className="stats"><ValueCnt scale={0.4} value={account.gems} img={GemImg}/>
         </div>
-        <br />
+        {/* <br />
         <div className="stats"><ValueCnt scale={0.4} value={account.tokens} img={SnowtokenImg}/>
-        </div>
+        </div> */}
         <br />
         <div className="stats"><ValueCnt scale={0.4} value={account.mastery} img={UltimacyImg}/>
     

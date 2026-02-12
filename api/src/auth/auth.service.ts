@@ -38,10 +38,18 @@ export class AuthService {
 
 
   async secretLogin(data: SecretLoginDTO) {
+    if (!data.secret || data.secret.trim().length === 0) {
+      throw new UnauthorizedException('Invalid secret');
+    }
+
     let account;
     try {
       account = await this.accountsService.findOne({ where: { secret: data.secret } });
     } catch (e) {
+      throw new UnauthorizedException('User does not exist');
+    }
+
+    if (!account) {
       throw new UnauthorizedException('User does not exist');
     }
 
@@ -195,6 +203,9 @@ export class AuthService {
   }
 
   async getAccountFromSecret(secret: string) {
+    if (!secret || secret.trim().length === 0) {
+      return null;
+    }
     const account = await this.accountsService.findOne({ where: { secret } });
     return account;
   }

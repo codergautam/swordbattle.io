@@ -58,17 +58,7 @@ export class AccountsService {
     return accounts;
   }
 
-  async findStatOfAll(where: FindOneOptions<Account>, stat: keyof Account): Promise<number> {
-    const accounts = await this.findAll(where);
-    return accounts.reduce((total, account) => {
-      const value = account[stat];
-      return typeof value === 'number' ? total + value : total;
-    }, 0);
-  }
 
-  async findClanMembers(clan: string) {
-    return this.findAll({ where: { clan } });
-  }
 
   async getById(id: number) {
     const account = await this.findOne({ where: { id } });

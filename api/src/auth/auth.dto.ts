@@ -15,5 +15,5 @@ export class LoginDTO {
   @Length(0, Infinity) password: string;
 }
 export class SecretLoginDTO {
-  @Length(0, Infinity) secret: string;
+  @Length(1, Infinity) secret: string;
 }

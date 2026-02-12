@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Req, UseGuards, Query, Body } from '@nestjs/common';
+import { Controller, Get, Param, Post, Req, UseGuards, Body } from '@nestjs/common';
 import { Request } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { AccountsService } from './accounts.service';
@@ -128,13 +128,6 @@ export class AccountsController {
     return { account, totalStats, dailyStats, rank, clan };
   }
 
-  @Get('clanMembers')
-  async getClanMembers(@Query('clan') clan: string) {
-    const members = await this.accountsService.findClanMembers(clan);
-    const memberXP = await this.accountsService.findStatOfAll({where: { clan }}, 'xp');
-
-    return { count: members.length, xp: memberXP, members };
-  }
 
   // Search accounts by username prefix (case-insensitive).
   // Body: { q: string, limit?: number }

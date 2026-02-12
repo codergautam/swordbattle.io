@@ -70,8 +70,6 @@ function App() {
   const [accountReady, setAccountReady] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
-  const [clanMemberCount, setClanMemberCount] = useState(0);
-  const [clanXP, setClanXP] = useState(0);
   const [crazygamesAuthReady, setCrazygamesAuthReady] = useState(false);
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
@@ -722,16 +720,6 @@ function App() {
     }
   }, [dispatch]);
 
-  useEffect(() => {
-  if (account?.clan) {
-    api.get(`${api.endpoint}/profile/clanMembers?clan=${account.clan}`, (data) => {
-      if (data && typeof data.count === 'number') {
-        setClanMemberCount(data.count);
-        setClanXP(data.xp);
-      }
-    });
-  }
-}, [account?.clan]);
 
   useEffect(() => {
     console.log('[DEBUG] Account state changed:', {

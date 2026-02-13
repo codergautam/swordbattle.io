@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Changelog</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Play', Arial, sans-serif;
+      background-image: url('./assets/game/tiles/grass.jpg');
+      background-repeat: repeat;
+      background-attachment: fixed;
+      background-size: auto;
+      transition: background-position 0.1s linear;
+      margin: 0;
+      min-height: 100vh;
+      overflow-y: auto;
+      background-size: 25%;
+    }
+
+    .title {
+      position: relative;
+      margin-bottom: 5px;
+      margin: 5rem auto;
+      background: rgba(221, 238, 221, 0.8);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      border: 10px solid rgb(36, 49, 34);
+      padding: 1.5rem 2.5rem;
+      text-align: center;
+      width: 50%;
+      max-width: 1000px;
+      color: #0000aa
+    }
+
+
+    .title h1 {
+      color: #000000;
+      margin-top: 0;
+      font-size: 2rem;
+      font-weight: 1000;
+      
+    }
+
+    .update {
+      position: relative;
+      margin-bottom: 5px;
+      margin: 5rem auto;
+      background: rgba(193, 224, 241, 0.8);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      border: 10px solid rgb(19, 34, 48);
+      padding: 1.5rem 2.5rem;
+      text-align: center;
+      width: 40%;
+      max-width: 1000px;
+    }
+
+    .update-2 {
+      position: relative;
+      margin-bottom: 5px;
+      margin: 5rem auto;
+      background: rgba(231, 193, 241, 0.8);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      border: 10px solid rgb(48, 19, 47);
+      padding: 1.5rem 2.5rem;
+      text-align: center;
+      width: 40%;
+      max-width: 1000px;
+    }
+
+    .update h2 {
+      transform: translateY(-150px);
+      background: rgba(240, 249, 255, 0.9);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      display: inline-block;
+      margin-bottom: -1rem;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+      font-size: 35px;
+    }
+
+    .update-2 h2 {
+      transform: translateY(-150px);
+      background: rgba(240, 249, 255, 0.9);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      display: inline-block;
+      margin-bottom: -1rem;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+      font-size: 35px;
+    }
+
+    .update-content {
+      text-align: left;
+      transform: translateY(-70px);
+
+      h3 {
+        font-family: 'Quantico', Arial, sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 23.5px;
+        margin-bottom: -0.75rem;
+      }
+
+      .imgs {
+        width: 100%;
+        border-radius: 12px;
+      }
+
+      .indent {
+        margin-left: 3.5rem;
+      }
+
+      .center {
+       text-align: center;
+      }
+    }
+
+    .coming-soon {
+      text-align: left;
+
+      h3 {
+        font-family: 'Quantico', Arial, sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 23.5px;
+        margin-bottom: -0.75rem;
+      }
+    }
+
+    .summary {
+      background: rgba(217, 225, 231, 0.6);
+      border-radius: 18px;
+      padding: 0.5rem 1rem;
+      width: 80%;
+      margin: 1rem auto;
+
+      h3 {
+        text-align: center;
+        font-family: 'Quantico', Arial, sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 21px;
+        margin-bottom: -0.75rem;
+        margin-top: 0.2rem;
+      }
+
+      p {
+        margin-bottom: 5px;
+      }
+    }
+
+  .header-img {
+  background-image: url(/assets/ChangelogJuly-header.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 180px;
+  margin-left: -2.5rem;
+  margin-right: -2.5rem;
+  margin-top: -1.5rem;
+}
+
+.header-img2 {
+  background-image: url(./assets/ChangelogOctober-header.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 180px;
+  margin-left: -2.5rem;
+  margin-right: -2.5rem;
+  margin-top: -1.5rem;
+}
+
+.header-img3 {
+  background-image: url(./assets/ChangelogDecember-header.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 180px;
+  margin-left: -2.5rem;
+  margin-right: -2.5rem;
+  margin-top: -1.5rem;
+}
+
+.back-button {
+  display: block;
+  margin: -4rem auto;
+  padding: 1rem 1.75rem;
+  font-size: 1rem;
+  font-weight: bold;
+  background-color: #60d479da;
+  color: rgb(0, 0, 0);
+  border: 4px solid rgb(33, 83, 37);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.back-button:hover {
+  border: 4px solid rgb(24, 61, 27);
+  background-color: #37aa50;
+}
+  </style>
+</head>
+<body>
+  <div class="title">
+    <h1>Swordbattle.io Changelog</h1>
+    <p>Join the <a href="https://discord.com/invite/9A9dNTGWb9" className="primary-link" target="_blank" rel="nofollow">Swordbattle.io Discord Server</a> to find the changelog for older updates!</p>
+  </div>
+      <button class="back-button" onclick="window.location.href = '../index.html';">
+  Back to Game
+</button>
+<div class="update">
+    <div class="header-img3"></div>
+    <div class="update-header">
+      <h2>Release Notes: December 2025</h2>
+    </div>
+    <div class="update-content">
+      <div class="summary">
+      <h3>What's New?</h3>
+      <p>- <strong>WINTER EVENT</strong>: New winter skins, evolutions, biomes, and more!</p>
+      <p>- <strong>New (Temporary) Currency: Snowtokens!</strong> Use them to buy winter skins.</p>
+      <p>- <strong>10 new winter evolutions!</strong> All winter evolutions double the snowtokens you earn.</p>
+      <p>- <strong>2 new</strong> monthly evolutions!</p>
+      <p>- <strong>Improved graphics!</strong> Seeing under bushes, new snow biome objects, and more!</p>
+      <p>- New winter biomes and mobs!</p>
+      <p>- Winter skin sale!</p>
+      <p>- Other balancing changes and bugfixes</p>
+    </div>
+    <h3>New Content</h3>
+    <p>We've brought back event skins for the winter update, as well as some new winter skins. All winter event skins are purchased with gems as well as <strong>snowtokens</strong>, the new currency! Snowtokens are obtained from killing mobs (especially bosses and ice spirits) and can be doubled by using a winter evolution!</p><p>You can also save thousands of gems during the <strong>Winter Skin Sale</strong> in the shop!</p>
+    <br><br><br><br>
+    <p><strong>10 new winter evolutions</strong>! Info is listed below.</p>
+    </br>
+    <p><strong>- Snow Walker</strong>: Doubles snowtokens earned, and comes with a small healing ability.</p>
+    <p><strong>- Candy Walker</strong>: Gains speed and damage boost after hitting a player, allowing for great combos! Its ability keeps the boost active!</p>
+    <p><strong>- Snowboarder</strong>: Slides around when moving, and can push players away with its ability!</p>
+    <p><strong>- Tree</strong>: Gains speed and damage under trees or snowball mounds. It's ability summons a giant temporary tree to stand under!</p>
+    <p><strong>- Festive</strong>: Comes with 2 orbiting ornaments that deal damage and knockback! Ability boosts rotation speed, movement speed and attack speed!</p>
+    <p><strong>- Snowtrekker</strong>: Slides around even more than the snowboarder, and stops in its tracks with a powerful shockwave when using its ability!</p>
+    <p><strong>- Ice Spike</strong>: Dashes when attacking, making it great for quick combat!</p>
+    <p><strong>- Drifter</strong>: Gains movement speed at lower health! The ability swaps this, making it move faster at higher health instead!</p>
+    <p><strong>- Ice King</strong>: Slows down players on hit, and can speed up itself with its ability!</p>
+    <p><strong>- Icesniper</strong>: Swordthrows stun enemies on hit, or blow them away with the ability</p>
+    <br>
+    <p>In addition to winter evolutions, we've also added <strong>2 new monthly evolutions</strong>:</p>
+    </br>
+    <p><strong>- Colossal</strong>: Grows in size at lower HP, and normalizes its size with the ability</p>
+    <p><strong>- Medic</strong>: Has constant regen and a quick-healing ability to stay at high health!</p>
+    
+  <h3>Coming Soon</h3>
+  <p>More event skins, additional winter evolutions, and evolution skins!</p>
+  </div>
+    </div>
+<div class="update-2">
+  <div class="header-img2"></div>
+   <div class="update-header">
+     <h2 style="color: #770000;">Patch Notes: October 2025</h2>
+   </div>
+   <div class="update-content">
+     <h3 class="center">Scroll down to see full update notes</h3>
+     <div class="summary">
+     <h3>What's New?</h3>
+     <p>- Lumberjacks no longer deal bonus chest damage when multiple people are breaking chests</p>
+     <p>- Bosses now gain damage reduction when multiple people are attacking the boss at once</p>
+     <p style="color: #dd0000;">(Please note that while team-grinding isn't prohibited, it is discouraged, and abuse of teaming could result in the removal of your run)</p>
+     <p>- Replaced "Past Week" on leaderboards with "Past Month"</p>
+     <p>- Game-based leaderboards now only show up to 5 games per player</p>
+     <p>- Text now appears when taking burn damage from lava, reduced damage of lava pools</p>
+     <p>- Striker's lightning can no longer chain to bots</p>
+     <p>- Buffed Fighter's base speed & damage, slightly increased the speed & damage boost when getting hit</p>
+     <p>- Slasher now deals <strong>much</strong> more damage, but still throws swords diagnonally to keep melee playstyle</p>
+     <p>- Increased Rook's HP and regen speed</p>
+     <p>- Super Archer no longer deals bonus mob/chest damage</p>
+     <p>- Other bugfixes and server improvements</p>
+   </div>
+   </div>
+   </div>
+<div class="update">
+    <div class="header-img2"></div>
+    <div class="update-header">
+      <h2>Release Notes: October 2025</h2>
+    </div>
+    <div class="update-content">
+      <div class="summary">
+      <h3>What's New?</h3>
+      <p>- <strong>3 new monthly evolutions</strong>: Slasher, Striker and Plaguebearer!</p>
+      <p>- <strong>New Menu UI!</strong></p>
+      <p>- <strong>Server Improvements</strong> and less lag!</p>
+      <p>- <strong>Balanced Evolutions</strong>, including a rework to fighter!</p>
+      <p>- Players under 500 coins can no longer fight other players!</p>
+      <p>- Evolutions now have custom names for their abilities!</p>
+      <p>- Profiles now show Top 5 Games for coins, playtime and kills</p>
+      <p>- Today's Skins now shows 60 skins instead of 20</p>
+      <p>- Bios now support up to 150 characters, leaderboard tags only go down to #100 again instead of #200</p>
+      <p>- Fixed mobs being able to insta-kill players, as well as other changes and bugfixes</p>
+    </div>
+    <h3>New Content</h3>
+    <p><strong>3 new monthly evolutions</strong>! Info is listed below.</p>
+    </br>
+    <p><strong>- Slasher</strong>: Swings its sword in a wider area. Its ability increases its attack speed and movement speed!</p>
+    <p><strong>- Striker</strong>: An anti-teamer evolution that can attack multiple enemies at once per swing! Players nearby an enemy hit by a Striker will take a percentage of the damage dealt to the original enemy, and will deal additional damage to players nearby! Players in the chain will take decreasing damage per player (75% > 50% > 25%), but the ability makes all nearby players take 100% of the Striker's damage!</p>
+    <p><strong>- Plaguebringer</strong>: Hitting enemies will deal additional poison damage over 1 second! The ability creates a damaging poison field around the plaguebringer!</p>
+    <br>
+    <p>In addition to new evolutions, we've <strong>balanced some evolutions</strong> too, including changes to them:</p>
+    </br>
+    <p>- Rook's ability is now based on your last direction of movement, instead of where you're currently moving</p>
+    <p>- Defender's ability no longer knocks back mobs and bosses, but has double knockback</p>
+    <p>- Super Archer does up to 25% more damage depending on how far a thrown sword has travelled</p>
+    <p>- Fighter now loses speed and damage when out of combat, but gains more damage and speed than before when in combat!</p>
+    <p>- Buffed most of Stalker's base stats</p>
+    <br>
+    <p>We've also added a feature to prevent spawnkilling: players in the spawn can no longer take knockback, and players under 500 coins can't damage other players or take damage from other players (excluding bots)!</p>
+  <h3>Coming Soon</h3>
+  <p>A halloween event, with exclusive skins and currencies!</p>
+  </div>
+    </div>
+<div class="update-2">
+   <div class="header-img"></div>
+    <div class="update-header">
+      <h2>Patch Notes: July 2025</h2>
+    </div>
+    <div class="update-content">
+      <h3 class="center">Scroll down to see full update notes</h3>
+      <div class="summary">
+      <h3>What's New?</h3>
+      <p>- Black chests now properly spawn
+      <p>- Reworked rammer to dash more, and balanced most of the new evolutions
+      <p>- Nerfed speed upgrade but increased base speed
+      <p>- Chests now have more health but some drop more coins than before
+      <p>- Some bosses now spawn a bit faster
+      <p>- Other changes and bugfixes
+    </div>
+    </div>
+    </div>
+  <div class="update">
+    <div class="header-img"></div>
+    <div class="update-header">
+      <h2>Release Notes: July 2025</h2>
+    </div>
+    <div class="update-content">
+      <div class="summary">
+      <h3>What's New?</h3>
+      <p>- <strong>11 new evolutions</strong>! Includes a 3rd "secret" branch of evolutions separate from tank and berserker!</p>
+      <p>- <strong>2 new chests</strong>: The White chest and Black chest!</p>
+      <p>- <strong>Monthly Evolutions</strong>! Every month or so, there will be new experimental evolutions to try!</p>
+      <p>- <strong>Leaderboard Update</strong>: Due to some problems with calculating coins to XP, we've updated all XP stats to be fully accurate!</p>
+      <p>- 20 new skins, a temporary skin sale, and a more polished shop!</p>
+      <p>- 2 new rock types, descriptions for evolutions, and other small bugfixes</p>
+    </div>
+    <h3>New Content</h3>
+    <p><strong>11 new evolutions</strong>! Info is listed below, along with the new evolution tree!</p>
+  </br>
+    <p><strong>- Warrior</strong>: Strong and great for combat. The ability is a mixture of the Tank and Samurai abilities, increasing the player size and speed at the same time!</p>
+    <p><strong>- Lumberjack</strong>: Deals 3x more damage to chests and earns slightly more coins from them. Does less damage to mobs & bosses. Not a good evolution for fighting, but the ability can help with defending against players</p>
+    <p><strong>- Defender</strong>: Doesn't do great damage, but has VERY high health, size, knockback and regen! The ability can knock any threats far, far away!</p>
+    <p><strong>- Fighter</strong>: Great for fast-paced combat. High damage, high speed, and a short-lasting but short-cooldown ability that can be used to quickly get some hits on enemies.</p>
+    <p><strong>- Fisherman</strong>: Thrown swords pull enemies towards you on hit! Using the ability will make MELEE attacks pull in enemies instead!</p>
+    <p><strong>- Stalker</strong>: The same as before with its ability to go invisible, but it now has better stats and evolves from the Vampire!</p>
+    <p><strong>- Rammer</strong>: One of the new monthly evolutions (talked about below). Thrown swords let the player unstoppably ram into anything, and one thrown sword can hit an enemy multiple times!</p>
+    <p><strong>- Juggernaut</strong>: The only evolution to come without an ability, but has high damage, high attack speed, high size, high everything!</p>
+    <p><strong>- Archer</strong>: Only appears after collecting 15k coins without evolving, and gives many buffs to throwing at the cost of low defense</p>
+    <p><strong>- Sniper</strong>: Thrown swords travel faster and farther, and increases the range of sight for the player!</p>
+    <p><strong>- Super Archer</strong>: Hitting players with thrown swords from farther away deals much more damage! The ability cancels all thrown swords and resets the throwing cooldown!</p>
+    <img src="./assets/ChangelogJuly-img1.png" class="imgs">
+    <p>We're also adding a new system for evolutions shown in the image above: <strong>Monthly Evolutions</strong>! Every month or two we'll release 2 new monthly evols to be tested out. Some may even be fully added to the game! They're unlockable at 100k coins, but this value may be changed in the future.</p>
+    <p>For the last evolution news: All evolutions now have descriptions in-game, so everyone now knows what they do! (Also, you can click the text at the top that says "Evolutions" in-game to show/hide the evols!)</p>
+    <br>
+    <p>Besides evolutions, theres also 2 new chests that have been added, the White chest and Black chest! They're both better than Purple chests, with the White chest dropping 10k coins, and the Black chest basically being the White chest, except it drops a bit more coins and has a bit less health.</p>
+  </br>
+  <h3>Changes and Bugfixes</h3>
+  <p>- We've added 20 more skins to the shop, with some of them being on sale (sale ends 7/25)! Besides that, all skins in the shop have realistic previews now!</p>
+  <p class="indent">- Also, you may have noticed event skins and special skins have disappeared from the shop. Do not worry, you still own all of those skins, and they will be coming back! We've just removed them temporarily to make the shop more organized and prepare for new types of cosmetics.</p>
+  <p class="indent">- The "Owned Skins" tab has also disappeared along with event & special skins, but the owned skins button can be toggled back on in settings!</p>
+  <p>- We've also added the mossy and lava rocks from all the way back in early 2024, and this will be accompanied by a small mob update soon</p>
+  </br>
+  <p><strong>XP Leaderboard Update</strong>: This has been an issue since the release of Swordbattle V2 in 2023, but the XP leaderboard has been historically inaccurate due to a miscalculation from V1 to V2 (basically, all coins from V1 were divided by <strong>50</strong> to calculate XP, even though 1 XP is equal to only <strong>20</strong> coins). We've finally decided to fix this, so the XP leaderboard is now how it should be! We've still included "Former XP" on profiles for anyone majorly affected by this update, shown below:</p>
+  <img src="./assets/ChangelogJuly-img2.png" class="imgs">
+  </div>
+  <div class="coming-soon">
+  <h3>Coming Soon</h3>
+  <p>This will most likely be the only significant update for July, but in August we plan to make new types of cosmetics (and a profile update), more integration for clans, and a new biome!</p>
+  </div>
+    </div>
+  <script>
+    window.addEventListener('scroll', function() {
+      const yOffset = window.pageYOffset;
+      document.body.style.backgroundPosition = `0px ${-yOffset * 0.5}px`;
+    });
+  </script>
+</body>
+</html>

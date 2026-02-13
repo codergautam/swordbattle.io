@@ -82,49 +82,35 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
   }, [results]);
 
   const onHomeClick = () => {
-
     function go() {
       onHome();
       game.events.emit('setGameResults', null);
       game.events.emit('startSpectate');
-      }
+    }
 
+    if ((window as any).adBreak) {
+      (window as any).adBreak({
+        type: 'browse',
+        adBreakDone: () => { go(); },
+      });
+    } else {
       go();
-
-    // if((window as any).adBreak) {
-    //   console.log('adBreak');
-    //   (window as any).adBreak({
-    //     type: 'browse',
-    //     adBreakDone: (e: any) => {
-    //       console.log('adBreakDone', e);
-
-    //     },  // always called, unblocks the game logic
-    //   });
-    // }
-
-
+    }
   };
   const onRestartClick = () => {
-    // playVideoAd().then(() => {
-    // game.events.emit('setGameResults', null);
-    // game.events.emit('restartGame');
-    // });
-
     function go() {
-    game.events.emit('setGameResults', null);
-    game.events.emit('restartGame');
+      game.events.emit('setGameResults', null);
+      game.events.emit('restartGame');
     }
-    go();
 
-    // if((window as any).adBreak) {
-    //   console.log('adBreak');
-    //   (window as any).adBreak({
-    //     type: 'next',
-    //     adBreakDone: (e: any) => {
-    //       console.log('adBreakDone', e);
-    //     },  // always called, unblocks the game logic
-    //   });
-    // }
+    if ((window as any).adBreak) {
+      (window as any).adBreak({
+        type: 'next',
+        adBreakDone: () => { go(); },
+      });
+    } else {
+      go();
+    }
   };
 
   return (

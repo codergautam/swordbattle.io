@@ -744,13 +744,14 @@ function App() {
         setGameStarted(true);
         window.phaser_game?.events.emit('startGame', name);
       }
-      // playVideoAd().then(() => {
-      //   go();
-      // }).catch((e) => {
-      //   console.log('Error playing video ad', e);
-      //   go();
-      // });
-      go();
+      if ((window as any).adBreak) {
+        (window as any).adBreak({
+          type: 'start',
+          adBreakDone: () => { go(); },
+        });
+      } else {
+        go();
+      }
     }
   };
 

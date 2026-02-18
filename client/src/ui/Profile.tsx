@@ -54,6 +54,7 @@ export default function Profile() {
   const [isLoading, setLoading] = useState(true);
   const [gameSort, setGameSort] = useState<'coins' | 'kills' | 'playtime'>('coins');
   const [games, setGames] = useState<any[]>([]);
+  const [gamesLoading, setGamesLoading] = useState(false);
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
   useEffect(() => {
@@ -77,22 +78,25 @@ export default function Profile() {
 
   useEffect(() => {
     if (!data?.account) return;
+    setGamesLoading(true);
+    setGames([]);
     api.post(
       `${api.endpoint}/games/fetch?${Date.now()}`,
       {
         sortBy: gameSort,
         timeRange: 'all',
-        limit: 15,
+        limit: 30,
         accountId: data.account.id,
       },
       (res: any) => {
         if (Array.isArray(res)) setGames(res);
         else setGames([]);
+        setGamesLoading(false);
       }
     );
   }, [data?.account, gameSort]);
 
-  const sortedGames = [...(games || [])].sort((a, b) => b[gameSort] - a[gameSort]).slice(0, 5);
+  const sortedGames = [...(games || [])].sort((a, b) => b[gameSort] - a[gameSort]).slice(0, 10);
 
   useEffect(() => {
     const handleResize = () => {
@@ -287,7 +291,7 @@ export default function Profile() {
           <>
           <div className="profile-top-games">
               <div className="profile-top-games__header">
-                <h3>Top 5 Games</h3>
+                <h3>Top 10 Games</h3>
                 <div className="profile-top-games__sort">
                   {sorts.map(({ key, label }) => (
                     <button
@@ -311,12 +315,17 @@ export default function Profile() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedGames.length === 0 && (
+                  {gamesLoading && (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: 'center', color: '#aaa' }}>Loading...</td>
+                    </tr>
+                  )}
+                  {!gamesLoading && sortedGames.length === 0 && (
                     <tr>
                       <td colSpan={5} style={{ textAlign: 'center', color: '#aaa' }}>No games found.</td>
                     </tr>
                   )}
-                  {sortedGames.map((game, idx) => (
+                  {!gamesLoading && sortedGames.map((game, idx) => (
                     <tr key={idx}>
                       <td><b>{idx + 1}</b></td>
                       <td>{numberWithCommas(game.coins)}</td>
@@ -348,7 +357,7 @@ export default function Profile() {
                       </td>
                     </tr>
                   ))}
-                  {sortedGames.length < 5 && sortedGames.length > 0 && (
+                  {!gamesLoading && sortedGames.length < 10 && sortedGames.length > 0 && (
                     <tr>
                       <td colSpan={5} style={{ textAlign: 'center', color: '#aaa' }}>Not enough games</td>
                     </tr>

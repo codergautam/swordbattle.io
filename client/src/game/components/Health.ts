@@ -30,6 +30,9 @@ export class Health {
   hidden = false;
   internalHidden = false;
   alwaysHide = false;
+  private lastDrawnValue = -1;
+  private lastDrawnWidth = -1;
+  private lastDrawnHeight = -1;
 
   constructor(entity: any, options: Partial<HealthOptions> = {}) {
     this.options = Object.assign({}, defaultOptions, options);
@@ -69,6 +72,12 @@ export class Health {
     );
 
     if (this.hidden || this.internalHidden) return;
+
+    const roundedValue = Math.round(this.value * 200) / 200;
+    if (roundedValue === this.lastDrawnValue && width === this.lastDrawnWidth && height === this.lastDrawnHeight) return;
+    this.lastDrawnValue = roundedValue;
+    this.lastDrawnWidth = width;
+    this.lastDrawnHeight = height;
 
     let healthColor = 65280;
     if (this.value < 0.3) {

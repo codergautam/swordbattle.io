@@ -88,6 +88,7 @@ class GameMap {
 
   update(dt) {
     for (const [id, entity] of this.game.entities) {
+      if (entity.isStatic) continue;
       this.processBorderCollision(entity, dt);
     }
 
@@ -287,6 +288,8 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
       throw new Error(`Map height in config is ${config.world.worldHeight}, which differs from ${this.height} calculated from biome definitions`);
     }
     this.shape = Polygon.createFromRectangle(this.x, this.y, this.width, this.height);
+    this.halfWidth = this.width / 2;
+    this.halfHeight = this.height / 2;
   }
 
   processBorderCollision(entity, dt) {

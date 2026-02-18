@@ -3257,7 +3257,6 @@
       "original": 187
     },
     "antimagma": {
-      "sale": true,
       "name": "antimagma",
       "displayName": "Anti-Magma",
       "id": 328,
@@ -3348,7 +3347,6 @@
       "original": 336
     },
     "jagged": {
-      "sale": true,
       "name": "jagged",
       "displayName": "Jagged",
       "id": 338,
@@ -3359,7 +3357,6 @@
       "description": "Every part is as sharp as can be..."
     },
     "nugget": {
-      "sale": true,
       "name": "nugget",
       "displayName": "Nugget",
       "id": 339,
@@ -3370,7 +3367,6 @@
       "description": "Too processed to be called a “chicken” nugget."
     },
     "bamboo": {
-      "sale": true,
       "name": "bamboo",
       "displayName": "Bamboo",
       "id": 340,
@@ -3381,7 +3377,6 @@
       "description": "Sturdy enough to fight with"
     },
     "soda": {
-      "sale": true,
       "name": "soda",
       "displayName": "Soda",
       "id": 341,
@@ -3392,7 +3387,6 @@
       "description": "A refreshing drink to have after a long battle!"
     },
     "magev2": {
-      "sale": true,
       "name": "magev2",
       "displayName": "Stealthmage",
       "id": 342,
@@ -3403,7 +3397,6 @@
       "description": "Only use your magic when you need it most..."
     },
     "tumbleweed": {
-      "sale": true,
       "name": "tumbleweed",
       "displayName": "Tumbleweed",
       "id": 343,
@@ -3414,7 +3407,6 @@
       "description": "Tumble into battle!"
     },
     "sugar": {
-      "sale": true,
       "name": "sugar",
       "displayName": "Sugar",
       "id": 344,
@@ -3425,7 +3417,6 @@
       "description": "Don't eat too much"
     },
     "bolt": {
-      "sale": true,
       "name": "bolt",
       "displayName": "Bolt",
       "id": 345,
@@ -3436,7 +3427,6 @@
       "description": "Strike so fast, you'll leave all your enemies shocked!"
     },
     "sloth": {
-      "sale": true,
       "name": "sloth",
       "displayName": "Sloth",
       "id": 346,
@@ -3447,7 +3437,6 @@
       "description": "Slow and steady wins the race"
     },
     "arcticsoldier": {
-      "sale": true,
       "name": "arcticsoldier",
       "displayName": "Arctic Soldier",
       "id": 348,
@@ -3468,7 +3457,6 @@
       "description": "Throw snowballs and swords at the same time!"
     },
     "blackhole": {
-      "sale": true,
       "ultimate": true,
       "tag": "Ultimate Solar System",
       "original": 509,
@@ -3538,7 +3526,6 @@
       "original": 180
     },
     "turtle": {
-      "sale": true,
       "name": "turtle",
       "displayName": "Turtle",
       "id": 356,
@@ -4585,7 +4572,6 @@
       "description": "The middle ground between a pro hacker and a jobless loser"
     },
     "pufferfish": {
-      "sale": true,
       "name": "pufferfish",
       "displayName": "Pufferfish",
       "id": 502,
@@ -4596,7 +4582,6 @@
       "description": "Don't get too close or you might get pricked!"
     },
     "geode": {
-      "sale": true,
       "name": "geode",
       "displayName": "Geode",
       "id": 503,
@@ -4607,7 +4592,6 @@
       "description": "Went looking for coins and found gems instead!"
     },
     "starhog v2": {
-      "sale": true,
       "name": "starhog v2",
       "displayName": "Starhog",
       "id": 504,
@@ -4618,7 +4602,6 @@
       "description": "A hog in space doesn't seem right..."
     },
     "andromeda": {
-      "sale": true,
       "ultimate": true,
       "tag": "Ultimate Starhog",
       "original": 504,
@@ -4632,7 +4615,6 @@
       "description": "Trillions of stars, trillions of planets, trillions of fates to be decided..."
     },
     "tiger v2": {
-      "sale": true,
       "name": "tiger v2",
       "displayName": "Tiger",
       "id": 506,
@@ -4643,7 +4625,6 @@
       "description": "Don't get in the way of its claws..."
     },
     "comic v2": {
-      "sale": true,
       "name": "comic v2",
       "displayName": "Comic",
       "id": 507,
@@ -4654,7 +4635,6 @@
       "description": "POW! BAM! WOW!"
     },
     "shuriken v2": {
-      "sale": true,
       "name": "shuriken v2",
       "displayName": "Shuriken",
       "id": 508,
@@ -4665,7 +4645,6 @@
       "description": "More than one edge."
     },
     "solar system v2": {
-      "sale": true,
       "name": "solar system v2",
       "displayName": "Solar System",
       "id": 509,
@@ -4676,7 +4655,6 @@
       "description": "The universe is at your fingertips..."
     },
     "diamond v2": {
-      "sale": true,
       "name": "diamond v2",
       "displayName": "Diamond",
       "id": 510,

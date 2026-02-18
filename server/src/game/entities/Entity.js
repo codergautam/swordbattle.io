@@ -76,16 +76,17 @@ class Entity {
   }
 
   collidesWithForbidden(dt, collide = false) {
-    const response = new SAT.Response();
+    if (this.definition.forbiddenBiomes.length === 0 && this.definition.forbiddenEntities.length === 0) return false;
 
     for (const biomeType of this.definition.forbiddenBiomes) {
       for (const biome of this.game.map.biomes) {
         if (biome.type !== biomeType) continue;
 
-        if (biome.shape.collides(this.shape, response)) {
+        Entity._sharedResponse.clear();
+        if (biome.shape.collides(this.shape, Entity._sharedResponse)) {
           if (!collide) return true;
 
-          const mtv = this.shape.getCollisionOverlap(response);
+          const mtv = this.shape.getCollisionOverlap(Entity._sharedResponse);
           if (Types.Groups.Mobs.includes(this.type)) {
             this.velocity.add(mtv.scale(dt));
             this.target = null; // if the this is targeting someone reset the target, coz he reached forbidden zone
@@ -101,15 +102,17 @@ class Entity {
     if (!this.game.entitiesQuadtree) return false;
 
     for (const entityType of this.definition.forbiddenEntities) {
-      const targets = this.game.entitiesQuadtree.get(this.shape.boundary).map(res => res.entity);
-      for (const entity of targets) {
+      const quadtreeResults = this.game.entitiesQuadtree.get(this.shape.boundary);
+      for (const res of quadtreeResults) {
+        const entity = res.entity;
         if (entity.type !== entityType) continue;
 
         const collisionShape = entity.depthZone ? entity.depthZone : entity.shape;
-        if (collisionShape.collides(this.shape, response)) {
+        Entity._sharedResponse.clear();
+        if (collisionShape.collides(this.shape, Entity._sharedResponse)) {
           if (!collide) return true;
 
-          const mtv = this.shape.getCollisionOverlap(response);
+          const mtv = this.shape.getCollisionOverlap(Entity._sharedResponse);
           this.shape.applyCollision(mtv);
         }
       }
@@ -135,8 +138,9 @@ class Entity {
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
     // prevent leaving map
-    this.shape.x = helpers.clamp(this.shape.x, -this.game.map.width / 2, this.game.map.width / 2);
-    this.shape.y = helpers.clamp(this.shape.y, -this.game.map.height / 2, this.game.map.height / 2);
+    const map = this.game.map;
+    this.shape.x = helpers.clamp(this.shape.x, -map.halfWidth, map.halfWidth);
+    this.shape.y = helpers.clamp(this.shape.y, -map.halfHeight, map.halfHeight);
     this.velocity.scale(0.9);
   }
 
@@ -162,5 +166,7 @@ class Entity {
     this.game.removeEntity(this);
   }
 }
+
+Entity._sharedResponse = new SAT.Response();
 
 module.exports = Entity;

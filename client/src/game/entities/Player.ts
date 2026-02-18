@@ -390,6 +390,7 @@ class Player extends BaseEntity {
     });
     particles.setDepth(45);
     particles.setBlendMode(Phaser.BlendModes.ADD);
+    particles.once('complete', () => particles.destroy());
   }
 
   addDamagedParticles() {
@@ -402,6 +403,7 @@ class Player extends BaseEntity {
     });
     particles.setDepth(45);
     particles.setBlendMode(Phaser.BlendModes.ADD);
+    particles.once('complete', () => particles.destroy());
   } catch (e) {
     console.log(e);
   }
@@ -421,6 +423,7 @@ class Player extends BaseEntity {
       });
       particles.setDepth(45);
       particles.setBlendMode(Phaser.BlendModes.ADD);
+      particles.once('complete', () => particles.destroy());
     } catch (e) {
       console.log(e);
     }
@@ -566,9 +569,14 @@ class Player extends BaseEntity {
     }
   }
 
+  abilityParticlesLast: number = 0;
+
   addAbilityParticles() {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
+    const now = Date.now();
+    if (now - this.abilityParticlesLast < 100) return;
+    this.abilityParticlesLast = now;
     try {
     const particles = this.game.add.particles(
       this.container.x + random(-this.body.displayWidth, this.body.displayWidth) * 0.5,
@@ -577,6 +585,7 @@ class Player extends BaseEntity {
       { scale: 0.05, speed: 200, maxParticles: 1 },
     );
     particles.setDepth(45);
+    particles.once('complete', () => particles.destroy());
     if (this.evolution === EvolutionTypes.Plaguebearer && this.abilityActive) {
       this.addPoisonFieldParticles();
     }
@@ -594,7 +603,7 @@ class Player extends BaseEntity {
     this.poisonParticlesLast = now;
 
     try {
-      for (let i = 0; i < 120; i++) {
+      for (let i = 0; i < 30; i++) {
         const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
         const rr = Math.sqrt(Phaser.Math.FloatBetween(0, 1)) * 2000;
         const px = this.container.x + Math.cos(angle) * rr + random(-8, 8);

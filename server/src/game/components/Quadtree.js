@@ -78,9 +78,27 @@ class QuadTree {
   }
 
   get(collisionRect) {
-    const query = this.query(collisionRect);
-    // Remove duplicates
-    return query.filter((item, i) => query.indexOf(item) === i);
+    const seen = new Set();
+    const result = [];
+    this._query(collisionRect, seen, result);
+    return result;
+  }
+
+  _query(collisionRect, seen, result) {
+    if (!rectangleRectangle(this.boundary, collisionRect)) {
+      return;
+    }
+
+    for (const item of this.items) {
+      if (!seen.has(item)) {
+        seen.add(item);
+        result.push(item);
+      }
+    }
+
+    for (const node of this.nodes) {
+      node._query(collisionRect, seen, result);
+    }
   }
 
   query(collisionRect) {

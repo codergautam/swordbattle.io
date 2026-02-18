@@ -47,9 +47,15 @@ class Sword extends BaseEntity {
 
   }
 
+  abilityParticlesLast: number = 0;
+  pullbackParticlesLast: number = 0;
+
   addAbilityParticles() {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
+    const now = Date.now();
+    if (now - this.abilityParticlesLast < 100) return;
+    this.abilityParticlesLast = now;
 
     const width = this.container.displayWidth;
     const height = this.container.displayHeight;
@@ -60,11 +66,15 @@ class Sword extends BaseEntity {
       { scale: 0.05, speed: 200, maxParticles: 1 },
     );
     particles.setDepth(45);
+    particles.once('complete', () => particles.destroy());
   }
 
   addPullbackParticles() {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
+    const now = Date.now();
+    if (now - this.pullbackParticlesLast < 100) return;
+    this.pullbackParticlesLast = now;
 
     const width = this.container.displayWidth;
     const height = this.container.displayHeight;
@@ -72,9 +82,9 @@ class Sword extends BaseEntity {
       this.container.x - (width * this.container.originX + random(-width, width)) / 4,
       this.container.y - (height * this.container.originY + random(-height, height)) / 4,
       'arrowParticle',
-      { scale: 0.05, 
-        speed: 100, 
-        maxParticles: 1, 
+      { scale: 0.05,
+        speed: 100,
+        maxParticles: 1,
         rotate: {
           onEmit: () => {
               return Phaser.Math.FloatBetween(0, 360); // Random rotation in degrees
@@ -82,6 +92,7 @@ class Sword extends BaseEntity {
       },},
     );
     particles.setDepth(45);
+    particles.once('complete', () => particles.destroy());
   }
 
   update(dt: number) {

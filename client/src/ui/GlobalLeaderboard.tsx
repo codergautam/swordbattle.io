@@ -108,7 +108,7 @@ export function GlobalLeaderboard() {
         const topGames: any[] = [];
         gamesByAccount.forEach((games) => {
           const sortedGames = [...games].sort(sortFunc);
-          topGames.push(...sortedGames.slice(0, 5));
+          topGames.push(sortedGames[0]);
         });
 
         topGames.sort(sortFunc);
@@ -282,7 +282,7 @@ export function GlobalLeaderboard() {
             border: '1px solid #b3d9ff',
             color: '#004085'
           }}>
-            <strong>Note:</strong> This leaderboard displays up to only 5 games per player, which can be viewed on the player's profile.
+            <strong>Note:</strong> This leaderboard displays only the best game for each player. Top 10 games can be viewed on the player's profile.
           </div>
         )}
 

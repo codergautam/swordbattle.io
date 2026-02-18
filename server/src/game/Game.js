@@ -11,6 +11,13 @@ const Types = require('./Types');
 const { getBannedIps } = require('../moderation');
 const { filterChatMessage } = helpers;
 
+function hasOwnProperties(obj) {
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) return true;
+  }
+  return false;
+}
+
 class Game {
   constructor() {
     this.entities = new Map();
@@ -22,6 +29,7 @@ class Game {
     this.globalEntities = new GlobalEntities(this);
 
     this.entitiesQuadtree = null;
+    this._removedEntitiesById = new Map();
     this.tps = 0;
 
     this.maxEntities = 10000;
@@ -352,14 +360,14 @@ class Game {
       data.globalEntities = this.globalEntities.getChanges();
     }
     // Delete empty entities object so that we don't send empty payload.
-    if (Object.keys(data.entities).length === 0) {
+    if (!data.entities || !hasOwnProperties(data.entities)) {
       delete data.entities;
     }
-    if (Object.keys(data.globalEntities).length === 0) {
+    if (!data.globalEntities || !hasOwnProperties(data.globalEntities)) {
       delete data.globalEntities;
     }
 
-    if (Object.keys(data).length === 0) {
+    if (!hasOwnProperties(data)) {
       return null;
     }
     return data;
@@ -399,15 +407,19 @@ class Game {
     const changes = {};
     const previousViewport = player.viewportEntityIds;
     const currentViewport = player.getEntitiesInViewport();
-    const allViewportEntities = currentViewport.concat(previousViewport);
-    for (const entityId of allViewportEntities) {
+
+    const previousSet = new Set(previousViewport);
+    const seen = new Set();
+
+    for (const entityId of currentViewport) {
+      if (seen.has(entityId)) continue;
+      seen.add(entityId);
+
       const entity = this.entities.get(entityId);
-      if(!entity) {
-        const removedEntity = [...this.removedEntities].find(e => e.id === entityId);
-        changes[entityId] = {
-          removed: true,
-        };
-        if(removedEntity?.type === Types.Entity.Player && removedEntity?.client?.disconnectReason) {
+      if (!entity) {
+        const removedEntity = this._removedEntitiesById.get(entityId);
+        changes[entityId] = { removed: true };
+        if (removedEntity?.type === Types.Entity.Player && removedEntity?.client?.disconnectReason) {
           changes[entityId].disconnectReasonMessage = removedEntity.client.disconnectReason.message;
           changes[entityId].disconnectReasonType = removedEntity.client.disconnectReason.type;
         }
@@ -415,24 +427,43 @@ class Game {
       }
       if (entity.isStatic) continue;
 
-      entity.state.get(); // updates state
+      const stateData = entity.state.get();
 
-      // If player wasn't it previous viewport, it sends as new entity
-      if (previousViewport.findIndex(id => id === entity.id) === -1) {
-        changes[entity.id] = entity.state.get();
-        // If entity was in previous viewport but it's not in current, it counts as removed entity
-      } else if (currentViewport.findIndex(id => id === entity.id) === -1) {
-        changes[entity.id] = {
-          ...entity.state.getChanges(),
-          removed: true,
-        };
-        // If entity is in both viewports, just send changes
+      if (!previousSet.has(entityId)) {
+        // New entity entering viewport - send full state
+        changes[entity.id] = stateData;
       } else {
+        // Entity in both viewports - send only changes
         if (entity.state.hasChanged()) {
           changes[entity.id] = entity.state.getChanges();
         }
       }
     }
+
+    for (const entityId of previousViewport) {
+      if (seen.has(entityId)) continue;
+      seen.add(entityId);
+
+      // Entity was in previous viewport but not in current
+      const entity = this.entities.get(entityId);
+      if (!entity) {
+        const removedEntity = this._removedEntitiesById.get(entityId);
+        changes[entityId] = { removed: true };
+        if (removedEntity?.type === Types.Entity.Player && removedEntity?.client?.disconnectReason) {
+          changes[entityId].disconnectReasonMessage = removedEntity.client.disconnectReason.message;
+          changes[entityId].disconnectReasonType = removedEntity.client.disconnectReason.type;
+        }
+        continue;
+      }
+      if (entity.isStatic) continue;
+
+      entity.state.get();
+      changes[entity.id] = {
+        ...entity.state.getChanges(),
+        removed: true,
+      };
+    }
+
     return changes;
   }
 
@@ -540,6 +571,7 @@ class Game {
     this.players.delete(entity);
     this.newEntities.delete(entity);
     this.removedEntities.add(entity);
+    this._removedEntitiesById.set(entity.id, entity);
     entity.removed = true;
   }
 
@@ -555,6 +587,7 @@ class Game {
 
     this.newEntities.clear();
     this.removedEntities.clear();
+    this._removedEntitiesById.clear();
     this.globalEntities.cleanup();
   }
 }

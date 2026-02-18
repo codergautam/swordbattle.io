@@ -75,7 +75,7 @@ export function GlobalLeaderboard() {
     const isAllTimeGames = isGames && range === 'all';
     const url = `${api.endpoint}/${isGames ? 'games' : 'stats'}/fetch?${Date.now()}`;
 
-    const limit = isAllTimeGames ? 500 : 100;
+    const limit = isAllTimeGames ? 2000 : 100;
 
     api.post(url, {
       sortBy: type.startsWith('total') ? type.slice(6) : type,

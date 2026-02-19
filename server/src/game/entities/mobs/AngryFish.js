@@ -31,7 +31,7 @@ class AngryFishMob extends Entity {
     this.speed = new Property(40);
     this.damage = new Property(5);
     this.target = null;
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
 
     this.knockbackResistance = new Property(500);
 

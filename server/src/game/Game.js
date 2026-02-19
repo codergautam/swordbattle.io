@@ -81,7 +81,7 @@ class Game {
         }
       }
 
-      if (!entity.targets.includes(targetEntity.type)) continue;
+      if (!entity.targets.has(targetEntity.type)) continue;
 
       response.clear();
       if (targetEntity.shape.collides(entity.shape, response)) {

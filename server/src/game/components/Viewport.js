@@ -6,16 +6,17 @@ class Viewport {
     this.width = width;
     this.height = height;
     this.zoom = new Property(zoom);
+    this._boundary = { x: 0, y: 0, width: 0, height: 0 };
   }
 
   get boundary() {
-    const width = this.width / this.zoom.value;
-    const height = this.height / this.zoom.value;
-    return {
-      x: this.entity.shape.x - width / 2,
-      y: this.entity.shape.y - height / 2,
-      width, height,
-    };
+    const w = this.width / this.zoom.value;
+    const h = this.height / this.zoom.value;
+    this._boundary.x = this.entity.shape.x - w / 2;
+    this._boundary.y = this.entity.shape.y - h / 2;
+    this._boundary.width = w;
+    this._boundary.height = h;
+    return this._boundary;
   }
 }
 

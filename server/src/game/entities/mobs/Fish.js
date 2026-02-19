@@ -29,7 +29,7 @@ class FishMob extends Entity {
     this.health = new Health(20, 7);
     this.speed = new Property(30);
     this.target = null;
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
 
     this.knockbackResistance = new Property(2);
 

@@ -212,6 +212,12 @@ export default class Game extends Phaser.Scene {
       this.soundManager.setVolume(previousVolume); // Restore audio
       this.scene.resume(); // Resume game
     });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        this.game.loop.resetDelta();
+      }
+    });
   }
 
   resize() {
@@ -256,6 +262,8 @@ export default class Game extends Phaser.Scene {
   }
 
 	update(time: number, dt: number) {
+    dt = Math.min(dt, 100);
+
     if (!this.isReady) {
       this.isReady = true;
       window.dispatchEvent(new CustomEvent('assetsLoadProgress', { detail: 1 }));

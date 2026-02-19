@@ -34,7 +34,7 @@ class MooseMob extends Entity {
     this.health = new Health(100, 1);
     this.speed = new Property(8);
     this.target = null;
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
 
     this.knockbackResistance = new Property(999);
 

@@ -2093,7 +2093,7 @@ let bbStack: ByteBuffer[] = [];
 
 function popByteBuffer(): ByteBuffer {
   const bb = bbStack.pop();
-  if (!bb) return { bytes: new Uint8Array(64), offset: 0, limit: 0 };
+  if (!bb) return { bytes: new Uint8Array(1024), offset: 0, limit: 0 };
   bb.offset = bb.limit = 0;
   return bb;
 }

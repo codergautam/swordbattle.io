@@ -10,35 +10,40 @@ class Coin extends BaseEntity {
   createSprite() {
     this.container = this.game.add.sprite(this.shape.x, this.shape.y, 'coin');
     this.container.scale = (this.shape.radius * 2 * this.displayRadius) / this.container.width;
-    this.eatingTween = this.game.tweens.addCounter({
-      from: 0,
-      to: 1,
-      duration: 200,
-      repeat: 0,
-    });
-    this.eatingTween.pause();
     return this.container;
+  }
+
+  private getOrCreateEatingTween(): Phaser.Tweens.Tween {
+    if (!this.eatingTween) {
+      this.eatingTween = this.game.tweens.addCounter({
+        from: 0,
+        to: 1,
+        duration: 200,
+        repeat: 0,
+      });
+      this.eatingTween.pause();
+    }
+    return this.eatingTween;
   }
 
   update(dt: number) {
     super.update(dt);
 
-    if (!this.eatingTween) return;
-
     if (this.removed) {
       const { hunter } = this;
       if (hunter) {
         try {
-        this.eatingTween.resume();
+        const tween = this.getOrCreateEatingTween();
+        tween.resume();
 
         const diffX = hunter.container.x - this.container.x;
         const diffY = hunter.container.y - this.container.y;
         const angle = Math.atan2(diffY, diffX);
-        const value = this.eatingTween.getValue();
+        const value = tween.getValue();
         this.container.x = this.container.x + Math.abs(diffX) * Math.cos(angle) * value;
         this.container.y = this.container.y + Math.abs(diffY) * Math.sin(angle) * value;
 
-        if (!this.eatingTween.isActive()) {
+        if (!tween.isActive()) {
           this.remove();
         }
       } catch (e) {

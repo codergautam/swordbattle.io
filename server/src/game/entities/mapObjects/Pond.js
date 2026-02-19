@@ -31,7 +31,7 @@ class Pond extends Entity {
       [-0.23636363636363636 * this.size, -0.04155844155844156 * this.size],
       [-0.08441558441558442 * this.size, -0.023376623376623377 * this.size],
     ]);
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
 
     this.spawn();
   }

@@ -121,7 +121,9 @@ class Minimap extends HudComponent {
   }
 
   updateGlobalEntities() {
-    for (const entity of Object.values(this.game.gameState.globalEntities)) {
+    const globalEntities = this.game.gameState.globalEntities;
+    for (const id in globalEntities) {
+      const entity = globalEntities[id];
       if (entity.type === EntityTypes.Player) continue;
 
       if (!entity.container) {
@@ -145,10 +147,12 @@ class Minimap extends HudComponent {
     graphics.clear();
     graphics.lineStyle(1, 0x000000);
 
-    const players = this.game.gameState.getPlayers();
+    const globalEntities = this.game.gameState.globalEntities;
     let leader;
     let leaderDotVisible = true;
-    for (const player of players) {
+    for (const id in globalEntities) {
+      const player = globalEntities[id] as any;
+      if (player.type !== EntityTypes.Player) continue;
       const playerX = (player.shape.x - map.x) * this.scaleX;
       const playerY = (player.shape.y - map.y) * this.scaleY;
       const isSelf = player.id === this.game.gameState.self.id;

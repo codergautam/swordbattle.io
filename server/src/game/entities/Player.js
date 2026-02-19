@@ -68,7 +68,7 @@ class Player extends Entity {
     this.inputs = new Inputs();
     this.lastDirectionInput = 3; // down
     this.mouse = null;
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
     this.skin = skins.player.id;
     this.coinShield = 500;
 
@@ -185,26 +185,33 @@ class Player extends Entity {
   }
 
   applyBiomeEffects() {
-    let biomes = [];
     const response = new SAT.Response();
+    let topBiome = null;
+    let topZIndex = -Infinity;
+    let foundSafezone = false;
+
     for (const biome of this.game.map.biomes) {
       if (biome.shape.collides(this.shape, response)) {
-        biomes.push([biome, response]);
         biome.collides(this, response);
+
+        if (biome.type === Types.Biome.Safezone) {
+          foundSafezone = true;
+          if (!this.inSafezone) continue;
+        }
+
+        if (biome.zIndex > topZIndex) {
+          topZIndex = biome.zIndex;
+          topBiome = biome;
+        }
       }
     }
 
-    // excludes safezone if this.inSafezone is false
-    biomes = biomes.filter(([biome]) => biome.type !== Types.Biome.Safezone || this.inSafezone)
-      .sort((a, b) => b.zIndex - a.zIndex);
-    if (biomes[0]) {
-      const biome = biomes[0][0];
-      const response = biomes[0][1];
-      this.biome = biome.type;
-      biome.applyEffects(this, response);
+    if (topBiome) {
+      this.biome = topBiome.type;
+      topBiome.applyEffects(this, response);
     }
 
-    if (!biomes.find(([biome]) => biome.type === Types.Biome.Safezone)) {
+    if (!foundSafezone) {
       this.inSafezone = false;
     }
   }
@@ -426,9 +433,13 @@ class Player extends Entity {
   }
 
   getEntitiesInViewport() {
-    this.viewportEntityIds = this.game.entitiesQuadtree.get(this.viewport.boundary)
-      .map(result => result.entity.id);
-      return this.viewportEntityIds;
+    const results = this.game.entitiesQuadtree.get(this.viewport.boundary);
+    const ids = [];
+    for (let i = 0; i < results.length; i++) {
+      ids.push(results[i].entity.id);
+    }
+    this.viewportEntityIds = ids;
+    return this.viewportEntityIds;
   }
 
   remove(message = 'Server', type = Types.DisconnectReason.Server) {

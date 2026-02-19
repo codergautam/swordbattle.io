@@ -17,7 +17,7 @@ class MossyRock extends Entity {
       [0.2134646962233169 * this.size, -0.5221674876847291 * this.size],
     ]);
     this.density = 3;
-    this.targets.push(...Types.Groups.Obstacles);
+    for (const t of Types.Groups.Obstacles) this.targets.add(t);
 
     this.spawn();
   }

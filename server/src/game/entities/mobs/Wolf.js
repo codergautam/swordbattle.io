@@ -32,7 +32,7 @@ class WolfMob extends Entity {
     this.speed = new Property(22);
     this.damage = new Property(16.5);
     this.target = null;
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
 
     this.knockbackResistance = new Property(3);
 

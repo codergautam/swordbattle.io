@@ -28,7 +28,7 @@ class LavaPool extends Entity {
       [-0.2551440329218107 * this.size, -0.0102880658436214 * this.size],
       [-0.13991769547325103 * this.size, -0.03292181069958848 * this.size],
     ]);
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
 
     this.spawn();
   }

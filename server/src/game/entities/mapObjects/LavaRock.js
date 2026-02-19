@@ -22,7 +22,7 @@ class LavaRock extends Entity {
       [0.10431654676258993 * this.size, 0.11151079136690648 * this.size],
     ]);
     this.shape.angle = 0
-    this.targets.push(...Types.Groups.Obstacles);
+    for (const t of Types.Groups.Obstacles) this.targets.add(t);
 
     this.spawn();
   }

@@ -32,6 +32,11 @@ class Inputs {
       return;
     }
     this.downInputs.push(inputType);
+
+    // up right down left
+    if ([1, 2, 3, 4].includes(inputType) && typeof this.onDirectionInput === 'function') {
+      this.onDirectionInput(inputType);
+    }
   }
 
   inputUp(inputType) {
@@ -43,36 +48,21 @@ class Inputs {
 
   difference(other) {
     const difference = [];
+    const otherSet = new Set(other.downInputs);
+    const thisSet = new Set(this.downInputs);
 
-    const newlyDown = this.downInputs.filter(i => other.downInputs.indexOf(i) < 0);
-    newlyDown.forEach(input => {
-      difference.push({
-        inputType: input,
-        inputDown: true,
-      });
-    });
-
-    const newlyUp = other.downInputs.filter(i => this.downInputs.indexOf(i) < 0);
-    newlyUp.forEach(input => {
-      difference.push({
-        inputType: input,
-        inputDown: false,
-      });
-    });
+    for (const input of this.downInputs) {
+      if (!otherSet.has(input)) {
+        difference.push({ inputType: input, inputDown: true });
+      }
+    }
+    for (const input of other.downInputs) {
+      if (!thisSet.has(input)) {
+        difference.push({ inputType: input, inputDown: false });
+      }
+    }
 
     return difference;
-  }
-
-  inputDown(inputType) {
-    if (this.isInputDown(inputType)) {
-      return;
-    }
-    this.downInputs.push(inputType);
-
-    // up right down left
-    if ([1, 2, 3, 4].includes(inputType) && typeof this.onDirectionInput === 'function') {
-      this.onDirectionInput(inputType);
-    }
   }
 };
 

@@ -11,6 +11,7 @@ const biomesCount = 12;
 class Biome {
   scene: Game;
   container: Phaser.GameObjects.TileSprite | null = null;
+  maskGraphics: Phaser.GameObjects.Graphics | null = null;
   type: BiomeTypes;
   shape: ShapeType;
   viewportSize: { width: number, height: number };
@@ -43,10 +44,10 @@ class Biome {
       case BiomeTypes.Safezone: texture = 'safezone'; break;
     }
 
-    const graphics = this.scene.make.graphics();
-    graphics.fillStyle(0xffffff);
-    this.shape.fillShape(graphics);
-    const mask = new Phaser.Display.Masks.GeometryMask(this.scene, graphics);
+    this.maskGraphics = this.scene.make.graphics();
+    this.maskGraphics.fillStyle(0xffffff);
+    this.shape.fillShape(this.maskGraphics);
+    const mask = new Phaser.Display.Masks.GeometryMask(this.scene, this.maskGraphics);
 
     this.container = containers.pop()!
       .setTexture(texture)

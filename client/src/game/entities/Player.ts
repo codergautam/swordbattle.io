@@ -10,6 +10,8 @@ const {skins} = cosmetics;
 
 const particlePool: Phaser.GameObjects.Sprite[] = [];
 const graphicsPool: Phaser.GameObjects.Graphics[] = [];
+const MAX_PARTICLE_POOL = 200;
+const MAX_GRAPHICS_POOL = 50;
 
 function getParticle(game: Phaser.Scene, key: string) {
   let p = particlePool.pop();
@@ -25,7 +27,11 @@ function getParticle(game: Phaser.Scene, key: string) {
 function releaseParticle(p: Phaser.GameObjects.Sprite) {
   p.setActive(false).setVisible(false);
   p.x = 0; p.y = 0;
-  particlePool.push(p);
+  if (particlePool.length < MAX_PARTICLE_POOL) {
+    particlePool.push(p);
+  } else {
+    p.destroy();
+  }
 }
 
 function getGraphics(game: Phaser.Scene) {
@@ -41,7 +47,11 @@ function getGraphics(game: Phaser.Scene) {
 function releaseGraphics(g: Phaser.GameObjects.Graphics) {
   g.clear();
   g.setActive(false).setVisible(false);
-  graphicsPool.push(g);
+  if (graphicsPool.length < MAX_GRAPHICS_POOL) {
+    graphicsPool.push(g);
+  } else {
+    g.destroy();
+  }
 }
 
 class Player extends BaseEntity {
@@ -78,6 +88,8 @@ class Player extends BaseEntity {
 
   wideSwing: boolean = false;
   poisonParticlesLast: number = 0;
+  private _lastSwordVisible: boolean | null = null;
+  private _lastContainerScale: number = -1;
 
   get survivalTime() {
     return (Date.now() - this.survivalStarted) / 1000;
@@ -244,6 +256,7 @@ class Player extends BaseEntity {
   updateChatMessage() {
     if (!this.messageText) return;
 
+    this.game.tweens.killTweensOf(this.messageText); // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
     const toggle = (show: boolean) => {
       this.game.add.tween({
         targets: this.messageText,
@@ -359,6 +372,7 @@ class Player extends BaseEntity {
     if (show && this.protectionAura.visible && this.protectionAura.alpha >= 0.95) return;
     if (!show && !this.protectionAura.visible) return;
 
+    this.game.tweens.killTweensOf(this.protectionAura);
     if (show) {
       this.protectionAura.setVisible(true);
       this.game.tweens.add({
@@ -433,7 +447,9 @@ class Player extends BaseEntity {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
     try {
-      const allEntities = Object.values(this.game.gameState.entities) as BaseEntity[];
+      const entitiesMap = this.game.gameState.entities;
+      const allEntities: BaseEntity[] = [];
+      for (const id in entitiesMap) allEntities.push(entitiesMap[id] as BaseEntity);
       const maxTargets = 3;
       const maxDistance = 3250;
       const now = Date.now();
@@ -473,7 +489,7 @@ class Player extends BaseEntity {
       }
 
       if (neighbors.length === 0) {
-        const total = 20;
+        const total = fps < 30 ? 8 : 20;
         const sx = this.container.x;
         const sy = this.container.y;
         for (let i = 0; i < total; i++) {
@@ -530,7 +546,8 @@ class Player extends BaseEntity {
         lineG.setBlendMode(Phaser.BlendModes.ADD);
         lineG.setAlpha(1);
 
-        const sparks = Math.max(8, Math.floor(36 / Math.max(1, neighbors.length)));
+        const baseSparks = fps < 30 ? 16 : 36;
+        const sparks = Math.max(4, Math.floor(baseSparks / Math.max(1, neighbors.length)));
         for (let i = 0; i < sparks; i++) {
           const t = sparks === 1 ? 0.5 : (i / (sparks - 1));
           const jitterAlong = Phaser.Math.FloatBetween(-6, 6);
@@ -706,8 +723,7 @@ class Player extends BaseEntity {
       }
     }
 
-    const cursorWorldPos = new Phaser.Geom.Point(pointer.worldX, pointer.worldY);
-    let angle = Phaser.Math.Angle.BetweenPoints(this.container, cursorWorldPos);
+    let angle = Math.atan2(pointer.worldY - this.container.y, pointer.worldX - this.container.x);
     // Round to 2 decimal places
     angle = Math.round(angle * 100) / 100;
 
@@ -725,8 +741,16 @@ class Player extends BaseEntity {
   update(dt: number) {
     super.update(dt);
 
-    this.sword.setVisible(!this.swordFlying);
-    this.container.scale = (this.shape.radius * 2) / this.body.width;
+    const swordVisible = !this.swordFlying;
+    if (this._lastSwordVisible !== swordVisible) {
+      this.sword.setVisible(swordVisible);
+      this._lastSwordVisible = swordVisible;
+    }
+    const newScale = (this.shape.radius * 2) / this.body.width;
+    if (this._lastContainerScale !== newScale) {
+      this.container.scale = newScale;
+      this._lastContainerScale = newScale;
+    }
     this.interpolate(dt);
 
     if (this.abilityActive) {

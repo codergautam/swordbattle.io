@@ -20,7 +20,7 @@ class Entity {
     this.isStatic = false;
     this.isGlobal = false;
     this.depth = 0;
-    this.targets = [];
+    this.targets = new Set();
     this.velocity = new SAT.Vector(0, 0);
     this.state = new State(this.createState.bind(this));
 

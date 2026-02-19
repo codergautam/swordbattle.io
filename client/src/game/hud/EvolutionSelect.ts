@@ -79,7 +79,7 @@ class EvolutionSelect extends HudComponent {
       // this.container.setVisible(count !== 0);
       // this.hideButton?.setVisible(count !== 0);
       // Smooth visibility
-      if(!this.container || !this.hideButton) alert('container or hideButton is null');
+      if(!this.container || !this.hideButton) return;
       if(count === 0 && this.container.visible) {
         this.hud.scene!.tweens.add({
           targets: this.container,

@@ -39,7 +39,7 @@ class Sword extends Entity {
 
     this.proportion = 0.7;
     this.shape = new Polygon(0, 0, [[0, 0]]);
-    this.targets.push(Types.Entity.Player, ...Types.Groups.Mobs);
+    this.targets.add(Types.Entity.Player); for (const t of Types.Groups.Mobs) this.targets.add(t);
     this.pullbackParticles = false;
   }
 
@@ -134,27 +134,44 @@ class Sword extends Entity {
       }
       const offsetX = player.shape.radius - this.size / 2.5;
       const offsetY = -player.shape.radius + this.size / 1.7;
-      const offset = new SAT.Vector(offsetX, offsetY);
+      if (!this._offsetVec) this._offsetVec = new SAT.Vector(0, 0);
+      this._offsetVec.x = offsetX;
+      this._offsetVec.y = offsetY;
 
       this.updateCollisionPoly();
       this.shape.collisionPoly.setAngle(angle);
-      this.shape.collisionPoly.setOffset(offset);
+      this.shape.collisionPoly.setOffset(this._offsetVec);
     }
 
     this.shape.setScale(player.shape.scale);
   }
 
   updateCollisionPoly() {
-    const points = [
-      [0, 0],
-      [-0.14615384615384616 * this.size, -1.7769230769230768 * this.size],
-      [0.34615384615384615 * this.size, -2.4923076923076923 * this.size],
-      [0.8538461538461538 * this.size, -1.7769230769230768 * this.size],
-      [0.7153846153846154 * this.size, -0.015384615384615385 * this.size],
-    ].map(([x, y]) => new SAT.Vector(x, y));
+    const s = this.size;
+    const poly = this.shape.collisionPoly;
+    const points = poly.points;
 
-    const pos = new SAT.Vector(this.player.shape.x, this.player.shape.y);
-    this.shape.collisionPoly = new SAT.Polygon(pos, points);
+    // Reuse existing polygon points if already the right count, otherwise create new
+    if (points.length === 5) {
+      points[0].x = 0; points[0].y = 0;
+      points[1].x = -0.14615384615384616 * s; points[1].y = -1.7769230769230768 * s;
+      points[2].x = 0.34615384615384615 * s; points[2].y = -2.4923076923076923 * s;
+      points[3].x = 0.8538461538461538 * s; points[3].y = -1.7769230769230768 * s;
+      points[4].x = 0.7153846153846154 * s; points[4].y = -0.015384615384615385 * s;
+      poly.pos.x = this.player.shape.x;
+      poly.pos.y = this.player.shape.y;
+      poly._recalc();
+    } else {
+      const newPoints = [
+        new SAT.Vector(0, 0),
+        new SAT.Vector(-0.14615384615384616 * s, -1.7769230769230768 * s),
+        new SAT.Vector(0.34615384615384615 * s, -2.4923076923076923 * s),
+        new SAT.Vector(0.8538461538461538 * s, -1.7769230769230768 * s),
+        new SAT.Vector(0.7153846153846154 * s, -0.015384615384615385 * s),
+      ];
+      const pos = new SAT.Vector(this.player.shape.x, this.player.shape.y);
+      this.shape.collisionPoly = new SAT.Polygon(pos, newPoints);
+    }
   }
 
   updateFlags(dt) {
@@ -349,9 +366,9 @@ processTargetsCollision(entity) {
     if (entity.type === Types.Entity.Player && !skipDamageDueToCoins && this.player.modifiers.chainDamage && !entity.isBot) {
       try { entity.flags.set(Types.Flags.ChainDamaged, entity.id); } catch (err) { /* */ }
 
-      const findClosestPlayer = (center, radius, excludeSet = new Set()) => {
+      const findClosestPlayer = (center, radius, excludeSet) => {
         let closest = null;
-        let minDist = Infinity;
+        let minDistSq = radius * radius;
         const candidates = this.game.entitiesQuadtree
           ? this.game.entitiesQuadtree.get({
               x: center.x - radius,
@@ -372,9 +389,9 @@ processTargetsCollision(entity) {
           ) {
             const dx = candidate.shape.x - center.x;
             const dy = candidate.shape.y - center.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < radius && dist < minDist) {
-              minDist = dist;
+            const distSq = dx * dx + dy * dy;
+            if (distSq < minDistSq) {
+              minDistSq = distSq;
               closest = candidate;
             }
           }

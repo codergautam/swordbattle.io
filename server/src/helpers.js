@@ -39,7 +39,7 @@ module.exports = {
   },
 
   distance(x1, y1, x2, y2) {
-    return Math.sqrt((x2 - x1) ** 2, (y2 - y1) ** 2);
+    return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
   },
 
   clamp(value, min, max) {
@@ -112,6 +112,28 @@ module.exports = {
       .replace(/x{2,}/g, 'x');
   },
 
+  _normalizedBannedCache: null,
+  _getNormalizedBannedCache() {
+    if (!this._normalizedBannedCache) {
+      this._normalizedBannedCache = bannedWords.map(banned => {
+        const normalized = this.normalizeText(banned);
+        return { word: banned, normalized, deduped: normalized.replace(/(.)\1{2,}/g, '$1') };
+      });
+    }
+    return this._normalizedBannedCache;
+  },
+  _normalizedSevereCache: null,
+  _getNormalizedSevereCache() {
+    if (!this._normalizedSevereCache) {
+      this._normalizedSevereCache = severeIndices.map(i => {
+        const word = bannedWords[i];
+        const normalized = this.normalizeText(word);
+        return { word, normalized, deduped: normalized.replace(/(.)\1{2,}/g, '$1') };
+      });
+    }
+    return this._normalizedSevereCache;
+  },
+
   filterChatMessage(message, filter) {
     if (!message || message.length === 0) return { filtered: message, matched: [] };
 
@@ -119,19 +141,17 @@ module.exports = {
     const words = message.toLowerCase().split(/\s+/);
     const matchedWords = [];
 
-    const severeWords = severeIndices.map(i => bannedWords[i]);
+    const bannedCache = module.exports._getNormalizedBannedCache();
+    const severeCache = module.exports._getNormalizedSevereCache();
 
     for (const word of words) {
       const normalized = normalizeText(word);
       const deduped = normalized.replace(/(.)\1{2,}/g, '$1');
 
-      for (const banned of bannedWords) {
-        const normalizedBanned = normalizeText(banned);
-        const dedupedBanned = normalizedBanned.replace(/(.)\1{2,}/g, '$1');
-
-        if (normalized === normalizedBanned || deduped === dedupedBanned) {
-          if (!matchedWords.includes(banned)) {
-            matchedWords.push(banned);
+      for (const entry of bannedCache) {
+        if (normalized === entry.normalized || deduped === entry.deduped) {
+          if (!matchedWords.includes(entry.word)) {
+            matchedWords.push(entry.word);
           }
           break;
         }
@@ -144,22 +164,19 @@ module.exports = {
           .replace(/er$/i, '');
         const strippedDeduped = strippedWord.replace(/(.)\1{2,}/g, '$1');
 
-        if ((strippedWord === normalizedBanned || strippedDeduped === dedupedBanned) && strippedWord.length >= 3) {
-          if (!matchedWords.includes(banned)) {
-            matchedWords.push(banned);
+        if ((strippedWord === entry.normalized || strippedDeduped === entry.deduped) && strippedWord.length >= 3) {
+          if (!matchedWords.includes(entry.word)) {
+            matchedWords.push(entry.word);
           }
           break;
         }
       }
 
-      for (const severe of severeWords) {
-        const normalizedSevere = normalizeText(severe);
-        const dedupedSevere = normalizedSevere.replace(/(.)\1{2,}/g, '$1');
-
-        if (normalized.length >= normalizedSevere.length + 1) {
-          if (normalized.includes(normalizedSevere) || deduped.includes(dedupedSevere)) {
-            if (!matchedWords.includes(severe)) {
-              matchedWords.push(severe);
+      for (const entry of severeCache) {
+        if (normalized.length >= entry.normalized.length + 1) {
+          if (normalized.includes(entry.normalized) || deduped.includes(entry.deduped)) {
+            if (!matchedWords.includes(entry.word)) {
+              matchedWords.push(entry.word);
             }
             break;
           }

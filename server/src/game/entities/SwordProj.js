@@ -24,7 +24,7 @@ class SwordProj extends Entity {
     this.damage = new Property(this.definition.damage);
     this.duration = new Timer(0, this.definition.duration[0], this.definition.duration[1]);
     this.angle = this.definition.angle;
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
     this.knockbackMultiplier = new Property(this.definition.knockbackMultiplier);
 
     this.spawn();

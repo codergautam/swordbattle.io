@@ -1,3 +1,10 @@
+function hasOwnProperties(obj) {
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) return true;
+  }
+  return false;
+}
+
 class State {
   constructor(createFields) {
     this.createFields = createFields;
@@ -68,12 +75,12 @@ class State {
     for (const key in fields) {
       if (Array.isArray(fields[key])) {
         const subChanged = this.getChanges(fields[key], previousFields[key] || []);
-        if (Object.keys(subChanged).length) {
+        if (hasOwnProperties(subChanged)) {
           changes[key] = fields[key];
         }
       } else if (typeof fields[key] === 'object') {
         const subChanges = this.getChanges(fields[key], previousFields[key] || {});
-        if (Object.keys(subChanges).length) {
+        if (hasOwnProperties(subChanges)) {
           changes[key] = subChanges;
         }
       } else if (fields[key] !== previousFields[key]) {

@@ -18,7 +18,7 @@ class Token extends Entity {
     const radius = Math.min(250, 90 + this.value * 10);
 
     this.shape = Circle.create(0, 0, radius);
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
     this.droppedBy = objectData.droppedBy;
 
     // Despawn token after 2 minutes

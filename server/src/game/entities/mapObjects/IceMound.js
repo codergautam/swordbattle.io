@@ -13,7 +13,7 @@ class IceMound extends Entity {
 
     this.isStatic = true;
     this.shape = Circle.create(0, 0, this.size);
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
 
     this.spawn();
   }

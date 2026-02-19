@@ -13,6 +13,7 @@ class Polygon extends Shape {
     this.centerOffset = new SAT.Vector(0.5, 0.5);
     this.scale = 1;
     this.sendPoints = false;
+    this._cachedArea = null;
   }
 
   static createFromPoints(x, y, points) {
@@ -46,18 +47,20 @@ class Polygon extends Shape {
   }
 
   get area() {
+    if (this._cachedArea !== null) return this._cachedArea;
     let area = 0;
     const points = this.collisionPoly.points;
     const numPoints = points.length;
-  
+
     for (let i = 0; i < numPoints; i++) {
       let j = (i + 1) % numPoints;
       area += points[i].x * points[j].y;
       area -= points[j].x * points[i].y;
     }
-  
+
     area /= 2;
-    return Math.abs(area);
+    this._cachedArea = Math.abs(area);
+    return this._cachedArea;
   }
 
   get angle() {
@@ -85,15 +88,18 @@ class Polygon extends Shape {
     }
 
     this.scale = scale;
+    this._cachedArea = null;
   }
 
   getRandomPoint() {
     const bounds = this.boundary;
     const point = new SAT.Vector();
-    while (point.x === 0 || !SAT.pointInPolygon(point, this.collisionPoly)) {
+    let tries = 0;
+    do {
       point.x = helpers.random(bounds.x, bounds.x + bounds.width);
       point.y = helpers.random(bounds.y, bounds.y + bounds.height);
-    }
+      tries++;
+    } while (!SAT.pointInPolygon(point, this.collisionPoly) && tries < 100);
     return point;
   }
 

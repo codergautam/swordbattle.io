@@ -17,7 +17,7 @@ class Coin extends Entity {
     const radius = Math.min(200, 70 + this.value * 7);
 
     this.shape = Circle.create(0, 0, radius);
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
     this.droppedBy = objectData.droppedBy;
 
     // Despawn coin after 2 minutes

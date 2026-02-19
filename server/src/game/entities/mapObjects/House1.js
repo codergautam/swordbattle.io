@@ -15,7 +15,7 @@ class House1 extends Entity {
     this.width = this.definition.width;
     this.height = this.definition.height;
     this.wallThickness = 50;
-    this.targets.push(...Types.Groups.Obstacles);
+    for (const t of Types.Groups.Obstacles) this.targets.add(t);
 
     this.createShape();
     this.spawn();

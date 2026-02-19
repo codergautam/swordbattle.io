@@ -16,7 +16,8 @@ export class Controls {
 
   joystick: any = null;
   joystickPointer: Phaser.Input.Pointer | null = null;
-  disabledKeys: number[];
+  disabledKeys: Set<number> = new Set();
+  private _blurHandler: (() => void) | null = null;
 
   constructor(game: Game) {
     this.game = game;
@@ -71,8 +72,9 @@ export class Controls {
     });
 
 
-    window.addEventListener('blur', () => this.clear());
-    this.disabledKeys = [];
+    this._blurHandler = () => this.clear();
+    window.addEventListener('blur', this._blurHandler);
+    this.disabledKeys = new Set();
   }
 
   update() {
@@ -110,18 +112,16 @@ export class Controls {
   }
 
   disableKeys(keys: number[], append = false) {
-    if(!append) this.disabledKeys = keys;
-    else this.disabledKeys = this.disabledKeys.concat(keys);
-
-    this.disabledKeys = Array.from(new Set(this.disabledKeys));
+    if (!append) this.disabledKeys.clear();
+    for (const key of keys) this.disabledKeys.add(key);
   }
 
   enableKeys(keys: number[]) {
-    this.disabledKeys = this.disabledKeys.filter(key => !keys.includes(key));
+    for (const key of keys) this.disabledKeys.delete(key);
   }
 
   enableAllKeys() {
-    this.disabledKeys = [];
+    this.disabledKeys.clear();
   }
 
   isInputDown(inputType: InputTypes) {
@@ -133,14 +133,14 @@ export class Controls {
   }
 
   inputDown(inputType: InputTypes) {
-    if (this.isInputDown(inputType) || this.disabled || this.disabledKeys.includes(inputType)) {
+    if (this.isInputDown(inputType) || this.disabled || this.disabledKeys.has(inputType)) {
       return;
     }
     this.downInputs.push(inputType);
   }
 
   inputUp(inputType: InputTypes) {
-    if (this.isInputUp(inputType) || this.disabled || this.disabledKeys.includes(inputType)) {
+    if (this.isInputUp(inputType) || this.disabled || this.disabledKeys.has(inputType)) {
       return;
     }
     this.downInputs.splice(this.downInputs.indexOf(inputType), 1);
@@ -148,22 +148,19 @@ export class Controls {
 
   getChanges() {
     const difference: any = [];
+    const prevSet = new Set(this.previousDownInputs);
+    const currSet = new Set(this.downInputs);
 
-    const newlyDown = this.downInputs.filter(i => this.previousDownInputs.indexOf(i) < 0);
-    newlyDown.forEach(input => {
-      difference.push({
-        inputType: input,
-        inputDown: true,
-      });
-    });
-
-    const newlyUp = this.previousDownInputs.filter(i => this.downInputs.indexOf(i) < 0);
-    newlyUp.forEach(input => {
-      difference.push({
-        inputType: input,
-        inputDown: false,
-      });
-    });
+    for (const input of this.downInputs) {
+      if (!prevSet.has(input)) {
+        difference.push({ inputType: input, inputDown: true });
+      }
+    }
+    for (const input of this.previousDownInputs) {
+      if (!currSet.has(input)) {
+        difference.push({ inputType: input, inputDown: false });
+      }
+    }
     this.previousDownInputs = this.downInputs.slice();
     return difference;
   }

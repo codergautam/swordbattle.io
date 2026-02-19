@@ -20,7 +20,7 @@ class IceSpike extends Entity {
       [0.5325301204819277 * this.size, -0.9927710843373494 * this.size],
       [0.15421686746987953 * this.size, -0.5662650602409639 * this.size],
     ]);
-    this.targets.push(...Types.Groups.Obstacles);
+    for (const t of Types.Groups.Obstacles) this.targets.add(t);
 
     this.spawn();
   }

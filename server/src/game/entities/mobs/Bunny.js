@@ -27,7 +27,7 @@ class BunnyMob extends Entity {
     this.health = new Health(30, 2);
     this.speed = new Property(37);
     this.target = null;
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
 
     this.knockbackResistance = new Property(10);
 

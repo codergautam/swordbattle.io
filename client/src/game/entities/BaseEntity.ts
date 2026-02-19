@@ -72,7 +72,7 @@ export class BaseEntity {
 
   update(dt: number) {
     if (!this.container) return;
-    const lerpRate = this.game.gameState.tps / this.game.game.loop.actualFps;
+    const lerpRate = Math.min(this.game.gameState.tps / this.game.game.loop.actualFps, 1);
     this.container.x = Phaser.Math.Linear(this.container.x, this.shape.x, lerpRate);
     this.container.y = Phaser.Math.Linear(this.container.y, this.shape.y, lerpRate);
     if (this.shape.type === ShapeTypes.Polygon) {
@@ -88,7 +88,7 @@ export class BaseEntity {
 
     const targetAngle = (this.constructor as any).basicAngle + this.angle;
     const angleDifference = Phaser.Math.Angle.Wrap(targetAngle - this.body.rotation);
-    const lerpRate = this.game.gameState.tps / this.game.game.loop.actualFps / 10;
+    const lerpRate = Math.min(this.game.gameState.tps / this.game.game.loop.actualFps / 10, 0.1);
     const angleStep = angleDifference * lerpRate;
     this.body.setRotation(this.body.rotation + angleStep);
   }

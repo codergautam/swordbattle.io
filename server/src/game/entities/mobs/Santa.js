@@ -45,7 +45,7 @@ class SantaMob extends Entity {
     this.speed = new Property(this.definition.speed);
     this.damage = new Property(this.definition.isBoss ? this.definition.bossDamage : this.definition.damage);
     this.target = null;
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
 
     this.knockbackResistance = new Property(5);
 

@@ -16,7 +16,7 @@ class Rock extends Entity {
     ]);
     this.shape.angle = helpers.random(-Math.PI, Math.PI);
     this.density = 5;
-    this.targets.push(...Types.Groups.Obstacles);
+    for (const t of Types.Groups.Obstacles) this.targets.add(t);
 
     this.spawn();
   }

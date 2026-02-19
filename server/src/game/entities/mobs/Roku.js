@@ -46,7 +46,7 @@ class RokuMob extends Entity {
 
     this.knockbackResistance = new Property(5);
     this.target = null;
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
 
     // Marked player can deal full damge but other players deal less damage
     this.markedPlayer = null;

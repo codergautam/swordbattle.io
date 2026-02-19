@@ -23,7 +23,7 @@ class Ornament extends Entity {
     this.angle = this.definition.angle || 0;
     this.owner = this.definition.owner;
 
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
     this.collidedPlayers = new Set();
   }
 

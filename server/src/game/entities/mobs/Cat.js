@@ -32,7 +32,7 @@ class CatMob extends Entity {
     this.speed = new Property(30);
     this.damage = new Property(17);
     this.target = null;
-    this.targets.push(Types.Entity.Player);
+    this.targets.add(Types.Entity.Player);
 
     this.knockbackResistance = new Property(2);
 

@@ -138,6 +138,7 @@ class Player extends BaseEntity {
       "cool guy 53": '#0055ff',
       "update testing account": '#00ff00',
       amethystbladeyt: '#7802ab',
+      oyy: '#000000',
     };
 
     const applyNameColor = (hex: string) => {
@@ -256,7 +257,7 @@ class Player extends BaseEntity {
   updateChatMessage() {
     if (!this.messageText) return;
 
-    this.game.tweens.killTweensOf(this.messageText); // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
+    this.game.tweens.killTweensOf(this.messageText);
     const toggle = (show: boolean) => {
       this.game.add.tween({
         targets: this.messageText,

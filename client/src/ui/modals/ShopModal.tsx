@@ -53,7 +53,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   const dispatch = useDispatch();
   const [skinStatus, setSkinStatus] = useState<{ [id: number]: string }>({});
   const [skinCounts, setSkinCounts] = useState<{ [id: number]: number }>({});
-  const [todaysGlobalSkinList, setTodaysGlobalSkinList] = useState<number[]>([]);
+  const [todaysGlobalSkinList, setTodaysGlobalSkinList] = useState<number[] | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedBadge, setSelectedBadge] = useState('norm');
   const [shopDayKey, setShopDayKey] = useState<string>(() => getShopDayKey());
@@ -435,144 +435,8 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {!searchTerm && (
           <>
           <div className='scroll' ref={targetParentRef}>
-        <div className='label'>
-          <div ref={targetElementRef2}></div>
-        <div className='label'>
-        <span>New Skins</span><hr></hr>
-        <p>All new skins from the 2/8 update, always available for a week!</p>
-        </div>
-        <div className='skins'>
-      {Object.values(skins).filter((skinData: any) => {
-        const skin = skinData as Skin;
-        if (!skin.sale) return false;
-        
-        return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
-      }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
-        const skin = skinData as Skin;
-        return (
-        <div className="skin-card" key={skin.name}>
-          <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
-          {skin.ultimate && (
-            <p className='skin-tag'>{skin.tag}</p>
-          )}
-          {skin.sale && (
-            <p className='skin-saletag'>{skin.saletag}</p>
-          )}
-          {skin.event && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-          {skin.eventoffsale && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-
-          {/* Get image width from src */}
-            {(() => {
-            // Create a variable to store the width
-            let imgWidth = 0;
-            const img = new window.Image();
-            img.src = basePath + skin.bodyFileName;
-            img.onload = () => {
-              imgWidth = img.naturalWidth;
-            };
-            // This will not be reactive, but will be used below
-            return null;
-            })()}
-
-            <img
-            src={basePath + skin.bodyFileName}
-            alt={skin.name}
-            ref={(el) => {
-              assignRef(el as HTMLImageElement, index);
-              if (el) {
-              // Get width from the image src instead of el.naturalWidth
-              const tempImg = new window.Image();
-              tempImg.src = basePath + skin.bodyFileName;
-              tempImg.onload = () => {
-                if (tempImg.naturalWidth === 300) {
-                el.className = 'skin-img-large';
-                } else if (tempImg.naturalWidth === 274) {
-                el.className = 'skin-img';
-                } else {
-                el.className = 'skin-img-small';
-                }
-              };
-              }
-            }}
-            data-selected='skin'
-            />
-            <img
-            src={basePath + skin.swordFileName}
-            alt={skin.name}
-           ref={(el) => {
-              assignRef(el as HTMLImageElement, index);
-              if (el) {
-              // Get width from the image src instead of el.naturalWidth
-              const tempImg = new window.Image();
-              tempImg.src = basePath + skin.bodyFileName;
-              tempImg.onload = () => {
-                if (tempImg.naturalWidth === 300) {
-                el.className = 'skin-sword-large';
-                } else if (tempImg.naturalWidth === 274) {
-                el.className = 'skin-sword';
-                } else {
-                el.className = 'skin-sword-small';
-                }
-              };
-              }
-            }}
-            data-selected='skin'
-            />
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-          <br/>
-          <span className='skin-desc'>{skin.description}</span>
-          {
-  (skin?.price ?? 0) > 0 ? (
-    <>
-      {skin?.sale 
-        && <> <span className="sale">
-        {skin?.ogprice}
-      </span><span>‎ ‎ ‎</span> </>
-      }
-      {skin?.price} 
-      {skin?.ultimate 
-        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
-        : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
-      }
-    </>
-  ) : (
-    <>
-      <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
-      {skin?.sale 
-        && <> <span className="sale">
-        {skin?.ogprice}
-      </span><span>‎ ‎ ‎</span> </>
-      }
-        {skin?.ultimate ? (
-  <>
-    {skin.buyable ? '0' : ''}
-    <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
-  </>
-) : (
-  skin?.buyable ? 'Free' : ''
-)}
-      </p>
-    </>
-  )
-}
-          </h4>
-          {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
-  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
-    {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
-      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
-  </button>
-))}
-        </div>
-      )
-      }
-      )}
-      </div>
-      <br /><br /><br /><br /><br /><br /><br /><br />
         <div ref={targetElementRef1}></div>
+        <div className='label'>
         <span>Today's Skins</span><hr></hr>
         {(() => {
           const ms = timeUntilResetMs;
@@ -582,11 +446,15 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           if (hours >= 1) return <p>Resets in {hours} hour{hours > 1 ? 's' : ''} {minutes} minute{minutes !== 1 ? 's' : ''}</p>;
           if (minutes >= 1) return <p>Resets in {minutes} minute{minutes !== 1 ? 's' : ''}</p>;
           return <p>Resets in less than a minute</p>;
-        })()}</div>
+        })()}
+        {todaysGlobalSkinList === null && (
+          <p style={{ color: '#aaa', fontSize: '0.9em', fontStyle: 'italic' }}>Loading Skins...</p>
+        )}
+        </div>
         <div className='skins'>
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
-        if (!todaysGlobalSkinList.includes(skin.id)) return false;
+        if (!todaysGlobalSkinList?.includes(skin.id)) return false;
         if (skin.sale) return false; {
           return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
         }

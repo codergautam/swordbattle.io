@@ -1,5 +1,65 @@
 const { words: bannedWords, severeIndices } = require('./bannedWords');
 
+// Unicode confusable characters → Latin equivalents (lowercase only, applied after toLowerCase())
+// Covers Cyrillic, Greek, IPA, and small capital lookalikes
+const _confusablesMap = {
+  // Cyrillic → Latin
+  '\u0430': 'a', // а
+  '\u0432': 'b', // в
+  '\u0441': 'c', // с
+  '\u0435': 'e', // е
+  '\u0451': 'e', // ё
+  '\u0454': 'e', // є (Ukrainian ie)
+  '\u0456': 'i', // і (Ukrainian i)
+  '\u0457': 'i', // ї (Ukrainian yi)
+  '\u0458': 'j', // ј (Serbian/Macedonian je)
+  '\u043A': 'k', // к
+  '\u043C': 'm', // м
+  '\u043D': 'h', // н
+  '\u043E': 'o', // о
+  '\u0440': 'p', // р
+  '\u0455': 's', // ѕ (Macedonian)
+  '\u0442': 't', // т
+  '\u0443': 'y', // у
+  '\u0445': 'x', // х
+  '\u044C': 'b', // ь (soft sign)
+  '\u044D': 'e', // э
+  // Greek → Latin
+  '\u03B1': 'a', // α
+  '\u03B2': 'b', // β
+  '\u03B5': 'e', // ε
+  '\u03B7': 'n', // η
+  '\u03B9': 'i', // ι
+  '\u03BA': 'k', // κ
+  '\u03BD': 'v', // ν
+  '\u03BF': 'o', // ο
+  '\u03C1': 'p', // ρ
+  '\u03C2': 's', // ς (final sigma)
+  '\u03C4': 't', // τ
+  '\u03C5': 'u', // υ
+  '\u03C7': 'x', // χ
+  // IPA / Small capitals / Latin extended
+  '\u0251': 'a', // ɑ (Latin alpha)
+  '\u0261': 'g', // ɡ (script g)
+  '\u026A': 'i', // ɪ (small capital I)
+  '\u0274': 'n', // ɴ (small capital N)
+  '\u0280': 'r', // ʀ (small capital R)
+  '\u0299': 'b', // ʙ (small capital B)
+  '\u029C': 'h', // ʜ (small capital H)
+  '\u1D00': 'a', // ᴀ
+  '\u1D04': 'c', // ᴄ
+  '\u1D05': 'd', // ᴅ
+  '\u1D07': 'e', // ᴇ
+  '\u1D0B': 'k', // ᴋ
+  '\u1D0D': 'm', // ᴍ
+  '\u1D0F': 'o', // ᴏ
+  '\u1D18': 'p', // ᴘ
+  '\u1D1B': 't', // ᴛ
+  '\u1D1C': 'u', // ᴜ
+  '\u1D21': 'w', // ᴡ
+  '\u1D22': 'z', // ᴢ
+};
+
 module.exports = {
   random(min, max) {
     return min + (Math.random() * (max - min));
@@ -87,7 +147,16 @@ module.exports = {
 
   normalizeText(text) {
     return text
+      // Strip zero-width, invisible, and formatting characters
+      .replace(/[\u00AD\u034F\u061C\u115F\u1160\u17B4\u17B5\u180E\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFE00-\uFE0F\uFEFF\uFFA0]/g, '')
+      // NFKD: decomposes fullwidth, math styled, superscript/subscript, accented chars to base forms
+      .normalize('NFKD')
+      // Strip combining diacritical marks (accents, overlines, etc.)
+      .replace(/[\u0300-\u036F\u0489\u1AB0-\u1AFF\u1DC0-\u1DFF\u20D0-\u20FF\uFE20-\uFE2F]/g, '')
       .toLowerCase()
+      // Map known Unicode confusables (Cyrillic, Greek, etc.) to Latin; strip any remaining non-ASCII
+      .replace(/[^\x00-\x7F]/g, ch => _confusablesMap[ch] || '')
+      // Original leetspeak / symbol substitutions
       .replace(/\s+/g, '')
       .replace(/l/g, 'i')
       .replace(/0/g, 'o')

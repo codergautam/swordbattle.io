@@ -77,16 +77,27 @@ export default class Game extends Phaser.Scene {
     this.load.image('wolfMobAggressive', publicPath + '/assets/game/mobs/wolfAggressive.png');
     this.load.image('wolfShadow', publicPath + '/assets/game/mobs/wolfShadow.png');
     this.load.image('catMobPassive', publicPath + '/assets/game/mobs/cat.png');
+    this.load.image('catShadow', publicPath + '/assets/game/mobs/catShadow.png');
     this.load.image('bunny', publicPath + '/assets/game/mobs/bunny.png');
+    this.load.image('bunnyShadow', publicPath + '/assets/game/mobs/bunnyShadow.png');
     this.load.image('moose', publicPath + '/assets/game/mobs/moose.png');
+    this.load.image('mooseShadow', publicPath + '/assets/game/mobs/mooseShadow.png');
     this.load.image('fish', publicPath + '/assets/game/mobs/bluefish.png');
+    this.load.image('fishShadow', publicPath + '/assets/game/mobs/fishShadow.png');
     this.load.image('angryFish', publicPath + '/assets/game/mobs/angryfish.png');
+    this.load.image('angryFishShadow', publicPath + '/assets/game/mobs/angryFishShadow.png');
     this.load.image('chimera', publicPath + '/assets/game/mobs/chimera.png');
+    this.load.image('chimeraShadow', publicPath + '/assets/game/mobs/chimeraShadow.png');
     this.load.image('yeti', publicPath + '/assets/game/mobs/yeti.png'); // add winter
+    this.load.image('yetiShadow', publicPath + '/assets/game/mobs/yetiShadow.png');
     this.load.image('iceSpirit', publicPath + '/assets/game/mobs/icespirit.png');
+    this.load.image('iceSpiritShadow', publicPath + '/assets/game/mobs/iceSpiritShadow.png');
     this.load.image('santa', publicPath + '/assets/game/mobs/santa.png'); // Unused for now
+    this.load.image('santaShadow', publicPath + '/assets/game/mobs/santaShadow.png');
     this.load.image('roku', publicPath + '/assets/game/mobs/roku.png');
+    this.load.image('rokuShadow', publicPath + '/assets/game/mobs/rokuShadow.png');
     this.load.image('ancient', publicPath + '/assets/game/mobs/ancient.png');
+    this.load.image('ancientShadow', publicPath + '/assets/game/mobs/ancientShadow.png');
     this.load.image('fireball', publicPath + '/assets/game/mobs/fireball.png');
     this.load.image('boulder', publicPath + '/assets/game/mobs/boulder.png');
     this.load.image('swordProj', publicPath + '/assets/game/mobs/sword.png');
@@ -104,6 +115,8 @@ export default class Game extends Phaser.Scene {
     this.load.image('chest8', publicPath + '/assets/game/Chest8.png');
 
     this.load.image('crown', publicPath + '/assets/game/player/crown-new.png');
+    this.load.image('playerShadow', publicPath + '/assets/game/player/playerShadow.png');
+    this.load.image('swordShadow', publicPath + '/assets/game/player/swordShadow.png');
 
     // evols
     this.load.image('tankOverlay', publicPath + '/assets/game/player/tank.png');

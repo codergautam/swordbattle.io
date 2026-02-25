@@ -65,12 +65,15 @@ class Player extends BaseEntity {
     'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing', 'coinShield',
   ];
   static removeTransition = 500;
+  static shadowOffsetX = 20;
+  static shadowOffsetY = 20;
 
   body!: Phaser.GameObjects.Sprite;
   sword!: Phaser.GameObjects.Sprite;
   bodyContainer!: Phaser.GameObjects.Container;
   swordContainer!: Phaser.GameObjects.Container;
   evolutionOverlay!: Phaser.GameObjects.Sprite;
+  shadow!: Phaser.GameObjects.Sprite;
   messageText!: Phaser.GameObjects.Text;
 
   protectionAura!: Phaser.GameObjects.Graphics;
@@ -105,6 +108,8 @@ class Player extends BaseEntity {
     this.skinName = Object.values(skins).find(skin => skin.id === this.skin)?.name;
     const ogex = this.skinName?.includes("ogex") || false;
     this.body = this.game.add.sprite(0, 0, 'playerBody').setRotation(-Math.PI / 2);
+    this.shadow = this.game.add.sprite(Player.shadowOffsetX, Player.shadowOffsetY, 'playerShadow').setRotation(-Math.PI / 2);
+    this.shadow.setAlpha(0.15);
     this.evolutionOverlay = this.game.add.sprite(0, 0, '').setRotation(-Math.PI / 2);
     this.updateEvolution();
 
@@ -161,7 +166,7 @@ class Player extends BaseEntity {
       .setFill('#ffffff');
 
     this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.swordContainer, this.body, this.evolutionOverlay]);
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.bodyContainer, name, this.messageText]);
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.bodyContainer, name, this.messageText]);
 
     if (ogex) {
       try {
@@ -704,6 +709,9 @@ class Player extends BaseEntity {
     }
     this.swordContainer.setRotation(swordRotation);
     this.bodyContainer.setRotation(angle);
+    if (this.shadow) {
+      this.shadow.setRotation(angle - Math.PI / 2);
+    }
   }
 
   updatePrediction() {

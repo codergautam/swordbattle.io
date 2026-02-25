@@ -1,0 +1,305 @@
+/* ── Rewards Modal ── */
+
+.rewards-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Same height as shop modal */
+  height: calc(100vh - 100px);
+  /* Square shape */
+  width: calc(100vh - 100px);
+  max-width: calc(100vw - 100px);
+  margin: 20px auto;
+  background: #2a2a2a;
+  box-shadow: 0 20px 40px -14px rgba(0, 0, 0, 0.6);
+  padding: 20px 30px;
+  border-radius: 15px;
+  color: #ffffff;
+  overflow: hidden;
+}
+
+/* ── Title ── */
+
+.rewards-title {
+  font-size: 36px;
+  font-weight: 900;
+  margin: 0 0 5px;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Streak line ── */
+
+.rewards-streak {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+  font-size: 24px;
+  font-weight: 700;
+
+  .streak-text {
+    color: #4cff4c;
+  }
+
+  .streak-arrow {
+    color: #ffffff;
+    font-size: 30px;
+  }
+
+  .streak-bonus {
+    color: #ffffff;
+  }
+}
+
+/* ── Grid ── */
+
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 8px;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+/* ── Individual cell ── */
+
+.reward-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 4px;
+  user-select: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+
+  .reward-label {
+    font-size: clamp(18px, 1.6vh, 18px);
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .reward-icon {
+    width: clamp(48px, 5vh, 50px);
+    height: clamp(48px, 5vh, 50px);
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  /* ─ CLAIMED (green) ─ */
+  &.claimed {
+    background: #5fbf3c;
+    border: 3px solid #6ad44a;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* ─ CLAIMABLE (yellow + glow) ─ */
+  &.claimable {
+    background: #ffe233;
+    border: 3px solid #fff6a6;
+    cursor: pointer;
+    box-shadow: 0 0 8px 3px rgba(255, 235, 59, 0.35);
+
+    .reward-label {
+      color: #333;
+    }
+
+    &:hover {
+      transform: scale(1.06);
+      box-shadow: 0 0 8px 3px rgba(255, 235, 59, 0.75);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  /* ─ LOCKED (gray) ─ */
+  &.locked {
+    background: #616161;
+    border: 2px solid #757575;
+    cursor: default;
+    pointer-events: none;
+    opacity: 0.85;
+  }
+}
+
+/* ── Controls bar ── */
+
+.rewards-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  margin-top: 14px;
+  flex-shrink: 0;
+
+  .rewards-btn-action {
+    background: #fff;
+    color: #333;
+    border: 2px solid #555;
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+      background: #ddd;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .rewards-btn-nav {
+    background: #555;
+    color: #fff;
+    border: 2px solid #777;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+      background: #666;
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+  }
+
+  .rewards-page-label {
+    font-size: 22px;
+    font-weight: 700;
+    min-width: 130px;
+    text-align: center;
+  }
+}
+
+/* ── Progress bar ── */
+
+.rewards-progress {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 12px;
+  width: 80%;
+  flex-shrink: 0;
+
+  .progress-text {
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .progress-bar-container {
+    flex: 1;
+    height: 30px;
+    background: #444;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid #666;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, #2196f3, #42a5f5);
+    border-radius: 13px;
+    transition: width 0.3s ease;
+  }
+
+  .progress-bar-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    white-space: nowrap;
+  }
+}
+
+/* ── Responsive: small height screens ── */
+
+@media screen and (max-height: 600px) {
+  .rewards-title {
+    font-size: 28px;
+  }
+
+  .rewards-streak {
+    font-size: 16px;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .rewards-grid {
+    gap: 4px;
+  }
+
+  .reward-cell {
+    border-radius: 6px;
+
+    .reward-label {
+      font-size: 10px;
+    }
+
+    .reward-icon {
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  .rewards-controls {
+    gap: 8px;
+    margin-top: 8px;
+
+    .rewards-btn-action {
+      padding: 5px 12px;
+      font-size: 12px;
+    }
+
+    .rewards-btn-nav {
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+
+    .rewards-page-label {
+      font-size: 16px;
+      min-width: 90px;
+    }
+  }
+
+  .rewards-progress {
+    margin-top: 6px;
+    width: 90%;
+
+    .progress-text {
+      font-size: 11px;
+    }
+
+    .progress-bar-container {
+      height: 22px;
+    }
+
+    .progress-bar-text {
+      font-size: 11px;
+    }
+  }
+}

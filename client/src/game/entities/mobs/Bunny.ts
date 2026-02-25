@@ -7,12 +7,14 @@ class BunnyMob extends BaseEntity {
   static removeTransition = 500;
 
   body!: Phaser.GameObjects.Sprite;
+  shadow!: Phaser.GameObjects.Graphics;
 
   createSprite() {
     this.body = this.game.add.sprite(0, 0, 'bunny').setOrigin(0.48, 0.65);
     this.body.setScale((this.shape.radius * 4) / this.body.height);
+    this.shadow = this.createShadow(Math.min(this.body.displayWidth, this.body.displayHeight) * 0.35);
     this.healthBar = new Health(this, { offsetY: -this.shape.radius - 40 });
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.body]);
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);
     return this.container;
   }
 }

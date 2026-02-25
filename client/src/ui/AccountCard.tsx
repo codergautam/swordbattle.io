@@ -15,6 +15,7 @@ export default function AccountCard({account, onLogin, onSignup}: {account: Acco
       <span id="logged-in">
         <h1>{account.username}</h1>
         <br />
+        <br />
         <div className="stats"><ValueCnt scale={0.4} value={account.gems} img={GemImg}/>
         </div>
         {/* <br />

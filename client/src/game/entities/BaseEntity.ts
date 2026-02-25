@@ -25,6 +25,14 @@ export class BaseEntity {
 
   createSprite() {}
 
+  protected createShadow(radius: number, alpha = 0.25): Phaser.GameObjects.Graphics {
+    const shadow = this.game.add.graphics();
+    shadow.fillStyle(0x000000, 1);
+    shadow.fillCircle(0, 0, radius);
+    shadow.setAlpha(alpha);
+    return shadow;
+  }
+
   setDepth() {
     if (!this.container) return;
     this.container.setDepth(EntityDepth[this.type] || 0);

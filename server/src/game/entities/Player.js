@@ -190,6 +190,8 @@ class Player extends Entity {
     let topZIndex = -Infinity;
     let foundSafezone = false;
 
+    const appliedBiomeTypes = new Set();
+
     for (const biome of this.game.map.biomes) {
       if (biome.shape.collides(this.shape, response)) {
         biome.collides(this, response);
@@ -197,6 +199,11 @@ class Player extends Entity {
         if (biome.type === Types.Biome.Safezone) {
           foundSafezone = true;
           if (!this.inSafezone) continue;
+        }
+
+        if (!appliedBiomeTypes.has(biome.type)) {
+          appliedBiomeTypes.add(biome.type);
+          biome.applyEffects(this, response);
         }
 
         if (biome.zIndex > topZIndex) {
@@ -208,7 +215,6 @@ class Player extends Entity {
 
     if (topBiome) {
       this.biome = topBiome.type;
-      topBiome.applyEffects(this, response);
     }
 
     if (!foundSafezone) {

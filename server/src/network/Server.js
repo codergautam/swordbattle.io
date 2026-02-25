@@ -14,7 +14,7 @@ class Server {
 
     // Enhanced DDoS Protection Settings
     this.connectionsByIP = new Map(); // ip -> { count, resetTime }
-    this.maxConnectionsPerIP = 25;
+    this.maxConnectionsPerIP = 4;
     this.connectionAttemptsByIP = new Map(); // ip -> { attempts, resetTime, shortTermAttempts, shortTermResetTime }
     this.maxConnectionAttemptsPerMinute = 60;
     this.maxConnectionAttemptsPer10Seconds = 10;
@@ -256,11 +256,14 @@ class Server {
         // Check current connections from this IP
         const currentConnections = Array.from(this.clients.values())
           .filter(client => client.ip === ip).length;
-        
+
         if (currentConnections >= this.maxConnectionsPerIP) {
           console.warn(`[CONN_LIMIT] IP ${ip} exceeded max connections (${currentConnections}/${this.maxConnectionsPerIP})`);
-          res.writeStatus('429 Too Many Requests');
-          res.end('Too many connections from your IP');
+          res.upgrade({ id: uuidv4(), ip, tooManyConnections: true },
+            req.getHeader('sec-websocket-key'),
+            req.getHeader('sec-websocket-protocol'),
+            req.getHeader('sec-websocket-extensions'), context,
+          );
           return;
         }
 
@@ -283,6 +286,10 @@ class Server {
         this._handleUpgrade(res, req, context, ip, now);
       },
       open: (socket) => {
+        if (socket.getUserData().tooManyConnections) {
+          socket.end(4429, 'Max connections reached');
+          return;
+        }
         const client = new Client(this.game, socket);
         this.addClient(client);
       },
@@ -458,8 +465,11 @@ class Server {
     // Check concurrent connection limit per IP BEFORE accepting
     if (connectionsFromIP >= this.maxConnectionsPerIP) {
       console.warn(`[RATE_LIMIT] IP ${ip} exceeded concurrent connection limit (${connectionsFromIP} connections). Rejecting connection.`);
-      res.writeStatus('429 Too Many Requests');
-      res.end('Too many connections');
+      res.upgrade({ id: uuidv4(), ip, tooManyConnections: true },
+        req.getHeader('sec-websocket-key'),
+        req.getHeader('sec-websocket-protocol'),
+        req.getHeader('sec-websocket-extensions'), context,
+      );
       return;
     }
 

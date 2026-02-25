@@ -49,6 +49,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice-new.png');
     this.load.image('river', publicPath + '/assets/game/tiles/river.png');
+    this.load.image('safezone', publicPath + '/assets/game/tiles/spawn.png');
 
     if (Settings.coins) {
       this.load.image('coin', publicPath + '/assets/game/coin.png');
@@ -166,7 +167,6 @@ export default class Game extends Phaser.Scene {
     this.load.plugin('rexVirtualJoystick', VirtualJoyStickPlugin, true);
 
     this.soundManager.load(publicPath);
-    Safezone.createTexture(this);
     Biome.initialize(this);
 
     // log progress on load

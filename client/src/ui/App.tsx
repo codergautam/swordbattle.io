@@ -30,6 +30,7 @@ import GemCount from './ValueCnt';
 import ShopButton from './ShopButton';
 import InventoryButton from './InventoryButton';
 import LeaderboardButton from './LeaderboardButton';
+import RewardsButton from './RewardsButton';
 import ShopModal from './modals/ShopModal';
 import InventoryModal from './modals/InventoryModal';
 import MigrationModal from './modals/MigrationModal';
@@ -46,6 +47,8 @@ import { crazygamesSDK } from '../crazygames/sdk';
 import { initializeDataStorage } from '../crazygames/dataStorage';
 
 import * as cosmetics from '../game/cosmetics.json'
+import LeaderboardModal from './modals/LeaderboardModal';
+import RewardsModal from './modals/RewardsModal';
 
 let debugMode = false;
 try {
@@ -795,7 +798,11 @@ function App() {
   }
 
   const openLeaderboard = () => {
-    window.location.hash = "#/leaderboard";
+    setModal(<LeaderboardModal account={account} />);
+  };
+
+  const openRewards = () => {
+    setModal(<RewardsModal account={account} />);
   };
 
   useEffect(() => {
@@ -848,11 +855,24 @@ function App() {
       {!gameStarted && (
         <>
         <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`}>
-        <ShopButton account={account} scale={scale.factor} openShop={openShop} />
-        {account?.isLoggedIn && (
-          <InventoryButton account={account} scale={scale.factor} openInventory={openInventory} />
+        <div className="game-buttons" style={scale.styles}>
+          <section className="game-btn">
+            <ShopButton account={account} scale={scale.factor} openShop={openShop} />
+          </section>
+          {account?.isLoggedIn && (
+            <section className="game-btn">
+              <InventoryButton account={account} scale={scale.factor} openInventory={openInventory} />
+            </section>
           )}
-        <LeaderboardButton scale={scale.factor} openLeaderboard={openLeaderboard} />
+          <section className="game-btn">
+            <LeaderboardButton scale={scale.factor} openLeaderboard={openLeaderboard} />
+          </section>
+          {account?.isLoggedIn && (
+            <section className="game-btn">
+              <RewardsButton account={account} scale={scale.factor} openRewards={openRewards} />
+            </section>
+          )}
+        </div>
             <div id="contentt" style={scale.styles}>
 
           <div id="menuContainer" >
@@ -983,10 +1003,11 @@ function App() {
             </div>
           )}
           </div>
-          {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal'} />}
+          {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal' || modal.type.name === 'RewardsModal'} />}
 
 <div className="auth-buttons" style={scale.styles}>
              {account.isLoggedIn ? (
+               <>
                <div className="dropdown">
                 {account.clan ? (
                     <div className="auth-username">
@@ -1031,6 +1052,7 @@ function App() {
                    )}
                  </ul>
                </div>
+               </>
              ) : (
                <>
                {!crazygamesSDK.shouldUseSDK() && (

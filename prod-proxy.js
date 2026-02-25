@@ -57,7 +57,7 @@ const apiProxy = httpProxy.createProxyServer({
   // Handle buffer size through agent settings
   agent: new http.Agent({
     keepAlive: true,
-    maxSockets: 50, // Reduced concurrent connections
+    maxSockets: 50,
     keepAliveMsecs: 10000,
     maxFreeSockets: 5
   })

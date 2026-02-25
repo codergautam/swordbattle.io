@@ -3492,26 +3492,6 @@
       "bodyFileName": "colorfulPlayer.png",
       "description": "Very vibrant"
     },
-    "flaming": {
-      "name": "flaming",
-      "displayName": "Flaming",
-      "id": 353,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedFlamingSword.png",
-      "bodyFileName": "unreleasedFlamingPlayer.png",
-      "description": "Not available for sale."
-    },
-    "fragment": {
-      "name": "fragment",
-      "displayName": "Fragment",
-      "id": 354,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedFragmentSword.png",
-      "bodyFileName": "unreleasedFragmentPlayer.png",
-      "description": "Not available for sale."
-    },
     "skullv2": {
       "ultimate": true,
       "tag": "Ultimate Skeleton",
@@ -3534,16 +3514,6 @@
       "swordFileName": "turtleSword.png",
       "bodyFileName": "turtlePlayer.png",
       "description": "The true tank"
-    },
-    "leader": {
-      "name": "leader",
-      "displayName": "Leader",
-      "id": 357,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedLeaderSword.png",
-      "bodyFileName": "unreleasedLeaderPlayer.png",
-      "description": "Not available for sale."
     },
     "wave": {
       "name": "wave",
@@ -4663,6 +4633,94 @@
       "swordFileName": "diamondSword.png",
       "bodyFileName": "diamondPlayer.png",
       "description": "Diamond sword? Where have I heard that before..."
+    },
+    "shiny": {
+      "name": "shiny",
+      "displayName": "Shiny",
+      "id": 443,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "shinyPlayer.png",
+      "bodyFileName": "shinyPlayer.png",
+      "description": "It's almost like you're the coin!"
+    },
+    "redshift": {
+      "name": "redshift",
+      "displayName": "Redshift",
+      "id": 444,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "redshiftPlayer.png",
+      "bodyFileName": "redshiftPlayer.png",
+      "description": "Hit 'em so hard the light decreases in frequency"
+    },
+    "watercolors": {
+      "name": "watercolors",
+      "displayName": "Watercolors",
+      "id": 445,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "watercolorsPlayer.png",
+      "bodyFileName": "watercolorsPlayer.png",
+      "description": "The colors of the rainbow are yours to command!"
+    },
+    "leader": {
+      "name": "leader",
+      "displayName": "Leader",
+      "id": 446,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "leaderSword.png",
+      "bodyFileName": "leaderPlayer.png",
+      "description": "Show them who rules the battlefield!"
+    },
+    "flaming": {
+      "name": "flaming",
+      "displayName": "Flaming",
+      "id": 447,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "flamingSword.png",
+      "bodyFileName": "flamingPlayer.png",
+      "description": "Burn them to a crisp!"
+    },
+    "fragment": {
+      "name": "fragment",
+      "displayName": "Fragment",
+      "id": 448,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "fragmentSword.png",
+      "bodyFileName": "fragmentPlayer.png",
+      "description": "Well I guess theres nothing left to shatter"
+    },
+    "cmykluminous": {
+      "name": "cmykluminous",
+      "displayName": "CMYK Luminous",
+      "id": 449,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "cmykLuminousSword.png",
+      "bodyFileName": "cmykLuminousPlayer.png",
+      "description": "I think my sword ran out of ink..."
+    },
+    "astral": {
+      "name": "astral",
+      "displayName": "Astral",
+      "id": 450,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "astralSword.png",
+      "bodyFileName": "astralPlayer.png",
+      "description": "“Strike from the skies?” Why not strike from the STARS?!"
     }
   }
 }

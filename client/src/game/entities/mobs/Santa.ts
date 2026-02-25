@@ -7,6 +7,7 @@ class SantaMob extends BaseEntity {
   static removeTransition = 500;
 
   body!: Phaser.GameObjects.Sprite;
+  shadow!: Phaser.GameObjects.Graphics;
 
   get baseScale() {
     return (this.shape.radius * 5) / this.body.height;
@@ -15,12 +16,13 @@ class SantaMob extends BaseEntity {
   createSprite() {
     this.body = this.game.add.sprite(0, 0, 'santa').setOrigin(0.5, 0.3);
     this.body.setScale(this.baseScale);
+    this.shadow = this.createShadow(Math.min(this.body.displayWidth, this.body.displayHeight) * 0.35);
     this.healthBar = new Health(this, {
       offsetY: this.shape.radius * 1.3,
       width: this.shape.radius * 3,
       height: this.shape.radius / 5,
     });
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.body]);
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);
     return this.container;
   }
 }

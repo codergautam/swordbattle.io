@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import { numberWithCommas, secondsToTime, sinceFrom } from '../helpers';
 import api from '../api';
@@ -7,39 +7,7 @@ import Ad from './Ad';
 
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './GlobalLeaderboard.scss';
-import cosmetics from '../game/cosmetics.json';
-
-function abbrNumber(n: number | string) {
-  const num = Number(n) || 0;
-  if (num >= 1_000_000) {
-    const v = +(num / 1_000_000).toFixed(1);
-    return (v % 1 === 0 ? v.toFixed(0) : v.toString()) + 'm';
-  }
-  if (num >= 1_000) {
-    const v = +(num / 1_000).toFixed(1);
-    return (v % 1 === 0 ? v.toFixed(0) : v.toString()) + 'k';
-  }
-  return num.toString();
-}
-
-function timeSinceShort(dateLike?: string | Date | null) {
-  if (!dateLike) return 'unknown';
-  const d = new Date(dateLike).getTime();
-  if (isNaN(d)) return 'unknown';
-  const diff = Date.now() - d;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return '<1min';
-  if (mins < 60) return `${mins}min`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d`;
-  const months = Math.floor(days / 30);
-  if (months < 12) return `${months}mo`;
-  const years = Math.floor(months / 12);
-  return `${years}y`;
-}
-
+import fakeLeaderboardData from './fakeLeaderboardData';
 const types: Record<string, string> = {
   'kills': 'Kills',
   'coins': 'Coins',
@@ -58,112 +26,81 @@ const ranges: Record<string, string> = {
 };
 
 export function GlobalLeaderboard() {
-  const navigate = useNavigate();
   const [type, setType] = useState<string>('coins');
   const [range, setRange] = useState<string>('all');
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<any[]>(fakeLeaderboardData);
 
-  // search
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [serverSuggestions, setServerSuggestions] = useState<any[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
-
-  const [isSearching, setIsSearching] = useState<boolean>(false);
-  
-  const fetchData = () => {
-    const isGames = type === 'coins' || type === 'kills' || type === 'playtime';
-    const isAllTimeGames = isGames && range === 'all';
-    const url = `${api.endpoint}/${isGames ? 'games' : 'stats'}/fetch?${Date.now()}`;
-
-    const limit = isAllTimeGames ? 2000 : 100;
-
-    api.post(url, {
-      sortBy: type.startsWith('total') ? type.slice(6) : type,
-      timeRange: range,
-      limit: limit,
-    }, (data: any) => {
-      if (data.message || !Array.isArray(data)) {
-        setData([]);
-        return;
-      }
-
-      if (isAllTimeGames) {
-        const gamesByAccount = new Map<string, any[]>();
-        data.forEach((row) => {
-          const accountKey = row.username || row.accountId || 'unknown';
-          if (!gamesByAccount.has(accountKey)) {
-            gamesByAccount.set(accountKey, []);
-          }
-          gamesByAccount.get(accountKey)!.push(row);
-        });
-
-        const sortBy = type;
-        const sortFunc = (a: any, b: any) => {
-          if (sortBy === 'coins') return b.coins - a.coins;
-          if (sortBy === 'kills') return b.kills - a.kills;
-          if (sortBy === 'playtime') return b.playtime - a.playtime;
-          return 0;
-        };
-
-        const topGames: any[] = [];
-        gamesByAccount.forEach((games) => {
-          const sortedGames = [...games].sort(sortFunc);
-          topGames.push(sortedGames[0]);
-        });
-
-        topGames.sort(sortFunc);
-        setData(topGames.slice(0, 100));
-      } else {
-        setData(data);
-      }
-    });
-  };
+  // TODO: Remove fake data and restore API fetch
+  // const fetchData = () => {
+  //   const isGames = type === 'coins' || type === 'kills' || type === 'playtime';
+  //   const isAllTimeGames = isGames && range === 'all';
+  //   const url = `${api.endpoint}/${isGames ? 'games' : 'stats'}/fetch?${Date.now()}`;
+  //
+  //   const limit = isAllTimeGames ? 2000 : 100;
+  //
+  //   api.post(url, {
+  //     sortBy: type.startsWith('total') ? type.slice(6) : type,
+  //     timeRange: range,
+  //     limit: limit,
+  //   }, (data: any) => {
+  //     if (data.message || !Array.isArray(data)) {
+  //       setData([]);
+  //       return;
+  //     }
+  //
+  //     if (isAllTimeGames) {
+  //       const gamesByAccount = new Map<string, any[]>();
+  //       data.forEach((row) => {
+  //         const accountKey = row.username || row.accountId || 'unknown';
+  //         if (!gamesByAccount.has(accountKey)) {
+  //           gamesByAccount.set(accountKey, []);
+  //         }
+  //         gamesByAccount.get(accountKey)!.push(row);
+  //       });
+  //
+  //       const sortBy = type;
+  //       const sortFunc = (a: any, b: any) => {
+  //         if (sortBy === 'coins') return b.coins - a.coins;
+  //         if (sortBy === 'kills') return b.kills - a.kills;
+  //         if (sortBy === 'playtime') return b.playtime - a.playtime;
+  //         return 0;
+  //       };
+  //
+  //       const topGames: any[] = [];
+  //       gamesByAccount.forEach((games) => {
+  //         const sortedGames = [...games].sort(sortFunc);
+  //         topGames.push(sortedGames[0]);
+  //       });
+  //
+  //       topGames.sort(sortFunc);
+  //       setData(topGames.slice(0, 100));
+  //     } else {
+  //       setData(data);
+  //     }
+  //   });
+  // };
   const changeType = (type: string) => {
-    setData([]);
     setType(type);
   };
   const changeRange = (range: string) => {
-    setData([]);
     setRange(range);
   };
 
-  useEffect(fetchData, [type, range]);
-
   useEffect(() => {
-    if (!searchTerm || searchTerm.trim().length === 0) {
-      setServerSuggestions([]);
-      setIsSearching(false);
-      return;
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'leaderboard-type', title: `${types[type]} Leaderboard` }, '*');
     }
-    const q = searchTerm.trim();
-    setIsSearching(true);
-    const timeout = setTimeout(() => {
-      api.post(`${api.endpoint}/profile/search?${Date.now()}`, { q, limit: 25 }, (res: any) => {
-        if (!Array.isArray(res)) {
-          setServerSuggestions([]);
-          setIsSearching(false);
-          return;
-        }
-        setServerSuggestions(res.slice(0, 25));
-        setIsSearching(false);
-      });
-    }, 250);
-    return () => {
-      clearTimeout(timeout);
-      setIsSearching(false);
-    };
-  }, [searchTerm]);
+  }, [type]);
 
   useEffect(() => {
     document.body.classList.add('global-leaderboard-body');
-    return () => document.body.classList.remove('global-leaderboard-body');
+    const isStandalone = window.self === window.top;
+    if (isStandalone) document.body.classList.add('global-leaderboard-standalone');
+    return () => {
+      document.body.classList.remove('global-leaderboard-body');
+      document.body.classList.remove('global-leaderboard-standalone');
+    };
   }, []);
-
-  const navigateToProfile = (username: string) => {
-    setShowSuggestions(false);
-    setSearchTerm('');
-    navigate(`/profile?username=${encodeURIComponent(username)}`);
-  };
 
   const isGameLeaderboard = type === 'coins' || type === 'kills' || type === 'playtime';
   const isAllTimeGameLeaderboard = isGameLeaderboard && range === 'all';
@@ -183,65 +120,6 @@ export function GlobalLeaderboard() {
   return (
     <section className="main-content">
       <div className="container">
-        <button className="back-button" onClick={() => { window.location.href = '../index.html'; }}>X</button>
-        <div className="leaderboard-search">
-          <input
-            type="text"
-            placeholder="Search usernames..."
-            value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value); setShowSuggestions(true); }}
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-            className="form-control"
-            aria-label="Search usernames"
-          />
-          {showSuggestions && (
-            <div className="search-suggestions">
-              {searchTerm.trim().length === 0 ? (
-                <div className="suggestion-hint">Type to search usernames</div>
-              ) : isSearching ? (
-                <div className="suggestion-hint">Searching...</div>
-              ) : serverSuggestions.length === 0 ? (
-                <div className="suggestion-hint">No accounts found</div>
-              ) : (
-                serverSuggestions.map((s: any) => {
-                  const u = s.username;
-                  const createdAt = s.created_at ?? s.createdAt ?? null;
-                  const lastSeen = s.last_seen ?? s.lastSeen ?? null;
-                  const xp = s.xp ?? 0;
-                  const equippedId = s?.skins?.equipped;
-                  const equippedSkin = equippedId ? Object.values((cosmetics as any).skins).find((sk: any) => sk.id === equippedId) : null;
-                  return (
-                    <div
-                      key={u}
-                      className="search-suggestion"
-                      onMouseDown={(ev) => { ev.preventDefault(); navigateToProfile(u); }}
-                    >
-                      <div className="suggestion-left">
-                        <div className="suggestion-name">{u}</div>
-                        <div className="suggestion-meta">
-                          <span>Joined {timeSinceShort(createdAt)} ago</span>
-                          {(() => {
-                            const lastSeenText = timeSinceShort(lastSeen);
-                            if (lastSeen && lastSeenText !== 'unknown') {
-                              return <span>• Online {lastSeenText} ago</span>;
-                            }
-                            return null;
-                          })()}
-                          <span>• {xp >= 1_000_000 ? <strong>{abbrNumber(xp)} XP</strong> : `${abbrNumber(xp)} XP`}</span>
-                        </div>
-                       </div>
-                      <div />
-                    </div>
-                   );
-                 })
-               )}
-              {!isSearching && serverSuggestions.length >= 25 && (
-                <div className="search-more">... more results</div>
-              )}
-            </div>
-          )}
-        </div>
         <br />
         <h3>{ranges[range]}</h3>
         <br />
@@ -274,13 +152,13 @@ export function GlobalLeaderboard() {
         <br />
 
         {isAllTimeGameLeaderboard && (
-          <div className="alert alert-info" role="alert" style={{ 
-            marginBottom: '20px', 
+          <div className="alert alert-info" role="alert" style={{
+            marginBottom: '20px',
             borderRadius: '8px',
             padding: '12px 16px',
-            backgroundColor: '#e7f3ff',
-            border: '1px solid #b3d9ff',
-            color: '#004085'
+            backgroundColor: '#1a2a3a',
+            border: '1px solid #2a4a6a',
+            color: '#b0c4de'
           }}>
             <strong>Note:</strong> This leaderboard displays only the best game for each player. Top 10 games can be viewed on the player's profile.
           </div>
@@ -325,7 +203,7 @@ export function GlobalLeaderboard() {
                             <Link
                             to={`/profile?username=${encodeURIComponent(row.username)}`}
                             rel="noreferrer"
-                            style={{ color: 'black' }}
+                            style={{ color: '#e0e0e0' }}
                             >
                             {row.clan && row.clan !== 'X79Q' && <span style={{ color: '#b0b000' }} className='clan'>[{row.clan}] </span>}
                             {row.username}
@@ -415,7 +293,7 @@ function LeaderboardCard({ type, row, index }: { type: string, row: any, index: 
             #{index + 1} - <Link
                             to={`/profile?username=${encodeURIComponent(row.username)}`}
                             rel="noreferrer"
-                            style={{ color: isFirst ? 'white' : 'black' }}
+                            style={{ color: isFirst ? 'white' : '#e0e0e0' }}
                             >
                             {row.clan && row.clan !== 'X79Q' && (
                               <span style={{ color: isFirst ? '#ffff00' : '#b0b000' }} className='clan'>[{row.clan}] </span>

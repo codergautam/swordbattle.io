@@ -138,7 +138,7 @@ class Player extends BaseEntity {
       "cool guy 53": '#0055ff',
       "update testing account": '#00ff00',
       amethystbladeyt: '#7802ab',
-      oyy: '#000000',
+      oy: '#000000',
     };
 
     const applyNameColor = (hex: string) => {

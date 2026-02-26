@@ -56,8 +56,8 @@ class BasicEvolution extends Effect {
   }
 
   update(dt) {
-    this.player.modifiers.BoostOnDamage = false;
-    this.player.viewport.zoom.multiplier *= 0.33;
+    // this.player.modifiers.BoostOnDamage = false;
+    // this.player.viewport.zoom.multiplier *= 0.33;
     this.player.modifiers.invisible = false;
     this.player.wideSwing = false;
     this.player.modifiers.swingWide = false;

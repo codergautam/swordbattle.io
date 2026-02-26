@@ -25,7 +25,7 @@ class ChimeraMob extends BaseEntity {
     this.body.setScale(initialScale);
     this.shadow = this.game.add.sprite(ChimeraMob.shadowOffsetX, ChimeraMob.shadowOffsetY, 'chimeraShadow').setOrigin(0.5, 0.5);
     this.shadow.setScale(this.isAngry ? initialScale * 1.3 : initialScale);
-    this.shadow.setAlpha(this.isAngry ? 0.1 : 0.15);
+    this.shadow.setAlpha(this.isAngry ? 0.05 : 0.1);
     this.healthBar = new Health(this, { offsetY: -this.shape.radius - 300 });
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);
     return this.container;

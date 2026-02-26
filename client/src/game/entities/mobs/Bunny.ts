@@ -5,8 +5,8 @@ class BunnyMob extends BaseEntity {
   static stateFields = [...BaseEntity.stateFields, 'angle', 'isAngry'];
   static basicAngle = -Math.PI / 2;
   static removeTransition = 500;
-  static shadowOffsetX = 20;
-  static shadowOffsetY = 20;
+  static shadowOffsetX = 15;
+  static shadowOffsetY = 15;
 
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
@@ -16,7 +16,7 @@ class BunnyMob extends BaseEntity {
     const scale = (this.shape.radius * 4) / this.body.height;
     this.body.setScale(scale);
     this.shadow = this.game.add.sprite(BunnyMob.shadowOffsetX, BunnyMob.shadowOffsetY, 'bunnyShadow').setOrigin(0.48, 0.65);
-    this.shadow.setAlpha(0.15);
+    this.shadow.setAlpha(0.1);
     this.shadow.setScale(scale);
     this.healthBar = new Health(this, { offsetY: -this.shape.radius - 40 });
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);

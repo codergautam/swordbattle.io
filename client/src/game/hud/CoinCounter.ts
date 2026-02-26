@@ -17,7 +17,6 @@ class CoinCounter extends HudComponent {
       offsetX: 2,
       offsetY: 2,
       color: '#000',
-      blur: 2,
       stroke: true,
       fill: true,
     },

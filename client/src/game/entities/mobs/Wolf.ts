@@ -15,7 +15,7 @@ class WolfMob extends BaseEntity {
   createSprite() {
     this.body = this.game.add.sprite(0, 0, '').setOrigin(0.48, 0.52);
     this.shadow = this.game.add.sprite(WolfMob.shadowOffsetX, WolfMob.shadowOffsetY, 'wolfShadow').setOrigin(0.48, 0.52);
-    this.shadow.setAlpha(0.15);
+    this.shadow.setAlpha(0.1);
     this.updateSprite();
     this.healthBar = new Health(this, { offsetY: -this.shape.radius - 40 });
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);

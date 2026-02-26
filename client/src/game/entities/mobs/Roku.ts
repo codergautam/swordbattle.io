@@ -18,7 +18,7 @@ class RokuMob extends BaseEntity {
   createSprite() {
     this.body = this.game.add.sprite(0, 0, 'roku').setOrigin(0.5, 0.5);
     this.shadow = this.game.add.sprite(RokuMob.shadowOffsetX, RokuMob.shadowOffsetY, 'rokuShadow').setOrigin(0.5, 0.5);
-    this.shadow.setAlpha(0.15);
+    this.shadow.setAlpha(0.1);
     this.healthBar = new Health(this, {
       offsetY: -this.shape.radius,
       width: this.shape.radius,

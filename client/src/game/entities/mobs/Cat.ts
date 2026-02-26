@@ -5,8 +5,8 @@ class CatMob extends BaseEntity {
   static stateFields = [...BaseEntity.stateFields, 'angle', 'isAngry'];
   static basicAngle = -Math.PI / 2;
   static removeTransition = 500;
-  static shadowOffsetX = 20;
-  static shadowOffsetY = 20;
+  static shadowOffsetX = 15;
+  static shadowOffsetY = 15;
 
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
@@ -15,7 +15,7 @@ class CatMob extends BaseEntity {
     this.body = this.game.add.sprite(0, 0, '').setOrigin(0.48, 0.6);
     this.updateSprite();
     this.shadow = this.game.add.sprite(CatMob.shadowOffsetX, CatMob.shadowOffsetY, 'catShadow').setOrigin(0.48, 0.6);
-    this.shadow.setAlpha(0.15);
+    this.shadow.setAlpha(0.1);
     this.shadow.setScale(this.body.scaleX, this.body.scaleY);
     this.healthBar = new Health(this, { offsetY: -this.shape.radius - 40 });
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);

@@ -19,7 +19,7 @@ class YetiMob extends BaseEntity {
     this.body = this.game.add.sprite(0, 0, 'yeti').setOrigin(0.5, 0.7);
     this.body.setScale(this.baseScale);
     this.shadow = this.game.add.sprite(YetiMob.shadowOffsetX, YetiMob.shadowOffsetY, 'yetiShadow').setOrigin(0.5, 0.7);
-    this.shadow.setAlpha(0.15);
+    this.shadow.setAlpha(0.075);
     this.shadow.setScale(this.baseScale);
     this.healthBar = new Health(this, {
       offsetY: -this.shape.radius * 1.3,

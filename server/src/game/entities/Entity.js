@@ -1,6 +1,7 @@
 const SAT = require('sat')
 const State = require('../components/State');
 const Health = require('../components/Health');
+const Circle = require('../shapes/Circle');
 const Types = require('../Types');
 const helpers = require('../../helpers');
 
@@ -8,6 +9,7 @@ class Entity {
   static defaultDefinition = {
     forbiddenBiomes: [],
     forbiddenEntities: [],
+    spawnBuffer: 0,
   };
 
   constructor(game, type, definition = {}) {
@@ -95,16 +97,31 @@ class Entity {
             this.shape.applyCollision(mtv);
           }
         }
+
+        // During spawn checks, also reject if entity center is too close to biome edge
+        if (!collide && this.definition.spawnBuffer > 0) {
+          const buf = Entity._spawnBufferCircle;
+          buf.collisionPoly.pos.x = this.shape.x;
+          buf.collisionPoly.pos.y = this.shape.y;
+          buf.collisionPoly.r = (this.size || 0) / 2 + this.definition.spawnBuffer;
+          Entity._sharedResponse.clear();
+          if (biome.shape.collides(buf, Entity._sharedResponse)) {
+            return true;
+          }
+        }
       }
     }
 
-    // When we spawn entities on game initalize, quadtree is not ready yet
-    if (!this.game.entitiesQuadtree) return false;
+    // When quadtree is not ready (during game initialize), fall back to direct entity scan
+    const useQuadtree = !!this.game.entitiesQuadtree;
 
     for (const entityType of this.definition.forbiddenEntities) {
-      const quadtreeResults = this.game.entitiesQuadtree.get(this.shape.boundary);
-      for (const res of quadtreeResults) {
+      const entities = useQuadtree
+        ? this.game.entitiesQuadtree.get(this.shape.boundary)
+        : Array.from(this.game.entities.values()).map(e => ({ entity: e }));
+      for (const res of entities) {
         const entity = res.entity;
+        if (entity === this) continue;
         if (entity.type !== entityType) continue;
 
         const collisionShape = entity.depthZone ? entity.depthZone : entity.shape;
@@ -168,5 +185,6 @@ class Entity {
 }
 
 Entity._sharedResponse = new SAT.Response();
+Entity._spawnBufferCircle = Circle.create(0, 0, 1);
 
 module.exports = Entity;

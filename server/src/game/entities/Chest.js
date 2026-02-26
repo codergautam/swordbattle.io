@@ -22,7 +22,8 @@ let totalWeight = rarities.reduce((acc, rarity) => acc + rarity[3], 0);
 class Chest extends Entity {
   static defaultDefinition = {
     forbiddenBiomes: [Types.Biome.River],
-    forbiddenEntities: [Types.Entity.IceSpike],
+    forbiddenEntities: [Types.Entity.IceSpike, Types.Entity.Chest, Types.Entity.IcePond, Types.Entity.Pond, Types.Entity.LavaPool],
+    spawnBuffer: 150,
   };
 
   constructor(game, objectData) {

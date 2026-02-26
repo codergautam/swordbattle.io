@@ -65,11 +65,12 @@ class Player extends BaseEntity {
     'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing', 'coinShield',
   ];
   static removeTransition = 500;
-  static shadowOffsetX = 20;
-  static shadowOffsetY = 20;
+  static shadowOffsetX = 10;
+  static shadowOffsetY = 10;
 
   body!: Phaser.GameObjects.Sprite;
   sword!: Phaser.GameObjects.Sprite;
+  swordShadow!: Phaser.GameObjects.Sprite;
   bodyContainer!: Phaser.GameObjects.Container;
   swordContainer!: Phaser.GameObjects.Container;
   evolutionOverlay!: Phaser.GameObjects.Sprite;
@@ -108,12 +109,16 @@ class Player extends BaseEntity {
     this.skinName = Object.values(skins).find(skin => skin.id === this.skin)?.name;
     const ogex = this.skinName?.includes("ogex") || false;
     this.body = this.game.add.sprite(0, 0, 'playerBody').setRotation(-Math.PI / 2);
-    this.shadow = this.game.add.sprite(Player.shadowOffsetX, Player.shadowOffsetY, 'playerShadow').setRotation(-Math.PI / 2);
-    this.shadow.setAlpha(0.15);
+    const bodyShadowKey = this.createShadowTexture('playerBody');
+    this.shadow = this.game.add.sprite(Player.shadowOffsetX, Player.shadowOffsetY, bodyShadowKey).setRotation(-Math.PI / 2);
+    this.shadow.setAlpha(0.085);
     this.evolutionOverlay = this.game.add.sprite(0, 0, '').setRotation(-Math.PI / 2);
     this.updateEvolution();
 
     this.sword = this.game.add.sprite(this.body.width / 2, this.body.height / 2, 'playerSword').setRotation(Math.PI / 4);
+    const swordShadowKey = this.createShadowTexture('playerSword');
+    this.swordShadow = this.game.add.sprite(0, 0, swordShadowKey).setRotation(Math.PI / 4);
+    this.swordShadow.setAlpha(0.085);
     this.swordContainer = this.game.add.container(0, 0, [this.sword]);
 
     this.protectionAura = this.game.add.graphics();
@@ -166,7 +171,7 @@ class Player extends BaseEntity {
       .setFill('#ffffff');
 
     this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.swordContainer, this.body, this.evolutionOverlay]);
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.bodyContainer, name, this.messageText]);
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.swordShadow, this.bodyContainer, name, this.messageText]);
 
     if (ogex) {
       try {
@@ -203,15 +208,20 @@ class Player extends BaseEntity {
 
     if (Settings.loadskins) {
         this.loadSkin(this.skin).then(() => {
-        this.body.setTexture(skins.player.name+'Body');
-        this.sword.setTexture(skins.player.name+'Sword');
+        const skinBase = skins.player.name;
+        this.body.setTexture(skinBase+'Body');
+        this.shadow.setTexture(this.createShadowTexture(skinBase+'Body'));
+        this.sword.setTexture(skinBase+'Sword');
+        this.swordShadow.setTexture(this.createShadowTexture(skinBase+'Sword'));
       }).catch(() => {
         console.log('failed to load skin', this.skin);
       });
     } else {
         this.loadSkin(this.skin).then(() => {
         this.body.setTexture(this.skinName+'Body');
+        this.shadow.setTexture(this.createShadowTexture(this.skinName+'Body'));
         this.sword.setTexture(this.skinName+'Sword');
+        this.swordShadow.setTexture(this.createShadowTexture(this.skinName+'Sword'));
       }).catch(() => {
         console.log('failed to load skin', this.skin);
       });
@@ -712,6 +722,21 @@ class Player extends BaseEntity {
     if (this.shadow) {
       this.shadow.setRotation(angle - Math.PI / 2);
     }
+    if (this.swordShadow) {
+      const sx = this.body.width / 2;
+      const sy = this.body.height / 2;
+      const cos1 = Math.cos(swordRotation);
+      const sin1 = Math.sin(swordRotation);
+      const rx = sx * cos1 - sy * sin1;
+      const ry = sx * sin1 + sy * cos1;
+      const cos2 = Math.cos(angle);
+      const sin2 = Math.sin(angle);
+      this.swordShadow.setPosition(
+        rx * cos2 - ry * sin2 + Player.shadowOffsetX,
+        rx * sin2 + ry * cos2 + Player.shadowOffsetY
+      );
+      this.swordShadow.setRotation(angle + swordRotation + Math.PI / 4);
+    }
   }
 
   updatePrediction() {
@@ -753,6 +778,7 @@ class Player extends BaseEntity {
     const swordVisible = !this.swordFlying;
     if (this._lastSwordVisible !== swordVisible) {
       this.sword.setVisible(swordVisible);
+      if (this.swordShadow) this.swordShadow.setVisible(swordVisible);
       this._lastSwordVisible = swordVisible;
     }
     const newScale = (this.shape.radius * 2) / this.body.width;

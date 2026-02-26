@@ -70,6 +70,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('iceSpike', publicPath + '/assets/game/Ice_Spike.png');
     this.load.image('icePond', publicPath + '/assets/game/Ice_Pond-new.png');
     this.load.image('rock', publicPath + '/assets/game/Rock.png');
+    this.load.image('rockShadow', publicPath + '/assets/game/rockShadow.png');
     this.load.image('lavaRock', publicPath + '/assets/game/Lava_Rock.png');
     this.load.image('lavaPool', publicPath + '/assets/game/Lava_Pool.png');
 
@@ -100,8 +101,11 @@ export default class Game extends Phaser.Scene {
     this.load.image('ancientShadow', publicPath + '/assets/game/mobs/ancientShadow.png');
     this.load.image('fireball', publicPath + '/assets/game/mobs/fireball.png');
     this.load.image('boulder', publicPath + '/assets/game/mobs/boulder.png');
+    this.load.image('boulderShadow', publicPath + '/assets/game/mobs/boulderShadow.png');
     this.load.image('swordProj', publicPath + '/assets/game/mobs/sword.png');
+    this.load.image('swordProjShadow', publicPath + '/assets/game/mobs/swordShadow.png');
     this.load.image('snowball', publicPath + '/assets/game/mobs/snowball.png');
+    this.load.image('snowballShadow', publicPath + '/assets/game/mobs/snowballShadow.png');
     this.load.image('ornament1', publicPath + '/assets/game/mobs/ornament1.png');
     this.load.image('ornament2', publicPath + '/assets/game/mobs/ornament2.png');
 
@@ -115,8 +119,6 @@ export default class Game extends Phaser.Scene {
     this.load.image('chest8', publicPath + '/assets/game/Chest8.png');
 
     this.load.image('crown', publicPath + '/assets/game/player/crown-new.png');
-    this.load.image('playerShadow', publicPath + '/assets/game/player/playerShadow.png');
-    this.load.image('swordShadow', publicPath + '/assets/game/player/swordShadow.png');
 
     // evols
     this.load.image('tankOverlay', publicPath + '/assets/game/player/tank.png');

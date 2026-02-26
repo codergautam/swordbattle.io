@@ -9,8 +9,8 @@ class Sword extends BaseEntity {
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
 
-  static shadowOffsetX = 20;
-  static shadowOffsetY = 20;
+  static shadowOffsetX = 10;
+  static shadowOffsetY = 10;
 
   createSprite() {
     if(this.skin) {
@@ -24,8 +24,9 @@ class Sword extends BaseEntity {
       this.skinName = 'playerSword';
     }
     this.body = this.game.add.sprite(0, 0, this.skinName).setOrigin(-0.2, 0.5);
-    this.shadow = this.game.add.sprite(Sword.shadowOffsetX, Sword.shadowOffsetY, 'swordShadow').setOrigin(-0.2, 0.5);
-    this.shadow.setAlpha(0.15);
+    const shadowKey = this.createShadowTexture(this.skinName);
+    this.shadow = this.game.add.sprite(Sword.shadowOffsetX, Sword.shadowOffsetY, shadowKey).setOrigin(-0.2, 0.5);
+    this.shadow.setAlpha(0.075);
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);
     return this.container;
   }
@@ -41,6 +42,9 @@ class Sword extends BaseEntity {
     this.game.load.once(Phaser.Loader.Events.COMPLETE, () => {
       this.skinName = skinName;
       this.body.setTexture(this.skinName);
+      if (this.shadow) {
+        this.shadow.setTexture(this.createShadowTexture(this.skinName));
+      }
       resolve();
     });
     this.game.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, () => {
@@ -53,6 +57,10 @@ class Sword extends BaseEntity {
 
     });
 
+  }
+
+  updateRotation() {
+    // Rotation handled in update() - override to prevent BaseEntity's NaN from missing basicAngle
   }
 
   abilityParticlesLast: number = 0;
@@ -105,6 +113,9 @@ class Sword extends BaseEntity {
 
   update(dt: number) {
     super.update(dt);
+    // Reset container rotation - BaseEntity may set it for Polygon shapes,
+    // but Sword handles rotation directly on body/shadow to avoid compounding
+    this.container.setRotation(0);
 
     const scale = (this.size * 3) / this.body.width;
     this.body.setScale(scale);

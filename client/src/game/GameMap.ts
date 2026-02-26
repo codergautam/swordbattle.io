@@ -98,44 +98,49 @@ class GameMap {
     const worldW = maxX - minX;
     const worldH = maxY - minY;
 
-    const borderWidth = 120;
-    const borderAlpha = 0.25;
-    const canvasScale = 0.1;
+    const canvasScale = 0.3;
     const canvasW = Math.ceil(worldW * canvasScale);
     const canvasH = Math.ceil(worldH * canvasScale);
 
     const toX = (wx: number) => (wx - minX) * canvasScale;
     const toY = (wy: number) => (wy - minY) * canvasScale;
 
-    const canvas = document.createElement('canvas');
-    canvas.width = canvasW;
-    canvas.height = canvasH;
-    const ctx = canvas.getContext('2d')!;
+    const borders = [
+      { width: 120, alpha: 0.05, key: 'riverBorderOuter' },
+      { width: 60, alpha: 0.15,  key: 'riverBorderShadow' },
+      { width: 30, alpha: 1,    key: 'riverBorder' },
+    ];
 
-    // Fill all river shapes with solid black
-    ctx.fillStyle = '#000000';
-    for (const river of rivers) {
-      this.fillRiverOnCanvas(ctx, river.shape as any, toX, toY, canvasScale);
+    for (const border of borders) {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvasW;
+      canvas.height = canvasH;
+      const ctx = canvas.getContext('2d')!;
+
+      // Fill all river shapes with solid black
+      ctx.fillStyle = '#000000';
+      for (const river of rivers) {
+        this.fillRiverOnCanvas(ctx, river.shape as any, toX, toY, canvasScale);
+      }
+
+      // Punch out inset shapes using destination-out compositing
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = '#000000';
+      for (const river of rivers) {
+        this.fillInsetOnCanvas(ctx, river.shape as any, border.width, toX, toY, canvasScale);
+      }
+
+      // Create Phaser texture from canvas
+      if (this.scene.textures.exists(border.key)) {
+        this.scene.textures.remove(border.key);
+      }
+      this.scene.textures.addCanvas(border.key, canvas);
+
+      const sprite = this.scene.add.sprite(minX + worldW / 2, minY + worldH / 2, border.key);
+      sprite.setDisplaySize(worldW, worldH);
+      sprite.setDepth(-1.5);
+      sprite.setAlpha(border.alpha);
     }
-
-    // Punch out inset shapes using destination-out compositing
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.fillStyle = '#000000';
-    for (const river of rivers) {
-      this.fillInsetOnCanvas(ctx, river.shape as any, borderWidth, toX, toY, canvasScale);
-    }
-
-    // Create Phaser texture from canvas
-    const textureKey = 'riverBorder';
-    if (this.scene.textures.exists(textureKey)) {
-      this.scene.textures.remove(textureKey);
-    }
-    this.scene.textures.addCanvas(textureKey, canvas);
-
-    const sprite = this.scene.add.sprite(minX + worldW / 2, minY + worldH / 2, textureKey);
-    sprite.setDisplaySize(worldW, worldH);
-    sprite.setDepth(-1.5);
-    sprite.setAlpha(borderAlpha);
   }
 
   private fillRiverOnCanvas(
@@ -170,6 +175,31 @@ class GameMap {
       const points: { x: number; y: number }[] = shape.points;
       const n = points.length;
 
+      // World border bounds
+      const worldLeft = this.x;
+      const worldRight = this.x + this.width;
+      const worldTop = this.y;
+      const worldBottom = this.y + this.height;
+      const tolerance = 1;
+
+      // Per-edge inset: 0 if the edge lies on a world border, otherwise normal inset
+      const edgeInsets: number[] = [];
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n;
+        const ax = shape.x + points[i].x;
+        const ay = shape.y + points[i].y;
+        const bx = shape.x + points[j].x;
+        const by = shape.y + points[j].y;
+
+        const onWorldBorder =
+          (Math.abs(ax - worldLeft) < tolerance && Math.abs(bx - worldLeft) < tolerance) ||
+          (Math.abs(ax - worldRight) < tolerance && Math.abs(bx - worldRight) < tolerance) ||
+          (Math.abs(ay - worldTop) < tolerance && Math.abs(by - worldTop) < tolerance) ||
+          (Math.abs(ay - worldBottom) < tolerance && Math.abs(by - worldBottom) < tolerance);
+
+        edgeInsets.push(onWorldBorder ? 0 : inset);
+      }
+
       // Compute inward unit normals for each edge
       const normals: { x: number; y: number }[] = [];
       for (let i = 0; i < n; i++) {
@@ -190,16 +220,35 @@ class GameMap {
         for (const nm of normals) { nm.x = -nm.x; nm.y = -nm.y; }
       }
 
-      // Offset each vertex inward using miter formula for uniform border width
+      // Offset each vertex using per-edge insets (edges on world border get 0 inset)
       ctx.beginPath();
       for (let i = 0; i < n; i++) {
-        const n1 = normals[(i - 1 + n) % n];
-        const n2 = normals[i];
-        const dot = n1.x * n2.x + n1.y * n2.y;
-        const denom = 1 + dot;
-        const f = denom > 0.001 ? inset / denom : inset;
-        const ix = points[i].x + (n1.x + n2.x) * f;
-        const iy = points[i].y + (n1.y + n2.y) * f;
+        const prevEdge = (i - 1 + n) % n;
+        const currEdge = i;
+        const n1 = normals[prevEdge];
+        const n2 = normals[currEdge];
+        const inset1 = edgeInsets[prevEdge];
+        const inset2 = edgeInsets[currEdge];
+
+        let ix: number, iy: number;
+        const det = n1.x * n2.y - n2.x * n1.y;
+
+        if (Math.abs(det) > 0.001) {
+          // Solve 2x2 system: offset at inset1 from prev edge, inset2 from curr edge
+          const ox = (inset1 * n2.y - inset2 * n1.y) / det;
+          const oy = (inset2 * n1.x - inset1 * n2.x) / det;
+          ix = points[i].x + ox;
+          iy = points[i].y + oy;
+        } else {
+          // Near-parallel edges fallback
+          const avgInset = (inset1 + inset2) / 2;
+          const dot = n1.x * n2.x + n1.y * n2.y;
+          const denom = 1 + dot;
+          const f = denom > 0.001 ? avgInset / denom : avgInset;
+          ix = points[i].x + (n1.x + n2.x) * f;
+          iy = points[i].y + (n1.y + n2.y) * f;
+        }
+
         if (i === 0) ctx.moveTo(toX(shape.x + ix), toY(shape.y + iy));
         else ctx.lineTo(toX(shape.x + ix), toY(shape.y + iy));
       }

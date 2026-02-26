@@ -87,6 +87,8 @@ export enum EvolutionTypes {
   Drifter = 30,
   Colossal = 31,
   Medic = 32,
+  Disco = 33,
+  Builder = 34,
 }
 
 export enum BuffTypes {

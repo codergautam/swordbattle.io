@@ -48,7 +48,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('fireTile', publicPath + '/assets/game/tiles/fire.jpg');
     this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice-new.png');
-    this.load.image('river', publicPath + '/assets/game/tiles/river.png');
+    this.load.image('river', publicPath + '/assets/game/tiles/river-new.png');
     this.load.image('safezone', publicPath + '/assets/game/tiles/spawn.png');
     this.load.image('sand', publicPath + '/assets/game/tiles/sand.png');
 
@@ -62,14 +62,14 @@ export default class Game extends Phaser.Scene {
     this.load.image('mastery', publicPath + '/assets/game/ui/mastery.png');
     this.load.image('house1', publicPath + '/assets/game/house1.png');
     this.load.image('house1roof', publicPath + '/assets/game/house1roof.png');
-    this.load.image('mossyRock', publicPath + '/assets/game/Mossy_Rock.png');
+    this.load.image('mossyRock', publicPath + '/assets/game/Mossy_Rock-shaded.png');
     this.load.image('pond', publicPath + '/assets/game/Pond_Earth.png');
-    this.load.image('bush', publicPath + '/assets/game/grass.png');
-    this.load.image('bushFaded', publicPath + '/assets/game/grass-50.png');
-    this.load.image('iceMound', publicPath + '/assets/game/Ice_Mound-new.png');
-    this.load.image('iceMoundFaded', publicPath + '/assets/game/Ice_Mound-50.png');
-    this.load.image('iceSpike', publicPath + '/assets/game/Ice_Spike.png');
-    this.load.image('icePond', publicPath + '/assets/game/Ice_Pond-new.png');
+    this.load.image('bush', publicPath + '/assets/game/grass-shaded.png');
+    this.load.image('bushFaded', publicPath + '/assets/game/grass-50-shaded.png');
+    this.load.image('iceMound', publicPath + '/assets/game/Ice_Mound-shaded.png');
+    this.load.image('iceMoundFaded', publicPath + '/assets/game/Ice_Mound-50-shaded.png');
+    this.load.image('iceSpike', publicPath + '/assets/game/Ice_Spike-shaded.png');
+    this.load.image('icePond', publicPath + '/assets/game/Ice_Pond-shaded.png');
     this.load.image('rock', publicPath + '/assets/game/Rock.png');
     this.load.image('rockShadow', publicPath + '/assets/game/rockShadow.png');
     this.load.image('lavaRock', publicPath + '/assets/game/Lava_Rock.png');
@@ -110,14 +110,14 @@ export default class Game extends Phaser.Scene {
     this.load.image('ornament1', publicPath + '/assets/game/mobs/ornament1.png');
     this.load.image('ornament2', publicPath + '/assets/game/mobs/ornament2.png');
 
-    this.load.image('chest1', publicPath + '/assets/game/Chest1.png');
-    this.load.image('chest2', publicPath + '/assets/game/Chest2.png');
-    this.load.image('chest3', publicPath + '/assets/game/Chest3.png');
-    this.load.image('chest4', publicPath + '/assets/game/Chest4.png');
-    this.load.image('chest5', publicPath + '/assets/game/Chest5.png');
-    this.load.image('chest6', publicPath + '/assets/game/Chest6.png');
-    this.load.image('chest7', publicPath + '/assets/game/Chest7.png');
-    this.load.image('chest8', publicPath + '/assets/game/Chest8.png');
+    this.load.image('chest1', publicPath + '/assets/game/Chest1-shaded.png');
+    this.load.image('chest2', publicPath + '/assets/game/Chest2-shaded.png');
+    this.load.image('chest3', publicPath + '/assets/game/Chest3-shaded.png');
+    this.load.image('chest4', publicPath + '/assets/game/Chest4-shaded.png');
+    this.load.image('chest5', publicPath + '/assets/game/Chest5-shaded.png');
+    this.load.image('chest6', publicPath + '/assets/game/Chest6-shaded.png');
+    this.load.image('chest7', publicPath + '/assets/game/Chest7-shaded.png');
+    this.load.image('chest8', publicPath + '/assets/game/Chest8.png'); // Removed
 
     this.load.image('crown', publicPath + '/assets/game/player/crown-new.png');
 

@@ -12,7 +12,7 @@ class SoundManager {
     this.game = game;
     this.manager = {
       [FlagTypes.EnemyHit]: new Sound(FlagTypes.EnemyHit, [
-        'HitEnemy/EnemyHit1.wav', 'HitEnemy/EnemyHit2.wav', 'HitEnemy/EnemyHit3.wav',
+        'HitEnemy/EnemyHit4.wav', 'HitEnemy/EnemyHit5.wav', 'HitEnemy/EnemyHit6.wav',
       ]),
       [FlagTypes.Damaged]: new Sound(FlagTypes.Damaged, [
         'TakeDamage/TakeDamage1.wav', 'TakeDamage/TakeDamage2.wav', 'TakeDamage/TakeDamage3.wav',
@@ -27,7 +27,7 @@ class SoundManager {
         'GetCoin/GetCoin1.wav', 'GetCoin/GetCoin2.wav', 'GetCoin/GetCoin3.wav',
       ], 50),
       [FlagTypes.ChestHit]: new Sound(FlagTypes.ChestHit, [
-        'HitChest/HitChest1.wav', 'HitChest/HitChest2.wav', 'HitChest/HitChest3.wav',
+        'HitChest/HitChest4.wav', 'HitChest/HitChest5.wav', 'HitChest/HitChest6.wav',
       ]),
       [FlagTypes.ChestDestroy]: new Sound(FlagTypes.ChestDestroy, [
         'ChestDestroy/ChestDestroy1.wav', 'ChestDestroy/ChestDestroy2.wav', 'ChestDestroy/ChestDestroy3.wav',

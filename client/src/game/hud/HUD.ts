@@ -22,7 +22,7 @@ class HUD {
   mobileControls: MobileControls;
   coinCounter: CoinCounter;
   components: any[];
-  scale = 1;
+  scale = 0.8;
   hidden = false;
 
   constructor(game: Game) {

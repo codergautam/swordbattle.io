@@ -200,13 +200,13 @@ const accountSlice = createSlice({
   reducers: {
     clearAccount: (state) => {
       state.email = '';
-      state.username = 'usernameio';
+      state.username = '';
       state.clan = '';
       state.secret = '';
       state.gems = 0;
       state.mastery = 0;
       state.tokens = 0;
-      state.isLoggedIn = true;
+      state.isLoggedIn = false;
       state.skins = { equipped: 1, owned: [1] };
       window.phaser_game?.events.emit('tokenUpdate', '');
       state.is_v1 = false;

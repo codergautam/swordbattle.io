@@ -26,6 +26,7 @@ export type AccountState = {
     claimableTo: number;
     checkedIn: number;
     xpBonus: number | null;
+    playtime: number;
   };
 }
 
@@ -54,6 +55,7 @@ const initialState: AccountState = {
     claimableTo: 0,
     checkedIn: 0,
     xpBonus: null,
+    playtime: 0,
   },
 };
 
@@ -224,6 +226,7 @@ const accountSlice = createSlice({
         claimableTo: 0,
         checkedIn: 0,
         xpBonus: null,
+        playtime: 0,
       };
     },
     setAccount: (state, action) => {

@@ -139,6 +139,8 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
   const claimedTo = dl.claimedTo;
   const claimableTo = dl.claimableTo;
   const playBonusEarned = dl.checkedIn >= 2;
+  const playtimeSeconds = dl.playtime || 0;
+  const playtimeMinutes = Math.floor(playtimeSeconds / 60);
 
   const [page, setPage] = useState(() => Math.floor(Math.max(0, claimableTo - 1) / DAYS_PER_PAGE));
   const [claiming, setClaiming] = useState(false);
@@ -165,7 +167,7 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
   const bonusPercent = Math.min(currentStreak, 50);
   const hasClaimable = claimedTo < claimableTo;
   const nextClaimDay = claimedTo + 1;
-  const progressPercent = playBonusEarned ? 100 : 0;
+  const progressPercent = playBonusEarned ? 100 : Math.min(100, Math.round((playtimeSeconds / 900) * 100));
 
   const handleClaim = useCallback(async (count?: number) => {
     if (!account?.isLoggedIn || claiming || !hasClaimable) return;
@@ -266,7 +268,7 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
         <div className="progress-bar-container">
           <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }} />
           <span className="progress-bar-text">
-            {playBonusEarned ? 'Complete!' : '0min / 15min'}
+            {playBonusEarned ? 'Complete!' : `${playtimeMinutes}min / 15min`}
           </span>
         </div>
       </div>

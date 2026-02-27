@@ -51,13 +51,18 @@ async function main() {
     `);
     console.log(`[DailyReset] Step 2: Reset streak for ${step2.rowCount} accounts`);
 
-    // Step 3: Reset all checkedIn to 0
+    // Step 3: Reset all checkedIn to 0 and playtime to 0
     const step3 = await client.query(`
       UPDATE accounts
-      SET "dailyLogin" = jsonb_set("dailyLogin", '{checkedIn}', '0'::jsonb)
+      SET "dailyLogin" = jsonb_set(
+        jsonb_set("dailyLogin", '{checkedIn}', '0'::jsonb),
+        '{playtime}',
+        '0'::jsonb
+      )
       WHERE COALESCE(("dailyLogin"->>'checkedIn')::int, 0) != 0
+        OR COALESCE(("dailyLogin"->>'playtime')::int, 0) != 0
     `);
-    console.log(`[DailyReset] Step 3: Reset checkedIn for ${step3.rowCount} accounts`);
+    console.log(`[DailyReset] Step 3: Reset checkedIn and playtime for ${step3.rowCount} accounts`);
 
     console.log('[DailyReset] Complete');
   } catch (error) {

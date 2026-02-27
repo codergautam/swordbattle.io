@@ -265,6 +265,10 @@ export class AccountsService {
     return account;
   }
 
+  async saveAccount(account: Account): Promise<Account> {
+    return this.accountsRepository.save(account);
+  }
+
   async checkIn(account: Account): Promise<Account> {
     const dl = { ...account.dailyLogin };
     if (dl.checkedIn === 0) {

@@ -4773,8 +4773,8 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "yinyangv2Sword.png",
-      "bodyFileName": "yinyangv2Player.png",
+      "swordFileName": "yinyangv2Sword2.png",
+      "bodyFileName": "yinyangv2Player2.png",
       "description": "Find a balance."
     },
     "bullseye v2": {
@@ -4784,8 +4784,8 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "bullseyev2Sword.png",
-      "bodyFileName": "bullseyev2Player.png",
+      "swordFileName": "bullseyev2Sword2.png",
+      "bodyFileName": "bullseyev2Player2.png",
       "description": "Never miss your shots!"
     },
     "bubble v2": {
@@ -4795,8 +4795,8 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "bubblev2Sword.png",
-      "bodyFileName": "bubblev2Player.png",
+      "swordFileName": "bubblev2Sword2.png",
+      "bodyFileName": "bubblev2Player2.png",
       "description": "Magical and mysterious"
     },
     "hacker v2": {
@@ -4806,8 +4806,8 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "hackerv2Sword.png",
-      "bodyFileName": "hackerv2Player.png",
+      "swordFileName": "hackerv2Sword2.png",
+      "bodyFileName": "hackerv2Player2.png",
       "description": "ℙ𝕣𝕠 𝕙𝕒𝕔𝕜𝕖𝕣"
     }
   }

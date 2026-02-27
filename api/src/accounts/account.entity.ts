@@ -65,8 +65,8 @@ export class Account {
   @Column({ type: 'jsonb', default: '{"tags": [], "colors": []}' })
   tags: { tags: string[]; colors: string[] };
 
-  @Column({ type: 'jsonb', default: '{"streak": 0, "bestStreak": 0, "claimedTo": 0, "claimableTo": 0, "checkedIn": 0, "xpBonus": null}' })
-  dailyLogin: { streak: number; bestStreak: number; claimedTo: number; claimableTo: number; checkedIn: number; xpBonus: number | null };
+  @Column({ type: 'jsonb', default: '{"streak": 0, "bestStreak": 0, "claimedTo": 0, "claimableTo": 0, "checkedIn": 0, "xpBonus": null, "playtime": 0}' })
+  dailyLogin: { streak: number; bestStreak: number; claimedTo: number; claimableTo: number; checkedIn: number; xpBonus: number | null; playtime: number };
 
   @Column({ default: 0 }) tokens: number;
 

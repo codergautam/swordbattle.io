@@ -385,9 +385,16 @@ class Game {
   getAllEntities(player) {
     const entities = {};
 
+    for (const entity of this.entities.values()) {
+      if (entity.isStatic) {
+        entities[entity.id] = entity.state.get();
+      }
+    }
+
     for (const entityId of player.getEntitiesInViewport()) {
       const entity = this.entities.get(entityId);
       if (!entity) continue;
+      if (entity.isStatic) continue;
       entities[entity.id] = entity.state.get();
     }
 
@@ -416,6 +423,8 @@ class Game {
         }
         continue;
       }
+      if (entity.isStatic) continue;
+
       const stateData = entity.state.get();
 
       if (!previousSet.has(entityId)) {
@@ -444,6 +453,8 @@ class Game {
         }
         continue;
       }
+      if (entity.isStatic) continue;
+
       entity.state.get();
       changes[entity.id] = {
         ...entity.state.getChanges(),

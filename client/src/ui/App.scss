@@ -137,7 +137,7 @@ footer {
   transform-origin: top left;
 
   .game-btn {
-    transform: translateX(-210px);
+    transform: translateX(calc(-210px * var(--scale, 1)));
     margin-bottom: 10px;
     height: 130px;
     margin-right: 5px;
@@ -145,7 +145,7 @@ footer {
     transition: all 0.2s ease-in-out;
 
     &:hover {
-      transform: translateX(-170px);
+      transform: translateX(calc(-170px * var(--scale, 1)));
       cursor: pointer;
     }
   }

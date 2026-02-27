@@ -6,7 +6,7 @@ module.exports = class Rook extends Evolution {
   static level = 22;
   static previousEvol = Types.Evolution.Tank;
   static abilityDuration = 0.2;
-  static abilityCooldown = 5.5;
+  static abilityCooldown = 4.9;
 
   applyAbilityEffects() {
     const lastInput = this.player.lastDirectionInput ?? 3; // dwn
@@ -43,7 +43,7 @@ module.exports = class Rook extends Evolution {
     this.player.knockbackResistance.multiplier *= 1.35;
     this.player.health.max.multiplier *= 1.45;
     this.player.health.regen.multiplier *= 1.3;
-    this.player.health.regenWait.multiplier *= 1.1;
+    // this.player.health.regenWait.multiplier *= 1.05;
     super.update(dt);
   }
 }

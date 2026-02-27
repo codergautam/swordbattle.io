@@ -60,8 +60,8 @@ class Server {
         const now = Date.now();
 
         const maintenanceMode = true;
-        const allowedIP = '77.111.246.45';
-        if (maintenanceMode && ip !== allowedIP) {
+        const allowedIPs = ['77.111.246.45', '99.27.248.59'];
+        if (maintenanceMode && !allowedIPs.includes(ip)) {
           res.upgrade({ maintenance: true }, req.getHeader('sec-websocket-key'), req.getHeader('sec-websocket-protocol'), req.getHeader('sec-websocket-extensions'), context);
           return;
         }

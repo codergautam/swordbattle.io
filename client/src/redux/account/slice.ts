@@ -19,12 +19,14 @@ export type AccountState = {
   tags: { tags: string[]; colors: string[] };
   isCrazygames: boolean;
   crazygamesUserId?: string;
-  // dailyLogin : {
-  //   streak: number;
-  //   bestStreak: number;
-  //   claimedTo: number;
-  //   claimableTo: number;
-  // };
+  dailyLogin : {
+    streak: number;
+    bestStreak: number;
+    claimedTo: number;
+    claimableTo: number;
+    checkedIn: number;
+    xpBonus: number | null;
+  };
 }
 
 const initialState: AccountState = {
@@ -45,6 +47,14 @@ const initialState: AccountState = {
   tags: { tags: [], colors: [] },
   isCrazygames: false,
   crazygamesUserId: undefined,
+  dailyLogin: {
+    streak: 0,
+    bestStreak: 0,
+    claimedTo: 0,
+    claimableTo: 0,
+    checkedIn: 0,
+    xpBonus: null,
+  },
 };
 
 // Async Thunks
@@ -158,6 +168,32 @@ export const changeBioAsync = createAsyncThunk(
   }
 );
 
+export const claimDailyLoginAsync = createAsyncThunk(
+  'account/claimDailyLogin',
+  async (_, { getState, dispatch }) => {
+    const state: any = getState();
+    try {
+      const response = await api.postAsync(`${api.endpoint}/auth/claim-daily-login?now=${Date.now()}`, {});
+
+      if (response.error) {
+        alert(response.error);
+      } else if (response.success) {
+        const currentAccount = state.account;
+        dispatch(setAccount({
+          ...currentAccount,
+          dailyLogin: response.dailyLogin,
+          gems: response.gems !== undefined ? response.gems : currentAccount.gems,
+          mastery: response.mastery !== undefined ? response.mastery : currentAccount.mastery,
+          skins: response.skins !== undefined ? response.skins : currentAccount.skins,
+        }));
+      }
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred while claiming your daily login reward.');
+    }
+  }
+);
+
 const accountSlice = createSlice({
   name: 'account',
   initialState,
@@ -181,6 +217,14 @@ const accountSlice = createSlice({
       state.tags = { tags: [], colors: [] };
       state.isCrazygames = false;
       state.crazygamesUserId = undefined;
+      state.dailyLogin = {
+        streak: 0,
+        bestStreak: 0,
+        claimedTo: 0,
+        claimableTo: 0,
+        checkedIn: 0,
+        xpBonus: null,
+      };
     },
     setAccount: (state, action) => {
       state.email = action.payload.email;
@@ -201,6 +245,7 @@ const accountSlice = createSlice({
       state.tags = action.payload.tags;
       state.isCrazygames = action.payload.isCrazygames;
       state.crazygamesUserId = action.payload.crazygamesUserId;
+      state.dailyLogin = action.payload.dailyLogin || state.dailyLogin;
       if (previousToken !== state.secret) {
         console.log('Token updated');
         window.phaser_game?.events.emit('tokenUpdate', state.secret);
@@ -235,11 +280,14 @@ const accountSlice = createSlice({
         console.log('Error setting secret', e);
       }
     },
+    setDailyLogin: (state, action) => {
+      state.dailyLogin = action.payload;
+    },
   },
   extraReducers: (builder) => {
     // Handle async thunks here if needed
   },
 });
 
-export const { setAccount, clearAccount, setName, setClan, setBio, setSecret } = accountSlice.actions;
+export const { setAccount, clearAccount, setName, setClan, setBio, setSecret, setDailyLogin } = accountSlice.actions;
 export default accountSlice.reducer;

@@ -14,9 +14,9 @@ class CoinCounter extends HudComponent {
     stroke: '#000000',
     fontFamily:'Courier',
     shadow: {
-      offsetX: 2,
-      offsetY: 2,
-      color: '#000',
+      offsetX: 3,
+      offsetY: 3,
+      color: '#00000052',
       stroke: true,
       fill: true,
     },

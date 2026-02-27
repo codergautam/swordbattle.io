@@ -49,10 +49,16 @@
 
 	.results-buttons {
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
 		align-items: center;
-		justify-content: center;
+		justify-content: space-around;
+		gap: 15px;
 		padding: 15px;
+
+		h1 {
+			font-size: 17px;
+			width: 130px;
+		}
 
 		.play-again {
 			img {
@@ -66,10 +72,9 @@
 			}
 		}
 		.to-home {
-			margin-bottom: 5px;
 			img {
 				width: auto;
-				height: 60px;
+				height: 120px;
 				transition: 0.2s;
 
 				&:hover {

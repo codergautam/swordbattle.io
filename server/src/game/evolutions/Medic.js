@@ -3,8 +3,7 @@ const Types = require('../Types');
 
 module.exports = class Medic extends Evolution {
   static type = Types.Evolution.Medic;
-  static level = 29;
-  static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
+  static level = 9999; // Not in rotation
   static abilityDuration = 0.01; // Instant ability
   static abilityCooldown = 70;
 

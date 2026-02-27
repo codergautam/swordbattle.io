@@ -24,8 +24,9 @@ class ProgressBar extends HudComponent {
   killStreak = 0;
   lastKillTime = 0;
   lastEntityStabId = 0;
-  currentProtectionMessage: 'none' | 'safezone' | 'collect' = 'none';
+  currentProtectionMessage: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'antiTeam' = 'none';
   isBurning = false;
+  isHypnotized = false;
 
   initialize() {
     // Create the background bar
@@ -173,12 +174,15 @@ class ProgressBar extends HudComponent {
     });
   }
 
-  updateBurningText(isBurning: boolean, hasProtectionMessage: boolean) {
-    if (isBurning && !this.isBurning) {
-      this.isBurning = true;
+  updateBurningText(isBurning: boolean, hasProtectionMessage: boolean, isHypnotized: boolean) {
+    if (isHypnotized && !this.isHypnotized) {
+      this.isHypnotized = true;
+      this.burningText.setText('Hypnotized!');
+      this.burningText.setColor('#9b30ff');
+      this.burningText.setStroke('#000000', 5);
 
+      this.game.tweens.killTweensOf(this.burningText);
       const targetY = hasProtectionMessage ? -this.height - 110 : -this.height - 90;
-
       this.game.tweens.add({
         targets: this.burningText,
         alpha: 1,
@@ -191,26 +195,78 @@ class ProgressBar extends HudComponent {
         repeat: -1,
         repeatDelay: 300,
       });
-    } else if (!isBurning && this.isBurning) {
-      this.isBurning = false;
-      this.game.tweens.killTweensOf(this.burningText);
-      this.game.tweens.add({
-        targets: this.burningText,
-        alpha: 0,
-        scaleX: 1,
-        scaleY: 1,
-        duration: 200,
-        ease: 'Power2',
-      });
-    } else if (isBurning && this.isBurning) {
-      const targetY = hasProtectionMessage ? -this.height - 110 : -this.height - 90;
-      if (Math.abs(this.burningText.y - targetY) > 5) {
+      this.isBurning = true;
+    } else if (!isHypnotized && this.isHypnotized) {
+      this.isHypnotized = false;
+      this.burningText.setText('Burning!');
+      this.burningText.setColor('#ff4444');
+      this.burningText.setStroke('#000000', 5);
+
+      if (isBurning) {
+        this.game.tweens.killTweensOf(this.burningText);
+        const targetY = hasProtectionMessage ? -this.height - 110 : -this.height - 90;
         this.game.tweens.add({
           targets: this.burningText,
+          alpha: 1,
           y: targetY,
+          scaleX: 1.2,
+          scaleY: 1.2,
+          duration: 200,
+          ease: 'Back.easeOut',
+          yoyo: true,
+          repeat: -1,
+          repeatDelay: 300,
+        });
+        this.isBurning = true;
+      } else {
+        this.isBurning = false;
+        this.game.tweens.killTweensOf(this.burningText);
+        this.game.tweens.add({
+          targets: this.burningText,
+          alpha: 0,
+          scaleX: 1,
+          scaleY: 1,
           duration: 200,
           ease: 'Power2',
         });
+      }
+    } else if (!isHypnotized) {
+      if (isBurning && !this.isBurning) {
+        this.isBurning = true;
+        const targetY = hasProtectionMessage ? -this.height - 110 : -this.height - 90;
+        this.game.tweens.add({
+          targets: this.burningText,
+          alpha: 1,
+          y: targetY,
+          scaleX: 1.2,
+          scaleY: 1.2,
+          duration: 200,
+          ease: 'Back.easeOut',
+          yoyo: true,
+          repeat: -1,
+          repeatDelay: 300,
+        });
+      } else if (!isBurning && this.isBurning) {
+        this.isBurning = false;
+        this.game.tweens.killTweensOf(this.burningText);
+        this.game.tweens.add({
+          targets: this.burningText,
+          alpha: 0,
+          scaleX: 1,
+          scaleY: 1,
+          duration: 200,
+          ease: 'Power2',
+        });
+      } else if (isBurning && this.isBurning) {
+        const targetY = hasProtectionMessage ? -this.height - 110 : -this.height - 90;
+        if (Math.abs(this.burningText.y - targetY) > 5) {
+          this.game.tweens.add({
+            targets: this.burningText,
+            y: targetY,
+            duration: 200,
+            ease: 'Power2',
+          });
+        }
       }
     }
   }
@@ -233,15 +289,29 @@ class ProgressBar extends HudComponent {
     this.levelText!.text = `Level: ${player.level} (${Math.round(this.currentProgress * 100)}%)`;
     this.progressBar.scaleX = this.currentProgress;
 
-    let desiredProtectionState: 'none' | 'safezone' | 'collect' = 'none';
-    if (player.biome === BiomeTypes.Safezone) {
+    let desiredProtectionState: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'antiTeam' = 'none';
+    if (player.flags[FlagTypes.RespawnShield]) {
+      desiredProtectionState = 'respawnShield';
+    } else if (player.biome === BiomeTypes.Safezone) {
       desiredProtectionState = 'safezone';
     } else if (player.coins < 500) {
       desiredProtectionState = 'collect';
+    } else if (player.flags[FlagTypes.AntiTeamActive]) {
+      desiredProtectionState = 'antiTeam';
     }
 
     const switchProtectionMessage = () => {
-      if (desiredProtectionState === 'safezone') {
+      if (desiredProtectionState === 'respawnShield') {
+        this.inSafezoneMessage.setColor('#ffffff');
+        this.inSafezoneMessage.setText('You are protected: temporarily shielded on respawn');
+        this.tipText.setVisible(false).setAlpha(0);
+        this.game.tweens.add({
+          targets: this.inSafezoneMessage,
+          alpha: 1,
+          duration: 200,
+        });
+      } else if (desiredProtectionState === 'safezone') {
+        this.inSafezoneMessage.setColor('#ffffff');
         this.inSafezoneMessage.setText('You are protected: you are in the safezone');
         this.tipText.setVisible(false).setAlpha(0);
         this.game.tweens.add({
@@ -250,6 +320,7 @@ class ProgressBar extends HudComponent {
           duration: 200,
         });
       } else if (desiredProtectionState === 'collect') {
+        this.inSafezoneMessage.setColor('#ffffff');
         const coinsLeft = Math.max(0, 500 - player.coins);
         this.inSafezoneMessage.setText(`You are protected: collect ${coinsLeft} more coins to fight other players`);
         this.tipText.setText('Find chests or stab mobs to get coins faster').setVisible(true);
@@ -258,8 +329,18 @@ class ProgressBar extends HudComponent {
           alpha: 1,
           duration: 200,
         });
+      } else if (desiredProtectionState === 'antiTeam') {
+        this.inSafezoneMessage.setColor('#ffdd00');
+        this.inSafezoneMessage.setText('You are stronger: fighting multiple enemies has increased your defense');
+        this.tipText.setVisible(false).setAlpha(0);
+        this.game.tweens.add({
+          targets: this.inSafezoneMessage,
+          alpha: 1,
+          duration: 200,
+        });
       } else {
         // hide both
+        this.inSafezoneMessage.setColor('#ffffff');
         this.game.tweens.add({
           targets: [this.inSafezoneMessage, this.tipText],
           alpha: 0,
@@ -285,10 +366,10 @@ class ProgressBar extends HudComponent {
       this.inSafezoneMessage.setText(`You are protected: collect ${coinsLeft} more coins to fight other players`);
     }
 
-    // Check if player is burning
     const isCurrentlyBurning = !!player.flags[FlagTypes.LavaDamaged];
+    const isCurrentlyHypnotized = !!player.flags[FlagTypes.Hypnotized];
     const hasProtectionMessage = desiredProtectionState !== 'none';
-    this.updateBurningText(isCurrentlyBurning, hasProtectionMessage);
+    this.updateBurningText(isCurrentlyBurning, hasProtectionMessage, isCurrentlyHypnotized);
 
     const stabbedId = player.flags[FlagTypes.PlayerKill];
     if(!stabbedId) return;

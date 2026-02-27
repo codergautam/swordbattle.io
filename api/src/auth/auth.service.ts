@@ -53,6 +53,8 @@ export class AuthService {
       throw new UnauthorizedException('User does not exist');
     }
 
+    account = await this.accountsService.checkIn(account);
+
     return { account: this.accountsService.sanitizeAccount(account), secret: data.secret };
   }
 
@@ -192,6 +194,122 @@ export class AuthService {
       }
       return null;
     }
+  }
+
+  async checkInAccount(account: Account) {
+    return this.accountsService.checkIn(account);
+  }
+
+  private static readonly DAILY_REWARD_SKIN_IDS = [
+    443, 444, 445, 446, 447, 448, 449, 450,
+    451, 452, 453, 454, 455, 456, 457, 458,
+  ];
+
+  private static readonly XP_BOOST_DURATIONS_MS = [
+    10 * 60 * 1000,
+    20 * 60 * 1000,
+    30 * 60 * 1000,
+    15 * 60 * 1000,
+  ];
+
+  private static getGemMasteryAmount(day: number): number {
+    if (day <= 30) return 500 + (day - 1) * 125;
+    if (day <= 180) return 500 + (day - 31) * 10;
+    return Math.min(500 + (day - 181) * 2, 1250);
+  }
+
+  private static count2xpBefore(day: number): number {
+    const upper1 = Math.min(112, day - 1);
+    const part1 = upper1 >= 6 ? Math.floor((upper1 - 6) / 7) + 1 : 0;
+    if (day <= 113) return part1;
+    const upper2 = day - 1;
+    const pos5count = upper2 >= 83 ? Math.floor((upper2 - 83) / 7) + 1 : 0;
+    const pos2count = upper2 >= 87 ? Math.floor((upper2 - 87) / 7) + 1 : 0;
+    return part1 + pos5count + pos2count;
+  }
+
+  private static getRewardForDay(day: number): { type: 'gem' | 'ultimacy' | '2xp' | 'skin' } {
+    const posInWeek = (day - 1) % 7;
+
+    if (day <= 112) {
+      if (posInWeek === 6) return { type: 'skin' };
+      if (posInWeek === 5) return { type: '2xp' };
+      const weekIdx = Math.floor((day - 1) / 7);
+      const isUltimacy = (posInWeek + weekIdx) % 2 === 1;
+      return { type: isUltimacy ? 'ultimacy' : 'gem' };
+    }
+
+    const week = Math.floor((day - 1) / 7) + 1;
+    const isOddWeek = week % 2 === 1;
+    const oddPattern: Array<'gem' | 'ultimacy' | '2xp'> = ['gem', 'ultimacy', '2xp', 'gem', 'ultimacy', '2xp', 'gem'];
+    const evenPattern: Array<'gem' | 'ultimacy' | '2xp'> = ['ultimacy', 'gem', '2xp', 'ultimacy', 'gem', '2xp', 'ultimacy'];
+    return { type: (isOddWeek ? oddPattern : evenPattern)[posInWeek] };
+  }
+
+  async claimDailyLogin(account: Account) {
+    const dl = { ...account.dailyLogin };
+
+    if (dl.claimedTo >= dl.claimableTo) {
+      return { error: 'No rewards to claim' };
+    }
+
+    const streakBonus = Math.min(dl.streak, 50) / 100;
+
+    for (let day = dl.claimedTo + 1; day <= dl.claimableTo; day++) {
+      const reward = AuthService.getRewardForDay(day);
+
+      switch (reward.type) {
+        case 'gem': {
+          const baseAmount = AuthService.getGemMasteryAmount(day);
+          const amount = Math.floor(baseAmount * (1 + streakBonus));
+          account = await this.accountsService.addGems(account, amount, 'daily-reward');
+          break;
+        }
+        case 'ultimacy': {
+          const baseAmount = AuthService.getGemMasteryAmount(day);
+          const amount = Math.floor(baseAmount * (1 + streakBonus));
+          account = await this.accountsService.addMastery(account, amount, 'daily-reward');
+          break;
+        }
+        case '2xp': {
+          const xpIdx = AuthService.count2xpBefore(day) % 4;
+          const durationMs = AuthService.XP_BOOST_DURATIONS_MS[xpIdx];
+          const now = Date.now();
+          if (!dl.xpBonus || dl.xpBonus < now) {
+            dl.xpBonus = now + durationMs;
+          } else {
+            dl.xpBonus = dl.xpBonus + durationMs;
+          }
+          break;
+        }
+        case 'skin': {
+          const skinIdx = Math.floor((day - 1) / 7) % AuthService.DAILY_REWARD_SKIN_IDS.length;
+          const skinId = AuthService.DAILY_REWARD_SKIN_IDS[skinIdx];
+          if (!account.skins.owned.includes(skinId)) {
+            account.skins = {
+              ...account.skins,
+              owned: [...account.skins.owned, skinId],
+            };
+          }
+          break;
+        }
+      }
+    }
+
+    dl.claimedTo = dl.claimableTo;
+    account.dailyLogin = dl;
+    await this.accountsService.update(account.id, {
+      dailyLogin: dl,
+      skins: account.skins,
+    });
+
+    return {
+      success: true,
+      dailyLogin: account.dailyLogin,
+      gems: account.gems,
+      mastery: account.mastery,
+      skins: account.skins,
+    };
   }
 
   async getToken(account: Account) {

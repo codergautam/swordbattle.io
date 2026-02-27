@@ -18,7 +18,7 @@ class AncientMob extends BaseEntity {
   createSprite() {
     this.body = this.game.add.sprite(0, 0, 'ancient').setOrigin(0.5, 0.5);
     this.shadow = this.game.add.sprite(AncientMob.shadowOffsetX, AncientMob.shadowOffsetY, 'ancientShadow').setOrigin(0.5, 0.5);
-    this.shadow.setAlpha(0.15);
+    this.shadow.setAlpha(0.175);
     this.healthBar = new Health(this, {
       offsetY: -this.shape.radius * 1.25,
       width: this.shape.radius * 1.5,

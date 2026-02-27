@@ -14,7 +14,7 @@ class SwordProj extends BaseEntity {
   createSprite() {
     this.body = this.game.add.sprite(0, 0, 'swordProj');
     this.shadow = this.game.add.sprite(SwordProj.shadowOffsetX, SwordProj.shadowOffsetY, 'swordProjShadow');
-    this.shadow.setAlpha(0.1);
+    this.shadow.setAlpha(0.13);
     const scale = (this.shape.radius * 2) / this.body.width;
     this.body.setScale(scale);
     this.shadow.setScale(scale);

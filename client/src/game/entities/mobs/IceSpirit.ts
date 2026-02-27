@@ -15,7 +15,7 @@ class IceSpiritMob extends BaseEntity {
     this.body = this.game.add.sprite(0, 0, '').setOrigin(0.48, 0.6);
     this.updateSprite();
     this.shadow = this.game.add.sprite(IceSpiritMob.shadowOffsetX, IceSpiritMob.shadowOffsetY, 'iceSpiritShadow').setOrigin(0.48, 0.6);
-    this.shadow.setAlpha(0.1);
+    this.shadow.setAlpha(0.13);
     this.shadow.setScale(this.body.scaleX, this.body.scaleY);
     this.healthBar = new Health(this, { offsetY: -this.shape.radius - 40 });
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);

@@ -51,6 +51,10 @@ export enum FlagTypes {
   PoisonDamaged = 12,
   GetToken = 13,
   ShockwaveHit = 14,
+  RespawnShield = 15,
+  AntiTeamActive = 16,
+  Hypnotized = 17,
+  DiscoFieldActive = 18,
 }
 
 export enum EvolutionTypes {
@@ -88,7 +92,7 @@ export enum EvolutionTypes {
   Colossal = 31,
   Medic = 32,
   Disco = 33,
-  Builder = 34,
+  Butcher = 34,
 }
 
 export enum BuffTypes {

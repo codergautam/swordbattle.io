@@ -13,7 +13,7 @@ class Boulder extends BaseEntity {
   createSprite() {
     this.body = this.game.add.sprite(0, 0, 'boulder');
     this.shadow = this.game.add.sprite(Boulder.shadowOffsetX, Boulder.shadowOffsetY, 'boulderShadow');
-    this.shadow.setAlpha(0.15);
+    this.shadow.setAlpha(0.175);
     const scale = (this.shape.radius * 2.75) / this.body.width;
     this.body.setScale(scale);
     this.shadow.setScale(scale);

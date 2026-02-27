@@ -50,6 +50,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice-new.png');
     this.load.image('river', publicPath + '/assets/game/tiles/river.png');
     this.load.image('safezone', publicPath + '/assets/game/tiles/spawn.png');
+    this.load.image('sand', publicPath + '/assets/game/tiles/sand.png');
 
     if (Settings.coins) {
       this.load.image('coin', publicPath + '/assets/game/coin.png');
@@ -153,6 +154,8 @@ export default class Game extends Phaser.Scene {
     this.load.image('drifterOverlay', publicPath + '/assets/game/player/drifter.png');
     this.load.image('colossalOverlay', publicPath + '/assets/game/player/colossal.png');
     this.load.image('medicOverlay', publicPath + '/assets/game/player/medic.png');
+    this.load.image('discoOverlay', publicPath + '/assets/game/player/disco.png');
+    this.load.image('butcherOverlay', publicPath + '/assets/game/player/butcher.png');
 
     this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');
@@ -160,6 +163,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('lightningParticle', publicPath + '/assets/game/particles/lightning.png');
     this.load.image('poisonParticle', publicPath + '/assets/game/particles/poison.png');
     this.load.image('sparkleParticle', publicPath + '/assets/game/particles/sparkle.png');
+    this.load.image('swirl', publicPath + '/assets/game/particles/swirl.png');
 
     this.load.image('chatButton', publicPath + '/assets/game/ui/chat.png');
     if (this.isMobile) {

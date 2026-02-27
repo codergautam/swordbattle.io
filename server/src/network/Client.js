@@ -33,6 +33,7 @@ class Client {
       message: '',
       type: 0
     }
+    this.pendingRespawn = null;
 
     // Rate limiting
     this.messageCount = 0;

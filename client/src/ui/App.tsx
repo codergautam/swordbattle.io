@@ -16,7 +16,7 @@ import LoginModal from './modals/LoginModal';
 import SignupModal from './modals/SignupModal';
 import ConnectionError from './modals/ConnectionError';
 
-import { clearAccount, setAccount, logoutAsync, changeNameAsync, changeClanAsync, changeBioAsync } from '../redux/account/slice';
+import { clearAccount, setAccount, setDailyLogin, logoutAsync, changeNameAsync, changeClanAsync, changeBioAsync } from '../redux/account/slice';
 import { selectAccount } from '../redux/account/selector';
 import api from '../api';
 
@@ -69,6 +69,9 @@ function App() {
   const [modal, setModal] = useState<any>(null);
   const [connectionError, setConnectionError] = useState<string>('');
   const [firstGame, setFirstGame] = useState(true);
+  const [pendingRespawn, setPendingRespawn] = useState<{coins: number, expiresAt: number} | null>(null);
+  const [respawnCountdown, setRespawnCountdown] = useState(0);
+  const [xpBonusCountdown, setXpBonusCountdown] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [accountReady, setAccountReady] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
@@ -730,6 +733,44 @@ function App() {
     });
   }, [account]);
 
+  useEffect(() => {
+    if (!pendingRespawn) {
+      setRespawnCountdown(0);
+      return;
+    }
+    const tick = () => {
+      const remaining = Math.max(0, Math.ceil((pendingRespawn.expiresAt - Date.now()) / 1000));
+      setRespawnCountdown(remaining);
+      if (remaining <= 0) {
+        setPendingRespawn(null);
+      }
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [pendingRespawn?.expiresAt]);
+
+  useEffect(() => {
+    const xpBonus = account?.dailyLogin?.xpBonus;
+    if (!xpBonus || xpBonus <= Date.now()) {
+      setXpBonusCountdown('');
+      return;
+    }
+    const tick = () => {
+      const remaining = Math.max(0, Math.ceil((xpBonus - Date.now()) / 1000));
+      if (remaining <= 0) {
+        setXpBonusCountdown('');
+        return;
+      }
+      const min = Math.floor(remaining / 60);
+      const sec = remaining % 60;
+      setXpBonusCountdown(`${min}m ${sec}s`);
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [account?.dailyLogin?.xpBonus]);
+
   const onStart = () => {
     console.log('Starting game');
     if(!isConnected) {
@@ -738,6 +779,7 @@ function App() {
     }
     else  {
       const go = () => {
+        setPendingRespawn(null);
         setGameStarted(true);
         window.phaser_game?.events.emit('startGame', name);
       }
@@ -802,6 +844,13 @@ function App() {
   };
 
   const openRewards = () => {
+    if (account?.isLoggedIn) {
+      api.post(`${api.endpoint}/auth/check-in?now=${Date.now()}`, {}, (data: any) => {
+        if (data.dailyLogin) {
+          dispatch(setDailyLogin(data.dailyLogin));
+        }
+      });
+    }
     setModal(<RewardsModal account={account} />);
   };
 
@@ -844,6 +893,8 @@ function App() {
         loggedIn={account.isLoggedIn}
         game={game}
         setGame={setGame}
+        openLeaderboard={openLeaderboard}
+        onPendingRespawn={(info: any) => setPendingRespawn(info)}
       />
       {connectionError && (
         <Modal
@@ -880,6 +931,46 @@ function App() {
             {/* <!-- GAME NAME --> */}
             <div id="gameName"><img src={titleImg} alt="Swordbattle.io" width={750} height={250} className="title-img" />
 </div>
+            {pendingRespawn && respawnCountdown > 0 && (
+                <div style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -330%)',
+                zIndex: 9999,
+                textAlign: 'center',
+                color: '#89ff89',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                maxWidth: '600px',
+                background: 'linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.7) 20%, rgba(0, 0, 0, 0.7) 80%, rgba(0, 0, 0, 0))',
+                }}>
+                You will respawn with {pendingRespawn.coins.toLocaleString()} coins near your death location (Disappears in {respawnCountdown}s)
+                </div>
+            )}
+            {xpBonusCountdown && (
+                <div style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: pendingRespawn && respawnCountdown > 0
+                  ? 'translate(-50%, -270%)'
+                  : 'translate(-50%, -330%)',
+                zIndex: 9999,
+                textAlign: 'center',
+                color: '#ffeb3b',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                maxWidth: '600px',
+                background: 'linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.7) 20%, rgba(0, 0, 0, 0.7) 80%, rgba(0, 0, 0, 0))',
+                }}>
+                2XP active for {xpBonusCountdown}
+                </div>
+            )}
 
             {/* <!-- LOADING TEXT --> */}
             {/* <!-- MENU CARDS --> */}

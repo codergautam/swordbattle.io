@@ -98,7 +98,6 @@ class Entity {
           }
         }
 
-        // During spawn checks, also reject if entity center is too close to biome edge
         if (!collide && this.definition.spawnBuffer > 0) {
           const buf = Entity._spawnBufferCircle;
           buf.collisionPoly.pos.x = this.shape.x;
@@ -112,7 +111,6 @@ class Entity {
       }
     }
 
-    // When quadtree is not ready (during game initialize), fall back to direct entity scan
     const useQuadtree = !!this.game.entitiesQuadtree;
 
     for (const entityType of this.definition.forbiddenEntities) {

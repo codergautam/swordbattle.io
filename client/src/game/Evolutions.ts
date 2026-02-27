@@ -35,5 +35,5 @@ export const Evolutions: Record<any, [string, string, number, [number, number], 
   [EvolutionTypes.Colossal]: ['Colossal', 'colossalOverlay', 1.4535, [0.5, 0.53], 'Lower health = more size', 'Normalize'],
   [EvolutionTypes.Medic]: ['Medic', 'medicOverlay', 1.4535, [0.5, 0.53], 'Has constant, fast regen', 'Quick Heal'],
   [EvolutionTypes.Disco]: ['Disco', 'discoOverlay', 1.4535, [0.5, 0.53], 'Deals area damage on hit', 'Hypnotize'],
-  [EvolutionTypes.Builder]: ['Builder', 'builderOverlay', 1.4535, [0.5, 0.53], '', 'Build Block'],
+  [EvolutionTypes.Butcher]: ['Butcher', 'butcherOverlay', 1.4535, [0.5, 0.53], 'Lower HP = more damage', 'Bloodcharge'],
 };

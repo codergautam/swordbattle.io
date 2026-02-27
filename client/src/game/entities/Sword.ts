@@ -60,7 +60,6 @@ class Sword extends BaseEntity {
   }
 
   updateRotation() {
-    // Rotation handled in update() - override to prevent BaseEntity's NaN from missing basicAngle
   }
 
   abilityParticlesLast: number = 0;
@@ -113,8 +112,6 @@ class Sword extends BaseEntity {
 
   update(dt: number) {
     super.update(dt);
-    // Reset container rotation - BaseEntity may set it for Polygon shapes,
-    // but Sword handles rotation directly on body/shadow to avoid compounding
     this.container.setRotation(0);
 
     const scale = (this.size * 3) / this.body.width;

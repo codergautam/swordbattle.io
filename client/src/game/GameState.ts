@@ -255,6 +255,11 @@ class GameState {
     // Disable CrazyGames invite button when game ends
     crazygamesSDK.setInviteMode('disabled');
 
+    if (event.code === 4503) {
+      window.alert('Swordbattle.io is currently under maintenance to test some awesome new features. Check back soon to see the update!');
+      return;
+    }
+
     if (event.code === 4429) {
       window.alert('ERROR: Max number of connections reached. Use an open tab or close some older tabs to keep playing.');
       return;

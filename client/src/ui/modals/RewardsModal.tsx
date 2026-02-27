@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef } from 'react';
-import { AccountState } from '../../redux/account/slice';
-import api from '../../api';
+import { useState, useCallback } from 'react';
+import { useDispatch } from 'react-redux';
+import { AccountState, claimDailyLoginAsync } from '../../redux/account/slice';
 
 import gemRewardImg from '../../assets/img/gem-reward.png';
 import ultimacyRewardImg from '../../assets/img/ultimacy-reward.png';
@@ -33,6 +33,15 @@ const DAILY_REWARD_SKINS = [
   { displayName: 'Fragment', bodyFileName: 'fragmentPlayer.png' },
   { displayName: 'CMYK Luminous', bodyFileName: 'cmykLuminousPlayer.png' },
   { displayName: 'Astral', bodyFileName: 'astralPlayer.png' },
+  { displayName: 'mountain', bodyFileName: 'mountainPlayer.png' },
+  { displayName: 'classicMountain', bodyFileName: 'classicMountainPlayer.png' },
+  { displayName: 'borealMountain', bodyFileName: 'borealMountainPlayer.png' },
+  { displayName: 'infernoMountain', bodyFileName: 'infernoMountainPlayer.png' },
+  { displayName: 'yinyang v2', bodyFileName: 'yinyangV2Player.png' },
+  { displayName: 'bullseye v2', bodyFileName: 'bullseyeV2Player.png' },
+  { displayName: 'bubble v2', bodyFileName: 'bubbleV2Player.png' },
+  { displayName: 'hacker v2', bodyFileName: 'hackerV2Player.png' },
+
 ];
 
 const XP_BOOST_DURATIONS = ['10min', '20min', '30min', '15min'];
@@ -45,9 +54,9 @@ function getGemMasteryAmount(day: number): number {
 
 // Count total 2xp reward instances in days [1..day-1]
 function count2xpBefore(day: number): number {
-  const upper1 = Math.min(82, day - 1);
+  const upper1 = Math.min(112, day - 1);
   const part1 = upper1 >= 6 ? Math.floor((upper1 - 6) / 7) + 1 : 0;
-  if (day <= 83) return part1;
+  if (day <= 113) return part1;
 
   const upper2 = day - 1;
   const pos5count = upper2 >= 83 ? Math.floor((upper2 - 83) / 7) + 1 : 0;
@@ -59,7 +68,7 @@ function count2xpBefore(day: number): number {
 function getRewardForDay(day: number): { type: RewardType; label: string; image: string } {
   const posInWeek = (day - 1) % 7;
 
-  if (day <= 82) {
+  if (day <= 112) {
     // Original pattern: pos 0-4 = gem/mastery, pos 5 = 2xp, pos 6 = skin
     if (posInWeek === 6) {
       const skinIdx = Math.floor((day - 1) / 7) % DAILY_REWARD_SKINS.length;
@@ -80,7 +89,6 @@ function getRewardForDay(day: number): { type: RewardType; label: string; image:
     };
   }
 
-  // Day > 82: new weekly pattern (no skin rewards)
   // Odd week: gems, mastery, 2xp, gems, mastery, 2xp, gems
   // Even week: mastery, gems, 2xp, mastery, gems, 2xp, mastery
   const week = Math.floor((day - 1) / 7) + 1;
@@ -102,22 +110,38 @@ function getRewardForDay(day: number): { type: RewardType; label: string; image:
   };
 }
 
+function getStreakColor(streak: number): React.CSSProperties {
+  if (streak <= 3) return { color: '#ffffff' };
+  if (streak <= 6) return { color: '#b2ff59' };
+  if (streak <= 10) return { color: '#76ff03' };
+  if (streak <= 15) return { color: '#ffeb3b' };
+  if (streak <= 20) return { color: '#ff9800' };
+  if (streak <= 30) return { color: '#f44336' };
+  if (streak <= 40) return { color: '#e91e63' };
+  if (streak <= 60) return { color: '#9c27b0' };
+  if (streak <= 90) return { color: '#2196f3' };
+  if (streak <= 120) return { color: '#00bcd4' };
+  return {
+    background: 'linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+  } as React.CSSProperties;
+}
+
 const DAYS_PER_PAGE = 28;
 
 const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
-  // Internal state token to prevent replay / tampered claims
-  const claimNonce = useRef(Date.now());
+  const dispatch = useDispatch();
 
-  // TODO: Replace mock data with actual account reward state from server
-  const [currentStreak, setCurrentStreak] = useState(5);
-  const [claimedDays, setClaimedDays] = useState<Set<number>>(() => new Set([1, 2, 3, 4]));
-  const [nextClaimableDay, setNextClaimableDay] = useState(5);
-  const [page, setPage] = useState(0);
+  const dl = account.dailyLogin;
+  const currentStreak = dl.streak;
+  const claimedTo = dl.claimedTo;
+  const claimableTo = dl.claimableTo;
+  const playBonusEarned = dl.checkedIn >= 2;
+
+  const [page, setPage] = useState(() => Math.floor(Math.max(0, claimableTo - 1) / DAYS_PER_PAGE));
   const [claiming, setClaiming] = useState(false);
-
-  // Progress bar mock state
-  const [playTimeSeconds] = useState(315); // 5min 15s
-  const requiredSeconds = 600; // 10min
 
   const pageStart = page * DAYS_PER_PAGE + 1;
   const pageEnd = pageStart + DAYS_PER_PAGE - 1;
@@ -128,9 +152,9 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
     const day = pageStart + i;
     const { type, label, image } = getRewardForDay(day);
     let state: RewardState;
-    if (claimedDays.has(day)) {
+    if (day <= claimedTo) {
       state = 'claimed';
-    } else if (day === nextClaimableDay) {
+    } else if (day <= claimableTo) {
       state = 'claimable';
     } else {
       state = 'locked';
@@ -138,69 +162,29 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
     rewards.push({ day, type, label, image, state });
   }
 
-  const bonusPercent = Math.min(currentStreak, 100);
-  const progressPercent = Math.min((playTimeSeconds / requiredSeconds) * 100, 100);
+  const bonusPercent = Math.min(currentStreak, 50);
+  const hasClaimable = claimedTo < claimableTo;
+  const progressPercent = playBonusEarned ? 100 : 0;
 
-  // Secure claim handler — validates against React state, NOT DOM attributes
-  const handleClaim = useCallback((day: number) => {
-    // Guard: prevent double-click / race
-    if (claiming) return;
-
-    // Security: verify against authoritative React state
-    if (day !== nextClaimableDay) {
-      console.warn('[Rewards] Rejected claim for non-claimable day:', day);
-      return;
-    }
-    if (claimedDays.has(day)) {
-      console.warn('[Rewards] Day already claimed:', day);
-      return;
-    }
-    if (!account?.isLoggedIn) {
-      console.warn('[Rewards] Must be logged in to claim');
-      return;
-    }
-
+  const handleClaimAll = useCallback(async () => {
+    if (!account?.isLoggedIn || claiming || !hasClaimable) return;
     setClaiming(true);
-    const nonce = ++claimNonce.current;
-
-    // TODO: Wire to real API — server must validate claim server-side
-    // api.post(`${api.endpoint}/rewards/claim`, { day, nonce }, (data) => {
-    //   if (data.error) { alert(data.error); setClaiming(false); return; }
-    //   // Use server response to update state
-    // });
-
-    // Temporary local state update (remove when API is wired)
-    setTimeout(() => {
-      // Verify nonce hasn't changed (no concurrent claim)
-      if (claimNonce.current !== nonce) return;
-      setClaimedDays(prev => new Set([...prev, day]));
-      setNextClaimableDay(day + 1);
-      setClaiming(false);
-    }, 200);
-  }, [nextClaimableDay, claimedDays, account, claiming]);
-
-  const handleClaimAll = useCallback(() => {
-    if (!account?.isLoggedIn || claiming) return;
-    if (nextClaimableDay < pageStart || nextClaimableDay > pageEnd) return;
-    handleClaim(nextClaimableDay);
-  }, [account, claiming, nextClaimableDay, pageStart, pageEnd, handleClaim]);
-
-  const handleClaimNext = useCallback(() => {
-    handleClaim(nextClaimableDay);
-  }, [handleClaim, nextClaimableDay]);
-
-  const formatTime = (seconds: number) => {
-    const min = Math.floor(seconds / 60);
-    const sec = seconds % 60;
-    return `${min}min ${sec}s`;
-  };
+    try {
+      await dispatch(claimDailyLoginAsync() as any);
+    } catch (e) {
+      console.error('[Rewards] Claim error:', e);
+    }
+    setClaiming(false);
+  }, [account, claiming, hasClaimable, dispatch]);
 
   return (
     <div className="rewards-modal">
       <h1 className="rewards-title">Daily Rewards</h1>
 
       <div className="rewards-streak">
-        <span className="streak-text">Current Streak: {currentStreak}</span>
+        <span className="streak-text" style={getStreakColor(currentStreak)}>
+          Current Streak: {currentStreak}
+        </span>
         <span className="streak-arrow">&rarr;</span>
         <span className="streak-bonus">+{bonusPercent}% Bonus</span>
       </div>
@@ -213,10 +197,10 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
             <div
               key={reward.day}
               className={`reward-cell ${reward.state}`}
-              onClick={isClaimable && !claiming ? () => handleClaim(reward.day) : undefined}
+              onClick={isClaimable && !claiming ? handleClaimAll : undefined}
               role={isClaimable ? 'button' : undefined}
               tabIndex={isClaimable ? 0 : -1}
-              onKeyDown={isClaimable ? (e) => { if (e.key === 'Enter') handleClaim(reward.day); } : undefined}
+              onKeyDown={isClaimable ? (e) => { if (e.key === 'Enter') handleClaimAll(); } : undefined}
             >
               <span className="reward-label">{reward.label}</span>
               <img
@@ -234,7 +218,7 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
         <button
           className="rewards-btn-action claim-all"
           onClick={handleClaimAll}
-          disabled={!account?.isLoggedIn || claiming || nextClaimableDay < pageStart || nextClaimableDay > pageEnd}
+          disabled={!account?.isLoggedIn || claiming || !hasClaimable}
         >
           Claim All
         </button>
@@ -258,8 +242,8 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
 
         <button
           className="rewards-btn-action claim-next"
-          onClick={handleClaimNext}
-          disabled={!account?.isLoggedIn || claiming || nextClaimableDay < pageStart || nextClaimableDay > pageEnd}
+          onClick={handleClaimAll}
+          disabled={!account?.isLoggedIn || claiming || !hasClaimable}
         >
           Claim Next
         </button>
@@ -267,12 +251,12 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
 
       <div className="rewards-progress">
         <span className="progress-text">
-          Play to earn<br />another streak point!
+          {playBonusEarned ? 'Bonus earned!' : <>Play 15min to earn<br />another reward!</>}
         </span>
         <div className="progress-bar-container">
           <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }} />
           <span className="progress-bar-text">
-            {formatTime(playTimeSeconds)}/{formatTime(requiredSeconds)}
+            {playBonusEarned ? 'Complete!' : '0min / 15min'}
           </span>
         </div>
       </div>

@@ -19,7 +19,7 @@ class SantaMob extends BaseEntity {
     this.body = this.game.add.sprite(0, 0, 'santa').setOrigin(0.5, 0.3);
     this.body.setScale(this.baseScale);
     this.shadow = this.game.add.sprite(SantaMob.shadowOffsetX, SantaMob.shadowOffsetY, 'santaShadow').setOrigin(0.5, 0.3);
-    this.shadow.setAlpha(0.1);
+    this.shadow.setAlpha(0.13);
     this.shadow.setScale(this.baseScale);
     this.healthBar = new Health(this, {
       offsetY: this.shape.radius * 1.3,

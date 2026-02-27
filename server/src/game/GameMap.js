@@ -262,6 +262,57 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     this.safezone.shape.randomSpawnInside(player.shape);
   }
 
+  findSafeSpawnNear(x, y, radius) {
+    const buffer = 500;
+    const mapMinX = this.x + buffer;
+    const mapMinY = this.y + buffer;
+    const mapMaxX = this.x + this.width - buffer;
+    const mapMaxY = this.y + this.height - buffer;
+    const safezoneRadius = this.safezone ? this.safezone.shape.radius + buffer : 2500;
+    const safezoneX = this.safezone ? this.safezone.shape.x : 0;
+    const safezoneY = this.safezone ? this.safezone.shape.y : 0;
+
+    for (let attempt = 0; attempt < 100; attempt++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.sqrt(Math.random()) * radius;
+      const spawnX = x + dist * Math.cos(angle);
+      const spawnY = y + dist * Math.sin(angle);
+
+      if (spawnX < mapMinX || spawnX > mapMaxX || spawnY < mapMinY || spawnY > mapMaxY) continue;
+
+      const dxSafe = spawnX - safezoneX;
+      const dySafe = spawnY - safezoneY;
+      if (Math.sqrt(dxSafe * dxSafe + dySafe * dySafe) < safezoneRadius) continue;
+
+      let blocked = false;
+      for (const obj of this.staticObjects) {
+        if (obj.shape && obj.shape.isPointInside && obj.shape.isPointInside(spawnX, spawnY)) {
+          blocked = true;
+          break;
+        }
+      }
+      if (blocked) continue;
+
+      for (const [id, entity] of this.game.entities) {
+        if (entity.type === Types.Entity.LavaPool && entity.shape && entity.shape.isPointInside) {
+          if (entity.shape.isPointInside(spawnX, spawnY)) {
+            blocked = true;
+            break;
+          }
+        }
+      }
+      if (blocked) continue;
+
+      return { x: spawnX, y: spawnY };
+    }
+
+    const fallbackAngle = Math.random() * Math.PI * 2;
+    return {
+      x: safezoneX + (safezoneRadius + 200) * Math.cos(fallbackAngle),
+      y: safezoneY + (safezoneRadius + 200) * Math.sin(fallbackAngle),
+    };
+  }
+
   calculateMapBounds() {
     let minX = Infinity;
     let minY = Infinity;

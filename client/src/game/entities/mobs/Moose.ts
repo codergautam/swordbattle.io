@@ -16,7 +16,7 @@ class MooseMob extends BaseEntity {
     const scale = (this.shape.radius * 5) / this.body.height;
     this.body.setScale(scale);
     this.shadow = this.game.add.sprite(MooseMob.shadowOffsetX, MooseMob.shadowOffsetY, 'mooseShadow').setOrigin(0.5, 0.5);
-    this.shadow.setAlpha(0.1);
+    this.shadow.setAlpha(0.1375);
     this.shadow.setScale(scale);
     this.healthBar = new Health(this, { offsetY: -this.shape.radius - 40 });
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);

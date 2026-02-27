@@ -73,7 +73,6 @@ class GameMap {
     const rivers = this.biomes.filter(b => b.type === BiomeTypes.River);
     if (rivers.length === 0) return;
 
-    // Compute bounding box of all rivers
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     for (const river of rivers) {
       const s = river.shape as any;
@@ -106,10 +105,13 @@ class GameMap {
     const toY = (wy: number) => (wy - minY) * canvasScale;
 
     const borders = [
-      { width: 120, alpha: 0.05, key: 'riverBorderOuter' },
-      { width: 60, alpha: 0.15,  key: 'riverBorderShadow' },
-      { width: 30, alpha: 1,    key: 'riverBorder' },
+      { width: 330, alpha: 0.075, texture: 'sand', key: 'riverBorderOuter' },
+      { width: 300, alpha: 0.2, texture: 'sand', key: 'riverBorderShadow' },
+      { width: 270, alpha: 1,    texture: 'sand', key: 'riverBorder' },
+      { width: 30, alpha: 1,    color: '#000000', key: 'riverBorderBlack' },
     ];
+
+    const sandSource = this.scene.textures.get('sand').getSourceImage() as HTMLImageElement;
 
     for (const border of borders) {
       const canvas = document.createElement('canvas');
@@ -117,20 +119,22 @@ class GameMap {
       canvas.height = canvasH;
       const ctx = canvas.getContext('2d')!;
 
-      // Fill all river shapes with solid black
-      ctx.fillStyle = '#000000';
+      if (border.texture) {
+        const pattern = ctx.createPattern(sandSource, 'repeat')!;
+        ctx.fillStyle = pattern;
+      } else {
+        ctx.fillStyle = border.color!;
+      }
       for (const river of rivers) {
         this.fillRiverOnCanvas(ctx, river.shape as any, toX, toY, canvasScale);
       }
 
-      // Punch out inset shapes using destination-out compositing
       ctx.globalCompositeOperation = 'destination-out';
       ctx.fillStyle = '#000000';
       for (const river of rivers) {
-        this.fillInsetOnCanvas(ctx, river.shape as any, border.width, toX, toY, canvasScale);
+        this.fillInsetOnCanvas(ctx, river.shape as any, border.width, toX, toY, canvasScale, rivers);
       }
 
-      // Create Phaser texture from canvas
       if (this.scene.textures.exists(border.key)) {
         this.scene.textures.remove(border.key);
       }
@@ -165,6 +169,7 @@ class GameMap {
   private fillInsetOnCanvas(
     ctx: CanvasRenderingContext2D, shape: any, inset: number,
     toX: (x: number) => number, toY: (y: number) => number, scale: number,
+    rivers: BiomeType[],
   ) {
     if (shape.type === ShapeTypes.Circle) {
       const r = Math.max(0, (shape.radius - inset) * scale);
@@ -175,14 +180,12 @@ class GameMap {
       const points: { x: number; y: number }[] = shape.points;
       const n = points.length;
 
-      // World border bounds
       const worldLeft = this.x;
       const worldRight = this.x + this.width;
       const worldTop = this.y;
       const worldBottom = this.y + this.height;
       const tolerance = 1;
 
-      // Per-edge inset: 0 if the edge lies on a world border, otherwise normal inset
       const edgeInsets: number[] = [];
       for (let i = 0; i < n; i++) {
         const j = (i + 1) % n;
@@ -197,10 +200,18 @@ class GameMap {
           (Math.abs(ay - worldTop) < tolerance && Math.abs(by - worldTop) < tolerance) ||
           (Math.abs(ay - worldBottom) < tolerance && Math.abs(by - worldBottom) < tolerance);
 
-        edgeInsets.push(onWorldBorder ? 0 : inset);
+        const insideCircle = rivers.some(r => {
+          const cs = r.shape as any;
+          if (cs.type !== ShapeTypes.Circle) return false;
+          const margin = inset;
+          const distA = Math.sqrt((ax - cs.x) ** 2 + (ay - cs.y) ** 2);
+          const distB = Math.sqrt((bx - cs.x) ** 2 + (by - cs.y) ** 2);
+          return distA < cs.radius + margin && distB < cs.radius + margin;
+        });
+
+        edgeInsets.push((onWorldBorder || insideCircle) ? 0 : inset);
       }
 
-      // Compute inward unit normals for each edge
       const normals: { x: number; y: number }[] = [];
       for (let i = 0; i < n; i++) {
         const j = (i + 1) % n;
@@ -210,7 +221,6 @@ class GameMap {
         normals.push({ x: -dy / len, y: dx / len });
       }
 
-      // Check winding via signed area — flip normals if CW
       let area = 0;
       for (let i = 0; i < n; i++) {
         const j = (i + 1) % n;
@@ -220,7 +230,6 @@ class GameMap {
         for (const nm of normals) { nm.x = -nm.x; nm.y = -nm.y; }
       }
 
-      // Offset each vertex using per-edge insets (edges on world border get 0 inset)
       ctx.beginPath();
       for (let i = 0; i < n; i++) {
         const prevEdge = (i - 1 + n) % n;
@@ -234,13 +243,11 @@ class GameMap {
         const det = n1.x * n2.y - n2.x * n1.y;
 
         if (Math.abs(det) > 0.001) {
-          // Solve 2x2 system: offset at inset1 from prev edge, inset2 from curr edge
           const ox = (inset1 * n2.y - inset2 * n1.y) / det;
           const oy = (inset2 * n1.x - inset1 * n2.x) / det;
           ix = points[i].x + ox;
           iy = points[i].y + oy;
         } else {
-          // Near-parallel edges fallback
           const avgInset = (inset1 + inset2) / 2;
           const dot = n1.x * n2.x + n1.y * n2.y;
           const denom = 1 + dot;
@@ -263,7 +270,7 @@ class GameMap {
     }
 
     this.borderGraphics = this.scene.add.graphics();
-    this.borderGraphics.setDepth(-2);
+    this.borderGraphics.setDepth(-1);
 
     this.borderGraphics.lineStyle(35, 0x000000, 1);
 

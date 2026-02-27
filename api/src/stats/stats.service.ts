@@ -23,6 +23,12 @@ export class StatsService {
       where: { id: data.account_id },
       relations: ['total_stats'],
     }, true);
+
+    const xpBonus = account.dailyLogin?.xpBonus;
+    if (xpBonus && xpBonus > Date.now()) {
+      data.xp = data.xp * 2;
+    }
+
     await this.updateTotalStats(account, data);
     const dailyStats = await this.updateDailyStats(account, data);
 
@@ -33,12 +39,7 @@ export class StatsService {
     await this.accountsService.addGems(account, gems, "game");
     await this.accountsService.addMastery(account, mastery, "game");
 
-    let xpToAdd = data.xp;
-    const xpBonus = account.dailyLogin?.xpBonus;
-    if (xpBonus && xpBonus > Date.now()) {
-      xpToAdd = xpToAdd * 2;
-    }
-    await this.accountsService.addXp(account, xpToAdd);
+    await this.accountsService.addXp(account, data.xp);
     await this.accountsService.addTokens(account, tokens, "game");
 
     if (account.dailyLogin && account.dailyLogin.checkedIn < 2 && dailyStats && dailyStats.playtime >= 900) {

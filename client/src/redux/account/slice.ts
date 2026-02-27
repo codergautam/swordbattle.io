@@ -170,10 +170,10 @@ export const changeBioAsync = createAsyncThunk(
 
 export const claimDailyLoginAsync = createAsyncThunk(
   'account/claimDailyLogin',
-  async (_, { getState, dispatch }) => {
+  async (count: number | undefined, { getState, dispatch }) => {
     const state: any = getState();
     try {
-      const response = await api.postAsync(`${api.endpoint}/auth/claim-daily-login?now=${Date.now()}`, {});
+      const response = await api.postAsync(`${api.endpoint}/auth/claim-daily-login?now=${Date.now()}`, count ? { count } : {});
 
       if (response.error) {
         alert(response.error);

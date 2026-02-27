@@ -80,9 +80,11 @@ export function GlobalLeaderboard() {
   };
 
   const changeType = (type: string) => {
+    setData([]);
     setType(type);
   };
   const changeRange = (range: string) => {
+    setData([]);
     setRange(range);
   };
 

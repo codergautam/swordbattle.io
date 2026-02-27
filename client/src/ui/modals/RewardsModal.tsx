@@ -33,14 +33,14 @@ const DAILY_REWARD_SKINS = [
   { displayName: 'Fragment', bodyFileName: 'fragmentPlayer.png' },
   { displayName: 'CMYK Luminous', bodyFileName: 'cmykLuminousPlayer.png' },
   { displayName: 'Astral', bodyFileName: 'astralPlayer.png' },
-  { displayName: 'mountain', bodyFileName: 'mountainPlayer.png' },
-  { displayName: 'classicMountain', bodyFileName: 'classicMountainPlayer.png' },
-  { displayName: 'borealMountain', bodyFileName: 'borealMountainPlayer.png' },
-  { displayName: 'infernoMountain', bodyFileName: 'infernoMountainPlayer.png' },
-  { displayName: 'yinyang v2', bodyFileName: 'yinyangV2Player.png' },
-  { displayName: 'bullseye v2', bodyFileName: 'bullseyeV2Player.png' },
-  { displayName: 'bubble v2', bodyFileName: 'bubbleV2Player.png' },
-  { displayName: 'hacker v2', bodyFileName: 'hackerV2Player.png' },
+  { displayName: 'Mountain', bodyFileName: 'mountainPlayer.png' },
+  { displayName: 'Classic Mountain', bodyFileName: 'classicMountainPlayer.png' },
+  { displayName: 'Boreal Mountain', bodyFileName: 'borealMountainPlayer.png' },
+  { displayName: 'Inferno Mountain', bodyFileName: 'infernoMountainPlayer.png' },
+  { displayName: 'Yin Yang v2', bodyFileName: 'yinyangV2Player.png' },
+  { displayName: 'Bullseye v2', bodyFileName: 'bullseyeV2Player.png' },
+  { displayName: 'Bubble v2', bodyFileName: 'bubbleV2Player.png' },
+  { displayName: 'Hacker v2', bodyFileName: 'hackerV2Player.png' },
 
 ];
 
@@ -119,8 +119,8 @@ function getStreakColor(streak: number): React.CSSProperties {
   if (streak <= 30) return { color: '#f44336' };
   if (streak <= 40) return { color: '#e91e63' };
   if (streak <= 60) return { color: '#9c27b0' };
-  if (streak <= 90) return { color: '#2196f3' };
-  if (streak <= 120) return { color: '#00bcd4' };
+  if (streak <= 90) return { color: '#2152f3' };
+  if (streak <= 120) return { color: '#00e1ff' };
   return {
     background: 'linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet)',
     WebkitBackgroundClip: 'text',
@@ -164,13 +164,14 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
 
   const bonusPercent = Math.min(currentStreak, 50);
   const hasClaimable = claimedTo < claimableTo;
+  const nextClaimDay = claimedTo + 1;
   const progressPercent = playBonusEarned ? 100 : 0;
 
-  const handleClaimAll = useCallback(async () => {
+  const handleClaim = useCallback(async (count?: number) => {
     if (!account?.isLoggedIn || claiming || !hasClaimable) return;
     setClaiming(true);
     try {
-      await dispatch(claimDailyLoginAsync() as any);
+      await dispatch(claimDailyLoginAsync(count) as any);
     } catch (e) {
       console.error('[Rewards] Claim error:', e);
     }
@@ -191,16 +192,16 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
 
       <div className="rewards-grid">
         {rewards.map((reward) => {
-          const isClaimable = reward.state === 'claimable';
+          const isNextClaim = reward.day === nextClaimDay;
 
           return (
             <div
               key={reward.day}
               className={`reward-cell ${reward.state}`}
-              onClick={isClaimable && !claiming ? handleClaimAll : undefined}
-              role={isClaimable ? 'button' : undefined}
-              tabIndex={isClaimable ? 0 : -1}
-              onKeyDown={isClaimable ? (e) => { if (e.key === 'Enter') handleClaimAll(); } : undefined}
+              onClick={isNextClaim && !claiming ? () => handleClaim(1) : undefined}
+              role={isNextClaim ? 'button' : undefined}
+              tabIndex={isNextClaim ? 0 : -1}
+              onKeyDown={isNextClaim ? (e) => { if (e.key === 'Enter') handleClaim(1); } : undefined}
             >
               <span className="reward-label">{reward.label}</span>
               <img
@@ -217,7 +218,7 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
       <div className="rewards-controls">
         <button
           className="rewards-btn-action claim-all"
-          onClick={handleClaimAll}
+          onClick={() => handleClaim()}
           disabled={!account?.isLoggedIn || claiming || !hasClaimable}
         >
           Claim All
@@ -242,7 +243,7 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
 
         <button
           className="rewards-btn-action claim-next"
-          onClick={handleClaimAll}
+          onClick={() => handleClaim(1)}
           disabled={!account?.isLoggedIn || claiming || !hasClaimable}
         >
           Claim Next

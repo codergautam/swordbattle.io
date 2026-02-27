@@ -4641,7 +4641,7 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "shinyPlayer.png",
+      "swordFileName": "shinySword.png",
       "bodyFileName": "shinyPlayer.png",
       "description": "It's almost like you're the coin!"
     },
@@ -4652,7 +4652,7 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "redshiftPlayer.png",
+      "swordFileName": "redshiftSword.png",
       "bodyFileName": "redshiftPlayer.png",
       "description": "Hit 'em so hard the light decreases in frequency"
     },
@@ -4663,7 +4663,7 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "watercolorsPlayer.png",
+      "swordFileName": "watercolorsSword.png",
       "bodyFileName": "watercolorsPlayer.png",
       "description": "The colors of the rainbow are yours to command!"
     },

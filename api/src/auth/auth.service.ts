@@ -246,16 +246,20 @@ export class AuthService {
     return { type: (isOddWeek ? oddPattern : evenPattern)[posInWeek] };
   }
 
-  async claimDailyLogin(account: Account) {
+  async claimDailyLogin(account: Account, count?: number) {
     const dl = { ...account.dailyLogin };
 
     if (dl.claimedTo >= dl.claimableTo) {
       return { error: 'No rewards to claim' };
     }
 
+    const claimUpTo = count && count > 0
+      ? Math.min(dl.claimedTo + count, dl.claimableTo)
+      : dl.claimableTo;
+
     const streakBonus = Math.min(dl.streak, 50) / 100;
 
-    for (let day = dl.claimedTo + 1; day <= dl.claimableTo; day++) {
+    for (let day = dl.claimedTo + 1; day <= claimUpTo; day++) {
       const reward = AuthService.getRewardForDay(day);
 
       switch (reward.type) {
@@ -296,7 +300,7 @@ export class AuthService {
       }
     }
 
-    dl.claimedTo = dl.claimableTo;
+    dl.claimedTo = claimUpTo;
     account.dailyLogin = dl;
     await this.accountsService.update(account.id, {
       dailyLogin: dl,

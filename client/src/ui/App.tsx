@@ -223,6 +223,10 @@ function App() {
         if (data.account) {
           data.account.secret = data.secret;
           dispatch(setAccount(data.account));
+          const dl = data.account.dailyLogin;
+          if (dl && dl.claimedTo < dl.claimableTo) {
+            setModal(<RewardsModal account={{ ...data.account, isLoggedIn: true }} />);
+          }
         } else {
           dispatch(clearAccount());
         }
@@ -858,6 +862,9 @@ function App() {
     if (modal?.type?.displayName === 'ShopModal') {
       setModal(<ShopModal account={account} />);
     }
+    if (modal?.type?.displayName === 'RewardsModal') {
+      setModal(<RewardsModal account={account} />);
+    }
     if(account.is_v1) {
       setModal(<MigrationModal account={account} />);
     }
@@ -936,7 +943,7 @@ function App() {
                 position: 'fixed',
                 top: '50%',
                 left: '50%',
-                transform: 'translate(-50%, -330%)',
+                transform: xpBonusCountdown ? 'translate(-50%, -380%)' : 'translate(-50%, -330%)',
                 zIndex: 9999,
                 textAlign: 'center',
                 color: '#89ff89',

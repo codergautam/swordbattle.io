@@ -7,7 +7,7 @@ module.exports = class Disco extends Evolution {
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
   static abilityDuration = 7;
   static abilityCooldown = 80;
-  static discoFieldRadius = 1250;
+  static discoFieldRadius = 1100;
   static discoFieldDuration = 0.2;
   static hypnotizeRadius = 2000;
 
@@ -76,7 +76,7 @@ module.exports = class Disco extends Evolution {
         const dy = entity.shape.y - this.player.shape.y;
         if ((dx * dx + dy * dy) <= radiusSq) {
           try {
-            const damage = dps * dt;
+            const damage = (dps * dt) / 1.5;
             if (typeof entity.damaged === 'function') {
               entity.damaged(damage, this.player);
             }

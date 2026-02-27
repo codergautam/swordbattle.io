@@ -98,12 +98,12 @@ class GameMap {
     const worldH = maxY - minY;
 
     const isMobile = this.scene.isMobile;
-    const canvasScale = isMobile ? 0.1 : 0.3;
+    const canvasScale = isMobile ? 0.1 : 0.2;
     const canvasW = Math.ceil(worldW * canvasScale);
     const canvasH = Math.ceil(worldH * canvasScale);
 
     // Cap canvas size to prevent mobile GPU memory crashes
-    const maxCanvasSize = isMobile ? 2048 : 8192;
+    const maxCanvasSize = isMobile ? 2048 : 4092;
     if (canvasW > maxCanvasSize || canvasH > maxCanvasSize) {
       console.warn(`[GameMap] River border canvas too large (${canvasW}x${canvasH}), skipping`);
       return;

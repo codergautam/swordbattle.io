@@ -4641,7 +4641,7 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "shinyPlayer.png",
+      "swordFileName": "shinySword.png",
       "bodyFileName": "shinyPlayer.png",
       "description": "It's almost like you're the coin!"
     },
@@ -4652,7 +4652,7 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "redshiftPlayer.png",
+      "swordFileName": "redshiftSword.png",
       "bodyFileName": "redshiftPlayer.png",
       "description": "Hit 'em so hard the light decreases in frequency"
     },
@@ -4663,7 +4663,7 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "watercolorsPlayer.png",
+      "swordFileName": "watercolorsSword.png",
       "bodyFileName": "watercolorsPlayer.png",
       "description": "The colors of the rainbow are yours to command!"
     },
@@ -4773,8 +4773,8 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "yinyangV2Sword.png",
-      "bodyFileName": "yinyangV2Player.png",
+      "swordFileName": "yinyangv2Sword.png",
+      "bodyFileName": "yinyangv2Player.png",
       "description": "Find a balance."
     },
     "bullseye v2": {
@@ -4784,8 +4784,8 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "bullseyeV2Sword.png",
-      "bodyFileName": "bullseyeV2Player.png",
+      "swordFileName": "bullseyev2Sword.png",
+      "bodyFileName": "bullseyev2Player.png",
       "description": "Never miss your shots!"
     },
     "bubble v2": {
@@ -4795,8 +4795,8 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "bubbleV2Sword.png",
-      "bodyFileName": "bubbleV2Player.png",
+      "swordFileName": "bubblev2Sword.png",
+      "bodyFileName": "bubblev2Player.png",
       "description": "Magical and mysterious"
     },
     "hacker v2": {
@@ -4806,8 +4806,8 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "hackerV2Sword.png",
-      "bodyFileName": "hackerV2Player.png",
+      "swordFileName": "hackerv2Sword.png",
+      "bodyFileName": "hackerv2Player.png",
       "description": "ℙ𝕣𝕠 𝕙𝕒𝕔𝕜𝕖𝕣"
     }
   }

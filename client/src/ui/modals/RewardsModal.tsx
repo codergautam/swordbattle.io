@@ -193,15 +193,24 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
       <div className="rewards-grid">
         {rewards.map((reward) => {
           const isNextClaim = reward.day === nextClaimDay;
+          const isClaimable = reward.state === 'claimable';
+
+          const onCellClick = isNextClaim && !claiming
+            ? () => handleClaim(1)
+            : isClaimable
+              ? () => window.alert('Claim the previous rewards first!')
+              : reward.state === 'locked'
+                ? () => window.alert('This reward is locked! Check in daily to unlock more rewards.')
+                : undefined;
 
           return (
             <div
               key={reward.day}
               className={`reward-cell ${reward.state}`}
-              onClick={isNextClaim && !claiming ? () => handleClaim(1) : undefined}
-              role={isNextClaim ? 'button' : undefined}
-              tabIndex={isNextClaim ? 0 : -1}
-              onKeyDown={isNextClaim ? (e) => { if (e.key === 'Enter') handleClaim(1); } : undefined}
+              onClick={onCellClick}
+              role={isNextClaim || isClaimable ? 'button' : undefined}
+              tabIndex={isNextClaim || isClaimable ? 0 : -1}
+              onKeyDown={(isNextClaim || isClaimable) ? (e) => { if (e.key === 'Enter' && onCellClick) onCellClick(); } : undefined}
             >
               <span className="reward-label">{reward.label}</span>
               <img

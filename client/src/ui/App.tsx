@@ -224,7 +224,7 @@ function App() {
           data.account.secret = data.secret;
           dispatch(setAccount(data.account));
           const dl = data.account.dailyLogin;
-          if (dl && dl.claimedTo < dl.claimableTo) {
+          if (firstGame && dl && dl.claimedTo < dl.claimableTo) {
             setModal(<RewardsModal account={{ ...data.account, isLoggedIn: true }} />);
           }
         } else {

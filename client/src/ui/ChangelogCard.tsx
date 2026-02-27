@@ -6,7 +6,7 @@ export default function ChangelogCard() {
   return (
     <span>
       <h1>News and Updates</h1>
-      <h2 style={{color: 'rgb(255, 252, 59)'}}>Overhaul Update</h2>
+      <h2 style={{color: 'rgb(255, 252, 59)'}}>OVERHAUL Update</h2>
       <ul>- Daily Rewards!</ul>
       <ul>- Respawn with coins!</ul>
       <ul>- HUGE graphics update!</ul>

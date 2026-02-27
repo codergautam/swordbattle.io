@@ -9,7 +9,6 @@ import './GameResults.scss';
 import { DisconnectTypes } from '../../game/Types';
 import { calculateGemsXP, playVideoAd } from '../../helpers';
 import { crazygamesSDK } from '../../crazygames/sdk';
-import { selectAccount } from '../../redux/account/selector';
 
 // Smarter video ad logic to prevent spammed ads
 const DEATHS_BETWEEN_ADS = 1;
@@ -50,8 +49,8 @@ function shouldShowVideoAd(): boolean {
 }
 
 function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
-  const account = useSelector(selectAccount);
-  const xpBonusActive = account?.dailyLogin?.xpBonus && account.dailyLogin.xpBonus > Date.now();
+  const xpBonusExpiry = useSelector((state: any) => state.account?.dailyLogin?.xpBonus);
+  const xpBonusActive = xpBonusExpiry && xpBonusExpiry > Date.now();
 
   useEffect(() => {
     if (shouldShowVideoAd()) {
@@ -168,7 +167,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
           <CountUp
             end={results.survivalTime}
             duration={3}
-            formattingFn={(s) => `${((s % 3600) / 60).toFixed(0)}m ${(s % 60).toFixed(0)}s`}
+            formattingFn={(s) => `${Math.floor((s % 3600) / 60)}m ${Math.floor(s % 60)}s`}
           />
         </div>
         { isLoggedIn && (

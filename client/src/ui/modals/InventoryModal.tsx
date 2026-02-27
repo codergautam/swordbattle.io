@@ -489,7 +489,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
       {Object.values(skins).filter((skinData: any) => {
         const skin = skinData as Skin;
         if (skin.currency) return false;
-        if (account?.skins.owned.includes(skin.id)) return false;
+        if (!account?.skins.owned.includes(skin.id)) return false;
         if (!Settings.showUltimate && skin.ultimate) return false;
         if (!Settings.showEvent && skin.event) return false;
         if (!Settings.showEvent && skin.eventoffsale) return false;

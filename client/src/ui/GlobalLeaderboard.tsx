@@ -7,7 +7,7 @@ import Ad from './Ad';
 
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './GlobalLeaderboard.scss';
-import fakeLeaderboardData from './fakeLeaderboardData';
+
 const types: Record<string, string> = {
   'kills': 'Kills',
   'coins': 'Coins',
@@ -28,63 +28,67 @@ const ranges: Record<string, string> = {
 export function GlobalLeaderboard() {
   const [type, setType] = useState<string>('coins');
   const [range, setRange] = useState<string>('all');
-  const [data, setData] = useState<any[]>(fakeLeaderboardData);
+  const [data, setData] = useState<any[]>([]);
 
-  // TODO: Remove fake data and restore API fetch
-  // const fetchData = () => {
-  //   const isGames = type === 'coins' || type === 'kills' || type === 'playtime';
-  //   const isAllTimeGames = isGames && range === 'all';
-  //   const url = `${api.endpoint}/${isGames ? 'games' : 'stats'}/fetch?${Date.now()}`;
-  //
-  //   const limit = isAllTimeGames ? 2000 : 100;
-  //
-  //   api.post(url, {
-  //     sortBy: type.startsWith('total') ? type.slice(6) : type,
-  //     timeRange: range,
-  //     limit: limit,
-  //   }, (data: any) => {
-  //     if (data.message || !Array.isArray(data)) {
-  //       setData([]);
-  //       return;
-  //     }
-  //
-  //     if (isAllTimeGames) {
-  //       const gamesByAccount = new Map<string, any[]>();
-  //       data.forEach((row) => {
-  //         const accountKey = row.username || row.accountId || 'unknown';
-  //         if (!gamesByAccount.has(accountKey)) {
-  //           gamesByAccount.set(accountKey, []);
-  //         }
-  //         gamesByAccount.get(accountKey)!.push(row);
-  //       });
-  //
-  //       const sortBy = type;
-  //       const sortFunc = (a: any, b: any) => {
-  //         if (sortBy === 'coins') return b.coins - a.coins;
-  //         if (sortBy === 'kills') return b.kills - a.kills;
-  //         if (sortBy === 'playtime') return b.playtime - a.playtime;
-  //         return 0;
-  //       };
-  //
-  //       const topGames: any[] = [];
-  //       gamesByAccount.forEach((games) => {
-  //         const sortedGames = [...games].sort(sortFunc);
-  //         topGames.push(sortedGames[0]);
-  //       });
-  //
-  //       topGames.sort(sortFunc);
-  //       setData(topGames.slice(0, 100));
-  //     } else {
-  //       setData(data);
-  //     }
-  //   });
-  // };
+  const fetchData = () => {
+    const isGames = type === 'coins' || type === 'kills' || type === 'playtime';
+    const isAllTimeGames = isGames && range === 'all';
+    const url = `${api.endpoint}/${isGames ? 'games' : 'stats'}/fetch?${Date.now()}`;
+
+    const limit = isAllTimeGames ? 2000 : 100;
+
+    api.post(url, {
+      sortBy: type.startsWith('total') ? type.slice(6) : type,
+      timeRange: range,
+      limit: limit,
+    }, (data: any) => {
+      if (data.message || !Array.isArray(data)) {
+        setData([]);
+        return;
+      }
+
+      if (isAllTimeGames) {
+        const gamesByAccount = new Map<string, any[]>();
+        data.forEach((row: any) => {
+          const accountKey = row.username || row.accountId || 'unknown';
+          if (!gamesByAccount.has(accountKey)) {
+            gamesByAccount.set(accountKey, []);
+          }
+          gamesByAccount.get(accountKey)!.push(row);
+        });
+
+        const sortBy = type;
+        const sortFunc = (a: any, b: any) => {
+          if (sortBy === 'coins') return b.coins - a.coins;
+          if (sortBy === 'kills') return b.kills - a.kills;
+          if (sortBy === 'playtime') return b.playtime - a.playtime;
+          return 0;
+        };
+
+        const topGames: any[] = [];
+        gamesByAccount.forEach((games) => {
+          const sortedGames = [...games].sort(sortFunc);
+          topGames.push(sortedGames[0]);
+        });
+
+        topGames.sort(sortFunc);
+        setData(topGames.slice(0, 100));
+      } else {
+        setData(data);
+      }
+    });
+  };
+
   const changeType = (type: string) => {
     setType(type);
   };
   const changeRange = (range: string) => {
     setRange(range);
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [type, range]);
 
   useEffect(() => {
     if (window.parent !== window) {

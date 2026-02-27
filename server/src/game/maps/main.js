@@ -181,7 +181,7 @@ module.exports = {
           size: [300, 400],
           health: 750,
           isBoss: true,
-          damage: 4,
+          damage: 3,
           speed: 20,
         },
         {
@@ -362,7 +362,7 @@ module.exports = {
           size: [500, 600],
           health: 1000,
           isBoss: true,
-          damage: 20,
+          damage: 15,
           rotationSpeed: 5,
           fireballSize: 100,
         },

@@ -5,7 +5,8 @@ const Types = require('../../Types');
 class IceSpike extends Entity {
   static defaultDefinition = {
     forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
-    forbiddenEntities: [Types.Entity.House1],
+    forbiddenEntities: [Types.Entity.House1, Types.Entity.Chest, Types.Entity.IcePond],
+    spawnBuffer: 150,
   };
 
   constructor(game, objectData) {

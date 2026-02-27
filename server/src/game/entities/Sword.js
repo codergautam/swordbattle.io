@@ -250,28 +250,23 @@ processTargetsCollision(entity) {
     if (this.player.modifiers.safe && entity.type === Types.Entity.Player && !this.player.isBot) return;
     if (entity.type === Types.Entity.Player && entity.modifiers.safe && !entity.isBot) return;
 
-    // under 500
-    let skipDamageDueToCoins = false;
     const attackerCoins = (this.player.levels && typeof this.player.levels.coins === 'number') ? this.player.levels.coins : 0;
     const targetCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
-    const attackerUnderShield = attackerCoins < this.player.coinShield;
-    const targetUnderShield = targetCoins < this.player.coinShield;
+    const attackerUnderShield = attackerCoins < this.player.coinShield || this.player.respawnShieldActive;
+    const targetUnderShield = targetCoins < this.player.coinShield || (entity.respawnShieldActive === true);
+    let shieldDamageMultiplier = 1;
     if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot) {
-      if (attackerCoins < this.player.coinShield || targetCoins < this.player.coinShield) {
-        this.collidedEntities.add(entity);
-        skipDamageDueToCoins = true;
-      }
+      if (attackerUnderShield) shieldDamageMultiplier *= 0.67;
+      if (targetUnderShield) shieldDamageMultiplier *= 0.34;
     }
 
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
 
-    let power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
-
-    if (entity.type === Types.Entity.Player && attackerUnderShield) {
-      power *= 0.25;
-    }
-    if (entity.type === Types.Entity.Player && targetUnderShield && !attackerUnderShield) {
-      power *= 2;
+    let power;
+    if (entity.type === Types.Entity.Player && targetUnderShield && !entity.isBot && !this.player.isBot) {
+      power = this.knockback.value * 2;
+    } else {
+      power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
     }
 
     if (entity.type === Types.Entity.Player && this.player.modifiers.noRestrictKnockback) {
@@ -300,12 +295,19 @@ processTargetsCollision(entity) {
       } else {
       power = Math.max(Math.min(power, 400), 100);
       }
+    if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot
+        && entity.activeTargets && entity.activeTargets.has(this.player.id)) {
+      const atCount = entity.activeTargets.size;
+      const kbMult = atCount >= 5 ? 0.50 : atCount >= 4 ? 0.55 : atCount >= 3 ? 0.70 : 0.85;
+      power *= kbMult;
+    }
+
     const xComp = power * Math.cos(angle);
     const yComp = power * Math.sin(angle);
     entity.velocity.x = -1*xComp;
     entity.velocity.y =  -1*yComp;
 
-    if (!skipDamageDueToCoins && ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) || 
+    if (((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) ||
       (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation)))) {
 
         const base = this.damage.value;
@@ -320,7 +322,20 @@ processTargetsCollision(entity) {
           finalDamage = base;
         }
 
-        // 50% now 50%  1s poison 
+        if (this.player.modifiers.damageScale) {
+          const bonus = 1 + 0.5 * (1 - this.player.health.percent);
+          finalDamage *= bonus;
+        }
+
+        finalDamage *= shieldDamageMultiplier;
+
+        if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot
+            && entity.activeTargets && entity.activeTargets.has(this.player.id)) {
+          const atCount = entity.activeTargets.size;
+          const dmgMult = atCount >= 5 ? 0.25 : atCount >= 4 ? 0.34 : atCount >= 3 ? 0.45 : 0.67;
+          finalDamage *= dmgMult;
+        }
+
         if (this.player.modifiers.poisonDamage) {
           const immediate = finalDamage * 0.5;
           const poisonTotal = finalDamage * 0.5;
@@ -345,7 +360,7 @@ processTargetsCollision(entity) {
         }
     }
 
-    if(this.player.modifiers.leech && !skipDamageDueToCoins) {
+    if(this.player.modifiers.leech) {
       this.player.health.gain(this.damage.value * this.player.modifiers.leech);
     }
 
@@ -353,7 +368,7 @@ processTargetsCollision(entity) {
     this.player.flags.set(Types.Flags.EnemyHit, entity.id);
 
     // Trigger onDamage hook for evolution effects when damaging a player
-    if (entity.type === Types.Entity.Player && !skipDamageDueToCoins && !entity.isBot) {
+    if (entity.type === Types.Entity.Player && !entity.isBot) {
       if (this.player.evolutions && this.player.evolutions.evolutionEffect && typeof this.player.evolutions.evolutionEffect.onDamage === 'function') {
         try {
           this.player.evolutions.evolutionEffect.onDamage(entity, this.isFlying);
@@ -363,7 +378,7 @@ processTargetsCollision(entity) {
       }
     }
 
-    if (entity.type === Types.Entity.Player && !skipDamageDueToCoins && this.player.modifiers.chainDamage && !entity.isBot) {
+    if (entity.type === Types.Entity.Player && this.player.modifiers.chainDamage && !entity.isBot) {
       try { entity.flags.set(Types.Flags.ChainDamaged, entity.id); } catch (err) { /* */ }
 
       const findClosestPlayer = (center, radius, excludeSet) => {
@@ -430,7 +445,6 @@ processTargetsCollision(entity) {
     }
 
     if (entity.type === Types.Entity.Player) {
-      if (!skipDamageDueToCoins) {
         if (entity.removed) {
           // now done in Player.damaged
         } else {
@@ -444,7 +458,6 @@ processTargetsCollision(entity) {
         });
       }
     }
-}
 }
 
   cleanup() {

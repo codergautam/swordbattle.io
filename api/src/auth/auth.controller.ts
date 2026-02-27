@@ -90,6 +90,21 @@ export class AuthController {
   }
 
   @UseGuards(AccountGuard)
+  @Throttle({ short: { limit: 2, ttl: 1000 }, medium: { limit: 10, ttl: 60000 } })
+  @Post('claim-daily-login')
+  async claimDailyLogin(@Req() request) {
+    return this.authService.claimDailyLogin(request.account);
+  }
+
+  @UseGuards(AccountGuard)
+  @Throttle({ short: { limit: 2, ttl: 1000 }, medium: { limit: 10, ttl: 60000 } })
+  @Post('check-in')
+  async checkIn(@Req() request) {
+    const account = await this.authService.checkInAccount(request.account);
+    return { dailyLogin: account.dailyLogin };
+  }
+
+  @UseGuards(AccountGuard)
   @Throttle({ short: { limit: 1, ttl: 1000 }, medium: { limit: 5, ttl: 60000 } })
   @Post('change-username')
   async changeUsername(@Req() request) {

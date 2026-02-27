@@ -10,8 +10,8 @@ class Minimap extends HudComponent {
   crown: Phaser.GameObjects.Sprite | null = null;
   toggleButton!: Phaser.GameObjects.Text;
   crownSpeed: number = 500;
-  width: number = 250;
-  height: number = 250;
+  width: number = 200;
+  height: number = 200;
   scaleX = 0;
   scaleY = 0;
   minimized = false;

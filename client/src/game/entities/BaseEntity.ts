@@ -25,6 +25,29 @@ export class BaseEntity {
 
   createSprite() {}
 
+  protected createShadow(radius: number, alpha = 0.25): Phaser.GameObjects.Graphics {
+    const shadow = this.game.add.graphics();
+    shadow.fillStyle(0x000000, 1);
+    shadow.fillCircle(0, 0, radius);
+    shadow.setAlpha(alpha);
+    return shadow;
+  }
+
+  protected createShadowTexture(sourceKey: string): string {
+    const shadowKey = sourceKey + '_shadow';
+    if (this.game.textures.exists(shadowKey)) return shadowKey;
+
+    const source = this.game.textures.get(sourceKey).getSourceImage() as HTMLImageElement;
+    const canvasTexture = this.game.textures.createCanvas(shadowKey, source.width, source.height)!;
+    const ctx = canvasTexture.getContext();
+    ctx.drawImage(source, 0, 0);
+    ctx.globalCompositeOperation = 'source-in';
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, source.width, source.height);
+    canvasTexture.refresh();
+    return shadowKey;
+  }
+
   setDepth() {
     if (!this.container) return;
     this.container.setDepth(EntityDepth[this.type] || 0);

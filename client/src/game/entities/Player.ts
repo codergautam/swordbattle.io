@@ -2,7 +2,7 @@ import { BaseEntity } from './BaseEntity';
 import { Shape } from '../physics/Shape';
 import { Evolutions } from '../Evolutions';
 import { Health } from '../components/Health';
-import { BiomeTypes, EntityTypes, FlagTypes, InputTypes, EvolutionTypes } from '../Types';
+import { BiomeTypes, EntityTypes, FlagTypes, InputTypes, EvolutionTypes, ShapeTypes } from '../Types';
 import { random } from '../../helpers';
 import { Settings } from '../Settings';
 import * as cosmetics from '../cosmetics.json';
@@ -65,13 +65,19 @@ class Player extends BaseEntity {
     'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing', 'coinShield',
   ];
   static removeTransition = 500;
+  static shadowOffsetX = 10;
+  static shadowOffsetY = 10;
 
   body!: Phaser.GameObjects.Sprite;
   sword!: Phaser.GameObjects.Sprite;
+  swordShadow!: Phaser.GameObjects.Sprite;
   bodyContainer!: Phaser.GameObjects.Container;
   swordContainer!: Phaser.GameObjects.Container;
   evolutionOverlay!: Phaser.GameObjects.Sprite;
+  shadow!: Phaser.GameObjects.Sprite;
   messageText!: Phaser.GameObjects.Text;
+  submergedShadow!: Phaser.GameObjects.Graphics;
+  private _submergedProgress: number = 0;
 
   protectionAura!: Phaser.GameObjects.Graphics;
   sparkleInterval?: number;
@@ -91,6 +97,12 @@ class Player extends BaseEntity {
   private _lastSwordVisible: boolean | null = null;
   private _lastContainerScale: number = -1;
 
+  discoFieldGraphic!: Phaser.GameObjects.Graphics;
+  discoFieldAlpha: number = 0;
+  hypnotizeSwirlSprite!: Phaser.GameObjects.Sprite;
+  private _lastDiscoFieldActive: boolean = false;
+  private _lastHypnotizeActive: boolean = false;
+
   get survivalTime() {
     return (Date.now() - this.survivalStarted) / 1000;
   }
@@ -105,10 +117,16 @@ class Player extends BaseEntity {
     this.skinName = Object.values(skins).find(skin => skin.id === this.skin)?.name;
     const ogex = this.skinName?.includes("ogex") || false;
     this.body = this.game.add.sprite(0, 0, 'playerBody').setRotation(-Math.PI / 2);
+    const bodyShadowKey = this.createShadowTexture('playerBody');
+    this.shadow = this.game.add.sprite(Player.shadowOffsetX, Player.shadowOffsetY, bodyShadowKey).setRotation(-Math.PI / 2);
+    this.shadow.setAlpha(0.085);
     this.evolutionOverlay = this.game.add.sprite(0, 0, '').setRotation(-Math.PI / 2);
     this.updateEvolution();
 
     this.sword = this.game.add.sprite(this.body.width / 2, this.body.height / 2, 'playerSword').setRotation(Math.PI / 4);
+    const swordShadowKey = this.createShadowTexture('playerSword');
+    this.swordShadow = this.game.add.sprite(0, 0, swordShadowKey).setRotation(Math.PI / 4);
+    this.swordShadow.setAlpha(0.085);
     this.swordContainer = this.game.add.container(0, 0, [this.sword]);
 
     this.protectionAura = this.game.add.graphics();
@@ -161,7 +179,14 @@ class Player extends BaseEntity {
       .setFill('#ffffff');
 
     this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.swordContainer, this.body, this.evolutionOverlay]);
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.bodyContainer, name, this.messageText]);
+
+    const submergedRadius = this.body.width * 0.6;
+    this.submergedShadow = this.game.add.graphics();
+    this.submergedShadow.fillStyle(0x000000, 1);
+    this.submergedShadow.fillCircle(0, 0, submergedRadius);
+    this.submergedShadow.setAlpha(0);
+
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.swordShadow, this.submergedShadow, this.bodyContainer, name, this.messageText]);
 
     if (ogex) {
       try {
@@ -198,19 +223,33 @@ class Player extends BaseEntity {
 
     if (Settings.loadskins) {
         this.loadSkin(this.skin).then(() => {
-        this.body.setTexture(skins.player.name+'Body');
-        this.sword.setTexture(skins.player.name+'Sword');
+        const skinBase = skins.player.name;
+        this.body.setTexture(skinBase+'Body');
+        this.shadow.setTexture(this.createShadowTexture(skinBase+'Body'));
+        this.sword.setTexture(skinBase+'Sword');
+        this.swordShadow.setTexture(this.createShadowTexture(skinBase+'Sword'));
       }).catch(() => {
         console.log('failed to load skin', this.skin);
       });
     } else {
         this.loadSkin(this.skin).then(() => {
         this.body.setTexture(this.skinName+'Body');
+        this.shadow.setTexture(this.createShadowTexture(this.skinName+'Body'));
         this.sword.setTexture(this.skinName+'Sword');
+        this.swordShadow.setTexture(this.createShadowTexture(this.skinName+'Sword'));
       }).catch(() => {
         console.log('failed to load skin', this.skin);
       });
     }
+
+    this.discoFieldGraphic = this.game.add.graphics();
+    this.discoFieldGraphic.setDepth(3);
+    this.discoFieldGraphic.setVisible(false);
+
+    this.hypnotizeSwirlSprite = this.game.add.sprite(0, 0, 'swirl');
+    this.hypnotizeSwirlSprite.setDepth(2);
+    this.hypnotizeSwirlSprite.setVisible(false);
+    this.hypnotizeSwirlSprite.setAlpha(0);
 
     return this.container;
   }
@@ -330,10 +369,11 @@ class Player extends BaseEntity {
       this.messageText?.setFill(isTextBlack ? '#000000' : '#ffffff');
     }
 
-    if (data.biome !== undefined || data.coins !== undefined) {
+    if (data.biome !== undefined || data.coins !== undefined || (data.flags && data.flags[FlagTypes.RespawnShield] !== undefined)) {
       const coins = data.coins !== undefined ? data.coins : (this as any).coins;
       const biome = data.biome !== undefined ? data.biome : (this as any).biome;
-      const isProtected = (biome === BiomeTypes.Safezone) || (coins !== undefined && coins < this.coinShield);
+      const hasRespawnShield = (data.flags && data.flags[FlagTypes.RespawnShield]) || ((this as any).flags && (this as any).flags[FlagTypes.RespawnShield]);
+      const isProtected = (biome === BiomeTypes.Safezone) || (coins !== undefined && coins < this.coinShield) || !!hasRespawnShield;
       this.updateProtectionAura(isProtected);
     }
 
@@ -704,9 +744,29 @@ class Player extends BaseEntity {
     }
     this.swordContainer.setRotation(swordRotation);
     this.bodyContainer.setRotation(angle);
+    if (this.shadow) {
+      this.shadow.setRotation(angle - Math.PI / 2);
+    }
+    if (this.swordShadow) {
+      const sx = this.body.width / 2;
+      const sy = this.body.height / 2;
+      const cos1 = Math.cos(swordRotation);
+      const sin1 = Math.sin(swordRotation);
+      const rx = sx * cos1 - sy * sin1;
+      const ry = sx * sin1 + sy * cos1;
+      const cos2 = Math.cos(angle);
+      const sin2 = Math.sin(angle);
+      this.swordShadow.setPosition(
+        rx * cos2 - ry * sin2 + Player.shadowOffsetX,
+        rx * sin2 + ry * cos2 + Player.shadowOffsetY
+      );
+      this.swordShadow.setRotation(angle + swordRotation + Math.PI / 4);
+    }
   }
 
   updatePrediction() {
+    const isHypnotized = !!(this.flags && this.flags[FlagTypes.Hypnotized]);
+
     let pointer = this.game.input.activePointer;
     if (this.game.isMobile) {
       pointer = this.game.controls.joystickPointer === this.game.input.pointer1
@@ -724,6 +784,12 @@ class Player extends BaseEntity {
       }
     }
 
+    if (isHypnotized) {
+      this.game.gameState.playerAngle = this.angle;
+      this.rotateBody(this.angle);
+      return;
+    }
+
     let angle = Math.atan2(pointer.worldY - this.container.y, pointer.worldX - this.container.x);
     // Round to 2 decimal places
     angle = Math.round(angle * 100) / 100;
@@ -739,12 +805,165 @@ class Player extends BaseEntity {
 
   updateRotation(): void {}
 
+  private isPointInRiver(wx: number, wy: number): boolean {
+    const biomes = this.game.gameState.gameMap.biomes;
+    for (let i = 0; i < biomes.length; i++) {
+      const biome = biomes[i];
+      if (biome.type !== BiomeTypes.River) continue;
+      const shape = biome.shape as any;
+      if (shape.type === ShapeTypes.Circle) {
+        const dx = wx - shape.x;
+        const dy = wy - shape.y;
+        if (dx * dx + dy * dy <= shape.radius * shape.radius) return true;
+      } else if (shape.type === ShapeTypes.Polygon) {
+        if (shape.polygonBounds && !Phaser.Geom.Rectangle.Contains(shape.polygonBounds, wx, wy)) continue;
+        const points = shape.points;
+        const ox = shape.x;
+        const oy = shape.y;
+        let inside = false;
+        for (let j = 0, k = points.length - 1; j < points.length; k = j++) {
+          const xi = ox + points[j].x, yi = oy + points[j].y;
+          const xk = ox + points[k].x, yk = oy + points[k].y;
+          if ((yi > wy) !== (yk > wy) && wx < (xk - xi) * (wy - yi) / (yk - yi) + xi) {
+            inside = !inside;
+          }
+        }
+        if (inside) return true;
+      }
+    }
+    return false;
+  }
+
+  private isPointInSafezone(wx: number, wy: number): boolean {
+    const biomes = this.game.gameState.gameMap.biomes;
+    for (let i = 0; i < biomes.length; i++) {
+      const biome = biomes[i];
+      if (biome.type !== BiomeTypes.Safezone) continue;
+      const shape = biome.shape as any;
+      if (shape.type === ShapeTypes.Circle) {
+        const dx = wx - shape.x;
+        const dy = wy - shape.y;
+        if (dx * dx + dy * dy <= shape.radius * shape.radius) return true;
+      } else if (shape.type === ShapeTypes.Polygon) {
+        if (shape.polygonBounds && !Phaser.Geom.Rectangle.Contains(shape.polygonBounds, wx, wy)) continue;
+        const points = shape.points;
+        const ox = shape.x;
+        const oy = shape.y;
+        let inside = false;
+        for (let j = 0, k = points.length - 1; j < points.length; k = j++) {
+          const xi = ox + points[j].x, yi = oy + points[j].y;
+          const xk = ox + points[k].x, yk = oy + points[k].y;
+          if ((yi > wy) !== (yk > wy) && wx < (xk - xi) * (wy - yi) / (yk - yi) + xi) {
+            inside = !inside;
+          }
+        }
+        if (inside) return true;
+      }
+    }
+    return false;
+  }
+
+  private isPointInDeepRiver(wx: number, wy: number): boolean {
+    const borderWidth = 240;
+    const biomes = this.game.gameState.gameMap.biomes;
+    for (let i = 0; i < biomes.length; i++) {
+      const biome = biomes[i];
+      if (biome.type !== BiomeTypes.River) continue;
+      const shape = biome.shape as any;
+      if (shape.type === ShapeTypes.Circle) {
+        const dx = wx - shape.x;
+        const dy = wy - shape.y;
+        const innerR = shape.radius - borderWidth;
+        if (innerR > 0 && dx * dx + dy * dy <= innerR * innerR) return true;
+      } else if (shape.type === ShapeTypes.Polygon) {
+        if (shape.polygonBounds && !Phaser.Geom.Rectangle.Contains(shape.polygonBounds, wx, wy)) continue;
+        const points = shape.points;
+        const ox = shape.x;
+        const oy = shape.y;
+        let inside = false;
+        for (let j = 0, k = points.length - 1; j < points.length; k = j++) {
+          const xi = ox + points[j].x, yi = oy + points[j].y;
+          const xk = ox + points[k].x, yk = oy + points[k].y;
+          if ((yi > wy) !== (yk > wy) && wx < (xk - xi) * (wy - yi) / (yk - yi) + xi) {
+            inside = !inside;
+          }
+        }
+        if (!inside) continue;
+        let minDist = Infinity;
+        for (let j = 0; j < points.length; j++) {
+          const k = (j + 1) % points.length;
+          const ax = ox + points[j].x, ay = oy + points[j].y;
+          const bx = ox + points[k].x, by = oy + points[k].y;
+          const edx = bx - ax, edy = by - ay;
+          const lenSq = edx * edx + edy * edy;
+          const t = lenSq === 0 ? 0 : Math.max(0, Math.min(1, ((wx - ax) * edx + (wy - ay) * edy) / lenSq));
+          const px = ax + t * edx, py = ay + t * edy;
+          const d = Math.sqrt((wx - px) * (wx - px) + (wy - py) * (wy - py));
+          if (d < minDist) minDist = d;
+        }
+        if (minDist >= borderWidth) return true;
+      }
+    }
+    return false;
+  }
+
+  private updateSubmergedEffect(dt: number) {
+    if (!this.submergedShadow || !this.shadow) return;
+
+    const cx = this.container.x;
+    const cy = this.container.y;
+    const r = this.shape.radius;
+    const edges: [number, number][] = [
+      [cx, cy - r], [cx + r, cy], [cx, cy + r], [cx - r, cy],
+    ];
+
+    let allInRiver = true;
+    let allInDeep = true;
+    for (const [ex, ey] of edges) {
+      if (!this.isPointInRiver(ex, ey) || this.isPointInSafezone(ex, ey)) {
+        allInRiver = false;
+        allInDeep = false;
+        break;
+      }
+      if (!this.isPointInDeepRiver(ex, ey)) {
+        allInDeep = false;
+      }
+    }
+
+    let target: number;
+    let speed: number;
+    if (allInDeep) {
+      target = 1;
+      speed = 6;
+    } else if (allInRiver) {
+      target = 0;
+      speed = 0.33;
+    } else {
+      target = 0;
+      speed = 1;
+    }
+
+    const t = 1 - Math.exp(-speed * dt / 1500);
+    this._submergedProgress += (target - this._submergedProgress) * t;
+
+    if (this._submergedProgress < 0.001) this._submergedProgress = 0;
+    if (this._submergedProgress > 0.999) this._submergedProgress = 1;
+
+    this.submergedShadow.setScale(this._submergedProgress);
+    this.submergedShadow.setAlpha(this._submergedProgress * 0.15);
+
+    const shadowAlpha = 0.085 * (1 - this._submergedProgress * 0.5);
+    this.shadow.setAlpha(shadowAlpha);
+    if (this.swordShadow) this.swordShadow.setAlpha(shadowAlpha);
+  }
+
   update(dt: number) {
     super.update(dt);
 
     const swordVisible = !this.swordFlying;
     if (this._lastSwordVisible !== swordVisible) {
       this.sword.setVisible(swordVisible);
+      if (this.swordShadow) this.swordShadow.setVisible(swordVisible);
       this._lastSwordVisible = swordVisible;
     }
     const newScale = (this.shape.radius * 2) / this.body.width;
@@ -760,13 +979,69 @@ class Player extends BaseEntity {
         if (evolutionClass[0] !== 'Stalker' && evolutionClass[0] !== 'Juggernaut') {
           this.addAbilityParticles();
         }
-      } 
+      }
      }
+    this.updateSubmergedEffect(dt);
+    this.updateDiscoEffects(dt);
     if (this.following) {
       this.game.cameras.main.centerOn(this.container.x, this.container.y);
     }
     if (this.isMe) {
       this.updatePrediction();
+    }
+  }
+
+  updateDiscoEffects(dt: number) {
+    const discoFieldActive = this.evolution === EvolutionTypes.Disco && !!(this.flags && this.flags[FlagTypes.DiscoFieldActive]);
+    if (discoFieldActive && !this._lastDiscoFieldActive) {
+      this.discoFieldAlpha = 0.2;
+      this._lastDiscoFieldActive = true;
+    }
+    if (this._lastDiscoFieldActive) {
+      if (!discoFieldActive) {
+        this.discoFieldAlpha -= dt / 300;
+      }
+      if (this.discoFieldAlpha > 0) {
+        this.discoFieldGraphic.clear();
+        this.discoFieldGraphic.fillStyle(0xffffff, this.discoFieldAlpha);
+        this.discoFieldGraphic.fillCircle(0, 0, 1350);
+        this.discoFieldGraphic.setPosition(this.container.x, this.container.y);
+        this.discoFieldGraphic.setBlendMode(Phaser.BlendModes.ADD);
+        this.discoFieldGraphic.setVisible(true);
+      } else {
+        this.discoFieldGraphic.setVisible(false);
+        this.discoFieldGraphic.clear();
+        this.discoFieldAlpha = 0;
+        this._lastDiscoFieldActive = false;
+      }
+    }
+
+    const hypnotizeActive = this.evolution === EvolutionTypes.Disco && this.abilityActive;
+    if (hypnotizeActive) {
+      const totalDuration = 7;
+      const remaining = this.abilityDuration || 0;
+      const elapsed = totalDuration - remaining;
+      const maxRadius = 2000;
+
+      const growFactor = Math.min(1, elapsed / 2);
+      let alpha = 0.4;
+      if (remaining <= 1) {
+        alpha = 0.4 * remaining;
+      }
+
+      const targetDiameter = maxRadius * 2 * growFactor;
+      const spriteScale = targetDiameter / 748;
+
+      this.hypnotizeSwirlSprite.setPosition(this.container.x, this.container.y);
+      this.hypnotizeSwirlSprite.setScale(spriteScale);
+      this.hypnotizeSwirlSprite.setAlpha(alpha);
+      this.hypnotizeSwirlSprite.setVisible(true);
+      this.hypnotizeSwirlSprite.rotation += dt * 0.002;
+      this._lastHypnotizeActive = true;
+    } else if (this._lastHypnotizeActive) {
+      this.hypnotizeSwirlSprite.setVisible(false);
+      this.hypnotizeSwirlSprite.setAlpha(0);
+      this._lastHypnotizeActive = false;
     }
   }
 
@@ -778,6 +1053,10 @@ class Player extends BaseEntity {
         clearInterval(this.sparkleInterval);
         this.sparkleInterval = undefined;
       }
+    } catch (e) {}
+    try {
+      if (this.discoFieldGraphic) this.discoFieldGraphic.destroy();
+      if (this.hypnotizeSwirlSprite) this.hypnotizeSwirlSprite.destroy();
     } catch (e) {}
   }
 }

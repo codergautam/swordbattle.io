@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame }: any) {
+function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn }: any) {
   const [gameResults, setGameResults] = useState<any>(null);
   const [playing, setPlaying] = useState(false);
 
@@ -44,6 +44,9 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         // Signal that gameplay has started
         crazygamesSDK.gameplayStart();
       });
+      game.events.on('pendingRespawnInfo', (info: any) => {
+        onPendingRespawn?.(info);
+      });
     }
   }, []);
 
@@ -58,6 +61,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         game={game}
         results={gameResults}
         isLoggedIn={loggedIn}
+        openLeaderboard={openLeaderboard}
         adElement={<Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 90]]} centerOnOverflow={600} horizThresh={0.2} />}
       />
       </>

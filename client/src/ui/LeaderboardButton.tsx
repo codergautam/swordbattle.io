@@ -6,7 +6,7 @@ import { addCommas } from '../helpers';
 export default function LeaderboardButton({scale, openLeaderboard}: {scale: number, openLeaderboard: () => void}) {
   return (
     <div className="leaderboard-btn">
-      <img src={ShopImg} alt="Gems" width={250*scale} height={250*scale} onClick={openLeaderboard} />
+      <img src={ShopImg} alt="Gems" width={350*scale} height={250*scale} onClick={openLeaderboard} />
     </div>
   );
 }

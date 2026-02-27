@@ -2,7 +2,7 @@ const Types = require('../Types');
 
 module.exports = {
   coinsCount: 0,
-  aiPlayersCount: 20,
+  aiPlayersCount: 0,
   biomes: [
     {
       type: Types.Biome.Safezone,
@@ -38,8 +38,8 @@ module.exports = {
       pos: [-15000, -15000],
       points: [
         [2000, 0],
-        [13500, 11500],
-        [11500, 13500],
+        [14500, 12500],
+        [12500, 14500],
         [0, 2000],
         [0, 0],
       ],
@@ -66,8 +66,8 @@ module.exports = {
       pos: [15000, -15000],
       points: [
         [0, 2000],
-        [-11500, 13500],
-        [-13500, 11500],
+        [-12500, 14500],
+        [-14500, 12500],
         [-2000, 0],
         [0, 0],
       ],
@@ -92,8 +92,8 @@ module.exports = {
       type: Types.Biome.River,
       pos: [0, 3500],
       points: [
-        [-1500, 0],
-        [1500, 0],
+        [-1500, -1000],
+        [1500, -1000],
         [1500, 11500],
         [-1500, 11500],
       ],
@@ -132,12 +132,6 @@ module.exports = {
           size: [300, 700],
         },
         {
-          type: Types.Entity.IceSpike,
-          amount: 20,
-          position: 'random',
-          size: [200, 600],
-        },
-        {
           type: Types.Entity.IcePond,
           amount: 11,
           position: 'random',
@@ -148,6 +142,12 @@ module.exports = {
           amount: 1,
           position: [0, -10000],
           size: 3000,
+        },
+        {
+          type: Types.Entity.IceSpike,
+          amount: 20,
+          position: 'random',
+          size: [200, 600],
         },
         /*
         {

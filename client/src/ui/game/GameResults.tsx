@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import CountUp from 'react-countup';
 import { useScale } from '../Scale';
 
@@ -8,6 +9,7 @@ import './GameResults.scss';
 import { DisconnectTypes } from '../../game/Types';
 import { calculateGemsXP, playVideoAd } from '../../helpers';
 import { crazygamesSDK } from '../../crazygames/sdk';
+import { selectAccount } from '../../redux/account/selector';
 
 // Smarter video ad logic to prevent spammed ads
 const DEATHS_BETWEEN_ADS = 1;
@@ -48,6 +50,9 @@ function shouldShowVideoAd(): boolean {
 }
 
 function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
+  const account = useSelector(selectAccount);
+  const xpBonusActive = account?.dailyLogin?.xpBonus && account.dailyLogin.xpBonus > Date.now();
+
   useEffect(() => {
     if (shouldShowVideoAd()) {
       console.log('[GameResults] Showing video ad after death');
@@ -81,28 +86,29 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
     }
   }, [results]);
 
-  const onHomeClick = () => {
-
-    function go() {
+  useEffect(() => {
+    const timer = setTimeout(() => {
       onHome();
       game.events.emit('setGameResults', null);
       game.events.emit('startSpectate');
-      }
+    }, 150000);
+    return () => clearTimeout(timer);
+  }, []);
 
-      go();
+  const calculateDropAmount = (coins: number) => {
+    return coins < 13 ? 10 : Math.round(coins < 25000 ? coins * 0.8 : Math.log10(coins) * 30000 - 111938.2002602);
+  };
+  const hasEnoughCoins = results.coins >= 20000;
+  const hasEnoughTime = results.survivalTime >= 150;
+  const respawnCoins = hasEnoughCoins && hasEnoughTime ? Math.round(calculateDropAmount(results.coins) / 2) : 0;
 
-    // if((window as any).adBreak) {
-    //   console.log('adBreak');
-    //   (window as any).adBreak({
-    //     type: 'browse',
-    //     adBreakDone: (e: any) => {
-    //       console.log('adBreakDone', e);
-
-    //     },  // always called, unblocks the game logic
-    //   });
-    // }
-
-
+  const onHomeClick = () => {
+    if (respawnCoins > 0) {
+      game.events.emit('pendingRespawnInfo', { coins: respawnCoins, expiresAt: Date.now() + 120000 });
+    }
+    onHome();
+    game.events.emit('setGameResults', null);
+    game.events.emit('startSpectate');
   };
   const onRestartClick = () => {
     // playVideoAd().then(() => {
@@ -175,9 +181,9 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
           />
         </div>
         <div className="info">
-          <div className="title">XP Gained</div>
+          <div className="title" style={xpBonusActive ? { color: '#ffeb3b' } : undefined}>XP Gained{xpBonusActive ? ' (2x)' : ''}</div>
           <CountUp
-            end={calculateGemsXP(results.coins, results.kills, 0).xp}
+            end={calculateGemsXP(results.coins, results.kills, 0).xp * (xpBonusActive ? 2 : 1)}
             duration={3}
           />
         </div>
@@ -193,17 +199,15 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
       </div>
 
 
-
+        
       <div className="results-buttons">
-        <div
-          className="to-home"
-          role="button"
-          onClick={onHomeClick}
-          onKeyDown={event => event.key === 'Enter' && onHomeClick()}
-          tabIndex={0}
-        >
-          <img src={HomeImg} alt="Home" />
-        </div>
+        <h1>{
+          !hasEnoughCoins
+            ? 'Collect 20,000 coins or more to keep some when respawning!'
+            : !hasEnoughTime
+              ? 'Survive longer to keep some coins on respawn'
+              : `Press Play Again to respawn near this location with ${respawnCoins.toLocaleString()} coins`
+        }</h1>
         { results.disconnectReason?.type !== DisconnectTypes.Server && (
         <div
           className="play-again"
@@ -215,6 +219,15 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
           <img src={PlayAgainImg} alt="Play again" />
         </div>
         )}
+        <div
+          className="to-home"
+          role="button"
+          onClick={onHomeClick}
+          onKeyDown={event => event.key === 'Enter' && onHomeClick()}
+          tabIndex={0}
+        >
+          <img src={HomeImg} alt="Home" />
+        </div>
 </div>
 
       </div>

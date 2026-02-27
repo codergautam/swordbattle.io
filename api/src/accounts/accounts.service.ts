@@ -265,6 +265,31 @@ export class AccountsService {
     return account;
   }
 
+  async checkIn(account: Account): Promise<Account> {
+    const dl = { ...account.dailyLogin };
+    if (dl.checkedIn === 0) {
+      dl.checkedIn = 1;
+      dl.claimableTo += 1;
+      account.dailyLogin = dl;
+      await this.accountsRepository.save(account);
+    }
+    return account;
+  }
+
+  async applyPlayBonus(account: Account): Promise<Account> {
+    const dl = { ...account.dailyLogin };
+    if (dl.checkedIn === 0) {
+      dl.checkedIn = 2;
+      dl.claimableTo += 2;
+    } else if (dl.checkedIn === 1) {
+      dl.checkedIn = 2;
+      dl.claimableTo += 1;
+    }
+    account.dailyLogin = dl;
+    await this.accountsRepository.save(account);
+    return account;
+  }
+
   async getByUsername(username: string) {
     const account = await this.findOne({ where: { username: username } });
     if (!account) {

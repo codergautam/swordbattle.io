@@ -3,8 +3,7 @@ const Types = require('../Types');
 
 module.exports = class Colossal extends Evolution {
   static type = Types.Evolution.Colossal;
-  static level = 29;
-  static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
+  static level = 9999; // Not in rotation
   static abilityDuration = 7;
   static abilityCooldown = 70;
 

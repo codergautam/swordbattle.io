@@ -6,7 +6,7 @@ import { addCommas } from '../helpers';
 export default function ShopButton({account, scale, openShop}: {account: AccountState, scale: number, openShop: () => void}) {
   return (
     <div className="shop-btn">
-      <img src={ShopImg} alt="Gems" width={250*scale} height={250*scale} onClick={openShop} />
+      <img src={ShopImg} alt="Gems" width={350*scale} height={250*scale} onClick={openShop} />
     </div>
   );
 }

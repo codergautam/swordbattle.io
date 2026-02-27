@@ -102,8 +102,19 @@ class Player extends Entity {
     this.modifiers = {};
     this.wideSwing = false;
 
+    this.respawnShieldActive = false;
+    this.respawnShieldTimer = 0;
+    this.respawnedAt = 0;
+    this.respawnKillerName = null;
+    this.killerEntity = null;
+
     this.chatMessage = '';
     this.chatMessageTimer = new Timer(0, 3);
+
+    this.recentTargets = new Map();
+    this.activeTargets = new Map();
+
+    this.hypnotizedBy = null;
   }
 
   get playtime() {
@@ -159,7 +170,37 @@ class Player extends Entity {
 
   update(dt) {
     this.applyBiomeEffects();
+
+    if (this.respawnShieldTimer > 0) {
+      this.respawnShieldTimer -= dt;
+      this.respawnShieldActive = true;
+      this.flags.set(Types.Flags.RespawnShield, 1);
+      if (this.respawnShieldTimer <= 0) {
+        this.respawnShieldTimer = 0;
+        this.respawnShieldActive = false;
+      }
+    } else if (this.respawnShieldActive) {
+      this.respawnShieldActive = false;
+    }
+
+    const now = Date.now();
+    for (const [id, expiry] of this.recentTargets) {
+      if (now > expiry) this.recentTargets.delete(id);
+    }
+    for (const [id, expiry] of this.activeTargets) {
+      if (now > expiry) this.activeTargets.delete(id);
+    }
+    const activeTargetCount = this.activeTargets.size;
+    if (activeTargetCount >= 2 && !this.isBot) {
+      this.flags.set(Types.Flags.AntiTeamActive, 1);
+    }
+
     this.levels.applyBuffs();
+
+    if (activeTargetCount >= 2 && !this.isBot) {
+      this.health.regenWait.multiplier *= 0.67;
+    }
+
     this.effects.forEach(effect => effect.update(dt));
     this.health.update(dt);
     this.applyInputs(dt);
@@ -190,6 +231,8 @@ class Player extends Entity {
     let topZIndex = -Infinity;
     let foundSafezone = false;
 
+    const appliedBiomeTypes = new Set();
+
     for (const biome of this.game.map.biomes) {
       if (biome.shape.collides(this.shape, response)) {
         biome.collides(this, response);
@@ -197,6 +240,11 @@ class Player extends Entity {
         if (biome.type === Types.Biome.Safezone) {
           foundSafezone = true;
           if (!this.inSafezone) continue;
+        }
+
+        if (!appliedBiomeTypes.has(biome.type)) {
+          appliedBiomeTypes.add(biome.type);
+          biome.applyEffects(this, response);
         }
 
         if (biome.zIndex > topZIndex) {
@@ -208,7 +256,6 @@ class Player extends Entity {
 
     if (topBiome) {
       this.biome = topBiome.type;
-      topBiome.applyEffects(this, response);
     }
 
     if (!foundSafezone) {
@@ -236,6 +283,28 @@ class Player extends Entity {
   applyInputs(dt) {
     // If stunned, prevent all movement
     if (this.modifiers.stunned) {
+      return;
+    }
+
+    if (this.hypnotizedBy && !this.hypnotizedBy.removed) {
+      const target = this.hypnotizedBy;
+      const angle = Math.atan2(target.shape.y - this.shape.y, target.shape.x - this.shape.x);
+      this.angle = angle;
+      const speed = this.speed.value;
+
+      this.shape.x += this.velocity.x;
+      this.shape.y += this.velocity.y;
+      const velocityDecay = this.modifiers.slidingKnockback || 0.6;
+      this.velocity.scale(velocityDecay);
+
+      this.shape.x += speed * Math.cos(angle) * dt;
+      this.shape.y += speed * Math.sin(angle) * dt;
+
+      this.shape.x = clamp(this.shape.x, -this.game.map.width / 2, this.game.map.width / 2);
+      this.shape.y = clamp(this.shape.y, -this.game.map.height / 2, this.game.map.height / 2);
+
+      this.movedDistance.x = speed * Math.cos(angle);
+      this.movedDistance.y = speed * Math.sin(angle);
       return;
     }
 
@@ -335,6 +404,13 @@ class Player extends Entity {
   }
 
   damaged(damage, entity = null) {
+    if (entity && entity.type === Types.Entity.Player && !this.isBot && !entity.isBot) {
+      if (this.recentTargets.has(entity.id)) {
+        this.activeTargets.set(entity.id, Date.now() + 10000);
+      }
+      this.recentTargets.set(entity.id, Date.now() + 30000);
+    }
+
     if (this.name !== "Update Testing Account") {
       this.health.damaged(damage);
     }
@@ -384,6 +460,7 @@ class Player extends Entity {
         }
       }
 
+      this.killerEntity = entity;
       this.remove(reason, disconnectType);
     }
   }
@@ -455,6 +532,18 @@ class Player extends Entity {
         playtime: this.playtime,
       };
       this.client.saveGame(game);
+
+      if (this.levels.coins >= 20000 && this.playtime >= 150) {
+        const dropAmount = this.calculateDropAmount();
+        const respawnCoins = Math.round(dropAmount / 2);
+        this.client.pendingRespawn = {
+          coins: respawnCoins,
+          x: this.shape.x,
+          y: this.shape.y,
+          killerName: (this.killerEntity && this.killerEntity.type === Types.Entity.Player) ? this.killerEntity.name : null,
+          expiresAt: Date.now() + 120000,
+        };
+      }
     }
 
     if (this.evolutions && this.evolutions.evolutionEffect) {
@@ -470,7 +559,23 @@ class Player extends Entity {
 
   calculateDropAmount() {
     const coins = this.levels.coins;
-    return coins < 13 ? 10 : Math.round(coins < 25000 ? coins * 0.8 : Math.log10(coins) * 30000 - 111938.2002602);
+    let base = coins < 13 ? 10 : Math.round(coins < 25000 ? coins * 0.8 : Math.log10(coins) * 30000 - 111938.2002602);
+
+    if (this.respawnedAt > 0) {
+      const timeSinceRespawn = Date.now() - this.respawnedAt;
+      if (timeSinceRespawn < 40000 && this.killerEntity && this.killerEntity.type === Types.Entity.Player
+        && this.respawnKillerName && this.killerEntity.name === this.respawnKillerName) {
+        base = Math.round(base / 5);
+      }
+      else if (timeSinceRespawn < 20000) {
+        base = Math.round(base / 3);
+      }
+      else if (timeSinceRespawn < 40000) {
+        base = Math.round(base / 2);
+      }
+    }
+
+    return base;
   }
 
 

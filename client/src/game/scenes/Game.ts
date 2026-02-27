@@ -49,6 +49,8 @@ export default class Game extends Phaser.Scene {
     this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice-new.png');
     this.load.image('river', publicPath + '/assets/game/tiles/river.png');
+    this.load.image('safezone', publicPath + '/assets/game/tiles/spawn.png');
+    this.load.image('sand', publicPath + '/assets/game/tiles/sand.png');
 
     if (Settings.coins) {
       this.load.image('coin', publicPath + '/assets/game/coin.png');
@@ -69,26 +71,42 @@ export default class Game extends Phaser.Scene {
     this.load.image('iceSpike', publicPath + '/assets/game/Ice_Spike.png');
     this.load.image('icePond', publicPath + '/assets/game/Ice_Pond-new.png');
     this.load.image('rock', publicPath + '/assets/game/Rock.png');
+    this.load.image('rockShadow', publicPath + '/assets/game/rockShadow.png');
     this.load.image('lavaRock', publicPath + '/assets/game/Lava_Rock.png');
     this.load.image('lavaPool', publicPath + '/assets/game/Lava_Pool.png');
 
     this.load.image('wolfMobPassive', publicPath + '/assets/game/mobs/wolfPassive.png');
     this.load.image('wolfMobAggressive', publicPath + '/assets/game/mobs/wolfAggressive.png');
+    this.load.image('wolfShadow', publicPath + '/assets/game/mobs/wolfShadow.png');
     this.load.image('catMobPassive', publicPath + '/assets/game/mobs/cat.png');
+    this.load.image('catShadow', publicPath + '/assets/game/mobs/catShadow.png');
     this.load.image('bunny', publicPath + '/assets/game/mobs/bunny.png');
+    this.load.image('bunnyShadow', publicPath + '/assets/game/mobs/bunnyShadow.png');
     this.load.image('moose', publicPath + '/assets/game/mobs/moose.png');
+    this.load.image('mooseShadow', publicPath + '/assets/game/mobs/mooseShadow.png');
     this.load.image('fish', publicPath + '/assets/game/mobs/bluefish.png');
+    this.load.image('fishShadow', publicPath + '/assets/game/mobs/fishShadow.png');
     this.load.image('angryFish', publicPath + '/assets/game/mobs/angryfish.png');
+    this.load.image('angryFishShadow', publicPath + '/assets/game/mobs/angryFishShadow.png');
     this.load.image('chimera', publicPath + '/assets/game/mobs/chimera.png');
+    this.load.image('chimeraShadow', publicPath + '/assets/game/mobs/chimeraShadow.png');
     this.load.image('yeti', publicPath + '/assets/game/mobs/yeti.png'); // add winter
+    this.load.image('yetiShadow', publicPath + '/assets/game/mobs/yetiShadow.png');
     this.load.image('iceSpirit', publicPath + '/assets/game/mobs/icespirit.png');
+    this.load.image('iceSpiritShadow', publicPath + '/assets/game/mobs/iceSpiritShadow.png');
     this.load.image('santa', publicPath + '/assets/game/mobs/santa.png'); // Unused for now
+    this.load.image('santaShadow', publicPath + '/assets/game/mobs/santaShadow.png');
     this.load.image('roku', publicPath + '/assets/game/mobs/roku.png');
+    this.load.image('rokuShadow', publicPath + '/assets/game/mobs/rokuShadow.png');
     this.load.image('ancient', publicPath + '/assets/game/mobs/ancient.png');
+    this.load.image('ancientShadow', publicPath + '/assets/game/mobs/ancientShadow.png');
     this.load.image('fireball', publicPath + '/assets/game/mobs/fireball.png');
     this.load.image('boulder', publicPath + '/assets/game/mobs/boulder.png');
+    this.load.image('boulderShadow', publicPath + '/assets/game/mobs/boulderShadow.png');
     this.load.image('swordProj', publicPath + '/assets/game/mobs/sword.png');
+    this.load.image('swordProjShadow', publicPath + '/assets/game/mobs/swordShadow.png');
     this.load.image('snowball', publicPath + '/assets/game/mobs/snowball.png');
+    this.load.image('snowballShadow', publicPath + '/assets/game/mobs/snowballShadow.png');
     this.load.image('ornament1', publicPath + '/assets/game/mobs/ornament1.png');
     this.load.image('ornament2', publicPath + '/assets/game/mobs/ornament2.png');
 
@@ -136,6 +154,8 @@ export default class Game extends Phaser.Scene {
     this.load.image('drifterOverlay', publicPath + '/assets/game/player/drifter.png');
     this.load.image('colossalOverlay', publicPath + '/assets/game/player/colossal.png');
     this.load.image('medicOverlay', publicPath + '/assets/game/player/medic.png');
+    this.load.image('discoOverlay', publicPath + '/assets/game/player/disco.png');
+    this.load.image('butcherOverlay', publicPath + '/assets/game/player/butcher.png');
 
     this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');
@@ -143,6 +163,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('lightningParticle', publicPath + '/assets/game/particles/lightning.png');
     this.load.image('poisonParticle', publicPath + '/assets/game/particles/poison.png');
     this.load.image('sparkleParticle', publicPath + '/assets/game/particles/sparkle.png');
+    this.load.image('swirl', publicPath + '/assets/game/particles/swirl.png');
 
     this.load.image('chatButton', publicPath + '/assets/game/ui/chat.png');
     if (this.isMobile) {
@@ -166,7 +187,6 @@ export default class Game extends Phaser.Scene {
     this.load.plugin('rexVirtualJoystick', VirtualJoyStickPlugin, true);
 
     this.soundManager.load(publicPath);
-    Safezone.createTexture(this);
     Biome.initialize(this);
 
     // log progress on load

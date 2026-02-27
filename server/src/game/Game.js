@@ -517,7 +517,28 @@ class Game {
       }
     }
     this.players.add(player);
-    this.map.spawnPlayer(player);
+
+    const pendingRespawn = client.pendingRespawn;
+    if (pendingRespawn && Date.now() < pendingRespawn.expiresAt) {
+      const spawnPos = this.map.findSafeSpawnNear(pendingRespawn.x, pendingRespawn.y, 5000);
+      player.shape.x = spawnPos.x;
+      player.shape.y = spawnPos.y;
+      player.inSafezone = false;
+
+      player.levels.addCoins(pendingRespawn.coins);
+
+      player.respawnShieldActive = true;
+      player.respawnShieldTimer = 10;
+
+      player.respawnedAt = Date.now();
+      player.respawnKillerName = pendingRespawn.killerName;
+
+      client.pendingRespawn = null;
+    } else {
+      this.map.spawnPlayer(player);
+      client.pendingRespawn = null;
+    }
+
     this.addEntity(player);
     return player;
   }

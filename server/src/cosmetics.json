@@ -3492,26 +3492,6 @@
       "bodyFileName": "colorfulPlayer.png",
       "description": "Very vibrant"
     },
-    "flaming": {
-      "name": "flaming",
-      "displayName": "Flaming",
-      "id": 353,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedFlamingSword.png",
-      "bodyFileName": "unreleasedFlamingPlayer.png",
-      "description": "Not available for sale."
-    },
-    "fragment": {
-      "name": "fragment",
-      "displayName": "Fragment",
-      "id": 354,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedFragmentSword.png",
-      "bodyFileName": "unreleasedFragmentPlayer.png",
-      "description": "Not available for sale."
-    },
     "skullv2": {
       "ultimate": true,
       "tag": "Ultimate Skeleton",
@@ -3534,16 +3514,6 @@
       "swordFileName": "turtleSword.png",
       "bodyFileName": "turtlePlayer.png",
       "description": "The true tank"
-    },
-    "leader": {
-      "name": "leader",
-      "displayName": "Leader",
-      "id": 357,
-      "buyable": false,
-      "price": 0,
-      "swordFileName": "unreleasedLeaderSword.png",
-      "bodyFileName": "unreleasedLeaderPlayer.png",
-      "description": "Not available for sale."
     },
     "wave": {
       "name": "wave",
@@ -4663,6 +4633,182 @@
       "swordFileName": "diamondSword.png",
       "bodyFileName": "diamondPlayer.png",
       "description": "Diamond sword? Where have I heard that before..."
+    },
+    "shiny": {
+      "name": "shiny",
+      "displayName": "Shiny",
+      "id": 443,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "shinyPlayer.png",
+      "bodyFileName": "shinyPlayer.png",
+      "description": "It's almost like you're the coin!"
+    },
+    "redshift": {
+      "name": "redshift",
+      "displayName": "Redshift",
+      "id": 444,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "redshiftPlayer.png",
+      "bodyFileName": "redshiftPlayer.png",
+      "description": "Hit 'em so hard the light decreases in frequency"
+    },
+    "watercolors": {
+      "name": "watercolors",
+      "displayName": "Watercolors",
+      "id": 445,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "watercolorsPlayer.png",
+      "bodyFileName": "watercolorsPlayer.png",
+      "description": "The colors of the rainbow are yours to command!"
+    },
+    "leader": {
+      "name": "leader",
+      "displayName": "Leader",
+      "id": 446,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "leaderSword.png",
+      "bodyFileName": "leaderPlayer.png",
+      "description": "Show them who rules the battlefield!"
+    },
+    "flaming": {
+      "name": "flaming",
+      "displayName": "Flaming",
+      "id": 447,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "flamingSword.png",
+      "bodyFileName": "flamingPlayer.png",
+      "description": "Burn them to a crisp!"
+    },
+    "fragment": {
+      "name": "fragment",
+      "displayName": "Fragment",
+      "id": 448,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "fragmentSword.png",
+      "bodyFileName": "fragmentPlayer.png",
+      "description": "Well I guess theres nothing left to shatter"
+    },
+    "cmykluminous": {
+      "name": "cmykluminous",
+      "displayName": "CMYK Luminous",
+      "id": 449,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "cmykLuminousSword.png",
+      "bodyFileName": "cmykLuminousPlayer.png",
+      "description": "I think my sword ran out of ink..."
+    },
+    "astral": {
+      "name": "astral",
+      "displayName": "Astral",
+      "id": 450,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "astralSword.png",
+      "bodyFileName": "astralPlayer.png",
+      "description": "“Strike from the skies?” Why not strike from the STARS?!"
+    },
+    "mountain": {
+      "name": "mountain",
+      "displayName": "Mountain",
+      "id": 451,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "mountainSword.png",
+      "bodyFileName": "mountainPlayer.png",
+      "description": "Now THIS is peak"
+    },
+    "classicMountain": {
+      "name": "classicMountain",
+      "displayName": "Classic Mountain",
+      "id": 452,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "classicMountainSword.png",
+      "bodyFileName": "classicMountainPlayer.png",
+      "description": "They give a feeling of nostalgia that has never been experienced before"
+    },
+    "borealMountain": {
+      "name": "borealMountain",
+      "displayName": "Boreal Mountain",
+      "id": 453,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "borealMountainSword.png",
+      "bodyFileName": "borealMountainPlayer.png",
+      "description": "Winter is coming"
+    },
+    "infernoMountain": {
+      "name": "infernoMountain",
+      "displayName": "Inferno Mountain",
+      "id": 454,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "infernoMountainSword.png",
+      "bodyFileName": "infernoMountainPlayer.png",
+      "description": "Only the worst of all battlers end up here..."
+    },
+    "yinyang v2": {
+      "name": "yinyang v2",
+      "displayName": "Yin Yang v2",
+      "id": 455,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "yinyangV2Sword.png",
+      "bodyFileName": "yinyangV2Player.png",
+      "description": "Find a balance."
+    },
+    "bullseye v2": {
+      "name": "bullseye v2",
+      "displayName": "Bullseye v2",
+      "id": 456,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "bullseyeV2Sword.png",
+      "bodyFileName": "bullseyeV2Player.png",
+      "description": "Never miss your shots!"
+    },
+    "bubble v2": {
+      "name": "bubble v2",
+      "displayName": "Bubble v2",
+      "id": 457,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "bubbleV2Sword.png",
+      "bodyFileName": "bubbleV2Player.png",
+      "description": "Magical and mysterious"
+    },
+    "hacker v2": {
+      "name": "hacker v2",
+      "displayName": "Hacker v2",
+      "id": 458,
+      "dailyReward": true,
+      "buyable": false,
+      "price": 0,
+      "swordFileName": "hackerV2Sword.png",
+      "bodyFileName": "hackerV2Player.png",
+      "description": "ℙ𝕣𝕠 𝕙𝕒𝕔𝕜𝕖𝕣"
     }
   }
 }

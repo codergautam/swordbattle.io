@@ -5,7 +5,8 @@ const Types = require('../../Types');
 class IcePond extends Entity {
   static defaultDefinition = {
     forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
-    forbiddenEntities: [Types.Entity.House1],
+    forbiddenEntities: [Types.Entity.House1, Types.Entity.IcePond, Types.Entity.Pond, Types.Entity.LavaPool],
+    spawnBuffer: 150,
   };
 
   constructor(game, objectData) {

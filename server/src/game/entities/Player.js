@@ -407,6 +407,8 @@ class Player extends Entity {
     if (entity && entity.type === Types.Entity.Player && !this.isBot && !entity.isBot) {
       if (this.recentTargets.has(entity.id)) {
         this.activeTargets.set(entity.id, Date.now() + 10000);
+      } else {
+        this.activeTargets.set(entity.id, Date.now() + 5000);
       }
       this.recentTargets.set(entity.id, Date.now() + 30000);
     }

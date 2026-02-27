@@ -254,20 +254,13 @@ processTargetsCollision(entity) {
     const targetCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
     const attackerUnderShield = attackerCoins < this.player.coinShield || this.player.respawnShieldActive;
     const targetUnderShield = targetCoins < this.player.coinShield || (entity.respawnShieldActive === true);
-    let shieldDamageMultiplier = 1;
     if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot) {
-      if (attackerUnderShield) shieldDamageMultiplier *= 0.3;
-      if (targetUnderShield) shieldDamageMultiplier *= 0.3;
+      if (attackerUnderShield || targetUnderShield) return;
     }
 
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
 
-    let power;
-    if (entity.type === Types.Entity.Player && targetUnderShield && !entity.isBot && !this.player.isBot) {
-      power = this.knockback.value * 2;
-    } else {
-      power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
-    }
+    let power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
 
     if (entity.type === Types.Entity.Player && this.player.modifiers.noRestrictKnockback) {
        power = (this.knockback.value);
@@ -327,8 +320,6 @@ processTargetsCollision(entity) {
           finalDamage *= bonus;
         }
 
-        finalDamage *= shieldDamageMultiplier;
-
         if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot
             && entity.activeTargets && entity.activeTargets.has(this.player.id)) {
           const atCount = entity.activeTargets.size;
@@ -360,7 +351,7 @@ processTargetsCollision(entity) {
         }
     }
 
-    if(this.player.modifiers.leech) {
+    if(this.player.modifiers.leech && entity.type === Types.Entity.Player) {
       this.player.health.gain(this.damage.value * this.player.modifiers.leech);
     }
 

@@ -59,13 +59,6 @@ class Server {
         const ip = ips[0];
         const now = Date.now();
 
-        const maintenanceMode = true;
-        const allowedIPs = ['77.111.246.45', '99.27.248.59'];
-        if (maintenanceMode && !allowedIPs.includes(ip)) {
-          res.upgrade({ maintenance: true }, req.getHeader('sec-websocket-key'), req.getHeader('sec-websocket-protocol'), req.getHeader('sec-websocket-extensions'), context);
-          return;
-        }
-
         const octets = ip.split('.');
         const firstOctet = parseInt(octets[0]);
         const secondOctet = parseInt(octets[1]);
@@ -293,10 +286,6 @@ class Server {
         this._handleUpgrade(res, req, context, ip, now);
       },
       open: (socket) => {
-        if (socket.getUserData().maintenance) {
-          socket.end(4503, 'Maintenance');
-          return;
-        }
         if (socket.getUserData().tooManyConnections) {
           socket.end(4429, 'Max connections reached');
           return;

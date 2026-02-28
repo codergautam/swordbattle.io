@@ -40,6 +40,7 @@ class Sword extends BaseEntity {
     this.game.load.image(skinName, basePath);
 
     this.game.load.once(Phaser.Loader.Events.COMPLETE, () => {
+      if (!this.body) return resolve();
       this.skinName = skinName;
       this.body.setTexture(this.skinName);
       if (this.shadow) {

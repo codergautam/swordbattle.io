@@ -327,7 +327,7 @@ processTargetsCollision(entity) {
         if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot
             && entity.activeTargets && entity.activeTargets.has(this.player.id)) {
           const atCount = entity.activeTargets.size;
-          const dmgMult = atCount >= 5 ? 0.2 : atCount >= 4 ? 0.25 : atCount >= 3 ? 0.33 : 0.5;
+          const dmgMult = atCount >= 5 ? 0.25 : atCount >= 4 ? 0.34 : atCount >= 3 ? 0.45 : 0.67;
           finalDamage *= dmgMult;
         }
 

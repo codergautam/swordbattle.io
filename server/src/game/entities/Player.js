@@ -198,7 +198,7 @@ class Player extends Entity {
     this.levels.applyBuffs();
 
     if (activeTargetCount >= 2 && !this.isBot) {
-      this.health.regenWait.multiplier *= 0.6;
+      this.health.regenWait.multiplier *= 0.67;
     }
 
     this.effects.forEach(effect => effect.update(dt));

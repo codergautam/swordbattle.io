@@ -407,6 +407,8 @@ class Player extends Entity {
     if (entity && entity.type === Types.Entity.Player && !this.isBot && !entity.isBot) {
       if (this.recentTargets.has(entity.id)) {
         this.activeTargets.set(entity.id, Date.now() + 10000);
+      } else {
+        this.activeTargets.set(entity.id, Date.now() + 5000);
       }
       this.recentTargets.set(entity.id, Date.now() + 30000);
     }
@@ -567,10 +569,10 @@ class Player extends Entity {
         && this.respawnKillerName && this.killerEntity.name === this.respawnKillerName) {
         base = Math.round(base / 5);
       }
-      else if (timeSinceRespawn < 20000) {
+      else if (timeSinceRespawn < 15000) {
         base = Math.round(base / 3);
       }
-      else if (timeSinceRespawn < 40000) {
+      else if (timeSinceRespawn < 30000) {
         base = Math.round(base / 2);
       }
     }

@@ -254,13 +254,17 @@ processTargetsCollision(entity) {
     const targetCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
     const attackerUnderShield = attackerCoins < this.player.coinShield || this.player.respawnShieldActive;
     const targetUnderShield = targetCoins < this.player.coinShield || (entity.respawnShieldActive === true);
-    if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot) {
-      if (attackerUnderShield || targetUnderShield) return;
-    }
+    const shielded = entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot
+      && (attackerUnderShield || targetUnderShield);
 
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
 
-    let power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
+    let power;
+    if (entity.type === Types.Entity.Player && targetUnderShield && !entity.isBot && !this.player.isBot) {
+      power = this.knockback.value * 2;
+    } else {
+      power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
+    }
 
     if (entity.type === Types.Entity.Player && this.player.modifiers.noRestrictKnockback) {
        power = (this.knockback.value);
@@ -291,7 +295,7 @@ processTargetsCollision(entity) {
     if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot
         && entity.activeTargets && entity.activeTargets.has(this.player.id)) {
       const atCount = entity.activeTargets.size;
-      const kbMult = atCount >= 5 ? 0.40 : atCount >= 4 ? 0.55 : atCount >= 3 ? 0.7 : 0.8;
+      const kbMult = atCount >= 5 ? 0.50 : atCount >= 4 ? 0.55 : atCount >= 3 ? 0.70 : 0.85;
       power *= kbMult;
     }
 
@@ -351,7 +355,7 @@ processTargetsCollision(entity) {
         }
     }
 
-    if(this.player.modifiers.leech && entity.type === Types.Entity.Player) {
+    if(!shielded && this.player.modifiers.leech && entity.type === Types.Entity.Player) {
       this.player.health.gain(this.damage.value * this.player.modifiers.leech);
     }
 

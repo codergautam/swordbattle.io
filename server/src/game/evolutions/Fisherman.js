@@ -7,7 +7,7 @@ module.exports = class Fisherman extends Evolution {
   static previousEvol = [Types.Evolution.Vampire, Types.Evolution.Berserker];
   // static level = 1;
   static abilityDuration = 5;
-  static abilityCooldown = 85;
+  static abilityCooldown = 65;
 
   applyAbilityEffects() {
     this.player.shape.setScale(1.25);
@@ -26,14 +26,14 @@ module.exports = class Fisherman extends Evolution {
   }
 
   update(dt) {
-    this.player.shape.setScale(1);
+    this.player.shape.setScale(1.025);
     this.player.modifiers.pullback = true;
 
     this.player.sword.knockback.multiplier['ability'] = 1.5;
 
     this.player.knockbackResistance.multiplier *= 1.35;
     this.player.health.max.multiplier *= 1.25;
-    this.player.sword.damage.multiplier *= 0.95;
+    this.player.sword.damage.multiplier *= 1.15;
     this.player.speed.multiplier *= 0.9;
     this.player.health.regenWait.multiplier *= 0.6;
     this.player.health.regen.multiplier *= 0.85;

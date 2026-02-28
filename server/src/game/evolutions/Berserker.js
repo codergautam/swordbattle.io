@@ -21,7 +21,7 @@ module.exports = class Berserker extends Evolution {
 
   update(dt) {
     super.update(dt);
-    this.player.sword.damage.multiplier *= 1.15;
+    this.player.sword.damage.multiplier *= 1.2;
     this.player.knockbackResistance.multiplier *= 1.05;
     this.player.speed.multiplier *= 1.1;
     this.player.health.max.multiplier *= 0.95;

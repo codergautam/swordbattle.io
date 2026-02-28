@@ -518,7 +518,7 @@ class Game {
 
     const pendingRespawn = client.pendingRespawn;
     if (pendingRespawn && Date.now() < pendingRespawn.expiresAt) {
-      const spawnPos = this.map.findSafeSpawnNear(pendingRespawn.x, pendingRespawn.y, 10000);
+      const spawnPos = this.map.findSafeSpawnNear(pendingRespawn.x, pendingRespawn.y, 5000);
       player.shape.x = spawnPos.x;
       player.shape.y = spawnPos.y;
       player.inSafezone = false;

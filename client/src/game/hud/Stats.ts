@@ -1,7 +1,7 @@
 import HudComponent from './HudComponent';
 
 class Stats extends HudComponent {
-  indent = 20;
+  indent = 18;
   lastUpdate = 0;
   updateInterval = 1000;
   playersSprite: any;
@@ -13,7 +13,7 @@ class Stats extends HudComponent {
   initialize() {
     const { indent } = this;
     const style: Phaser.Types.GameObjects.Text.TextStyle = {
-      fontSize: 20,
+      fontSize: 18,
       fontFamily: 'Arial',
       color: '#ffffff',
       stroke: '#000000',
@@ -37,7 +37,7 @@ class Stats extends HudComponent {
   resize() {
     if (!this.container) return;
     this.container.x = 10;
-  this.container.y = this.game.scale.height - (this.indent * 6) * this.scale;
+  this.container.y = this.game.scale.height - (this.indent * 5.7) * this.scale;
   }
 
   update() {

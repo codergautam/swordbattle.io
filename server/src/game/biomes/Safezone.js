@@ -5,7 +5,7 @@ class Safezone extends Biome {
   constructor(game, definition) {
     super(game, Types.Biome.Safezone, definition);
     this.bushesCount = 50;
-    this.coinsCollectLimit = 2000;
+    this.coinsCollectLimit = 500;
     this.zIndex = 3;
   }
 

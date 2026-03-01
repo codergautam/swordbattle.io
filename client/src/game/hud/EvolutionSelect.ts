@@ -5,13 +5,19 @@ import { config } from '../../config';
 class EvolutionSelect extends HudComponent {
   spritesContainer: Phaser.GameObjects.Container | null = null;
   hideButton: Phaser.GameObjects.Text | null = null;
-  spriteSize = 100;
+  leftArrow: Phaser.GameObjects.Text | null = null;
+  rightArrow: Phaser.GameObjects.Text | null = null;
+  spriteSize = 80;
   indent = 50;
   minimized = false;
   updateList = false;
 
   initialize() {
     if (!this.hud.scene) return;
+
+    const arrowStyle = { fontSize: 16, fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 };
+    this.leftArrow = this.hud.scene.add.text(0, -170, '\u25BC', arrowStyle).setOrigin(0.5).setVisible(false);
+    this.rightArrow = this.hud.scene.add.text(0, -170, '\u25BC', arrowStyle).setOrigin(0.5).setVisible(false);
 
     this.hideButton = this.hud.scene.add.text(0, -170, 'Evolutions', {
       fontSize: 22,
@@ -20,13 +26,32 @@ class EvolutionSelect extends HudComponent {
       strokeThickness: 5,
     }).setOrigin(0.5).setVisible(false)
       .setInteractive()
-      // .on('pointerover', () => this.game.input.setDefaultCursor('pointer'))
-      // .on('pointerout', () => this.game.input.setDefaultCursor(config.cursorUrl || 'default'))
+      .on('pointerover', () => {
+        const shift = this.minimized ? -3 : 3;
+        if (this.leftArrow) this.game.add.tween({ targets: this.leftArrow, y: this.leftArrow.y + shift, duration: 100 });
+        if (this.rightArrow) this.game.add.tween({ targets: this.rightArrow, y: this.rightArrow.y + shift, duration: 100 });
+      })
+      .on('pointerout', () => {
+        this.updateArrows();
+      })
       .on('pointerdown', () => this.toggleMinimize());
 
-    this.spritesContainer = this.hud.scene.add.container(0, -70);
-    this.container = this.hud.scene.add.container(0, 0, [this.spritesContainer, this.hideButton]);
+    this.updateArrows();
+
+    this.spritesContainer = this.hud.scene.add.container(0, -85);
+    this.container = this.hud.scene.add.container(0, 0, [this.spritesContainer, this.leftArrow, this.rightArrow, this.hideButton]);
     this.hud.add(this.container);
+  }
+
+  updateArrows() {
+    if (!this.hideButton || !this.leftArrow || !this.rightArrow) return;
+    const arrow = this.minimized ? '\u25B2' : '\u25BC';
+    this.leftArrow.setText(arrow);
+    this.rightArrow.setText(arrow);
+    const btnY = this.hideButton.y;
+    const halfW = this.hideButton.width / 2;
+    this.leftArrow.setPosition(-halfW - 14, btnY);
+    this.rightArrow.setPosition(halfW + 14, btnY);
   }
 
   resize() {
@@ -37,11 +62,12 @@ class EvolutionSelect extends HudComponent {
 
   toggleMinimize() {
     this.minimized = !this.minimized;
+    this.updateArrows();
 
     this.hud.scene!.tweens.add({
       targets: this.spritesContainer,
       alpha: this.minimized ? 0 : 1,
-      y: this.minimized ? -140 : -70,
+      y: this.minimized ? -140 : -85,
       duration: 250,
     });
   }
@@ -60,6 +86,8 @@ class EvolutionSelect extends HudComponent {
   if (player.coins === 0) {
     this.container.setVisible(false);
     this.hideButton?.setVisible(false);
+    this.leftArrow?.setVisible(false);
+    this.rightArrow?.setVisible(false);
     this.minimized = false;
     return;
   }
@@ -67,7 +95,7 @@ class EvolutionSelect extends HudComponent {
   if (!this.container.visible) {
     this.minimized = false;
     this.spritesContainer.alpha = 1;
-    this.spritesContainer.y = -70;
+    this.spritesContainer.y = -85;
   }
 
     if (this.updateList) {
@@ -101,23 +129,23 @@ class EvolutionSelect extends HudComponent {
         });
       }
 
+      const labelTargets = [this.hideButton, this.leftArrow, this.rightArrow].filter(Boolean);
       if(count === 0 && this.hideButton?.visible) {
         this.hud.scene!.tweens.add({
-          targets: this.hideButton,
+          targets: labelTargets,
           alpha: 0,
           duration: 1000,
-          onComplete: () => this.hideButton?.setVisible(false),
+          onComplete: () => labelTargets.forEach(t => t?.setVisible(false)),
         });
       } else if(count !== 0 && this.hideButton && (!this.hideButton.visible || this.hideButton.alpha < 1)) {
-        this.hideButton?.setVisible(true);
-        this.hideButton?.setAlpha(0);
+        labelTargets.forEach(t => { t?.setVisible(true); t?.setAlpha(0); });
         this.hud.scene!.tweens.add({
-          targets: this.hideButton,
+          targets: labelTargets,
           alpha: 1,
           duration: 1000,
           onComplete: () => {
-            this.hideButton?.setAlpha(1);
-            this.hideButton?.setVisible(true);
+            labelTargets.forEach(t => { t?.setAlpha(1); t?.setVisible(true); });
+            this.updateArrows();
           }
         });
       }
@@ -134,21 +162,21 @@ class EvolutionSelect extends HudComponent {
         container.setScale(this.spriteSize / body.height).setAlpha(alpha);
 
         const text = this.hud.scene!.add.text(0, 0, evolution[0], {
-          fontSize: 40,
+          fontSize: 45,
           fontStyle: 'bold',
           stroke: '#000000',
           strokeThickness: 6,
         }).setAlpha(alpha);
 
         const desc = this.hud.scene!.add.text(0, 0, evolution[4], {
-          fontSize: 30,
+          fontSize: 37,
           fontStyle: 'bold',
           stroke: '#000000',
           strokeThickness: 5,
         }).setAlpha(alpha);
         
         const abil = this.hud.scene!.add.text(0, 0, `Ability: ${evolution[5]}`, {
-          fontSize: 30,
+          fontSize: 37,
           fontStyle: 'bold',
           stroke: '#000000',
           strokeThickness: 5,
@@ -174,9 +202,9 @@ class EvolutionSelect extends HudComponent {
         container.add(text);
         container.add(desc);
         container.add(abil);
-        Phaser.Display.Align.In.BottomCenter(text, body, 0, 45);
-        Phaser.Display.Align.In.Center(desc, body, 0, 200);
-        Phaser.Display.Align.In.BottomCenter(abil, body, 0, 120);
+        Phaser.Display.Align.In.BottomCenter(text, body, 0, 60);
+        Phaser.Display.Align.In.Center(desc, body, 0, 220);
+        Phaser.Display.Align.In.BottomCenter(abil, body, 0, 145);
         this.spritesContainer.add(container);
       }
       this.updateList = false;

@@ -7,6 +7,7 @@
   color: white;
   font-family: Arial, Helvetica, sans-serif;
 	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.9);
+  transform: scale(8);
   transform-origin: top right;
   user-select: none;
   pointer-events: none;
@@ -14,11 +15,28 @@
   .leaderboard-title {
     margin-bottom: 5px;
     text-align: center;
-    font-size: 24px;
+    font-size: 22px;
     pointer-events: all;
 
     &:hover {
       cursor: pointer;
+
+      .lb-arrow {
+        transition: transform 0.1s ease;
+      }
+    }
+
+    &.open:hover .lb-arrow {
+      transform: translateY(2px);
+    }
+    &.closed:hover .lb-arrow {
+      transform: translateY(-2px);
+    }
+
+    .lb-arrow {
+      font-size: 16px;
+      display: inline-block;
+      transition: transform 0.1s ease;
     }
   }
 
@@ -34,6 +52,6 @@
 
 .leaderboard-line {
   display: block;
-  font-size: 22px;
+  font-size: 20px;
   white-space: nowrap;
 }

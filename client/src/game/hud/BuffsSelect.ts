@@ -10,6 +10,9 @@ const buffsData: Record<any, [string, number]> = {
 class BuffsSelect extends HudComponent {
   buffsContainer: Phaser.GameObjects.Container | null = null;
   hideButton: Phaser.GameObjects.Text | null = null;
+  leftArrow: Phaser.GameObjects.Text | null = null;
+  rightArrow: Phaser.GameObjects.Text | null = null;
+  lastButtonText = '';
   minimized = true;
   width = 250;
   lineHeight = 20;
@@ -25,7 +28,11 @@ class BuffsSelect extends HudComponent {
   initialize() {
     if (!this.hud.scene) return;
 
-    this.hideButton = this.hud.scene.add.text(10, 10, '', {
+    const arrowStyle = { fontSize: 16, fontStyle: 'bold', stroke: '#000000', strokeThickness: 4 };
+    this.leftArrow = this.hud.scene.add.text(0, 10, '\u25BC', arrowStyle).setOrigin(0.5, 0);
+    this.rightArrow = this.hud.scene.add.text(0, 10, '\u25BC', arrowStyle).setOrigin(0.5, 0);
+
+    this.hideButton = this.hud.scene.add.text(20, 10, '', {
       fontSize: 22,
       fontStyle: 'bold',
       stroke: '#000000',
@@ -33,25 +40,29 @@ class BuffsSelect extends HudComponent {
     }).setOrigin(0)
       .setInteractive()
       .on('pointerover', () => {
-        this.game.add.tween({
-          targets: this.hideButton,
-          scaleX: 1.1,
-          scaleY: 1.1,
-          duration: 100,
-        });
+        const shift = this.minimized ? -3 : 3;
+        if (this.leftArrow) this.game.add.tween({ targets: this.leftArrow, y: this.leftArrow.y + shift, duration: 100 });
+        if (this.rightArrow) this.game.add.tween({ targets: this.rightArrow, y: this.rightArrow.y + shift, duration: 100 });
       })
       .on('pointerout', () => {
-        this.game.add.tween({
-          targets: this.hideButton,
-          scaleX: 1,
-          scaleY: 1,
-          duration: 100,
-        });
+        this.updateArrows();
       })
       .on('pointerdown', () => this.toggleMinimize());
 
     this.buffsContainer = this.hud.scene.add.container(-this.width, 40).setAlpha(0);
-    this.container = this.hud.scene.add.container(10, 10, [this.buffsContainer, this.hideButton]);
+    this.container = this.hud.scene.add.container(10, 10, [this.buffsContainer, this.leftArrow, this.rightArrow, this.hideButton]);
+  }
+
+  updateArrows() {
+    if (!this.hideButton || !this.leftArrow || !this.rightArrow) return;
+    const arrow = this.minimized ? '\u25B2' : '\u25BC';
+    this.leftArrow.setText(arrow);
+    this.rightArrow.setText(arrow);
+    const btnX = this.hideButton.x;
+    const btnY = this.hideButton.y + 3;
+    const btnW = this.hideButton.width;
+    this.leftArrow.setPosition(btnX - 10, btnY);
+    this.rightArrow.setPosition(btnX + btnW + 10, btnY);
   }
 
   get height() {
@@ -65,6 +76,7 @@ class BuffsSelect extends HudComponent {
 
   toggleMinimize() {
     this.minimized = !this.minimized;
+    this.updateArrows();
 
     this.hud.scene!.tweens.add({
       targets: this.buffsContainer,
@@ -91,7 +103,12 @@ class BuffsSelect extends HudComponent {
     const scene = this.hud.scene!;
     if (!this.container || !this.buffsContainer || !player) return;
 
-    this.hideButton!.text = `Upgrades ${player.upgradePoints > 0 ? `(x${player.upgradePoints})` : ''}`;
+    const buttonText = `Upgrades ${player.upgradePoints > 0 ? `(x${player.upgradePoints})` : ''}`;
+    if (this.hideButton!.text !== buttonText) {
+      this.hideButton!.text = buttonText;
+      this.lastButtonText = buttonText;
+      this.updateArrows();
+    }
 
     let i = 0;
     for (const [type, buff] of Object.entries(player.buffs) as any) {

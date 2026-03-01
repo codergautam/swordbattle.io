@@ -31,7 +31,7 @@ class ProgressBar extends HudComponent {
   initialize() {
     // Create the background bar
     this.barBackground = this.game.add.graphics();
-    this.barBackground.lineStyle(4, 0x000000);
+    this.barBackground.lineStyle(6, 0x000000);
     this.barBackground.strokeRect(0, 0, this.width, this.height);
     this.barBackground.fillStyle(0xffffff);
     this.barBackground.fillRect(0, 0, this.width, this.height);

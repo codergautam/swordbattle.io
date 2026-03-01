@@ -22,7 +22,7 @@ class CoinCounter extends HudComponent {
     },
     strokeThickness: 8,
     color: '#ffffff',
-    fontSize: '50px',
+    fontSize: '40px',
   };
   textObj: Phaser.GameObjects.Text;
   tokenTextObj: Phaser.GameObjects.Text;
@@ -37,7 +37,7 @@ class CoinCounter extends HudComponent {
 
 
     this.coinImg = new Phaser.GameObjects.Image(this.game, 0, indent * 0, 'coin').setOrigin(0, 0);
-    this.coinImg.setScale(0.35);
+    this.coinImg.setScale(0.28);
     this.tokenImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight + 3, 'token').setOrigin(0, 0);
     this.tokenImg.displayHeight = this.coinImg.displayHeight;
     this.tokenImg.displayWidth = this.coinImg.displayWidth;
@@ -110,6 +110,8 @@ class CoinCounter extends HudComponent {
   this.lastUpdate = now;
 
   const kills = this.game.gameState.self.entity.kills;
+  const isLoggedIn = !!this.game.gameState.self.entity.account;
+  this.ultimacyImg.setVisible(isLoggedIn);
 
   if (this.lastCoins !== coins || this.lastTokens !== tokens || this.lastUltimacy !== newUltimacy) {
     const fromCoins = this.lastCoins;
@@ -130,9 +132,13 @@ class CoinCounter extends HudComponent {
         const currentTokens = Math.floor(Phaser.Math.Interpolation.Linear([fromTokens, toTokens], progress));
         const currentUltimacy = Math.floor(Phaser.Math.Interpolation.Linear([fromUltimacy, toUltimacy], progress));
         if (this.showTokens) {
-          this.textObj.text = `${currentCoins}\n${currentTokens}\n${kills}\n${currentUltimacy}`;
+          this.textObj.text = isLoggedIn
+            ? `${currentCoins}\n${currentTokens}\n${kills}\n${currentUltimacy}`
+            : `${currentCoins}\n${currentTokens}\n${kills}`;
         } else {
-          this.textObj.text = `${currentCoins}\n${kills}\n${currentUltimacy}`;
+          this.textObj.text = isLoggedIn
+            ? `${currentCoins}\n${kills}\n${currentUltimacy}`
+            : `${currentCoins}\n${kills}`;
         }
 
         if (hasBonusTokens && this.showTokens) {
@@ -146,9 +152,13 @@ class CoinCounter extends HudComponent {
     this.lastUltimacy = newUltimacy;
   } else {
     if (this.showTokens) {
-      this.textObj.text = `${coins}\n${tokens}\n${kills}\n${newUltimacy}`;
+      this.textObj.text = isLoggedIn
+        ? `${coins}\n${tokens}\n${kills}\n${newUltimacy}`
+        : `${coins}\n${tokens}\n${kills}`;
     } else {
-      this.textObj.text = `${coins}\n${kills}\n${newUltimacy}`;
+      this.textObj.text = isLoggedIn
+        ? `${coins}\n${kills}\n${newUltimacy}`
+        : `${coins}\n${kills}`;
     }
 
     if (hasBonusTokens && this.showTokens) {

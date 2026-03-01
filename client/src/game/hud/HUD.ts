@@ -50,7 +50,7 @@ class HUD {
       const cgSettings = crazygamesSDK.getSettings();
 
       // Check both CrazyGames settings and user's custom settings
-      if (cgSettings.disableChat || Settings.disableChat) {
+      if (cgSettings.disableChat || !Settings.enableChat) {
         console.log('[HUD] Disabling chat per settings');
         this.chat.disable();
       } else {

@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import config from '../../game/PhaserConfig';
 import Leaderboard from './Leaderboard';
 import GameResults from './GameResults';
+import TutorialModal, { shouldShowTutorial } from './TutorialModal';
 import './GameComponent.scss';
 import Ad from '../Ad';
 import { crazygamesSDK } from '../../crazygames/sdk';
@@ -16,6 +17,7 @@ declare global {
 function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn }: any) {
   const [gameResults, setGameResults] = useState<any>(null);
   const [playing, setPlaying] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     if (!game) {
@@ -41,6 +43,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
       });
       game.events.on('startGame', (name: string) => {
         setPlaying(true);
+        if (shouldShowTutorial()) setShowTutorial(true);
         // Signal that gameplay has started
         crazygamesSDK.gameplayStart();
       });
@@ -54,6 +57,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
     <div className="game">
       <div id="phaser-container" />
       { playing && <Leaderboard game={game} /> }
+      { showTutorial && playing && <TutorialModal game={game} onClose={() => setShowTutorial(false)} /> }
       {gameResults && (
       <>
       <GameResults

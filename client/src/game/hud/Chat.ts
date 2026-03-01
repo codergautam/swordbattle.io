@@ -7,6 +7,8 @@ class Chat extends HudComponent {
   isOpen = false;
   sendButton: Phaser.GameObjects.DOMElement;
   isDisabled = false;
+  disabledNotice: Phaser.GameObjects.DOMElement | null = null;
+  lastNoticeTime = 0;
 
   initialize() {
     this.input = this.hud.scene.add.dom(0, 0, ChatInput.input)
@@ -49,9 +51,42 @@ class Chat extends HudComponent {
     console.log('[Chat] Chat has been enabled');
   }
 
+  showDisabledNotice() {
+    const now = Date.now();
+    if (now - this.lastNoticeTime < 3000) return;
+    this.lastNoticeTime = now;
+
+    const el = document.createElement('div');
+    el.innerText = 'Chat is currently disabled. Go to the main menu to enable it in settings!';
+    el.style.cssText = 'background:rgba(0,0,0,0.85);color:#ff9900;font-size:18px;font-family:Franklin Gothic Medium,Arial,sans-serif;padding:10px 20px;border-radius:8px;border:2px solid #ff9900;white-space:nowrap;pointer-events:none;';
+
+    const dom = this.hud.scene.add.dom(
+      this.game.scale.width / 2,
+      this.game.scale.height / 2.75,
+      el
+    ).setOrigin(0.5, 0.5).setAlpha(0);
+    this.hud.add(dom);
+
+    this.game.tweens.add({
+      targets: dom,
+      alpha: 1,
+      duration: 200,
+      onComplete: () => {
+        this.game.tweens.add({
+          targets: dom,
+          alpha: 0,
+          delay: 2000,
+          duration: 500,
+          onComplete: () => dom.destroy(),
+        });
+      },
+    });
+  }
+
   toggle(send = true) {
     // Don't allow toggling if chat is disabled
     if (this.isDisabled) {
+      this.showDisabledNotice();
       return;
     }
 

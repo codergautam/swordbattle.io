@@ -9,6 +9,8 @@ class Minimap extends HudComponent {
   mapContainer: Phaser.GameObjects.Container | null = null;
   crown: Phaser.GameObjects.Sprite | null = null;
   toggleButton!: Phaser.GameObjects.Text;
+  leftArrow!: Phaser.GameObjects.Text;
+  rightArrow!: Phaser.GameObjects.Text;
   crownSpeed: number = 500;
   width: number = 200;
   height: number = 200;
@@ -17,7 +19,17 @@ class Minimap extends HudComponent {
   minimized = false;
 
   initialize() {
-    this.toggleButton = this.hud.scene.add.text(this.width - 100, -25, 'Minimap', {
+    const arrowStyle = {
+      fontSize: 16,
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 4,
+    };
+
+    this.leftArrow = this.hud.scene.add.text(0, 0, '\u25BC', arrowStyle);
+    this.rightArrow = this.hud.scene.add.text(0, 0, '\u25BC', arrowStyle);
+
+    this.toggleButton = this.hud.scene.add.text(this.width - 115, -25, 'Minimap', {
       fontSize: 22,
       fontStyle: 'bold',
       stroke: '#000000',
@@ -25,22 +37,15 @@ class Minimap extends HudComponent {
     })
       .setInteractive()
       .on('pointerover', () => {
-        this.game.add.tween({
-          targets: this.toggleButton,
-          scaleX: 1.1,
-          scaleY: 1.1,
-          duration: 100,
-        });
+        const shift = this.minimized ? -3 : 3;
+        this.game.add.tween({ targets: [this.leftArrow, this.rightArrow], y: this.leftArrow.y + shift, duration: 100 });
       })
-       .on('pointerout', () => {
-        this.game.add.tween({
-          targets: this.toggleButton,
-          scaleX: 1,
-          scaleY: 1,
-          duration: 100,
-        });
-       })
+      .on('pointerout', () => {
+        this.updateArrows();
+      })
       .on('pointerdown', () => this.toggleMinimize());
+
+    this.updateArrows();
 
     this.mapBackground = this.game.add.graphics()
     this.mapBackground.lineStyle(6, 0x000000);
@@ -49,21 +54,49 @@ class Minimap extends HudComponent {
     this.crown = this.game.add.sprite(0, 0, 'crown').setScale(0.3);
     this.graphics = this.game.add.graphics();
     this.mapContainer = this.game.add.container();
-    this.container = this.game.add.container(0, 0, [this.toggleButton, this.mapBackground, this.mapContainer, this.graphics, this.crown])
+    this.container = this.game.add.container(0, 0, [this.leftArrow, this.rightArrow, this.toggleButton, this.mapBackground, this.mapContainer, this.graphics, this.crown])
     this.hud.add(this.container);
+  }
+
+  updateArrows() {
+    const arrow = this.minimized ? '\u25B2' : '\u25BC';
+    this.leftArrow.setText(arrow);
+    this.rightArrow.setText(arrow);
+    const btnX = this.toggleButton.x;
+    const btnY = this.toggleButton.y;
+    const btnW = this.toggleButton.width;
+    this.leftArrow.setPosition(btnX - 18, btnY + 3);
+    this.rightArrow.setPosition(btnX + btnW + 5, btnY + 3);
   }
 
   toggleMinimize() {
     this.minimized = !this.minimized;
+    this.updateArrows();
 
     this.hud.scene!.tweens.add({
       targets: [this.mapBackground, this.mapContainer, this.graphics, this.crown],
       alpha: this.minimized ? 0 : 1,
       duration: 250,
     });
+    const targetY = (this.minimized ? this.height : 0) - 25;
     this.hud.scene!.tweens.add({
       targets: this.toggleButton,
-      y: (this.minimized ? this.height : 0) - 25,
+      y: targetY,
+      duration: 400,
+    });
+    this.hud.scene!.tweens.add({
+      targets: [this.leftArrow, this.rightArrow],
+      y: targetY + 3,
+      duration: 400,
+    });
+    this.hud.scene!.tweens.add({
+      targets: this.leftArrow,
+      x: this.toggleButton.x - 18,
+      duration: 400,
+    });
+    this.hud.scene!.tweens.add({
+      targets: this.rightArrow,
+      x: this.toggleButton.x + this.toggleButton.width + 5,
       duration: 400,
     });
   }

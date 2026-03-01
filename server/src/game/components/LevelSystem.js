@@ -2,10 +2,10 @@ const Types = require('../Types');
 const { swingDurationIncrease, maxSwingDuration } = require('../../config').sword;
 
 var levels = [
-  {'coins': 0, 'scale': 0},
-  {'coins': 5, 'scale': 1},
-{'coins': 15, 'scale': 2},
-{'coins': 25, 'scale': 4},
+{'coins': 0, 'scale': 0},
+{'coins': 10, 'scale': 1},
+{'coins': 20, 'scale': 2},
+{'coins': 35, 'scale': 4},
 {'coins': 50, 'scale': 8},
 {'coins': 75, 'scale': 10},
 {'coins': 100, 'scale': 11},

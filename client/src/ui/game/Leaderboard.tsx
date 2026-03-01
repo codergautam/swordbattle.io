@@ -29,8 +29,10 @@ function Leaderboard({ game }: any) {
 
   return (
     <div className="leaderboard" style={useScale(false).styles}>
-      <div className="leaderboard-title" role="button" onClick={toggleVisibility}>
-        Leaderboard
+      <div className={`leaderboard-title ${show ? 'open' : 'closed'}`} role="button" onClick={toggleVisibility}>
+        <span className="lb-arrow">{show ? '\u25BC' : '\u25B2'}</span>
+        {' Leaderboard '}
+        <span className="lb-arrow">{show ? '\u25BC' : '\u25B2'}</span>
       </div>
 
       <div className={`leaderboard-content ${show ? '' : 'hidden'}`}>

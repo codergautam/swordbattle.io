@@ -171,6 +171,13 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (account?.isLoggedIn && !localStorage.getItem('swordbattle:chatAutoEnabled')) {
+      Settings.enableChat = true;
+      localStorage.setItem('swordbattle:chatAutoEnabled', '1');
+    }
+  }, [account?.isLoggedIn]);
+
+  useEffect(() => {
     if(gameStarted && firstGame) setFirstGame(false);
     if(gameStarted) return;
     setTimeout(() => {
@@ -1126,7 +1133,7 @@ function App() {
                      <FontAwesomeIcon icon={faICursor} /> Change Name
                    </a>
                     </li>
-                    {!crazygamesSDK.getSettings().disableChat && !Settings.disableChat && (
+                    {!crazygamesSDK.getSettings().disableChat && Settings.enableChat && (
                       <li>
                         <a className="dropdown-item" href="#" onClick={onChangeBio}>
                           <FontAwesomeIcon icon={faICursor} /> Change Bio

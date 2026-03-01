@@ -236,6 +236,88 @@
   }
 }
 
+@media screen and (max-width: 600px) and (orientation: portrait) {
+  .rewards-modal {
+    width: calc(100vw - 16px);
+    height: calc(100vh - 16px);
+    padding: 12px 10px;
+    margin: 0 auto;
+  }
+
+  .rewards-title {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+
+  .rewards-streak {
+    font-size: 16px;
+    gap: 8px;
+    margin-bottom: 8px;
+
+    .streak-arrow {
+      font-size: 20px;
+    }
+  }
+
+  .rewards-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+    gap: 5px;
+  }
+
+  .reward-cell {
+    border-radius: 8px;
+    padding: 4px 2px;
+
+    .reward-label {
+      font-size: 11px;
+    }
+
+    .reward-icon {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .rewards-controls {
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+
+    .rewards-btn-action {
+      padding: 6px 14px;
+      font-size: 13px;
+    }
+
+    .rewards-btn-nav {
+      padding: 6px 12px;
+      font-size: 16px;
+    }
+
+    .rewards-page-label {
+      font-size: 16px;
+      min-width: 80px;
+    }
+  }
+
+  .rewards-progress {
+    width: 95%;
+    margin-top: 8px;
+
+    .progress-text {
+      font-size: 11px;
+    }
+
+    .progress-bar-container {
+      height: 24px;
+    }
+
+    .progress-bar-text {
+      font-size: 11px;
+    }
+  }
+}
+
 /* ── Responsive: small height screens ── */
 
 @media screen and (max-height: 600px) {

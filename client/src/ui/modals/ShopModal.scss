@@ -369,3 +369,101 @@ h1 {
 .badges button[data-selected-badge="ultimate"]:not(.active) {
   background-color: #ff00ff;
 }
+
+@media screen and (max-width: 600px) and (orientation: portrait) {
+  .shop-modal {
+    width: calc(100vw - 16px);
+    height: calc(100vh - 16px);
+    padding: 10px;
+    margin: 0 auto;
+    flex-wrap: nowrap;
+  }
+
+  .shop-title {
+    font-size: 28px;
+  }
+
+  .shop-desc {
+    font-size: 13px;
+  }
+
+  .shop-extra {
+    width: 100%;
+    max-width: unset;
+    min-width: unset;
+    margin-right: 0;
+    margin-bottom: 5px;
+  }
+
+  .badges {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+
+    button {
+      margin: 2px;
+      padding: 6px 8px;
+      font-size: 11px;
+    }
+  }
+
+  .scroll {
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .skin-card {
+    width: calc(50% - 16px);
+    min-width: 140px;
+    margin: 4px;
+    padding: 8px;
+
+    .skin-name {
+      font-size: 14px;
+      padding: 5px;
+    }
+
+    .skin-img, .skin-img-large, .skin-img-small {
+      width: 80px;
+      height: 80px;
+    }
+
+    .skin-sword, .skin-sword-large, .skin-sword-small {
+      width: 70px;
+      height: 75px;
+      transform: translate(-32px, -48px) rotate(135deg);
+    }
+
+    .skin-count {
+      font-size: 12px;
+      margin-top: -35px;
+    }
+
+    .skin-tag, .skin-eventtag {
+      font-size: 11px;
+    }
+
+    .skin-saletag {
+      font-size: 14px;
+    }
+
+    .skin-desc {
+      font-size: 10px;
+    }
+
+    .buy-button {
+      padding: 0.5rem;
+      font-size: 9px;
+    }
+  }
+
+  .search-bar {
+    margin-left: 0;
+    margin-right: 0;
+
+    input {
+      width: 90%;
+    }
+  }
+}

@@ -6,11 +6,11 @@ module.exports = class Butcher extends Evolution {
   static level = 29;
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
   static abilityDuration = 7;
-  static abilityCooldown = 70;
+  static abilityCooldown = 50;
   
   applyAbilityEffects() {
     this.player.health.max.multiplier *= 1.75;
-    this.player.modifiers.leech = 0.8;
+    this.player.modifiers.leech = 1.25;
     this.player.sword.knockback.multiplier['ability'] = 1.2;
     this.player.knockbackResistance.multiplier *= 1.3;
     this.player.shape.setScale(1.05);
@@ -24,19 +24,19 @@ module.exports = class Butcher extends Evolution {
     super.update(dt);
     this.player.modifiers.damageScale = true;
 
-    // Slowly drain health during ability
     if (this.isAbilityActive) {
       const drainPerSecond = this.player.health.max.value * 0.1;
-      this.player.health.damaged(drainPerSecond * dt);
-      if (this.player.health.isDead) {
-        this.player.remove("Butcher's Bloodcharge", Types.DisconnectReason.Mob);
+      const drain = drainPerSecond * dt;
+      const maxDrain = this.player.health.value - 1;
+      if (maxDrain > 0) {
+        this.player.health.damaged(Math.min(drain, maxDrain));
       }
     }
 
     this.player.speed.multiplier *= 1.025;
     this.player.shape.setScale(1.025);
     this.player.sword.knockback.multiplier['ability'] = 1.2;
-    this.player.health.max.multiplier *= 0.9;
+    this.player.health.max.multiplier *= 1.1;
     this.player.health.regen.multiplier *= 1.1;
     this.player.health.regenWait.multiplier *= 0.8;
   }

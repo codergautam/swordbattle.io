@@ -1101,7 +1101,7 @@ function App() {
             </div>
           )}
           </div>
-          {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal' || modal.type.name === 'RewardsModal'} />}
+          {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal' || modal.type.name === 'RewardsModal' || modal.type.name === 'LeaderboardModal' || modal.type.name === 'InventoryModal'} />}
 
 <div className="auth-buttons" style={scale.styles}>
              {account.isLoggedIn ? (

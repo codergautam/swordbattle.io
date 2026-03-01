@@ -49,12 +49,9 @@
   }
 }
 
-@media screen and (max-width: 600px) and (orientation: portrait) {
-  .modal {
-    padding: 5px 8px;
+@media screen and (max-width: 768px) {
+  .modal.modal-fullscreen {
+    padding: 4px;
     min-width: unset;
-    width: 100vw;
-    box-shadow: none;
-    border-radius: 0;
   }
 }

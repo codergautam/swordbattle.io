@@ -1,5 +1,4 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { AccountState, setAccount, updateAccountAsync } from '../../redux/account/slice';
 import { Settings, settingsList } from '../../game/Settings';
@@ -79,11 +78,12 @@ const rotate = false;
 
 const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ account }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [skinStatus, setSkinStatus] = useState<{ [id: number]: string }>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [skinCounts, setSkinCounts] = useState<{ [id: number]: number }>({});
   const [selectedBadge, setSelectedBadge] = useState('norm');
+
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // title synced from iframe
   const [leaderboardTitle, setLeaderboardTitle] = useState('Leaderboard');
@@ -132,7 +132,9 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ account }) => {
   const navigateToProfile = (username: string) => {
     setShowSuggestions(false);
     setUsernameSearch('');
-    navigate(`/profile?username=${encodeURIComponent(username)}`);
+    if (iframeRef.current) {
+      iframeRef.current.src = `#/profile?username=${encodeURIComponent(username)}`;
+    }
   };
 
   const [showUltimate, setUltimate] = useState(Settings.showUltimate);
@@ -404,7 +406,7 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ account }) => {
         </div>
       </div>
       {/* <p className='loadingleaderboard'>Loading...</p> */}
-      <iframe title="Leaderboard" src="#/leaderboard" width="100%" height="100%" style={{border: 'none'}}></iframe>
+      <iframe ref={iframeRef} title="Leaderboard" src="#/leaderboard" width="100%" height="100%" style={{border: 'none'}}></iframe>
     </div>
   )
 }

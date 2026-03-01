@@ -1101,7 +1101,7 @@ function App() {
             </div>
           )}
           </div>
-          {modal && <Modal child={modal} close={closeModal} scaleDisabled={modal.type.name === 'ShopModal' || modal.type.name === 'RewardsModal' || modal.type.name === 'LeaderboardModal' || modal.type.name === 'InventoryModal'} />}
+          {modal && (() => { const n = modal.type.displayName || modal.type.name; const isFullscreen = ['ShopModal', 'RewardsModal', 'LeaderboardModal', 'InventoryModal'].includes(n); return <Modal child={modal} close={closeModal} scaleDisabled={isFullscreen} className={isFullscreen ? 'modal-fullscreen' : ''} />; })()}
 
 <div className="auth-buttons" style={scale.styles}>
              {account.isLoggedIn ? (

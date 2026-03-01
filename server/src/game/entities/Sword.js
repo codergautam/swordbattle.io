@@ -252,16 +252,24 @@ processTargetsCollision(entity) {
 
     const attackerCoins = (this.player.levels && typeof this.player.levels.coins === 'number') ? this.player.levels.coins : 0;
     const targetCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
-    const attackerUnderShield = attackerCoins < this.player.coinShield || this.player.respawnShieldActive;
-    const targetUnderShield = targetCoins < this.player.coinShield || (entity.respawnShieldActive === true);
-    const shielded = entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot
-      && (attackerUnderShield || targetUnderShield);
+    const attackerCoinShield = attackerCoins < this.player.coinShield;
+    const targetCoinShield = targetCoins < this.player.coinShield;
+    const attackerRespawnShield = this.player.respawnShieldActive;
+    const targetRespawnShield = entity.respawnShieldActive === true;
+    const attackerUnderShield = attackerCoinShield || attackerRespawnShield;
+    const targetUnderShield = targetCoinShield || targetRespawnShield;
+    const isHumanVsHuman = entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot;
+    const shielded = isHumanVsHuman && (attackerUnderShield || targetUnderShield);
+    const respawnShielded = isHumanVsHuman && (attackerRespawnShield || targetRespawnShield);
+    const coinShieldOnly = shielded && !respawnShielded;
 
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
 
     let power;
-    if (entity.type === Types.Entity.Player && targetUnderShield && !entity.isBot && !this.player.isBot) {
+    if (isHumanVsHuman && targetRespawnShield) {
       power = this.knockback.value * 2;
+    } else if (isHumanVsHuman && attackerCoinShield && !attackerRespawnShield) {
+      power = this.knockback.value * 0.2;
     } else {
       power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
     }
@@ -306,7 +314,7 @@ processTargetsCollision(entity) {
     entity.velocity.x = -1*xComp;
     entity.velocity.y =  -1*yComp;
 
-    if (!shielded && ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) ||
+    if (!respawnShielded && ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) ||
       (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation)))) {
 
         const base = this.damage.value;
@@ -335,6 +343,10 @@ processTargetsCollision(entity) {
           }
         }
 
+        if (coinShieldOnly) {
+          finalDamage *= 0.2;
+        }
+
         if (this.player.modifiers.poisonDamage) {
           const immediate = finalDamage * 0.5;
           const poisonTotal = finalDamage * 0.5;
@@ -359,7 +371,7 @@ processTargetsCollision(entity) {
         }
     }
 
-    if(!shielded && this.player.modifiers.leech && entity.type === Types.Entity.Player) {
+    if(!respawnShielded && this.player.modifiers.leech && entity.type === Types.Entity.Player) {
       this.player.health.gain(this.damage.value * this.player.modifiers.leech);
     }
 

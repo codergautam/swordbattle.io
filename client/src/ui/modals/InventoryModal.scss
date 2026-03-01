@@ -375,7 +375,7 @@ h1 {
   background-color: #ff00ff;
 }
 
-@media screen and (max-width: 600px) and (orientation: portrait) {
+@media screen and (max-width: 768px) {
   .inventory-modal {
     width: calc(100vw - 16px);
     height: calc(100vh - 16px);

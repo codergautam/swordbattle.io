@@ -295,8 +295,10 @@ processTargetsCollision(entity) {
     if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot
         && entity.activeTargets && entity.activeTargets.has(this.player.id)) {
       const atCount = entity.activeTargets.size;
-      const kbMult = atCount >= 5 ? 0.50 : atCount >= 4 ? 0.55 : atCount >= 3 ? 0.70 : 0.85;
-      power *= kbMult;
+      if (atCount >= 2) {
+        const kbMult = atCount >= 5 ? 0.50 : atCount >= 4 ? 0.55 : atCount >= 3 ? 0.70 : 0.85;
+        power *= kbMult;
+      }
     }
 
     const xComp = power * Math.cos(angle);
@@ -327,8 +329,10 @@ processTargetsCollision(entity) {
         if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot
             && entity.activeTargets && entity.activeTargets.has(this.player.id)) {
           const atCount = entity.activeTargets.size;
-          const dmgMult = atCount >= 5 ? 0.2 : atCount >= 4 ? 0.25 : atCount >= 3 ? 0.33 : 0.5;
-          finalDamage *= dmgMult;
+          if (atCount >= 2) {
+            const dmgMult = atCount >= 5 ? 0.2 : atCount >= 4 ? 0.25 : atCount >= 3 ? 0.33 : 0.5;
+            finalDamage *= dmgMult;
+          }
         }
 
         if (this.player.modifiers.poisonDamage) {

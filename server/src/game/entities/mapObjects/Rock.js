@@ -4,6 +4,10 @@ const Types = require('../../Types');
 const helpers = require('../../../helpers');
 
 class Rock extends Entity {
+  static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone],
+  };
+
   constructor(game, definition) {
     super(game, Types.Entity.Rock, definition);
 

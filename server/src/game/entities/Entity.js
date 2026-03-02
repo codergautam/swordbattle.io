@@ -82,9 +82,25 @@ class Entity {
 
     const riverInset = this.definition.riverInset || 0;
 
+    let insideRiver = false;
+    if (riverInset > 0) {
+      for (const biome of this.game.map.biomes) {
+        if (biome.type !== Types.Biome.River) continue;
+        if (biome.shape.isPointInside(this.shape.x, this.shape.y)) {
+          insideRiver = true;
+          break;
+        }
+      }
+    }
+
     for (const biomeType of this.definition.forbiddenBiomes) {
       for (const biome of this.game.map.biomes) {
         if (biome.type !== biomeType) continue;
+
+        if (insideRiver && biomeType !== Types.Biome.Safezone) {
+          Entity._sharedResponse.clear();
+          if (biome.shape.collides(this.shape, Entity._sharedResponse)) continue;
+        }
 
         Entity._sharedResponse.clear();
 

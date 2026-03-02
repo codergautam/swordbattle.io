@@ -4,6 +4,7 @@ const Types = require('../../Types');
 
 class MossyRock extends Entity {
   static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone],
     forbiddenEntities: [Types.Entity.House1],
   };
 

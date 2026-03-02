@@ -37,10 +37,10 @@ const DAILY_REWARD_SKINS = [
   { displayName: 'Classic Mountain', bodyFileName: 'classicMountainPlayer.png' },
   { displayName: 'Boreal Mountain', bodyFileName: 'borealMountainPlayer.png' },
   { displayName: 'Inferno Mountain', bodyFileName: 'infernoMountainPlayer.png' },
-  { displayName: 'Yin Yang v2', bodyFileName: 'yinyangV2Player.png' },
-  { displayName: 'Bullseye v2', bodyFileName: 'bullseyeV2Player.png' },
-  { displayName: 'Bubble v2', bodyFileName: 'bubbleV2Player.png' },
-  { displayName: 'Hacker v2', bodyFileName: 'hackerV2Player.png' },
+  { displayName: 'Yin Yang v2', bodyFileName: 'yinyangv2Player.png' },
+  { displayName: 'Bullseye v2', bodyFileName: 'bullseyev2Player.png' },
+  { displayName: 'Bubble v2', bodyFileName: 'bubblev2Player.png' },
+  { displayName: 'Hacker v2', bodyFileName: 'hackerv2Player.png' },
 
 ];
 

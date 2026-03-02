@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "./static/css/main.c2a45b7c.css",
-    "main.js": "./static/js/main.957929c4.js",
+    "main.css": "./static/css/main.91fe3fcb.css",
+    "main.js": "./static/js/main.f5694847.js",
     "static/media/final.png": "./static/media/final.67c8267a4b9ff73d40cd.png",
     "static/media/home.png": "./static/media/home.b9785e898424fee950c1.png",
     "static/media/play-again.png": "./static/media/play-again.38923238033620c8ab00.png",
@@ -10,6 +10,7 @@
     "static/media/gem-reward.png": "./static/media/gem-reward.97388b4364ba0cf027ae.png",
     "static/media/gem.png": "./static/media/gem.b19d06f98a5cf6c31cbd.png",
     "static/media/githubLogo.png": "./static/media/githubLogo.57df8209eb6fce911a08.png",
+    "static/media/profileBackground.png": "./static/media/profileBackground.779bb0294480d730c360.png",
     "static/media/ultimacy.png": "./static/media/ultimacy.d73de02ea897c290bb9a.png",
     "static/media/ultimacy-reward.png": "./static/media/ultimacy-reward.4723858696171971ce45.png",
     "static/media/signup.png": "./static/media/signup.537c428cc3a73a9ede96.png",
@@ -21,11 +22,11 @@
     "static/media/2xp-reward.png": "./static/media/2xp-reward.7ac7b4e98b5fe66734b5.png",
     "static/media/cursor.cur": "./static/media/cursor.138cb2f1fcf8183aaa1b.cur",
     "index.html": "./index.html",
-    "main.c2a45b7c.css.map": "./static/css/main.c2a45b7c.css.map",
-    "main.957929c4.js.map": "./static/js/main.957929c4.js.map"
+    "main.91fe3fcb.css.map": "./static/css/main.91fe3fcb.css.map",
+    "main.f5694847.js.map": "./static/js/main.f5694847.js.map"
   },
   "entrypoints": [
-    "static/css/main.c2a45b7c.css",
-    "static/js/main.957929c4.js"
+    "static/css/main.91fe3fcb.css",
+    "static/js/main.f5694847.js"
   ]
 }

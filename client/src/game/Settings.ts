@@ -104,6 +104,9 @@ export const settingsList: Record<string, SettingType> = {
     name: 'Enable Chat',
     type: 'toggle',
     default: false,
+    onChange: (value: boolean) => {
+      window.dispatchEvent(new CustomEvent('chatSettingChanged', { detail: { enabled: value } }));
+    },
   },
 };
 

@@ -297,6 +297,13 @@ class Player extends BaseEntity {
   updateChatMessage() {
     if (!this.messageText) return;
 
+    if (!Settings.enableChat) {
+      this.game.tweens.killTweensOf(this.messageText);
+      this.messageText.setAlpha(0);
+      this.messageText.text = '';
+      return;
+    }
+
     this.game.tweens.killTweensOf(this.messageText);
     const toggle = (show: boolean) => {
       this.game.add.tween({

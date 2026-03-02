@@ -43,6 +43,23 @@ class HUD {
     this.components.forEach(component => component.initialize());
 
     this.applyCrazyGamesSettings();
+
+    window.addEventListener('chatSettingChanged', (e: Event) => {
+      const enabled = (e as CustomEvent).detail.enabled;
+      const cgDisabled = crazygamesSDK.getSettings().disableChat;
+      if (cgDisabled || !enabled) {
+        this.chat.disable();
+        for (const id in this.game.gameState.entities) {
+          const entity = this.game.gameState.entities[id] as any;
+          if (entity?.messageText) {
+            entity.messageText.setAlpha(0);
+            entity.messageText.text = '';
+          }
+        }
+      } else {
+        this.chat.enable();
+      }
+    });
   }
 
   applyCrazyGamesSettings() {

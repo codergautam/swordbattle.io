@@ -11,6 +11,7 @@ class FishMob extends BaseEntity {
 
   createSprite() {
     this.body = this.game.add.sprite(0, 0, '').setOrigin(0.48, 0.6);
+    this.body.setAlpha(0.5);
     this.updateSprite();
     this.shadow = this.createShadow(Math.min(this.body.displayWidth, this.body.displayHeight) * 0.6, 0.1);
     this.healthBar = new Health(this, { offsetY: -this.shape.radius - 40 });

@@ -11,6 +11,7 @@ class AngryFishMob extends Entity {
   static defaultDefinition = {
     forbiddenBiomes: [Types.Biome.Fire, Types.Biome.Earth, Types.Biome.Ice, Types.Biome.Safezone],
     attackRadius: 1000,
+    riverInset: 270,
   };
 
   constructor(game, objectData) {

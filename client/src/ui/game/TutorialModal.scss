@@ -15,6 +15,11 @@
     opacity: 1;
     pointer-events: auto;
   }
+
+  &.centered {
+    align-items: center;
+    padding-top: 0;
+  }
 }
 
 .tutorial-modal {

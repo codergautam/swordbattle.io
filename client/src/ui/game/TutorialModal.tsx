@@ -15,7 +15,7 @@ interface TutorialPage {
   content: JSX.Element;
 }
 
-function buildPages(mobile: boolean, isCrazygames: boolean): TutorialPage[] {
+function buildPages(mobile: boolean, isCrazygames: boolean, fromMenu?: boolean): TutorialPage[] {
   const pages: TutorialPage[] = [
     {
       content: (
@@ -161,42 +161,52 @@ function buildPages(mobile: boolean, isCrazygames: boolean): TutorialPage[] {
           },
         ]),
 
-    {
-      content: (
-        <>
-          <p className="tutorial-heading tutorial-ready">
-            You&apos;re ready to play the game!
-          </p>
-          <p>
-            Close this tab and leave the safezone to start collecting coins and
-            fighting other players!
-          </p>
-          <p className="tutorial-tip">
-            (Tip: go to the <span className="hl-green">Forest biome</span> at
-            the left to start, as it&apos;s the safest biome)
-          </p>
-        </>
-      ),
-    },
+    ...(fromMenu
+      ? []
+      : [
+          {
+            content: (
+              <>
+                <p className="tutorial-heading tutorial-ready">
+                  You&apos;re ready to play the game!
+                </p>
+                <p>
+                  Close this tab and leave the safezone to start collecting coins and
+                  fighting other players!
+                </p>
+                <p className="tutorial-tip">
+                  (Tip: go to the <span className="hl-green">Forest biome</span> at
+                  the left to start, as it&apos;s the safest biome)
+                </p>
+              </>
+            ),
+          },
+        ]),
   ];
 
   return pages;
 }
 
-function TutorialModal({ game, onClose }: { game: Phaser.Game | undefined; onClose: () => void }) {
+function TutorialModal({ game, onClose, centered }: { game?: Phaser.Game | undefined; onClose: () => void; centered?: boolean }) {
   const [page, setPage] = useState(0);
   const [visible, setVisible] = useState(false); // controls fade-in
   const [fadingOut, setFadingOut] = useState(false);
 
   const mobile = isMobile();
   const isCG = crazygamesSDK.shouldUseSDK();
-  const [pages] = useState(() => buildPages(mobile, isCG));
+  const [pages] = useState(() => buildPages(mobile, isCG, centered));
   const totalPages = pages.length;
 
   useEffect(() => {
     const t = requestAnimationFrame(() => setVisible(true));
     return () => cancelAnimationFrame(t);
   }, []);
+
+  useEffect(() => {
+    if (centered && !alwaysShow) {
+      try { localStorage.setItem(storageKey, '1'); } catch (_) {}
+    }
+  }, [centered]);
 
   // Auto-hide at 500 coins
   useEffect(() => {
@@ -227,7 +237,7 @@ function TutorialModal({ game, onClose }: { game: Phaser.Game | undefined; onClo
   const isLast = page === totalPages - 1;
 
   return (
-    <div className={`tutorial-overlay ${visible && !fadingOut ? 'show' : ''}`}>
+    <div className={`tutorial-overlay ${visible && !fadingOut ? 'show' : ''} ${centered ? 'centered' : ''}`}>
       <div className="tutorial-modal">
         {/* Close button */}
         <button className="tutorial-close" onClick={dismiss} />

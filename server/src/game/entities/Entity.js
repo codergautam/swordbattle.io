@@ -80,19 +80,35 @@ class Entity {
   collidesWithForbidden(dt, collide = false) {
     if (this.definition.forbiddenBiomes.length === 0 && this.definition.forbiddenEntities.length === 0) return false;
 
+    const riverInset = this.definition.riverInset || 0;
+
     for (const biomeType of this.definition.forbiddenBiomes) {
       for (const biome of this.game.map.biomes) {
         if (biome.type !== biomeType) continue;
 
         Entity._sharedResponse.clear();
-        if (biome.shape.collides(this.shape, Entity._sharedResponse)) {
+
+        let collisionTarget = this.shape;
+        if (riverInset > 0 && this.shape.type === Types.Shape.Circle) {
+          const buf = Entity._riverInsetCircle;
+          buf.collisionPoly.pos.x = this.shape.x;
+          buf.collisionPoly.pos.y = this.shape.y;
+          buf.collisionPoly.r = this.shape.radius + riverInset;
+          collisionTarget = buf;
+        }
+
+        if (biome.shape.collides(collisionTarget, Entity._sharedResponse)) {
           if (!collide) return true;
 
-          const mtv = this.shape.getCollisionOverlap(Entity._sharedResponse);
+          const mtv = collisionTarget.getCollisionOverlap(Entity._sharedResponse);
           if (Types.Groups.Mobs.includes(this.type)) {
-            this.velocity.add(mtv.scale(dt));
-            this.target = null; // if the this is targeting someone reset the target, coz he reached forbidden zone
-            this.angle = Math.atan2(mtv.y, mtv.x);
+            this.shape.applyCollision(mtv.clone().scale(0.5));
+            const norm = mtv.clone().normalize();
+            const pushSpeed = 40;
+            this.velocity.x = norm.x * pushSpeed;
+            this.velocity.y = norm.y * pushSpeed;
+            this.target = null;
+            this.angle = Math.atan2(norm.y, norm.x);
           } else {
             this.shape.applyCollision(mtv);
           }
@@ -184,5 +200,6 @@ class Entity {
 
 Entity._sharedResponse = new SAT.Response();
 Entity._spawnBufferCircle = Circle.create(0, 0, 1);
+Entity._riverInsetCircle = Circle.create(0, 0, 1);
 
 module.exports = Entity;

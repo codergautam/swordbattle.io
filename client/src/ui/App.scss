@@ -433,7 +433,8 @@ span {
 #settingsButton,
 #githubButton,
 #discordButton,
-#playlightButton {
+#playlightButton,
+#tutorialButton {
   position: absolute;
   cursor: pointer;
   line-height: 20px;
@@ -445,14 +446,16 @@ span {
 #settingsButton:hover,
 #githubButton:hover,
 #discordButton:hover,
-#playlightButton:hover {
+#playlightButton:hover
+#tutorialButton:hover {
   transform: scale(1.05);
 }
 
 #settingsButton:active,
 #githubButton:active,
 #discordButton:active,
-#playlightButton:active {
+#playlightButton:active
+#tutorialButton:active {
   transform: scale(0.95);
 }
 
@@ -474,6 +477,15 @@ span {
   color: #fff;
   left: 237px;
   height: 60px;
+}
+
+#tutorialButton {
+  font-size: 20px;
+  text-align: center;
+  color: #fff;
+  left: 312px;
+  height: 60px;
+  width: 60px;
 }
 
 .fullWidth {

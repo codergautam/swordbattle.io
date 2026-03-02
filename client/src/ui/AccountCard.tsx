@@ -5,11 +5,10 @@ import UltimacyImg from '../assets/img/ultimacy.png';
 import SnowtokenImg from '../assets/img/snowtoken.png';
 import XPImg from '../assets/img/xp.png';
 import './AccountCard.scss';
-import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 
-export default function AccountCard({account, onLogin, onSignup}: {account: AccountState, onLogin: () => void, onSignup: () => void}) {
+export default function AccountCard({account, onLogin, onSignup, onViewProfile}: {account: AccountState, onLogin: () => void, onSignup: () => void, onViewProfile?: () => void}) {
   if(account.isLoggedIn) {
     return (
       <span id="logged-in">
@@ -25,9 +24,9 @@ export default function AccountCard({account, onLogin, onSignup}: {account: Acco
         <div className="stats"><ValueCnt scale={0.4} value={account.mastery} img={UltimacyImg}/>
     
         </div>
-                   <Link to={`/profile?username=${encodeURIComponent(account.username)}`} target="_blank" className="profilebutton">
+                   <a className="profilebutton" onClick={onViewProfile} style={{ cursor: 'pointer' }}>
                       <FontAwesomeIcon icon={faUser} /> View Profile
-                </Link>
+                </a>
         </span>
     )
   } else return (

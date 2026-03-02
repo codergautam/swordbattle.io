@@ -1,8 +1,8 @@
 import './ChangelogCard.scss';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClipboardList, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faClipboardList } from "@fortawesome/free-solid-svg-icons";
 
-export default function ChangelogCard() {
+export default function ChangelogCard({ onViewChangelog }: { onViewChangelog?: () => void }) {
   return (
     <span>
       <h1>News and Updates</h1>
@@ -12,7 +12,7 @@ export default function ChangelogCard() {
       <ul>- HUGE graphics update!</ul>
       <ul>- Teaming is less powerful</ul>
 
-      <a href="/changelog.html" target="_blank" rel="noopener noreferrer" className="changelogbutton">
+      <a className="changelogbutton" onClick={onViewChangelog} style={{ cursor: 'pointer' }}>
         <FontAwesomeIcon icon={faClipboardList} /> View Changelog
       </a>
     </span>

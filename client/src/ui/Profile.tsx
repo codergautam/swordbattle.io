@@ -50,6 +50,7 @@ export default function Profile() {
   const [query] = useSearchParams();
   const username = query.get('username');
   const id = query.get('id');
+  const hideBack = query.get('hideBack') === 'true';
   const [data, setAccountData] = useState<ProfileData | null>(null);
   const [isLoading, setLoading] = useState(true);
   const [gameSort, setGameSort] = useState<'coins' | 'kills' | 'playtime'>('coins');
@@ -173,10 +174,12 @@ export default function Profile() {
     <section className="main-content">
       <div className="container">
         <div className='statsContent'>
-      <button className="back-button" onClick={() =>{
-        // ../index.html
-        window.location.href = '../#/leaderboard';
-      }}>X</button>
+      {!hideBack && (
+        <button className="back-button" onClick={() =>{
+          // ../index.html
+          window.location.href = '../#/leaderboard';
+        }}>X</button>
+      )}
           <center>
         {data.account.clan ? (
           <h1>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSignOut, faICursor,faGear, faX } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOut, faICursor, faGear, faX, faQuestion } from '@fortawesome/free-solid-svg-icons';
 
 import clsx from 'clsx';
 import { useScale } from './Scale';
@@ -49,6 +49,9 @@ import { initializeDataStorage } from '../crazygames/dataStorage';
 import * as cosmetics from '../game/cosmetics.json'
 import LeaderboardModal from './modals/LeaderboardModal';
 import RewardsModal from './modals/RewardsModal';
+import ProfileModal from './modals/ProfileModal';
+import FullChangelogModal from './modals/FullChangelogModal';
+import TutorialModal from './game/TutorialModal';
 
 let debugMode = false;
 try {
@@ -77,6 +80,7 @@ function App() {
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
   const [crazygamesAuthReady, setCrazygamesAuthReady] = useState(false);
+  const [showMenuTutorial, setShowMenuTutorial] = useState(false);
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
@@ -865,6 +869,18 @@ function App() {
     setModal(<RewardsModal account={account} />);
   };
 
+  const openProfile = () => {
+    setModal(<ProfileModal username={account.isLoggedIn ? account.username : undefined} isOwnProfile={account.isLoggedIn} />);
+  };
+
+  const openFullChangelog = () => {
+    setModal(<FullChangelogModal />);
+  };
+
+  const openTutorial = () => {
+    setShowMenuTutorial(true);
+  };
+
   useEffect(() => {
     if (modal?.type?.displayName === 'ShopModal') {
       setModal(<ShopModal account={account} />);
@@ -994,7 +1010,7 @@ function App() {
     transform: 'translate(-50%, -25%)' }} >
               <div className="menu">
                 <div className="accountCard menuCard panel">
-                  <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} />
+                  <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} onViewProfile={openProfile} />
                 </div>
 
                 {/* <div className="announcementCard menuCard panel">
@@ -1050,7 +1066,7 @@ function App() {
                   </div>
                 </div>
                 <div className="accountCard menuCard panel">
-                  <ChangelogCard/>
+                  <ChangelogCard onViewChangelog={openFullChangelog}/>
                 </div>
               </div>
               <div
@@ -1089,7 +1105,9 @@ function App() {
           <div id="settingsButton" className="altLink panel" style={{ pointerEvents: 'auto' }} onClick={openSettings}>
             <FontAwesomeIcon icon={faGear} className='ui-icon'/>
           </div>
-
+          <div id="tutorialButton" className="altLink panel" style={{ pointerEvents: 'auto' }} onClick={openTutorial}>
+            <FontAwesomeIcon icon={faQuestion} className='ui-icon'/>
+          </div>
           <a id="githubButton" className="altLink imgPanel" href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
             <img src={GithubLogo} width={60} alt="GitHub" />
           </a>
@@ -1108,7 +1126,8 @@ function App() {
             </div>
           )}
           </div>
-          {modal && (() => { const n = modal.type.displayName || modal.type.name; const isFullscreen = ['ShopModal', 'RewardsModal', 'LeaderboardModal', 'InventoryModal'].includes(n); return <Modal child={modal} close={closeModal} scaleDisabled={isFullscreen} className={isFullscreen ? 'modal-fullscreen' : ''} />; })()}
+          {modal && (() => { const n = modal.type.displayName || modal.type.name; const isFullscreen = ['ShopModal', 'RewardsModal', 'LeaderboardModal', 'InventoryModal', 'ProfileModal', 'FullChangelogModal'].includes(n); return <Modal child={modal} close={closeModal} scaleDisabled={isFullscreen} className={isFullscreen ? 'modal-fullscreen' : ''} />; })()}
+          {showMenuTutorial && <TutorialModal onClose={() => setShowMenuTutorial(false)} centered />}
 
 <div className="auth-buttons" style={scale.styles}>
              {account.isLoggedIn ? (

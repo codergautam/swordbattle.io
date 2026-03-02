@@ -13,7 +13,7 @@ class Sword extends BaseEntity {
   static shadowOffsetY = 10;
 
   createSprite() {
-    if(this.skin) {
+    if(this.skin && !(window as any).__skinsUnloaded) {
       const skinObj = Object.values(skins).find(skin => skin.id === this.skin)
       this.skinName = (skinObj?.name ?? 'player')+ 'Sword';
       if(!this.game.textures.exists(this.skinName)) {

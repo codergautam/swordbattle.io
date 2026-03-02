@@ -80,6 +80,20 @@ class Biome {
         (camera.scrollY - camera.displayHeight / 2) / this.tileScale);
     }
   }
+
+  destroy() {
+    if (this.container) {
+      this.container.clearMask(true);
+      this.container.setVisible(false);
+      this.container.setTexture('');
+      containers.push(this.container);
+      this.container = null;
+    }
+    if (this.maskGraphics) {
+      this.maskGraphics.destroy();
+      this.maskGraphics = null;
+    }
+  }
 }
 
 export default Biome;

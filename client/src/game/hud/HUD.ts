@@ -24,6 +24,7 @@ class HUD {
   components: any[];
   scale = 0.8;
   hidden = false;
+  private _chatSettingHandler: ((e: Event) => void) | null = null;
 
   constructor(game: Game) {
     this.game = game;
@@ -44,7 +45,7 @@ class HUD {
 
     this.applyCrazyGamesSettings();
 
-    window.addEventListener('chatSettingChanged', (e: Event) => {
+    this._chatSettingHandler = (e: Event) => {
       const enabled = (e as CustomEvent).detail.enabled;
       const cgDisabled = crazygamesSDK.getSettings().disableChat;
       if (cgDisabled || !enabled) {
@@ -59,7 +60,8 @@ class HUD {
       } else {
         this.chat.enable();
       }
-    });
+    };
+    window.addEventListener('chatSettingChanged', this._chatSettingHandler);
   }
 
   applyCrazyGamesSettings() {
@@ -94,6 +96,13 @@ class HUD {
   resize() {
     this.scale = Math.max(this.game.scale.width, this.game.scale.height) / 1400;
     this.components.forEach(component => component.setScale(this.scale));
+  }
+
+  cleanup() {
+    if (this._chatSettingHandler) {
+      window.removeEventListener('chatSettingChanged', this._chatSettingHandler);
+      this._chatSettingHandler = null;
+    }
   }
 }
 

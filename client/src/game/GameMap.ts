@@ -9,6 +9,7 @@ class GameMap {
   scene: Game;
   biomes: BiomeType[] = [];
   staticObjects: any[] = [];
+  riverBorderSprites: Phaser.GameObjects.Sprite[] = [];
   x = 0;
   y = 0;
   width = 0;
@@ -24,6 +25,21 @@ class GameMap {
   }
 
   updateMapData(mapData: any) {
+    for (const biome of this.biomes) {
+      biome.destroy();
+    }
+    this.biomes = [];
+
+    for (const obj of this.staticObjects) {
+      obj.remove();
+    }
+    this.staticObjects = [];
+
+    for (const sprite of this.riverBorderSprites) {
+      sprite.destroy();
+    }
+    this.riverBorderSprites = [];
+
     this.x = mapData.x;
     this.y = mapData.y;
     this.width = mapData.width;
@@ -152,6 +168,7 @@ class GameMap {
       sprite.setDisplaySize(worldW, worldH);
       sprite.setDepth(-1.5);
       sprite.setAlpha(border.alpha);
+      this.riverBorderSprites.push(sprite);
     }
   }
 

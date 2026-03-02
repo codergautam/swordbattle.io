@@ -47,10 +47,19 @@ class GameState {
   recentDeadPlayers: Record<number, { name: string, time: number }> = {};
   chainDamagedTimestamps: Record<number, number> = {};
 
+  private _boundOnOpen: () => void;
+  private _boundOnMessage: (data: any) => void;
+  private _boundOnClose: (event: CloseEvent, endpoint?: string) => void;
+
   constructor(game: Game) {
     this.game = game;
     this.gameMap = new GameMap(this.game);
     this.spectator = new Spectator(this.game);
+
+    this._boundOnOpen = this.onServerOpen.bind(this);
+    this._boundOnMessage = this.onServerMessage.bind(this);
+    this._boundOnClose = this.onServerClose.bind(this);
+
     this.refreshSocket();
     this.captchaVerified = false;
 
@@ -67,9 +76,9 @@ class GameState {
   refreshSocket(unbind = false) {
     // unbind
     if(unbind) {
-    this.socket.removeEventListener('open', this.onServerOpen.bind(this));
-    this.socket.removeEventListener('message', this.onServerMessage.bind(this));
-    this.socket.removeEventListener('close', this.onServerClose.bind(this));
+    this.socket.removeEventListener('open', this._boundOnOpen);
+    this.socket.removeEventListener('message', this._boundOnMessage as any);
+    this.socket.removeEventListener('close', this._boundOnClose as any);
 
     this.gameMap = new GameMap(this.game);
     this.spectator = new Spectator(this.game);
@@ -84,9 +93,9 @@ class GameState {
       console.log('connecting to', server.address, Date.now());
       this.socket = Socket.connect(
         server.address,
-        this.onServerOpen.bind(this),
-        this.onServerMessage.bind(this),
-        this.onServerClose.bind(this),
+        this._boundOnOpen,
+        this._boundOnMessage,
+        this._boundOnClose,
       );
     })
   }
@@ -252,6 +261,14 @@ class GameState {
     Socket.close();
     clearInterval(this.interval);
 
+    // Clear accumulated tracking objects to prevent memory leaks.
+    // Entity Phaser objects are NOT destroyed here — that's handled safely
+    // by fullSync (on reconnect) or Phaser.Game.destroy (on navigate away).
+    this.chainDamagedTimestamps = {};
+    this.failedSkinLoads = {};
+    this.recentDeadPlayers = {};
+    this.payloadsQueue = [];
+
     // Disable CrazyGames invite button when game ends
     crazygamesSDK.setInviteMode('disabled');
 
@@ -296,6 +313,13 @@ class GameState {
     if (data.fullSync) {
       Object.values(this.entities).forEach(entity => entity.remove());
       this.entities = {};
+      for (const entity of this.removedEntities) {
+        entity.remove();
+      }
+      this.removedEntities.clear();
+      this.chainDamagedTimestamps = {};
+      this.failedSkinLoads = {};
+      this.recentDeadPlayers = {};
       this.self.id = data.selfId;
     }
 

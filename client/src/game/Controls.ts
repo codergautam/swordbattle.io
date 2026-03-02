@@ -168,4 +168,11 @@ export class Controls {
   clear() {
     this.downInputs = [];
   }
+
+  cleanup() {
+    if (this._blurHandler) {
+      window.removeEventListener('blur', this._blurHandler);
+      this._blurHandler = null;
+    }
+  }
 }

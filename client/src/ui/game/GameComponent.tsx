@@ -50,6 +50,16 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
       game.events.on('pendingRespawnInfo', (info: any) => {
         onPendingRespawn?.(info);
       });
+
+      return () => {
+        const gameScene = game.scene.getScene('game') as any;
+        if (gameScene?.shutdown) {
+          gameScene.shutdown();
+        }
+        game.destroy(true);
+        window.phaser_game = undefined;
+        setGame(null);
+      };
     }
   }, []);
 

@@ -6,6 +6,7 @@ import HUD from '../hud/HUD';
 import Safezone from '../biomes/Safezone';
 import Biome from '../biomes/Biome';
 import { BaseEntity } from '../entities/BaseEntity';
+import { EntityTypes } from '../Types';
 import { Settings } from '../Settings';
 import { config } from '../../config';
 import { Controls } from '../Controls';
@@ -25,6 +26,12 @@ export default class Game extends Phaser.Scene {
   isMobile = false;
   zoom = 1;
   scaleZoom = 1;
+
+  private _resizeHandler: (() => void) | null = null;
+  private _orientationHandler: (() => void) | null = null;
+  private _adStartHandler: (() => void) | null = null;
+  private _adFinishHandler: (() => void) | null = null;
+  private _visibilityHandler: (() => void) | null = null;
 
 	constructor() {
 		super('game');
@@ -85,9 +92,9 @@ export default class Game extends Phaser.Scene {
     this.load.image('moose', publicPath + '/assets/game/mobs/moose.png');
     this.load.image('mooseShadow', publicPath + '/assets/game/mobs/mooseShadow.png');
     this.load.image('fish', publicPath + '/assets/game/mobs/bluefish.png');
-    this.load.image('fishShadow', publicPath + '/assets/game/mobs/fishShadow.png');
+    this.load.image('fishShadow', publicPath + '/assets/game/mobs/fishShadow.png'); // unused
     this.load.image('angryFish', publicPath + '/assets/game/mobs/angryfish.png');
-    this.load.image('angryFishShadow', publicPath + '/assets/game/mobs/angryFishShadow.png');
+    this.load.image('angryFishShadow', publicPath + '/assets/game/mobs/fishShadow.png'); // unused
     this.load.image('chimera', publicPath + '/assets/game/mobs/chimera.png');
     this.load.image('chimeraShadow', publicPath + '/assets/game/mobs/chimeraShadow.png');
     this.load.image('yeti', publicPath + '/assets/game/mobs/yeti.png'); // add winter
@@ -95,7 +102,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('iceSpirit', publicPath + '/assets/game/mobs/icespirit.png');
     this.load.image('iceSpiritShadow', publicPath + '/assets/game/mobs/iceSpiritShadow.png');
     this.load.image('santa', publicPath + '/assets/game/mobs/santa.png'); // Unused for now
-    this.load.image('santaShadow', publicPath + '/assets/game/mobs/santaShadow.png');
+    // this.load.image('santaShadow', publicPath + '/assets/game/mobs/santaShadow.png');
     this.load.image('roku', publicPath + '/assets/game/mobs/roku.png');
     this.load.image('rokuShadow', publicPath + '/assets/game/mobs/rokuShadow.png');
     this.load.image('ancient', publicPath + '/assets/game/mobs/ancient.png');
@@ -207,37 +214,114 @@ export default class Game extends Phaser.Scene {
     this.controls.initialize();
     this.resize();
 
-    window.addEventListener('resize', () => this.resize());
-    window.addEventListener('orientationchange', () => {
+    this._resizeHandler = () => this.resize();
+    this._orientationHandler = () => {
       if (window.orientation === 0 || window.orientation === 180) { // Portrait
-        // if (this.scale.isFullscreen) {
-        //   this.scale.startFullscreen();
-        // }
       } else { // Landscape
-        // this.scale.startFullscreen();
       }
-    });
+    };
 
     // CrazyGames ad pause/mute handling
     let previousVolume = this.soundManager.volume;
-    window.addEventListener('crazyGamesAdStarted', () => {
+    this._adStartHandler = () => {
       console.log('[Game] Ad started - pausing and muting game');
       previousVolume = this.soundManager.volume;
       this.soundManager.setVolume(0); // Mute audio
       this.scene.pause(); // Pause game
-    });
+    };
 
-    window.addEventListener('crazyGamesAdFinished', () => {
+    this._adFinishHandler = () => {
       console.log('[Game] Ad finished - resuming and unmuting game');
       this.soundManager.setVolume(previousVolume); // Restore audio
       this.scene.resume(); // Resume game
-    });
+    };
 
-    document.addEventListener('visibilitychange', () => {
+    this._visibilityHandler = () => {
       if (!document.hidden) {
         this.game.loop.resetDelta();
       }
-    });
+    };
+
+    window.addEventListener('resize', this._resizeHandler);
+    window.addEventListener('orientationchange', this._orientationHandler);
+    window.addEventListener('crazyGamesAdStarted', this._adStartHandler);
+    window.addEventListener('crazyGamesAdFinished', this._adFinishHandler);
+    document.addEventListener('visibilitychange', this._visibilityHandler);
+
+    const gameScene = this;
+    (window as any).unloadSkins = () => {
+      (window as any).__skinsUnloaded = true;
+      for (const id in gameScene.gameState.entities) {
+        const e = gameScene.gameState.entities[id];
+        if (e.type === EntityTypes.Player) {
+          e.body.setTexture('playerBody');
+          e.shadow.setTexture(e.createShadowTexture('playerBody'));
+          e.sword.setTexture('playerSword');
+          e.swordShadow.setTexture(e.createShadowTexture('playerSword'));
+        } else if (e.type === EntityTypes.Sword) {
+          e.skinName = 'playerSword';
+          e.body.setTexture('playerSword');
+          if (e.shadow) e.shadow.setTexture(e.createShadowTexture('playerSword'));
+        }
+      }
+    };
+    (window as any).loadSkins = () => {
+      (window as any).__skinsUnloaded = false;
+      for (const id in gameScene.gameState.entities) {
+        const e = gameScene.gameState.entities[id];
+        if (e.type === EntityTypes.Player && e.skinName && e.skinName !== 'player') {
+          if (gameScene.textures.exists(e.skinName + 'Body')) {
+            e.body.setTexture(e.skinName + 'Body');
+            e.shadow.setTexture(e.createShadowTexture(e.skinName + 'Body'));
+            e.sword.setTexture(e.skinName + 'Sword');
+            e.swordShadow.setTexture(e.createShadowTexture(e.skinName + 'Sword'));
+          } else {
+            e.loadSkin(e.skin).then(() => {
+              e.body.setTexture(e.skinName + 'Body');
+              e.shadow.setTexture(e.createShadowTexture(e.skinName + 'Body'));
+              e.sword.setTexture(e.skinName + 'Sword');
+              e.swordShadow.setTexture(e.createShadowTexture(e.skinName + 'Sword'));
+            }).catch(() => {});
+          }
+        } else if (e.type === EntityTypes.Sword && e.skin) {
+          const skinObj = Object.values(skins).find((s: any) => s.id === e.skin);
+          const key = (skinObj?.name ?? 'player') + 'Sword';
+          if (gameScene.textures.exists(key)) {
+            e.skinName = key;
+            e.body.setTexture(key);
+            if (e.shadow) e.shadow.setTexture(e.createShadowTexture(key));
+          }
+        }
+      }
+    };
+  }
+
+  shutdown() {
+    if (this._resizeHandler) {
+      window.removeEventListener('resize', this._resizeHandler);
+      this._resizeHandler = null;
+    }
+    if (this._orientationHandler) {
+      window.removeEventListener('orientationchange', this._orientationHandler);
+      this._orientationHandler = null;
+    }
+    if (this._adStartHandler) {
+      window.removeEventListener('crazyGamesAdStarted', this._adStartHandler);
+      this._adStartHandler = null;
+    }
+    if (this._adFinishHandler) {
+      window.removeEventListener('crazyGamesAdFinished', this._adFinishHandler);
+      this._adFinishHandler = null;
+    }
+    if (this._visibilityHandler) {
+      document.removeEventListener('visibilitychange', this._visibilityHandler);
+      this._visibilityHandler = null;
+    }
+    this.controls.cleanup();
+    this.hud.cleanup();
+    delete (window as any).unloadSkins;
+    delete (window as any).loadSkins;
+    delete (window as any).__skinsUnloaded;
   }
 
   resize() {

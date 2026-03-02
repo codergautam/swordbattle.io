@@ -222,25 +222,27 @@ class Player extends BaseEntity {
       }
     }
 
-    if (Settings.loadskins) {
-        this.loadSkin(this.skin).then(() => {
-        const skinBase = skins.player.name;
-        this.body.setTexture(skinBase+'Body');
-        this.shadow.setTexture(this.createShadowTexture(skinBase+'Body'));
-        this.sword.setTexture(skinBase+'Sword');
-        this.swordShadow.setTexture(this.createShadowTexture(skinBase+'Sword'));
-      }).catch(() => {
-        console.log('failed to load skin', this.skin);
-      });
-    } else {
-        this.loadSkin(this.skin).then(() => {
-        this.body.setTexture(this.skinName+'Body');
-        this.shadow.setTexture(this.createShadowTexture(this.skinName+'Body'));
-        this.sword.setTexture(this.skinName+'Sword');
-        this.swordShadow.setTexture(this.createShadowTexture(this.skinName+'Sword'));
-      }).catch(() => {
-        console.log('failed to load skin', this.skin);
-      });
+    if (!(window as any).__skinsUnloaded) {
+      if (Settings.loadskins) {
+          this.loadSkin(this.skin).then(() => {
+          const skinBase = skins.player.name;
+          this.body.setTexture(skinBase+'Body');
+          this.shadow.setTexture(this.createShadowTexture(skinBase+'Body'));
+          this.sword.setTexture(skinBase+'Sword');
+          this.swordShadow.setTexture(this.createShadowTexture(skinBase+'Sword'));
+        }).catch(() => {
+          console.log('failed to load skin', this.skin);
+        });
+      } else {
+          this.loadSkin(this.skin).then(() => {
+          this.body.setTexture(this.skinName+'Body');
+          this.shadow.setTexture(this.createShadowTexture(this.skinName+'Body'));
+          this.sword.setTexture(this.skinName+'Sword');
+          this.swordShadow.setTexture(this.createShadowTexture(this.skinName+'Sword'));
+        }).catch(() => {
+          console.log('failed to load skin', this.skin);
+        });
+      }
     }
 
     this.discoFieldGraphic = this.game.add.graphics();

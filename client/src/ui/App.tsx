@@ -81,6 +81,7 @@ function App() {
   const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
   const [crazygamesAuthReady, setCrazygamesAuthReady] = useState(false);
   const [showMenuTutorial, setShowMenuTutorial] = useState(false);
+  const [instantStart, setInstantStart] = useState<boolean>((window as any).instantStart || false);
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
@@ -89,13 +90,24 @@ function App() {
     const width = window.innerWidth;
     const height = window.innerHeight;
     const isLandscape = width > height;
-    const isSmall = width < 1040;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    return isSmall && isLandscape && !isMobile;
+    if (isMobile) return false;
+
+    if (width < 1040 && isLandscape) return true;
+
+    const isCrazygamesEmbed = crazygamesSDK.shouldUseSDK() ||
+      (typeof window !== 'undefined' && window.location.hostname.includes('crazygames'));
+    if (isCrazygamesEmbed && isLandscape && (width <= 1300 || height <= 750)) return true;
+
+    return false;
   };
 
   const [isSmallIframe, setIsSmallIframe] = useState(isSmallDesktopIframe());
+
+  const menuScale = isSmallIframe
+    ? Math.max(0.45, Math.min(0.85, Math.min(dimensions.width / 1400, dimensions.height / 750)))
+    : 1;
 
   const messages = [
     "Tip: The Lumberjack's ability has multiple uses: finding chests, defending against enemies, and breaking chests faster!",
@@ -343,38 +355,6 @@ function App() {
     console.log('Getting server list');
     getServerList().then(setServers);
 
-    // Check for CrazyGames instant multiplayer or invite params
-    let isInstantMultiplayerMode = false;
-    try {
-      const roomId = crazygamesSDK.getInviteParam('roomId');
-      const region = crazygamesSDK.getInviteParam('region');
-
-      if (roomId) {
-        console.log('[CrazyGames] Joining via invite link - Room ID:', roomId);
-        // Store roomId globally so it can be used when starting the game
-        (window as any).inviteRoomId = roomId;
-        if (region) {
-          console.log('[CrazyGames] Setting region from invite:', region);
-          (window as any).inviteRegion = region;
-        }
-        isInstantMultiplayerMode = true;
-      }
-
-      // Check for instant multiplayer mode
-      if (crazygamesSDK.isInstantMultiplayer()) {
-        console.log('[CrazyGames] Instant multiplayer mode enabled');
-        isInstantMultiplayerMode = true;
-      }
-
-      // Set instant start flag for loading screen
-      if (isInstantMultiplayerMode) {
-        (window as any).instantStart = true;
-        console.log('[CrazyGames] Instant multiplayer detected - setting instantStart flag');
-      }
-    } catch (error) {
-      console.error('[CrazyGames] Error checking multiplayer settings:', error);
-    }
-
     // Helper function to handle the loginWithSecret callback and return a promise
     const verifyStoredAccount = (existingSecret: string, currentUserId: string): Promise<'match' | 'mismatch' | 'invalid'> => {
       return new Promise((resolve) => {
@@ -470,6 +450,22 @@ function App() {
         // Case 1: No CrazyGames user logged in
         if (!currentUserId) {
           console.log('[CrazyGames] No CrazyGames user logged in');
+
+          if ((window as any).instantStart) {
+            console.log('[CrazyGames] Instant multiplayer mode - prompting user to log in');
+            try {
+              const promptedUser = await crazygamesSDK.showAuthPrompt();
+              if (promptedUser) {
+                console.log('[CrazyGames] User authenticated via prompt:', promptedUser.username);
+                await loginWithCurrentCrazygamesUser(promptedUser);
+                setCrazygamesAuthReady(true);
+                return;
+              }
+              console.log('[CrazyGames] User cancelled auth prompt - proceeding as guest');
+            } catch (e) {
+              console.error('[CrazyGames] Error showing auth prompt:', e);
+            }
+          }
 
           // If we have a secret, clear it since user is not logged in on CrazyGames
           if (hasValidSecret) {
@@ -646,7 +642,33 @@ function App() {
           return;
         }
 
-        console.log('[CrazyGames] SDK initialized after', attempts * 100, 'ms - calling attemptCrazygamesLogin');
+        console.log('[CrazyGames] SDK initialized after', attempts * 100, 'ms');
+
+        try {
+          const roomId = crazygamesSDK.getInviteParam('roomId');
+          const region = crazygamesSDK.getInviteParam('region');
+
+          if (roomId) {
+            console.log('[CrazyGames] Joining via invite link - Room ID:', roomId);
+            (window as any).inviteRoomId = roomId;
+            if (region) {
+              console.log('[CrazyGames] Setting region from invite:', region);
+              (window as any).inviteRegion = region;
+            }
+            (window as any).instantStart = true;
+            setInstantStart(true);
+          }
+
+          if (crazygamesSDK.isInstantMultiplayer()) {
+            console.log('[CrazyGames] Instant multiplayer mode enabled');
+            (window as any).instantStart = true;
+            setInstantStart(true);
+          }
+        } catch (error) {
+          console.error('[CrazyGames] Error checking multiplayer settings:', error);
+        }
+
+        console.log('[CrazyGames] Calling attemptCrazygamesLogin');
         await attemptCrazygamesLogin();
       };
 
@@ -937,9 +959,10 @@ function App() {
     const isCrazygames = crazygamesSDK.shouldUseSDK() && crazygamesSDK.isUserAccountAvailable();
     const isAuthReady = isCrazygames ? crazygamesAuthReady : accountReady;
 
-    if(loadingProgress === 100 && isAuthReady && isConnected && (window as any).instantStart) {
+    if(loadingProgress === 100 && isAuthReady && isConnected && instantStart) {
       console.log('[CrazyGames] Instant multiplayer - Auto-starting game');
       console.log('[CrazyGames] Conditions met - loadingProgress:', loadingProgress, 'isAuthReady:', isAuthReady, 'isConnected:', isConnected);
+      setInstantStart(false);
       (window as any).instantStart = false;
 
       setTimeout(() => {
@@ -947,11 +970,11 @@ function App() {
         onStart();
       }, 100);
     }
-  }, [loadingProgress, accountReady, crazygamesAuthReady, isConnected]);
+  }, [loadingProgress, accountReady, crazygamesAuthReady, isConnected, instantStart]);
   const isLoaded = loadingProgress === 100;
   return (
     <div className="App">
-      <LoadingScreen progress={loadingProgress} />
+      <LoadingScreen progress={loadingProgress} instantStart={instantStart} />
       <GameComponent
         onHome={onHome}
         onGameReady={onGameReady}
@@ -972,7 +995,7 @@ function App() {
 
       {!gameStarted && (
         <>
-        <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`}>
+        <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`} style={{ '--menu-scale': menuScale } as React.CSSProperties}>
         <div className="game-buttons" style={scale.styles}>
           <section className="game-btn">
             <ShopButton account={account} scale={scale.factor} openShop={openShop} />

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import './LoadingScreen.scss';
 import { useScale } from './Scale';
 
-function LoadingScreen({ progress }: any) {
+function LoadingScreen({ progress, instantStart }: any) {
   const [isFading, setIsFading] = useState(false);
   const [opacity, setOpacity] = useState(1);
   const [stuckVisible, setStuckVisible] = useState(false);
@@ -11,8 +11,6 @@ function LoadingScreen({ progress }: any) {
   const [useBackgroundImage, setUseBackgroundImage] = useState(true);
   const scale = useScale();
   const isLoaded = progress === 100;
-
-  const instantStart = (window as any).instantStart;
 
   // Preload the background image with timeout
   useEffect(() => {

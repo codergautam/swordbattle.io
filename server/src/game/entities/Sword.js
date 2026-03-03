@@ -263,6 +263,70 @@ processTargetsCollision(entity) {
     const respawnShielded = isHumanVsHuman && (attackerRespawnShield || targetRespawnShield);
     const coinShieldOnly = shielded && !respawnShielded;
 
+    let antiTeamMult = 1;
+    if (isHumanVsHuman) {
+      const attacker = this.player;
+      const defender = entity;
+      const ALLIANCE_RATIO = 0.3;
+      const MIN_DAMAGE_THRESHOLD = 10;
+
+      const fighterIds = new Set();
+      for (const id of attacker.combatLog.keys()) fighterIds.add(id);
+      for (const id of defender.combatLog.keys()) fighterIds.add(id);
+      fighterIds.delete(attacker.id);
+      fighterIds.delete(defender.id);
+
+      let attackerAllies = 0;
+      let defenderAllies = 0;
+
+      for (const fighterId of fighterIds) {
+        const fighter = this.game.entities.get(fighterId);
+        if (!fighter || fighter.removed || fighter.type !== Types.Entity.Player || fighter.isBot) continue;
+        if (!fighter.combatLog) continue;
+
+        const fDmgToDefender = fighter.combatLog.get(defender.id)?.damageDealt || 0;
+        const fDmgToAttacker = fighter.combatLog.get(attacker.id)?.damageDealt || 0;
+
+        if (fDmgToDefender > MIN_DAMAGE_THRESHOLD && fDmgToAttacker < fDmgToDefender * ALLIANCE_RATIO) {
+          attackerAllies++;
+        }
+        if (fDmgToAttacker > MIN_DAMAGE_THRESHOLD && fDmgToDefender < fDmgToAttacker * ALLIANCE_RATIO) {
+          defenderAllies++;
+        }
+      }
+
+      const attackerTeam = 1 + attackerAllies;
+      const defenderTeam = 1 + defenderAllies;
+
+      antiTeamMult = Math.min(1.0, defenderTeam / attackerTeam);
+
+      if (attackerTeam > defenderTeam) {
+        const now = Date.now();
+        const newRatio = attackerTeam / defenderTeam;
+        const oldRatio = defender.teamDisadvantage ? defender.teamDisadvantage.enemyTeam / defender.teamDisadvantage.myTeam : 0;
+        if (!defender.teamDisadvantage || now > defender.teamDisadvantage.expiry || newRatio >= oldRatio) {
+          defender.teamDisadvantage = { enemyTeam: attackerTeam, myTeam: defenderTeam, expiry: now + 5000 };
+        }
+      }
+    }
+
+    let coinDisparityMult = 1;
+    if (isHumanVsHuman && !shielded) {
+      const bigger = Math.max(attackerCoins, targetCoins);
+      const smaller = Math.max(Math.min(attackerCoins, targetCoins), 1);
+      const coinRatio = bigger / smaller;
+
+      if (coinRatio > 1.5) {
+        const boost = Math.min(Math.log2(coinRatio) * 0.03, 0.25);
+
+        if (attackerCoins > targetCoins) {
+          coinDisparityMult = 1 - boost;
+        } else {
+          coinDisparityMult = 1 + boost * 0.5;
+        }
+      }
+    }
+
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
 
     let power;
@@ -300,14 +364,7 @@ processTargetsCollision(entity) {
       } else {
       power = Math.max(Math.min(power, 400), 100);
       }
-    if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot
-        && entity.activeTargets && entity.activeTargets.has(this.player.id)) {
-      const atCount = entity.activeTargets.size;
-      if (atCount >= 2) {
-        const kbMult = atCount >= 5 ? 0.50 : atCount >= 4 ? 0.55 : atCount >= 3 ? 0.70 : 0.85;
-        power *= kbMult;
-      }
-    }
+    power *= antiTeamMult * coinDisparityMult;
 
     const xComp = power * Math.cos(angle);
     const yComp = power * Math.sin(angle);
@@ -334,14 +391,7 @@ processTargetsCollision(entity) {
           finalDamage *= bonus;
         }
 
-        if (entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot
-            && entity.activeTargets && entity.activeTargets.has(this.player.id)) {
-          const atCount = entity.activeTargets.size;
-          if (atCount >= 2) {
-            const dmgMult = atCount >= 5 ? 0.2 : atCount >= 4 ? 0.25 : atCount >= 3 ? 0.33 : 0.5;
-            finalDamage *= dmgMult;
-          }
-        }
+        finalDamage *= antiTeamMult * coinDisparityMult;
 
         if (coinShieldOnly) {
           finalDamage *= 0.2;

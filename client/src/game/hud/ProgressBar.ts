@@ -330,8 +330,32 @@ class ProgressBar extends HudComponent {
           duration: 200,
         });
       } else if (desiredProtectionState === 'antiTeam') {
-        this.inSafezoneMessage.setColor('#ffdd00');
-        this.inSafezoneMessage.setText('You are stronger: fighting multiple enemies has increased your defense');
+        const flagValue = player.flags[FlagTypes.AntiTeamActive] as number;
+        const enemyTeam = Math.floor(flagValue / 10);
+        const myTeam = flagValue % 10;
+        const ratio = enemyTeam / Math.max(myTeam, 1);
+
+        let msg: string;
+        let color: string;
+        if (enemyTeam > 0 && myTeam > 0) {
+          const label = `${enemyTeam}v${myTeam}`;
+          if (ratio >= 3) {
+            msg = `Outnumbered ${label} — defense greatly increased`;
+            color = '#ff6a00';
+          } else if (ratio >= 2) {
+            msg = `Outnumbered ${label} — defense increased`;
+            color = '#ffdd00';
+          } else {
+            msg = `Outnumbered ${label} — defense slightly increased`;
+            color = '#fff176';
+          }
+        } else {
+          msg = 'Outnumbered — defense increased';
+          color = '#ffdd00';
+        }
+
+        this.inSafezoneMessage.setColor(color);
+        this.inSafezoneMessage.setText(msg);
         this.tipText.setVisible(false).setAlpha(0);
         this.game.tweens.add({
           targets: this.inSafezoneMessage,
@@ -364,6 +388,33 @@ class ProgressBar extends HudComponent {
     } else if (desiredProtectionState === 'collect') {
       const coinsLeft = Math.max(0, 500 - player.coins);
       this.inSafezoneMessage.setText(`You are protected: collect ${coinsLeft} more coins to fight other players`);
+    } else if (desiredProtectionState === 'antiTeam') {
+      const flagValue = player.flags[FlagTypes.AntiTeamActive] as number;
+      const enemyTeam = Math.floor(flagValue / 10);
+      const myTeam = flagValue % 10;
+      const ratio = enemyTeam / Math.max(myTeam, 1);
+
+      let msg: string;
+      let color: string;
+      if (enemyTeam > 0 && myTeam > 0) {
+        const label = `${enemyTeam}v${myTeam}`;
+        if (ratio >= 3) {
+          msg = `Outnumbered ${label} — defense greatly increased`;
+          color = '#ff6a00';
+        } else if (ratio >= 2) {
+          msg = `Outnumbered ${label} — defense increased`;
+          color = '#ffdd00';
+        } else {
+          msg = `Outnumbered ${label} — defense slightly increased`;
+          color = '#fff176';
+        }
+      } else {
+        msg = 'Outnumbered — defense increased';
+        color = '#ffdd00';
+      }
+
+      this.inSafezoneMessage.setColor(color);
+      this.inSafezoneMessage.setText(msg);
     }
 
     const isCurrentlyBurning = !!player.flags[FlagTypes.LavaDamaged];

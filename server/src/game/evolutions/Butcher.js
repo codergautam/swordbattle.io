@@ -27,7 +27,8 @@ module.exports = class Butcher extends Evolution {
     if (this.isAbilityActive) {
       const drainPerSecond = this.player.health.max.value * 0.1;
       const drain = drainPerSecond * dt;
-      const maxDrain = this.player.health.value - 1;
+      const currentHp = this.player.health.percent * this.player.health.max.value;
+      const maxDrain = currentHp - 1;
       if (maxDrain > 0) {
         this.player.health.damaged(Math.min(drain, maxDrain));
       }

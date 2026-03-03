@@ -111,8 +111,8 @@ class Player extends Entity {
     this.chatMessage = '';
     this.chatMessageTimer = new Timer(0, 3);
 
-    this.recentTargets = new Map();
-    this.activeTargets = new Map();
+    this.combatLog = new Map();
+    this.teamDisadvantage = null;
 
     this.hypnotizedBy = null;
   }
@@ -183,22 +183,26 @@ class Player extends Entity {
       this.respawnShieldActive = false;
     }
 
+    for (const [id, log] of this.combatLog) {
+      const decay = Math.max(0, 1 - dt * 0.1);
+      log.damageDealt *= decay;
+      log.damageReceived *= decay;
+      if (log.damageDealt < 1 && log.damageReceived < 1) {
+        this.combatLog.delete(id);
+      }
+    }
+
     const now = Date.now();
-    for (const [id, expiry] of this.recentTargets) {
-      if (now > expiry) this.recentTargets.delete(id);
-    }
-    for (const [id, expiry] of this.activeTargets) {
-      if (now > expiry) this.activeTargets.delete(id);
-    }
-    const activeTargetCount = this.activeTargets.size;
-    if (activeTargetCount >= 2 && !this.isBot) {
-      this.flags.set(Types.Flags.AntiTeamActive, 1);
+    if (this.teamDisadvantage && now < this.teamDisadvantage.expiry && !this.isBot) {
+      const encoded = this.teamDisadvantage.enemyTeam * 10 + this.teamDisadvantage.myTeam;
+      this.flags.set(Types.Flags.AntiTeamActive, encoded);
     }
 
     this.levels.applyBuffs();
 
-    if (activeTargetCount >= 2 && !this.isBot) {
-      this.health.regenWait.multiplier *= 0.6;
+    if (this.teamDisadvantage && now < this.teamDisadvantage.expiry && !this.isBot) {
+      const regenMult = Math.max(0.25, this.teamDisadvantage.myTeam / this.teamDisadvantage.enemyTeam);
+      this.health.regenWait.multiplier *= regenMult;
     }
 
     this.effects.forEach(effect => effect.update(dt));
@@ -405,10 +409,15 @@ class Player extends Entity {
 
   damaged(damage, entity = null) {
     if (entity && entity.type === Types.Entity.Player && !this.isBot && !entity.isBot) {
-      if (this.recentTargets.has(entity.id)) {
-        this.activeTargets.set(entity.id, Date.now() + 10000);
+      if (!this.combatLog.has(entity.id)) {
+        this.combatLog.set(entity.id, { damageDealt: 0, damageReceived: 0 });
       }
-      this.recentTargets.set(entity.id, Date.now() + 30000);
+      this.combatLog.get(entity.id).damageReceived += damage;
+
+      if (!entity.combatLog.has(this.id)) {
+        entity.combatLog.set(this.id, { damageDealt: 0, damageReceived: 0 });
+      }
+      entity.combatLog.get(this.id).damageDealt += damage;
     }
 
     if (this.name !== "Update Testing Account") {
@@ -584,6 +593,7 @@ class Player extends Entity {
     this.sword.cleanup();
     this.flags.clear();
     this.modifiers = {};
+    this.teamDisadvantage = null;
 
     [this.speed, this.regeneration, this.friction, this.viewport.zoom, this.knockbackResistance, this.health.regenWait].forEach((property) => property.reset());
   }

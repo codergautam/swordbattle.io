@@ -639,7 +639,7 @@ span {
 
 // Special handling for small desktop iframes (like CrazyGames)
 #menuCardHolder.small-iframe {
-  transform: translate(-50%, -25%) scale(0.75) !important;
+  transform: translate(-50%, -25%) scale(var(--menu-scale, 0.75)) !important;
 
   .menu {
     flex-direction: row !important;
@@ -656,7 +656,7 @@ span {
 
 // Scale down title image for small iframes
 body:has(#menuCardHolder.small-iframe) .title-img {
-  transform: translate(-50%, -100%) scale(0.75) !important;
+  transform: translate(-50%, -100%) scale(var(--menu-scale, 0.75)) !important;
 }
 
 @media only screen and (min-width: 800px) and (max-width: 1080px) and (min-height: 450px) and (max-height: 650px) {

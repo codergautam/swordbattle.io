@@ -162,11 +162,15 @@ function App() {
   ];
   const [randomMessage] = useState(() => messages[Math.floor(Math.random() * messages.length)]);
 
+  const gameButtonsScale = isSmallIframe
+    ? Math.min(scale.factor, dimensions.height / 650)
+    : scale.factor;
+
   const bottomLeftContainerStyle: React.CSSProperties = {
     position: 'fixed',
     left: 0,
     bottom: 0,
-    transform: `scale(${scale.factor})`,
+    transform: `scale(${isSmallIframe ? gameButtonsScale : scale.factor})`,
     transformOrigin: 'bottom left',
     pointerEvents: 'none',
   };
@@ -645,6 +649,14 @@ function App() {
         console.log('[CrazyGames] SDK initialized after', attempts * 100, 'ms');
 
         try {
+          const sdkGame = (window as any).CrazyGames?.SDK?.game;
+          console.log('[CrazyGames] SDK game object keys:', sdkGame ? Object.keys(sdkGame) : 'null');
+          console.log('[CrazyGames] SDK game state:', {
+            isInstantMultiplayer: sdkGame?.isInstantMultiplayer,
+            inviteParams: sdkGame?.inviteParams,
+            settings: sdkGame?.settings,
+          });
+
           const roomId = crazygamesSDK.getInviteParam('roomId');
           const region = crazygamesSDK.getInviteParam('region');
 
@@ -659,8 +671,17 @@ function App() {
             setInstantStart(true);
           }
 
-          if (crazygamesSDK.isInstantMultiplayer()) {
-            console.log('[CrazyGames] Instant multiplayer mode enabled');
+          const isInstantMP = crazygamesSDK.isInstantMultiplayer();
+          console.log('[CrazyGames] isInstantMultiplayer():', isInstantMP);
+
+          if (isInstantMP) {
+            console.log('[CrazyGames] Instant multiplayer mode enabled via SDK flag');
+            (window as any).instantStart = true;
+            setInstantStart(true);
+          }
+
+          if (!isInstantMP && !roomId && sdkGame?.inviteParams) {
+            console.log('[CrazyGames] Found inviteParams as fallback:', sdkGame.inviteParams);
             (window as any).instantStart = true;
             setInstantStart(true);
           }
@@ -668,6 +689,7 @@ function App() {
           console.error('[CrazyGames] Error checking multiplayer settings:', error);
         }
 
+        console.log('[CrazyGames] instantStart is now:', (window as any).instantStart);
         console.log('[CrazyGames] Calling attemptCrazygamesLogin');
         await attemptCrazygamesLogin();
       };
@@ -996,7 +1018,7 @@ function App() {
       {!gameStarted && (
         <>
         <div className={`${isConnected ? 'loaded mainMenu' : 'mainMenu'}`} style={{ '--menu-scale': menuScale } as React.CSSProperties}>
-        <div className="game-buttons" style={scale.styles}>
+        <div className="game-buttons" style={{ ...scale.styles, transform: `scale(${gameButtonsScale})` }}>
           <section className="game-btn">
             <ShopButton account={account} scale={scale.factor} openShop={openShop} />
           </section>
@@ -1189,7 +1211,7 @@ function App() {
           {modal && (() => { const n = modal.type.displayName || modal.type.name; const isFullscreen = ['ShopModal', 'RewardsModal', 'LeaderboardModal', 'InventoryModal', 'ProfileModal', 'FullChangelogModal'].includes(n); return <Modal child={modal} close={closeModal} scaleDisabled={isFullscreen} className={isFullscreen ? 'modal-fullscreen' : ''} />; })()}
           {showMenuTutorial && <TutorialModal onClose={() => setShowMenuTutorial(false)} centered />}
 
-<div className="auth-buttons" style={scale.styles}>
+<div className="auth-buttons" style={{ ...scale.styles, transform: `scale(${gameButtonsScale})` }}>
              {account.isLoggedIn ? (
                <>
                <div className="dropdown">

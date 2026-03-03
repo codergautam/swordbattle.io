@@ -63,15 +63,15 @@ crazygamesSDK.init().then(async () => {
 
 (window as any).instantStart = false;
 try {
-  const urlParams = window.location.search;
-  const hasInstantStart = urlParams.includes("instantStart=true");
-  const hasInstantJoin = urlParams.includes("instantJoin=true");
-  const hasCzyInvite = urlParams.includes("czy_invite=true");
+  const urlFull = window.location.href;
+  const urlSearch = window.location.search;
+  const hasInstantStart = urlFull.includes("instantStart=true");
+  const hasInstantJoin = urlFull.includes("instantJoin=true");
+  const hasCzyInvite = urlFull.includes("czy_invite=true");
   (window as any).instantStart = hasInstantStart || hasInstantJoin || hasCzyInvite;
 
-  if ((window as any).instantStart) {
-    console.log('[InstantStart] Enabled via URL params - instantStart:', hasInstantStart, 'instantJoin:', hasInstantJoin, 'czy_invite:', hasCzyInvite);
-  }
+  console.log('[InstantStart] URL check - href:', urlFull, 'search:', urlSearch);
+  console.log('[InstantStart] Detected - instantStart:', hasInstantStart, 'instantJoin:', hasInstantJoin, 'czy_invite:', hasCzyInvite, '=> instantStart:', (window as any).instantStart);
 } catch(e) {
   console.error('[InstantStart] Error checking URL params:', e);
 }

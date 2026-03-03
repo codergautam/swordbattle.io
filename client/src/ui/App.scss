@@ -475,7 +475,7 @@ span {
   font-size: 17px;
   text-align: center;
   color: #fff;
-  left: 237px;
+  left: 312px;
   height: 60px;
 }
 
@@ -483,7 +483,7 @@ span {
   font-size: 20px;
   text-align: center;
   color: #fff;
-  left: 312px;
+  left: 237px;
   height: 60px;
   width: 60px;
 }
@@ -643,6 +643,14 @@ span {
 
   .menu {
     flex-direction: row !important;
+  }
+
+  .menu .joinCard {
+    width: 310px;
+  }
+
+  .menu .accountCard {
+    width: 260px;
   }
 
   #adBelow {

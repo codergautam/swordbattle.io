@@ -1,5 +1,6 @@
 import { random } from '../../helpers';
 import { BaseEntity } from './BaseEntity';
+import { Settings } from '../Settings';
 import * as cosmetics from '../cosmetics.json';
 const {skins} = cosmetics;
 
@@ -13,7 +14,7 @@ class Sword extends BaseEntity {
   static shadowOffsetY = 10;
 
   createSprite() {
-    if(this.skin && !(window as any).__skinsUnloaded) {
+    if(this.skin && !Settings.unloadSkins) {
       const skinObj = Object.values(skins).find(skin => skin.id === this.skin)
       this.skinName = (skinObj?.name ?? 'player')+ 'Sword';
       if(!this.game.textures.exists(this.skinName)) {

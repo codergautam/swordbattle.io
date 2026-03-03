@@ -6,7 +6,6 @@ import HUD from '../hud/HUD';
 import Safezone from '../biomes/Safezone';
 import Biome from '../biomes/Biome';
 import { BaseEntity } from '../entities/BaseEntity';
-import { EntityTypes } from '../Types';
 import { Settings } from '../Settings';
 import { config } from '../../config';
 import { Controls } from '../Controls';
@@ -247,53 +246,6 @@ export default class Game extends Phaser.Scene {
     window.addEventListener('crazyGamesAdStarted', this._adStartHandler);
     window.addEventListener('crazyGamesAdFinished', this._adFinishHandler);
     document.addEventListener('visibilitychange', this._visibilityHandler);
-
-    const gameScene = this;
-    (window as any).unloadSkins = () => {
-      (window as any).__skinsUnloaded = true;
-      for (const id in gameScene.gameState.entities) {
-        const e = gameScene.gameState.entities[id];
-        if (e.type === EntityTypes.Player) {
-          e.body.setTexture('playerBody');
-          e.shadow.setTexture(e.createShadowTexture('playerBody'));
-          e.sword.setTexture('playerSword');
-          e.swordShadow.setTexture(e.createShadowTexture('playerSword'));
-        } else if (e.type === EntityTypes.Sword) {
-          e.skinName = 'playerSword';
-          e.body.setTexture('playerSword');
-          if (e.shadow) e.shadow.setTexture(e.createShadowTexture('playerSword'));
-        }
-      }
-    };
-    (window as any).loadSkins = () => {
-      (window as any).__skinsUnloaded = false;
-      for (const id in gameScene.gameState.entities) {
-        const e = gameScene.gameState.entities[id];
-        if (e.type === EntityTypes.Player && e.skinName && e.skinName !== 'player') {
-          if (gameScene.textures.exists(e.skinName + 'Body')) {
-            e.body.setTexture(e.skinName + 'Body');
-            e.shadow.setTexture(e.createShadowTexture(e.skinName + 'Body'));
-            e.sword.setTexture(e.skinName + 'Sword');
-            e.swordShadow.setTexture(e.createShadowTexture(e.skinName + 'Sword'));
-          } else {
-            e.loadSkin(e.skin).then(() => {
-              e.body.setTexture(e.skinName + 'Body');
-              e.shadow.setTexture(e.createShadowTexture(e.skinName + 'Body'));
-              e.sword.setTexture(e.skinName + 'Sword');
-              e.swordShadow.setTexture(e.createShadowTexture(e.skinName + 'Sword'));
-            }).catch(() => {});
-          }
-        } else if (e.type === EntityTypes.Sword && e.skin) {
-          const skinObj = Object.values(skins).find((s: any) => s.id === e.skin);
-          const key = (skinObj?.name ?? 'player') + 'Sword';
-          if (gameScene.textures.exists(key)) {
-            e.skinName = key;
-            e.body.setTexture(key);
-            if (e.shadow) e.shadow.setTexture(e.createShadowTexture(key));
-          }
-        }
-      }
-    };
   }
 
   shutdown() {
@@ -319,9 +271,6 @@ export default class Game extends Phaser.Scene {
     }
     this.controls.cleanup();
     this.hud.cleanup();
-    delete (window as any).unloadSkins;
-    delete (window as any).loadSkins;
-    delete (window as any).__skinsUnloaded;
   }
 
   resize() {

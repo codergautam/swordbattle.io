@@ -175,6 +175,32 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (gameStarted) return;
+    let count = 0;
+    let timer: any;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === '\\') {
+        count++;
+        clearTimeout(timer);
+        timer = setTimeout(() => { count = 0; }, 2000);
+        if (count >= 5) {
+          count = 0;
+          const next = !Settings.unloadSkins;
+          Settings.unloadSkins = next;
+          window.alert(next ? 'unloadSkins enabled' : 'unloadSkins disabled');
+        }
+      } else {
+        count = 0;
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      clearTimeout(timer);
+    };
+  }, [gameStarted]);
+
+  useEffect(() => {
     if (account?.isLoggedIn && !localStorage.getItem('swordbattle:chatAutoEnabled')) {
       Settings.enableChat = true;
       localStorage.setItem('swordbattle:chatAutoEnabled', '1');
@@ -206,6 +232,17 @@ function App() {
       }
 
       console.log('[Auth Initial] Not CrazyGames environment, checking localStorage secret...');
+
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const urlSecret = params.get('secret');
+        if (urlSecret && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(urlSecret)) {
+          window.localStorage.setItem('secret', urlSecret);
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+      } catch(e) {
+        console.log('Error handling URL secret', e);
+      }
 
       let secret: string | null = null;
       try {

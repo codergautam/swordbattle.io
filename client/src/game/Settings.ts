@@ -108,6 +108,11 @@ export const settingsList: Record<string, SettingType> = {
       window.dispatchEvent(new CustomEvent('chatSettingChanged', { detail: { enabled: value } }));
     },
   },
+  unloadSkins: {
+    name: 'Unload skins (use default only)',
+    type: 'toggle',
+    default: false,
+  },
 };
 
 export const Settings: any = {};

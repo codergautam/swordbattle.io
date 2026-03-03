@@ -222,7 +222,7 @@ class Player extends BaseEntity {
       }
     }
 
-    if (!(window as any).__skinsUnloaded) {
+    if (!Settings.unloadSkins) {
       if (Settings.loadskins) {
           this.loadSkin(this.skin).then(() => {
           const skinBase = skins.player.name;

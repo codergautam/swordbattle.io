@@ -71,10 +71,12 @@
     };
 
     function checkAdProvider() {
-      // // Check if we're on CrazyGames platform first
-      // if (typeof window.CrazyGames !== 'undefined') {
-      //   return 'crazygames';
-      // }
+      try {
+        if (window.CrazyGames && window.CrazyGames.SDK &&
+            window.CrazyGames.SDK.environment === 'crazygames') {
+          return 'crazygames';
+        }
+      } catch (e) {}
 
       let adProvider = '<%= htmlWebpackPlugin.options.adProvider %>' || "adinplay";
       // get query string in url check if other ad provider is set

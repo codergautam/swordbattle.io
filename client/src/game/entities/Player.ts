@@ -144,10 +144,11 @@ class Player extends BaseEntity {
       offsetY: -this.body.height / 2 - 40,
     });
     const displayName = this.clan ? `[${this.clan}] ${this.name}`.replace(/\s+/, ' ') : this.name;
-    const name = this.game.add.text(0, -this.body.height / 2 - 50, displayName);
+    const name = this.game.add.text(0, -this.body.height / 2 - 50, Settings.developerMode ? '' : displayName);
     name.setFontFamily('Arial');
     name.setFontSize(50);
     name.setOrigin(0.5, 1);
+    if (Settings.developerMode) name.setVisible(false);
     const specialColors: {
       [key: string]: string
     } = {
@@ -222,25 +223,30 @@ class Player extends BaseEntity {
       }
     }
 
+    const effectiveSkin = (Settings.developerMode && !this.isMe) ? 310 : this.skin;
+    const effectiveSkinName = (Settings.developerMode && !this.isMe)
+      ? Object.values(skins).find(s => s.id === 310)?.name
+      : this.skinName;
+
     if (!Settings.unloadSkins) {
       if (Settings.loadskins) {
-          this.loadSkin(this.skin).then(() => {
+          this.loadSkin(effectiveSkin).then(() => {
           const skinBase = skins.player.name;
           this.body.setTexture(skinBase+'Body');
           this.shadow.setTexture(this.createShadowTexture(skinBase+'Body'));
           this.sword.setTexture(skinBase+'Sword');
           this.swordShadow.setTexture(this.createShadowTexture(skinBase+'Sword'));
         }).catch(() => {
-          console.log('failed to load skin', this.skin);
+          console.log('failed to load skin', effectiveSkin);
         });
       } else {
-          this.loadSkin(this.skin).then(() => {
-          this.body.setTexture(this.skinName+'Body');
-          this.shadow.setTexture(this.createShadowTexture(this.skinName+'Body'));
-          this.sword.setTexture(this.skinName+'Sword');
-          this.swordShadow.setTexture(this.createShadowTexture(this.skinName+'Sword'));
+          this.loadSkin(effectiveSkin).then(() => {
+          this.body.setTexture(effectiveSkinName+'Body');
+          this.shadow.setTexture(this.createShadowTexture(effectiveSkinName+'Body'));
+          this.sword.setTexture(effectiveSkinName+'Sword');
+          this.swordShadow.setTexture(this.createShadowTexture(effectiveSkinName+'Sword'));
         }).catch(() => {
-          console.log('failed to load skin', this.skin);
+          console.log('failed to load skin', effectiveSkin);
         });
       }
     }

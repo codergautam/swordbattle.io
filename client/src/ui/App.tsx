@@ -217,32 +217,6 @@ function App() {
   }, [gameStarted]);
 
   useEffect(() => {
-    const devSequence = ['[', ']', '\\', '\\', '\\'];
-    let devProgress = 0;
-    let devTimer: any;
-    const onDevKey = (e: KeyboardEvent) => {
-      if (e.key === devSequence[devProgress]) {
-        devProgress++;
-        clearTimeout(devTimer);
-        devTimer = setTimeout(() => { devProgress = 0; }, 3000);
-        if (devProgress >= devSequence.length) {
-          devProgress = 0;
-          const next = !Settings.developerMode;
-          Settings.developerMode = next;
-          window.alert(next ? 'Developer mode enabled' : 'Developer mode disabled');
-        }
-      } else {
-        devProgress = 0;
-      }
-    };
-    document.addEventListener('keydown', onDevKey);
-    return () => {
-      document.removeEventListener('keydown', onDevKey);
-      clearTimeout(devTimer);
-    };
-  }, []);
-
-  useEffect(() => {
     let cgChatDisabled = false;
     try { cgChatDisabled = (window as any).CrazyGames?.SDK?.game?.settings?.disableChat === true; } catch (e) {}
     if (account?.isLoggedIn && !localStorage.getItem('swordbattle:chatAutoEnabled') && !cgChatDisabled) {

@@ -653,10 +653,6 @@ span {
     width: 260px;
   }
 
-  #adBelow {
-    display: none;
-  }
-
   .tipCard {
     display: none !important;
   }
@@ -677,11 +673,7 @@ body:has(#menuCardHolder.small-iframe) .title-img {
   }
 
   #menuCardHolder .menuCard {
-    width: 400px !important;
-  }
-
-  #menuCardHolder #adBelow {
-    display: none;
+    width: 325px !important;
   }
 
   .title-img {
@@ -690,9 +682,7 @@ body:has(#menuCardHolder.small-iframe) .title-img {
 }
 
 @media only screen and (max-width: 1040px) {
-  #menuCardHolder #adBelow {
-    display: none;
-  }
+
   .forumCard {
     display: none;
   }
@@ -721,9 +711,6 @@ body:has(#menuCardHolder.small-iframe) .title-img {
   }
 }
 @media only screen and (max-width: 768px) {
-  #menuCardHolder #adBelow {
-    display: none;
-  }
   #loadingText {
     margin-top: 20px;
   }

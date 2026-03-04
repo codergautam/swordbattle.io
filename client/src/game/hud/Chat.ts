@@ -42,13 +42,20 @@ class Chat extends HudComponent {
     }
     // Hide chat UI
     this.container.setVisible(false);
+    this.container.setAlpha(0);
+    (this.input.node as HTMLElement).style.display = 'none';
+    (this.sendButton.node as HTMLElement).style.display = 'none';
     console.log('[Chat] Chat has been disabled', platformForced ? '(by platform)' : '(by user setting)');
   }
 
   /* Enable chat */
   enable() {
     this.isDisabled = false;
+    this.isPlatformDisabled = false;
     this.container.setVisible(true);
+    this.container.setAlpha(1);
+    (this.input.node as HTMLElement).style.display = '';
+    (this.sendButton.node as HTMLElement).style.display = '';
     console.log('[Chat] Chat has been enabled');
   }
 

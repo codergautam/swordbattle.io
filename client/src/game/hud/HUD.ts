@@ -65,17 +65,18 @@ class HUD {
   }
 
   applyCrazyGamesSettings() {
+    let cgDisabled = false;
     try {
-      const cgDisabled = (window as any).CrazyGames?.SDK?.game?.settings?.disableChat === true;
-
-      if (cgDisabled || !Settings.enableChat) {
-        console.log('[HUD] Disabling chat - CG disableChat:', cgDisabled, 'user enableChat:', Settings.enableChat);
-        this.chat.disable(cgDisabled);
-      } else {
-        console.log('[HUD] Chat enabled');
-      }
+      cgDisabled = (window as any).CrazyGames?.SDK?.game?.settings?.disableChat === true;
     } catch (error) {
       console.error('[HUD] Error applying settings:', error);
+    }
+
+    if (cgDisabled || !Settings.enableChat) {
+      console.log('[HUD] Disabling chat - CG disableChat:', cgDisabled, 'user enableChat:', Settings.enableChat);
+      this.chat.disable(cgDisabled);
+    } else {
+      console.log('[HUD] Chat enabled');
     }
   }
 

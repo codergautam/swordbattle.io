@@ -409,15 +409,21 @@ class Player extends Entity {
 
   damaged(damage, entity = null) {
     if (entity && entity.type === Types.Entity.Player && !this.isBot && !entity.isBot) {
-      if (!this.combatLog.has(entity.id)) {
-        this.combatLog.set(entity.id, { damageDealt: 0, damageReceived: 0 });
-      }
-      this.combatLog.get(entity.id).damageReceived += damage;
+      const attackerCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
+      const defenderCoins = (this.levels && typeof this.levels.coins === 'number') ? this.levels.coins : 0;
+      const shieldThreshold = this.coinShield || 500;
 
-      if (!entity.combatLog.has(this.id)) {
-        entity.combatLog.set(this.id, { damageDealt: 0, damageReceived: 0 });
+      if (attackerCoins >= shieldThreshold && defenderCoins >= shieldThreshold) {
+        if (!this.combatLog.has(entity.id)) {
+          this.combatLog.set(entity.id, { damageDealt: 0, damageReceived: 0 });
+        }
+        this.combatLog.get(entity.id).damageReceived += damage;
+
+        if (!entity.combatLog.has(this.id)) {
+          entity.combatLog.set(this.id, { damageDealt: 0, damageReceived: 0 });
+        }
+        entity.combatLog.get(this.id).damageDealt += damage;
       }
-      entity.combatLog.get(this.id).damageDealt += damage;
     }
 
     if (this.name !== "Update Testing Account") {

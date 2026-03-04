@@ -3,14 +3,6 @@ import { Settings, settingsList } from '../../game/Settings';
 import { getServerList } from '../../ServerList';
 import './SettingsModal.scss';
 
-function isChatForceDisabled(): boolean {
-  try {
-    const sdk = (window as any).CrazyGames?.SDK;
-    if (sdk?.game?.settings?.disableChat === true) return true;
-  } catch (e) {}
-  return false;
-}
-
 function SettingsModal() {
   const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
   const [coins, setCoins] = useState(Settings.coins);
@@ -19,8 +11,7 @@ function SettingsModal() {
   const [resolution, setResolution] = useState(Settings.resolution);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
   const [sound, setSound] = useState(Settings.sound);
-  const chatForceDisabled = isChatForceDisabled();
-  const [enableChat, setEnableChat] = useState(chatForceDisabled ? false : Settings.enableChat);
+  const [enableChat, setEnableChat] = useState(Settings.enableChat);
   // const [server, setServer] = useState(Settings.server);
   // const [servers, setServers] = useState<any[]>([]);
 
@@ -57,7 +48,6 @@ function SettingsModal() {
     Settings.sound = value;
   }
   const updateEnableChat = (value: any) => {
-    if (chatForceDisabled) return;
     setEnableChat(value);
     Settings.enableChat = value;
   }
@@ -114,14 +104,13 @@ function SettingsModal() {
 
     <br /><h3 className="section">Gameplay</h3>
       <div className="settings-line">
-        <label htmlFor="enableChat">Enable chat: {chatForceDisabled && <span style={{color: '#888', fontSize: '0.85em'}}>(disabled by platform)</span>}</label>
+        <label htmlFor="enableChat">Enable chat: </label>
         <label className="switch">
           <input type="checkbox" name="enableChat" id="enableChat"
             checked={enableChat}
-            disabled={chatForceDisabled}
             onChange={(e) => updateEnableChat(e.target.checked)}
           />
-          <span className="slider round" style={chatForceDisabled ? {opacity: 0.5, cursor: 'not-allowed'} : undefined}></span>
+          <span className="slider round"></span>
         </label>
       </div>
       <label htmlFor="movement">Movement mode:</label>

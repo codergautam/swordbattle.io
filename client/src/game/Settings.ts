@@ -113,11 +113,6 @@ export const settingsList: Record<string, SettingType> = {
     type: 'toggle',
     default: false,
   },
-  developerMode: {
-    name: 'Developer mode',
-    type: 'toggle',
-    default: false,
-  },
 };
 
 export const Settings: any = {};

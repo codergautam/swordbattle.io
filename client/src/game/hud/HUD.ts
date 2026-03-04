@@ -7,6 +7,7 @@ import BuffsSelect from './BuffsSelect';
 import Chat from './Chat';
 import MobileControls from './MobileControls';
 import CoinCounter from './CoinCounter';
+import { crazygamesSDK } from '../../crazygames/sdk';
 import { Settings } from '../Settings';
 
 class HUD {
@@ -46,7 +47,7 @@ class HUD {
 
     this._chatSettingHandler = (e: Event) => {
       const enabled = (e as CustomEvent).detail.enabled;
-      const cgDisabled = (window as any).CrazyGames?.SDK?.game?.settings?.disableChat === true;
+      const cgDisabled = crazygamesSDK.getSettings().disableChat;
       if (cgDisabled || !enabled) {
         this.chat.disable();
         for (const id in this.game.gameState.entities) {
@@ -65,10 +66,11 @@ class HUD {
 
   applyCrazyGamesSettings() {
     try {
-      const cgDisabled = (window as any).CrazyGames?.SDK?.game?.settings?.disableChat === true;
+      const cgSettings = crazygamesSDK.getSettings();
 
-      if (cgDisabled || !Settings.enableChat) {
-        console.log('[HUD] Disabling chat - CG disableChat:', cgDisabled, 'user enableChat:', Settings.enableChat);
+      // Check both CrazyGames settings and user's custom settings
+      if (cgSettings.disableChat || !Settings.enableChat) {
+        console.log('[HUD] Disabling chat per settings');
         this.chat.disable();
       } else {
         console.log('[HUD] Chat enabled');

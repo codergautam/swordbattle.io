@@ -53,6 +53,13 @@ crazygamesSDK.init().then(async () => {
 
   (window as any).crazygamesSDK = crazygamesSDK;
 
+  const env = (window as any).CrazyGames?.SDK?.environment;
+  if (env === 'crazygames') {
+    (window as any).adProvider = 'crazygames';
+    (window as any).vidAdDelay = 0;
+    console.log('[CrazyGames] Ad provider overridden to crazygames');
+  }
+
   await detectAdblock();
 
   await initializeDataStorage();
@@ -63,18 +70,12 @@ crazygamesSDK.init().then(async () => {
 
 (window as any).instantStart = false;
 try {
-  const urlFull = window.location.href;
   const urlSearch = window.location.search;
-  const hasInstantStart = urlFull.includes("instantStart=true");
-  const hasInstantJoin = urlFull.includes("instantJoin=true");
-  const hasCzyInvite = urlFull.includes("czy_invite=true");
-  (window as any).instantStart = hasInstantStart || hasInstantJoin || hasCzyInvite;
-
-  console.log('[InstantStart] URL check - href:', urlFull, 'search:', urlSearch);
-  console.log('[InstantStart] Detected - instantStart:', hasInstantStart, 'instantJoin:', hasInstantJoin, 'czy_invite:', hasCzyInvite, '=> instantStart:', (window as any).instantStart);
-} catch(e) {
-  console.error('[InstantStart] Error checking URL params:', e);
-}
+  if (urlSearch.includes("instantStart=true") || urlSearch.includes("instantJoin=true")) {
+    (window as any).instantStart = true;
+    console.log('[InstantStart] Enabled via URL params');
+  }
+} catch(e) {}
 const root = ReactDOM.createRoot(document.getElementById('root') as Element);
 document.addEventListener('contextmenu',function(e) {
   e.preventDefault();

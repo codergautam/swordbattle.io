@@ -218,7 +218,9 @@ function App() {
 
   useEffect(() => {
     let cgChatDisabled = false;
-    try { cgChatDisabled = (window as any).CrazyGames?.SDK?.game?.settings?.disableChat === true; } catch (e) {}
+    if (crazygamesSDK.isInitialized()) {
+      try { cgChatDisabled = (window as any).CrazyGames?.SDK?.game?.settings?.disableChat === true; } catch (e) {}
+    }
     if (account?.isLoggedIn && !localStorage.getItem('swordbattle:chatAutoEnabled') && !cgChatDisabled) {
       Settings.enableChat = true;
       localStorage.setItem('swordbattle:chatAutoEnabled', '1');
@@ -343,7 +345,7 @@ function App() {
   };
 
   useEffect(() => {
-    const isCrazygames = !!(window as any).CrazyGames?.SDK;
+    const isCrazygames = crazygamesSDK.shouldUseSDK();
 
     console.log('Checking if everything is ready. Connected:', isConnected, 'Assets:', assetsLoaded, 'CrazyGames Auth Ready:', crazygamesAuthReady || !isCrazygames);
     if(debugMode) {
@@ -622,77 +624,45 @@ function App() {
     };
 
     // Wait for CrazyGames SDK to be initialized before attempting login
-    const hasCrazygamesSDK = !!(window as any).CrazyGames?.SDK;
-    console.log('[CrazyGames] Initial setup - hasCrazygamesSDK:', hasCrazygamesSDK, 'shouldUseSDK:', crazygamesSDK.shouldUseSDK(), 'environment:', (window as any).CrazyGames?.SDK?.environment);
+    console.log('[CrazyGames] Initial setup - shouldUseSDK:', crazygamesSDK.shouldUseSDK());
 
-    if (hasCrazygamesSDK) {
+    if (crazygamesSDK.shouldUseSDK()) {
       const checkSDKReady = async () => {
-        console.log('[CrazyGames] checkSDKReady: Starting SDK initialization check');
-
-        if (!crazygamesSDK.isInitialized()) {
-          console.log('[CrazyGames] SDK not initialized yet, attempting init...');
-          try {
-            await crazygamesSDK.init();
-          } catch (e) {
-            console.warn('[CrazyGames] Wrapper init failed, trying direct SDK init:', e);
-          }
-        }
-
-        if (!crazygamesSDK.isInitialized() && (window as any).CrazyGames?.SDK?.init) {
-          console.log('[CrazyGames] Trying direct SDK init...');
-          try {
-            await (window as any).CrazyGames.SDK.init();
-          } catch (e) {
-            console.warn('[CrazyGames] Direct SDK init failed:', e);
-          }
-        }
-
         let attempts = 0;
-        const maxAttempts = 50;
+        const maxAttempts = 100;
         while (!crazygamesSDK.isInitialized() && attempts < maxAttempts) {
           await new Promise(resolve => setTimeout(resolve, 100));
           attempts++;
         }
 
-        console.log('[CrazyGames] checkSDKReady: isInitialized:', crazygamesSDK.isInitialized(), 'after', attempts * 100, 'ms');
+        if (!crazygamesSDK.isInitialized()) {
+          console.warn('[CrazyGames] SDK initialization timeout');
+          setCrazygamesAuthReady(true);
+          return;
+        }
+
+        console.log('[CrazyGames] SDK initialized after', attempts * 100, 'ms');
 
         try {
-          const sdkGame = (window as any).CrazyGames?.SDK?.game;
-          console.log('[CrazyGames] SDK game object:', sdkGame ? Object.keys(sdkGame) : 'null');
-          console.log('[CrazyGames] SDK state:', {
-            environment: (window as any).CrazyGames?.SDK?.environment,
-            isInstantMultiplayer: sdkGame?.isInstantMultiplayer,
-            inviteParams: sdkGame?.inviteParams,
-          });
-
-          if (sdkGame?.isInstantMultiplayer === true) {
-            console.log('[CrazyGames] isInstantMultiplayer is TRUE - enabling instant start');
+          const sdkGame = (window as any).CrazyGames.SDK.game;
+          if (sdkGame.isInstantMultiplayer === true) {
+            console.log('[CrazyGames] isInstantMultiplayer is TRUE');
             (window as any).instantStart = true;
             setInstantStart(true);
           }
-
-          const roomId = sdkGame?.getInviteParam?.('roomId') ?? null;
-          const region = sdkGame?.getInviteParam?.('region') ?? null;
+          const roomId = sdkGame.getInviteParam?.('roomId');
           if (roomId) {
-            console.log('[CrazyGames] Joining via invite link - Room ID:', roomId);
+            console.log('[CrazyGames] Invite room:', roomId);
             (window as any).inviteRoomId = roomId;
-            if (region) {
-              (window as any).inviteRegion = region;
-            }
-            (window as any).instantStart = true;
-            setInstantStart(true);
-          }
-
-          if (!sdkGame?.isInstantMultiplayer && !roomId && sdkGame?.inviteParams) {
-            console.log('[CrazyGames] Found inviteParams as fallback:', sdkGame.inviteParams);
+            const region = sdkGame.getInviteParam?.('region');
+            if (region) (window as any).inviteRegion = region;
             (window as any).instantStart = true;
             setInstantStart(true);
           }
         } catch (error) {
-          console.error('[CrazyGames] Error checking multiplayer settings:', error);
+          console.error('[CrazyGames] Error checking multiplayer:', error);
         }
 
-        console.log('[CrazyGames] instantStart is now:', (window as any).instantStart);
         await attemptCrazygamesLogin();
       };
 
@@ -701,7 +671,34 @@ function App() {
         setCrazygamesAuthReady(true);
       });
     } else {
-      console.log('[CrazyGames] No SDK found, calling attemptCrazygamesLogin with delay');
+      const onSdkReady = async () => {
+        if (!crazygamesSDK.shouldUseSDK()) return;
+        console.log('[CrazyGames] SDK ready via event - running CG setup');
+
+        try {
+          const sdkGame = (window as any).CrazyGames.SDK.game;
+          if (sdkGame.isInstantMultiplayer === true) {
+            console.log('[CrazyGames] isInstantMultiplayer is TRUE (late detection)');
+            (window as any).instantStart = true;
+            setInstantStart(true);
+          }
+          const roomId = sdkGame.getInviteParam?.('roomId');
+          if (roomId) {
+            (window as any).inviteRoomId = roomId;
+            const region = sdkGame.getInviteParam?.('region');
+            if (region) (window as any).inviteRegion = region;
+            (window as any).instantStart = true;
+            setInstantStart(true);
+          }
+        } catch (e) {
+          console.error('[CrazyGames] Error checking multiplayer (late):', e);
+        }
+
+        await attemptCrazygamesLogin();
+      };
+      window.addEventListener('crazygamesSDKReady', onSdkReady, { once: true });
+
+      console.log('[CrazyGames] Calling attemptCrazygamesLogin with delay');
       setTimeout(() => {
         attemptCrazygamesLogin();
       }, 500);
@@ -979,7 +976,7 @@ function App() {
     // Check if we should auto-start the game
     // For CrazyGames, we need to wait for crazygamesAuthReady
     // For non-CrazyGames, we need to wait for accountReady
-    const isCrazygames = !!(window as any).CrazyGames?.SDK;
+    const isCrazygames = crazygamesSDK.shouldUseSDK();
     const isAuthReady = isCrazygames ? crazygamesAuthReady : accountReady;
 
     if(loadingProgress === 100 && isAuthReady && isConnected && instantStart) {

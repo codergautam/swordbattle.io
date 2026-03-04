@@ -7,6 +7,7 @@ class Chat extends HudComponent {
   isOpen = false;
   sendButton: Phaser.GameObjects.DOMElement;
   isDisabled = false;
+  isPlatformDisabled = false;
   disabledNotice: Phaser.GameObjects.DOMElement | null = null;
   lastNoticeTime = 0;
 
@@ -33,15 +34,15 @@ class Chat extends HudComponent {
     this.hud.add(this.container);
   }
 
-  /* Disable chat (called when CrazyGames disableChat setting is true) */
-  disable() {
+  disable(platformForced = false) {
     this.isDisabled = true;
+    this.isPlatformDisabled = platformForced;
     if (this.isOpen) {
       this.toggle(false);
     }
     // Hide chat UI
     this.container.setVisible(false);
-    console.log('[Chat] Chat has been disabled by CrazyGames settings');
+    console.log('[Chat] Chat has been disabled', platformForced ? '(by platform)' : '(by user setting)');
   }
 
   /* Enable chat */
@@ -86,7 +87,7 @@ class Chat extends HudComponent {
   toggle(send = true) {
     // Don't allow toggling if chat is disabled
     if (this.isDisabled) {
-      this.showDisabledNotice();
+      if (!this.isPlatformDisabled) this.showDisabledNotice();
       return;
     }
 

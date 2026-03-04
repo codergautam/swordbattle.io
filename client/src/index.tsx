@@ -58,6 +58,8 @@ crazygamesSDK.init().then(async () => {
     (window as any).adProvider = 'crazygames';
     (window as any).vidAdDelay = 0;
     console.log('[CrazyGames] Ad provider overridden to crazygames');
+    window.dispatchEvent(new CustomEvent('crazygamesSDKReady'));
+    window.dispatchEvent(new CustomEvent('adProviderChanged', { detail: 'crazygames' }));
   }
 
   await detectAdblock();

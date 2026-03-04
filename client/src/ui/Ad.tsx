@@ -22,15 +22,19 @@ function findAdType(screenW: number, screenH: number, types: [number, number][],
 export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThresh = 0.3}: { screenW: number, screenH: number, types: [number, number][]; centerOnOverflow?: number; horizThresh?: number }) {
   // just a div for now with optimal ad size, null if none are good
   const [type, setType] = useState(findAdType(screenW, screenH, types, horizThresh));
+  const [adProvider, setAdProvider] = useState<string>((window as any).adProvider || 'adinplay');
 
   useEffect(() => {
     setType(findAdType(screenW, screenH, types, horizThresh));
   }, [screenW, screenH, types, horizThresh]);
 
   useEffect(() => {
-    const windowAny = window as any;
-    const adProvider = windowAny.adProvider || 'adinplay';
+    const handler = (e: Event) => setAdProvider((e as CustomEvent).detail);
+    window.addEventListener('adProviderChanged', handler);
+    return () => window.removeEventListener('adProviderChanged', handler);
+  }, []);
 
+  useEffect(() => {
     // CrazyGames banner ads
     if (adProvider === 'crazygames') {
       if (type === -1) return;
@@ -40,9 +44,7 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
       const displayCrazyGamesBanner = async () => {
         try {
           await crazygamesSDK.requestResponsiveBanner(containerId);
-          console.log(`[CrazyGames] Banner requested: ${containerId}`);
         } catch (error) {
-          console.error('[CrazyGames] Error requesting banner:', error);
         }
       };
 
@@ -59,7 +61,7 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
       };
     }
 
-    // other ad provider logic
+    const windowAny = window as any;
     const displayNewAd = () => {
     try {
     if(windowAny.aipDisplayTag && windowAny.aipDisplayTag.clear) {
@@ -84,17 +86,18 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
     }, AD_REFRESH_MS);
     displayNewAd();
     return () => clearInterval(timerId);
-  }, [type, types]);
+  }, [type, types, adProvider]);
 
 
   if(type === -1) return null;
-  // if((window as any).adProvider === "gamemonetize") return null;
+
+  const isCrazygames = adProvider === 'crazygames';
 
   return (
     <div style={{
       backgroundColor: debug ? "gray" : undefined,
-      height: debug ? types[type][1] : undefined,
-      width: debug ? types[type][0] : undefined,
+      height: (debug || isCrazygames) ? types[type][1] : undefined,
+      width: (debug || isCrazygames) ? types[type][0] : undefined,
       transform: centerOnOverflow && centerOnOverflow < types[type][0] ? `translateX(calc(-1 * (${types[type][0]}px - ${centerOnOverflow}px) / 2))` : undefined,
     }} id={`swordbattle-io_${types[type][0]}x${types[type][1]}`}>
       { debug && (

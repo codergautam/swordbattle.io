@@ -49,7 +49,7 @@ class HUD {
       let cgDisabled = false;
       try { cgDisabled = (window as any).CrazyGames?.SDK?.game?.settings?.disableChat === true; } catch (e) {}
       if (cgDisabled || !enabled) {
-        this.chat.disable();
+        this.chat.disable(cgDisabled);
         for (const id in this.game.gameState.entities) {
           const entity = this.game.gameState.entities[id] as any;
           if (entity?.messageText) {
@@ -70,7 +70,7 @@ class HUD {
 
       if (cgDisabled || !Settings.enableChat) {
         console.log('[HUD] Disabling chat - CG disableChat:', cgDisabled, 'user enableChat:', Settings.enableChat);
-        this.chat.disable();
+        this.chat.disable(cgDisabled);
       } else {
         console.log('[HUD] Chat enabled');
       }

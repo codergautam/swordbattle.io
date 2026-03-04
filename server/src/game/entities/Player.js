@@ -593,7 +593,6 @@ class Player extends Entity {
     this.sword.cleanup();
     this.flags.clear();
     this.modifiers = {};
-    this.teamDisadvantage = null;
 
     [this.speed, this.regeneration, this.friction, this.viewport.zoom, this.knockbackResistance, this.health.regenWait].forEach((property) => property.reset());
   }

@@ -84,6 +84,11 @@ class Chat extends HudComponent {
     });
   }
 
+  setShow(show: boolean, force?: boolean) {
+    if (this.isDisabled && show) return;
+    super.setShow(show, force);
+  }
+
   toggle(send = true) {
     // Don't allow toggling if chat is disabled
     if (this.isDisabled) {

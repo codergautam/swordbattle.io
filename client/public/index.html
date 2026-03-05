@@ -53,14 +53,11 @@
   <script>
     window._isCrazyGamesBasicLaunch = false;
     try {
-      // SDK.environment is 'uninitialized' before init(), so check iframe + SDK presence instead
-      if (window.CrazyGames && window.CrazyGames.SDK && window.self !== window.top) {
+      if (window.self !== window.top) {
         window._isCrazyGamesBasicLaunch = true;
       }
     } catch(e) {
-      if (window.CrazyGames && window.CrazyGames.SDK) {
-        window._isCrazyGamesBasicLaunch = true;
-      }
+      window._isCrazyGamesBasicLaunch = true;
     }
   </script>
 

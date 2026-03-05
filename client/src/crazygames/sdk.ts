@@ -112,6 +112,11 @@ class CrazyGamesSDK {
 
   /* Request a video ad */
   async requestAd(type: AdType, callbacks?: AdCallbacks): Promise<void> {
+    // No ads during basic launch
+    if ((window as any)._isCrazyGamesBasicLaunch) {
+      callbacks?.adFinished?.();
+      return;
+    }
     if (!this.shouldUseSDK()) {
       console.warn('CrazyGames SDK not available - skipping ad request');
       callbacks?.adError?.({ code: 'other', message: 'SDK not available' });
@@ -161,6 +166,8 @@ class CrazyGamesSDK {
 
   /* Request a static banner ad */
   async requestBanner(options: BannerOptions): Promise<void> {
+    // No ads during basic launch
+    if ((window as any)._isCrazyGamesBasicLaunch) return;
     if (!this.shouldUseSDK() || !this.initialized) {
       console.warn('CrazyGames SDK not available - skipping banner request');
       return;
@@ -177,6 +184,8 @@ class CrazyGamesSDK {
 
   /* Request a responsive banner ad */
   async requestResponsiveBanner(containerId: string): Promise<void> {
+    // No ads during basic launch
+    if ((window as any)._isCrazyGamesBasicLaunch) return;
     if (!this.shouldUseSDK() || !this.initialized) {
       console.warn('CrazyGames SDK not available - skipping responsive banner request');
       return;
@@ -192,6 +201,7 @@ class CrazyGamesSDK {
   }
 
   clearBanner(containerId: string): void {
+    if ((window as any)._isCrazyGamesBasicLaunch) return;
     if (!this.shouldUseSDK() || !this.initialized) return;
 
     try {
@@ -203,6 +213,7 @@ class CrazyGamesSDK {
   }
 
   clearAllBanners(): void {
+    if ((window as any)._isCrazyGamesBasicLaunch) return;
     if (!this.shouldUseSDK() || !this.initialized) return;
 
     try {

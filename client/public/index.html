@@ -53,11 +53,15 @@
   <script>
     window._isCrazyGamesBasicLaunch = false;
     try {
-      if (window.CrazyGames && window.CrazyGames.SDK &&
-          (window.CrazyGames.SDK.environment === 'crazygames' || window.CrazyGames.SDK.environment === 'local')) {
+      // SDK.environment is 'uninitialized' before init(), so check iframe + SDK presence instead
+      if (window.CrazyGames && window.CrazyGames.SDK && window.self !== window.top) {
         window._isCrazyGamesBasicLaunch = true;
       }
-    } catch(e) {}
+    } catch(e) {
+      if (window.CrazyGames && window.CrazyGames.SDK) {
+        window._isCrazyGamesBasicLaunch = true;
+      }
+    }
   </script>
 
   <script>

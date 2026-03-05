@@ -3,7 +3,6 @@ import { config } from "../config";
 import { crazygamesSDK } from "../crazygames/sdk";
 
 const AD_REFRESH_MS = 30000; // refresh ad every 30 seconds
-const CRAZYGAMES_AD_REFRESH_MS = 60000; // CrazyGames requires minimum 60 seconds between refreshes
 const debug = config.isDev;
 
 function findAdType(screenW: number, screenH: number, types: [number, number][], horizThresh: number): number {
@@ -19,11 +18,11 @@ function findAdType(screenW: number, screenH: number, types: [number, number][],
   return type;
 }
 
-export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThresh = 0.3}: { screenW: number, screenH: number, types: [number, number][]; centerOnOverflow?: number; horizThresh?: number }) {
-  // basic launch
-  if (crazygamesSDK.shouldUseSDK()) return null;
+function isAdsDisabled(): boolean {
+  return !!(window as any)._isCrazyGamesBasicLaunch || crazygamesSDK.shouldUseSDK();
+}
 
-  // just a div for now with optimal ad size, null if none are good
+export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThresh = 0.3}: { screenW: number, screenH: number, types: [number, number][]; centerOnOverflow?: number; horizThresh?: number }) {
   const [type, setType] = useState(findAdType(screenW, screenH, types, horizThresh));
   const [adProvider, setAdProvider] = useState<string>((window as any).adProvider || 'adinplay');
 
@@ -38,31 +37,8 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
   }, []);
 
   useEffect(() => {
-    // CrazyGames banner ads
-    if (adProvider === 'crazygames') {
-      if (type === -1) return;
-
-      const containerId = `swordbattle-io_${types[type][0]}x${types[type][1]}`;
-
-      const displayCrazyGamesBanner = async () => {
-        try {
-          await crazygamesSDK.requestResponsiveBanner(containerId);
-        } catch (error) {
-        }
-      };
-
-      displayCrazyGamesBanner();
-
-      // Refresh banner every 60 seconds
-      const timerId = setInterval(() => {
-        displayCrazyGamesBanner();
-      }, CRAZYGAMES_AD_REFRESH_MS);
-
-      return () => {
-        clearInterval(timerId);
-        crazygamesSDK.clearBanner(containerId);
-      };
-    }
+    if (isAdsDisabled()) return;
+    if (adProvider === 'crazygames') return;
 
     const windowAny = window as any;
     const displayNewAd = () => {
@@ -91,16 +67,12 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
     return () => clearInterval(timerId);
   }, [type, types, adProvider]);
 
-
+  if (isAdsDisabled()) return null;
   if(type === -1) return null;
-
-  const isCrazygames = adProvider === 'crazygames';
 
   return (
     <div style={{
       backgroundColor: debug ? "gray" : undefined,
-      height: (debug || isCrazygames) ? types[type][1] : undefined,
-      width: (debug || isCrazygames) ? types[type][0] : undefined,
       transform: centerOnOverflow && centerOnOverflow < types[type][0] ? `translateX(calc(-1 * (${types[type][0]}px - ${centerOnOverflow}px) / 2))` : undefined,
     }} id={`swordbattle-io_${types[type][0]}x${types[type][1]}`}>
       { debug && (

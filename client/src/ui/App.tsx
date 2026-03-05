@@ -1089,9 +1089,11 @@ function App() {
     left: '50%',
     transform: 'translate(-50%, -25%)' }} >
               <div className="menu">
+                {!(crazygamesSDK.shouldUseSDK() && !account.isLoggedIn) && (
                 <div className="accountCard menuCard panel">
                   <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} onViewProfile={openProfile} />
                 </div>
+                )}
 
                 {/* <div className="announcementCard menuCard panel">
                     {account?.username === "Update Testing Account" ? (

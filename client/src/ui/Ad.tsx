@@ -20,6 +20,9 @@ function findAdType(screenW: number, screenH: number, types: [number, number][],
 }
 
 export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThresh = 0.3}: { screenW: number, screenH: number, types: [number, number][]; centerOnOverflow?: number; horizThresh?: number }) {
+  // basic launch
+  if (crazygamesSDK.shouldUseSDK()) return null;
+
   // just a div for now with optimal ad size, null if none are good
   const [type, setType] = useState(findAdType(screenW, screenH, types, horizThresh));
   const [adProvider, setAdProvider] = useState<string>((window as any).adProvider || 'adinplay');

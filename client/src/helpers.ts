@@ -191,6 +191,8 @@ export function findCoinCollector(coin: Coin, players: Player[]) {
 export const playVideoAd = () => {
   const windowAny = window as any;
   return new Promise<void>((resolve, reject) => {
+  // basic launch
+  if(crazygamesSDK.shouldUseSDK()) { resolve(); return; }
   if(Date.now() - windowAny?.lastVidAdTime > windowAny?.vidAdDelay) {
     // CrazyGames SDK
     if(windowAny?.adProvider === 'crazygames') {
@@ -349,6 +351,8 @@ export const playVideoAd = () => {
 export const playRewardedAd = () => {
   const windowAny = window as any;
   return new Promise<{ success: boolean }>((resolve, reject) => {
+    // basic launch
+    if(crazygamesSDK.shouldUseSDK()) { resolve({ success: true }); return; }
     if(windowAny?.adProvider === 'crazygames') {
       console.log('Playing rewarded ad from CrazyGames');
 

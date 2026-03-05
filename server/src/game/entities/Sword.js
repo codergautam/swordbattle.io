@@ -317,7 +317,17 @@ processTargetsCollision(entity) {
       const coinRatio = bigger / smaller;
 
       if (coinRatio > 1.5) {
-        const boost = Math.min(Math.log2(coinRatio) * 0.03, 0.25);
+        let boost = Math.min(Math.log2(coinRatio) * 0.03, 0.25);
+
+        const smallerPlayer = attackerCoins <= targetCoins ? this.player : entity;
+        const biggerPlayer = attackerCoins <= targetCoins ? entity : this.player;
+        const smallerLog = smallerPlayer.combatLog.get(biggerPlayer.id);
+        const smallerDealt = smallerLog?.damageDealt || 0;
+        const smallerReceived = smallerLog?.damageReceived || 0;
+        const totalDmg = smallerDealt + smallerReceived;
+        if (totalDmg > 0) {
+          boost *= 1 - (smallerDealt / totalDmg);
+        }
 
         if (attackerCoins > targetCoins) {
           coinDisparityMult = 1 - boost;

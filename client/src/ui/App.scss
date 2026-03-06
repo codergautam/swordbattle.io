@@ -588,10 +588,31 @@ span {
   height: 74px;
   font-size: 48px;
   line-height: 50px;
-  // background-image: url("../img/ui/bg.png");
-  background-position: 0px 0px;
-  // background-repeat: repeat;
-  // animation: animatedBackground 500s linear infinite;
+
+  &.first-visit {
+    background: linear-gradient(135deg, rgb(22, 163, 22), rgb(34, 197, 34));
+    box-shadow:
+      inset 0 -8px 0 rgba(0, 0, 0, 0.29),
+      0 0 15px rgba(34, 197, 34, 0.5),
+      0 0 30px rgba(34, 197, 34, 0.3);
+    animation: playGlow 2s ease-in-out infinite;
+  }
+}
+
+@keyframes playGlow {
+  0%, 100% {
+    box-shadow:
+      inset 0 -8px 0 rgba(0, 0, 0, 0.29),
+      0 0 15px rgba(34, 197, 34, 0.5),
+      0 0 30px rgba(34, 197, 34, 0.3);
+  }
+  50% {
+    box-shadow:
+      inset 0 -8px 0 rgba(0, 0, 0, 0.29),
+      0 0 20px rgba(34, 197, 34, 0.7),
+      0 0 45px rgba(34, 197, 34, 0.5),
+      0 0 60px rgba(34, 197, 34, 0.2);
+  }
 }
 @keyframes animatedBackground {
   0% {

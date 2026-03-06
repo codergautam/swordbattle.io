@@ -81,6 +81,7 @@ function App() {
   const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
   const [crazygamesAuthReady, setCrazygamesAuthReady] = useState(false);
   const [showMenuTutorial, setShowMenuTutorial] = useState(false);
+  const [isFirstVisit] = useState(() => !localStorage.getItem('swordbattle:hasVisited'));
   const [instantStart, setInstantStart] = useState<boolean>((window as any).instantStart || false);
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
@@ -867,6 +868,7 @@ function App() {
 
   const onStart = () => {
     console.log('Starting game');
+    localStorage.setItem('swordbattle:hasVisited', '1');
     if(!isConnected) {
       alert('Not connected yet');
       return;
@@ -1138,7 +1140,7 @@ function App() {
         </option>)}
                     </select>
 
-                    <div id="enterGame" className="menuButton" onClick={() => {
+                    <div id="enterGame" className={`menuButton${isFirstVisit ? ' first-visit' : ''}`} onClick={() => {
                         if (accountReady && isConnected) {
                           if (account.isLoggedIn && account.username.startsWith(".")) {alert(
                             "Your account has been temporarily suspended due to violations of the game's rules. This restriction will be lifted soon. Please log out to play with a different account."

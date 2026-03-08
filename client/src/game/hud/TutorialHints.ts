@@ -267,7 +267,7 @@ class TutorialHints extends HudComponent {
     if (!this.progress.fightShown && coins >= 500) {
       this.progress.fightShown = true;
       saveProgress(this.progress);
-      this.showHint('Your shield is gone! Other players can attack you now, run away if you don\'t want to fight!', 5);
+      this.showHint('Your shield is gone! Other players can attack you now, but you can run away if you don\'t want to fight!', 5);
       return;
     }
 

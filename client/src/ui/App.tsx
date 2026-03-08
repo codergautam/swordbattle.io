@@ -86,7 +86,7 @@ function App() {
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
-  // Detect if we're in a small desktop iframe (like CrazyGames)
+  // Detect if we're in a small desktop viewport (non-fullscreen windows, iframes, CrazyGames)
   const isSmallDesktopIframe = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -95,7 +95,8 @@ function App() {
 
     if (isMobile) return false;
 
-    if (width < 1040 && isLandscape) return true;
+    // Catch any small desktop viewport (non-fullscreen browser windows, iframes, etc.)
+    if (isLandscape && (width < 1300 || height <= 750)) return true;
 
     const isCrazygamesEmbed = crazygamesSDK.shouldUseSDK() ||
       (typeof window !== 'undefined' && window.location.hostname.includes('crazygames'));
@@ -177,18 +178,27 @@ function App() {
   };
 
   useEffect(() => {
+    const updateSize = () => {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+      setIsSmallIframe(isSmallDesktopIframe());
+    };
+
+    // Re-check after initial paint (iframes may not have final size at mount time)
+    requestAnimationFrame(updateSize);
+    // Also re-check when the page fully loads (iframe parent may resize after load)
+    window.addEventListener('load', updateSize);
 
     // debounce resize
     let timeout: any;
     const onResize = () => {
       clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        setDimensions({ width: window.innerWidth, height: window.innerHeight });
-        setIsSmallIframe(isSmallDesktopIframe());
-      }, 100);
+      timeout = setTimeout(updateSize, 100);
     };
     window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('load', updateSize);
+    };
   }, []);
 
   useEffect(() => {

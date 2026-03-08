@@ -4,9 +4,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Same height as shop modal */
   height: calc(100vh - 100px);
-  /* Square shape */
   width: calc(100vh - 100px);
   max-width: calc(100vw - 100px);
   margin: 20px auto;
@@ -21,7 +19,7 @@
 /* ── Title ── */
 
 .rewards-title {
-  font-size: 36px;
+  font-size: clamp(20px, 4vh, 36px);
   font-weight: 900;
   margin: 0 0 5px;
   text-align: center;
@@ -34,8 +32,8 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-bottom: 15px;
-  font-size: 24px;
+  margin-bottom: clamp(4px, 1.5vh, 15px);
+  font-size: clamp(14px, 2.5vh, 24px);
   font-weight: 700;
 
   .streak-text {
@@ -44,7 +42,7 @@
 
   .streak-arrow {
     color: #ffffff;
-    font-size: 30px;
+    font-size: clamp(18px, 3vh, 30px);
   }
 
   .streak-bonus {
@@ -58,7 +56,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  gap: 8px;
+  gap: clamp(3px, 0.8vh, 8px);
   flex: 1;
   width: 100%;
   min-height: 0;
@@ -77,14 +75,14 @@
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 
   .reward-label {
-    font-size: clamp(18px, 1.6vh, 18px);
+    font-size: clamp(9px, 1.6vh, 18px);
     font-weight: 700;
     margin-bottom: 2px;
   }
 
   .reward-icon {
-    width: clamp(48px, 5vh, 50px);
-    height: clamp(48px, 5vh, 50px);
+    width: clamp(20px, 5vh, 50px);
+    height: clamp(20px, 5vh, 50px);
     object-fit: contain;
     pointer-events: none;
   }
@@ -134,9 +132,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: clamp(6px, 1.2vw, 14px);
   width: 100%;
-  margin-top: 14px;
+  margin-top: clamp(6px, 1.5vh, 14px);
   flex-shrink: 0;
 
   .rewards-btn-action {
@@ -144,8 +142,8 @@
     color: #333;
     border: 2px solid #555;
     border-radius: 8px;
-    padding: 8px 20px;
-    font-size: 16px;
+    padding: clamp(4px, 0.8vh, 8px) clamp(10px, 1.5vw, 20px);
+    font-size: clamp(11px, 1.5vh, 16px);
     font-weight: 700;
     cursor: pointer;
     transition: background 0.15s;
@@ -165,8 +163,8 @@
     color: #fff;
     border: 2px solid #777;
     border-radius: 8px;
-    padding: 8px 18px;
-    font-size: 20px;
+    padding: clamp(4px, 0.8vh, 8px) clamp(8px, 1.2vw, 18px);
+    font-size: clamp(14px, 2vh, 20px);
     font-weight: 700;
     cursor: pointer;
     transition: background 0.15s;
@@ -182,9 +180,9 @@
   }
 
   .rewards-page-label {
-    font-size: 22px;
+    font-size: clamp(14px, 2vh, 22px);
     font-weight: 700;
-    min-width: 130px;
+    min-width: clamp(70px, 10vw, 130px);
     text-align: center;
   }
 }
@@ -195,12 +193,12 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-top: 12px;
+  margin-top: clamp(4px, 1vh, 12px);
   width: 80%;
   flex-shrink: 0;
 
   .progress-text {
-    font-size: 14px;
+    font-size: clamp(10px, 1.4vh, 14px);
     font-weight: 700;
     white-space: nowrap;
     text-align: center;
@@ -208,7 +206,7 @@
 
   .progress-bar-container {
     flex: 1;
-    height: 30px;
+    height: clamp(18px, 3vh, 30px);
     background: #444;
     border-radius: 15px;
     overflow: hidden;
@@ -228,7 +226,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 14px;
+    font-size: clamp(10px, 1.4vh, 14px);
     font-weight: 700;
     color: #fff;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
@@ -236,27 +234,48 @@
   }
 }
 
+/* ── Responsive: small height desktop (non-fullscreen windows, iframes) ── */
+
+@media screen and (max-height: 750px) {
+  .rewards-modal {
+    height: calc(100vh - 40px);
+    width: calc(100vh - 40px);
+    max-width: calc(100vw - 40px);
+    padding: 12px 16px;
+    margin: 10px auto;
+  }
+
+  .reward-cell {
+    border-radius: 6px;
+    padding: 2px;
+
+    &.claimed,
+    &.claimable {
+      border-width: 2px;
+    }
+  }
+}
+
+/* ── Responsive: very small height ── */
+
+@media screen and (max-height: 550px) {
+  .rewards-modal {
+    height: calc(100vh - 20px);
+    width: calc(100vh - 20px);
+    max-width: calc(100vw - 20px);
+    padding: 8px 10px;
+    margin: 4px auto;
+  }
+}
+
+/* ── Responsive: mobile ── */
+
 @media screen and (max-width: 768px) {
   .rewards-modal {
     width: calc(100vw - 16px);
     height: calc(100vh - 16px);
     padding: 12px 10px;
     margin: 0 auto;
-  }
-
-  .rewards-title {
-    font-size: 24px;
-    margin-bottom: 4px;
-  }
-
-  .rewards-streak {
-    font-size: 16px;
-    gap: 8px;
-    margin-bottom: 8px;
-
-    .streak-arrow {
-      font-size: 20px;
-    }
   }
 
   .rewards-grid {
@@ -310,74 +329,6 @@
 
     .progress-bar-container {
       height: 24px;
-    }
-
-    .progress-bar-text {
-      font-size: 11px;
-    }
-  }
-}
-
-/* ── Responsive: small height screens ── */
-
-@media screen and (max-height: 600px) {
-  .rewards-title {
-    font-size: 28px;
-  }
-
-  .rewards-streak {
-    font-size: 16px;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .rewards-grid {
-    gap: 4px;
-  }
-
-  .reward-cell {
-    border-radius: 6px;
-
-    .reward-label {
-      font-size: 10px;
-    }
-
-    .reward-icon {
-      width: 22px;
-      height: 22px;
-    }
-  }
-
-  .rewards-controls {
-    gap: 8px;
-    margin-top: 8px;
-
-    .rewards-btn-action {
-      padding: 5px 12px;
-      font-size: 12px;
-    }
-
-    .rewards-btn-nav {
-      padding: 5px 10px;
-      font-size: 14px;
-    }
-
-    .rewards-page-label {
-      font-size: 16px;
-      min-width: 90px;
-    }
-  }
-
-  .rewards-progress {
-    margin-top: 6px;
-    width: 90%;
-
-    .progress-text {
-      font-size: 11px;
-    }
-
-    .progress-bar-container {
-      height: 22px;
     }
 
     .progress-bar-text {

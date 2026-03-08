@@ -55,3 +55,11 @@
     min-width: unset;
   }
 }
+
+// Small desktop viewports (non-fullscreen windows, iframes)
+@media screen and (max-height: 750px) and (min-width: 769px) {
+  .modal.modal-fullscreen {
+    padding: 4px;
+    min-width: unset;
+  }
+}

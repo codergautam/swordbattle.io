@@ -107,7 +107,7 @@ class CaptureZone extends Entity {
         this.playerTimeInZone.set(id, newTime);
 
         if (newTime > 5 && entity.health) {
-          const damage = entity.health.max.value * 0.0075;
+          const damage = entity.health.max.value * 0.015;
           if (entity.health.value - damage < 1) {
             entity.health.value = 1;
           } else {

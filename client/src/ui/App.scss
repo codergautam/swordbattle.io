@@ -684,21 +684,41 @@ body:has(#menuCardHolder.small-iframe) .title-img {
   transform: translate(-50%, -100%) scale(var(--menu-scale, 0.75)) !important;
 }
 
-@media only screen and (min-width: 800px) and (max-width: 1080px) and (min-height: 450px) and (max-height: 650px) {
-  #menuCardHolder {
+@media only screen and (min-width: 800px) and (max-width: 1300px) and (min-height: 450px) and (max-height: 750px) {
+  #menuCardHolder:not(.small-iframe) {
     transform: translate(-50%, -25%) scale(0.6) !important;
   }
 
-  #menuCardHolder .menu {
+  #menuCardHolder:not(.small-iframe) .menu {
     flex-direction: row !important;
   }
 
-  #menuCardHolder .menuCard {
+  #menuCardHolder:not(.small-iframe) .menuCard {
     width: 325px !important;
   }
 
   .title-img {
     transform: translate(-50%, -90%) scale(0.65) !important;
+  }
+
+  #settingsButton,
+  #githubButton,
+  #discordButton,
+  #playlightButton,
+  #tutorialButton {
+    bottom: 6px;
+    transform: scale(0.75);
+    transform-origin: bottom left;
+  }
+
+  footer {
+    height: 40px;
+    bottom: 4px;
+    gap: 15px;
+
+    a {
+      font-size: 22px;
+    }
   }
 }
 
@@ -731,6 +751,38 @@ body:has(#menuCardHolder.small-iframe) .title-img {
     display: none !important;
   }
 }
+// Scale down bottom buttons for small height viewports
+@media only screen and (max-height: 520px) {
+  #settingsButton,
+  #githubButton,
+  #discordButton,
+  #playlightButton,
+  #tutorialButton {
+    bottom: 4px;
+    transform: scale(0.6);
+    transform-origin: bottom left;
+  }
+
+  footer {
+    height: 30px;
+    bottom: 2px;
+    gap: 10px;
+
+    a {
+      font-size: 18px;
+    }
+  }
+
+  .game-buttons .game-btn img {
+    height: 80px;
+    width: auto;
+  }
+
+  .auth-buttons .auth-btn {
+    height: 80px;
+  }
+}
+
 @media only screen and (max-width: 768px) {
   #loadingText {
     margin-top: 20px;

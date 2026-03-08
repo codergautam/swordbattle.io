@@ -86,10 +86,12 @@ export class StatsService {
       totalStats = this.totalStatsRepository.create({
         ...data,
         games: 1,
-        account,
+        id: account.id,
       });
     }
-    return this.totalStatsRepository.save(totalStats);
+    totalStats = await this.totalStatsRepository.save(totalStats);
+    account.total_stats = totalStats;
+    return totalStats;
   }
 
   async getTotalStats(account: Account) {

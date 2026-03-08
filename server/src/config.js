@@ -37,7 +37,7 @@ module.exports = {
   player: {
     speed: 770,
     radius: 100,
-    maxHealth: 80,
+    maxHealth: 100,
     regeneration: 3,
 
     // Player's viewport configuration

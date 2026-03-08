@@ -244,6 +244,14 @@ export class AccountsService {
     return account;
   }
 
+  async addMasteryToTotalStats(accountId: number, mastery: number) {
+    if (mastery === 0) return;
+    await this.accountsRepository.manager.query(
+      `UPDATE total_stats SET mastery = mastery + $1 WHERE id = $2`,
+      [mastery, accountId],
+    );
+  }
+
   async addXp(account: Account, xp: number) {
     if(xp === 0) return account;
     account.xp += xp;

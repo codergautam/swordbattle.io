@@ -1,10 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { AccountsService } from '../accounts/accounts.service';
 import { SecretLoginDTO, LoginDTO, RegisterDTO } from './auth.dto';
 import { Account } from 'src/accounts/account.entity';
-import { TotalStats } from 'src/stats/totalStats.entity';
 import validateUsername from 'src/helpers/validateUsername';
 import validateClantag from 'src/helpers/validateClantag';
 import { v4 as uuidv4 } from 'uuid';
@@ -16,7 +13,6 @@ import * as jwt from 'jsonwebtoken';
 export class AuthService {
   constructor(
     private readonly accountsService: AccountsService,
-    @InjectRepository(TotalStats) private readonly totalStatsRepository: Repository<TotalStats>,
   ) {}
 
   async register(data: RegisterDTO) {
@@ -277,12 +273,7 @@ export class AuthService {
           const baseAmount = AuthService.getGemMasteryAmount(day);
           const amount = Math.floor(baseAmount * (1 + streakBonus));
           account = await this.accountsService.addMastery(account, amount, 'daily-reward');
-          await this.totalStatsRepository
-            .createQueryBuilder()
-            .update(TotalStats)
-            .set({ mastery: () => `mastery + ${amount}` })
-            .where('id = :id', { id: account.id })
-            .execute();
+          await this.accountsService.addMasteryToTotalStats(account.id, amount);
           break;
         }
         case '2xp': {

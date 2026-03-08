@@ -996,6 +996,7 @@ function App() {
       console.log('[CrazyGames] Conditions met - loadingProgress:', loadingProgress, 'isAuthReady:', isAuthReady, 'isConnected:', isConnected);
       setInstantStart(false);
       (window as any).instantStart = false;
+      (window as any)._wasInstantStart = true;
 
       setTimeout(() => {
         console.log('[CrazyGames] Triggering auto-start now');
@@ -1154,7 +1155,7 @@ function App() {
                         if (accountReady && isConnected) {
                           if (account.isLoggedIn && account.username.startsWith(".")) {alert(
                             "Your account has been temporarily suspended due to violations of the game's rules. This restriction will be lifted soon. Please log out to play with a different account."
-                            ); return; } onStart(); }}}>
+                            ); return; } (window as any)._wasInstantStart = false; onStart(); }}}>
                         {(accountReady && isConnected) ? 'Play!' : 'Connecting...'}
                     </div>
                   </div>

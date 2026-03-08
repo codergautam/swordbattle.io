@@ -94,6 +94,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      game.events.emit('goHome');
       onHome();
       game.events.emit('setGameResults', null);
       game.events.emit('startSpectate');
@@ -114,6 +115,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
     if (respawnCoins > 0) {
       game.events.emit('pendingRespawnInfo', { coins: respawnCoins, expiresAt: Date.now() + 120000 });
     }
+    game.events.emit('goHome');
     onHome();
     game.events.emit('setGameResults', null);
     game.events.emit('startSpectate');

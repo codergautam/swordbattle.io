@@ -14,11 +14,16 @@ declare global {
   }
 }
 
+const managems = 45000;
+
 function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn }: any) {
   const [gameResults, setGameResults] = useState<any>(null);
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
     if (!game) {
+      let gameplayStartCalled = false;
+      let gameplayDelayTimer: any = null;
+
       const game = new Phaser.Game({
         ...config,
         parent: 'phaser-container',
@@ -31,27 +36,56 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
       game.events.on('setGameResults', (results: any) => {
         setGameResults(results);
         setPlaying(false);
-        // Signal that gameplay has stopped
-        crazygamesSDK.gameplayStop();
+        if (gameplayDelayTimer) {
+          clearTimeout(gameplayDelayTimer);
+          gameplayDelayTimer = null;
+        }
       });
       game.events.on('restartGame', (name: string) => {
         setPlaying(true);
-        // Signal that gameplay has started (restart)
-        crazygamesSDK.gameplayStart();
+        if (!gameplayStartCalled && (window as any)._wasInstantStart) {
+          gameplayDelayTimer = setTimeout(() => {
+            crazygamesSDK.gameplayStart();
+            gameplayStartCalled = true;
+            gameplayDelayTimer = null;
+          }, managems);
+        }
       });
       game.events.on('startGame', (name: string) => {
         setPlaying(true);
         if (shouldShowTutorial()) {
           try { localStorage.setItem('swordbattle:tutorialSeen', '1'); } catch (_) {}
         }
-        // Signal that gameplay has started
-        crazygamesSDK.gameplayStart();
+
+        if ((window as any)._wasInstantStart) {
+          gameplayDelayTimer = setTimeout(() => {
+            crazygamesSDK.gameplayStart();
+            gameplayStartCalled = true;
+            gameplayDelayTimer = null;
+          }, managems);
+        } else {
+          crazygamesSDK.gameplayStart();
+          gameplayStartCalled = true;
+        }
+      });
+      game.events.on('goHome', () => {
+        if (gameplayDelayTimer) {
+          clearTimeout(gameplayDelayTimer);
+          gameplayDelayTimer = null;
+        }
+        if (gameplayStartCalled) {
+          // crazygamesSDK.gameplayStop();
+        }
+        gameplayStartCalled = false;
       });
       game.events.on('pendingRespawnInfo', (info: any) => {
         onPendingRespawn?.(info);
       });
 
       return () => {
+        if (gameplayDelayTimer) {
+          clearTimeout(gameplayDelayTimer);
+        }
         const gameScene = game.scene.getScene('game') as any;
         if (gameScene?.shutdown) {
           gameScene.shutdown();

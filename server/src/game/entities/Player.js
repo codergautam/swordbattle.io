@@ -101,9 +101,13 @@ class Player extends Entity {
 
     this.modifiers = {};
     this.wideSwing = false;
+    this.isFirstLife = false;
 
     this.respawnShieldActive = false;
     this.respawnShieldTimer = 0;
+    this.respawnShieldFadeActive = false;
+    this.respawnShieldFadeTimer = 0;
+    this.respawnShieldFadeMult = 1;
     this.respawnedAt = 0;
     this.respawnKillerName = null;
     this.killerEntity = null;
@@ -174,10 +178,22 @@ class Player extends Entity {
     if (this.respawnShieldTimer > 0) {
       this.respawnShieldTimer -= dt;
       this.respawnShieldActive = true;
+      this.respawnShieldFadeMult = 0;
       this.flags.set(Types.Flags.RespawnShield, 1);
       if (this.respawnShieldTimer <= 0) {
         this.respawnShieldTimer = 0;
         this.respawnShieldActive = false;
+        this.respawnShieldFadeActive = true;
+        this.respawnShieldFadeTimer = 3;
+      }
+    } else if (this.respawnShieldFadeActive) {
+      this.respawnShieldFadeTimer -= dt;
+      this.respawnShieldFadeMult = 1 - Math.max(0, this.respawnShieldFadeTimer / 3);
+      this.flags.set(Types.Flags.RespawnShield, 2);
+      if (this.respawnShieldFadeTimer <= 0) {
+        this.respawnShieldFadeTimer = 0;
+        this.respawnShieldFadeActive = false;
+        this.respawnShieldFadeMult = 1;
       }
     } else if (this.respawnShieldActive) {
       this.respawnShieldActive = false;
@@ -408,6 +424,10 @@ class Player extends Entity {
   }
 
   damaged(damage, entity = null) {
+    if (this.isFirstLife && !this.isBot) {
+      damage *= 0.75;
+    }
+
     if (entity && entity.type === Types.Entity.Player && !this.isBot && !entity.isBot) {
       const attackerCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
       const defenderCoins = (this.levels && typeof this.levels.coins === 'number') ? this.levels.coins : 0;
@@ -548,7 +568,7 @@ class Player extends Entity {
       };
       this.client.saveGame(game);
 
-      if (this.levels.coins >= 20000 && this.playtime >= 150) {
+      if (this.levels.coins >= 10000 && this.playtime >= 120) {
         const dropAmount = this.calculateDropAmount();
         const respawnCoins = Math.round(dropAmount / 2);
         this.client.pendingRespawn = {

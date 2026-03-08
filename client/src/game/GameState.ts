@@ -113,6 +113,14 @@ class GameState {
       if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
     }
 
+    let isFirstLife = false;
+    try {
+      if (!localStorage.getItem('swordbattle:hasPlayed')) {
+        isFirstLife = true;
+        localStorage.setItem('swordbattle:hasPlayed', '1');
+      }
+    } catch (_) {}
+
     console.log('[CAPTCHA] start() - recaptchaClientKey:', config.recaptchaClientKey);
 
     // Check if there's an invite roomId from CrazyGames invite link
@@ -131,6 +139,7 @@ class GameState {
             const captchaData = exportCaptcha(captcha);
             console.log('[CAPTCHA] Sending play request with captcha data:', Object.keys(captchaData));
             const playRequest: any = { play: true, name, ...captchaData };
+            if (isFirstLife) playRequest.firstLife = true;
             if (inviteRoomId) {
               playRequest.roomId = inviteRoomId;
               console.log('[Invite] Added roomId to play request');
@@ -149,6 +158,7 @@ class GameState {
     } else {
       console.log('[CAPTCHA] Sending play request without captcha (disabled)');
       const playRequest: any = { play: true, name };
+      if (isFirstLife) playRequest.firstLife = true;
       if (inviteRoomId) {
         playRequest.roomId = inviteRoomId;
         console.log('[Invite] Added roomId to play request');
@@ -327,6 +337,15 @@ class GameState {
       const id = Number(stringId);
 
       const entityData = data.entities[id];
+
+      const globalEnt = this.globalEntities[id];
+      if (globalEnt && globalEnt.gameWorldEntity) {
+        if (!entityData.removed && entityData.shapeData) {
+          globalEnt.gameWorldEntity.updateState(entityData);
+        }
+        continue;
+      }
+
       if (!this.entities[id] && !entityData.removed) {
         this.addEntity(id, entityData);
       }
@@ -342,7 +361,7 @@ class GameState {
           this.showGameResults();
         }
         this.removeEntity(id, entityData);
-      } else {
+      } else if (this.entities[id]) {
         this.entities[id].updateState(entityData);
       }
     }
@@ -454,13 +473,20 @@ class GameState {
   }
 
   addEntity(id: number, data: any) {
-    const EntityClass = GetEntityClass(data.type);
-    const entity = new EntityClass(this.game);
-    entity.updateState(data);
-    entity.createSprite();
-    entity.setDepth();
-    this.entities[id] = entity;
-    return entity;
+    if (data.type === undefined || data.type === null) return null;
+    try {
+      const EntityClass = GetEntityClass(data.type);
+      const entity = new EntityClass(this.game);
+      entity.updateState(data);
+      if (!this.game.add) return null;
+      entity.createSprite();
+      entity.setDepth();
+      this.entities[id] = entity;
+      return entity;
+    } catch (e) {
+      console.warn('[GameState] Failed to create entity:', data.type, e);
+      return null;
+    }
   }
 
   removeEntity(id: number, data: any) {
@@ -498,6 +524,9 @@ class GameState {
     const globalEntity = new GlobalEntity(this.game);
     globalEntity.updateState(entityData);
     this.globalEntities[id] = globalEntity;
+
+    globalEntity.createGameWorldVisual();
+
     return globalEntity;
   }
 

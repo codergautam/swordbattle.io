@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import CountUp from 'react-countup';
 import { useScale } from '../Scale';
@@ -9,6 +9,7 @@ import './GameResults.scss';
 import { DisconnectTypes } from '../../game/Types';
 import { calculateGemsXP, playVideoAd } from '../../helpers';
 import { crazygamesSDK } from '../../crazygames/sdk';
+import { updatePB, getEncouragingMessage, formatTime } from '../../game/PersonalBest';
 
 // Smarter video ad logic to prevent spammed ads
 const DEATHS_BETWEEN_ADS = 1;
@@ -51,6 +52,12 @@ function shouldShowVideoAd(): boolean {
 function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
   const xpBonusExpiry = useSelector((state: any) => state.account?.dailyLogin?.xpBonus);
   const xpBonusActive = xpBonusExpiry && xpBonusExpiry > Date.now();
+
+  const pbResult = useMemo(() => updatePB({
+    coins: results.coins || 0,
+    kills: results.kills || 0,
+    survivalTime: results.survivalTime || 0,
+  }), [results]);
 
   useEffect(() => {
     if (shouldShowVideoAd()) {
@@ -97,9 +104,11 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
   const calculateDropAmount = (coins: number) => {
     return coins < 13 ? 10 : Math.round(coins < 25000 ? coins * 0.8 : Math.log10(coins) * 30000 - 111938.2002602);
   };
-  const hasEnoughCoins = results.coins >= 20000;
-  const hasEnoughTime = results.survivalTime >= 150;
+  const hasEnoughCoins = results.coins >= 10000;
+  const hasEnoughTime = results.survivalTime >= 120;
   const respawnCoins = hasEnoughCoins && hasEnoughTime ? Math.round(calculateDropAmount(results.coins) / 2) : 0;
+  const coinProgress = Math.min(results.coins / 10000, 1);
+  const timeProgress = Math.min(results.survivalTime / 120, 1);
 
   const onHomeClick = () => {
     if (respawnCoins > 0) {
@@ -197,16 +206,53 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
         )}
       </div>
 
+      <div className="personal-best-section">
+        {pbResult.anyRecord && <div className="pb-header new-record">NEW RECORD!</div>}
+        {!pbResult.anyRecord && <div className="pb-header">Personal Best</div>}
+        <div className="pb-stats">
+          <div className={`pb-stat${pbResult.records.coins ? ' is-record' : ''}`}>
+            <span className="pb-label">Coins</span>
+            <span className="pb-value">{pbResult.pb.coins.toLocaleString()}</span>
+            {pbResult.records.coins && <span className="pb-badge">NEW!</span>}
+            {!pbResult.records.coins && <span className="pb-encourage">{getEncouragingMessage(results.coins, pbResult.pb.coins)}</span>}
+          </div>
+          <div className={`pb-stat${pbResult.records.kills ? ' is-record' : ''}`}>
+            <span className="pb-label">Stabs</span>
+            <span className="pb-value">{pbResult.pb.kills.toLocaleString()}</span>
+            {pbResult.records.kills && <span className="pb-badge">NEW!</span>}
+            {!pbResult.records.kills && <span className="pb-encourage">{getEncouragingMessage(results.kills, pbResult.pb.kills)}</span>}
+          </div>
+          <div className={`pb-stat${pbResult.records.survivalTime ? ' is-record' : ''}`}>
+            <span className="pb-label">Survived</span>
+            <span className="pb-value">{formatTime(pbResult.pb.survivalTime)}</span>
+            {pbResult.records.survivalTime && <span className="pb-badge">NEW!</span>}
+            {!pbResult.records.survivalTime && <span className="pb-encourage">{getEncouragingMessage(results.survivalTime, pbResult.pb.survivalTime)}</span>}
+          </div>
+        </div>
+      </div>
 
-        
       <div className="results-buttons">
-        <h1>{
-          !hasEnoughCoins
-            ? 'Collect 20,000 coins or more to keep some when respawning!'
-            : !hasEnoughTime
-              ? 'Survive longer to keep some coins on respawn'
-              : `Press Play Again to respawn near this location with ${respawnCoins.toLocaleString()} coins`
-        }</h1>
+        {respawnCoins > 0 ? (
+          <div className="respawn-info respawn-available">
+            <span className="respawn-icon">&#x1F4B0;</span>
+            <span>Press Play Again to respawn with <strong>{respawnCoins.toLocaleString()}</strong> coins!</span>
+          </div>
+        ) : (
+          <div className="respawn-info">
+            <div className="respawn-progress-label">Respawn Progress</div>
+            <div className="respawn-progress-bars">
+              <div className="respawn-bar-row">
+                <span>Coins: {results.coins.toLocaleString()} / 10,000</span>
+                <div className="respawn-bar"><div className="respawn-bar-fill" style={{ width: `${Math.min(coinProgress * 100, 100)}%` }} /></div>
+              </div>
+              <div className="respawn-bar-row">
+                <span>Time: {Math.floor(results.survivalTime / 60)}:{String(Math.floor(results.survivalTime % 60)).padStart(2, '0')} / 2:00</span>
+                <div className="respawn-bar"><div className="respawn-bar-fill" style={{ width: `${Math.min(timeProgress * 100, 100)}%` }} /></div>
+              </div>
+            </div>
+            <div className="respawn-hint">Reach both to keep coins on respawn!</div>
+          </div>
+        )}
         { results.disconnectReason?.type !== DisconnectTypes.Server && (
         <div
           className="play-again"

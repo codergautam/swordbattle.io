@@ -30,7 +30,7 @@ class CatMob extends Entity {
 
     this.health = new Health(35, 7);
     this.speed = new Property(30);
-    this.damage = new Property(17);
+    this.damage = new Property(13);
     this.target = null;
     this.targets.add(Types.Entity.Player);
 

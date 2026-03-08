@@ -32,8 +32,10 @@ import SantaMob from './mobs/Santa';
 import FishMob from './mobs/Fish';
 import AngryFishMob from './mobs/AngryFish';
 import IceSpiritMob from './mobs/IceSpirit';
+import CaptureZone from './CaptureZone';
 
 export const EntityDepth: Record<any, number> = {
+  [EntityTypes.CaptureZone]: 0.5,
   [EntityTypes.Pond]: 1,
   [EntityTypes.LavaPool]: 2,
   [EntityTypes.IcePond]: 3,
@@ -108,6 +110,7 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.IceSpike: return IceSpike;
     case EntityTypes.LavaRock: return LavaRock;
     case EntityTypes.LavaPool: return LavaPool;
+    case EntityTypes.CaptureZone: return CaptureZone;
 
     default:
       console.trace('Unknown entity type: ', type);

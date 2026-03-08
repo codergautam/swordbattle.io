@@ -24,6 +24,7 @@ message ClientMessage {
   string captchaP9 = 49;
   string captchaP10 = 50;
   string captchaP11 = 51;
+  bool firstLife = 52;
 }
 message InputData {
   int32 inputType = 1;

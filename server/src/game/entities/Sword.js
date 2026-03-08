@@ -252,16 +252,32 @@ processTargetsCollision(entity) {
 
     const attackerCoins = (this.player.levels && typeof this.player.levels.coins === 'number') ? this.player.levels.coins : 0;
     const targetCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
-    const attackerCoinShield = attackerCoins < this.player.coinShield;
-    const targetCoinShield = targetCoins < this.player.coinShield;
     const attackerRespawnShield = this.player.respawnShieldActive;
     const targetRespawnShield = entity.respawnShieldActive === true;
-    const attackerUnderShield = attackerCoinShield || attackerRespawnShield;
-    const targetUnderShield = targetCoinShield || targetRespawnShield;
+    const attackerFading = this.player.respawnShieldFadeActive === true;
+    const targetFading = entity.respawnShieldFadeActive === true;
     const isHumanVsHuman = entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot;
-    const shielded = isHumanVsHuman && (attackerUnderShield || targetUnderShield);
     const respawnShielded = isHumanVsHuman && (attackerRespawnShield || targetRespawnShield);
-    const coinShieldOnly = shielded && !respawnShielded;
+    const respawnFading = isHumanVsHuman && !respawnShielded && (attackerFading || targetFading);
+    const respawnFadeMult = respawnFading ? Math.min(
+      attackerFading ? this.player.respawnShieldFadeMult : 1,
+      targetFading ? entity.respawnShieldFadeMult : 1
+    ) : 1;
+
+    let coinShieldMult = 1;
+    let coinShieldFullBlock = false;
+    if (isHumanVsHuman && !respawnShielded) {
+      const lowerCoins = Math.min(attackerCoins, targetCoins);
+      if (lowerCoins < 500) {
+        coinShieldFullBlock = true;
+        coinShieldMult = 0;
+      } else if (lowerCoins < 2000) {
+        coinShieldMult = 0.5;
+      } else if (lowerCoins < 5000) {
+        coinShieldMult = 0.75;
+      }
+    }
+    const shielded = isHumanVsHuman && (coinShieldMult < 1 || attackerRespawnShield || targetRespawnShield);
 
     let antiTeamMult = 1;
     if (isHumanVsHuman) {
@@ -342,8 +358,10 @@ processTargetsCollision(entity) {
     let power;
     if (isHumanVsHuman && targetRespawnShield) {
       power = this.knockback.value * 2;
-    } else if (isHumanVsHuman && attackerCoinShield && !attackerRespawnShield) {
-      power = this.knockback.value * 0.2;
+    } else if (isHumanVsHuman && coinShieldFullBlock) {
+      power = this.knockback.value * 0.1;
+    } else if (isHumanVsHuman && coinShieldMult < 1) {
+      power = this.knockback.value * coinShieldMult;
     } else {
       power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
     }
@@ -381,7 +399,7 @@ processTargetsCollision(entity) {
     entity.velocity.x = -1*xComp;
     entity.velocity.y =  -1*yComp;
 
-    if (!respawnShielded && ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) ||
+    if (!respawnShielded && !coinShieldFullBlock && ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) ||
       (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation)))) {
 
         const base = this.damage.value;
@@ -403,8 +421,12 @@ processTargetsCollision(entity) {
 
         finalDamage *= antiTeamMult * coinDisparityMult;
 
-        if (coinShieldOnly) {
-          finalDamage *= 0.2;
+        if (coinShieldMult < 1) {
+          finalDamage *= coinShieldMult;
+        }
+
+        if (respawnFadeMult < 1) {
+          finalDamage *= respawnFadeMult;
         }
 
         if (this.player.modifiers.poisonDamage) {

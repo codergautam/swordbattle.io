@@ -46,7 +46,6 @@ class Client {
     this.playCooldown = 1000;
     this.maxPlaysPerMinute = 20;
     this.playCountResetTime = Date.now() + 60000;
-
     // Malformed message tracking
     this.decodeErrorCount = 0;
     this.maxDecodeErrors = 2;

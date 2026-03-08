@@ -67,7 +67,8 @@ class Coin extends Entity {
     if (player.name === "Update Testing Account") {
       player.levels.addCoins(this.value * 50);
     } else {
-      player.levels.addCoins(this.value);
+      const coinValue = player.isFirstLife ? Math.round(this.value * 1.5) : this.value;
+      player.levels.addCoins(coinValue);
     }
     
     player.flags.set(Types.Flags.GetCoin, true);

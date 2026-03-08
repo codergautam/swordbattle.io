@@ -2,6 +2,24 @@ import HudComponent from './HudComponent';
 import { Evolutions } from '../Evolutions';
 import { config } from '../../config';
 
+const discoveredKey = 'swordbattle:discoveredEvolutions';
+
+function getDiscoveredEvolutions(): Set<string> {
+  try {
+    const raw = localStorage.getItem(discoveredKey);
+    if (raw) return new Set(JSON.parse(raw));
+  } catch (e) {}
+  return new Set();
+}
+
+function markEvolutionDiscovered(evolId: string): void {
+  const discovered = getDiscoveredEvolutions();
+  discovered.add(evolId);
+  try {
+    localStorage.setItem(discoveredKey, JSON.stringify([...discovered]));
+  } catch (e) {}
+}
+
 class EvolutionSelect extends HudComponent {
   spritesContainer: Phaser.GameObjects.Container | null = null;
   hideButton: Phaser.GameObjects.Text | null = null;
@@ -73,6 +91,7 @@ class EvolutionSelect extends HudComponent {
   }
 
   selectEvolution(type: any) {
+    markEvolutionDiscovered(String(type));
     this.game.gameState.selectedEvolution = type;
     this.game.gameState.self.entity!.possibleEvolutions = {};
     this.updateList = true;
@@ -150,6 +169,7 @@ class EvolutionSelect extends HudComponent {
         });
       }
 
+      const discovered = getDiscoveredEvolutions();
       let i = 0;
       for (const evol in player.possibleEvolutions) {
         i += 1;
@@ -160,6 +180,26 @@ class EvolutionSelect extends HudComponent {
 
         const container = this.hud.scene.add.container((this.spriteSize + 110) * (i - (count + 1) / 2), -25, [body, overlay]);
         container.setScale(this.spriteSize / body.height).setAlpha(alpha);
+
+        if (!discovered.has(String(evol))) {
+          const newBadge = this.hud.scene!.add.text(100, -body.height / 2 - 40, 'NEW', {
+            fontSize: 48,
+            fontStyle: 'bold',
+            color: '#f7d060',
+            stroke: '#000000',
+            strokeThickness: 6,
+          }).setOrigin(0.5);
+          container.add(newBadge);
+          this.hud.scene!.tweens.add({
+            targets: newBadge,
+            scaleX: 1.15,
+            scaleY: 1.15,
+            duration: 600,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut',
+          });
+        }
 
         const text = this.hud.scene!.add.text(0, 0, evolution[0], {
           fontSize: 45,

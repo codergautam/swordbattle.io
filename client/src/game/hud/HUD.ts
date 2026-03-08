@@ -7,6 +7,7 @@ import BuffsSelect from './BuffsSelect';
 import Chat from './Chat';
 import MobileControls from './MobileControls';
 import CoinCounter from './CoinCounter';
+import TutorialHints from './TutorialHints';
 import { Settings } from '../Settings';
 
 class HUD {
@@ -20,6 +21,7 @@ class HUD {
   chat: Chat;
   mobileControls: MobileControls;
   coinCounter: CoinCounter;
+  tutorialHints: TutorialHints;
   components: any[];
   scale = 0.8;
   hidden = false;
@@ -35,7 +37,8 @@ class HUD {
     this.chat = new Chat(this);
     this.mobileControls = new MobileControls(this);
     this.coinCounter = new CoinCounter(this);
-    this.components = [this.minimap, this.stats, this.progressBar, this.evolutionSelect, this.buffsSelect, this.chat, this.mobileControls, this.coinCounter];
+    this.tutorialHints = new TutorialHints(this);
+    this.components = [this.minimap, this.stats, this.progressBar, this.evolutionSelect, this.buffsSelect, this.chat, this.mobileControls, this.coinCounter, this.tutorialHints];
   }
 
   initialize() {
@@ -96,6 +99,37 @@ class HUD {
   resize() {
     this.scale = Math.max(this.game.scale.width, this.game.scale.height) / 1400;
     this.components.forEach(component => component.setScale(this.scale));
+  }
+
+  showAnnouncement(text: string, color = '#f5c842', duration = 4000) {
+    if (!this.scene) return;
+    const { width, height } = this.game.scale;
+    const announcementText = this.scene.add.text(width / 2, height * 0.2, text, {
+      fontSize: `${Math.round(22 * this.scale)}px`,
+      fontFamily: 'Ubuntu, sans-serif',
+      color,
+      stroke: '#000000',
+      strokeThickness: 4,
+      align: 'center',
+    }).setOrigin(0.5).setDepth(90).setAlpha(0);
+
+    this.scene.tweens.add({
+      targets: announcementText,
+      alpha: { from: 0, to: 1 },
+      duration: 400,
+      ease: 'Power2',
+      onComplete: () => {
+        this.scene.time.delayedCall(duration, () => {
+          this.scene.tweens.add({
+            targets: announcementText,
+            alpha: 0,
+            duration: 800,
+            ease: 'Power2',
+            onComplete: () => announcementText.destroy(),
+          });
+        });
+      },
+    });
   }
 
   cleanup() {

@@ -34,6 +34,8 @@ export enum EntityTypes {
 
   Fireball = 21,
   Snowball = 22,
+
+  CaptureZone = 33,
 }
 
 export enum FlagTypes {
@@ -55,6 +57,7 @@ export enum FlagTypes {
   AntiTeamActive = 16,
   Hypnotized = 17,
   DiscoFieldActive = 18,
+  FirstLife = 19,
 }
 
 export enum EvolutionTypes {

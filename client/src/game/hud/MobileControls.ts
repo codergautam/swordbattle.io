@@ -19,7 +19,10 @@ export default class MobileControls extends HudComponent {
     }).setOrigin(0.5);
     this.abilityButton = this.hud.scene.add.sprite(0, 0, 'abilityButton')
       .setInteractive()
-      .on('pointerdown', () => this.game.controls.inputDown(InputTypes.Ability))
+      .on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+        this.game.controls.consumePointer(pointer.id);
+        this.game.controls.inputDown(InputTypes.Ability);
+      })
       .on('pointerup', () => this.game.controls.inputUp(InputTypes.Ability));
 
     this.abilityButtonContainer = this.hud.scene.add.container(0, 0, [this.abilityButton, this.abilityCooldown]);
@@ -29,11 +32,17 @@ export default class MobileControls extends HudComponent {
     if (this.game.isMobile) {
       this.chatButton = this.hud.scene.add.sprite(0, 0, 'chatButton')
         .setInteractive()
-        .on('pointerdown', () => this.hud.chat.toggle(true));
+        .on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+          this.game.controls.consumePointer(pointer.id);
+          this.hud.chat.toggle(true);
+        });
 
       this.swordThrowButton = this.hud.scene.add.sprite(0, 0, 'swordThrowButton')
         .setInteractive()
-        .on('pointerdown', () => this.game.controls.inputDown(InputTypes.SwordThrow))
+        .on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+          this.game.controls.consumePointer(pointer.id);
+          this.game.controls.inputDown(InputTypes.SwordThrow);
+        })
         .on('pointerup', () => this.game.controls.inputUp(InputTypes.SwordThrow));
 
       this.container.add([this.chatButton, this.swordThrowButton]);

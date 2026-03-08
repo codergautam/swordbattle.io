@@ -22,6 +22,7 @@ export interface ClientMessage {
   captchaP9?: string;
   captchaP10?: string;
   captchaP11?: string;
+  firstLife?: boolean;
 }
 
 export function encodeClientMessage(message: ClientMessage): Uint8Array {
@@ -201,6 +202,13 @@ function _encodeClientMessage(message: ClientMessage, bb: ByteBuffer): void {
     writeVarint32(bb, 410);
     writeString(bb, $captchaP11);
   }
+
+
+  let $firstLife = message.firstLife;
+  if ($firstLife !== undefined) {
+    writeVarint32(bb, 416);
+    writeByte(bb, $firstLife ? 1 : 0);
+  }
 }
 
 export function decodeClientMessage(binary: Uint8Array): ClientMessage {
@@ -357,6 +365,12 @@ function _decodeClientMessage(bb: ByteBuffer): ClientMessage {
       // optional string captchaP11 = 51;
       case 51: {
         message.captchaP11 = readString(bb, readVarint32(bb));
+        break;
+      }
+
+    
+      case 52: {
+        message.firstLife = !!readByte(bb);
         break;
       }
 

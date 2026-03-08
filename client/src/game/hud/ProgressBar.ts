@@ -1,5 +1,5 @@
 import HudComponent from './HudComponent';
-import { BiomeTypes, FlagTypes } from '../Types';
+import { BiomeTypes, EntityTypes, FlagTypes } from '../Types';
 
 class ProgressBar extends HudComponent {
   barBackground: any;
@@ -24,9 +24,10 @@ class ProgressBar extends HudComponent {
   killStreak = 0;
   lastKillTime = 0;
   lastEntityStabId = 0;
-  currentProtectionMessage: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'antiTeam' = 'none';
+  currentProtectionMessage: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'respawnShieldFading' | 'antiTeam' | 'captureZone' = 'none';
   isBurning = false;
   isHypnotized = false;
+
 
   initialize() {
     // Create the background bar
@@ -289,8 +290,27 @@ class ProgressBar extends HudComponent {
     this.levelText!.text = `Level: ${player.level} (${Math.round(this.currentProgress * 100)}%)`;
     this.progressBar.scaleX = this.currentProgress;
 
-    let desiredProtectionState: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'antiTeam' = 'none';
-    if (player.flags[FlagTypes.RespawnShield]) {
+    let inCaptureZone = false;
+    if (player.shape) {
+      const globalEntities = this.game.gameState.globalEntities;
+      for (const id in globalEntities) {
+        const ge = globalEntities[id];
+        if (ge.type === EntityTypes.CaptureZone && ge.shape) {
+          const dx = player.shape.x - ge.shape.x;
+          const dy = player.shape.y - ge.shape.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < ge.shape.radius) {
+            inCaptureZone = true;
+            break;
+          }
+        }
+      }
+    }
+
+    let desiredProtectionState: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'respawnShieldFading' | 'antiTeam' | 'captureZone' = 'none';
+    if (player.flags[FlagTypes.RespawnShield] === 2) {
+      desiredProtectionState = 'respawnShieldFading';
+    } else if (player.flags[FlagTypes.RespawnShield]) {
       desiredProtectionState = 'respawnShield';
     } else if (player.biome === BiomeTypes.Safezone) {
       desiredProtectionState = 'safezone';
@@ -298,10 +318,14 @@ class ProgressBar extends HudComponent {
       desiredProtectionState = 'collect';
     } else if (player.flags[FlagTypes.AntiTeamActive]) {
       desiredProtectionState = 'antiTeam';
+    } else if (inCaptureZone) {
+      desiredProtectionState = 'captureZone';
     }
 
     const switchProtectionMessage = () => {
-      if (desiredProtectionState === 'respawnShield') {
+      const isMobile = this.game.isMobile;
+
+      if (desiredProtectionState === 'respawnShield' && !isMobile) {
         this.inSafezoneMessage.setColor('#ffffff');
         this.inSafezoneMessage.setText('You are protected: temporarily shielded on respawn');
         this.tipText.setVisible(false).setAlpha(0);
@@ -310,26 +334,34 @@ class ProgressBar extends HudComponent {
           alpha: 1,
           duration: 200,
         });
+      } else if (desiredProtectionState === 'respawnShieldFading' && !isMobile) {
+        this.inSafezoneMessage.setColor('#aaaaaa');
+        this.inSafezoneMessage.setText('Protection fading...');
+        this.tipText.setVisible(false).setAlpha(0);
+        this.game.tweens.add({
+          targets: this.inSafezoneMessage,
+          alpha: 0.7,
+          duration: 200,
+        });
       } else if (desiredProtectionState === 'safezone') {
         this.inSafezoneMessage.setColor('#ffffff');
-        this.inSafezoneMessage.setText('You are protected: you are in the safezone');
+        this.inSafezoneMessage.setText(isMobile ? 'You are in the safezone' : 'You are protected: you are in the safezone');
         this.tipText.setVisible(false).setAlpha(0);
         this.game.tweens.add({
           targets: this.inSafezoneMessage,
           alpha: 1,
           duration: 200,
         });
-      } else if (desiredProtectionState === 'collect') {
-        this.inSafezoneMessage.setColor('#ffffff');
-        const coinsLeft = Math.max(0, 500 - player.coins);
-        this.inSafezoneMessage.setText(`You are protected: collect ${coinsLeft} more coins to fight other players`);
+      } else if (desiredProtectionState === 'collect' && !isMobile) {
+        this.inSafezoneMessage.setColor('#66ff66');
+        this.inSafezoneMessage.setText(`You are fully protected — collect ${Math.max(0, 500 - player.coins)} more coins to start fighting`);
         this.tipText.setText('Find chests or stab mobs to get coins faster').setVisible(true);
         this.game.tweens.add({
           targets: [this.inSafezoneMessage, this.tipText],
           alpha: 1,
           duration: 200,
         });
-      } else if (desiredProtectionState === 'antiTeam') {
+      } else if (desiredProtectionState === 'antiTeam' && !isMobile) {
         const flagValue = player.flags[FlagTypes.AntiTeamActive] as number;
         const enemyTeam = Math.floor(flagValue / 10);
         const myTeam = flagValue % 10;
@@ -362,8 +394,16 @@ class ProgressBar extends HudComponent {
           alpha: 1,
           duration: 200,
         });
+      } else if (desiredProtectionState === 'captureZone' && !isMobile) {
+        this.inSafezoneMessage.setColor('#ffd700');
+        this.inSafezoneMessage.setText('You are capturing coins: taking slight damage over time');
+        this.tipText.setVisible(false).setAlpha(0);
+        this.game.tweens.add({
+          targets: this.inSafezoneMessage,
+          alpha: 1,
+          duration: 200,
+        });
       } else {
-        // hide both
         this.inSafezoneMessage.setColor('#ffffff');
         this.game.tweens.add({
           targets: [this.inSafezoneMessage, this.tipText],
@@ -385,10 +425,9 @@ class ProgressBar extends HudComponent {
           onComplete: switchProtectionMessage,
         });
       }
-    } else if (desiredProtectionState === 'collect') {
-      const coinsLeft = Math.max(0, 500 - player.coins);
-      this.inSafezoneMessage.setText(`You are protected: collect ${coinsLeft} more coins to fight other players`);
-    } else if (desiredProtectionState === 'antiTeam') {
+    } else if (desiredProtectionState === 'collect' && !this.game.isMobile) {
+      this.inSafezoneMessage.setText(`You are protected: collect ${Math.max(0, 500 - player.coins)} more coins to start fighting`);
+    } else if (desiredProtectionState === 'antiTeam' && !this.game.isMobile) {
       const flagValue = player.flags[FlagTypes.AntiTeamActive] as number;
       const enemyTeam = Math.floor(flagValue / 10);
       const myTeam = flagValue % 10;

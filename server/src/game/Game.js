@@ -395,6 +395,7 @@ class Game {
       const entity = this.entities.get(entityId);
       if (!entity) continue;
       if (entity.isStatic) continue;
+      if (entity.type === Types.Entity.CaptureZone) continue;
       entities[entity.id] = entity.state.get();
     }
 
@@ -424,6 +425,7 @@ class Game {
         continue;
       }
       if (entity.isStatic) continue;
+      if (entity.type === Types.Entity.CaptureZone) continue;
 
       const stateData = entity.state.get();
 
@@ -454,6 +456,7 @@ class Game {
         continue;
       }
       if (entity.isStatic) continue;
+      if (entity.type === Types.Entity.CaptureZone) continue;
 
       entity.state.get();
       changes[entity.id] = {
@@ -506,6 +509,7 @@ class Game {
     client.fullSync = true;
     client.player = player;
     player.client = client;
+    player.isFirstLife = !!data.firstLife;
     if (client.account) {
       const account = client.account;
       if (account.skins && account.skins.equipped) {

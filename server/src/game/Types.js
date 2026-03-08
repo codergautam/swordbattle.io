@@ -34,6 +34,8 @@ const Entity = {
 
   Fireball: 21,
   Snowball: 22,
+
+  CaptureZone: 33,
 };
 
 const Mobs = [
@@ -118,6 +120,7 @@ module.exports = {
     AntiTeamActive: 16,
     Hypnotized: 17,
     DiscoFieldActive: 18,
+    FirstLife: 19,
   },
   Effect: {
     Custom: 1,

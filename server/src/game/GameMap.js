@@ -36,6 +36,7 @@ const Fireball = require('./entities/Fireball');
 const Boulder = require('./entities/Boulder');
 const SwordProj = require('./entities/SwordProj');
 const Snowball = require('./entities/Snowball');
+const CaptureZone = require('./entities/CaptureZone');
 const Timer = require('./components/Timer');
 const Types = require('./Types');
 const map = require('./maps/main');
@@ -56,7 +57,10 @@ class GameMap {
     this.entityTimers = new Set();
     this.coinsCount = map.coinsCount !== undefined ? map.coinsCount : 100;
     this.chestsCount = map.chestCount !== undefined ? map.chestsCount : 50;
-    this.aiPlayersCount = map.aiPlayersCount !== undefined ? map.aiPlayersCount : 10; // contrary to the name, we want to make sure theres no more than this many AI players, goal is to maintain the game at this many players when low traffic
+    this.aiPlayersCount = map.aiPlayersCount !== undefined ? map.aiPlayersCount : 10;
+
+    this.captureZoneTimer = new Timer(0, 30, 60);
+    this.activeCaptureZones = [];
   }
 
   initialize() {
@@ -104,6 +108,71 @@ class GameMap {
       for (let i = 0; i < this.aiPlayersCount - this.game.players.size; i++) {
         this.spawnPlayerBot();
       }
+    }
+
+    this.activeCaptureZones = this.activeCaptureZones.filter(z => !z.removed);
+    this.captureZoneTimer.update(dt);
+    if (this.captureZoneTimer.finished && this.activeCaptureZones.length < 2) {
+      this.spawnCaptureZone();
+      if (this.activeCaptureZones.length === 1 && Math.random() < 0.3) {
+        this.captureZoneTimer.minTime = 10;
+        this.captureZoneTimer.maxTime = 20;
+      } else {
+        this.captureZoneTimer.minTime = 30;
+        this.captureZoneTimer.maxTime = 60;
+      }
+      this.captureZoneTimer.renew();
+    }
+  }
+
+  spawnCaptureZone() {
+    const buffer = 800;
+    const mapMinX = this.x + buffer;
+    const mapMinY = this.y + buffer;
+    const mapMaxX = this.x + this.width - buffer;
+    const mapMaxY = this.y + this.height - buffer;
+
+    const safezoneRadius = this.safezone ? this.safezone.shape.radius + buffer : 2500;
+    const safezoneX = this.safezone ? this.safezone.shape.x : 0;
+    const safezoneY = this.safezone ? this.safezone.shape.y : 0;
+
+    let spawnX, spawnY;
+    let attempts = 0;
+    const maxAttempts = 50;
+
+    while (attempts < maxAttempts) {
+      attempts++;
+      spawnX = helpers.random(mapMinX, mapMaxX);
+      spawnY = helpers.random(mapMinY, mapMaxY);
+
+      const dxSafe = spawnX - safezoneX;
+      const dySafe = spawnY - safezoneY;
+      if (Math.sqrt(dxSafe * dxSafe + dySafe * dySafe) < safezoneRadius) continue;
+
+      let tooClose = false;
+      for (const zone of this.activeCaptureZones) {
+        const dx = spawnX - zone.shape.x;
+        const dy = spawnY - zone.shape.y;
+        if (Math.sqrt(dx * dx + dy * dy) < 6000) {
+          tooClose = true;
+          break;
+        }
+      }
+      if (tooClose) continue;
+
+      break;
+    }
+
+    if (attempts >= maxAttempts) return;
+
+    const zone = this.addEntity({
+      type: Types.Entity.CaptureZone,
+      position: [spawnX, spawnY],
+      radius: helpers.random(1000, 1800),
+    });
+
+    if (zone) {
+      this.activeCaptureZones.push(zone);
     }
   }
 
@@ -221,6 +290,7 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
       case Types.Entity.Boulder: ObjectClass = Boulder; break;
       case Types.Entity.SwordProj: ObjectClass = SwordProj; break;
       case Types.Entity.Snowball: ObjectClass = Snowball; break;
+      case Types.Entity.CaptureZone: ObjectClass = CaptureZone; break;
     }
 
     if (!ObjectClass) return console.warn('Unknown entity type: ', objectData);

@@ -45,7 +45,6 @@ export default class Game extends Phaser.Scene {
     this.gameState.initialize();
     this.game.canvas.oncontextmenu = (e) => e.preventDefault();
     this.isMobile = this.game.device.os.android || this.game.device.os.iOS;
-    this.isMobile = true
 
     if (this.isMobile) {
       try { (window.screen.orientation as any).lock('portrait-primary').catch(() => {}); } catch (e) {}
@@ -213,7 +212,6 @@ export default class Game extends Phaser.Scene {
 
     this.cameras.main.setBackgroundColor('#000000');
 
-    // Rock tile background (visible outside map boundaries)
     const camera = this.cameras.main;
     this.backgroundTile = this.add.tileSprite(camera.width / 2, camera.height / 2, camera.width, camera.height, 'rockTile')
       .setScrollFactor(0)

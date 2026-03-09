@@ -643,8 +643,6 @@ class Player extends BaseEntity {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
     const now = Date.now();
-    // Reduced frequency: 150ms instead of 100ms, and use pooled sprites
-    // instead of creating a full Phaser particle system each call.
     if (now - this.abilityParticlesLast < 150) return;
     this.abilityParticlesLast = now;
     try {
@@ -672,10 +670,9 @@ class Player extends BaseEntity {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
     const now = Date.now();
-    if (now - this.poisonParticlesLast < 250) return; // ~4 times per sec
+    if (now - this.poisonParticlesLast < 250) return;
     this.poisonParticlesLast = now;
 
-    // Adaptive particle count: fewer particles when FPS is struggling
     const count = fps < 30 ? 8 : 15;
     try {
       for (let i = 0; i < count; i++) {

@@ -95,8 +95,6 @@ export class BaseEntity {
 
   update(dt: number) {
     if (!this.container) return;
-    // Time-based exponential interpolation: frame-rate independent smoothing.
-    // Converges at the same visual rate regardless of FPS (30, 60, 144, etc).
     const tps = this.game.gameState.tps || 20;
     const lerpRate = 1 - Math.exp(-dt / (1000 / tps));
     this.container.x = Phaser.Math.Linear(this.container.x, this.shape.x, lerpRate);
@@ -115,7 +113,6 @@ export class BaseEntity {
     const targetAngle = (this.constructor as any).basicAngle + this.angle;
     const angleDifference = Phaser.Math.Angle.Wrap(targetAngle - this.body.rotation);
     const tps = this.game.gameState.tps || 20;
-    // Slower rotation lerp (~10x the position smoothing window)
     const lerpRate = 1 - Math.exp(-(dt || 16) / (10000 / tps));
     const angleStep = angleDifference * lerpRate;
     this.body.setRotation(this.body.rotation + angleStep);

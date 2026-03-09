@@ -60,7 +60,6 @@ class EvolutionSelect extends HudComponent {
 
     this.spritesContainer = this.hud.scene.add.container(0, -85);
 
-    // On mobile, add a translucent backdrop that blocks interaction behind
     if (this.game.isMobile) {
       this.backdrop = this.hud.scene.add.graphics();
       this.backdrop.setVisible(false);
@@ -175,7 +174,6 @@ class EvolutionSelect extends HudComponent {
         });
       }
 
-      // Show/hide backdrop on mobile and hide leaderboard
       this.backdrop?.setVisible(count !== 0);
       if (this.game.isMobile) {
         this.game.events.emit('evolutionsVisible', count !== 0);

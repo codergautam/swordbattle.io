@@ -10,14 +10,12 @@ class CaptureZone extends BaseEntity {
   createSprite() {
     const radius = this.shape.radius;
 
-    // Static filled zone — drawn once, never redrawn
     const zoneGraphics = this.game.add.graphics();
     zoneGraphics.fillStyle(0xf5c842, 0.15);
     zoneGraphics.fillCircle(0, 0, radius);
     zoneGraphics.fillStyle(0xffd700, 0.07);
     zoneGraphics.fillCircle(0, 0, radius * 0.7);
 
-    // Static glow ring — drawn once
     const glowGraphics = this.game.add.graphics();
     for (let i = 3; i >= 0; i--) {
       const r = radius + i * 15;
@@ -26,7 +24,6 @@ class CaptureZone extends BaseEntity {
       glowGraphics.strokeCircle(0, 0, r);
     }
 
-    // Dashed border in its own container so we can rotate it cheaply
     const borderGraphics = this.game.add.graphics();
     borderGraphics.lineStyle(5, 0xf5c842, 0.85);
     const segments = 36;
@@ -66,7 +63,6 @@ class CaptureZone extends BaseEntity {
     super.update(dt);
     if (!this.container || this.removed) return;
 
-    // Rotate the dashed border slowly — no redrawing needed
     if (this.borderContainer) {
       this.borderContainer.rotation += dt * 0.15;
     }

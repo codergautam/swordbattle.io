@@ -39,7 +39,6 @@ export class Controls {
   initialize() {
     const { game: { input } } = this;
     if (this.game.isMobile) {
-      // Generate simple cartoony joystick textures (gray with black outline)
       const gfx = this.game.add.graphics();
 
       const baseRadius = 110;
@@ -72,11 +71,8 @@ export class Controls {
         thumb,
       }) as VirtualJoyStick;
 
-      // Disable the plugin's built-in input — we handle touch manually
-      // to prevent it from hijacking button/UI touches
       this.joystick.setEnable(false);
 
-      // Manual joystick touch handling: only accept touches in the bottom-left zone
       this.game.hud.scene.input.on('pointerdown', (pointer: any) => {
         if (this.joystickPointer) return;
         if (pointer.x > this.game.scale.width * 0.45) return;
@@ -103,15 +99,12 @@ export class Controls {
       pointer.event.preventDefault();
 
       if (this.game.isMobile) {
-        // Don't swing when tapping on UI elements — use position-based checks
         const w = this.game.scale.width;
         const h = this.game.scale.height;
         const s = this.game.hud.scale;
 
-        // Joystick zone (bottom-left)
         if (pointer.x < w * 0.4 && pointer.y > h * 0.5) return;
 
-        // Button zones — check against actual button positions
         const mc = this.game.hud.mobileControls;
         const near = (obj: any, r: number) => {
           if (!obj) return false;
@@ -140,7 +133,6 @@ export class Controls {
     input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
       pointer.event.preventDefault();
       if (this.game.isMobile) {
-        // Only release swing for the specific pointer that started it
         if (pointer.id === this._swingPointerId) {
           this.inputUp(InputTypes.SwordSwing);
           this._swingPointerId = -1;
@@ -172,7 +164,6 @@ export class Controls {
         const clampedDist = Math.min(dist, radius);
         const angle = Math.atan2(dy, dx);
 
-        // Move thumb (clamped to radius)
         if (this.joystick.thumb) {
           this.joystick.thumb.x = baseX + Math.cos(angle) * clampedDist;
           this.joystick.thumb.y = baseY + Math.sin(angle) * clampedDist;
@@ -185,7 +176,6 @@ export class Controls {
           this.mouse.force = 0;
         }
       } else {
-        // Ease thumb back to center when released
         if (this.joystick.thumb) {
           this.joystick.thumb.x += (baseX - this.joystick.thumb.x) * 0.3;
           this.joystick.thumb.y += (baseY - this.joystick.thumb.y) * 0.3;
@@ -194,11 +184,9 @@ export class Controls {
         if (this.mouse.force < 1) this.mouse.force = 0;
       }
 
-      // Hold-to-throw: holding swing for 1s auto-throws in current direction
       if (this.isInputDown(InputTypes.SwordSwing) && !this._holdThrowTriggered && this._swingPointerId >= 0) {
         if (Date.now() - this._swingStartTime >= 1000) {
           this._holdThrowTriggered = true;
-          // Keep swing active, add throw on top — release both after delay
           this.inputDown(InputTypes.SwordThrow);
           setTimeout(() => {
             this._swingPointerId = -1;
@@ -298,8 +286,6 @@ export class Controls {
       window.removeEventListener('blur', this._blurHandler);
       this._blurHandler = null;
     }
-    // Remove all Phaser input listeners to prevent stacking on game restart.
-    // Without this, each restart adds duplicate keyboard/pointer listeners.
     const { input } = this.game;
     input.keyboard?.removeAllListeners();
     input.removeAllListeners();

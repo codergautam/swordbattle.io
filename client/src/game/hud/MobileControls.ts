@@ -69,7 +69,6 @@ export default class MobileControls extends HudComponent {
     joystick?.thumb?.setScale(this.scale);
     joystick?.base?.setScale(this.scale);
 
-    // Normalize all buttons to the same visual size (targetPx pixels wide)
     const targetPx = 100 * scale;
     if (this.swordThrowButton) {
       this.swordThrowButton.setScale(targetPx / this.swordThrowButton.texture.getSourceImage().width);
@@ -91,7 +90,6 @@ export default class MobileControls extends HudComponent {
 
     joystick?.setPosition(150 * s, h / 1.5);
 
-    // Buttons in a horizontal row above the progress bar, left-aligned
     const btnY = h - 160 * s;
     const startX = 80 * s;
     const spacing = 135 * s;

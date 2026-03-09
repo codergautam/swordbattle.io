@@ -47,7 +47,7 @@ export class Health {
 
   update(dt: number) {
     if(this.alwaysHide) return;
-    this.value = Phaser.Math.Linear(this.value, this.entity.healthPercent, dt / 60);
+    this.value = Phaser.Math.Linear(this.value, this.entity.healthPercent, 1 - Math.exp(-dt / 60));
 
     if (!this.hidden) {
       const shouldHide = this.value > 0.98;

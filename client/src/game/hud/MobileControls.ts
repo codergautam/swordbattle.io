@@ -9,8 +9,8 @@ export default class MobileControls extends HudComponent {
   swordThrowButton?: Phaser.GameObjects.Sprite;
 
   initialize() {
-    this.container = this.game.add.container(0, 0); 
-    
+    this.container = this.game.add.container(0, 0);
+
     this.abilityCooldown = this.hud.scene.add.text(0, 0, '', {
       fontSize: 30,
       fontStyle: 'bold',
@@ -19,10 +19,7 @@ export default class MobileControls extends HudComponent {
     }).setOrigin(0.5);
     this.abilityButton = this.hud.scene.add.sprite(0, 0, 'abilityButton')
       .setInteractive()
-      .on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-        this.game.controls.consumePointer(pointer.id);
-        this.game.controls.inputDown(InputTypes.Ability);
-      })
+      .on('pointerdown', () => this.game.controls.inputDown(InputTypes.Ability))
       .on('pointerup', () => this.game.controls.inputUp(InputTypes.Ability));
 
     this.abilityButtonContainer = this.hud.scene.add.container(0, 0, [this.abilityButton, this.abilityCooldown]);
@@ -32,17 +29,11 @@ export default class MobileControls extends HudComponent {
     if (this.game.isMobile) {
       this.chatButton = this.hud.scene.add.sprite(0, 0, 'chatButton')
         .setInteractive()
-        .on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-          this.game.controls.consumePointer(pointer.id);
-          this.hud.chat.toggle(true);
-        });
+        .on('pointerdown', () => this.hud.chat.toggle(true));
 
       this.swordThrowButton = this.hud.scene.add.sprite(0, 0, 'swordThrowButton')
         .setInteractive()
-        .on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-          this.game.controls.consumePointer(pointer.id);
-          this.game.controls.inputDown(InputTypes.SwordThrow);
-        })
+        .on('pointerdown', () => this.game.controls.inputDown(InputTypes.SwordThrow))
         .on('pointerup', () => this.game.controls.inputUp(InputTypes.SwordThrow));
 
       this.container.add([this.chatButton, this.swordThrowButton]);
@@ -77,21 +68,36 @@ export default class MobileControls extends HudComponent {
     const joystick = this.game.controls.joystick;
     joystick?.thumb?.setScale(this.scale);
     joystick?.base?.setScale(this.scale);
-    joystick?.setRadius(130 * this.scale);
 
-    this.chatButton?.setScale(scale * 0.6);
-    this.abilityButtonContainer?.setScale(scale);
-    this.swordThrowButton?.setScale(scale * 0.5);
+    // Normalize all buttons to the same visual size (targetPx pixels wide)
+    const targetPx = 100 * scale;
+    if (this.swordThrowButton) {
+      this.swordThrowButton.setScale(targetPx / this.swordThrowButton.texture.getSourceImage().width);
+    }
+    if (this.abilityButton) {
+      this.abilityButtonContainer.setScale(targetPx / this.abilityButton.texture.getSourceImage().width);
+    }
+    if (this.chatButton) {
+      this.chatButton.setScale(targetPx / this.chatButton.texture.getSourceImage().width);
+    }
 
     this.resize();
   }
 
   resize() {
     const joystick = this.game.controls.joystick;
+    const h = this.game.scale.height;
+    const s = this.scale;
 
-    joystick?.setPosition(150 * this.scale, this.game.scale.height / 1.5);
-    this.chatButton?.setPosition(570 * this.chatButton.scaleX, 180 * this.chatButton.scaleY);
-    this.abilityButtonContainer?.setPosition(350 * this.scale, this.game.scale.height - 150 * this.scale);
-    this.swordThrowButton?.setPosition(this.game.scale.width - 380 * this.scale, this.game.scale.height - 150 * this.scale);
+    joystick?.setPosition(150 * s, h / 1.5);
+
+    // Buttons in a horizontal row above the progress bar, left-aligned
+    const btnY = h - 160 * s;
+    const startX = 80 * s;
+    const spacing = 135 * s;
+
+    this.swordThrowButton?.setPosition(startX, btnY);
+    this.abilityButtonContainer?.setPosition(startX + spacing, btnY);
+    this.chatButton?.setPosition(startX + spacing * 2, btnY);
   }
 }

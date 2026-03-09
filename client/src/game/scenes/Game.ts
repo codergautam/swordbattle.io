@@ -25,6 +25,7 @@ export default class Game extends Phaser.Scene {
   isMobile = false;
   zoom = 1;
   scaleZoom = 1;
+  backgroundTile: Phaser.GameObjects.TileSprite | null = null;
 
   private _resizeHandler: (() => void) | null = null;
   private _orientationHandler: (() => void) | null = null;
@@ -44,13 +45,18 @@ export default class Game extends Phaser.Scene {
     this.gameState.initialize();
     this.game.canvas.oncontextmenu = (e) => e.preventDefault();
     this.isMobile = this.game.device.os.android || this.game.device.os.iOS;
-    // this.isMobile = true
+    this.isMobile = true
+
+    if (this.isMobile) {
+      try { (window.screen.orientation as any).lock('portrait-primary').catch(() => {}); } catch (e) {}
+    }
   }
 
   preload() {
     // Signal that asset loading has started
     crazygamesSDK.loadingStart();
 
+    this.load.image('rockTile', publicPath + '/assets/game/tiles/rock.png');
     this.load.image('fireTile', publicPath + '/assets/game/tiles/fire.jpg');
     this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice-new.png');
@@ -205,7 +211,14 @@ export default class Game extends Phaser.Scene {
     // Signal that asset loading has finished
     crazygamesSDK.loadingStop();
 
-    this.cameras.main.setBackgroundColor('#006400');
+    this.cameras.main.setBackgroundColor('#000000');
+
+    // Rock tile background (visible outside map boundaries)
+    const camera = this.cameras.main;
+    this.backgroundTile = this.add.tileSprite(camera.width / 2, camera.height / 2, camera.width, camera.height, 'rockTile')
+      .setScrollFactor(0)
+      .setDepth(-10)
+      .setTileScale(2);
 
     this.soundManager.initialize();
     this.hud.initialize();
@@ -238,6 +251,7 @@ export default class Game extends Phaser.Scene {
     this._visibilityHandler = () => {
       if (!document.hidden) {
         this.game.loop.resetDelta();
+        this.gameState.onTabReturn();
       }
     };
 
@@ -287,6 +301,11 @@ export default class Game extends Phaser.Scene {
     const cameraScale = Math.max(width / view, height / view);
     this.setScaleZoom(cameraScale);
 
+    if (this.backgroundTile) {
+      this.backgroundTile.setSize(width, height);
+      this.backgroundTile.setPosition(width / 2, height / 2);
+    }
+
     this.hud.resize();
     this.gameState.resize();
   }
@@ -322,7 +341,18 @@ export default class Game extends Phaser.Scene {
       window.dispatchEvent(new CustomEvent('assetsLoadProgress', { detail: 1 }));
       console.log('Game is ready');
     }
+    if (this.backgroundTile) {
+      const camera = this.cameras.main;
+      const tileScale = 2;
+      this.backgroundTile.setDisplaySize(camera.displayWidth, camera.displayHeight);
+      this.backgroundTile.setTileScale(camera.zoom * tileScale);
+      this.backgroundTile.setTilePosition(
+        (camera.scrollX - camera.displayWidth / 2) / tileScale,
+        (camera.scrollY - camera.displayHeight / 2) / tileScale);
+    }
+
     this.soundManager.update(dt);
+    this.gameState.updateTick(dt);
     this.gameState.updateGraphics(dt);
     this.hud.update(dt);
     this.controls.update();

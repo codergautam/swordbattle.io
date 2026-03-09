@@ -1,6 +1,7 @@
 import HudComponent from './HudComponent';
 import { Evolutions } from '../Evolutions';
 import { config } from '../../config';
+import { threadId } from 'worker_threads';
 
 const discoveredKey = 'swordbattle:discoveredEvolutions';
 
@@ -25,6 +26,7 @@ class EvolutionSelect extends HudComponent {
   hideButton: Phaser.GameObjects.Text | null = null;
   leftArrow: Phaser.GameObjects.Text | null = null;
   rightArrow: Phaser.GameObjects.Text | null = null;
+  backdrop: Phaser.GameObjects.Graphics | null = null;
   spriteSize = 80;
   indent = 50;
   minimized = false;
@@ -57,7 +59,18 @@ class EvolutionSelect extends HudComponent {
     this.updateArrows();
 
     this.spritesContainer = this.hud.scene.add.container(0, -85);
-    this.container = this.hud.scene.add.container(0, 0, [this.spritesContainer, this.leftArrow, this.rightArrow, this.hideButton]);
+
+    // On mobile, add a translucent backdrop that blocks interaction behind
+    if (this.game.isMobile) {
+      this.backdrop = this.hud.scene.add.graphics();
+      this.backdrop.setVisible(false);
+    }
+
+    const children: Phaser.GameObjects.GameObject[] = [];
+    if (this.backdrop) children.push(this.backdrop);
+    children.push(this.spritesContainer, this.leftArrow!, this.rightArrow!, this.hideButton!);
+    this.container = this.hud.scene.add.container(0, 0, children);
+    this.container.setDepth(50);
     this.hud.add(this.container);
   }
 
@@ -76,6 +89,20 @@ class EvolutionSelect extends HudComponent {
     if (!this.container) return;
     this.container.x = this.game.scale.width / 2;
     this.container.y = 200 * this.scale;
+
+    if (this.backdrop) {
+      const w = this.game.scale.width;
+      const padY = 30;
+      const bw = Math.min(w * 0.9, 800);
+      const bh = 230;
+      this.backdrop.clear();
+      this.backdrop.fillStyle(0x000000, 0.5);
+      this.backdrop.fillRoundedRect(-bw / 2, -200 - padY, bw, bh + padY, 16);
+      this.backdrop.setInteractive(
+        new Phaser.Geom.Rectangle(-bw / 2, -200 - padY, bw, bh + padY),
+        Phaser.Geom.Rectangle.Contains,
+      );
+    }
   }
 
   toggleMinimize() {
@@ -148,6 +175,12 @@ class EvolutionSelect extends HudComponent {
         });
       }
 
+      // Show/hide backdrop on mobile and hide leaderboard
+      this.backdrop?.setVisible(count !== 0);
+      if (this.game.isMobile) {
+        this.game.events.emit('evolutionsVisible', count !== 0);
+      }
+
       const labelTargets = [this.hideButton, this.leftArrow, this.rightArrow].filter(Boolean);
       if(count === 0 && this.hideButton?.visible) {
         this.hud.scene!.tweens.add({
@@ -182,7 +215,7 @@ class EvolutionSelect extends HudComponent {
         container.setScale(this.spriteSize / body.height).setAlpha(alpha);
 
         if (!discovered.has(String(evol))) {
-          const newBadge = this.hud.scene!.add.text(100, -body.height / 2 - 40, 'NEW', {
+          const newBadge = this.hud.scene!.add.text(100, -body.height / 2 - 10, 'NEW', {
             fontSize: 48,
             fontStyle: 'bold',
             color: '#f7d060',

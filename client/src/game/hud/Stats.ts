@@ -11,6 +11,7 @@ class Stats extends HudComponent {
   throwReadySprite: any;
 
   initialize() {
+    if (this.game.isMobile) return;
     const { indent } = this;
     const style: Phaser.Types.GameObjects.Text.TextStyle = {
       fontSize: 18,

@@ -16,7 +16,6 @@ import { crazygamesSDK } from '../crazygames/sdk';
 class GameState {
   game: Game;
   socket!: WebSocket;
-  interval: any;
   entities: Record<number, any> = {};
   globalEntities: Record<number, GlobalEntity> = {};
   removedEntities: Set<any> = new Set();
@@ -29,6 +28,9 @@ class GameState {
   previousPlayerAngle: number = 0;
   payloadsQueue: any[] = [];
   isReady = false;
+  tickAccumulator = 0;
+  private _returningFromHidden = false;
+  private _pendingMessage: any = null;
   disconnectReason = {
     code: 0,
     reason: '',
@@ -105,7 +107,7 @@ class GameState {
     this.game.game.events.on('restartGame', this.restart, this);
     this.game.game.events.on('startSpectate', this.spectate, this);
     this.game.game.events.on('tokenUpdate', this.updateToken, this);
-    this.interval = setInterval(() => this.tick(), 1000 / 20);
+    // Tick is now driven by Game.update() via updateTick(dt) — no more setInterval.
   }
 
   start(name: string) {
@@ -269,7 +271,7 @@ class GameState {
 
   onServerClose(event: CloseEvent, endpoint?: string) {
     Socket.close();
-    clearInterval(this.interval);
+    this.tickAccumulator = 0;
 
     // Clear accumulated tracking objects to prevent memory leaks.
     // Entity Phaser objects are NOT destroyed here — that's handled safely
@@ -303,6 +305,15 @@ class GameState {
         this.payloadsQueue.forEach(msg => this.processServerMessage(msg));
         if(this.debugMode) alert("Clearing payload queue of "+this.payloadsQueue.length);
         this.payloadsQueue = [];
+      }
+      // When returning from a hidden tab, the browser delivers all buffered
+      // WebSocket messages at once. We keep only the latest one to avoid a
+      // massive CPU spike from processing dozens of stale state updates.
+      if (this._returningFromHidden) {
+        this._pendingMessage = data;
+        // The flag is cleared on the next render frame in updateGraphics,
+        // which processes the single latest message.
+        return;
       }
       this.processServerMessage(data);
     }
@@ -338,10 +349,17 @@ class GameState {
 
       const entityData = data.entities[id];
 
+      // Skip viewport entity creation/updates for entities rendered via GlobalEntity
       const globalEnt = this.globalEntities[id];
       if (globalEnt && globalEnt.gameWorldEntity) {
+        // Forward viewport state to game world visual (more detailed than global data)
         if (!entityData.removed && entityData.shapeData) {
           globalEnt.gameWorldEntity.updateState(entityData);
+        }
+        // Still clean up any orphaned regular entity for this ID
+        if (this.entities[id]) {
+          this.entities[id].remove();
+          delete this.entities[id];
         }
         continue;
       }
@@ -406,21 +424,55 @@ class GameState {
     }
   }
 
+  // Called from Game.update() every render frame with the frame's delta time.
+  // Accumulates time and fires tick() at a steady 20 Hz, synchronized with
+  // the render loop so it naturally pauses when the tab is hidden.
+  updateTick(dt: number) {
+    this.tickAccumulator += dt;
+    // Cap accumulator to prevent burst of ticks after returning from hidden tab
+    if (this.tickAccumulator > 200) {
+      this.tickAccumulator = 50;
+    }
+    while (this.tickAccumulator >= 50) {
+      this.tick();
+      this.tickAccumulator -= 50;
+    }
+  }
+
   tick() {
     if (!this.self.entity) return;
     this.updateLeaderboard();
     this.sendInputs();
   }
 
+  // Called by the visibility change handler when the tab becomes visible again.
+  // Discards stale buffered WebSocket messages and keeps only the most recent one
+  // to avoid a CPU spike from processing hundreds of queued state updates at once.
+  onTabReturn() {
+    this._returningFromHidden = true;
+  }
+
   updateGraphics(dt: number) {
+    // After returning from a hidden tab, process only the single most recent
+    // buffered message instead of the entire backlog.
+    if (this._returningFromHidden) {
+      this._returningFromHidden = false;
+      if (this._pendingMessage) {
+        this.processServerMessage(this._pendingMessage);
+        this._pendingMessage = null;
+      }
+    }
+
     for (const entity of this.removedEntities) {
       entity.update(dt);
     }
-    for (const entity of Object.values(this.entities)) {
-      entity.update(dt);
+    // Use for...in instead of Object.values() to avoid allocating a new array
+    // every frame (at 144 FPS that's 144 throwaway arrays/sec = GC pressure).
+    for (const id in this.entities) {
+      this.entities[id].update(dt);
     }
-    for (const entity of Object.values(this.globalEntities)) {
-      entity.update(dt);
+    for (const id in this.globalEntities) {
+      this.globalEntities[id].update(dt);
     }
     this.gameMap.update();
     this.spectator.update(dt);
@@ -498,7 +550,11 @@ class GameState {
     if (entity.type === EntityTypes.Coin) {
       entity.removed = true;
       // entity.hunter = this.entities[data.hunterId];
-      entity.hunter = findCoinCollector(entity, Object.values(this.entities).filter((e: any) => e.type === EntityTypes.Player));
+      const players: any[] = [];
+      for (const eid in this.entities) {
+        if (this.entities[eid].type === EntityTypes.Player) players.push(this.entities[eid]);
+      }
+      entity.hunter = findCoinCollector(entity, players);
       this.removedEntities.add(entity);
     } else {
       if(entity.type === EntityTypes.Player) {
@@ -526,6 +582,13 @@ class GameState {
     this.globalEntities[id] = globalEntity;
 
     globalEntity.createGameWorldVisual();
+
+    // If a regular viewport entity already exists for this ID (fullSync race),
+    // remove it to prevent ghost duplicates — the gameWorldVisual handles rendering
+    if (globalEntity.gameWorldEntity && this.entities[id]) {
+      this.entities[id].remove();
+      delete this.entities[id];
+    }
 
     return globalEntity;
   }

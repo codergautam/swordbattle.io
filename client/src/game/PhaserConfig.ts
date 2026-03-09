@@ -15,7 +15,7 @@ const config: Phaser.Types.Core.GameConfig = {
 	},
 	fps: {
 		target: 60,
-		smoothStep: true,
+		smoothStep: false,
 	},
 	physics: {
 		default: 'arcade',

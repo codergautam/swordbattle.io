@@ -17,7 +17,7 @@ class CaptureZone extends Entity {
 
     this.coinTimer = 0;
     this.coinInterval = helpers.random(0.2, 0.4);
-    this.totalCoinsTarget = objectData.totalCoins || helpers.randomInteger(5000, 15000);
+    this.totalCoinsTarget = objectData.totalCoins || helpers.randomInteger(5000, 10000);
     this.coinsSpawned = 0;
     this.coinValuePerSpawn = 0;
 
@@ -83,7 +83,7 @@ class CaptureZone extends Entity {
         const speed = helpers.random(20, 60);
         coin.velocity.x = Math.cos(velAngle) * speed;
         coin.velocity.y = Math.sin(velAngle) * speed;
-        coin.despawnTime = Date.now() + 6000;
+        coin.despawnTime = Date.now() + 4000;
         this.coinsSpawned += coinValue;
       }
     }

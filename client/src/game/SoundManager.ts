@@ -75,10 +75,9 @@ class SoundManager {
     const player = this.game.gameState.self.entity;
     if (!player) return;
 
-    for (const sound of Object.values(this.manager)) {
+    for (const key in this.manager) {
+      const sound = this.manager[key as unknown as FlagTypes]!;
       sound.update(dt);
-    }
-    for (const key of Object.keys(this.manager)) {
       const flagNum = Number(key) as unknown as FlagTypes;
       if (player.flags && player.flags[flagNum]) {
         this.play(flagNum);

@@ -15,7 +15,7 @@ class HudComponent {
 
   setScale(scale: number) {
     this.scale = scale;
-    this.container.setScale(scale);
+    this.container?.setScale(scale);
     this.resize();
   }
 

@@ -6,6 +6,7 @@ function Leaderboard({ game }: any) {
   const [show, setShow] = useState(true);
   const [players, setPlayers] = useState<any>([]);
   const [selfPlayer, setSelfPlayer] = useState<any>(null);
+  const [hidden, setHidden] = useState(false);
 
   const processPlayers = (players: any[], selfId: number) => {
     const sortedPlayers = players.sort((a, b) => b.coins - a.coins);
@@ -22,13 +23,19 @@ function Leaderboard({ game }: any) {
       game.events.on('playersUpdate', (players: any, selfId: number) => {
         setPlayers(processPlayers(players, selfId));
       });
+      game.events.on('evolutionsVisible', (visible: boolean) => {
+        setHidden(visible);
+      });
     }
   }, [game]);
 
+  const scaleStyles = useScale(false).styles;
   const toggleVisibility = () => setShow(!show);
 
+  if (hidden) return null;
+
   return (
-    <div className="leaderboard" style={useScale(false).styles}>
+    <div className="leaderboard" style={scaleStyles}>
       <div className={`leaderboard-title ${show ? 'open' : 'closed'}`} role="button" onClick={toggleVisibility}>
         <span className="lb-arrow">{show ? '\u25BC' : '\u25B2'}</span>
         {' Leaderboard '}

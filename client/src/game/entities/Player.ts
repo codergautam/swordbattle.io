@@ -643,17 +643,22 @@ class Player extends BaseEntity {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
     const now = Date.now();
-    if (now - this.abilityParticlesLast < 100) return;
+    // Reduced frequency: 150ms instead of 100ms, and use pooled sprites
+    // instead of creating a full Phaser particle system each call.
+    if (now - this.abilityParticlesLast < 150) return;
     this.abilityParticlesLast = now;
     try {
-    const particles = this.game.add.particles(
-      this.container.x + random(-this.body.displayWidth, this.body.displayWidth) * 0.5,
-      this.container.y + random(-this.body.displayHeight, this.body.displayHeight) * 0.5,
-      'starParticle',
-      { scale: 0.05, speed: 200, maxParticles: 1 },
-    );
-    particles.setDepth(45);
-    particles.once('complete', () => particles.destroy());
+      const s = getParticle(this.game, 'starParticle');
+      s.x = this.container.x + random(-this.body.displayWidth, this.body.displayWidth) * 0.5;
+      s.y = this.container.y + random(-this.body.displayHeight, this.body.displayHeight) * 0.5;
+      s.setScale(0.05).setAlpha(1).setDepth(45);
+      this.game.tweens.add({
+        targets: s,
+        alpha: 0,
+        scale: 0.01,
+        duration: 400,
+        onComplete: () => releaseParticle(s),
+      });
     if (this.evolution === EvolutionTypes.Plaguebearer && this.abilityActive) {
       this.addPoisonFieldParticles();
     }
@@ -667,11 +672,13 @@ class Player extends BaseEntity {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
     const now = Date.now();
-    if (now - this.poisonParticlesLast < 180) return; // 5-6 times per sec
+    if (now - this.poisonParticlesLast < 250) return; // ~4 times per sec
     this.poisonParticlesLast = now;
 
+    // Adaptive particle count: fewer particles when FPS is struggling
+    const count = fps < 30 ? 8 : 15;
     try {
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < count; i++) {
         const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
         const rr = Math.sqrt(Phaser.Math.FloatBetween(0, 1)) * 2000;
         const px = this.container.x + Math.cos(angle) * rr + random(-8, 8);

@@ -373,6 +373,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
             return null;
             })()}
 
+            <div style={skin.id === 459 ? { transform: 'scale(1.25)' } : undefined}>
             <img
             src={basePath + skin.bodyFileName}
             alt={skin.name}
@@ -417,19 +418,20 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
             }}
             data-selected='skin'
             />
+            </div>
           <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
                     <br/>
           <p className='skin-desc'>{skin.description}</p>
           {
   (skin?.price ?? 0) > 0 ? (
     <>
-      {skin?.sale 
+      {skin?.sale
         && <> <span className="sale">
         {skin?.ogprice}
       </span><span>‎ ‎ ‎</span> </>
       }
-      {skin?.price} 
-      {skin?.ultimate 
+      {skin?.price}
+      {skin?.ultimate
         ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
         : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
       }
@@ -437,7 +439,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
   ) : (
     <>
       <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
-      {skin?.sale 
+      {skin?.sale
         && <> <span className="sale">
         {skin?.ogprice}
       </span><span>‎ ‎ ‎</span> </>
@@ -526,6 +528,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
             return null;
             })()}
 
+            <div style={skin.id === 459 ? { transform: 'scale(1.25)' } : undefined}>
             <img
             src={basePath + skin.bodyFileName}
             alt={skin.name}
@@ -570,19 +573,20 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
             }}
             data-selected='skin'
             />
+            </div>
           <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
                     <br/>
           <p className='skin-desc'>{skin.description}</p>
           {
   (skin?.price ?? 0) > 0 ? (
     <>
-      {skin?.sale 
+      {skin?.sale
         && <> <span className="sale">
         {skin?.ogprice}
       </span><span>‎ ‎ ‎</span> </>
       }
-      {skin?.price} 
-      {skin?.ultimate 
+      {skin?.price}
+      {skin?.ultimate
         ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
         : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
       }
@@ -590,7 +594,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
   ) : (
     <>
       <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
-      {skin?.sale 
+      {skin?.sale
         && <> <span className="sale">
         {skin?.ogprice}
       </span><span>‎ ‎ ‎</span> </>

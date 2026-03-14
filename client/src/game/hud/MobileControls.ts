@@ -70,14 +70,15 @@ export default class MobileControls extends HudComponent {
     joystick?.base?.setScale(this.scale);
 
     const targetPx = 100 * scale;
-    if (this.swordThrowButton) {
-      this.swordThrowButton.setScale(targetPx / this.swordThrowButton.texture.getSourceImage().width);
+    
+    if (this.chatButton) {
+      this.chatButton.setScale(targetPx / this.chatButton.texture.getSourceImage().width);
     }
     if (this.abilityButton) {
       this.abilityButtonContainer.setScale(targetPx / this.abilityButton.texture.getSourceImage().width);
     }
-    if (this.chatButton) {
-      this.chatButton.setScale(targetPx / this.chatButton.texture.getSourceImage().width);
+    if (this.swordThrowButton) {
+      this.swordThrowButton.setScale(targetPx / this.swordThrowButton.texture.getSourceImage().width);
     }
 
     this.resize();
@@ -96,13 +97,11 @@ export default class MobileControls extends HudComponent {
     const startX = 80 * s;
 
     if (isPortrait) {
-      // Portrait: row above progress bar, left-aligned
       const btnY = h - 160 * s;
       this.swordThrowButton?.setPosition(startX, btnY);
       this.abilityButtonContainer?.setPosition(startX + spacing, btnY);
       this.chatButton?.setPosition(startX + spacing * 2, btnY);
     } else {
-      // Landscape: bottom-left with padding
       const btnY = h - 60 * s;
       this.swordThrowButton?.setPosition(startX, btnY);
       this.abilityButtonContainer?.setPosition(startX + spacing, btnY);

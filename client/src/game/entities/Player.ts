@@ -74,6 +74,7 @@ class Player extends BaseEntity {
   bodyContainer!: Phaser.GameObjects.Container;
   swordContainer!: Phaser.GameObjects.Container;
   evolutionOverlay!: Phaser.GameObjects.Sprite;
+  evolutionOverlayShadow!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
   messageText!: Phaser.GameObjects.Text;
   submergedShadow!: Phaser.GameObjects.Graphics;
@@ -123,7 +124,13 @@ class Player extends BaseEntity {
     const bodyShadowKey = this.createShadowTexture('playerBody');
     this.shadow = this.game.add.sprite(Player.shadowOffsetX, Player.shadowOffsetY, bodyShadowKey).setRotation(-Math.PI / 2);
     this.shadow.setAlpha(0.085);
+    if (this.skin === 459) {
+      this.shadow.setScale(1.25);
+    }
     this.evolutionOverlay = this.game.add.sprite(0, 0, '').setRotation(-Math.PI / 2);
+    this.evolutionOverlayShadow = this.game.add.sprite(Player.shadowOffsetX, Player.shadowOffsetY, '').setRotation(-Math.PI / 2);
+    this.evolutionOverlayShadow.setAlpha(0.085);
+    this.evolutionOverlayShadow.setVisible(false);
     this.updateEvolution();
 
     this.sword = this.game.add.sprite(this.body.width / 2, this.body.height / 2, 'playerSword').setRotation(Math.PI / 4);
@@ -190,7 +197,7 @@ class Player extends BaseEntity {
     this.submergedShadow.fillCircle(0, 0, submergedRadius);
     this.submergedShadow.setAlpha(0);
 
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.swordShadow, this.submergedShadow, this.bodyContainer, name, this.messageText]);
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.evolutionOverlayShadow, this.swordShadow, this.submergedShadow, this.bodyContainer, name, this.messageText]);
 
     if (ogex) {
       try {
@@ -714,11 +721,20 @@ class Player extends BaseEntity {
     const evolutionClass = Evolutions[this.evolution];
     if (!evolutionClass) {
       this.evolutionOverlay.setVisible(false);
+      if (this.evolutionOverlayShadow) this.evolutionOverlayShadow.setVisible(false);
     } else {
       this.evolutionOverlay.setVisible(true);
       this.evolutionOverlay.setTexture(evolutionClass[1]);
       this.evolutionOverlay.setOrigin(evolutionClass[3][0], evolutionClass[3][1]);
       this.evolutionOverlay.setScale(this.body.width / this.evolutionOverlay.width * evolutionClass[2]);
+
+      if (this.evolutionOverlayShadow) {
+        const shadowKey = this.createShadowTexture(evolutionClass[1]);
+        this.evolutionOverlayShadow.setTexture(shadowKey);
+        this.evolutionOverlayShadow.setOrigin(evolutionClass[3][0], evolutionClass[3][1]);
+        this.evolutionOverlayShadow.setScale(this.body.width / this.evolutionOverlayShadow.width * evolutionClass[2]);
+        this.evolutionOverlayShadow.setVisible(true);
+      }
     }
   }
 
@@ -763,6 +779,9 @@ class Player extends BaseEntity {
     this.bodyContainer.setRotation(angle);
     if (this.shadow) {
       this.shadow.setRotation(angle - Math.PI / 2);
+    }
+    if (this.evolutionOverlayShadow && this.evolutionOverlayShadow.visible) {
+      this.evolutionOverlayShadow.setRotation(angle - Math.PI / 2);
     }
     if (this.swordShadow) {
       const sx = this.body.width / 2;
@@ -972,6 +991,7 @@ class Player extends BaseEntity {
     const shadowAlpha = 0.085 * (1 - this._submergedProgress * 0.5);
     this.shadow.setAlpha(shadowAlpha);
     if (this.swordShadow) this.swordShadow.setAlpha(shadowAlpha);
+    if (this.evolutionOverlayShadow) this.evolutionOverlayShadow.setAlpha(shadowAlpha);
   }
 
   update(dt: number) {

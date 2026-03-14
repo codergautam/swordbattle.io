@@ -208,7 +208,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
         )}
       </div>
 
-      <div className="personal-best-section">
+      {/* <div className="personal-best-section">
         {pbResult.anyRecord && <div className="pb-header new-record">NEW RECORD!</div>}
         {!pbResult.anyRecord && <div className="pb-header">Personal Best</div>}
         <div className="pb-stats">
@@ -231,7 +231,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
             {!pbResult.records.survivalTime && <span className="pb-encourage">{getEncouragingMessage(results.survivalTime, pbResult.pb.survivalTime)}</span>}
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="results-buttons">
         {respawnCoins > 0 ? (

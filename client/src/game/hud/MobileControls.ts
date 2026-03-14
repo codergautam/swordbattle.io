@@ -98,14 +98,15 @@ export default class MobileControls extends HudComponent {
 
     if (isPortrait) {
       const btnY = h - 160 * s;
-      this.swordThrowButton?.setPosition(startX, btnY);
+      
+      this.chatButton?.setPosition(startX, btnY);
       this.abilityButtonContainer?.setPosition(startX + spacing, btnY);
-      this.chatButton?.setPosition(startX + spacing * 2, btnY);
+      this.swordThrowButton?.setPosition(startX + spacing * 2, btnY);
     } else {
       const btnY = h - 60 * s;
-      this.swordThrowButton?.setPosition(startX, btnY);
+      this.chatButton?.setPosition(startX, btnY);
       this.abilityButtonContainer?.setPosition(startX + spacing, btnY);
-      this.chatButton?.setPosition(startX + spacing * 2, btnY);
+      this.swordThrowButton?.setPosition(startX + spacing * 2, btnY);
     }
   }
 }

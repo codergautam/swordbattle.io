@@ -6,11 +6,10 @@ export default function ChangelogCard({ onViewChangelog }: { onViewChangelog?: (
   return (
     <span>
       <h1>News and Updates</h1>
-      <h2 style={{color: 'rgb(255, 252, 59)'}}>OVERHAUL Update</h2>
-      <ul>- Daily Rewards!</ul>
-      <ul>- Respawn with coins!</ul>
-      <ul>- HUGE graphics update!</ul>
-      <ul>- Teaming is less powerful</ul>
+      <h2 style={{color: 'rgb(59, 252, 255)'}}>Pi Day Sale!</h2>
+      <ul>- 8 exclusive Pi Day event skins!</ul>
+      <ul>- Pi Guy and Pi Man skins for 50% off!</ul>
+      <ul>- Sale lasts until 3/17!</ul>
 
       <a className="changelogbutton" onClick={onViewChangelog} style={{ cursor: 'pointer' }}>
         <FontAwesomeIcon icon={faClipboardList} /> View Changelog

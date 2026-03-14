@@ -114,6 +114,15 @@ class EvolutionSelect extends HudComponent {
       y: this.minimized ? -140 : -85,
       duration: 250,
     });
+
+    // Fade backdrop with the collapse/expand
+    if (this.backdrop) {
+      this.hud.scene!.tweens.add({
+        targets: this.backdrop,
+        alpha: this.minimized ? 0 : 1,
+        duration: 250,
+      });
+    }
   }
 
   selectEvolution(type: any) {
@@ -174,7 +183,10 @@ class EvolutionSelect extends HudComponent {
         });
       }
 
-      this.backdrop?.setVisible(count !== 0);
+      if (this.backdrop) {
+        this.backdrop.setVisible(count !== 0);
+        this.backdrop.setAlpha(this.minimized ? 0 : 1);
+      }
       if (this.game.isMobile) {
         this.game.events.emit('evolutionsVisible', count !== 0);
       }

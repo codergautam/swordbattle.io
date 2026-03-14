@@ -163,7 +163,10 @@
       "displayName": "Pi Guy",
       "id": 197,
       "buyable": true,
-      "price": 314159,
+      "sale": true,
+      "saletag": "50% OFF",
+      "ogprice": 314159,
+      "price": 159265,
       "swordFileName": "piGuySword.png",
       "bodyFileName": "piGuyPlayer.png",
       "description": "The ratio of a circle's circumference to its diameter"
@@ -4031,7 +4034,10 @@
       "displayName": "Pi Man",
       "id": 399,
       "buyable": true,
-      "price": 314159,
+      "sale": true,
+      "saletag": "50% OFF",
+      "ogprice": 314159,
+      "price": 159265,
       "swordFileName": "ultimatePiguySword.png",
       "bodyFileName": "ultimatePiguyPlayer.png",
       "description": "The original Pi Guy"
@@ -4773,8 +4779,8 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "yinyangv2Sword2.png",
-      "bodyFileName": "yinyangv2Player2.png",
+      "swordFileName": "yinyangv2Sword.png",
+      "bodyFileName": "yinyangv2Player.png",
       "description": "Find a balance."
     },
     "bullseye v2": {
@@ -4784,8 +4790,8 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "bullseyev2Sword2.png",
-      "bodyFileName": "bullseyev2Player2.png",
+      "swordFileName": "bullseyev2Sword.png",
+      "bodyFileName": "bullseyev2Player.png",
       "description": "Never miss your shots!"
     },
     "bubble v2": {
@@ -4795,8 +4801,8 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "bubblev2Sword2.png",
-      "bodyFileName": "bubblev2Player2.png",
+      "swordFileName": "bubblev2Sword.png",
+      "bodyFileName": "bubblev2Player.png",
       "description": "Magical and mysterious"
     },
     "hacker v2": {
@@ -4806,9 +4812,113 @@
       "dailyReward": true,
       "buyable": false,
       "price": 0,
-      "swordFileName": "hackerv2Sword2.png",
-      "bodyFileName": "hackerv2Player2.png",
+      "swordFileName": "hackerv2Sword.png",
+      "bodyFileName": "hackerv2Player.png",
       "description": "ℙ𝕣𝕠 𝕙𝕒𝕔𝕜𝕖𝕣"
+    },
+    "geometry": {
+      "name": "geometry",
+      "displayName": "Parts of a Circle",
+      "id": 459,
+      "sale": true,
+      "eventtag": "PI DAY",
+      "event": true,
+      "buyable": true,
+      "price": 100,
+      "swordFileName": "geometrySword.png",
+      "bodyFileName": "geometryPlayer.png",
+      "description": "\"See, I can study AND play the game at the same time!\""
+    },
+    "cryo pi": {
+      "name": "cryo pi",
+      "displayName": "Cryo Pi",
+      "id": 460,
+      "sale": true,
+      "eventtag": "PI DAY",
+      "event": true,
+      "buyable": true,
+      "price": 3141,
+      "swordFileName": "cryoPiSword.png",
+      "bodyFileName": "cryoPiPlayer.png",
+      "description": "The pie does NOT belong in the freezer"
+    },
+    "piromaniac": {
+      "name": "piromaniac",
+      "displayName": "Pi-ro Maniac",
+      "id": 461,
+      "sale": true,
+      "eventtag": "PI DAY",
+      "event": true,
+      "buyable": true,
+      "price": 3141,
+      "swordFileName": "pirodudeSword.png",
+      "bodyFileName": "pirodudePlayer.png",
+      "description": "3.14x the mania compared to a normal pyromaniac!"
+    },
+    "pyro guy": {
+      "name": "pyro guy",
+      "displayName": "Pyro Guy",
+      "id": 462,
+      "sale": true,
+      "eventtag": "PI DAY",
+      "event": true,
+      "buyable": true,
+      "price": 265358,
+      "swordFileName": "piromaniacSword.png",
+      "bodyFileName": "piromaniacPlayer.png",
+      "description": "It's a bit overcooked"
+    },
+    "piev2Player": {
+      "name": "piev2Player",
+      "displayName": "Pie",
+      "id": 463,
+      "sale": true,
+      "eventtag": "PI DAY",
+      "event": true,
+      "buyable": true,
+      "price": 10000,
+      "swordFileName": "piev2Sword.png",
+      "bodyFileName": "piev2Player.png",
+      "description": "A snack before destruction"
+    },
+    "anglePlayer": {
+      "name": "anglePlayer",
+      "displayName": "Angle",
+      "id": 464,
+      "sale": true,
+      "eventtag": "PI DAY",
+      "event": true,
+      "buyable": true,
+      "price": 4282,
+      "swordFileName": "angleSword.png",
+      "bodyFileName": "anglePlayer.png",
+      "description": "You aren't bad at PvP, you're just looking at it from the wrong angle!"
+    },
+    "graphPlayer": {
+      "name": "graphPlayer",
+      "displayName": "Graph",
+      "id": 465,
+      "sale": true,
+      "eventtag": "PI DAY",
+      "event": true,
+      "buyable": true,
+      "price": 1248,
+      "swordFileName": "graphSword.png",
+      "bodyFileName": "graphPlayer.png",
+      "description": "Intercept your enemy's attacks and plot your victory!"
+    },
+    "elitePiDiver": {
+      "name": "elitePiDiver",
+      "displayName": "Elite Pi Diver",
+      "id": 466,
+      "sale": true,
+      "eventtag": "PI DAY",
+      "event": true,
+      "buyable": true,
+      "price": 31415,
+      "swordFileName": "elitePiDiverSword.png",
+      "bodyFileName": "elitePiDiverPlayer.png",
+      "description": "Dive into the trenches of pi!"
     }
   }
 }

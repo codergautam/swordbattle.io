@@ -19,8 +19,6 @@ export class Controls {
   disabledKeys: Set<number> = new Set();
   private _blurHandler: (() => void) | null = null;
   private _swingPointerId = -1;
-  private _swingStartTime = 0;
-  private _holdThrowTriggered = false;
 
   constructor(game: Game) {
     this.game = game;
@@ -75,8 +73,13 @@ export class Controls {
 
       this.game.hud.scene.input.on('pointerdown', (pointer: any) => {
         if (this.joystickPointer) return;
-        if (pointer.x > this.game.scale.width * 0.45) return;
-        if (pointer.y < this.game.scale.height * 0.4) return;
+        // Only accept touches within the actual joystick radius
+        const baseX = this.joystick.base?.x ?? 0;
+        const baseY = this.joystick.base?.y ?? 0;
+        const joyRadius = 130 * (this.game.hud?.scale || 1);
+        const dx = pointer.x - baseX;
+        const dy = pointer.y - baseY;
+        if (dx * dx + dy * dy > joyRadius * joyRadius) return;
         this.joystickPointer = pointer;
       });
       this.game.hud.scene.input.on('pointerup', (pointer: any) => {
@@ -99,11 +102,16 @@ export class Controls {
       pointer.event.preventDefault();
 
       if (this.game.isMobile) {
-        const w = this.game.scale.width;
-        const h = this.game.scale.height;
         const s = this.game.hud.scale;
 
-        if (pointer.x < w * 0.4 && pointer.y > h * 0.5) return;
+        // Skip swing if tapping inside joystick area
+        const jBase = this.joystick?.base;
+        if (jBase) {
+          const jdx = pointer.x - jBase.x;
+          const jdy = pointer.y - jBase.y;
+          const jr = 130 * s;
+          if (jdx * jdx + jdy * jdy < jr * jr) return;
+        }
 
         const mc = this.game.hud.mobileControls;
         const near = (obj: any, r: number) => {
@@ -121,8 +129,6 @@ export class Controls {
         this.inputDown(InputTypes.SwordSwing);
         if (this.game.isMobile) {
           this._swingPointerId = pointer.id;
-          this._swingStartTime = Date.now();
-          this._holdThrowTriggered = false;
         }
       }
       if (pointer.rightButtonDown()) {
@@ -184,17 +190,6 @@ export class Controls {
         if (this.mouse.force < 1) this.mouse.force = 0;
       }
 
-      if (this.isInputDown(InputTypes.SwordSwing) && !this._holdThrowTriggered && this._swingPointerId >= 0) {
-        if (Date.now() - this._swingStartTime >= 1000) {
-          this._holdThrowTriggered = true;
-          this.inputDown(InputTypes.SwordThrow);
-          setTimeout(() => {
-            this._swingPointerId = -1;
-            this.inputUp(InputTypes.SwordThrow);
-            this.inputUp(InputTypes.SwordSwing);
-          }, 250);
-        }
-      }
     } else {
       const { activePointer } = this.game.input;
       const mousePos = {

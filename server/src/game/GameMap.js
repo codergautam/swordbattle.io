@@ -115,11 +115,11 @@ class GameMap {
     if (this.captureZoneTimer.finished && this.activeCaptureZones.length < 2) {
       this.spawnCaptureZone();
       if (this.activeCaptureZones.length === 1 && Math.random() < 0.3) {
-        this.captureZoneTimer.minTime = 10;
-        this.captureZoneTimer.maxTime = 20;
+        this.captureZoneTimer.minTime = 45;
+        this.captureZoneTimer.maxTime = 75;
       } else {
-        this.captureZoneTimer.minTime = 30;
-        this.captureZoneTimer.maxTime = 60;
+        this.captureZoneTimer.minTime = 90;
+        this.captureZoneTimer.maxTime = 120;
       }
       this.captureZoneTimer.renew();
     }

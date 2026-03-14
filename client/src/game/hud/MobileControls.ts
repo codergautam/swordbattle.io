@@ -85,17 +85,28 @@ export default class MobileControls extends HudComponent {
 
   resize() {
     const joystick = this.game.controls.joystick;
+    const w = this.game.scale.width;
     const h = this.game.scale.height;
     const s = this.scale;
+    const isPortrait = h > w;
 
     joystick?.setPosition(150 * s, h / 1.5);
 
-    const btnY = h - 160 * s;
-    const startX = 80 * s;
     const spacing = 135 * s;
+    const startX = 80 * s;
 
-    this.swordThrowButton?.setPosition(startX, btnY);
-    this.abilityButtonContainer?.setPosition(startX + spacing, btnY);
-    this.chatButton?.setPosition(startX + spacing * 2, btnY);
+    if (isPortrait) {
+      // Portrait: row above progress bar, left-aligned
+      const btnY = h - 160 * s;
+      this.swordThrowButton?.setPosition(startX, btnY);
+      this.abilityButtonContainer?.setPosition(startX + spacing, btnY);
+      this.chatButton?.setPosition(startX + spacing * 2, btnY);
+    } else {
+      // Landscape: bottom-left with padding
+      const btnY = h - 60 * s;
+      this.swordThrowButton?.setPosition(startX, btnY);
+      this.abilityButtonContainer?.setPosition(startX + spacing, btnY);
+      this.chatButton?.setPosition(startX + spacing * 2, btnY);
+    }
   }
 }

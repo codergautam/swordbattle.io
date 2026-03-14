@@ -45,7 +45,7 @@ export default class Game extends Phaser.Scene {
     this.gameState.initialize();
     this.game.canvas.oncontextmenu = (e) => e.preventDefault();
     this.isMobile = this.game.device.os.android || this.game.device.os.iOS;
-
+    
     if (this.isMobile) {
       try { (window.screen.orientation as any).lock('portrait-primary').catch(() => {}); } catch (e) {}
     }

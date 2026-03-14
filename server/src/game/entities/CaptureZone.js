@@ -12,12 +12,12 @@ class CaptureZone extends Entity {
     this.isGlobal = true;
     this.depth = 0;
 
-    this.lifetime = helpers.random(30, 60);
+    this.lifetime = helpers.random(45, 65);
     this.elapsed = 0;
 
     this.coinTimer = 0;
     this.coinInterval = helpers.random(0.2, 0.4);
-    this.totalCoinsTarget = objectData.totalCoins || helpers.randomInteger(5000, 10000);
+    this.totalCoinsTarget = objectData.totalCoins || helpers.randomInteger(12500, 17500);
     this.coinsSpawned = 0;
     this.coinValuePerSpawn = 0;
 

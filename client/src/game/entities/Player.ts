@@ -117,6 +117,9 @@ class Player extends BaseEntity {
     this.skinName = Object.values(skins).find(skin => skin.id === this.skin)?.name;
     const ogex = this.skinName?.includes("ogex") || false;
     this.body = this.game.add.sprite(0, 0, 'playerBody').setRotation(-Math.PI / 2);
+    if (this.skin === 459) {
+      this.body.setScale(1.25);
+    }
     const bodyShadowKey = this.createShadowTexture('playerBody');
     this.shadow = this.game.add.sprite(Player.shadowOffsetX, Player.shadowOffsetY, bodyShadowKey).setRotation(-Math.PI / 2);
     this.shadow.setAlpha(0.085);

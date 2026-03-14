@@ -105,7 +105,8 @@ class Minimap extends HudComponent {
     if (!this.container) return;
 
     const x = this.game.scale.width - (this.width * this.scale) - 10;
-    const mobileOffset = this.game.isMobile ? 120 * this.scale : 0;
+    const isPortrait = this.game.scale.height > this.game.scale.width;
+    const mobileOffset = (this.game.isMobile && isPortrait) ? 120 * this.scale : 0;
     const y = this.game.scale.height - (this.height * this.scale) - 10 - mobileOffset;
     this.container.setPosition(x, y);
   }

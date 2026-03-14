@@ -67,8 +67,19 @@ class Coin extends Entity {
     if (player.name === "Update Testing Account") {
       player.levels.addCoins(this.value * 50);
     } else {
-      const coinValue = player.isFirstLife ? Math.round(this.value * 1.5) : this.value;
-      player.levels.addCoins(coinValue);
+      const isCrazygames = !!player.client?.account?.isCrazygames;
+      if (isCrazygames || player.isFirstLife) {
+        const raw = this.value * 1.5;
+        player._coinRemainder = (player._coinRemainder || 0) + (raw - Math.floor(raw));
+        let coinValue = Math.floor(raw);
+        if (player._coinRemainder >= 1) {
+          coinValue += Math.floor(player._coinRemainder);
+          player._coinRemainder -= Math.floor(player._coinRemainder);
+        }
+        player.levels.addCoins(coinValue);
+      } else {
+        player.levels.addCoins(this.value);
+      }
     }
     
     player.flags.set(Types.Flags.GetCoin, true);

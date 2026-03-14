@@ -115,6 +115,9 @@ export class AuthService {
 
       // Account doesn't exist, create a new one
       let sanitizedUsername = username.replace(/\./g, '_');
+
+      sanitizedUsername = AuthService.stripCrazygamesRandomSuffix(sanitizedUsername);
+
       let finalUsername = sanitizedUsername;
       let counter = 1;
       while (await this.accountsService.findOneWithLowercase({ where: { username: finalUsername } })) {
@@ -198,6 +201,25 @@ export class AuthService {
 
   async checkInAccount(account: Account) {
     return this.accountsService.checkIn(account);
+  }
+
+  private static stripCrazygamesRandomSuffix(username: string): string {
+    const match = username.match(/^(.+)_([A-Za-z0-9]{3,5})$/);
+    if (!match) return username;
+
+    const base = match[1];
+    const suffix = match[2];
+
+    if (base.length < 2) return username;
+
+    const hasUpper = /[A-Z]/.test(suffix);
+    const hasLower = /[a-z]/.test(suffix);
+    const hasDigit = /[0-9]/.test(suffix);
+    const charTypeCount = (hasUpper ? 1 : 0) + (hasLower ? 1 : 0) + (hasDigit ? 1 : 0);
+
+    if (charTypeCount < 2) return username;
+
+    return base;
   }
 
   private static readonly DAILY_REWARD_SKIN_IDS = [

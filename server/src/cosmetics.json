@@ -4838,8 +4838,8 @@
       "event": true,
       "buyable": true,
       "price": 3141,
-      "swordFileName": "cryoPiSword.png",
-      "bodyFileName": "cryoPiPlayer.png",
+      "swordFileName": "cryopiSword.png",
+      "bodyFileName": "cryopiPlayer.png",
       "description": "The pie does NOT belong in the freezer"
     },
     "piromaniac": {

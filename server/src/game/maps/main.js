@@ -351,7 +351,7 @@ module.exports = {
           amount: 7,
           position: 'random',
           respawnable: true,
-          size: [70, 120],
+          size: [90, 100],
         },
         {
           type: Types.Entity.Roku,

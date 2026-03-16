@@ -1,59 +1,89 @@
 import { BaseEntity } from '../BaseEntity';
 import { Health } from '../../components/Health';
 
-class ChimeraMob extends BaseEntity {
-  static stateFields = [...BaseEntity.stateFields, 'angle', 'isAngry'];
+class Chimera extends BaseEntity {
+  static stateFields = [
+    ...BaseEntity.stateFields,
+    'angle',
+    'isAngry',
+    'altitude',
+    'state',
+    'isFlying',
+  ];
   static basicAngle = -Math.PI / 2;
   static removeTransition = 500;
   static shadowOffsetX = 20;
   static shadowOffsetY = 20;
+  static maxAltitude = 120;
 
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
 
-  get baseScale() {
-    return (this.shape.radius * 5) / this.body.height;
-  }
+  altitude: number = 0;
 
-  get flyingScale() {
-    return this.baseScale * 1.5;
+  get baseScale() {
+    return (this.shape.radius * 6) / this.body.height;
   }
 
   createSprite() {
-    this.body = this.game.add.sprite(0, 0, 'chimera').setOrigin(0.5, 0.5);
-    const initialScale = this.isAngry ? this.flyingScale : this.baseScale;
+    this.body = this.game.add
+      .sprite(0, 0, 'chimera')
+      .setOrigin(0.5, 0.5);
+
+    const initialScale = this.baseScale;
     this.body.setScale(initialScale);
-    this.shadow = this.game.add.sprite(ChimeraMob.shadowOffsetX, ChimeraMob.shadowOffsetY, 'chimeraShadow').setOrigin(0.5, 0.5);
-    this.shadow.setScale(this.isAngry ? initialScale * 1.3 : initialScale);
-    this.shadow.setAlpha(this.isAngry ? 0.05 : 0.1);
-    this.healthBar = new Health(this, { offsetY: -this.shape.radius - 300 });
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);
+
+    this.shadow = this.game.add
+      .sprite(
+        Chimera.shadowOffsetX,
+        Chimera.shadowOffsetY,
+        'chimeraShadow'
+      )
+      .setOrigin(0.5, 0.5);
+
+    this.shadow.setScale(initialScale);
+    this.shadow.setAlpha(0.15);
+
+    this.healthBar = new Health(this, {
+      offsetY: -this.shape.radius - 300,
+    });
+
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [
+      this.shadow,
+      this.body,
+    ]);
+
     return this.container;
   }
 
-  afterStateUpdate(data: any): void {
-    if (data.isAngry !== undefined) {
-      this.updateScale();
-    }
+  updateAltitudeVisual() {
+    if (!this.container || !this.shadow || !this.body) return;
+
+    this.container.x = this.shape.x;
+    this.container.y = this.shape.y - this.altitude;
+
+    const t = Phaser.Math.Clamp(
+      this.altitude / Chimera.maxAltitude,
+      0,
+      1
+    );
+
+    const baseScale = this.baseScale;
+
+    const bodyScale = baseScale * (1 * t);
+    this.body.setScale(bodyScale);
+
+    const shadowScale = baseScale * (1 + 1.1 * t);
+    const shadowAlpha = 0.18 - 0.08 * t;
+
+    this.shadow.setScale(shadowScale);
+    this.shadow.setAlpha(Phaser.Math.Clamp(shadowAlpha, 0.06, 0.18));
   }
 
-  updateScale() {
-    if (!this.body) return;
-
-    this.game.tweens.add({
-      targets: this.body,
-      scale: this.isAngry ? this.flyingScale : this.baseScale,
-      duration: 2500,
-    });
-
-    if (this.shadow) {
-      this.game.tweens.add({
-        targets: this.shadow,
-        scaleX: this.isAngry ? this.flyingScale * 1.3 : this.baseScale,
-        scaleY: this.isAngry ? this.flyingScale * 1.3 : this.baseScale,
-        alpha: this.isAngry ? 0.1 : 0.15,
-        duration: 2500,
-      });
+  afterStateUpdate(data: any): void {
+    if (data.altitude !== undefined) {
+      this.altitude = data.altitude;
+      this.updateAltitudeVisual();
     }
   }
 
@@ -66,4 +96,4 @@ class ChimeraMob extends BaseEntity {
   }
 }
 
-export default ChimeraMob;
+export default Chimera;

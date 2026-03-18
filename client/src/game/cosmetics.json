@@ -4822,12 +4822,12 @@
       "id": 459,
       "sale": true,
       "eventtag": "PI DAY",
-      "event": true,
-      "buyable": true,
+      "buyable": false,
       "price": 100,
       "swordFileName": "geometrySword.png",
       "bodyFileName": "geometryPlayer.png",
-      "description": "\"See, I can study AND play the game at the same time!\""
+      "description": "\"See, I can study AND play the game at the same time!\"",
+      "eventoffsale": true
     },
     "cryo pi": {
       "name": "cryo pi",
@@ -4835,12 +4835,12 @@
       "id": 460,
       "sale": true,
       "eventtag": "PI DAY",
-      "event": true,
-      "buyable": true,
+      "buyable": false,
       "price": 3141,
       "swordFileName": "cryopiSword.png",
       "bodyFileName": "cryopiPlayer.png",
-      "description": "The pie does NOT belong in the freezer"
+      "description": "The pie does NOT belong in the freezer",
+      "eventoffsale": true
     },
     "piromaniac": {
       "name": "piromaniac",
@@ -4848,12 +4848,12 @@
       "id": 461,
       "sale": true,
       "eventtag": "PI DAY",
-      "event": true,
-      "buyable": true,
+      "buyable": false,
       "price": 3141,
       "swordFileName": "pirodudeSword.png",
       "bodyFileName": "pirodudePlayer.png",
-      "description": "3.14x the mania compared to a normal pyromaniac!"
+      "description": "3.14x the mania compared to a normal pyromaniac!",
+      "eventoffsale": true
     },
     "pyro guy": {
       "name": "pyro guy",
@@ -4861,12 +4861,12 @@
       "id": 462,
       "sale": true,
       "eventtag": "PI DAY",
-      "event": true,
-      "buyable": true,
+      "buyable": false,
       "price": 265358,
       "swordFileName": "piromaniacSword.png",
       "bodyFileName": "piromaniacPlayer.png",
-      "description": "It's a bit overcooked"
+      "description": "It's a bit overcooked",
+      "eventoffsale": true
     },
     "piev2Player": {
       "name": "piev2Player",
@@ -4874,12 +4874,12 @@
       "id": 463,
       "sale": true,
       "eventtag": "PI DAY",
-      "event": true,
-      "buyable": true,
+      "buyable": false,
       "price": 10000,
       "swordFileName": "piev2Sword.png",
       "bodyFileName": "piev2Player.png",
-      "description": "A snack before destruction"
+      "description": "A snack before destruction",
+      "eventoffsale": true
     },
     "anglePlayer": {
       "name": "anglePlayer",
@@ -4887,12 +4887,12 @@
       "id": 464,
       "sale": true,
       "eventtag": "PI DAY",
-      "event": true,
-      "buyable": true,
+      "buyable": false,
       "price": 4282,
       "swordFileName": "angleSword.png",
       "bodyFileName": "anglePlayer.png",
-      "description": "You aren't bad at PvP, you're just looking at it from the wrong angle!"
+      "description": "You aren't bad at PvP, you're just looking at it from the wrong angle!",
+      "eventoffsale": true
     },
     "graphPlayer": {
       "name": "graphPlayer",
@@ -4900,12 +4900,12 @@
       "id": 465,
       "sale": true,
       "eventtag": "PI DAY",
-      "event": true,
-      "buyable": true,
+      "buyable": false,
       "price": 1248,
       "swordFileName": "graphSword.png",
       "bodyFileName": "graphPlayer.png",
-      "description": "Intercept your enemy's attacks and plot your victory!"
+      "description": "Intercept your enemy's attacks and plot your victory!",
+      "eventoffsale": true
     },
     "elitePiDiver": {
       "name": "elitePiDiver",
@@ -4913,12 +4913,12 @@
       "id": 466,
       "sale": true,
       "eventtag": "PI DAY",
-      "event": true,
-      "buyable": true,
+      "buyable": false,
       "price": 31415,
       "swordFileName": "elitePiDiverSword.png",
       "bodyFileName": "elitePiDiverPlayer.png",
-      "description": "Dive into the trenches of pi!"
+      "description": "Dive into the trenches of pi!",
+      "eventoffsale": true
     }
   }
 }

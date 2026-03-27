@@ -132,6 +132,7 @@ function App() {
     "Tip: The Stalker's ability makes it invisible and very fast, which is helpful for both ambushes and escapes!",
     "Tip: The Archer makes swordthrows better and, while mediocre by itself, evolves to the Sniper and Super Archer at 50k coins!",
     "Tip: The Sniper can maintain distance from enemies due to its fast throwing and increased sight range!",
+    "Tip: The Juggernaut has the perfect balance to beat any evolution, but it doesn't have an ability",
     "Tip: Throwing your sword temporarily prevents melee attacks, making you vulnerable to enemies up close",
     "Tip: Predicting enemy swordthrows can help you dodge them more often!",
     "Tip: Join the Swordbattle Discord Server for more detailed changelogs and patch notes!",
@@ -160,6 +161,18 @@ function App() {
     "Tip: You earn more and more mastery when getting more coins in a single life!",
     "Tip: To maximize the mastery you earn, try to get as many coins as possible without dying!",
     "Tip: Getting a bunch of games with 500000+ coins will help you earn mastery much faster!",
+    "Tip: You can get a lot of coins in Capture Zones, but don't spend too long in there; you will start losing health!",
+    "Tip: Stop by everday to collect free Daily Rewards!",
+    "Tip: If you play for at least 15 minutes a day you can get a bonus daily reward!",
+    "Tip: You can respawn with some coins if you collect at least 10k and survive for 2 minutes",
+    "Tip: Players gain damage resistence if they are being teamed on. It makes the fight mroe fair",
+    "Tip: You do more damage if you time your hits instead of spamming",
+    "Tip: Fighting is better than running; practicing combat makes you better at pvp",
+    "Tip: You are less likely to be attacked if you defend yourself instead of fleeing",
+    "Tip: Hide under the trees in the forest so your opponent can't see you",
+    "Tip: Use the ice spikes in the snow biome as a barrier between you and your opponent",
+    "Tip: Watch out for lava! It can do a lot of damage and will reset your regen cooldown",
+    "Tip: The Chimera can fly! You can only hit it while it's charging at you",
     
   ];
   const [randomMessage] = useState(() => messages[Math.floor(Math.random() * messages.length)]);

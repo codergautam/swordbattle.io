@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-const managems = 0;
+const managems = 45000;
 
 function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn }: any) {
   const [gameResults, setGameResults] = useState<any>(null);

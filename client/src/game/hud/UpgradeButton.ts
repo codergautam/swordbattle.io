@@ -136,11 +136,14 @@ class UpgradeButton extends HudComponent {
 
   _updatePosition() {
     if (!this.container) return;
-    const player = this.game.gameState.self.entity;
-    const isLoggedIn = player && !!(player as any).account;
-    const baseY = 180;
-    const masteryOffset = isLoggedIn ? 45 : 0;
-    this.container.setPosition(10, baseY + masteryOffset);
+    const cc = this.hud.coinCounter;
+    if (cc && cc.textObj) {
+      const ccY = 40;
+      const textBottom = ccY + cc.textObj.height + 50;
+      this.container.setPosition(10, textBottom);
+    } else {
+      this.container.setPosition(10, 180);
+    }
   }
 
   update() {

@@ -187,8 +187,13 @@ export class BaseEntity {
 
     try {
       if (this.container && this.container.scene && this.container.scene.tweens) {
+        const fadeTargets: any[] = [this.container];
+        if (this.healthBar) {
+          fadeTargets.push(this.healthBar.bar);
+          if (this.healthBar.cooldownBar) fadeTargets.push(this.healthBar.cooldownBar);
+        }
         this.container.scene.tweens.add({
-          targets: this.container,
+          targets: fadeTargets,
           alpha: 0,
           duration,
           onComplete: destroyNow,

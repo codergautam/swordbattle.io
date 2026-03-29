@@ -18,19 +18,13 @@ export interface MajorCardInfo {
 }
 
 export const MinorCardData: Record<number, MinorCardInfo> = {
-  1:  { name: 'Sharp Stabs',      category: 'Offensive', color: 0xe83a3a, values: [15, 12, 10, 8, 4],   max: 5, description: 'Sword damage',       icon: 'card_damage' },
-  2:  { name: 'Quick Swing',      category: 'Offensive', color: 0x5b9ee6, values: [12, 10, 8, 6, 5],    max: 5, description: 'Attack speed',       icon: 'card_attackspeed' },
-  3:  { name: 'Heavy Hits',       category: 'Offensive', color: 0xd95530, values: [15, 12, 10, 8, 6],   max: 5, description: 'Knockback dealt',    icon: 'card_knockback' },
-  4:  { name: 'Sharpshooter',     category: 'Offensive', color: 0x2d8c4e, values: [18, 14, 11, 9, 7],   max: 5, description: 'Throw damage',       icon: 'card_throwdamage' },
-  5:  { name: 'Defense Training', category: 'Defensive', color: 0xb050d0, values: [18, 14, 11, 9, 7],   max: 5, description: 'Max health',         icon: 'card_maxhealth' },
-  6:  { name: 'Regenerate',       category: 'Defensive', color: 0x55e855, values: [22, 18, 14, 11, 8],  max: 5, description: 'Regen rate',         icon: 'card_regenrate' },
-  7:  { name: 'Fast Heal',        category: 'Defensive', color: 0x40c8b8, values: [15, 12, 10, 8, 6],   max: 5, description: 'Regen cooldown',     icon: 'card_regencooldown' },
-  8:  { name: 'Weighted Player',  category: 'Defensive', color: 0x3366ee, values: [15, 12, 10, 8, 6],   max: 5, description: 'Knockback resist',   icon: 'card_knockbackresist' },
-  9:  { name: 'Swiftness',        category: 'Utility',   color: 0x2850e0, values: [10, 8, 7, 5, 4],     max: 5, description: 'Move speed',         icon: 'card_movespeed' },
-  10: { name: 'Coin Magnet',      category: 'Utility',   color: 0xe04040, values: [25, 20, 15],          max: 3, description: 'Coin value',         icon: 'card_coinmagnet' },
-  11: { name: 'Sniper Vision',    category: 'Utility',   color: 0xe0e0e0, values: [12, 10, 8],           max: 3, description: 'View distance',      icon: 'card_viewdistance' },
-  12: { name: 'Throwpower',       category: 'Utility',   color: 0x60d8a0, values: [12, 10, 8, 6, 5],    max: 5, description: 'Throw cooldown',     icon: 'card_throwcooldown' },
-  13: { name: 'Size Scale',       category: 'Utility',   color: 0xc8c070, values: [5, 4, 3, 2, 2],      max: 5, description: 'Player size',        icon: 'card_playersize' },
+  1:  { name: 'Sharp Stabs',      category: 'Offensive', color: 0xe83a3a, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Sword damage',       icon: 'card_damage' },
+  2:  { name: 'Quick Swing',      category: 'Offensive', color: 0x5b9ee6, values: [6, 5, 5, 4, 4, 3, 3],   max: 7, description: 'Attack speed',       icon: 'card_attackspeed' },
+  4:  { name: 'Sharpshooter',     category: 'Offensive', color: 0x2d8c4e, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Throw power',        icon: 'card_throwdamage' },
+  5:  { name: 'Defense Training', category: 'Defensive', color: 0xb050d0, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Max health',         icon: 'card_maxhealth' },
+  7:  { name: 'Fast Heal',        category: 'Defensive', color: 0x40c8b8, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Regen power',        icon: 'card_regencooldown' },
+  9:  { name: 'Swiftness',        category: 'Utility',   color: 0x2850e0, values: [5, 4, 4, 3, 3, 3, 2],   max: 7, description: 'Move speed',         icon: 'card_movespeed' },
+  11: { name: 'Sniper Vision',    category: 'Utility',   color: 0xe0e0e0, values: [8, 6, 5, 4, 3],          max: 5, description: 'View distance',      icon: 'card_viewdistance' },
 };
 
 export const MajorCardData: Record<number, MajorCardInfo> = {

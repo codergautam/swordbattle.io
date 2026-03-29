@@ -148,12 +148,7 @@ class CardSystem {
 
       const sharpStabs = this.minorStacks[1] || 0;
       const quickSwing = this.minorStacks[2] || 0;
-      const regenerate = this.minorStacks[6] || 0;
-      const fastHeal = this.minorStacks[7] || 0;
-      const sizeScale = this.minorStacks[13] || 0;
       if ((id === 1 || id === 2) && (sharpStabs + quickSwing) >= 3) weight -= 5;
-      if ((id === 6 || id === 7) && (regenerate + fastHeal) >= 3) weight -= 5;
-      if (id === 13 && sizeScale >= 2) weight -= 5;
 
       weight = Math.max(1, weight);
       eligible.push({ id, weight });
@@ -234,9 +229,6 @@ class CardSystem {
     this.cardOffers = newOffers;
     this.hasRerolledThisPick = true;
     if (!this.tutorialRerollEveryPick) this.rerollsAvailable--;
-    if (this.cardTimer < 900) {
-      this.cardTimer = Math.min(this.cardTimer + 5, this.isTutorial ? tutorialPickTimeout : pickTimeout);
-    }
   }
 
   skipMajorCard() {
@@ -244,14 +236,18 @@ class CardSystem {
     if (!this.cardOffers.some(id => isMajorCard(id))) return;
 
     const allMinorIds = getAllMinorIds();
-    const upgradeable = allMinorIds
-      .filter(id => {
-        const card = MinorCards[id];
-        return (this.minorStacks[id] || 0) < card.max;
-      })
-      .sort((a, b) => (this.minorStacks[a] || 0) - (this.minorStacks[b] || 0));
+    const upgradeable = allMinorIds.filter(id => {
+      const card = MinorCards[id];
+      return (this.minorStacks[id] || 0) < card.max;
+    });
 
-    const toUpgrade = upgradeable.slice(0, 3);
+    const toUpgrade = [];
+    const pool = [...upgradeable];
+    for (let i = 0; i < 3 && pool.length > 0; i++) {
+      const idx = Math.floor(Math.random() * pool.length);
+      toUpgrade.push(pool[idx]);
+      pool.splice(idx, 1);
+    }
     if (toUpgrade.length === 0) return;
 
     this.lastSkipResults = [];
@@ -259,7 +255,6 @@ class CardSystem {
       this.minorStacks[id] = (this.minorStacks[id] || 0) + 1;
       this.chosenCards.push(id);
       this.lastSkipResults.push(id);
-      const card = MinorCards[id];
     }
 
     this.majorPicksSkipped++;
@@ -279,7 +274,6 @@ class CardSystem {
     } else if (isMajorCard(cardId)) {
       this.majorCards.push(cardId);
       this.rerollsAvailable++;
-      const card = MajorCards[cardId];
     }
 
     this.chosenCards.push(cardId);
@@ -354,10 +348,8 @@ class CardSystem {
       stats.push(`HP: ${(p.health.percent*100).toFixed(0)}%`);
       stats.push(`Speed: ${p.speed.value.toFixed(0)}`);
       stats.push(`Dmg: ${p.sword.damage.value.toFixed(1)}`);
-      stats.push(`KB: ${p.sword.knockback.value.toFixed(0)}`);
       stats.push(`Regen: ${p.health.regen.value.toFixed(2)}`);
       stats.push(`RegenWait: ${p.health.regenWait.value.toFixed(0)}ms`);
-      stats.push(`CoinMult: ${p.coinMultiplier.toFixed(2)}`);
       stats.push(`ThrowDmg: ${p.throwDamageMultiplier.toFixed(2)}`);
       stats.push(`DR: ${p.damageReduction.toFixed(2)}`);
       if (this.majorCards.length > 0) {
@@ -400,29 +392,29 @@ class CardSystem {
   applyCardEffects() {
     const p = this.player;
 
+    const totalStacks = Object.values(this.minorStacks).reduce((sum, s) => sum + (s || 0), 0);
+    const dimReturn = totalStacks > 0 ? 1 / (1 + totalStacks * 0.008) : 1;
+
     const cardDmg = this.getMultiplier(1);
-    p.sword.damage.multiplier *= Math.min(cardDmg, 1.60);
+    p.sword.damage.multiplier *= 1 + (cardDmg - 1) * dimReturn;
     const qsm = this.getMultiplier(2);
-    if (qsm !== 1) p.sword.swingDuration.multiplier['cards'] = 1 / Math.min(qsm, 1.35);
-    const hhm = this.getMultiplier(3);
-    if (hhm !== 1) p.sword.knockback.multiplier['cards'] = Math.min(hhm, 1.40);
-    p.throwDamageMultiplier *= Math.min(this.getMultiplier(4), 1.50);
-    p.health.max.multiplier *= Math.min(this.getMultiplier(5), 1.50);
-    p.health.regen.multiplier *= Math.min(this.getMultiplier(6), 1.60);
-    const fhm = this.getMultiplier(7);
-    if (fhm !== 1) p.health.regenWait.multiplier *= (1 / Math.min(fhm, 1.40));
-    p.knockbackResistance.multiplier *= Math.min(this.getMultiplier(8), 1.40);
-    p.speed.multiplier *= Math.min(this.getMultiplier(9), 1.30);
-    p.coinMultiplier *= this.getMultiplier(10);
+    if (qsm !== 1) p.sword.swingDuration.multiplier['cards'] = 1 / (1 + (qsm - 1) * dimReturn);
+    const throwMult = this.getMultiplier(4);
+    const throwEff = 1 + (throwMult - 1) * dimReturn;
+    p.throwDamageMultiplier *= throwEff;
+    if (throwMult !== 1) p.sword.flyCooldown.multiplier *= (1 / throwEff);
+    p.health.max.multiplier *= 1 + (this.getMultiplier(5) - 1) * dimReturn;
+    const regenMult = this.getMultiplier(7);
+    const regenEff = 1 + (regenMult - 1) * dimReturn;
+    p.health.regen.multiplier *= regenEff;
+    if (regenMult !== 1) p.health.regenWait.multiplier *= (1 / regenEff);
+    p.speed.multiplier *= 1 + (this.getMultiplier(9) - 1) * dimReturn;
     const vm = this.getMultiplier(11);
     if (vm !== 1) {
-      const zoomReduction = 1 / vm;
+      const effVm = 1 + (vm - 1) * dimReturn;
+      const zoomReduction = 1 / effVm;
       p.viewport.zoom.multiplier *= Math.max(zoomReduction, 0.65);
     }
-    const tpm = this.getMultiplier(12);
-    if (tpm !== 1) p.sword.flyCooldown.multiplier *= (1 / Math.min(tpm, 1.35));
-    const sm = this.getMultiplier(13);
-    if (sm !== 1) p.shape.setScale(Math.min(sm, 1.15));
 
     const now = Date.now();
 
@@ -549,18 +541,12 @@ class CardSystem {
       p.health.regen.multiplier *= 0.50;
     }
 
-    const offStacks = (this.minorStacks[1]||0) + (this.minorStacks[2]||0) + (this.minorStacks[3]||0) + (this.minorStacks[4]||0);
-    const defStacks = (this.minorStacks[5]||0) + (this.minorStacks[6]||0) + (this.minorStacks[7]||0) + (this.minorStacks[8]||0);
+    const offStacks = (this.minorStacks[1]||0) + (this.minorStacks[2]||0) + (this.minorStacks[4]||0);
+    const defStacks = (this.minorStacks[5]||0) + (this.minorStacks[7]||0);
     if (offStacks >= 6 && defStacks >= 6) {
       p.sword.damage.multiplier *= 0.85;
       p.health.max.multiplier *= 0.85;
       p.health.regen.multiplier *= 0.85;
-    }
-    const throwDmgStacks = this.minorStacks[4] || 0;
-    const throwCdStacks = this.minorStacks[12] || 0;
-    if (throwDmgStacks >= 3 && throwCdStacks >= 3) {
-      p.throwDamageMultiplier *= 0.85;
-      p.sword.flyCooldown.multiplier *= 1.15;
     }
   }
 

@@ -28,6 +28,8 @@ class CardSelect extends HudComponent {
   hiding = false;
 
   isMajorPick = false;
+  actionButton: Phaser.GameObjects.Container | null = null;
+  actionButtonUsed = false;
 
   initialize() {
     if (!this.hud.scene) return;
@@ -89,6 +91,9 @@ class CardSelect extends HudComponent {
     const startX = (width / this.scale - totalWidth) / 2;
     const cardY = height * 0.35 / this.scale;
 
+    const hasMajor = offers.some(id => isMajorCard(id));
+    this.isMajorPick = hasMajor;
+
     for (let i = 0; i < offers.length; i++) {
       const cardId = offers[i];
       const x = startX + i * (cardWidth + cardGap) + cardWidth / 2;
@@ -97,6 +102,11 @@ class CardSelect extends HudComponent {
       this.cardContainers.push(cardContainer);
       this.cardIdMap.set(cardId, cardContainer);
     }
+
+    this.actionButtonUsed = false;
+    const player = this.game.gameState.self.entity;
+    const rerolls: number = player ? (player as any).rerollsAvailable || 0 : 0;
+    this.createActionButton(scene, hasMajor, rerolls);
   }
 
   createCard(scene: Phaser.Scene, cardId: number, currentStacks: number, x: number, y: number, offerIndex: number): Phaser.GameObjects.Container {
@@ -294,12 +304,79 @@ class CardSelect extends HudComponent {
     return cardContainer;
   }
 
+  createActionButton(scene: Phaser.Scene, isMajor: boolean, rerollsAvailable: number) {
+    if (this.actionButton) {
+      this.actionButton.destroy();
+      this.actionButton = null;
+    }
+
+    const disabled = !isMajor && rerollsAvailable <= 0;
+
+    const { width, height } = this.game.scale;
+    const btnW = 200;
+    const btnH = 40;
+    const btnX = width / (2 * this.scale);
+    const btnY = height * 0.85 / this.scale;
+
+    const elements: Phaser.GameObjects.GameObject[] = [];
+
+    const bg = scene.add.graphics();
+    const btnColor = isMajor ? 0xd4a017 : (disabled ? 0x555555 : 0x4488ff);
+    bg.fillStyle(btnColor, disabled ? 0.08 : 0.15);
+    bg.fillRoundedRect(-btnW / 2, -btnH / 2, btnW, btnH, 8);
+    bg.lineStyle(2, btnColor, disabled ? 0.3 : 0.6);
+    bg.strokeRoundedRect(-btnW / 2, -btnH / 2, btnW, btnH, 8);
+    elements.push(bg);
+
+    const label = isMajor ? 'Skip (3 random cards)' : `Reroll (${rerollsAvailable})`;
+    const btnTextColor = disabled ? '#555555' : (isMajor ? '#d4a017' : '#4488ff');
+    const text = scene.add.text(0, 0, label, {
+      fontSize: '15px',
+      fontFamily: 'Ubuntu, sans-serif',
+      fontStyle: 'bold',
+      color: btnTextColor,
+    }).setOrigin(0.5);
+    elements.push(text);
+
+    const btnContainer = scene.add.container(btnX, btnY, elements);
+
+    if (!disabled) {
+      const hitZone = scene.add.zone(0, 0, btnW, btnH).setInteractive();
+      btnContainer.add(hitZone);
+
+      hitZone.on('pointerover', () => {
+        if (this.actionButtonUsed) return;
+        scene.tweens.add({ targets: btnContainer, scaleX: 1.05, scaleY: 1.05, duration: 80 });
+      });
+      hitZone.on('pointerout', () => {
+        scene.tweens.add({ targets: btnContainer, scaleX: 1, scaleY: 1, duration: 80 });
+      });
+      hitZone.on('pointerdown', () => {
+        if (this.actionButtonUsed) return;
+        this.actionButtonUsed = true;
+        btnContainer.setAlpha(0.4);
+        if (isMajor) {
+          this.game.gameState.skipMajorCard = true;
+        } else {
+          this.game.gameState.rerollCard = true;
+        }
+      });
+    }
+
+    this.actionButton = btnContainer;
+    (this.container as Phaser.GameObjects.Container).add(btnContainer);
+  }
+
   clearCards() {
     for (const card of this.cardContainers) {
       card.destroy();
     }
     this.cardContainers = [];
     this.cardIdMap.clear();
+    if (this.actionButton) {
+      this.actionButton.destroy();
+      this.actionButton = null;
+    }
   }
 
   show() {

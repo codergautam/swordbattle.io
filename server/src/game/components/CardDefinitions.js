@@ -1,17 +1,11 @@
 const MinorCards = {
-  1:  { id: 1,  name: 'Sharp Stabs',      category: 'offensive', values: [0.15, 0.12, 0.10, 0.08, 0.04], max: 5, stat: 'damage' },
-  2:  { id: 2,  name: 'Quick Swing',       category: 'offensive', values: [0.12, 0.10, 0.08, 0.06, 0.05], max: 5, stat: 'attackSpeed', inverse: true },
-  3:  { id: 3,  name: 'Heavy Hits',        category: 'offensive', values: [0.15, 0.12, 0.10, 0.08, 0.06], max: 5, stat: 'knockback' },
-  4:  { id: 4,  name: 'Sharpshooter',      category: 'offensive', values: [0.18, 0.14, 0.11, 0.09, 0.07], max: 5, stat: 'throwDamage' },
-  5:  { id: 5,  name: 'Defense Training',  category: 'defensive', values: [0.15, 0.12, 0.10, 0.08, 0.04], max: 5, stat: 'maxHp' },
-  6:  { id: 6,  name: 'Regenerate',        category: 'defensive', values: [0.22, 0.18, 0.14, 0.11, 0.08], max: 5, stat: 'regen' },
-  7:  { id: 7,  name: 'Fast Heal',         category: 'defensive', values: [0.15, 0.12, 0.10, 0.08, 0.06], max: 5, stat: 'regenCooldown', inverse: true },
-  8:  { id: 8,  name: 'Weighted Player',   category: 'defensive', values: [0.15, 0.12, 0.10, 0.08, 0.06], max: 5, stat: 'knockbackResist' },
-  9:  { id: 9,  name: 'Swiftness',         category: 'utility',   values: [0.10, 0.08, 0.07, 0.05, 0.04], max: 5, stat: 'speed' },
-  10: { id: 10, name: 'Coin Magnet',       category: 'utility',   values: [0.15, 0.10, 0.5],             max: 3, stat: 'coinMagnet' },
-  11: { id: 11, name: 'Sniper Vision',     category: 'utility',   values: [0.12, 0.10, 0.08],             max: 3, stat: 'vision', inverse: true },
-  12: { id: 12, name: 'Throwpower',        category: 'utility',   values: [0.12, 0.10, 0.08, 0.06, 0.05], max: 5, stat: 'throwCooldown', inverse: true },
-  13: { id: 13, name: 'Size Scale',        category: 'utility',   values: [0.05, 0.04, 0.03, 0.02, 0.02], max: 5, stat: 'size' },
+  1:  { id: 1,  name: 'Sharp Stabs',      category: 'offensive', values: [0.08, 0.07, 0.06, 0.05, 0.05, 0.04, 0.04], max: 7, stat: 'damage' },
+  2:  { id: 2,  name: 'Quick Swing',      category: 'offensive', values: [0.06, 0.05, 0.05, 0.04, 0.04, 0.03, 0.03], max: 7, stat: 'attackSpeed', inverse: true },
+  4:  { id: 4,  name: 'Sharpshooter',     category: 'offensive', values: [0.08, 0.07, 0.06, 0.05, 0.05, 0.04, 0.04], max: 7, stat: 'throwPower' },
+  5:  { id: 5,  name: 'Defense Training', category: 'defensive', values: [0.08, 0.07, 0.06, 0.05, 0.05, 0.04, 0.04], max: 7, stat: 'maxHp' },
+  7:  { id: 7,  name: 'Fast Heal',        category: 'defensive', values: [0.08, 0.07, 0.06, 0.05, 0.05, 0.04, 0.04], max: 7, stat: 'regenPower' },
+  9:  { id: 9,  name: 'Swiftness',        category: 'utility',   values: [0.05, 0.04, 0.04, 0.03, 0.03, 0.03, 0.02], max: 7, stat: 'speed' },
+  11: { id: 11, name: 'Sniper Vision',    category: 'utility',   values: [0.08, 0.06, 0.05, 0.04, 0.03],              max: 5, stat: 'vision', inverse: true },
 };
 
 const MajorCards = {

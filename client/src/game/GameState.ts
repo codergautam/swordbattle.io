@@ -46,6 +46,8 @@ class GameState {
   selectedCard: number | null = null;
   majorOfferPositions: Record<number, number> = {};
   openCardSelect: boolean = false;
+  rerollCard: boolean = false;
+  skipMajorCard: boolean = false;
   tutorialComplete: boolean = false;
   tutorialPanel: number | null = null;
   chatMessage: string | null = null;
@@ -533,6 +535,14 @@ class GameState {
     if (this.openCardSelect) {
       data.openCardSelect = true;
       this.openCardSelect = false;
+    }
+    if (this.rerollCard) {
+      data.rerollCard = true;
+      this.rerollCard = false;
+    }
+    if (this.skipMajorCard) {
+      data.skipMajorCard = true;
+      this.skipMajorCard = false;
     }
     if (this.tutorialComplete) {
       data.tutorialComplete = true;

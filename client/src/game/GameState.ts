@@ -44,6 +44,7 @@ class GameState {
   selectedEvolution: string | null = null;
   selectedBuff: any;
   selectedCard: number | null = null;
+  majorOfferPositions: Record<number, number> = {};
   openCardSelect: boolean = false;
   tutorialComplete: boolean = false;
   tutorialPanel: number | null = null;

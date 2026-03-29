@@ -240,7 +240,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
           <div className="respawn-info respawn-available">
             <span className="respawn-icon">&#x1F4B0;</span>
             {insuranceCoins > 0 ? (
-              <span>Insurance activated! Respawn with <strong style={{background: 'linear-gradient(90deg, #ff0000, #ff7700, #ffff00, #00ff00, #0077ff, #8800ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>{insuranceCoins.toLocaleString()}</strong> coins!</span>
+              <span style={{color: '#ff00f2', fontWeight: 'bold'}}>Insurance activated! Respawn with {insuranceCoins.toLocaleString()} coins!</span>
             ) : (
               <span>Press Play Again to respawn with <strong>{respawnCoins.toLocaleString()}</strong> coins!</span>
             )}

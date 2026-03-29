@@ -122,6 +122,7 @@ module.exports = {
     Hypnotized: 17,
     DiscoFieldActive: 18,
     FirstLife: 19,
+    SelectUpgrade: 20,
   },
   Effect: {
     Custom: 1,

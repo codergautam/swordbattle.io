@@ -1,14 +1,14 @@
 const MinorCards = {
-  1:  { id: 1,  name: 'Sharp Stabs',      category: 'offensive', values: [0.20, 0.16, 0.13, 0.10, 0.08], max: 5, stat: 'damage' },
+  1:  { id: 1,  name: 'Sharp Stabs',      category: 'offensive', values: [0.15, 0.12, 0.10, 0.08, 0.04], max: 5, stat: 'damage' },
   2:  { id: 2,  name: 'Quick Swing',       category: 'offensive', values: [0.12, 0.10, 0.08, 0.06, 0.05], max: 5, stat: 'attackSpeed', inverse: true },
   3:  { id: 3,  name: 'Heavy Hits',        category: 'offensive', values: [0.15, 0.12, 0.10, 0.08, 0.06], max: 5, stat: 'knockback' },
   4:  { id: 4,  name: 'Sharpshooter',      category: 'offensive', values: [0.18, 0.14, 0.11, 0.09, 0.07], max: 5, stat: 'throwDamage' },
-  5:  { id: 5,  name: 'Defense Training',  category: 'defensive', values: [0.18, 0.14, 0.11, 0.09, 0.07], max: 5, stat: 'maxHp' },
+  5:  { id: 5,  name: 'Defense Training',  category: 'defensive', values: [0.15, 0.12, 0.10, 0.08, 0.04], max: 5, stat: 'maxHp' },
   6:  { id: 6,  name: 'Regenerate',        category: 'defensive', values: [0.22, 0.18, 0.14, 0.11, 0.08], max: 5, stat: 'regen' },
   7:  { id: 7,  name: 'Fast Heal',         category: 'defensive', values: [0.15, 0.12, 0.10, 0.08, 0.06], max: 5, stat: 'regenCooldown', inverse: true },
   8:  { id: 8,  name: 'Weighted Player',   category: 'defensive', values: [0.15, 0.12, 0.10, 0.08, 0.06], max: 5, stat: 'knockbackResist' },
   9:  { id: 9,  name: 'Swiftness',         category: 'utility',   values: [0.10, 0.08, 0.07, 0.05, 0.04], max: 5, stat: 'speed' },
-  10: { id: 10, name: 'Coin Magnet',       category: 'utility',   values: [0.25, 0.20, 0.15],             max: 3, stat: 'coinMagnet' },
+  10: { id: 10, name: 'Coin Magnet',       category: 'utility',   values: [0.15, 0.10, 0.5],             max: 3, stat: 'coinMagnet' },
   11: { id: 11, name: 'Sniper Vision',     category: 'utility',   values: [0.12, 0.10, 0.08],             max: 3, stat: 'vision', inverse: true },
   12: { id: 12, name: 'Throwpower',        category: 'utility',   values: [0.12, 0.10, 0.08, 0.06, 0.05], max: 5, stat: 'throwCooldown', inverse: true },
   13: { id: 13, name: 'Size Scale',        category: 'utility',   values: [0.05, 0.04, 0.03, 0.02, 0.02], max: 5, stat: 'size' },
@@ -17,13 +17,13 @@ const MinorCards = {
 const MajorCards = {
   // Swordsmanship
   101: { id: 101, name: 'Cleave',              category: 'swordsmanship', positiveText: '+50% swing arc',                    negativeText: '-25% knockback dealt',           stubEffect: { stat: 'damage', value: 0.10 } },
-  102: { id: 102, name: 'Double Hit',           category: 'swordsmanship', positiveText: 'Deal 40% damage on swing release',  negativeText: '-30% damage if only release hits', stubEffect: { stat: 'damage', value: 0.10 } },
+  102: { id: 102, name: 'Double Hit',           category: 'swordsmanship', positiveText: 'Releasing swings does an extra hit',       negativeText: 'Deal 60% damage for each hit', stubEffect: { stat: 'damage', value: 0.10 } },
   103: { id: 103, name: 'Aggression',           category: 'swordsmanship', positiveText: '+50% damage for 2s after being hit', negativeText: '-25% damage for 1s after boost', stubEffect: { stat: 'damage', value: 0.10 } },
 
   // Throwing
-  104: { id: 104, name: 'Twin Throw',           category: 'throwing',      positiveText: 'Throw 2 swords',                   negativeText: '-30% throw damage, +25% cooldown', stubEffect: { stat: 'damage', value: 0.10 } },
+  104: { id: 104, name: 'Twin Throw',           category: 'throwing',      positiveText: 'Throw 2 swords in a row',                   negativeText: '-30% throw damage, +25% cooldown', stubEffect: { stat: 'damage', value: 0.10 } },
   105: { id: 105, name: 'Boomerang',            category: 'throwing',      positiveText: 'Sword returns after throw',         negativeText: '-30% range, -35% damage',          stubEffect: { stat: 'damage', value: 0.10 } },
-  106: { id: 106, name: 'Spare Sword',          category: 'throwing',      positiveText: 'Throw a copy, keep your sword',         negativeText: '-25% throw speed, -30% throw dmg', stubEffect: { stat: 'damage', value: 0.10 } },
+  106: { id: 106, name: 'Spare Sword',          category: 'throwing',      positiveText: 'Keep melee attack while throwing',         negativeText: '-25% throw speed, -30% throw dmg', stubEffect: { stat: 'damage', value: 0.10 } },
 
   // Predator
   107: { id: 107, name: 'Finisher',             category: 'predator',      positiveText: '+25% damage vs under 40% HP targets',     negativeText: '-15% damage vs over 80% HP targets',     stubEffect: { stat: 'damage', value: 0.10 } },
@@ -37,7 +37,7 @@ const MajorCards = {
 
   // Vampiric
   113: { id: 113, name: 'Vampire Aspect',       category: 'vampiric',      positiveText: 'Heal 10% of melee damage dealt',   negativeText: '-8% max HP',                       stubEffect: { stat: 'damage', value: 0.10 } },
-  114: { id: 114, name: 'Soul Harvest',         category: 'vampiric',      positiveText: 'Kill = full heal',                  negativeText: '-15% regen rate',                  stubEffect: { stat: 'damage', value: 0.10 } },
+  114: { id: 114, name: 'Soul Harvest',         category: 'vampiric',      positiveText: 'Kill a player = full heal',                  negativeText: '-15% regen rate',                  stubEffect: { stat: 'damage', value: 0.10 } },
   115: { id: 115, name: 'Blood Frenzy',         category: 'vampiric',      positiveText: 'Under 35% HP: +25% damage, +5% speed',   negativeText: 'Over 80% HP: -10% damage',             stubEffect: { stat: 'damage', value: 0.10 } },
 
   // Fortification
@@ -48,7 +48,7 @@ const MajorCards = {
   // Prospector
   119: { id: 119, name: 'Midas Touch',          category: 'prospector',    positiveText: '+35% gold from all sources',        negativeText: '+25% damage taken',                stubEffect: { stat: 'coinMagnet', value: 0.10 } },
   120: { id: 120, name: 'Chest Keys',           category: 'prospector',    positiveText: 'Deal double damage to chests',      negativeText: 'Chests drop half coins',           stubEffect: { stat: 'coinMagnet', value: 0.10 } },
-  121: { id: 121, name: 'Scavenger',            category: 'prospector',    positiveText: 'Ground-spawned coins value 1 -> 50',             negativeText: '-10% chest coins',                 stubEffect: { stat: 'coinMagnet', value: 0.10 } },
+  121: { id: 121, name: 'Scavenger',            category: 'prospector',    positiveText: 'Ground-spawned coins value 1 -> 50',             negativeText: '-25% chest coins',                 stubEffect: { stat: 'coinMagnet', value: 0.10 } },
 
   // Pacifism
   122: { id: 122, name: 'Ceasefire',            category: 'pacifism',      positiveText: 'Nearby players deal -25% damage',  negativeText: 'Affects your damage too',          stubEffect: { stat: 'maxHp', value: 0.10 } },

@@ -59,8 +59,8 @@ class Server {
         const ips = forwardedFor.split(',').map(i => i.trim());
         const ip = ips[0];
         const now = Date.now();
-        const maintenanceMode = true;
-        const allowedIPs = ['24.117.49.197', '75.33.179.28', '24.116.29.36'];
+        const maintenanceMode = false;
+        const allowedIPs = ['24.117.49.197', '75.33.179.28', '24.116.29.36', '127.0.0.1'];
         if (maintenanceMode && !allowedIPs.includes(ip)) {
           res.upgrade({ maintenance: true }, req.getHeader('sec-websocket-key'), req.getHeader('sec-websocket-protocol'), req.getHeader('sec-websocket-extensions'), context);
           return;

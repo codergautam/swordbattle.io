@@ -100,7 +100,7 @@ class Sword extends Entity {
       this.boomerangReturning = true;
       this.boomerangReturnTime = 0;
       this.collidedEntities.clear();
-      if (this.player.cards) this.player.cards._debugLog('Boomerang: returning');
+
       return;
     }
 
@@ -152,20 +152,31 @@ class Sword extends Entity {
       player.speed.multiplier *= this.playerSpeedBoost.value;
 
       if (this.boomerangReturning) {
-        const returnAngle = this.boomerangOrigAngle + Math.PI;
-        const speed = this.flySpeed.value;
+        const dx = player.shape.x - this.shape.x;
+        const dy = player.shape.y - this.shape.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const returnAngle = Math.atan2(dy, dx);
+        const speed = this.flySpeed.value * 1.1;
+
         this.shape.x += speed * Math.cos(returnAngle);
         this.shape.y += speed * Math.sin(returnAngle);
+
         this.boomerangReturnTime += dt;
-        if (this.boomerangReturnTime >= this.flyLog) {
+        if (dist < player.shape.radius * 1.5 || this.boomerangReturnTime > this.flyLog * 1.5) {
           this.boomerangReturning = false;
           this.isFlying = false;
           this.flyTime = 0;
           this.collidedEntities.clear();
         }
       } else {
-        this.shape.x += this.flySpeed.value * Math.cos(this.shape.angle - Math.PI / 2);
-        this.shape.y += this.flySpeed.value * Math.sin(this.shape.angle - Math.PI / 2);
+        const hasBoomerang = this.player.cards && this.player.cards.hasMajor(105);
+        if (hasBoomerang) {
+          this.shape.x += this.flySpeed.value * Math.cos(this.boomerangOrigAngle);
+          this.shape.y += this.flySpeed.value * Math.sin(this.boomerangOrigAngle);
+        } else {
+          this.shape.x += this.flySpeed.value * Math.cos(this.shape.angle - Math.PI / 2);
+          this.shape.y += this.flySpeed.value * Math.sin(this.shape.angle - Math.PI / 2);
+        }
 
         if (this.player.modifiers.ramThrow) {
           this.player.shape.x = this.shape.x;
@@ -190,7 +201,7 @@ class Sword extends Entity {
       if (this.twinThrowDelay <= 0) {
         this.twinThrowPending = false;
         this._spawnThrownSwordAt(this.twinThrowSavedAngle, this.twinThrowSavedX, this.twinThrowSavedY);
-        if (this.player.cards) this.player.cards._debugLog('Twin Throw: second sword spawned at original position');
+
       }
     }
 
@@ -247,7 +258,7 @@ class Sword extends Entity {
       if (this.swingTime >= this.swingDuration.value * 0.9) {
         this.collidedEntities.clear();
         this.doubleHitCleared = true;
-        if (this.player.cards) this.player.cards._debugLog('Double Hit: cleared entities for second hit');
+
       }
     }
 
@@ -280,7 +291,7 @@ class Sword extends Entity {
 
       if (hasSpareSword) {
         // Spare Sword (106)
-        this.player.cards._debugLog('Spare Sword: launching projectile, keeping melee');
+
         this._spawnThrownSword(0);
         this.flyCooldownTime = this.flyCooldown.value;
         this.player.flags.set(Types.Flags.SwordThrow, true);
@@ -307,7 +318,7 @@ class Sword extends Entity {
           this.twinThrowSavedAngle = this.player.angle;
           this.twinThrowSavedX = this.player.shape.x;
           this.twinThrowSavedY = this.player.shape.y;
-          this.player.cards._debugLog('Twin Throw: queued second sword (0.3s delay)');
+
         }
       }
     }
@@ -529,9 +540,8 @@ processTargetsCollision(entity) {
           finalDamage = base;
         }
 
-        // Double Hit (102)
-        if (this.doubleHitActive && this.decreaseAnimation) {
-          finalDamage *= 0.40;
+        if (this.doubleHitActive) {
+          finalDamage *= 0.60;
         }
 
         if (this.player.modifiers.damageScale) {
@@ -699,7 +709,6 @@ processTargetsCollision(entity) {
       });
       this.game.addEntity(proj);
       this.twinThrowProj = proj;
-      if (this.player.cards) this.player.cards._debugLog(`ThrownSword spawned at (${x.toFixed(0)},${y.toFixed(0)}) angle=${angle.toFixed(2)}`);
     } catch (e) {
       console.error('Failed to spawn ThrownSword:', e);
     }

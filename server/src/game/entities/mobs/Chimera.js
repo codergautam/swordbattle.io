@@ -6,14 +6,14 @@ const Property = require('../../components/Property');
 const Types = require('../../Types');
 const helpers = require('../../../helpers');
 
-class ChimeraMob extends Entity {
+class Chimera extends Entity {
   static defaultDefinition = {
     forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.River],
     attackRadius: 1000,
   };
 
   constructor(game, objectData) {
-    objectData = Object.assign({ size: 70 }, objectData);
+    objectData = Object.assign({ size: 84 }, objectData);
     super(game, Types.Entity.Chimera, objectData);
 
     this.shape = Circle.create(0, 0, this.size);
@@ -23,98 +23,254 @@ class ChimeraMob extends Entity {
 
     this.jumpTimer = new Timer(0, 4, 5);
     this.angryTimer = new Timer(0, 15, 20);
-    this.maneuverSpeed = helpers.random(1000, 2000);
 
-    this.health = new Health(40, 1);
+    this.health = new Health(60, 5);
     this.speed = new Property(7);
-    this.damage = new Property(1);
+    this.damage = new Property(3);
+
     this.target = null;
     this.targets.add(Types.Entity.Player);
 
-    this.knockbackResistance = new Property(2);
+    this.aiState = 'idle';
+
+    this.altitude = 0;
+    this.highAltitude = 320;
+    this.lowAltitude = 30;
+
+    this.baseTurnRate = 2.0;
+    this.turnRate = this.baseTurnRate;
+    this.turnDirection = 1;
+
+    this.normalSpeed = this.speed.value * 8;
+    this.maxChargeSpeed = this.speed.value * 13.0;
+    this.chargeAccel = 2200;
+
+    this.climbRate = 350;
+    this.diveRate = 450;
+
+    this.scale = 1;
+    this.shadowScale = 1;
+    this.shadowAlpha = 1;
+
+    this.hasDealtChargeDamage = false;
+    this.chargeSpeed = 0;
+
+    this.knockbackResistance = new Property(99999999999999999);
 
     this.spawn();
   }
 
-  update(dt) {
-    if (this.angryTimer.finished || !this.target || this.target.removed) {
-      this.target = null;
+  get canBeHitByPlayer() {
+    return this.altitude <= this.lowAltitude;
+  }
+
+  get isFlying() {
+    return this.altitude > 0;
+  }
+
+  moveForward(dt, mult = 1) {
+    const s = this.normalSpeed * mult;
+    this.velocity.x += Math.cos(this.angle) * s * dt;
+    this.velocity.y += Math.sin(this.angle) * s * dt;
+  }
+
+  updateIdle(dt) {
+  const driftAngle = this.angle + helpers.random(-0.4, 0.4);
+  const driftSpeed = this.normalSpeed * 0.2;
+
+  this.velocity.x += Math.cos(driftAngle) * driftSpeed * dt;
+  this.velocity.y += Math.sin(driftAngle) * driftSpeed * dt;
+
+  if (this.jumpTimer.finished) {
+    this.angle += helpers.random(-1.0, 1.0);
+    this.jumpTimer.renew();
+  }
+}
+
+  updateRetreat(dt) {
+    if (!this.target) {
+      this.aiState = 'landing';
+      return;
     }
 
-    this.health.update(dt);
+    const angleAway = helpers.angle(
+      this.target.shape.x, this.target.shape.y,
+      this.shape.x, this.shape.y
+    );
+    this.angle = angleAway;
+
+    this.moveForward(dt, 4.6);
+
+    this.altitude = Math.min(this.highAltitude, this.altitude + this.climbRate * dt);
+
+    this.scale = this.altitude * 0.005;
+
+    const dist = helpers.distance(
+      this.shape.x, this.shape.y,
+      this.target.shape.x, this.target.shape.y
+    );
+
+    if (dist >= 500) {
+      this.altitude = this.highAltitude;
+      this.aiState = 'pivot';
+      this.turnRate = this.baseTurnRate + helpers.random(-0.6, 0.6);
+
+      this.turnDirection = Math.random() < 0.5 ? 1 : -1;
+    }
+  }
+
+  updatePivot(dt) {
+    if (!this.target) {
+      this.aiState = 'landing';
+      return;
+    }
+
+    this.altitude = this.highAltitude;
+
+    this.angle += this.turnDirection * this.turnRate * dt;
+    this.moveForward(dt, 1.4);
+
+    const angleToPlayer = helpers.angle(
+      this.shape.x, this.shape.y,
+      this.target.shape.x, this.target.shape.y
+    );
+    const diff = Math.abs(helpers.angleDifference(this.angle, angleToPlayer));
+
+    if (diff < 0.25) {
+      this.aiState = 'charge';
+      this.chargeSpeed = this.speed.value * 4.4;
+      this.hasDealtChargeDamage = false;
+    }
+  }
+
+  updateCharge(dt) {
+    if (!this.target) {
+      this.aiState = 'landing';
+      return;
+    }
+
+    if (this.altitude > this.lowAltitude) {
+      this.altitude = Math.max(this.lowAltitude, this.altitude - this.diveRate * dt);
+    }
+
+    const angleToPlayer = helpers.angle(
+      this.shape.x, this.shape.y,
+      this.target.shape.x, this.target.shape.y
+    );
+    this.angle = angleToPlayer;
+
+    this.chargeSpeed = Math.min(
+      this.maxChargeSpeed,
+      this.chargeSpeed + this.chargeAccel * dt
+    );
+
+    this.velocity.x = Math.cos(this.angle) * this.chargeSpeed;
+    this.velocity.y = Math.sin(this.angle) * this.chargeSpeed;
+  }
+
+  updateLanding(dt) {
+    this.altitude = Math.max(0, this.altitude - 200 * dt);
+    if (this.altitude === 0) this.aiState = 'idle';
+  }
+
+  update(dt) {
+
     this.jumpTimer.update(dt);
+    this.angryTimer.update(dt);
 
-    if (this.target) {
-      const distance = helpers.distance(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
-      const progress = performance.now() / this.maneuverSpeed;
-      const targetX = this.target.shape.x + distance * Math.cos(progress);
-      const targetY = this.target.shape.y + distance * Math.sin(2 * progress) / 2;
+    if (this.target && this.aiState === 'idle') {
+      this.aiState = 'retreat';
+    }
 
-      this.angle = Math.atan2(targetY - this.shape.y, targetX - this.shape.x);
-      this.speed.multiplier *= 3;
+    if (this.angryTimer.finished) {
+      this.target = null;
+      this.aiState = this.isFlying ? 'landing' : 'idle';
+    }
 
-      this.velocity.x += this.speed.value * Math.cos(this.angle) * dt;
-      this.velocity.y += this.speed.value * Math.sin(this.angle) * dt;
-    } else if (this.jumpTimer.finished) {
-      this.jumpTimer.renew();
-      this.angle += helpers.random(-Math.PI, Math.PI) / 2;
-
-      this.velocity.x += this.speed.value * Math.cos(this.angle);
-      this.velocity.y += this.speed.value * Math.sin(this.angle);
+    switch (this.aiState) {
+      case 'retreat': this.updateRetreat(dt); break;
+      case 'pivot': this.updatePivot(dt); break;
+      case 'charge': this.updateCharge(dt); break;
+      case 'landing': this.updateLanding(dt); break;
+      default: this.updateIdle(dt); break;
     }
 
     this.velocity.scale(0.95);
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
+
+    if (this.aiState !== 'pivot') {
+      const { x, y } = this.velocity;
+      if (Math.abs(x) + Math.abs(y) > 0.001) {
+        this.angle = Math.atan2(y, x);
+      }
+    }
+
+    const t = Math.min(1, this.altitude / this.highAltitude);
+    this.scale = 1 + t * 0.5;
+    this.shadowScale = 1 + t * 1.1;
+    this.shadowAlpha = 1 - t * 0.5;
   }
 
-  processTargetsCollision(entity, response) {
-    if (entity.depth !== this.depth) return;
+  applyVelocityKnockback(entity, mult = 1) {
+    const vx = this.velocity.x, vy = this.velocity.y;
+    const speed = Math.sqrt(vx * vx + vy * vy);
+    if (speed <= 0.001) return;
 
-    const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
+    const force = (2 + speed) * 0.2 * mult;
 
+    entity.velocity.x += (vx / speed) * force / (entity.knockbackResistance.value || 1);
+    entity.velocity.y += (vy / speed) * force / (entity.knockbackResistance.value || 1);
+  }
+
+  processTargetsCollision(entity) {
     if (entity.type === Types.Entity.Player) {
-      entity.damaged(this.damage.value, this);
-      entity.velocity.x -= 2 * Math.cos(angle) / (entity.knockbackResistance.value || 1);
-      entity.velocity.y -= 2 * Math.sin(angle) / (entity.knockbackResistance.value || 1);
+      if (this.aiState === 'charge' && this.canBeHitByPlayer && !this.hasDealtChargeDamage) {
+        entity.damaged(this.damage.value * 5, this);
+
+        if (this.altitude <= this.lowAltitude) {
+          this.applyVelocityKnockback(entity, 5 * 2);
+        }
+
+        this.hasDealtChargeDamage = true;
+        this.aiState = 'retreat';
+      }
       return;
     }
-
-    if (this.target) {
-      entity.damaged(this.damage.value, this);
-      entity.velocity.x -= 2 * Math.cos(angle) / (entity.knockbackResistance.value || 1);
-      entity.velocity.y -= 2 * Math.sin(angle) / (entity.knockbackResistance.value || 1);
-      return;
-    }
-
-    const mtv = this.shape.getCollisionOverlap(response);
-    const targetMtv = mtv.clone().scale(1);
-    entity.shape.applyCollision(targetMtv);
   }
 
-  damaged(damage, entity) {
-    if (this.removed) return;
-    if (entity.modifiers?.mobPower) {
-      this.health.damaged(damage * entity.modifiers.mobPower);
-    } else {
-      this.health.damaged(damage);
+  damaged(dmg, entity) {
+    if (entity?.type === Types.Entity.Player && this.altitude > this.lowAltitude) {
+      return;
     }
+
+    this.health.damaged(dmg);
+
+    if (this.aiState === 'charge') {
+      this.aiState = 'retreat';
+    } else if (this.aiState !== 'retreat') {
+      this.aiState = 'retreat';
+    }
+
     // Butcherer card: mobs don't aggro
     if (!(entity.type === 1 && entity.cards && entity.cards.hasMajor(126))) {
       this.target = entity;
     }
+    
     this.angryTimer.renew();
 
-    if (this.health.isDead) {
-      this.remove();
-    }
+    if (this.health.isDead) this.remove();
   }
 
   createState() {
-    const state = super.createState();
-    state.angle = this.angle;
-    state.isAngry = !!this.target;
-    return state;
+    const s = super.createState();
+    s.angle = this.angle;
+    s.altitude = this.altitude;
+    s.state = this.aiState;
+    s.scale = this.scale;
+    s.shadowScale = this.shadowScale;
+    s.shadowAlpha = this.shadowAlpha;
+    return s;
   }
 
   remove() {
@@ -132,4 +288,4 @@ class ChimeraMob extends Entity {
   }
 }
 
-module.exports = ChimeraMob;
+module.exports = Chimera;

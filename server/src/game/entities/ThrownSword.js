@@ -1,6 +1,7 @@
+const SAT = require('sat');
 const Property = require('../components/Property');
 const Timer = require('../components/Timer');
-const Circle = require('../shapes/Circle');
+const Polygon = require('../shapes/Polygon');
 const Entity = require('./Entity');
 const Types = require('../Types');
 
@@ -17,13 +18,29 @@ class ThrownSword extends Entity {
     this.knockbackPower = config.knockback || 150;
     this.duration = new Timer(0, config.duration || 1.5, config.duration || 1.5);
 
-    this.shape = Circle.create(config.x || 0, config.y || 0, Math.max(this.size * 0.4, 25));
+    this.shape = new Polygon(config.x || 0, config.y || 0, [[0, 0]]);
+    this._updateCollisionPoly();
+
     this.targets.add(Types.Entity.Player);
     for (const t of Types.Groups.Mobs) this.targets.add(t);
     this.targets.add(Types.Entity.Chest);
 
     this.collidedEntities = new Set();
     this.duration.renew();
+  }
+
+  _updateCollisionPoly() {
+    const s = this.size;
+    const newPoints = [
+      new SAT.Vector(0, 0),
+      new SAT.Vector(-0.14615384615384616 * s, -1.7769230769230768 * s),
+      new SAT.Vector(0.34615384615384615 * s, -2.4923076923076923 * s),
+      new SAT.Vector(0.8538461538461538 * s, -1.7769230769230768 * s),
+      new SAT.Vector(0.7153846153846154 * s, -0.015384615384615385 * s),
+    ];
+    const pos = new SAT.Vector(this.shape.x, this.shape.y);
+    this.shape.collisionPoly = new SAT.Polygon(pos, newPoints);
+    this.shape.collisionPoly.setAngle(this.angle + Math.PI / 2);
   }
 
   update(dt) {
@@ -45,7 +62,8 @@ class ThrownSword extends Entity {
     this.collidedEntities.add(entity);
 
     const angle = Math.atan2(entity.shape.y - this.shape.y, entity.shape.x - this.shape.x);
-    const power = this.knockbackPower / (entity.knockbackResistance?.value || 1);
+    let power = this.knockbackPower / (entity.knockbackResistance?.value || 1);
+    power = Math.max(Math.min(power, 300), 50);
     entity.velocity.x += power * Math.cos(angle);
     entity.velocity.y += power * Math.sin(angle);
 

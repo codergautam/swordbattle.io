@@ -7,7 +7,6 @@ class SoundManager {
   game: Game;
   volume: number = Number(Settings.sound) / 10;
   manager: Partial<Record<FlagTypes, Sound>>;
-  selectUpgradeSound: Sound | null = null;
 
   constructor(game: Game) {
     this.game = game;
@@ -51,6 +50,9 @@ class SoundManager {
       [FlagTypes.ShockwaveHit]: new Sound(FlagTypes.ShockwaveHit, [
         'TakeDamage/LavaDamage.mp3',
       ]),
+      [FlagTypes.SelectUpgrade]: new Sound(FlagTypes.SelectUpgrade, [
+        'selectUpgrade.wav',
+      ]),
     };
   }
 
@@ -58,7 +60,6 @@ class SoundManager {
     for (const sound of Object.values(this.manager)) {
       sound.load(this.game, publicPath + '/assets/sound/');
     }
-    this.selectUpgradeSound?.load(this.game, publicPath + '/assets/sound/');
   }
 
   play(type: FlagTypes | any) {
@@ -70,7 +71,6 @@ class SoundManager {
     for (const sound of Object.values(this.manager)) {
       sound.initialize(this.game);
     }
-    this.selectUpgradeSound?.initialize(this.game);
     this.setVolume(this.volume);
   }
 
@@ -93,7 +93,6 @@ class SoundManager {
     for (const sound of Object.values(this.manager)) {
       sound.setVolume(volume);
     }
-    this.selectUpgradeSound?.setVolume(volume);
   }
 }
 

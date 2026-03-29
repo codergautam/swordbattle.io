@@ -83,9 +83,8 @@ class Chest extends Entity {
       sword.player.flags.set(Types.Flags.ChestDestroy, true);
 
       let chestCoins = this.coins;
-      // Scavenger card (121)
       if (sword.player.cards && sword.player.cards.hasMajor(121)) {
-        chestCoins = Math.round(chestCoins * 0.90);
+        chestCoins = Math.round(chestCoins * 0.75);
       }
       // Chest Keys card (120)
       if (sword.player.cards && sword.player.cards.hasMajor(120)) {

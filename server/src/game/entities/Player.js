@@ -623,14 +623,16 @@ class Player extends Entity {
           y: this.shape.y,
           killerName: (this.killerEntity && this.killerEntity.type === Types.Entity.Player) ? this.killerEntity.name : null,
           expiresAt: Date.now() + 120000,
+          carryKills: this.kills,
+          carryPlaytime: this.playtime,
         };
-        this.cards._debugLog(`Insurance: keeping ${insuranceGold} coins on death`);
+
       } else if (this.client.insurancePostDeath) {
         // After insurance respawn with 0
         this.client.pendingRespawn = null;
         this.client.insurancePostDeath = false;
         this.client.insuranceUsed = false; // Reset so Insurance can be picked again
-        this.cards._debugLog(`Insurance ended: 0 coins on this death, cycle reset`);
+
       } else if (this.levels.coins >= 10000 && this.playtime >= 120) {
         const dropAmount = this.calculateDropAmount();
         const respawnCoins = Math.round(dropAmount / 2);

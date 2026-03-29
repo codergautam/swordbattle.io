@@ -275,12 +275,12 @@ class CardSelect extends HudComponent {
         onComplete: () => flash.destroy(),
       });
 
-      try {
-        (this.game.soundManager as any)?.selectUpgradeSound?.play();
-      } catch (e) {}
-
       this.playerClicked = true;
       this.game.gameState.selectedCard = cardId;
+
+      if (isMajorCard(cardId)) {
+        this.game.gameState.majorOfferPositions[cardId] = offerIndex;
+      }
 
       scene.tweens.add({
         targets: cardContainer,

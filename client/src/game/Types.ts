@@ -59,6 +59,7 @@ export enum FlagTypes {
   Hypnotized = 17,
   DiscoFieldActive = 18,
   FirstLife = 19,
+  SelectUpgrade = 20,
 }
 
 export enum EvolutionTypes {

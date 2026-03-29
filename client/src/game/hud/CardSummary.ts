@@ -38,16 +38,17 @@ class CardSummary extends HudComponent {
     const { width, height } = this.game.scale;
     const stacks = countStacks(chosenCards);
 
-    const majorEntries: { id: number; stacks: number; orderIndex: number }[] = [];
+    const majorEntries: { id: number; stacks: number; offerPos: number }[] = [];
     const minorEntries: { id: number; stacks: number }[] = [];
     const seen = new Set<number>();
-    let majorOrder = 0;
+    const majorPositions = this.game.gameState.majorOfferPositions;
 
     for (const id of chosenCards) {
       if (!seen.has(id)) {
         seen.add(id);
         if (isMajorCard(id)) {
-          majorEntries.push({ id, stacks: stacks[id] || 1, orderIndex: majorOrder++ });
+          const offerPos = majorPositions[id] ?? 0;
+          majorEntries.push({ id, stacks: stacks[id] || 1, offerPos });
         } else {
           minorEntries.push({ id, stacks: stacks[id] || 1 });
         }
@@ -85,8 +86,8 @@ class CardSummary extends HudComponent {
     let curX = startX;
 
     for (let i = 0; i < majorEntries.length; i++) {
-      const { orderIndex } = majorEntries[i];
-      const iconKey = `card_major${orderIndex + 1}`;
+      const { offerPos } = majorEntries[i];
+      const iconKey = `card_major${offerPos + 1}`;
 
       if (scene.textures.exists(iconKey)) {
         const icon = scene.add.image(curX + iconSize / 2, y + iconSize / 2, iconKey);

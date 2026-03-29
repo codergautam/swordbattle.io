@@ -2,10 +2,10 @@ export interface MinorCardInfo {
   name: string;
   category: string;
   color: number;
-  values: number[];  // percentage values (e.g. 20 = 20%)
+  values: number[];
   max: number;
   description: string;
-  icon: string;      // texture key for upgrade image
+  icon: string;
 }
 
 export interface MajorCardInfo {
@@ -14,11 +14,11 @@ export interface MajorCardInfo {
   color: number;
   positiveText: string;
   negativeText: string;
-  icon: string;      // texture key for upgrade image
+  icon: string;
 }
 
 export const MinorCardData: Record<number, MinorCardInfo> = {
-  1:  { name: 'Sharp Stabs',      category: 'Offensive', color: 0xe83a3a, values: [20, 16, 13, 10, 8],  max: 5, description: 'Sword damage',       icon: 'card_damage' },
+  1:  { name: 'Sharp Stabs',      category: 'Offensive', color: 0xe83a3a, values: [15, 12, 10, 8, 4],   max: 5, description: 'Sword damage',       icon: 'card_damage' },
   2:  { name: 'Quick Swing',      category: 'Offensive', color: 0x5b9ee6, values: [12, 10, 8, 6, 5],    max: 5, description: 'Attack speed',       icon: 'card_attackspeed' },
   3:  { name: 'Heavy Hits',       category: 'Offensive', color: 0xd95530, values: [15, 12, 10, 8, 6],   max: 5, description: 'Knockback dealt',    icon: 'card_knockback' },
   4:  { name: 'Sharpshooter',     category: 'Offensive', color: 0x2d8c4e, values: [18, 14, 11, 9, 7],   max: 5, description: 'Throw damage',       icon: 'card_throwdamage' },
@@ -27,7 +27,7 @@ export const MinorCardData: Record<number, MinorCardInfo> = {
   7:  { name: 'Fast Heal',        category: 'Defensive', color: 0x40c8b8, values: [15, 12, 10, 8, 6],   max: 5, description: 'Regen cooldown',     icon: 'card_regencooldown' },
   8:  { name: 'Weighted Player',  category: 'Defensive', color: 0x3366ee, values: [15, 12, 10, 8, 6],   max: 5, description: 'Knockback resist',   icon: 'card_knockbackresist' },
   9:  { name: 'Swiftness',        category: 'Utility',   color: 0x2850e0, values: [10, 8, 7, 5, 4],     max: 5, description: 'Move speed',         icon: 'card_movespeed' },
-  10: { name: 'Coin Magnet',      category: 'Utility',   color: 0xe04040, values: [25, 20, 15],          max: 3, description: 'Coin collection',    icon: 'card_coinmagnet' },
+  10: { name: 'Coin Magnet',      category: 'Utility',   color: 0xe04040, values: [25, 20, 15],          max: 3, description: 'Coin value',         icon: 'card_coinmagnet' },
   11: { name: 'Sniper Vision',    category: 'Utility',   color: 0xe0e0e0, values: [12, 10, 8],           max: 3, description: 'View distance',      icon: 'card_viewdistance' },
   12: { name: 'Throwpower',       category: 'Utility',   color: 0x60d8a0, values: [12, 10, 8, 6, 5],    max: 5, description: 'Throw cooldown',     icon: 'card_throwcooldown' },
   13: { name: 'Size Scale',       category: 'Utility',   color: 0xc8c070, values: [5, 4, 3, 2, 2],      max: 5, description: 'Player size',        icon: 'card_playersize' },
@@ -36,18 +36,18 @@ export const MinorCardData: Record<number, MinorCardInfo> = {
 export const MajorCardData: Record<number, MajorCardInfo> = {
   // Swordsmanship
   101: { name: 'Cleave',              category: 'Swordsmanship', color: 0xffd700, positiveText: '+50% swing arc',                    negativeText: '-25% knockback dealt',            icon: 'card_cleave' },
-  102: { name: 'Double Hit',          category: 'Swordsmanship', color: 0xffd700, positiveText: 'Deal 40% damage on swing release',  negativeText: '-30% damage if only release hits', icon: 'card_doublehit' },
+  102: { name: 'Double Hit',          category: 'Swordsmanship', color: 0xffd700, positiveText: 'Releasing swings does an extra hit', negativeText: 'Deal 60% damage for each hit',     icon: 'card_doublehit' },
   103: { name: 'Aggression',          category: 'Swordsmanship', color: 0xffd700, positiveText: '+50% damage for 2s after being hit',  negativeText: '-25% damage for 1s after boost',  icon: 'card_aggression' },
 
   // Throwing
-  104: { name: 'Twin Throw',          category: 'Throwing',      color: 0xffd700, positiveText: 'Throw 2 swords',                   negativeText: '-30% throw dmg, +25% cooldown',   icon: 'card_twinthrow' },
+  104: { name: 'Twin Throw',          category: 'Throwing',      color: 0xffd700, positiveText: 'Throw 2 swords in a row',           negativeText: '-30% throw damage, +25% cooldown', icon: 'card_twinthrow' },
   105: { name: 'Boomerang',           category: 'Throwing',      color: 0xffd700, positiveText: 'Sword returns after throw',         negativeText: '-30% range, -35% damage',          icon: 'card_boomerang' },
-  106: { name: 'Spare Sword',         category: 'Throwing',      color: 0xffd700, positiveText: 'Throw a copy, keep your sword',    negativeText: '-25% throw speed, -30% throw dmg', icon: 'card_sparesword' },
+  106: { name: 'Spare Sword',         category: 'Throwing',      color: 0xffd700, positiveText: 'Keep melee attack while throwing',  negativeText: '-25% throw speed, -30% throw dmg', icon: 'card_sparesword' },
 
   // Predator
   107: { name: 'Finisher',            category: 'Predator',      color: 0xffd700, positiveText: '+25% vs under 40% HP targets',     negativeText: '-15% vs over 80% HP targets',     icon: 'card_finisher' },
   108: { name: 'Regensteal',          category: 'Predator',      color: 0xffd700, positiveText: 'Hits reduce regen wait by 0.5s',   negativeText: '-25% regen rate',                  icon: 'card_regensteal' },
-  109: { name: 'Boxer',               category: 'Predator',      color: 0xffd700, positiveText: '-50% throw dmg/knockback taken',   negativeText: 'Also affects own throws',          icon: 'card_boxer' },
+  109: { name: 'Boxer',               category: 'Predator',      color: 0xffd700, positiveText: '-50% throw damage/knockback taken', negativeText: 'Also affects own throws',          icon: 'card_boxer' },
 
   // Stand Ground
   110: { name: 'Tracking',            category: 'Stand Ground',  color: 0xffd700, positiveText: 'Hit by faster player: match their speed (2s)', negativeText: 'Faster than attacker: slow to their speed (2s)', icon: 'card_tracking' },
@@ -56,8 +56,8 @@ export const MajorCardData: Record<number, MajorCardInfo> = {
 
   // Vampiric
   113: { name: 'Vampire Aspect',      category: 'Vampiric',      color: 0xffd700, positiveText: 'Heal 10% of melee damage dealt',  negativeText: '-8% max HP',                       icon: 'card_vampireaspect' },
-  114: { name: 'Soul Harvest',        category: 'Vampiric',      color: 0xffd700, positiveText: 'Kill = full heal',                 negativeText: '-15% regen rate',                  icon: 'card_soulharvest' },
-  115: { name: 'Blood Frenzy',        category: 'Vampiric',      color: 0xffd700, positiveText: 'Under 35% HP: +25% dmg, +5% speed', negativeText: 'Over 80% HP: -10% damage',      icon: 'card_bloodfrenzy' },
+  114: { name: 'Soul Harvest',        category: 'Vampiric',      color: 0xffd700, positiveText: 'Kill a player = full heal',        negativeText: '-15% regen rate',                  icon: 'card_soulharvest' },
+  115: { name: 'Blood Frenzy',        category: 'Vampiric',      color: 0xffd700, positiveText: 'Under 35% HP: +25% damage, +5% speed', negativeText: 'Over 80% HP: -10% damage',   icon: 'card_bloodfrenzy' },
 
   // Fortification
   116: { name: 'Rejuvenation',        category: 'Fortification', color: 0xffd700, positiveText: 'Regen ramps over time (up to 3x)',negativeText: '-25% base regen',                  icon: 'card_rejuvenation' },
@@ -67,7 +67,7 @@ export const MajorCardData: Record<number, MajorCardInfo> = {
   // Prospector
   119: { name: 'Midas Touch',         category: 'Prospector',    color: 0xffd700, positiveText: '+35% gold from all sources',       negativeText: '+25% damage taken',                icon: 'card_midastouch' },
   120: { name: 'Chest Keys',          category: 'Prospector',    color: 0xffd700, positiveText: 'Deal double damage to chests',     negativeText: 'Chests drop half coins',           icon: 'card_chestkeys' },
-  121: { name: 'Scavenger',           category: 'Prospector',    color: 0xffd700, positiveText: 'Ground-spawned coins value 1 -> 50', negativeText: '-10% chest coins',              icon: 'card_scavenger' },
+  121: { name: 'Scavenger',           category: 'Prospector',    color: 0xffd700, positiveText: 'Ground-spawned coins value 1 -> 50', negativeText: '-25% chest coins',              icon: 'card_scavenger' },
 
   // Pacifism
   122: { name: 'Ceasefire',           category: 'Pacifism',      color: 0xffd700, positiveText: 'Nearby players deal -25% damage',  negativeText: 'Affects your damage too',          icon: 'card_ceasefire' },

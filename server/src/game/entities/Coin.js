@@ -64,7 +64,6 @@ class Coin extends Entity {
       }
       return;
     }
-    // Scavenger card (121)
     let coinVal = this.value;
     if (player.cards && player.cards.hasMajor(121) && this.respawnable) {
       coinVal = 50;

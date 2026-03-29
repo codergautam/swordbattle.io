@@ -344,7 +344,7 @@ class Game {
       player.cards.instantSelect = false;
       player.coinShield = 500;
       client.tutorialCompleted = true;
-      player.cards._debugLog('Tutorial complete: all tutorial flags cleared');
+
     }
     if (data.tutorialPanel !== undefined && data.tutorialPanel !== null) {
       if (data.tutorialPanel === 4 && player.cards.isTutorial) {
@@ -352,7 +352,7 @@ class Game {
         player.cards.isTutorial = false;
         player.respawnShieldFadeActive = true;
         player.respawnShieldFadeTimer = 5;
-        player.cards._debugLog('Tutorial: shield fading (panel 4), isTutorial=false');
+
       }
     }
     if (data.chatMessage && typeof data.chatMessage === 'string') {
@@ -559,7 +559,7 @@ class Game {
       player.shape.y = 0;
       player.inSafezone = true;
       client.pendingRespawn = null;
-      player.cards._debugLog('Tutorial player spawned at center with full PvP immunity');
+
     } else {
       const pendingRespawn = client.pendingRespawn;
       if (pendingRespawn && Date.now() < pendingRespawn.expiresAt) {
@@ -569,6 +569,13 @@ class Game {
         player.inSafezone = false;
 
         player.levels.addCoins(pendingRespawn.coins);
+
+        if (pendingRespawn.carryKills) {
+          player.kills = pendingRespawn.carryKills;
+        }
+        if (pendingRespawn.carryPlaytime) {
+          player.startTimestamp = Date.now() - pendingRespawn.carryPlaytime * 1000;
+        }
 
         player.respawnShieldActive = true;
         player.respawnShieldTimer = 10;

@@ -316,7 +316,7 @@ class CardSelect extends HudComponent {
     const btnW = 200;
     const btnH = 40;
     const btnX = width / (2 * this.scale);
-    const btnY = height * 0.85 / this.scale;
+    const btnY = height * 0.78 / this.scale;
 
     const elements: Phaser.GameObjects.GameObject[] = [];
 

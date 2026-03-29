@@ -139,7 +139,7 @@ class UpgradeButton extends HudComponent {
     const cc = this.hud.coinCounter;
     if (cc && cc.textObj) {
       const ccY = 40;
-      const textBottom = ccY + cc.textObj.height + 50;
+      const textBottom = ccY + cc.textObj.height + 70;
       this.container.setPosition(10, textBottom);
     } else {
       this.container.setPosition(10, 180);

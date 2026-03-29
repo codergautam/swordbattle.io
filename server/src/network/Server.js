@@ -43,10 +43,6 @@ class Server {
     this.proxyTracker = new Map();
     this.proxyDetectionWindow = 10000;
     this.proxyDetectionThreshold = 8;
-
-    // Maintenance mode
-    this.maintenanceMode = false;
-    this.allowedIPs = ['24.117.49.197', '75.33.179.28', '24.116.29.36'];
   }
 
   get online() {
@@ -63,8 +59,9 @@ class Server {
         const ips = forwardedFor.split(',').map(i => i.trim());
         const ip = ips[0];
         const now = Date.now();
-
-        if (this.maintenanceMode && !this.allowedIPs.includes(ip)) {
+        const maintenanceMode = true;
+        const allowedIPs = ['24.117.49.197', '75.33.179.28', '24.116.29.36'];
+        if (maintenanceMode && !allowedIPs.includes(ip)) {
           res.upgrade({ maintenance: true }, req.getHeader('sec-websocket-key'), req.getHeader('sec-websocket-protocol'), req.getHeader('sec-websocket-extensions'), context);
           return;
         }

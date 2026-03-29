@@ -171,7 +171,7 @@ class TutorialOverlay extends HudComponent {
         break;
       }
       case 4: {
-        body = 'Your shield is now fading! Other players can now duel you. Keep picking upgrades and creating a strong build!\n\nWhen fighting, make sure to time your hits and Throw when far away, but you can always stay back if you don\'t want to fight. The choice is yours!';
+        body = 'Your shield is now fading! Other players can now duel you. Keep picking upgrades and creating a strong build!\n\nWhen fighting, make sure to time your hits and use your throw when far away, but you can always stay back if you don\'t want to fight! The choice is yours!';
         showNext = true;
         break;
       }

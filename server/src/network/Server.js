@@ -46,17 +46,7 @@ class Server {
 
     // Maintenance mode
     this.maintenanceMode = false;
-    this.allowedIPs = [];
-    this._refreshAllowedIPs();
-    setInterval(() => this._refreshAllowedIPs(), 30000); // refresh every 30s
-  }
-
-  _refreshAllowedIPs() {
-    api.get('/maintenance/allowed-ips', (data) => {
-      if (data && !data.error && Array.isArray(data)) {
-        this.allowedIPs = data;
-      }
-    });
+    this.allowedIPs = ['24.117.49.197', '75.33.179.28'];
   }
 
   get online() {

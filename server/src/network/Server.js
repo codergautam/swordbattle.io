@@ -46,7 +46,7 @@ class Server {
 
     // Maintenance mode
     this.maintenanceMode = false;
-    this.allowedIPs = ['24.117.49.197', '75.33.179.28'];
+    this.allowedIPs = ['24.117.49.197', '75.33.179.28', '24.116.29.36'];
   }
 
   get online() {

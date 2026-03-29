@@ -107,7 +107,9 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
   };
   const hasEnoughCoins = results.coins >= 10000;
   const hasEnoughTime = results.survivalTime >= 120;
-  const respawnCoins = hasEnoughCoins && hasEnoughTime ? Math.round(calculateDropAmount(results.coins) / 2) : 0;
+  const insuranceCoins = results.insuranceRespawnCoins || 0;
+  const normalRespawnCoins = hasEnoughCoins && hasEnoughTime ? Math.round(calculateDropAmount(results.coins) / 2) : 0;
+  const respawnCoins = insuranceCoins > 0 ? insuranceCoins : normalRespawnCoins;
   const coinProgress = Math.min(results.coins / 10000, 1);
   const timeProgress = Math.min(results.survivalTime / 120, 1);
 
@@ -237,7 +239,11 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
         {respawnCoins > 0 ? (
           <div className="respawn-info respawn-available">
             <span className="respawn-icon">&#x1F4B0;</span>
-            <span>Press Play Again to respawn with <strong>{respawnCoins.toLocaleString()}</strong> coins!</span>
+            {insuranceCoins > 0 ? (
+              <span>Insurance activated! Respawn with <strong style={{background: 'linear-gradient(90deg, #ff0000, #ff7700, #ffff00, #00ff00, #0077ff, #8800ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>{insuranceCoins.toLocaleString()}</strong> coins!</span>
+            ) : (
+              <span>Press Play Again to respawn with <strong>{respawnCoins.toLocaleString()}</strong> coins!</span>
+            )}
           </div>
         ) : (
           <div className="respawn-info">
@@ -257,7 +263,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
         )}
         { results.disconnectReason?.type !== DisconnectTypes.Server && (
         <div
-          className="play-again"
+          className={`play-again ${(() => { try { return JSON.parse(sessionStorage.getItem('swordbattle:tutorialSession') || '{}').active ? 'tutorial-pulse' : ''; } catch { return ''; } })()}`}
           role="button"
           onClick={onRestartClick}
           onKeyDown={event => event.key === 'Enter' && onRestartClick()}

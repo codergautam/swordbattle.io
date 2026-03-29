@@ -25,6 +25,12 @@ message ClientMessage {
   string captchaP10 = 50;
   string captchaP11 = 51;
   bool firstLife = 52;
+  int32 selectedCard = 53;
+  bool openCardSelect = 54;
+  bool rerollCard = 55;
+  bool skipMajorCard = 56;
+  bool tutorialComplete = 57;
+  int32 tutorialPanel = 58;
 }
 message InputData {
   int32 inputType = 1;
@@ -132,4 +138,21 @@ message Entity {
 
   bool wideSwing = 43;
   int32 coinShield = 44;
+
+  // Swing arc for Cleave card
+  float swordSwingArc = 51;
+  bool swordBoomerangReturning = 52;
+
+  // Card system
+  repeated int32 cardOffers = 46;
+  repeated int32 chosenCards = 47;
+  bool choosingCard = 48;
+  float cardTimer = 49;
+  int32 cardPickNumber = 50;
+  int32 availableUpgrades = 53;
+  int32 rerollsAvailable = 54;
+  repeated int32 skipResults = 55;
+  bool isTutorial = 56;
+  bool swordRaising = 57;
+  bool swordDecreasing = 58;
 }

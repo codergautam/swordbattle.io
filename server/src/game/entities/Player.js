@@ -16,6 +16,7 @@ const Viewport = require('../components/Viewport');
 const Health = require('../components/Health');
 const Timer = require('../components/Timer');
 const EvolutionSystem = require('../evolutions');
+const CardSystem = require('../components/CardSystem');
 const Types = require('../Types');
 const config = require('../../config');
 const { clamp, calculateGemsXP, filterChatMessage } = require('../../helpers');
@@ -99,6 +100,12 @@ class Player extends Entity {
     this.evolutions = new EvolutionSystem(this);
     this.tamedEntities = new Set();
 
+    this.cards = new CardSystem(this);
+    this.throwDamageMultiplier = 1;
+    this.coinMultiplier = 1;
+    this.damageReduction = 1;        // <1 = takes less damage, >1 = takes more
+    this.chestDamageMultiplier = 1;  // PvE Master card
+
     this.modifiers = {};
     this.wideSwing = false;
     this.isFirstLife = false;
@@ -146,6 +153,17 @@ class Player extends Entity {
     state.skin = this.skin;
 
     state.buffs = structuredClone(this.levels.buffs);
+
+    state.cardOffers = this.cards.cardOffers.length > 0 ? [...this.cards.cardOffers] : [];
+    state.chosenCards = [...this.cards.chosenCards];
+    state.choosingCard = this.cards.choosingCard;
+    state.cardTimer = this.cards.cardTimer;
+    state.cardPickNumber = this.cards.cardPickNumber;
+    state.availableUpgrades = this.cards.availableUpgrades;
+    state.rerollsAvailable = this.cards.rerollsAvailable;
+    state.skipResults = this.cards.lastSkipResults.length > 0 ? [...this.cards.lastSkipResults] : [];
+    state.isTutorial = this.cards.isTutorial;
+
     state.evolution = this.evolutions.evolution;
     state.possibleEvolutions = {};
     this.evolutions.possibleEvols.forEach(evol => state.possibleEvolutions[evol] = true);
@@ -159,10 +177,14 @@ class Player extends Entity {
     state.chatMessage = this.chatMessage;
 
     state.swordSwingAngle = this.sword.swingAngle;
+    state.swordSwingArc = this.sword.swingArc;
     state.swordSwingProgress = this.sword.swingProgress;
     state.swordSwingDuration = this.sword.swingDuration.value;
+    state.swordRaising = this.sword.raiseAnimation;
+    state.swordDecreasing = this.sword.decreaseAnimation;
     state.swordFlying = this.sword.isFlying;
     state.swordFlyingCooldown = this.sword.flyCooldownTime;
+    state.swordBoomerangReturning = this.sword.boomerangReturning;
     state.wideSwing = this.wideSwing;
     state.coinShield = this.coinShield;
     if (this.removed && this.client) {
@@ -215,6 +237,8 @@ class Player extends Entity {
     }
 
     this.levels.applyBuffs();
+    this.cards.update(dt);
+    this.cards.applyCardEffects();
 
     if (this.teamDisadvantage && now < this.teamDisadvantage.expiry && !this.isBot) {
       const regenMult = Math.max(0.25, this.teamDisadvantage.myTeam / this.teamDisadvantage.enemyTeam);
@@ -222,7 +246,9 @@ class Player extends Entity {
     }
 
     this.effects.forEach(effect => effect.update(dt));
-    this.health.update(dt);
+    if (!this.cards.choosingCard) {
+      this.health.update(dt); // No regen while choosing
+    }
     this.applyInputs(dt);
     this.sword.flySpeed.value = clamp(this.speed.value / 10, 100, 200);
     this.sword.update(dt);
@@ -233,7 +259,7 @@ class Player extends Entity {
 
     this.viewport.zoom.multiplier /= this.shape.scaleRadius.multiplier;
 
-    if (this.chatMessage) {
+    if (this.chatMessage && !this.cards.choosingCard) {
       this.chatMessageTimer.update(dt);
       if (this.chatMessageTimer.finished) {
         this.chatMessage = '';
@@ -284,6 +310,8 @@ class Player extends Entity {
   }
 
   processTargetsCollision(entity, response) {
+    if (this.cards.choosingCard) return; // No collision while choosing card
+
     if (this.modifiers.ramThrow && this.sword.isFlying) {
       return
     } else {
@@ -301,6 +329,13 @@ class Player extends Entity {
   }
 
   applyInputs(dt) {
+    // no movement no knockback while card
+    if (this.cards.choosingCard) {
+      this.velocity.x = 0;
+      this.velocity.y = 0;
+      return;
+    }
+
     // If stunned, prevent all movement
     if (this.modifiers.stunned) {
       return;
@@ -423,10 +458,16 @@ class Player extends Entity {
     this.shape.y = clamp(this.shape.y, -this.game.map.height / 2, this.game.map.height / 2);
   }
 
-  damaged(damage, entity = null) {
-    if (this.isFirstLife && !this.isBot) {
-      damage *= 0.75;
-    }
+  damaged(damage, entity = null, isThrown = false) {
+    if (this.cards.choosingCard) return;
+
+    damage *= this.damageReduction;
+
+    const cardDmgMult = this.cards.onDamaged(damage, entity);
+    damage *= cardDmgMult;
+
+    damage *= this.cards.getDamageTakenMultiplier(entity, isThrown);
+
 
     if (entity && entity.type === Types.Entity.Player && !this.isBot && !entity.isBot) {
       const attackerCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
@@ -488,6 +529,7 @@ class Player extends Entity {
           try {
             entity.kills = (entity.kills || 0) + 1;
             entity.flags.set(Types.Flags.PlayerKill, this.id);
+            entity.cards.onKill(this);
           } catch (e) { /* */ }
           try {
             this.flags.set(Types.Flags.PlayerDeath, true);
@@ -568,7 +610,28 @@ class Player extends Entity {
       };
       this.client.saveGame(game);
 
-      if (this.levels.coins >= 10000 && this.playtime >= 120) {
+      // Insurance card
+      const hasInsurance = this.cards.hasMajor(130);
+      const alreadyUsedInsurance = this.client.insuranceUsed;
+      if (hasInsurance && !alreadyUsedInsurance) {
+        const insuranceGold = Math.round(this.levels.coins * 0.40);
+        this.client.insuranceUsed = true;
+        this.client.insurancePostDeath = true;
+        this.client.pendingRespawn = {
+          coins: insuranceGold,
+          x: this.shape.x,
+          y: this.shape.y,
+          killerName: (this.killerEntity && this.killerEntity.type === Types.Entity.Player) ? this.killerEntity.name : null,
+          expiresAt: Date.now() + 120000,
+        };
+        this.cards._debugLog(`Insurance: keeping ${insuranceGold} coins on death`);
+      } else if (this.client.insurancePostDeath) {
+        // After insurance respawn with 0
+        this.client.pendingRespawn = null;
+        this.client.insurancePostDeath = false;
+        this.client.insuranceUsed = false; // Reset so Insurance can be picked again
+        this.cards._debugLog(`Insurance ended: 0 coins on this death, cycle reset`);
+      } else if (this.levels.coins >= 10000 && this.playtime >= 120) {
         const dropAmount = this.calculateDropAmount();
         const respawnCoins = Math.round(dropAmount / 2);
         this.client.pendingRespawn = {
@@ -581,6 +644,10 @@ class Player extends Entity {
       }
     }
 
+    if (this.cards.choosingCard) {
+      this.cards.cancelPick();
+    }
+
     if (this.evolutions && this.evolutions.evolutionEffect) {
       this.evolutions.evolutionEffect.remove();
     }
@@ -588,7 +655,12 @@ class Player extends Entity {
     super.remove();
 
     if (this.name !== "Update Testing Account") {
-      this.game.map.spawnCoinsInShape(this.shape, this.calculateDropAmount(), this.client?.account?.id);
+      let dropAmount = this.calculateDropAmount();
+      if (this.client && this.client.insuranceUsed && this.cards.hasMajor(130)) {
+        const keptGold = Math.round(this.levels.coins * 0.40);
+        dropAmount = Math.max(0, dropAmount - keptGold);
+      }
+      this.game.map.spawnCoinsInShape(this.shape, dropAmount, this.client?.account?.id);
     }
   }
 
@@ -621,6 +693,10 @@ class Player extends Entity {
     this.modifiers = {};
 
     [this.speed, this.regeneration, this.friction, this.viewport.zoom, this.knockbackResistance, this.health.regenWait].forEach((property) => property.reset());
+    this.throwDamageMultiplier = 1;
+    this.coinMultiplier = 1;
+    this.damageReduction = 1;
+    this.chestDamageMultiplier = 1;
   }
 }
 

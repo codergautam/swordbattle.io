@@ -183,7 +183,10 @@ class AncientMob extends Entity {
     }
 
     this.health.damaged(finalDamage);
-    this.target = entity;
+    // Butcherer card: mobs don't aggro
+    if (!(entity.type === 1 && entity.cards && entity.cards.hasMajor(126))) {
+      this.target = entity;
+    }
     this.angryTimer.renew();
 
     if (this.health.isDead && !this.removed) {

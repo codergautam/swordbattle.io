@@ -3,7 +3,7 @@ const Types = require('../Types');
 
 module.exports = class Lumberjack extends Evolution {
   static type = Types.Evolution.Lumberjack;
-  static level = 27;
+  static level = 18;
   static previousEvol = [Types.Evolution.Samurai, Types.Evolution.Rook];
   static abilityDuration = 4;
   static abilityCooldown = 36;

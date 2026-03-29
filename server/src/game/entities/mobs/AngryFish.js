@@ -20,7 +20,7 @@ class AngryFishMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 150;
+    this.coinsDrop = 50;
 
     this.tamedBy = null;
 
@@ -139,7 +139,10 @@ class AngryFishMob extends Entity {
       this.health.damaged(damage);
     }
     if(this.tamedBy !== entity.id) {
-    this.target = entity;
+    // Butcherer card: mobs don't aggro
+    if (!(entity.type === 1 && entity.cards && entity.cards.hasMajor(126))) {
+      this.target = entity;
+    }
     }
     this.angryTimer.renew();
 

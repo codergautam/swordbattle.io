@@ -64,12 +64,18 @@ class Coin extends Entity {
       }
       return;
     }
+    // Scavenger card (121)
+    let coinVal = this.value;
+    if (player.cards && player.cards.hasMajor(121) && this.respawnable) {
+      coinVal = 50;
+    }
+
     if (player.name === "Update Testing Account") {
-      player.levels.addCoins(this.value * 50);
+      player.levels.addCoins(coinVal * 50);
     } else {
       const isCrazygames = !!player.client?.account?.isCrazygames;
-      if (isCrazygames || player.isFirstLife) {
-        const raw = this.value * 1.5;
+      if (isCrazygames) {
+        const raw = coinVal * 1.5;
         player._coinRemainder = (player._coinRemainder || 0) + (raw - Math.floor(raw));
         let coinValue = Math.floor(raw);
         if (player._coinRemainder >= 1) {
@@ -78,7 +84,7 @@ class Coin extends Entity {
         }
         player.levels.addCoins(coinValue);
       } else {
-        player.levels.addCoins(this.value);
+        player.levels.addCoins(coinVal);
       }
     }
     

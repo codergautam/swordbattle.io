@@ -3,7 +3,7 @@ const Types = require('../Types');
 
 module.exports = class Butcher extends Evolution {
   static type = Types.Evolution.Butcher;
-  static level = 29;
+  static level = 24;
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
   static abilityDuration = 7;
   static abilityCooldown = 50;

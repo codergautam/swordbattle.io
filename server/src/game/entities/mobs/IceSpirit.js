@@ -177,7 +177,10 @@ class IceSpiritMob extends Entity {
 
     this.health.damaged(finalDamage);
     if(this.tamedBy !== entity.id) {
-      this.target = entity;
+      // Butcherer card: mobs don't aggro
+      if (!(entity.type === 1 && entity.cards && entity.cards.hasMajor(126))) {
+        this.target = entity;
+      }
     }
     this.angryTimer.renew();
 

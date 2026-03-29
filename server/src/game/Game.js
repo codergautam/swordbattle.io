@@ -83,6 +83,9 @@ class Game {
 
       if (!entity.targets.has(targetEntity.type)) continue;
 
+      if (entity.cards && entity.cards.choosingCard) continue;
+      if (targetEntity.cards && targetEntity.cards.choosingCard) continue;
+
       response.clear();
       if (targetEntity.shape.collides(entity.shape, response)) {
         entity.processTargetsCollision(targetEntity, response, dt);
@@ -323,8 +326,34 @@ class Game {
         console.error('Failed to process selectedEvolution:', data.selectedEvolution, err);
       }
     }
-    if (data.selectedBuff) {
-      player.levels.addBuff(data.selectedBuff);
+    if (data.selectedCard) {
+      player.cards.selectCard(data.selectedCard);
+    }
+    if (data.openCardSelect) {
+      player.cards.openCardSelect();
+    }
+    if (data.rerollCard) {
+      player.cards.rerollOffers();
+    }
+    if (data.skipMajorCard) {
+      player.cards.skipMajorCard();
+    }
+    if (data.tutorialComplete) {
+      player.cards.isTutorial = false;
+      player.cards.tutorialRerollEveryPick = false;
+      player.cards.instantSelect = false;
+      player.coinShield = 500;
+      client.tutorialCompleted = true;
+      player.cards._debugLog('Tutorial complete: all tutorial flags cleared');
+    }
+    if (data.tutorialPanel !== undefined && data.tutorialPanel !== null) {
+      if (data.tutorialPanel === 4 && player.cards.isTutorial) {
+        player.coinShield = 500;
+        player.cards.isTutorial = false;
+        player.respawnShieldFadeActive = true;
+        player.respawnShieldFadeTimer = 5;
+        player.cards._debugLog('Tutorial: shield fading (panel 4), isTutorial=false');
+      }
     }
     if (data.chatMessage && typeof data.chatMessage === 'string') {
       player.addChatMessage(data.chatMessage);
@@ -520,25 +549,38 @@ class Game {
     }
     this.players.add(player);
 
-    const pendingRespawn = client.pendingRespawn;
-    if (pendingRespawn && Date.now() < pendingRespawn.expiresAt) {
-      const spawnPos = this.map.findSpawnAwayFrom(pendingRespawn.x, pendingRespawn.y, 6000, 12000);
-      player.shape.x = spawnPos.x;
-      player.shape.y = spawnPos.y;
-      player.inSafezone = false;
-
-      player.levels.addCoins(pendingRespawn.coins);
-
-      player.respawnShieldActive = true;
-      player.respawnShieldTimer = 10;
-
-      player.respawnedAt = Date.now();
-      player.respawnKillerName = pendingRespawn.killerName;
-
+    const isTutorial = player.isFirstLife && !client.tutorialCompleted;
+    if (isTutorial) {
+      player.cards.isTutorial = true;
+      player.cards.tutorialRerollEveryPick = true;
+      player.cards.instantSelect = true;
+      player.coinShield = 999999; // during tutorial
+      player.shape.x = 0;
+      player.shape.y = 0;
+      player.inSafezone = true;
       client.pendingRespawn = null;
+      player.cards._debugLog('Tutorial player spawned at center with full PvP immunity');
     } else {
-      this.map.spawnPlayer(player);
-      client.pendingRespawn = null;
+      const pendingRespawn = client.pendingRespawn;
+      if (pendingRespawn && Date.now() < pendingRespawn.expiresAt) {
+        const spawnPos = this.map.findSpawnAwayFrom(pendingRespawn.x, pendingRespawn.y, 6000, 12000);
+        player.shape.x = spawnPos.x;
+        player.shape.y = spawnPos.y;
+        player.inSafezone = false;
+
+        player.levels.addCoins(pendingRespawn.coins);
+
+        player.respawnShieldActive = true;
+        player.respawnShieldTimer = 10;
+
+        player.respawnedAt = Date.now();
+        player.respawnKillerName = pendingRespawn.killerName;
+
+        client.pendingRespawn = null;
+      } else {
+        this.map.spawnPlayer(player);
+        client.pendingRespawn = null;
+      }
     }
 
     this.addEntity(player);

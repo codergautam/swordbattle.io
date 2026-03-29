@@ -5,7 +5,7 @@ import * as cosmetics from '../cosmetics.json';
 const {skins} = cosmetics;
 
 class Sword extends BaseEntity {
-  static stateFields = [...BaseEntity.stateFields, 'size', 'isFlying', 'abilityActive', 'skin', 'skinName', 'pullbackParticles']
+  static stateFields = [...BaseEntity.stateFields, 'size', 'isFlying', 'abilityActive', 'skin', 'skinName', 'pullbackParticles', 'swordBoomerangReturning']
 
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
@@ -120,7 +120,7 @@ class Sword extends BaseEntity {
     this.body.setScale(scale);
     this.shadow.setScale(scale);
     this.container.setVisible(this.isFlying);
-    const rotation = this.shape.angle - Math.PI / 4;
+    let rotation = this.shape.angle - Math.PI / 4;
     this.body.setRotation(rotation);
     this.shadow.setRotation(rotation);
 

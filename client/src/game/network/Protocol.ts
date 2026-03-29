@@ -23,6 +23,12 @@ export interface ClientMessage {
   captchaP10?: string;
   captchaP11?: string;
   firstLife?: boolean;
+  selectedCard?: number;
+  openCardSelect?: boolean;
+  rerollCard?: boolean;
+  skipMajorCard?: boolean;
+  tutorialComplete?: boolean;
+  tutorialPanel?: number;
 }
 
 export function encodeClientMessage(message: ClientMessage): Uint8Array {
@@ -209,6 +215,48 @@ function _encodeClientMessage(message: ClientMessage, bb: ByteBuffer): void {
     writeVarint32(bb, 416);
     writeByte(bb, $firstLife ? 1 : 0);
   }
+
+  // optional int32 selectedCard = 53;
+  let $selectedCard = message.selectedCard;
+  if ($selectedCard !== undefined) {
+    writeVarint32(bb, 424);
+    writeVarint64(bb, intToLong($selectedCard));
+  }
+
+  // optional bool openCardSelect = 54;
+  let $openCardSelect = message.openCardSelect;
+  if ($openCardSelect !== undefined) {
+    writeVarint32(bb, 432);
+    writeByte(bb, $openCardSelect ? 1 : 0);
+  }
+
+  // optional bool rerollCard = 55;
+  let $rerollCard = message.rerollCard;
+  if ($rerollCard !== undefined) {
+    writeVarint32(bb, 440);
+    writeByte(bb, $rerollCard ? 1 : 0);
+  }
+
+  // optional bool skipMajorCard = 56;
+  let $skipMajorCard = message.skipMajorCard;
+  if ($skipMajorCard !== undefined) {
+    writeVarint32(bb, 448);
+    writeByte(bb, $skipMajorCard ? 1 : 0);
+  }
+
+  // optional bool tutorialComplete = 57;
+  let $tutorialComplete = message.tutorialComplete;
+  if ($tutorialComplete !== undefined) {
+    writeVarint32(bb, 456);
+    writeByte(bb, $tutorialComplete ? 1 : 0);
+  }
+
+  // optional int32 tutorialPanel = 58;
+  let $tutorialPanel = message.tutorialPanel;
+  if ($tutorialPanel !== undefined) {
+    writeVarint32(bb, 464);
+    writeVarint64(bb, intToLong($tutorialPanel));
+  }
 }
 
 export function decodeClientMessage(binary: Uint8Array): ClientMessage {
@@ -371,6 +419,42 @@ function _decodeClientMessage(bb: ByteBuffer): ClientMessage {
     
       case 52: {
         message.firstLife = !!readByte(bb);
+        break;
+      }
+
+      // optional int32 selectedCard = 53;
+      case 53: {
+        message.selectedCard = readVarint32(bb);
+        break;
+      }
+
+      // optional bool openCardSelect = 54;
+      case 54: {
+        message.openCardSelect = !!readByte(bb);
+        break;
+      }
+
+      // optional bool rerollCard = 55;
+      case 55: {
+        message.rerollCard = !!readByte(bb);
+        break;
+      }
+
+      // optional bool skipMajorCard = 56;
+      case 56: {
+        message.skipMajorCard = !!readByte(bb);
+        break;
+      }
+
+      // optional bool tutorialComplete = 57;
+      case 57: {
+        message.tutorialComplete = !!readByte(bb);
+        break;
+      }
+
+      // optional int32 tutorialPanel = 58;
+      case 58: {
+        message.tutorialPanel = readVarint32(bb);
         break;
       }
 
@@ -1301,6 +1385,19 @@ export interface Entity {
   skin?: number;
   wideSwing?: boolean;
   coinShield?: number;
+  swordSwingArc?: number;
+  swordBoomerangReturning?: boolean;
+  availableUpgrades?: number;
+  rerollsAvailable?: number;
+  skipResults?: number[];
+  isTutorial?: boolean;
+  swordRaising?: boolean;
+  swordDecreasing?: boolean;
+  cardOffers?: number[];
+  chosenCards?: number[];
+  choosingCard?: boolean;
+  cardTimer?: number;
+  cardPickNumber?: number;
 }
 
 export function encodeEntity(message: Entity): Uint8Array {
@@ -1666,6 +1763,103 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
     writeVarint32(bb, 360);
     writeVarint64(bb, intToLong($tokens));
   }
+
+  // repeated int32 cardOffers = 46;
+  let array$cardOffers = message.cardOffers;
+  if (array$cardOffers !== undefined) {
+    for (let value of array$cardOffers) {
+      writeVarint32(bb, 368);
+      writeVarint64(bb, intToLong(value));
+    }
+  }
+
+  // repeated int32 chosenCards = 47;
+  let array$chosenCards = message.chosenCards;
+  if (array$chosenCards !== undefined) {
+    for (let value of array$chosenCards) {
+      writeVarint32(bb, 376);
+      writeVarint64(bb, intToLong(value));
+    }
+  }
+
+  // optional bool choosingCard = 48;
+  let $choosingCard = message.choosingCard;
+  if ($choosingCard !== undefined) {
+    writeVarint32(bb, 384);
+    writeByte(bb, $choosingCard ? 1 : 0);
+  }
+
+  // optional float cardTimer = 49;
+  let $cardTimer = message.cardTimer;
+  if ($cardTimer !== undefined) {
+    writeVarint32(bb, 397);
+    writeFloat(bb, $cardTimer);
+  }
+
+  // optional int32 cardPickNumber = 50;
+  let $cardPickNumber = message.cardPickNumber;
+  if ($cardPickNumber !== undefined) {
+    writeVarint32(bb, 400);
+    writeVarint64(bb, intToLong($cardPickNumber));
+  }
+
+  // optional float swordSwingArc = 51;
+  let $swordSwingArc = message.swordSwingArc;
+  if ($swordSwingArc !== undefined) {
+    writeVarint32(bb, 413);
+    writeFloat(bb, $swordSwingArc);
+  }
+
+  // optional bool swordBoomerangReturning = 52;
+  let $swordBoomerangReturning = message.swordBoomerangReturning;
+  if ($swordBoomerangReturning !== undefined) {
+    writeVarint32(bb, 416);
+    writeByte(bb, $swordBoomerangReturning ? 1 : 0);
+  }
+
+  // optional int32 availableUpgrades = 53;
+  let $availableUpgrades = message.availableUpgrades;
+  if ($availableUpgrades !== undefined) {
+    writeVarint32(bb, 424);
+    writeVarint64(bb, intToLong($availableUpgrades));
+  }
+
+  // optional int32 rerollsAvailable = 54;
+  let $rerollsAvailable = message.rerollsAvailable;
+  if ($rerollsAvailable !== undefined) {
+    writeVarint32(bb, 432);
+    writeVarint64(bb, intToLong($rerollsAvailable));
+  }
+
+  // repeated int32 skipResults = 55;
+  let array$skipResults = message.skipResults;
+  if (array$skipResults !== undefined) {
+    for (let value of array$skipResults) {
+      writeVarint32(bb, 440);
+      writeVarint64(bb, intToLong(value));
+    }
+  }
+
+  // optional bool isTutorial = 56;
+  let $isTutorial = message.isTutorial;
+  if ($isTutorial !== undefined) {
+    writeVarint32(bb, 448);
+    writeByte(bb, $isTutorial ? 1 : 0);
+  }
+
+  // optional bool swordRaising = 57;
+  let $swordRaising = message.swordRaising;
+  if ($swordRaising !== undefined) {
+    writeVarint32(bb, 456);
+    writeByte(bb, $swordRaising ? 1 : 0);
+  }
+
+  // optional bool swordDecreasing = 58;
+  let $swordDecreasing = message.swordDecreasing;
+  if ($swordDecreasing !== undefined) {
+    writeVarint32(bb, 464);
+    writeByte(bb, $swordDecreasing ? 1 : 0);
+  }
 }
 
 export function decodeEntity(binary: Uint8Array): Entity {
@@ -2027,6 +2221,111 @@ function _decodeEntity(bb: ByteBuffer): Entity {
       // optional int32 tokens = 45;
       case 45: {
         message.tokens = readVarint32(bb);
+        break;
+      }
+
+      // repeated int32 cardOffers = 46;
+      case 46: {
+        let values = message.cardOffers || (message.cardOffers = []);
+        if ((tag & 7) === 2) {
+          // Packed encoding
+          let limit = pushTemporaryLength(bb);
+          while (!isAtEnd(bb)) {
+            values.push(readVarint32(bb));
+          }
+          bb.limit = limit;
+        } else {
+          values.push(readVarint32(bb));
+        }
+        break;
+      }
+
+      // repeated int32 chosenCards = 47;
+      case 47: {
+        let values = message.chosenCards || (message.chosenCards = []);
+        if ((tag & 7) === 2) {
+          // Packed encoding
+          let limit = pushTemporaryLength(bb);
+          while (!isAtEnd(bb)) {
+            values.push(readVarint32(bb));
+          }
+          bb.limit = limit;
+        } else {
+          values.push(readVarint32(bb));
+        }
+        break;
+      }
+
+      // optional bool choosingCard = 48;
+      case 48: {
+        message.choosingCard = !!readByte(bb);
+        break;
+      }
+
+      // optional float cardTimer = 49;
+      case 49: {
+        message.cardTimer = readFloat(bb);
+        break;
+      }
+
+      // optional int32 cardPickNumber = 50;
+      case 50: {
+        message.cardPickNumber = readVarint32(bb);
+        break;
+      }
+
+      // optional float swordSwingArc = 51;
+      case 51: {
+        message.swordSwingArc = readFloat(bb);
+        break;
+      }
+
+      // optional bool swordBoomerangReturning = 52;
+      case 52: {
+        message.swordBoomerangReturning = !!readByte(bb);
+        break;
+      }
+
+      // optional int32 availableUpgrades = 53;
+      case 53: {
+        message.availableUpgrades = readVarint32(bb);
+        break;
+      }
+
+      // optional int32 rerollsAvailable = 54;
+      case 54: {
+        message.rerollsAvailable = readVarint32(bb);
+        break;
+      }
+
+      // repeated int32 skipResults = 55;
+      case 55: {
+        let values = message.skipResults || (message.skipResults = []);
+        if ((tag & 7) === 2) {
+          let limit = pushTemporaryLength(bb);
+          while (!isAtEnd(bb)) { values.push(readVarint32(bb)); }
+          bb.limit = limit;
+        } else {
+          values.push(readVarint32(bb));
+        }
+        break;
+      }
+
+      // optional bool isTutorial = 56;
+      case 56: {
+        message.isTutorial = !!readByte(bb);
+        break;
+      }
+
+      // optional bool swordRaising = 57;
+      case 57: {
+        message.swordRaising = !!readByte(bb);
+        break;
+      }
+
+      // optional bool swordDecreasing = 58;
+      case 58: {
+        message.swordDecreasing = !!readByte(bb);
         break;
       }
 

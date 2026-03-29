@@ -3,7 +3,7 @@ const Types = require('../Types');
 
 module.exports = class SuperArcher extends Evolution {
   static type = Types.Evolution.SuperArcher;
-  static level = 29;
+  static level = 24;
   static previousEvol = Types.Evolution.Archer;
   static abilityDuration = 0.2;
   static abilityCooldown = 15;

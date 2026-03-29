@@ -49,6 +49,131 @@ interface Skin {
 
 const rotate = false;
 
+interface SkinGridProps {
+  skins: any;
+  filter: (skin: Skin) => boolean;
+  sort: (a: Skin, b: Skin) => number;
+  searchTerm: string;
+  highlightSearchTerm: (text: string, term: string) => string;
+  skinCounts: { [id: number]: number };
+  assignRef: (element: HTMLImageElement, index: number) => void;
+  showButton?: boolean;
+  account?: AccountState;
+  skinStatus?: { [id: number]: string };
+  onActionClick?: (id: number) => void;
+  showTokenPrice?: boolean;
+}
+
+const SkinGrid: React.FC<SkinGridProps> = ({
+  skins, filter, sort, searchTerm, highlightSearchTerm, skinCounts,
+  assignRef, showButton, account, skinStatus, onActionClick, showTokenPrice,
+}) => {
+  const filtered = Object.values(skins)
+    .filter((skinData: any) => filter(skinData as Skin))
+    .sort((a: any, b: any) => sort(a as Skin, b as Skin));
+
+  return (
+    <div className='skins'>
+      {filtered.map((skinData: any, index) => {
+        const skin = skinData as Skin;
+        return (
+          <div className="skin-card" key={skin.name}>
+            <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
+            {skin.ultimate && <p className='skin-tag'>{skin.tag}</p>}
+            {skin.sale && <p className='skin-saletag'>{skin.saletag}</p>}
+            {skin.event && <p className='skin-eventtag'>{skin.eventtag}</p>}
+            {skin.eventoffsale && <p className='skin-eventtag'>{skin.eventtag}</p>}
+
+            <img
+              src={basePath + skin.bodyFileName}
+              alt={skin.name}
+              ref={(el) => {
+                assignRef(el as HTMLImageElement, index);
+                if (el) {
+                  const tempImg = new window.Image();
+                  tempImg.src = basePath + skin.bodyFileName;
+                  tempImg.onload = () => {
+                    if (tempImg.naturalWidth === 300) el.className = 'skin-img-large';
+                    else if (tempImg.naturalWidth === 274) el.className = 'skin-img';
+                    else el.className = 'skin-img-small';
+                  };
+                }
+              }}
+              data-selected='skin'
+            />
+            <img
+              src={basePath + skin.swordFileName}
+              alt={skin.name}
+              ref={(el) => {
+                assignRef(el as HTMLImageElement, index);
+                if (el) {
+                  const tempImg = new window.Image();
+                  tempImg.src = basePath + skin.bodyFileName;
+                  tempImg.onload = () => {
+                    if (tempImg.naturalWidth === 300) el.className = 'skin-sword-large';
+                    else if (tempImg.naturalWidth === 274) el.className = 'skin-sword';
+                    else el.className = 'skin-sword-small';
+                  };
+                }
+              }}
+              data-selected='skin'
+            />
+            <h4 className='skin-count'>
+              {Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
+              <br/>
+              <span className='skin-desc'>{skin.description}</span>
+              {(skin?.price ?? 0) > 0 ? (
+                <>
+                  {skin?.sale && <> <span className="sale">{skin?.ogprice}</span><span>‎ ‎ ‎</span> </>}
+                  {skin?.price}{' '}
+                  {skin?.ultimate
+                    ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
+                    : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
+                  }
+                  {showTokenPrice && skin?.tokenprice && (
+                    <>
+                      <span>‎ ‎ ‎</span>
+                      {skin.tokenprice}
+                      <img className={'gem'} src='assets/game/snowtoken.png' alt='Snowtokens' width={20} height={20} />
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
+                    {skin?.sale && <> <span className="sale">{skin?.ogprice}</span><span>‎ ‎ ‎</span> </>}
+                    {skin?.ultimate ? (
+                      <>
+                        {skin.buyable ? '0' : ''}
+                        <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
+                      </>
+                    ) : (
+                      skin?.buyable ? 'Free' : ''
+                    )}
+                  </p>
+                  {showTokenPrice && skin?.tokenprice && (
+                    <>
+                      <span>‎ ‎ ‎</span>
+                      {skin.tokenprice}
+                      <img className={'gem'} src='assets/game/snowtoken.png' alt='Snowtokens' width={20} height={20} />
+                    </>
+                  )}
+                </>
+              )}
+            </h4>
+            {showButton && account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
+              <button className='buy-button' onClick={() => onActionClick?.(skin.id)}>
+                {skinStatus?.[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
+                  account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
+              </button>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
   const dispatch = useDispatch();
   const [skinStatus, setSkinStatus] = useState<{ [id: number]: string }>({});
@@ -301,134 +426,23 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {searchTerm && (
         <>
         <div className='scroll' ref={targetParentRef}>
-        <div className='skins'>
-      {Object.values(skins).filter((skinData: any) => {
-        const skin = skinData as Skin;
-        if (skin.og) return false;
-        if (skin.eventoffsale) return false;
-        if (skin.price === 0) return false;
-        if (skin.description?.includes("Given")) return false;
-        if (skin.currency) return false;
-        
-        return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
-      }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
-        const skin = skinData as Skin;
-        return (
-        <div className="skin-card" key={skin.name}>
-          <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
-          {skin.ultimate && (
-            <p className='skin-tag'>{skin.tag}</p>
-          )}
-          {skin.sale && (
-            <p className='skin-saletag'>{skin.saletag}</p>
-          )}
-          {skin.event && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-          {skin.eventoffsale && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-
-          {/* Get image width from src */}
-            {(() => {
-            // Create a variable to store the width
-            let imgWidth = 0;
-            const img = new window.Image();
-            img.src = basePath + skin.bodyFileName;
-            img.onload = () => {
-              imgWidth = img.naturalWidth;
-            };
-            // This will not be reactive, but will be used below
-            return null;
-            })()}
-
-            <img
-            src={basePath + skin.bodyFileName}
-            alt={skin.name}
-            ref={(el) => {
-              assignRef(el as HTMLImageElement, index);
-              if (el) {
-              // Get width from the image src instead of el.naturalWidth
-              const tempImg = new window.Image();
-              tempImg.src = basePath + skin.bodyFileName;
-              tempImg.onload = () => {
-                if (tempImg.naturalWidth === 300) {
-                el.className = 'skin-img-large';
-                } else if (tempImg.naturalWidth === 274) {
-                el.className = 'skin-img';
-                } else {
-                el.className = 'skin-img-small';
-                }
-              };
-              }
-            }}
-            data-selected='skin'
-            />
-            <img
-            src={basePath + skin.swordFileName}
-            alt={skin.name}
-           ref={(el) => {
-              assignRef(el as HTMLImageElement, index);
-              if (el) {
-              // Get width from the image src instead of el.naturalWidth
-              const tempImg = new window.Image();
-              tempImg.src = basePath + skin.bodyFileName;
-              tempImg.onload = () => {
-                if (tempImg.naturalWidth === 300) {
-                el.className = 'skin-sword-large';
-                } else if (tempImg.naturalWidth === 274) {
-                el.className = 'skin-sword';
-                } else {
-                el.className = 'skin-sword-small';
-                }
-              };
-              }
-            }}
-            data-selected='skin'
-            />
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-          <br/>
-          <span className='skin-desc'>{skin.description}</span>
-          {
-  (skin?.price ?? 0) > 0 ? (
-    <>
-      {skin?.sale 
-        && <> <span className="sale">
-        {skin?.ogprice}
-      </span><span>‎ ‎ ‎</span> </>
-      }
-      {skin?.price} 
-      {skin?.ultimate 
-        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
-        : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
-      }
-    </>
-  ) : (
-    <>
-      <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
-      {skin?.sale 
-        && <> <span className="sale">
-        {skin?.ogprice}
-      </span><span>‎ ‎ ‎</span> </>
-      }
-        {skin?.ultimate ? (
-  <>
-    {skin.buyable ? '0' : ''}
-    <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
-  </>
-) : (
-  skin?.buyable ? 'Free' : ''
-)}
-      </p>
-    </>
-  )
-}
-          </h4>
-        </div>
-      )
-      }
-      )}
-      </div>
+        <SkinGrid
+          skins={skins}
+          filter={(skin) => {
+            if (skin.og) return false;
+            if (skin.eventoffsale) return false;
+            if (skin.price === 0) return false;
+            if (skin.description?.includes("Given")) return false;
+            if (skin.currency) return false;
+            return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+          }}
+          sort={(a, b) => (a.price ?? 0) - (b.price ?? 0)}
+          searchTerm={searchTerm}
+          highlightSearchTerm={highlightSearchTerm}
+          skinCounts={skinCounts}
+          assignRef={assignRef}
+          showTokenPrice={false}
+        />
       <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
       </div>
         </>
@@ -452,436 +466,78 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
           <p style={{ color: '#aaa', fontSize: '0.9em', fontStyle: 'italic' }}>Loading Skins...</p>
         )}
         </div>
-        <div className='skins'>
-      {Object.values(skins).filter((skinData: any) => {
-        const skin = skinData as Skin;
-        if (!todaysGlobalSkinList?.includes(skin.id)) return false;
-        if (skin.sale) return false; {
-          return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
-        }
-      }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
-        const skin = skinData as Skin;
-        return (
-        <div className="skin-card" key={skin.name}>
-          <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
-          {skin.ultimate && (
-            <p className='skin-tag'>{skin.tag}</p>
-          )}
-          {skin.sale && (
-            <p className='skin-saletag'>{skin.saletag}</p>
-          )}
-          {skin.event && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-          {skin.eventoffsale && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-
-            {/* Get image width from src */}
-            {(() => {
-            // Create a variable to store the width
-            let imgWidth = 0;
-            const img = new window.Image();
-            img.src = basePath + skin.bodyFileName;
-            img.onload = () => {
-              imgWidth = img.naturalWidth;
-            };
-            // This will not be reactive, but will be used below
-            return null;
-            })()}
-
-            <img
-            src={basePath + skin.bodyFileName}
-            alt={skin.name}
-            ref={(el) => {
-              assignRef(el as HTMLImageElement, index);
-              if (el) {
-              // Get width from the image src instead of el.naturalWidth
-              const tempImg = new window.Image();
-              tempImg.src = basePath + skin.bodyFileName;
-              tempImg.onload = () => {
-                if (tempImg.naturalWidth === 300) {
-                el.className = 'skin-img-large';
-                } else if (tempImg.naturalWidth === 274) {
-                el.className = 'skin-img';
-                } else {
-                el.className = 'skin-img-small';
-                }
-              };
-              }
-            }}
-            data-selected='skin'
-            />
-            <img
-            src={basePath + skin.swordFileName}
-            alt={skin.name}
-           ref={(el) => {
-              assignRef(el as HTMLImageElement, index);
-              if (el) {
-              // Get width from the image src instead of el.naturalWidth
-              const tempImg = new window.Image();
-              tempImg.src = basePath + skin.bodyFileName;
-              tempImg.onload = () => {
-                if (tempImg.naturalWidth === 300) {
-                el.className = 'skin-sword-large';
-                } else if (tempImg.naturalWidth === 274) {
-                el.className = 'skin-sword';
-                } else {
-                el.className = 'skin-sword-small';
-                }
-              };
-              }
-            }}
-            data-selected='skin'
-            />
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-          <br/>
-          <span className='skin-desc'>{skin.description}</span>
-          {
-  (skin?.price ?? 0) > 0 ? (
-    <>
-      {skin?.sale 
-        && <> <span className="sale">
-        {skin?.ogprice}
-      </span><span>‎ ‎ ‎</span> </>
-      }
-      {skin?.price} 
-      {skin?.ultimate 
-        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
-        : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
-      }
-    </>
-  ) : (
-    <>
-      <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
-      {skin?.sale 
-        && <> <span className="sale">
-        {skin?.ogprice}
-      </span><span>‎ ‎ ‎</span> </>
-      }
-        {skin?.ultimate ? (
-  <>
-    {skin.buyable ? '0' : ''}
-    <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
-  </>
-) : (
-  skin?.buyable ? 'Free' : ''
-)}
-      </p>
-    </>
-  )
-}
-          </h4>
-          {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
-  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
-    {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
-      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
-  </button>
-))}
-        </div>
-      )
-      }
-      )}
-      </div>
+        <SkinGrid
+          skins={skins}
+          filter={(skin) => {
+            if (!todaysGlobalSkinList?.includes(skin.id)) return false;
+            if (skin.sale) return false;
+            return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+          }}
+          sort={(a, b) => (a.price ?? 0) - (b.price ?? 0)}
+          searchTerm={searchTerm}
+          highlightSearchTerm={highlightSearchTerm}
+          skinCounts={skinCounts}
+          assignRef={assignRef}
+          showButton
+          account={account}
+          skinStatus={skinStatus}
+          onActionClick={handleActionClick}
+          showTokenPrice={false}
+        />
       <br /><br /><br /><br /><br /><br /><br /><br />
         <div ref={targetElementRef2}></div>
         <div className='label'>
         <span>Ultimate Skins</span><hr></hr>
         <p>Ultimate skins are remakes of normal skins and are obtained by earning mastery instead of spending gems.<br /><span style={{color: 'red'}}>Unlocking ultimate skins DOES NOT take away any mastery. The original skin must be owned before unlocking the ultimate version.</span><br />(The original version of an Ultimate is based on it's Tag. For example, the "Ultimate Blueberry" Tag means the original skin is Blueberry)</p>
         </div>
-        <div className='skins'>
-      {Object.values(skins).filter((skinData: any) => {
-        const skin = skinData as Skin;
-        if (skin.og) return false;
-        if (!skin.ultimate) return false;
-        
-        return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
-      }).sort((a: any, b: any) => a.price - b.price).map((skinData: any, index) => {
-        const skin = skinData as Skin;
-        return (
-        <div className="skin-card" key={skin.name}>
-          <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
-          {skin.ultimate && (
-            <p className='skin-tag'>{skin.tag}</p>
-          )}
-          {skin.sale && (
-            <p className='skin-saletag'>{skin.saletag}</p>
-          )}
-          {skin.event && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-          {skin.eventoffsale && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-
-          {/* Get image width from src */}
-            {(() => {
-            // Create a variable to store the width
-            let imgWidth = 0;
-            const img = new window.Image();
-            img.src = basePath + skin.bodyFileName;
-            img.onload = () => {
-              imgWidth = img.naturalWidth;
-            };
-            // This will not be reactive, but will be used below
-            return null;
-            })()}
-
-            <img
-            src={basePath + skin.bodyFileName}
-            alt={skin.name}
-            ref={(el) => {
-              assignRef(el as HTMLImageElement, index);
-              if (el) {
-              // Get width from the image src instead of el.naturalWidth
-              const tempImg = new window.Image();
-              tempImg.src = basePath + skin.bodyFileName;
-              tempImg.onload = () => {
-                if (tempImg.naturalWidth === 300) {
-                el.className = 'skin-img-large';
-                } else if (tempImg.naturalWidth === 274) {
-                el.className = 'skin-img';
-                } else {
-                el.className = 'skin-img-small';
-                }
-              };
-              }
-            }}
-            data-selected='skin'
-            />
-            <img
-            src={basePath + skin.swordFileName}
-            alt={skin.name}
-           ref={(el) => {
-              assignRef(el as HTMLImageElement, index);
-              if (el) {
-              // Get width from the image src instead of el.naturalWidth
-              const tempImg = new window.Image();
-              tempImg.src = basePath + skin.bodyFileName;
-              tempImg.onload = () => {
-                if (tempImg.naturalWidth === 300) {
-                el.className = 'skin-sword-large';
-                } else if (tempImg.naturalWidth === 274) {
-                el.className = 'skin-sword';
-                } else {
-                el.className = 'skin-sword-small';
-                }
-              };
-              }
-            }}
-            data-selected='skin'
-            />
-          <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-          <br/>
-          <span className='skin-desc'>{skin.description}</span>
-          {
-  (skin?.price ?? 0) > 0 ? (
-    <>
-      {skin?.sale 
-        && <> <span className="sale">
-        {skin?.ogprice}
-      </span><span>‎ ‎ ‎</span> </>
-      }
-      {skin?.price} 
-      {skin?.ultimate 
-        ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
-        : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
-      }
-    </>
-  ) : (
-    <>
-      <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
-      {skin?.sale 
-        && <> <span className="sale">
-        {skin?.ogprice}
-      </span><span>‎ ‎ ‎</span> </>
-      }
-        {skin?.ultimate ? (
-  <>
-    {skin.buyable ? '0' : ''}
-    <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
-  </>
-) : (
-  skin?.buyable ? 'Free' : ''
-)}
-      </p>
-    </>
-  )
-}
-          </h4>
-          {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
-  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
-    {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
-      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
-  </button>
-))}
-        </div>
-      )
-      }
-      )}
-      </div>
+        <SkinGrid
+          skins={skins}
+          filter={(skin) => {
+            if (skin.og) return false;
+            if (!skin.ultimate) return false;
+            return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+          }}
+          sort={(a, b) => (a.price ?? 0) - (b.price ?? 0)}
+          searchTerm={searchTerm}
+          highlightSearchTerm={highlightSearchTerm}
+          skinCounts={skinCounts}
+          assignRef={assignRef}
+          showButton
+          account={account}
+          skinStatus={skinStatus}
+          onActionClick={handleActionClick}
+          showTokenPrice={false}
+        />
       <br /><br /><br /><br /><br /><br /><br /><br />
       <div ref={targetElementRef3}></div>
         <div className='label'>
         <span>Event Skins</span><hr></hr>
         <p style={{color: 'white'}}>Event skins can be purchased/obtained during seasonal events or holiday skin sales. Stick around for holiday seasons to get some of these event skins!</p>
         </div>
-        <div className='skins'>
-      {Object.values(skins).filter((skinData: any) => {
-        const skin = skinData as Skin;
-        if (skin.og) return false;
-        if (!skin.event && !skin.eventoffsale) return false;
-        // if (!skin.eventtag?.includes('WINTER')) return false;
-        
-        return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
-      }).sort((a: any, b: any) => {
-        const aTag = (a as Skin).eventtag || '';
-        const bTag = (b as Skin).eventtag || '';
-        
-        // "WINTER 2024" goes to bottom (higher number = lower priority)
-        if (aTag.includes('WINTER 2024') && !bTag.includes('WINTER 2024')) return 1;
-        if (!aTag.includes('WINTER 2024') && bTag.includes('WINTER 2024')) return -1;
-        
-        // If same tag, sort by price
-        return ((a as Skin).price ?? 0) - ((b as Skin).price ?? 0);
-      }).map((skinData: any, index) => {
-        const skin = skinData as Skin;
-        return (
-        <div className="skin-card" key={skin.name}>
-          <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
-          {skin.ultimate && (
-            <p className='skin-tag'>{skin.tag}</p>
-          )}
-          {skin.sale && (
-            <p className='skin-saletag'>{skin.saletag}</p>
-          )}
-          {skin.event && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-          {skin.eventoffsale && (
-            <p className='skin-eventtag'>{skin.eventtag}</p>
-          )}
-
-          {/* Get image width from src */}
-            {(() => {
-            // Create a variable to store the width
-            let imgWidth = 0;
-            const img = new window.Image();
-            img.src = basePath + skin.bodyFileName;
-            img.onload = () => {
-              imgWidth = img.naturalWidth;
-            };
-            // This will not be reactive, but will be used below
-            return null;
-            })()}
-
-            <img
-            src={basePath + skin.bodyFileName}
-            alt={skin.name}
-            ref={(el) => {
-              assignRef(el as HTMLImageElement, index);
-              if (el) {
-              // Get width from the image src instead of el.naturalWidth
-              const tempImg = new window.Image();
-              tempImg.src = basePath + skin.bodyFileName;
-              tempImg.onload = () => {
-                if (tempImg.naturalWidth === 300) {
-                el.className = 'skin-img-large';
-                } else if (tempImg.naturalWidth === 274) {
-                el.className = 'skin-img';
-                } else {
-                el.className = 'skin-img-small';
-                }
-              };
-              }
-            }}
-            data-selected='skin'
-            />
-            <img
-            src={basePath + skin.swordFileName}
-            alt={skin.name}
-           ref={(el) => {
-              assignRef(el as HTMLImageElement, index);
-              if (el) {
-              // Get width from the image src instead of el.naturalWidth
-              const tempImg = new window.Image();
-              tempImg.src = basePath + skin.bodyFileName;
-              tempImg.onload = () => {
-                if (tempImg.naturalWidth === 300) {
-                el.className = 'skin-sword-large';
-                } else if (tempImg.naturalWidth === 274) {
-                el.className = 'skin-sword';
-                } else {
-                el.className = 'skin-sword-small';
-                }
-              };
-              }
-            }}
-            data-selected='skin'
-            />
-            <h4 className='skin-count'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-            <br/>
-            <span className='skin-desc'>{skin.description}</span>
-            {
-        (skin?.price ?? 0) > 0 ? (
-        <>
-          {skin?.sale 
-          && <> <span className="sale">
-          {skin?.ogprice}
-          </span><span>‎ ‎ ‎</span> </>
-          }
-          {skin?.price} 
-          {skin?.ultimate 
-          ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
-          : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
-          }
-          {skin?.tokenprice && (
-          <>
-            <span>‎ ‎ ‎</span>
-            {skin.tokenprice}
-            <img className={'gem'} src='assets/game/snowtoken.png' alt='Snowtokens' width={20} height={20} />
-          </>
-          )}
-        </>
-        ) : (
-        <>
-          <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
-          {skin?.sale 
-          && <> <span className="sale">
-          {skin?.ogprice}
-          </span><span>‎ ‎ ‎</span> </>
-          }
-          {skin?.ultimate ? (
-        <>
-        {skin.buyable ? '0' : ''}
-        <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
-        </>
-      ) : (
-        skin?.buyable ? 'Free' : ''
-      )}
-          </p>
-          {skin?.tokenprice && (
-          <>
-            <span>‎ ‎ ‎</span>
-            {skin.tokenprice}
-            <img className={'gem'} src='assets/game/snowtoken.png' alt='Snowtokens' width={20} height={20} />
-          </>
-          )}
-        </>
-        )
-      }
-            </h4>
-          {(account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
-  <button className='buy-button' onClick={() => handleActionClick(skin.id)}>
-    {skinStatus[skin.id] || (account.skins.equipped === skin.id ? 'Equipped' :
-      account.skins.owned.includes(skin.id) ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy')}
-  </button>
-))}
-        </div>
-      )
-      }
-      )}
-      </div>
+        <SkinGrid
+          skins={skins}
+          filter={(skin) => {
+            if (skin.og) return false;
+            if (!skin.event && !skin.eventoffsale) return false;
+            return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+          }}
+          sort={(a, b) => {
+            const aTag = a.eventtag || '';
+            const bTag = b.eventtag || '';
+            if (aTag.includes('WINTER 2024') && !bTag.includes('WINTER 2024')) return 1;
+            if (!aTag.includes('WINTER 2024') && bTag.includes('WINTER 2024')) return -1;
+            return (a.price ?? 0) - (b.price ?? 0);
+          }}
+          searchTerm={searchTerm}
+          highlightSearchTerm={highlightSearchTerm}
+          skinCounts={skinCounts}
+          assignRef={assignRef}
+          showButton
+          account={account}
+          skinStatus={skinStatus}
+          onActionClick={handleActionClick}
+          showTokenPrice
+        />
       <br /><br /><br /><br /><br /><br /><br /><br />
       </div>
           </>

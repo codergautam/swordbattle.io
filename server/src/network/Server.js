@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const Protocol = require('./protocol/Protocol');
 const Client = require('./Client');
 const { getBannedIps, addBannedIp } = require('../moderation');
+const api = require('./api');
 
 class Server {
   constructor(game) {
@@ -42,6 +43,20 @@ class Server {
     this.proxyTracker = new Map();
     this.proxyDetectionWindow = 10000;
     this.proxyDetectionThreshold = 8;
+
+    // Maintenance mode
+    this.maintenanceMode = false;
+    this.allowedIPs = [];
+    this._refreshAllowedIPs();
+    setInterval(() => this._refreshAllowedIPs(), 30000); // refresh every 30s
+  }
+
+  _refreshAllowedIPs() {
+    api.get('/maintenance/allowed-ips', (data) => {
+      if (data && !data.error && Array.isArray(data)) {
+        this.allowedIPs = data;
+      }
+    });
   }
 
   get online() {
@@ -58,6 +73,11 @@ class Server {
         const ips = forwardedFor.split(',').map(i => i.trim());
         const ip = ips[0];
         const now = Date.now();
+
+        if (this.maintenanceMode && !this.allowedIPs.includes(ip)) {
+          res.upgrade({ maintenance: true }, req.getHeader('sec-websocket-key'), req.getHeader('sec-websocket-protocol'), req.getHeader('sec-websocket-extensions'), context);
+          return;
+        }
 
         const octets = ip.split('.');
         const firstOctet = parseInt(octets[0]);
@@ -286,6 +306,10 @@ class Server {
         this._handleUpgrade(res, req, context, ip, now);
       },
       open: (socket) => {
+        if (socket.getUserData().maintenance) {
+          socket.end(4503, 'Maintenance');
+          return;
+        }
         if (socket.getUserData().tooManyConnections) {
           socket.end(4429, 'Max connections reached');
           return;

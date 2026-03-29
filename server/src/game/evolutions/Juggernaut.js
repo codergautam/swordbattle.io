@@ -3,7 +3,7 @@ const Types = require('../Types');
 
 module.exports = class Juggernaut extends Evolution {
   static type = Types.Evolution.Juggernaut;
-  static level = 29;
+  static level = 24;
   static previousEvol = "secret";
   static abilityDuration = 0;
   static abilityCooldown = 0;

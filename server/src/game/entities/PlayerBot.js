@@ -219,10 +219,7 @@ class PlayerAI extends Player {
   }
 
   checkUpgrades() {
-    if (this.levels.upgradePoints > 0) {
-      const buff = helpers.randomChoice(Object.values(Types.Buff));
-      this.levels.addBuff(buff);
-    }
+    // Bots auto pick cards
     if (this.smartness > 0.6) {
       if (this.evolutions.possibleEvols.size > 0) {
         const evol = helpers.randomChoice(Array.from(this.evolutions.possibleEvols));

@@ -61,8 +61,11 @@ class Player extends BaseEntity {
     'coins', 'tokens', 'nextLevelCoins', 'previousLevelCoins',
     'buffs', 'evolution', 'possibleEvolutions',
     'isAbilityAvailable', 'abilityActive', 'abilityDuration', 'abilityCooldown',
-    'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordFlying', 'swordFlyingCooldown',
+    'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordSwingArc', 'swordFlying', 'swordFlyingCooldown', 'swordBoomerangReturning',
+    'swordRaising', 'swordDecreasing',
     'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing', 'coinShield',
+    'cardOffers', 'chosenCards', 'choosingCard', 'cardTimer', 'cardPickNumber', 'availableUpgrades',
+    'rerollsAvailable', 'skipResults', 'isTutorial',
   ];
   static removeTransition = 500;
   static shadowOffsetX = 10;
@@ -77,6 +80,7 @@ class Player extends BaseEntity {
   evolutionOverlayShadow!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
   messageText!: Phaser.GameObjects.Text;
+  choosingText!: Phaser.GameObjects.Text;
   submergedShadow!: Phaser.GameObjects.Graphics;
   private _submergedProgress: number = 0;
 
@@ -152,6 +156,7 @@ class Player extends BaseEntity {
       hideWhenFull: false,
       line: 0,
       offsetY: -this.body.height / 2 - 40,
+      isPlayer: true,
     });
     const displayName = this.clan ? `[${this.clan}] ${this.name}`.replace(/\s+/, ' ') : this.name;
     const name = this.game.add.text(0, -this.body.height / 2 - 50, displayName);
@@ -189,6 +194,16 @@ class Player extends BaseEntity {
       .setOrigin(0.5, 1)
       .setFill('#ffffff');
 
+    this.choosingText = this.game.add.text(0, 0, 'Choosing an upgrade...', {
+      fontFamily: 'monospace',
+      fontSize: '60px',
+      fontStyle: 'bold',
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 6,
+      align: 'center',
+    }).setOrigin(0.5, 0.5).setAlpha(0);
+
     this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.swordContainer, this.body, this.evolutionOverlay]);
 
     const submergedRadius = this.body.width * 0.6;
@@ -197,7 +212,7 @@ class Player extends BaseEntity {
     this.submergedShadow.fillCircle(0, 0, submergedRadius);
     this.submergedShadow.setAlpha(0);
 
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.evolutionOverlayShadow, this.swordShadow, this.submergedShadow, this.bodyContainer, name, this.messageText]);
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.evolutionOverlayShadow, this.swordShadow, this.submergedShadow, this.bodyContainer, name, this.messageText, this.choosingText]);
 
     if (ogex) {
       try {
@@ -306,6 +321,19 @@ class Player extends BaseEntity {
     });
   }
 
+  updateChoosingOverlay(choosing: boolean) {
+    if (!this.choosingText) return;
+    if (choosing) {
+      this.choosingText.setAlpha(1);
+    } else {
+      this.game.tweens.add({
+        targets: this.choosingText,
+        alpha: 0,
+        duration: 300,
+      });
+    }
+  }
+
   updateChatMessage() {
     if (!this.messageText) return;
 
@@ -355,12 +383,18 @@ class Player extends BaseEntity {
     this.wideSwing = data.wideSwing;
     }
 
-    if (!this.isMe && data.swordSwingProgress !== undefined) {
-      if (this.swordSwingProgress === 0 && data.swordSwingProgress !== 0) {
-        this.swordRaiseStarted = true;
+    if (!this.isMe) {
+      if (data.swordRaising !== undefined) {
+        if (data.swordRaising && !this.swordRaiseStarted) {
+          this.swordRaiseStarted = true;
+          this.swordDecreaseStarted = false;
+        }
       }
-      if (this.swordSwingProgress === 1 && data.swordSwingProgress !== 1) {
-        this.swordDecreaseStarted = true;
+      if (data.swordDecreasing !== undefined) {
+        if (data.swordDecreasing && !this.swordDecreaseStarted) {
+          this.swordDecreaseStarted = true;
+          this.swordRaiseStarted = false;
+        }
       }
     }
     if (data.angle !== undefined) {
@@ -383,6 +417,9 @@ class Player extends BaseEntity {
     }
     if (data.chatMessage !== undefined) {
       this.updateChatMessage();
+    }
+    if (data.choosingCard !== undefined && !this.isMe) {
+      this.updateChoosingOverlay(data.choosingCard);
     }
     if (data.biome !== undefined) {
       const isTextBlack = data.biome !== BiomeTypes.Fire;
@@ -745,16 +782,17 @@ class Player extends BaseEntity {
       if (this.swordLerpProgress >= 1) {
         this.swordLerpProgress = 1;
         this.swordRaiseStarted = false;
-        // start decrease animation when the player is not holding it
-        if (this.game.controls.isInputUp(InputTypes.SwordSwing)) {
-          this.swordDecreaseStarted = true;
+        if (this.isMe) {
+          if (this.game.controls.isInputUp(InputTypes.SwordSwing)) {
+            this.swordDecreaseStarted = true;
+          }
         }
       }
     } else if (this.swordDecreaseStarted) {
       this.swordLerpProgress -= swordLerpDt;
       if (this.swordLerpProgress <= 0) {
         this.swordLerpProgress = 0;
-        if(this.isMe && this.swordDecreaseStarted) {
+        if (this.isMe && this.swordDecreaseStarted) {
           this.game.controls.enableKeys([InputTypes.SwordThrow]);
         }
         this.swordDecreaseStarted = false;
@@ -768,7 +806,8 @@ class Player extends BaseEntity {
 
   rotateBody(angle: number) {
     const evolutionClass = Evolutions[this.evolution];
-    let swordRotation = this.swordSwingAngle * this.swordLerpProgress;
+    const swingAngle = (this as any).swordSwingArc || this.swordSwingAngle;
+    let swordRotation = swingAngle * this.swordLerpProgress;
     if (this.wideSwing) {
       swordRotation += Math.PI / 4;
     }
@@ -996,6 +1035,25 @@ class Player extends BaseEntity {
 
   update(dt: number) {
     super.update(dt);
+
+    const isChoosing = (this as any).choosingCard;
+    const isTutorial = (this as any).isTutorial;
+    let targetAlpha = 1;
+    if (isChoosing) targetAlpha = 0.5;
+    else if (isTutorial && !this.isMe) targetAlpha = 0.7;
+    if (this.bodyContainer) this.bodyContainer.setAlpha(targetAlpha);
+
+    if (this.choosingText && !this.isMe) {
+      if (isTutorial) {
+        this.choosingText.setText('In Tutorial');
+        this.choosingText.setAlpha(1);
+      } else if (isChoosing) {
+        this.choosingText.setText('Choosing an upgrade...');
+        this.choosingText.setAlpha(1);
+      } else {
+        this.choosingText.setAlpha(0);
+      }
+    }
 
     const swordVisible = !this.swordFlying;
     if (this._lastSwordVisible !== swordVisible) {

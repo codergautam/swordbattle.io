@@ -18,7 +18,7 @@ class BunnyMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 500;
+    this.coinsDrop = 250;
     // this.tokensDrop = 25;
 
     this.jumpTimer = new Timer(0, 2, 3);
@@ -78,7 +78,10 @@ class BunnyMob extends Entity {
     entity.shape.applyCollision(targetMtv);
     this.shape.applyCollision(selfMtv);
 
-    this.target = entity;
+    // Butcherer card: mobs don't aggro
+    if (!(entity.type === 1 && entity.cards && entity.cards.hasMajor(126))) {
+      this.target = entity;
+    }
     this.runawayTimer.renew();
   }
 
@@ -89,7 +92,10 @@ class BunnyMob extends Entity {
     } else {
       this.health.damaged(damage);
     }
-    this.target = entity;
+    // Butcherer card: mobs don't aggro
+    if (!(entity.type === 1 && entity.cards && entity.cards.hasMajor(126))) {
+      this.target = entity;
+    }
     this.runawayTimer.renew();
 
     if (this.health.isDead) {

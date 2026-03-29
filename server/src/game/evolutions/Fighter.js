@@ -4,7 +4,7 @@ const Timer = require('../components/Timer');
 
 module.exports = class Fighter extends Evolution {
   static type = Types.Evolution.Fighter;
-  static level = 27;
+  static level = 18;
   static previousEvol = Types.Evolution.Berserker;
   static abilityDuration = 4;
   static abilityCooldown = 24;

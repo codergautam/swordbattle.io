@@ -8,8 +8,6 @@ class Stats extends HudComponent {
   fpsSprite: any;
   tpsSprite: any;
   pingSprite: any;
-  throwReadySprite: any;
-
   initialize() {
     if (this.game.isMobile) return;
     const { indent } = this;
@@ -25,20 +23,14 @@ class Stats extends HudComponent {
     this.tpsSprite = this.game.add.text(0, indent * 2, '', style);
     this.pingSprite = this.game.add.text(0, indent * 3, '', style);
 
-    this.throwReadySprite = this.game.add.text(0, indent * 4, '', {
-      ...style,
-      color: '#00ff00',
-    });
-    this.throwReadySprite.setVisible(false);
-
-    this.container = this.game.add.container(0, 0, [this.playersSprite, this.fpsSprite, this.tpsSprite, this.pingSprite, this.throwReadySprite]);
+    this.container = this.game.add.container(0, 0, [this.playersSprite, this.fpsSprite, this.tpsSprite, this.pingSprite]);
     this.hud.add(this.container);
   }
 
   resize() {
     if (!this.container) return;
     this.container.x = 10;
-  this.container.y = this.game.scale.height - (this.indent * 5.7) * this.scale;
+  this.container.y = this.game.scale.height - (this.indent * 4.7) * this.scale;
   }
 
   update() {
@@ -53,15 +45,6 @@ class Stats extends HudComponent {
     const fps = Number(this.game.game.loop.actualFps.toFixed(1));
     const tps = this.game.gameState.tps;
     const ping = this.game.gameState.ping;
-    const playerEntity = this.game.gameState.self.entity;
-    if (playerEntity && playerEntity.swordFlyingCooldown !== undefined && playerEntity.swordFlyingCooldown <= 0) {
-      const controlHint = this.game.isMobile ? '(Tap Button)' : '(C or Right Click)';
-      this.throwReadySprite.text = `Throw Ready ${controlHint}`;
-      this.throwReadySprite.setVisible(true);
-    } else {
-      this.throwReadySprite.setVisible(false);
-    }
-
     this.playersSprite.text = `Players: ${playersCount}`;
 
     // FPS color

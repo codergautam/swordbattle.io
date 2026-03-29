@@ -11,7 +11,6 @@ class ProgressBar extends HudComponent {
   stabbedText!: Phaser.GameObjects.Text;
   burningText!: Phaser.GameObjects.Text;
   inSafezoneMessage!: Phaser.GameObjects.Text;
-  tipText!: Phaser.GameObjects.Text;
   width = 500;
   height = 15;
 
@@ -24,7 +23,7 @@ class ProgressBar extends HudComponent {
   killStreak = 0;
   lastKillTime = 0;
   lastEntityStabId = 0;
-  currentProtectionMessage: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'respawnShieldFading' | 'antiTeam' | 'captureZone' = 'none';
+  currentProtectionMessage: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'respawnShieldFading' | 'captureZone' | 'tutorial' = 'none';
   isBurning = false;
   isHypnotized = false;
 
@@ -51,19 +50,12 @@ class ProgressBar extends HudComponent {
     }).setOrigin(0.5);
 
     // "You are in the safe zone" text
-    this.inSafezoneMessage = this.game.add.text(this.width / 2, -this.height - 60, 'You are protected: you are in the safezone', {
+    this.inSafezoneMessage = this.game.add.text(this.width / 2, -this.height - 45, 'You are protected: you are in the safezone', {
       fontSize: 22,
       fontStyle: 'bold',
       stroke: '#000000',
       strokeThickness: 6,
     }).setOrigin(0.5).setAlpha(0);
-
-    this.tipText = this.game.add.text(this.width / 2, -this.height - 40, 'Find chests or stab mobs to get coins faster', {
-      fontSize: 18,
-      fontStyle: 'normal',
-      stroke: '#000000',
-      strokeThickness: 4,
-    }).setOrigin(0.5).setAlpha(0).setVisible(false);
 
     this.levelUpText = this.game.add.text(this.width / 2, -this.game.scale.height / 5, '', {
       fontSize: 50,
@@ -88,7 +80,7 @@ class ProgressBar extends HudComponent {
       strokeThickness: 5,
     }).setOrigin(0.5).setAlpha(0);
 
-    this.progressBarContainer = this.hud.scene.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText, this.inSafezoneMessage, this.tipText, this.burningText]);
+    this.progressBarContainer = this.hud.scene.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText, this.inSafezoneMessage, this.burningText]);
     this.container = this.game.add.container(0, 0, [this.progressBarContainer, this.levelUpText, this.stabbedText]);
     this.hud.add(this.container);
   }
@@ -149,8 +141,6 @@ class ProgressBar extends HudComponent {
   updateLevelUpText(difference: number) {
     this.levelUpStreak += difference;
     this.levelUpText.setText(`Level up!${this.levelUpStreak > 1 ? ' x' + this.levelUpStreak : ''}`);
-
-    if(this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
 
     if (this.levelTextTween) this.levelTextTween.stop();
 
@@ -307,8 +297,10 @@ class ProgressBar extends HudComponent {
       }
     }
 
-    let desiredProtectionState: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'respawnShieldFading' | 'antiTeam' | 'captureZone' = 'none';
-    if (player.flags[FlagTypes.RespawnShield] === 2) {
+    let desiredProtectionState: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'respawnShieldFading' | 'captureZone' | 'tutorial' = 'none';
+    if ((player as any).isTutorial) {
+      desiredProtectionState = 'tutorial';
+    } else if (player.flags[FlagTypes.RespawnShield] === 2) {
       desiredProtectionState = 'respawnShieldFading';
     } else if (player.flags[FlagTypes.RespawnShield]) {
       desiredProtectionState = 'respawnShield';
@@ -316,8 +308,6 @@ class ProgressBar extends HudComponent {
       desiredProtectionState = 'safezone';
     } else if (player.coins < 500) {
       desiredProtectionState = 'collect';
-    } else if (player.flags[FlagTypes.AntiTeamActive]) {
-      desiredProtectionState = 'antiTeam';
     } else if (inCaptureZone) {
       desiredProtectionState = 'captureZone';
     }
@@ -325,10 +315,17 @@ class ProgressBar extends HudComponent {
     const switchProtectionMessage = () => {
       const isMobile = this.game.isMobile;
 
-      if (desiredProtectionState === 'respawnShield' && !isMobile) {
+      if (desiredProtectionState === 'tutorial') {
+        this.inSafezoneMessage.setColor('#44ff88');
+        this.inSafezoneMessage.setText('You are protected: currently in tutorial');
+        this.game.tweens.add({
+          targets: this.inSafezoneMessage,
+          alpha: 1,
+          duration: 200,
+        });
+      } else if (desiredProtectionState === 'respawnShield' && !isMobile) {
         this.inSafezoneMessage.setColor('#ffffff');
         this.inSafezoneMessage.setText('You are protected: temporarily shielded on respawn');
-        this.tipText.setVisible(false).setAlpha(0);
         this.game.tweens.add({
           targets: this.inSafezoneMessage,
           alpha: 1,
@@ -337,7 +334,6 @@ class ProgressBar extends HudComponent {
       } else if (desiredProtectionState === 'respawnShieldFading' && !isMobile) {
         this.inSafezoneMessage.setColor('#aaaaaa');
         this.inSafezoneMessage.setText('Protection fading...');
-        this.tipText.setVisible(false).setAlpha(0);
         this.game.tweens.add({
           targets: this.inSafezoneMessage,
           alpha: 0.7,
@@ -346,7 +342,6 @@ class ProgressBar extends HudComponent {
       } else if (desiredProtectionState === 'safezone') {
         this.inSafezoneMessage.setColor('#ffffff');
         this.inSafezoneMessage.setText(isMobile ? 'You are in the safezone' : 'You are protected: you are in the safezone');
-        this.tipText.setVisible(false).setAlpha(0);
         this.game.tweens.add({
           targets: this.inSafezoneMessage,
           alpha: 1,
@@ -355,49 +350,14 @@ class ProgressBar extends HudComponent {
       } else if (desiredProtectionState === 'collect' && !isMobile) {
         this.inSafezoneMessage.setColor('#66ff66');
         this.inSafezoneMessage.setText(`You are fully protected — collect ${Math.max(0, 500 - player.coins)} more coins to start fighting`);
-        this.tipText.setText('Find chests or stab mobs to get coins faster').setVisible(true);
         this.game.tweens.add({
-          targets: [this.inSafezoneMessage, this.tipText],
-          alpha: 1,
-          duration: 200,
-        });
-      } else if (desiredProtectionState === 'antiTeam' && !isMobile) {
-        const flagValue = player.flags[FlagTypes.AntiTeamActive] as number;
-        const enemyTeam = Math.floor(flagValue / 10);
-        const myTeam = flagValue % 10;
-        const ratio = enemyTeam / Math.max(myTeam, 1);
-
-        let msg: string;
-        let color: string;
-        if (enemyTeam > 0 && myTeam > 0) {
-          const label = `${enemyTeam}v${myTeam}`;
-          if (ratio >= 3) {
-            msg = `Outnumbered ${label} — defense greatly increased`;
-            color = '#ff6a00';
-          } else if (ratio >= 2) {
-            msg = `Outnumbered ${label} — defense increased`;
-            color = '#ffdd00';
-          } else {
-            msg = `Outnumbered ${label} — defense slightly increased`;
-            color = '#fff176';
-          }
-        } else {
-          msg = 'Outnumbered — defense increased';
-          color = '#ffdd00';
-        }
-
-        this.inSafezoneMessage.setColor(color);
-        this.inSafezoneMessage.setText(msg);
-        this.tipText.setVisible(false).setAlpha(0);
-        this.game.tweens.add({
-          targets: this.inSafezoneMessage,
+          targets: [this.inSafezoneMessage],
           alpha: 1,
           duration: 200,
         });
       } else if (desiredProtectionState === 'captureZone' && !isMobile) {
         this.inSafezoneMessage.setColor('#ffd700');
         this.inSafezoneMessage.setText('You are capturing coins: taking slight damage over time');
-        this.tipText.setVisible(false).setAlpha(0);
         this.game.tweens.add({
           targets: this.inSafezoneMessage,
           alpha: 1,
@@ -406,7 +366,7 @@ class ProgressBar extends HudComponent {
       } else {
         this.inSafezoneMessage.setColor('#ffffff');
         this.game.tweens.add({
-          targets: [this.inSafezoneMessage, this.tipText],
+          targets: [this.inSafezoneMessage],
           alpha: 0,
           duration: 200,
         });
@@ -419,7 +379,7 @@ class ProgressBar extends HudComponent {
         switchProtectionMessage();
       } else {
         this.game.tweens.add({
-          targets: [this.inSafezoneMessage, this.tipText],
+          targets: [this.inSafezoneMessage],
           alpha: 0,
           duration: 200,
           onComplete: switchProtectionMessage,
@@ -427,33 +387,6 @@ class ProgressBar extends HudComponent {
       }
     } else if (desiredProtectionState === 'collect' && !this.game.isMobile) {
       this.inSafezoneMessage.setText(`You are protected: collect ${Math.max(0, 500 - player.coins)} more coins to start fighting`);
-    } else if (desiredProtectionState === 'antiTeam' && !this.game.isMobile) {
-      const flagValue = player.flags[FlagTypes.AntiTeamActive] as number;
-      const enemyTeam = Math.floor(flagValue / 10);
-      const myTeam = flagValue % 10;
-      const ratio = enemyTeam / Math.max(myTeam, 1);
-
-      let msg: string;
-      let color: string;
-      if (enemyTeam > 0 && myTeam > 0) {
-        const label = `${enemyTeam}v${myTeam}`;
-        if (ratio >= 3) {
-          msg = `Outnumbered ${label} — defense greatly increased`;
-          color = '#ff6a00';
-        } else if (ratio >= 2) {
-          msg = `Outnumbered ${label} — defense increased`;
-          color = '#ffdd00';
-        } else {
-          msg = `Outnumbered ${label} — defense slightly increased`;
-          color = '#fff176';
-        }
-      } else {
-        msg = 'Outnumbered — defense increased';
-        color = '#ffdd00';
-      }
-
-      this.inSafezoneMessage.setColor(color);
-      this.inSafezoneMessage.setText(msg);
     }
 
     const isCurrentlyBurning = !!player.flags[FlagTypes.LavaDamaged];

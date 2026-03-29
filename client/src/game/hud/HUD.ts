@@ -3,11 +3,13 @@ import Minimap from './Minimap';
 import Stats from './Stats';
 import ProgressBar from './ProgressBar';
 import EvolutionSelect from './EvolutionSelect';
-import BuffsSelect from './BuffsSelect';
+import CardSelect from './CardSelect';
+import CardSummary from './CardSummary';
+import UpgradeButton from './UpgradeButton';
 import Chat from './Chat';
 import MobileControls from './MobileControls';
 import CoinCounter from './CoinCounter';
-import TutorialHints from './TutorialHints';
+import TutorialOverlay from './TutorialOverlay';
 import { Settings } from '../Settings';
 
 class HUD {
@@ -17,11 +19,13 @@ class HUD {
   stats: Stats;
   progressBar: ProgressBar;
   evolutionSelect: EvolutionSelect;
-  buffsSelect: BuffsSelect;
+  cardSelect: CardSelect;
+  cardSummary: CardSummary;
+  upgradeButton: UpgradeButton;
   chat: Chat;
   mobileControls: MobileControls;
   coinCounter: CoinCounter;
-  tutorialHints: TutorialHints;
+  tutorialOverlay: TutorialOverlay;
   components: any[];
   scale = 0.8;
   hidden = false;
@@ -33,12 +37,14 @@ class HUD {
     this.stats = new Stats(this);
     this.progressBar = new ProgressBar(this);
     this.evolutionSelect = new EvolutionSelect(this);
-    this.buffsSelect = new BuffsSelect(this);
+    this.cardSelect = new CardSelect(this);
+    this.cardSummary = new CardSummary(this);
+    this.upgradeButton = new UpgradeButton(this);
     this.chat = new Chat(this);
     this.mobileControls = new MobileControls(this);
     this.coinCounter = new CoinCounter(this);
-    this.tutorialHints = new TutorialHints(this);
-    this.components = [this.minimap, this.stats, this.progressBar, this.evolutionSelect, this.buffsSelect, this.chat, this.mobileControls, this.coinCounter, this.tutorialHints];
+    this.tutorialOverlay = new TutorialOverlay(this);
+    this.components = [this.minimap, this.stats, this.progressBar, this.evolutionSelect, this.cardSelect, this.cardSummary, this.upgradeButton, this.chat, this.mobileControls, this.coinCounter, this.tutorialOverlay];
   }
 
   initialize() {

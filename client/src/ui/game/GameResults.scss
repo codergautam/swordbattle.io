@@ -136,6 +136,13 @@
 					scale: 1.1;
 				}
 			}
+			&.tutorial-pulse {
+				animation: tutorialPulse 1.2s ease-in-out infinite;
+			}
+		}
+		@keyframes tutorialPulse {
+			0%, 100% { filter: drop-shadow(0 0 4px rgba(68, 136, 255, 0.4)); }
+			50% { filter: drop-shadow(0 0 12px rgba(68, 136, 255, 0.9)); transform: scale(1.05); }
 		}
 		.to-home {
 			img {

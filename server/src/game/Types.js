@@ -36,6 +36,7 @@ const Entity = {
   Snowball: 22,
 
   CaptureZone: 33,
+  ThrownSword: 34,
 };
 
 const Mobs = [
@@ -156,5 +157,36 @@ module.exports = {
     Server: 1,
     Player: 2,
     Mob: 3
-  }
+  },
+  Card: {
+    SharpStabs: 1,
+    QuickSwing: 2,
+    HeavyHits: 3,
+    Sharpshooter: 4,
+    DefenseTraining: 5,
+    Regenerate: 6,
+    FastHeal: 7,
+    WeightedPlayer: 8,
+    Swiftness: 9,
+    CoinMagnet: 10,
+    SniperVision: 11,
+    Throwpower: 12,
+    SizeScale: 13,
+    
+    Cleave: 101, DoubleHit: 102, Aggression: 103,
+    TwinThrow: 104, Boomerang: 105, SpareSword: 106,
+    Finisher: 107, Regensteal: 108, Boxer: 109,
+    Honor: 110, Ensnare: 111, Acceleration: 112,
+    VampireAspect: 113, SoulHarvest: 114, BloodFrenzy: 115,
+    Rejuvenation: 116, AdaptiveArmor: 117, Disengage: 118,
+    MidasTouch: 119, TreasureHunter: 120, Scavenger: 121,
+    Ceasefire: 122, PvEMaster: 123, TankShell: 124,
+    HuntingInstinct: 125, Butcherer: 126, BossHunter: 127,
+    Fortress: 128, RegenerationMastery: 129, Insurance: 130,
+  },
+  CardCategory: {
+    Offensive: 1,
+    Defensive: 2,
+    Utility: 3,
+  },
 }

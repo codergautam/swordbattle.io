@@ -33,6 +33,7 @@ import FishMob from './mobs/Fish';
 import AngryFishMob from './mobs/AngryFish';
 import IceSpiritMob from './mobs/IceSpirit';
 import CaptureZone from './CaptureZone';
+import ThrownSword from './ThrownSword';
 
 export const EntityDepth: Record<any, number> = {
   [EntityTypes.CaptureZone]: 0.5,
@@ -61,6 +62,7 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.Fireball]: 22,
   [EntityTypes.Boulder]: 22,
   [EntityTypes.SwordProj]: 22,
+  [EntityTypes.ThrownSword]: 22,
   [EntityTypes.Snowball]: 22,
   [EntityTypes.Ornament]: 22,
   [EntityTypes.Roku]: 23,
@@ -110,6 +112,7 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.IceSpike: return IceSpike;
     case EntityTypes.LavaRock: return LavaRock;
     case EntityTypes.LavaPool: return LavaPool;
+    case EntityTypes.ThrownSword: return ThrownSword;
     case EntityTypes.CaptureZone: return CaptureZone;
 
     default:

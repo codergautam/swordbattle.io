@@ -26,7 +26,6 @@ class EvolutionSelect extends HudComponent {
   hideButton: Phaser.GameObjects.Text | null = null;
   leftArrow: Phaser.GameObjects.Text | null = null;
   rightArrow: Phaser.GameObjects.Text | null = null;
-  backdrop: Phaser.GameObjects.Graphics | null = null;
   spriteSize = 80;
   indent = 50;
   minimized = false;
@@ -60,13 +59,7 @@ class EvolutionSelect extends HudComponent {
 
     this.spritesContainer = this.hud.scene.add.container(0, -85);
 
-    if (this.game.isMobile) {
-      this.backdrop = this.hud.scene.add.graphics();
-      this.backdrop.setVisible(false);
-    }
-
     const children: Phaser.GameObjects.GameObject[] = [];
-    if (this.backdrop) children.push(this.backdrop);
     children.push(this.spritesContainer, this.leftArrow!, this.rightArrow!, this.hideButton!);
     this.container = this.hud.scene.add.container(0, 0, children);
     this.container.setDepth(50);
@@ -89,19 +82,6 @@ class EvolutionSelect extends HudComponent {
     this.container.x = this.game.scale.width / 2;
     this.container.y = 200 * this.scale;
 
-    if (this.backdrop) {
-      const w = this.game.scale.width;
-      const padY = 30;
-      const bw = Math.min(w * 0.9, 800);
-      const bh = 230;
-      this.backdrop.clear();
-      this.backdrop.fillStyle(0x000000, 0.5);
-      this.backdrop.fillRoundedRect(-bw / 2, -200 - padY, bw, bh + padY, 16);
-      this.backdrop.setInteractive(
-        new Phaser.Geom.Rectangle(-bw / 2, -200 - padY, bw, bh + padY),
-        Phaser.Geom.Rectangle.Contains,
-      );
-    }
   }
 
   toggleMinimize() {
@@ -115,14 +95,6 @@ class EvolutionSelect extends HudComponent {
       duration: 250,
     });
 
-    // Fade backdrop with the collapse/expand
-    if (this.backdrop) {
-      this.hud.scene!.tweens.add({
-        targets: this.backdrop,
-        alpha: this.minimized ? 0 : 1,
-        duration: 250,
-      });
-    }
   }
 
   selectEvolution(type: any) {
@@ -183,10 +155,6 @@ class EvolutionSelect extends HudComponent {
         });
       }
 
-      if (this.backdrop) {
-        this.backdrop.setVisible(count !== 0);
-        this.backdrop.setAlpha(this.minimized ? 0 : 1);
-      }
       if (this.game.isMobile) {
         this.game.events.emit('evolutionsVisible', count !== 0);
       }

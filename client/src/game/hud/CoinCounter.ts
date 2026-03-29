@@ -78,7 +78,7 @@ class CoinCounter extends HudComponent {
 
   update() {
   if (!this.container) return;
-  this.container.y = this.hud.buffsSelect.height + 30;
+  this.container.y = 40;
 
   const now = Date.now();
   if (this.lastUpdate + this.updateInterval > now) return;

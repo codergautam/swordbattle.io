@@ -19,7 +19,7 @@ class MooseMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 1500;
+    this.coinsDrop = 500;
     // this.tokensDrop = 125;
 
     this.movementTimer = new Timer(0, 3, 4);
@@ -128,7 +128,10 @@ class MooseMob extends Entity {
     } else {
       this.health.damaged(damage);
     }
-    this.target = entity;
+    // Butcherer card: mobs don't aggro
+    if (!(entity.type === 1 && entity.cards && entity.cards.hasMajor(126))) {
+      this.target = entity;
+    }
     if (this.movementTimer.finished) {
       this.movementTimer.renew();
     }

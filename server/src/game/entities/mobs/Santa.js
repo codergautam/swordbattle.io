@@ -167,7 +167,10 @@ class SantaMob extends Entity {
     } else {
       this.health.damaged(damage);
     }
-    this.target = entity;
+    // Butcherer card: mobs don't aggro
+    if (!(entity.type === 1 && entity.cards && entity.cards.hasMajor(126))) {
+      this.target = entity;
+    }
     if (this.movementTimer.finished) {
       this.movementTimer.renew();
     }

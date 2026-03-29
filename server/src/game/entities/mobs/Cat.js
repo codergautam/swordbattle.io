@@ -19,7 +19,7 @@ class CatMob extends Entity {
 
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
-    this.coinsDrop = 800;
+    this.coinsDrop = 300;
     // this.tokensDrop = 50;
 
     this.tamedBy = null;
@@ -139,7 +139,10 @@ class CatMob extends Entity {
       this.health.damaged(damage);
     }
     if(this.tamedBy !== entity.id) {
-    this.target = entity;
+    // Butcherer card: mobs don't aggro
+    if (!(entity.type === 1 && entity.cards && entity.cards.hasMajor(126))) {
+      this.target = entity;
+    }
     }
     this.angryTimer.renew();
 

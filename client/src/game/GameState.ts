@@ -43,6 +43,10 @@ class GameState {
 
   selectedEvolution: string | null = null;
   selectedBuff: any;
+  selectedCard: number | null = null;
+  openCardSelect: boolean = false;
+  tutorialComplete: boolean = false;
+  tutorialPanel: number | null = null;
   chatMessage: string | null = null;
   captchaVerified = false;
   failedSkinLoads: Record<number, boolean> = {};
@@ -111,7 +115,6 @@ class GameState {
 
   start(name: string) {
     const afterSent = () => {
-      if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
     }
 
     let isFirstLife = false;
@@ -119,6 +122,9 @@ class GameState {
       if (!localStorage.getItem('swordbattle:hasPlayed')) {
         isFirstLife = true;
         localStorage.setItem('swordbattle:hasPlayed', '1');
+      }
+      if (!localStorage.getItem('swordbattle:tutorialComplete')) {
+        isFirstLife = true;
       }
     } catch (_) {}
 
@@ -171,7 +177,6 @@ class GameState {
 
   restart() {
     const afterSent = () => {
-      if(!this.game.hud.buffsSelect.minimized) this.game.hud.buffsSelect.toggleMinimize();
       if(!this.game.hud.evolutionSelect.minimized) this.game.hud.evolutionSelect.toggleMinimize();
     }
 
@@ -283,6 +288,11 @@ class GameState {
     // Disable CrazyGames invite button when game ends
     crazygamesSDK.setInviteMode('disabled');
 
+    if (event.code === 4503) {
+      window.alert('Swordbattle.io is currently under maintenance to test some awesome new features. Check back soon to see the update!');
+      return;
+    }
+
     if (event.code === 4429) {
       window.alert('ERROR: Max number of connections reached. Use an open tab or close some older tabs to keep playing.');
       return;
@@ -368,6 +378,7 @@ class GameState {
           }
         }
           this.showGameResults();
+          try { this.game.hud.tutorialOverlay.onDeath(); } catch (e) {}
         }
         this.removeEntity(id, entityData);
       } else if (this.entities[id]) {
@@ -405,12 +416,31 @@ class GameState {
         this.game.follow(selfEntity);
       }
 
+      if (this.isReady) {
+        try { this.game.hud.tutorialOverlay.onRespawn(); } catch (e) {}
+      }
+
       if (!this.isReady) {
         console.log('game ready', Date.now());
         if(this.debugMode) alert("Game ready-- fullsync");
 
         this.isReady = true;
         this.game.game.events.emit('gameReady');
+
+        const serverSaysTutorial = selfEntity && (selfEntity as any).isTutorial;
+        let isFirstEverPlay = false;
+        try { isFirstEverPlay = !localStorage.getItem('swordbattle:tutorialComplete'); } catch (e) {}
+        let justStartedFirstLife = false;
+        try { justStartedFirstLife = !localStorage.getItem('swordbattle:tutorialComplete') && !!localStorage.getItem('swordbattle:hasPlayed'); } catch (e) {}
+
+        if (serverSaysTutorial || (isFirstEverPlay && justStartedFirstLife)) {
+          try {
+            console.log('[Tutorial] Starting tutorial overlay. serverFlag:', serverSaysTutorial, 'firstEver:', isFirstEverPlay);
+            this.game.hud.tutorialOverlay.start();
+          } catch (e) {
+            console.error('[Tutorial] Failed to start:', e);
+          }
+        }
       }
     }
   }
@@ -494,6 +524,22 @@ class GameState {
     if (this.selectedBuff) {
       data.selectedBuff = this.selectedBuff;
       this.selectedBuff = null;
+    }
+    if (this.selectedCard) {
+      data.selectedCard = this.selectedCard;
+      this.selectedCard = null;
+    }
+    if (this.openCardSelect) {
+      data.openCardSelect = true;
+      this.openCardSelect = false;
+    }
+    if (this.tutorialComplete) {
+      data.tutorialComplete = true;
+      this.tutorialComplete = false;
+    }
+    if (this.tutorialPanel !== null) {
+      data.tutorialPanel = this.tutorialPanel;
+      this.tutorialPanel = null;
     }
     if (this.chatMessage) {
       data.chatMessage = this.chatMessage;
@@ -582,13 +628,14 @@ class GameState {
   }
 
   showGameResults() {
-    const results = {
+    const results: any = {
       name: '',
       coins: 0,
       kills: 0,
       tokens: 0,
       survivalTime: 0,
       disconnectReason: this.disconnectReason,
+      insuranceRespawnCoins: 0,
     };
     const player = this.self.entity;
     if (player) {
@@ -597,6 +644,11 @@ class GameState {
       results.kills = player.kills;
       results.survivalTime = player.survivalTime;
       results.tokens = player.tokens;
+      const chosenCards: number[] = (player as any).chosenCards || [];
+      const hasInsurance = chosenCards.includes(130);
+      if (hasInsurance) {
+        results.insuranceRespawnCoins = Math.round(player.coins * 0.40);
+      }
     }
 
     this.game.game.events.emit('setGameResults', results);

@@ -10,9 +10,27 @@ class Sword extends Entity {
     super(player.game, Types.Entity.Sword);
     this.player = player;
     this.swingAngle = -Math.PI / 3;
+    this.swingArc = -Math.PI / 3;
     this.raiseAnimation = false;
     this.decreaseAnimation = false;
     this.collidedEntities = new Set();
+
+    // Double Hit (102)
+    this.doubleHitActive = false;
+    this.doubleHitCleared = false;
+
+    // Boomerang (105)
+    this.boomerangReturning = false;
+    this.boomerangReturnTime = 0;
+    this.boomerangOrigAngle = 0;
+
+    // Twin Throw (104)
+    this.twinThrowProj = null;
+    this.twinThrowDelay = 0;
+    this.twinThrowPending = false;
+    this.twinThrowSavedAngle = 0;
+    this.twinThrowSavedX = 0;
+    this.twinThrowSavedY = 0;
 
     const { initialSwingDuration, damage, knockback } = config.sword;
     this.swingDuration = new Property(initialSwingDuration, true);
@@ -44,7 +62,7 @@ class Sword extends Entity {
   }
 
   get angle() {
-    return this.swingAngle * this.swingProgress;
+    return this.swingArc * this.swingProgress;
   }
 
   get size() {
@@ -52,7 +70,8 @@ class Sword extends Entity {
   }
 
   canCollide(entity) {
-    return (this.isFlying || this.raiseAnimation)
+    const canHit = this.isFlying || this.raiseAnimation || (this.doubleHitActive && this.decreaseAnimation);
+    return canHit
       && !this.collidedEntities.has(entity)
       && this.player.depth === entity.depth;
   }
@@ -62,7 +81,8 @@ class Sword extends Entity {
       && this.player.inputs.isInputDown(Types.Input.SwordSwing)
       && this.isAnimationFinished
       && this.player.modifiers.invisible == false
-      && !this.player.modifiers.stunned;
+      && !this.player.modifiers.stunned
+      && !this.player.cards.choosingCard;
   }
 
   canFly() {
@@ -70,13 +90,30 @@ class Sword extends Entity {
       && this.player.inputs.isInputDown(Types.Input.SwordThrow)
       && this.flyCooldownTime <= 0
       && this.player.modifiers.invisible == false
-      && !this.player.modifiers.stunned;
+      && !this.player.modifiers.stunned
+      && !this.player.cards.choosingCard;
   }
 
   stopFly() {
+    // Boomerang (105)
+    if (this.player.cards && this.player.cards.hasMajor(105) && !this.boomerangReturning) {
+      this.boomerangReturning = true;
+      this.boomerangReturnTime = 0;
+      this.collidedEntities.clear();
+      if (this.player.cards) this.player.cards._debugLog('Boomerang: returning');
+      return;
+    }
+
     this.isFlying = false;
     this.flyTime = 0;
+    this.boomerangReturning = false;
+    this.boomerangReturnTime = 0;
     this.collidedEntities.clear();
+
+    if (this.twinThrowProj && !this.twinThrowProj.removed) {
+      this.twinThrowProj.remove();
+    }
+    this.twinThrowProj = null;
   }
 
   createState() {
@@ -86,6 +123,7 @@ class Sword extends Entity {
     state.abilityActive = this.player.evolutions.evolutionEffect.isAbilityActive;
     state.skin = this.skin;
     state.pullbackParticles = this.pullbackParticles;
+    state.swordBoomerangReturning = this.boomerangReturning;
     return state;
   }
 
@@ -101,6 +139,7 @@ class Sword extends Entity {
     if (this.isFlying) {
 
       if (this.player.modifiers.cancelThrow) {
+        this.boomerangReturning = false;
         this.stopFly(); // Archergod
       }
 
@@ -111,38 +150,67 @@ class Sword extends Entity {
       }
 
       player.speed.multiplier *= this.playerSpeedBoost.value;
-      this.shape.x += this.flySpeed.value * Math.cos(this.shape.angle - Math.PI / 2);
-      this.shape.y += this.flySpeed.value * Math.sin(this.shape.angle - Math.PI / 2);
 
-      if (this.player.modifiers.ramThrow) {
-        this.player.shape.x = this.shape.x;
-        this.player.shape.y = this.shape.y;
-        this.player.shape.angle = this.shape.angle;
-        this.player.angle = this.shape.angle;
-      }
+      if (this.boomerangReturning) {
+        const returnAngle = this.boomerangOrigAngle + Math.PI;
+        const speed = this.flySpeed.value;
+        this.shape.x += speed * Math.cos(returnAngle);
+        this.shape.y += speed * Math.sin(returnAngle);
+        this.boomerangReturnTime += dt;
+        if (this.boomerangReturnTime >= this.flyLog) {
+          this.boomerangReturning = false;
+          this.isFlying = false;
+          this.flyTime = 0;
+          this.collidedEntities.clear();
+        }
+      } else {
+        this.shape.x += this.flySpeed.value * Math.cos(this.shape.angle - Math.PI / 2);
+        this.shape.y += this.flySpeed.value * Math.sin(this.shape.angle - Math.PI / 2);
 
-      this.flyTime += dt;
-      this.flyLog = this.flyTime;
-      if (this.flyTime >= this.flyDuration.value) {
-        this.stopFly();
+        if (this.player.modifiers.ramThrow) {
+          this.player.shape.x = this.shape.x;
+          this.player.shape.y = this.shape.y;
+          this.player.shape.angle = this.shape.angle;
+          this.player.angle = this.shape.angle;
+        }
+
+        this.flyTime += dt;
+        this.flyLog = this.flyTime;
+        if (this.flyTime >= this.flyDuration.value) {
+          this.stopFly();
+        }
       }
     } else {
-      let angle = player.angle + this.angle + Math.PI / 2;
-      if (this.player.modifiers.swingWide) {
-        angle += Math.PI / 4;
-      }
-      const offsetX = player.shape.radius - this.size / 2.5;
-      const offsetY = -player.shape.radius + this.size / 1.7;
-      if (!this._offsetVec) this._offsetVec = new SAT.Vector(0, 0);
-      this._offsetVec.x = offsetX;
-      this._offsetVec.y = offsetY;
+      this._positionMeleeCollision(player);
+    }
 
-      this.updateCollisionPoly();
-      this.shape.collisionPoly.setAngle(angle);
-      this.shape.collisionPoly.setOffset(this._offsetVec);
+    // Twin Throw (104)
+    if (this.twinThrowPending) {
+      this.twinThrowDelay -= dt;
+      if (this.twinThrowDelay <= 0) {
+        this.twinThrowPending = false;
+        this._spawnThrownSwordAt(this.twinThrowSavedAngle, this.twinThrowSavedX, this.twinThrowSavedY);
+        if (this.player.cards) this.player.cards._debugLog('Twin Throw: second sword spawned at original position');
+      }
     }
 
     this.shape.setScale(player.shape.scale);
+  }
+
+  _positionMeleeCollision(player) {
+    let angle = player.angle + this.angle + Math.PI / 2;
+    if (this.player.modifiers.swingWide) {
+      angle += Math.PI / 4;
+    }
+    const offsetX = player.shape.radius - this.size / 2.5;
+    const offsetY = -player.shape.radius + this.size / 1.7;
+    if (!this._offsetVec) this._offsetVec = new SAT.Vector(0, 0);
+    this._offsetVec.x = offsetX;
+    this._offsetVec.y = offsetY;
+
+    this.updateCollisionPoly();
+    this.shape.collisionPoly.setAngle(angle);
+    this.shape.collisionPoly.setOffset(this._offsetVec);
   }
 
   updateCollisionPoly() {
@@ -174,6 +242,15 @@ class Sword extends Entity {
   }
 
   updateFlags(dt) {
+    // Double Hit (102)
+    if (this.doubleHitActive && this.raiseAnimation && !this.doubleHitCleared) {
+      if (this.swingTime >= this.swingDuration.value * 0.9) {
+        this.collidedEntities.clear();
+        this.doubleHitCleared = true;
+        if (this.player.cards) this.player.cards._debugLog('Double Hit: cleared entities for second hit');
+      }
+    }
+
     if (this.canSwing()) {
       this.isFlying = false;
       this.flyTime = 0;
@@ -181,11 +258,15 @@ class Sword extends Entity {
       this.isAnimationFinished = false;
       this.player.flags.set(Types.Flags.SwordSwing, true);
 
+      // Double Hit (102)
+      const hasDoubleHit = this.player.cards && this.player.cards.hasMajor(102);
+      this.doubleHitActive = !!hasDoubleHit;
+      this.doubleHitCleared = false;
+
       const elapsed = Date.now() - this.lastSwordSwing;
       const multiplier = elapsed / this.focusTime;
       this.focusDamageMultiplier = Math.max(0.5, Math.min(1.2, multiplier));
 
-      // Trigger onSwordSwing hook for evolution effects
       if (this.player.evolutions && this.player.evolutions.evolutionEffect && typeof this.player.evolutions.evolutionEffect.onSwordSwing === 'function') {
         try {
           this.player.evolutions.evolutionEffect.onSwordSwing();
@@ -195,16 +276,40 @@ class Sword extends Entity {
       }
     }
     if (this.canFly()) {
-      this.isFlying = true;
-      if (this.player.modifiers.ramAbility) {
-        this.flyCooldownTime = this.flyCooldown.value / 5;
-      } else if (this.player.modifiers.ramThrow) {
-        this.flyCooldownTime = this.flyCooldown.value / 1.5;
-      } else {
+      const hasSpareSword = this.player.cards && this.player.cards.hasMajor(106);
+
+      if (hasSpareSword) {
+        // Spare Sword (106)
+        this.player.cards._debugLog('Spare Sword: launching projectile, keeping melee');
+        this._spawnThrownSword(0);
         this.flyCooldownTime = this.flyCooldown.value;
+        this.player.flags.set(Types.Flags.SwordThrow, true);
+        this.player.inputs.inputUp(Types.Input.SwordThrow);
+      } else {
+        this.isFlying = true;
+        this.boomerangReturning = false;
+        this.boomerangReturnTime = 0;
+        this.boomerangOrigAngle = this.player.angle;
+        if (this.player.modifiers.ramAbility) {
+          this.flyCooldownTime = this.flyCooldown.value / 5;
+        } else if (this.player.modifiers.ramThrow) {
+          this.flyCooldownTime = this.flyCooldown.value / 1.5;
+        } else {
+          this.flyCooldownTime = this.flyCooldown.value;
+        }
+        this.player.flags.set(Types.Flags.SwordThrow, true);
+        this.player.inputs.inputUp(Types.Input.SwordThrow);
+
+        // Twin Throw (104)
+        if (this.player.cards && this.player.cards.hasMajor(104)) {
+          this.twinThrowPending = true;
+          this.twinThrowDelay = 0.3;
+          this.twinThrowSavedAngle = this.player.angle;
+          this.twinThrowSavedX = this.player.shape.x;
+          this.twinThrowSavedY = this.player.shape.y;
+          this.player.cards._debugLog('Twin Throw: queued second sword (0.3s delay)');
+        }
       }
-      this.player.flags.set(Types.Flags.SwordThrow, true);
-      this.player.inputs.inputUp(Types.Input.SwordThrow);
     }
 
     if (!this.isAnimationFinished && !this.raiseAnimation && !this.player.inputs.isInputDown(Types.Input.SwordSwing)) {
@@ -235,6 +340,7 @@ class Sword extends Entity {
         this.decreaseAnimation = false;
         this.collidedEntities.clear();
         this.isAnimationFinished = true;
+        this.doubleHitActive = false;
       }
     }
 
@@ -244,6 +350,8 @@ class Sword extends Entity {
 processTargetsCollision(entity) {
     if (entity === this.player) return;
     if (!this.canCollide(entity)) return;
+    if (entity.cards && entity.cards.choosingCard) return;
+    if (entity.cards && entity.cards.isTutorial && this.player.type === Types.Entity.Player) return;
     
     // safezone
     if (this.player.modifiers.safe && entity.type === Types.Entity.Player && !this.player.isBot) return;
@@ -393,30 +501,49 @@ processTargetsCollision(entity) {
       }
     power *= antiTeamMult * coinDisparityMult;
 
+    if (this.player.cards) {
+      power *= this.player.cards.getKnockbackMultiplier(entity);
+    }
+
     const xComp = power * Math.cos(angle);
     const yComp = power * Math.sin(angle);
-    entity.velocity.x = -1*xComp;
-    entity.velocity.y =  -1*yComp;
+    // Boomerang (105)
+    const knockbackDir = (this.boomerangReturning) ? 1 : -1;
+    entity.velocity.x = knockbackDir * xComp;
+    entity.velocity.y = knockbackDir * yComp;
 
     if (!respawnShielded && !coinShieldFullBlock && ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) ||
       (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation)))) {
 
         const base = this.damage.value;
         const throwMult = this.player.modifiers.throwDamage || 1;
+        const cardThrowMult = this.player.throwDamageMultiplier || 1;
+        const isThrown = this.isFlying;
         let finalDamage = base;
 
-        if (this.player.modifiers.scaleThrow && this.isFlying) {
-          finalDamage = base * ((this.flyLog + 1) * 1.45) * throwMult;
-        } else if (this.player.modifiers.throwDamage && this.isFlying) {
-          finalDamage = base * throwMult;
+        if (this.player.modifiers.scaleThrow && isThrown) {
+          finalDamage = base * ((this.flyLog + 1) * 1.45) * throwMult * cardThrowMult;
+        } else if (isThrown) {
+          finalDamage = base * throwMult * cardThrowMult;
         } else {
           finalDamage = base;
+        }
+
+        // Double Hit (102)
+        if (this.doubleHitActive && this.decreaseAnimation) {
+          finalDamage *= 0.40;
         }
 
         if (this.player.modifiers.damageScale) {
           const bonus = 1 + 0.5 * (1 - this.player.health.percent);
           finalDamage *= bonus;
         }
+
+        if (this.player.cards) {
+          finalDamage *= this.player.cards.onHitEntity(entity, finalDamage, isThrown);
+          finalDamage *= this.player.cards.getDamageDealtMultiplier(entity);
+        }
+
 
         finalDamage *= antiTeamMult * coinDisparityMult;
 
@@ -433,7 +560,7 @@ processTargetsCollision(entity) {
           const poisonTotal = finalDamage * 0.5;
 
           // 50% now
-          entity.damaged(immediate, this.player);
+          entity.damaged(immediate, this.player, isThrown);
 
           // 50% poison
           if (entity.type === Types.Entity.Player && typeof entity.addEffect === 'function') {
@@ -442,13 +569,13 @@ processTargetsCollision(entity) {
             try {
               entity.addEffect(Types.Effect.Burning, effectId, { damage: poisonPerSecond, duration: 1, attacker: this.player });
             } catch (e) {
-              entity.damaged(poisonTotal, this.player);
+              entity.damaged(poisonTotal, this.player, isThrown);
             }
           } else {
-            entity.damaged(poisonTotal, this.player);
+            entity.damaged(poisonTotal, this.player, isThrown);
           }
         } else {
-          entity.damaged(finalDamage, this.player);
+          entity.damaged(finalDamage, this.player, isThrown);
         }
     }
 
@@ -459,7 +586,6 @@ processTargetsCollision(entity) {
     this.collidedEntities.add(entity);
     this.player.flags.set(Types.Flags.EnemyHit, entity.id);
 
-    // Trigger onDamage hook for evolution effects when damaging a player
     if (entity.type === Types.Entity.Player && !entity.isBot) {
       if (this.player.evolutions && this.player.evolutions.evolutionEffect && typeof this.player.evolutions.evolutionEffect.onDamage === 'function') {
         try {
@@ -552,10 +678,38 @@ processTargetsCollision(entity) {
     }
 }
 
+  _spawnThrownSword(angleOffset = 0) {
+    this._spawnThrownSwordAt(this.player.angle + angleOffset, this.player.shape.x, this.player.shape.y);
+  }
+
+  _spawnThrownSwordAt(angle, x, y) {
+    try {
+      const ThrownSword = require('./ThrownSword');
+      const proj = new ThrownSword(this.game, {
+        owner: this.player,
+        size: this.size,
+        angle: angle,
+        speed: this.flySpeed.value,
+        damage: this.damage.value * 0.7,
+        knockback: this.knockback.value * 0.6,
+        duration: this.flyDuration.value,
+        skin: this.skin,
+        x: x,
+        y: y,
+      });
+      this.game.addEntity(proj);
+      this.twinThrowProj = proj;
+      if (this.player.cards) this.player.cards._debugLog(`ThrownSword spawned at (${x.toFixed(0)},${y.toFixed(0)}) angle=${angle.toFixed(2)}`);
+    } catch (e) {
+      console.error('Failed to spawn ThrownSword:', e);
+    }
+  }
+
   cleanup() {
     super.cleanup();
 
-    [this.damage, this.knockback, this.swingDuration, this.flySpeed, this.flyDuration].forEach(prop => prop.reset());
+    [this.damage, this.knockback, this.swingDuration, this.flySpeed, this.flyDuration, this.flyCooldown].forEach(prop => prop.reset());
+    this.swingArc = this.swingAngle;
   }
 }
 

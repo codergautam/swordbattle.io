@@ -66,11 +66,15 @@ class Chest extends Entity {
     const currentTime = Date.now();
     const recentlyAttackedByOther = this.lastAttacker !== null && this.lastAttacker !== sword.player && (currentTime - this.lastAttackTime) < 5000;
 
+    let dmg = sword.damage.value;
     if (sword.player.modifiers.chestPower && !recentlyAttackedByOther) {
-      this.health.damaged(sword.damage.value * sword.player.modifiers.chestPower);
-    } else {
-      this.health.damaged(sword.damage.value);
+      dmg *= sword.player.modifiers.chestPower;
     }
+    // PvE Master card
+    if (sword.player.chestDamageMultiplier) {
+      dmg *= sword.player.chestDamageMultiplier;
+    }
+    this.health.damaged(dmg);
 
     this.lastAttacker = sword.player;
     this.lastAttackTime = currentTime;
@@ -78,11 +82,16 @@ class Chest extends Entity {
     if (this.health.isDead) {
       sword.player.flags.set(Types.Flags.ChestDestroy, true);
 
-      if (sword.player.modifiers.chestPower) {
-        this.game.map.spawnCoinsInShape(this.shape, this.coins);
-      } else {
-        this.game.map.spawnCoinsInShape(this.shape, this.coins);
+      let chestCoins = this.coins;
+      // Scavenger card (121)
+      if (sword.player.cards && sword.player.cards.hasMajor(121)) {
+        chestCoins = Math.round(chestCoins * 0.90);
       }
+      // Chest Keys card (120)
+      if (sword.player.cards && sword.player.cards.hasMajor(120)) {
+        chestCoins = Math.round(chestCoins * 0.50);
+      }
+      this.game.map.spawnCoinsInShape(this.shape, chestCoins);
 
       if (this.respawnable) this.createInstance();
       this.remove();

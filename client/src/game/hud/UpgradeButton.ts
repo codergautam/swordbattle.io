@@ -131,14 +131,23 @@ class UpgradeButton extends HudComponent {
   }
 
   resize() {
-    if (this.container) {
-      this.container.setPosition(10, 180);
-    }
+    this._updatePosition();
+  }
+
+  _updatePosition() {
+    if (!this.container) return;
+    const player = this.game.gameState.self.entity;
+    const isLoggedIn = player && !!(player as any).account;
+    const baseY = 180;
+    const masteryOffset = isLoggedIn ? 45 : 0;
+    this.container.setPosition(10, baseY + masteryOffset);
   }
 
   update() {
     const player = this.game.gameState.self.entity;
     if (!player || !this.container) return;
+
+    this._updatePosition();
 
     const available: number = (player as any).availableUpgrades || 0;
     const choosingCard = (player as any).choosingCard;

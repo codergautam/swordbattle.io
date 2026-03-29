@@ -129,9 +129,10 @@ export class BaseEntity {
       if (this.justSpawned) {
         if (this.container) this.container.alpha = targetAlpha;
         if (this.healthBar?.bar) this.healthBar.bar.alpha = targetAlpha;
+        if (this.healthBar?.cooldownBar) this.healthBar.cooldownBar.alpha = targetAlpha;
       } else {
         this.game.tweens.add({
-          targets: [this.container, this.healthBar?.bar],
+          targets: [this.container, this.healthBar?.bar, this.healthBar?.cooldownBar].filter(Boolean),
           alpha: targetAlpha,
           duration: 50,
         });

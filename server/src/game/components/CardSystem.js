@@ -28,7 +28,6 @@ class CardSystem {
     this.majorPicksSkipped = 0;
 
     this.isTutorial = false;
-    this.tutorialRerollEveryPick = false;
 
     this.aggressionLastHitTime = 0;
     this.aggressionBoosted = false;
@@ -219,7 +218,7 @@ class CardSystem {
   rerollOffers() {
     if (!this.choosingCard) return;
     if (this.hasRerolledThisPick) return;
-    if (!this.tutorialRerollEveryPick && this.rerollsAvailable <= 0) return;
+    if (this.rerollsAvailable <= 0) return;
     if (this.cardOffers.some(id => isMajorCard(id))) return;
 
     this.currentExcluded.push(...this.cardOffers);
@@ -228,11 +227,12 @@ class CardSystem {
 
     this.cardOffers = newOffers;
     this.hasRerolledThisPick = true;
-    if (!this.tutorialRerollEveryPick) this.rerollsAvailable--;
+    this.rerollsAvailable--;
   }
 
   skipMajorCard() {
     if (!this.choosingCard) return;
+    if (this.isTutorial) return;
     if (!this.cardOffers.some(id => isMajorCard(id))) return;
 
     const allMinorIds = getAllMinorIds();

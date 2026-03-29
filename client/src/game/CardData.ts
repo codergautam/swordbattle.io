@@ -22,7 +22,7 @@ export const MinorCardData: Record<number, MinorCardInfo> = {
   2:  { name: 'Quick Swing',      category: 'Offensive', color: 0x5b9ee6, values: [6, 5, 5, 4, 4, 3, 3],   max: 7, description: 'Attack speed',       icon: 'card_attackspeed' },
   4:  { name: 'Sharpshooter',     category: 'Offensive', color: 0x2d8c4e, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Throw power',        icon: 'card_throwdamage' },
   5:  { name: 'Defense Training', category: 'Defensive', color: 0xb050d0, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Max health',         icon: 'card_maxhealth' },
-  7:  { name: 'Fast Heal',        category: 'Defensive', color: 0x40c8b8, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Regen power',        icon: 'card_regencooldown' },
+  7:  { name: 'Fast Heal',        category: 'Defensive', color: 0x40c8b8, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Regen power',        icon: 'card_regenrate' },
   9:  { name: 'Swiftness',        category: 'Utility',   color: 0x2850e0, values: [5, 4, 4, 3, 3, 3, 2],   max: 7, description: 'Move speed',         icon: 'card_movespeed' },
   11: { name: 'Sniper Vision',    category: 'Utility',   color: 0xe0e0e0, values: [8, 6, 5, 4, 3],          max: 5, description: 'View distance',      icon: 'card_viewdistance' },
 };

@@ -105,8 +105,11 @@ class CardSelect extends HudComponent {
 
     this.actionButtonUsed = false;
     const player = this.game.gameState.self.entity;
-    const rerolls: number = player ? (player as any).rerollsAvailable || 0 : 0;
-    this.createActionButton(scene, hasMajor, rerolls);
+    const isTutorial = player && (player as any).isTutorial;
+    if (!isTutorial) {
+      const rerolls: number = player ? (player as any).rerollsAvailable || 0 : 0;
+      this.createActionButton(scene, hasMajor, rerolls);
+    }
   }
 
   createCard(scene: Phaser.Scene, cardId: number, currentStacks: number, x: number, y: number, offerIndex: number): Phaser.GameObjects.Container {

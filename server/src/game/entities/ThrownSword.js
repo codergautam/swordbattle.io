@@ -31,12 +31,14 @@ class ThrownSword extends Entity {
 
   _updateCollisionPoly() {
     const s = this.size;
+    const cx = -0.35 * s;
+    const cy = 1.25 * s;
     const newPoints = [
-      new SAT.Vector(0, 0),
-      new SAT.Vector(-0.14615384615384616 * s, -1.7769230769230768 * s),
-      new SAT.Vector(0.34615384615384615 * s, -2.4923076923076923 * s),
-      new SAT.Vector(0.8538461538461538 * s, -1.7769230769230768 * s),
-      new SAT.Vector(0.7153846153846154 * s, -0.015384615384615385 * s),
+      new SAT.Vector(0 - cx, 0 - cy),
+      new SAT.Vector(-0.14615384615384616 * s - cx, -1.7769230769230768 * s - cy),
+      new SAT.Vector(0.34615384615384615 * s - cx, -2.4923076923076923 * s - cy),
+      new SAT.Vector(0.8538461538461538 * s - cx, -1.7769230769230768 * s - cy),
+      new SAT.Vector(0.7153846153846154 * s - cx, -0.015384615384615385 * s - cy),
     ];
     const pos = new SAT.Vector(this.shape.x, this.shape.y);
     this.shape.collisionPoly = new SAT.Polygon(pos, newPoints);

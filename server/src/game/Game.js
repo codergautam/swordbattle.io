@@ -340,11 +340,10 @@ class Game {
     }
     if (data.tutorialComplete) {
       player.cards.isTutorial = false;
-      player.cards.tutorialRerollEveryPick = false;
       player.cards.instantSelect = false;
+      player.cards.rerollsAvailable = 1;
       player.coinShield = 500;
       client.tutorialCompleted = true;
-
     }
     if (data.tutorialPanel !== undefined && data.tutorialPanel !== null) {
       if (data.tutorialPanel === 4 && player.cards.isTutorial) {
@@ -552,8 +551,8 @@ class Game {
     const isTutorial = player.isFirstLife && !client.tutorialCompleted;
     if (isTutorial) {
       player.cards.isTutorial = true;
-      player.cards.tutorialRerollEveryPick = true;
       player.cards.instantSelect = true;
+      player.cards.rerollsAvailable = 0;
       player.coinShield = 999999; // during tutorial
       player.shape.x = 0;
       player.shape.y = 0;

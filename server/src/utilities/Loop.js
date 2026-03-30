@@ -4,13 +4,12 @@ class Loop {
     this.interval = interval;
     this.isRunning = false;
     this.ticksThisSecond = 0;
+    this.lastTickTime = process.hrtime();
+    this.lastSecond = this.lastTickTime[0];
     this.tickTimeElapsed = 0;
     this.game = game;
     this.eventHandler = () => {};
     this.onTpsUpdate = () => {};
-    this._immediateHandle = null;
-    this._nextTickTime = 0;
-    this._lastTpsSecond = 0;
   }
 
   setEventHandler(eventHandler) {
@@ -31,56 +30,44 @@ class Loop {
       return;
     }
     this.isRunning = true;
-    this._nextTickTime = process.hrtime.bigint();
-    this._lastTpsSecond = Number(this._nextTickTime / 1000000000n);
     this.runLoop();
   }
 
   stop() {
     this.isRunning = false;
     this.ticksThisSecond = 0;
-    if (this._immediateHandle) {
-      clearImmediate(this._immediateHandle);
-      this._immediateHandle = null;
-    }
   }
 
   runLoop() {
     if (!this.isRunning) return;
 
-    const now = process.hrtime.bigint();
-    const intervalNs = BigInt(this.interval) * 1000000n;
+    const currentTime = process.hrtime();
+    this.lastTickTime = currentTime;
+    const now = Date.now();
 
-    if (now >= this._nextTickTime) {
-      const tickStart = Date.now();
+
+      this.updateTPS(currentTime);
       this.eventHandler();
-      this.tickTimeElapsed = Date.now() - tickStart;
+      this.tickTimeElapsed = Date.now() - now;
 
-      if (this.tickTimeElapsed > this.interval * 2) {
+      if(this.tickTimeElapsed > this.interval * 2) {
         const realPlayersCnt = [...this.game.players.values()].filter(p => !p.isBot).length;
-        console.log(`Server lagging severely... tick took ${this.tickTimeElapsed} ms. Expecting <${this.interval} ms.\nReal player count: ${realPlayersCnt}; Entities: ${this.entityCnt}; Memory usage: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`);
+        console.log(`Server lagging severely... tick took ${this.tickTimeElapsed} ms. Expecting <${this.interval}, ms.\nReal player count: ${realPlayersCnt}; Entities: ${this.entityCnt}; Memory usage: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`);
       }
+    this.ticksThisSecond++;
+    const delay = this.interval - this.tickTimeElapsed;
+    setTimeout(() => this.runLoop(), delay);
+  }
 
-      this.ticksThisSecond++;
-      this._nextTickTime += intervalNs;
-
-      if (now - this._nextTickTime > intervalNs * 4n) {
-        this._nextTickTime = now + intervalNs;
-      }
-
-      const currentSecond = Number(now / 1000000000n);
-      if (currentSecond !== this._lastTpsSecond) {
-        this.onTpsUpdate(this.ticksThisSecond);
-        this.ticksThisSecond = 0;
-        this._lastTpsSecond = currentSecond;
-      }
-    }
-
-    const remaining = Number(this._nextTickTime - process.hrtime.bigint()) / 1000000;
-    if (remaining > 4) {
-      setTimeout(() => this.runLoop(), Math.floor(remaining - 3));
-    } else {
-      this._immediateHandle = setImmediate(() => this.runLoop());
+  updateTPS(currentTime) {
+    const currentSecond = currentTime[0];
+    if (currentSecond !== this.lastSecond) {
+      const memoryUsage = process.memoryUsage();
+      const memoryUsageReadable = `${Math.round(memoryUsage.heapUsed / 1024 / 1024 * 100) / 100}MB`;
+      // console.log(`tps: ${this.ticksThisSecond} | expected tps: ${1000 / this.interval} | tick time: ${this.tickTimeElapsed}ms | entities: ${this.entityCnt} | time per 100 entities: ${(Math.round(this.tickTimeElapsed * 10000 / this.entityCnt) / 100)}ms | memory usage: ${memoryUsageReadable}`);
+      this.onTpsUpdate(this.ticksThisSecond);
+      this.ticksThisSecond = 0;
+      this.lastSecond = currentSecond;
     }
   }
 }

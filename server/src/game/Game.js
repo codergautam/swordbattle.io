@@ -29,8 +29,6 @@ class Game {
     this.globalEntities = new GlobalEntities(this);
 
     this.entitiesQuadtree = null;
-    this._staticQuadtree = null;
-    this._staticQuadtreeDirty = true;
     this._removedEntitiesById = new Map();
     this.tps = 0;
 
@@ -43,11 +41,6 @@ class Game {
 
     const mapBoundary = this.map;
     this.entitiesQuadtree = new QuadTree(mapBoundary, 10, 5);
-    this._staticQuadtree = new QuadTree(mapBoundary, 10, 5);
-  }
-
-  markStaticDirty() {
-    this._staticQuadtreeDirty = true;
   }
 
   tick(dt) {
@@ -58,25 +51,7 @@ class Game {
       entity.update(dt);
     }
 
-    if (this._staticQuadtreeDirty) {
-      this._staticQuadtree.clear();
-      for (const [id, entity] of this.entities) {
-        if (!entity.isStatic) continue;
-        const collisionRect = entity.shape.boundary;
-        collisionRect.entity = entity;
-        this._staticQuadtree.insert(collisionRect);
-      }
-      this._staticQuadtreeDirty = false;
-    }
-
-    this.entitiesQuadtree.clear();
-    for (const [id, entity] of this.entities) {
-      if (entity.isStatic) continue;
-      const collisionRect = entity.shape.boundary;
-      collisionRect.entity = entity;
-      this.entitiesQuadtree.insert(collisionRect);
-    }
-
+    this.updateQuadtree(this.entitiesQuadtree, this.entities);
     const response = new SAT.Response();
     for (const [id, entity] of this.entities) {
       if (entity.removed) continue;
@@ -91,12 +66,7 @@ class Game {
   }
 
   processCollisions(entity, response, dt) {
-    const boundary = entity.shape.boundary;
-    const dynamicResults = this.entitiesQuadtree.get(boundary);
-    const staticResults = this._staticQuadtree.get(boundary);
-    const quadtreeSearch = dynamicResults.length && staticResults.length
-      ? dynamicResults.concat(staticResults)
-      : dynamicResults.length ? dynamicResults : staticResults;
+    const quadtreeSearch = this.entitiesQuadtree.get(entity.shape.boundary);
 
     let depth = 0;
     for (const { entity: targetEntity } of quadtreeSearch) {
@@ -655,7 +625,6 @@ class Game {
     }
     this.entities.set(entity.id, entity);
     this.newEntities.add(entity);
-    if (entity.isStatic) this._staticQuadtreeDirty = true;
     return entity;
   }
 
@@ -674,7 +643,6 @@ class Game {
     this.newEntities.delete(entity);
     this.removedEntities.add(entity);
     this._removedEntitiesById.set(entity.id, entity);
-    if (entity.isStatic) this._staticQuadtreeDirty = true;
     entity.removed = true;
   }
 

@@ -44,9 +44,7 @@ class GameMap {
     this.y = mapData.y;
     this.width = mapData.width;
     this.height = mapData.height;
-    if (this.scene.physics?.world) {
-      this.scene.physics.world.setBounds(this.x, this.y, this.width, this.height);
-    }
+    this.scene.physics.world.setBounds(this.x, this.y, this.width, this.height);
     mapData.biomes.forEach((biomeData: any) => this.addBiome(biomeData));
     if (mapData.staticObjects) {
       mapData.staticObjects.forEach(((objectData: any) => this.addStaticObject(objectData)));

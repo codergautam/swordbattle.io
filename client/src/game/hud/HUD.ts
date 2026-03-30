@@ -107,31 +107,49 @@ class HUD {
     this.components.forEach(component => component.setScale(this.scale));
   }
 
-  showAnnouncement(text: string, color = '#f5c842', duration = 4000) {
+  showAnnouncement(text: string, color = '#f5c842', duration = 4000, yRatio = 0.2, showBackground = false) {
     if (!this.scene) return;
     const { width, height } = this.game.scale;
-    const announcementText = this.scene.add.text(width / 2, height * 0.2, text, {
+    const yPos = height * yRatio;
+
+    const announcementText = this.scene.add.text(width / 2, yPos, text, {
       fontSize: `${Math.round(22 * this.scale)}px`,
       fontFamily: 'Ubuntu, sans-serif',
       color,
       stroke: '#000000',
       strokeThickness: 4,
       align: 'center',
-    }).setOrigin(0.5).setDepth(90).setAlpha(0);
+    }).setOrigin(0.5).setDepth(91).setAlpha(0);
+
+    let bg: Phaser.GameObjects.Graphics | null = null;
+    if (showBackground) {
+      const padX = 24 * this.scale;
+      const padY = 14 * this.scale;
+      const bw = announcementText.width + padX * 2;
+      const bh = announcementText.height + padY * 2;
+      bg = this.scene.add.graphics().setDepth(90).setAlpha(0);
+      bg.fillStyle(0x000000, 0.7);
+      bg.fillRoundedRect(width / 2 - bw / 2, yPos - bh / 2, bw, bh, 10 * this.scale);
+    }
+
+    const targets = bg ? [announcementText, bg] : [announcementText];
 
     this.scene.tweens.add({
-      targets: announcementText,
+      targets,
       alpha: { from: 0, to: 1 },
       duration: 400,
       ease: 'Power2',
       onComplete: () => {
         this.scene.time.delayedCall(duration, () => {
           this.scene.tweens.add({
-            targets: announcementText,
+            targets,
             alpha: 0,
             duration: 800,
             ease: 'Power2',
-            onComplete: () => announcementText.destroy(),
+            onComplete: () => {
+              announcementText.destroy();
+              if (bg) bg.destroy();
+            },
           });
         });
       },

@@ -8,7 +8,6 @@ import Game from '../scenes/Game';
 export class BaseEntity {
   static stateFields: string[] = ['id', 'type', 'shapeData', 'depth', 'healthPercent'];
   static removeTransition = 0;
-  static readonly INTERP_DELAY_MS = 75;
 
   [key: string]: any;
   game: Game;
@@ -19,7 +18,6 @@ export class BaseEntity {
   hidden: boolean = false;
   depth = 0;
   justSpawned = true;
-  _snapshots: Array<{time: number, x: number, y: number}> = [];
 
   constructor(game: Game) {
     this.game = game;
@@ -90,12 +88,6 @@ export class BaseEntity {
       } else {
         this.shape.update(data.shapeData);
       }
-      const now = Date.now();
-      this._snapshots.push({ time: now, x: this.shape.x, y: this.shape.y });
-      const cutoff = now - (BaseEntity.INTERP_DELAY_MS * 5);
-      while (this._snapshots.length > 2 && this._snapshots[0].time < cutoff) {
-        this._snapshots.shift();
-      }
     }
   }
 
@@ -103,52 +95,16 @@ export class BaseEntity {
 
   update(dt: number) {
     if (!this.container) return;
-    this._updatePosition(dt);
+    const tps = this.game.gameState.tps || 20;
+    const lerpRate = 1 - Math.exp(-dt / (1000 / tps));
+    this.container.x = Phaser.Math.Linear(this.container.x, this.shape.x, lerpRate);
+    this.container.y = Phaser.Math.Linear(this.container.y, this.shape.y, lerpRate);
     if (this.shape.type === ShapeTypes.Polygon) {
       this.container.setRotation(this.shape.angle);
     }
     this.updateRotation(dt);
     this.updateWorldDepth();
     this.healthBar?.update(dt);
-  }
-
-  _updatePosition(dt: number) {
-    const snaps = this._snapshots;
-    if (snaps.length >= 2) {
-      const renderTime = Date.now() - BaseEntity.INTERP_DELAY_MS;
-
-      let lowerIdx = 0;
-      for (let i = 1; i < snaps.length; i++) {
-        if (snaps[i].time <= renderTime) {
-          lowerIdx = i;
-        } else {
-          break;
-        }
-      }
-
-      const s1 = snaps[lowerIdx];
-      const s2 = snaps[lowerIdx + 1];
-
-      if (s2 && s1.time <= renderTime) {
-        const span = s2.time - s1.time;
-        const t = span > 0 ? Math.min(1, (renderTime - s1.time) / span) : 1;
-        this.container.x = s1.x + (s2.x - s1.x) * t;
-        this.container.y = s1.y + (s2.y - s1.y) * t;
-      } else if (s1.time > renderTime) {
-        const latest = snaps[snaps.length - 1];
-        this.container.x = latest.x;
-        this.container.y = latest.y;
-      } else {
-        const latest = snaps[snaps.length - 1];
-        const tps = this.game.gameState.tps || 20;
-        const lerpRate = 1 - Math.exp(-dt / (1000 / tps));
-        this.container.x = Phaser.Math.Linear(this.container.x, latest.x, lerpRate);
-        this.container.y = Phaser.Math.Linear(this.container.y, latest.y, lerpRate);
-      }
-    } else {
-      this.container.x = this.shape.x;
-      this.container.y = this.shape.y;
-    }
   }
 
   updateRotation(dt?: number) {

@@ -358,7 +358,7 @@ class GameState {
 
       const globalEnt = this.globalEntities[id];
       if (globalEnt && globalEnt.gameWorldEntity) {
-        if (entityData.shapeData) {
+        if (!entityData.removed && entityData.shapeData) {
           globalEnt.gameWorldEntity.updateState(entityData);
         }
         if (this.entities[id]) {

@@ -18,9 +18,9 @@ export interface MajorCardInfo {
 }
 
 export const MinorCardData: Record<number, MinorCardInfo> = {
-  1:  { name: 'Sharp Stabs',      category: 'Offensive', color: 0xe83a3a, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Sword damage',       icon: 'card_damage' },
+  1:  { name: 'Sharp Stabs',      category: 'Offensive', color: 0xe83a3a, values: [5, 4, 4, 3, 3, 2, 2],   max: 7, description: 'Sword damage',       icon: 'card_damage' },
   2:  { name: 'Quick Swing',      category: 'Offensive', color: 0x5b9ee6, values: [6, 5, 5, 4, 4, 3, 3],   max: 7, description: 'Attack speed',       icon: 'card_attackspeed' },
-  4:  { name: 'Sharpshooter',     category: 'Offensive', color: 0x2d8c4e, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Throw power',        icon: 'card_throwdamage' },
+  4:  { name: 'Sharpshooter',     category: 'Offensive', color: 0x2d8c4e, values: [5, 4, 4, 3, 3, 2, 2],   max: 7, description: 'Throw power',        icon: 'card_throwdamage' },
   5:  { name: 'Defense Training', category: 'Defensive', color: 0xb050d0, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Max health',         icon: 'card_maxhealth' },
   7:  { name: 'Fast Heal',        category: 'Defensive', color: 0x40c8b8, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Regen power',        icon: 'card_regenrate' },
   9:  { name: 'Swiftness',        category: 'Utility',   color: 0x2850e0, values: [5, 4, 4, 3, 3, 3, 2],   max: 7, description: 'Move speed',         icon: 'card_movespeed' },
@@ -31,7 +31,7 @@ export const MajorCardData: Record<number, MajorCardInfo> = {
   // Swordsmanship
   101: { name: 'Cleave',              category: 'Swordsmanship', color: 0xffd700, positiveText: '+50% swing arc',                    negativeText: '-25% knockback dealt',            icon: 'card_cleave' },
   102: { name: 'Double Hit',          category: 'Swordsmanship', color: 0xffd700, positiveText: 'Releasing swings does an extra hit', negativeText: 'Deal 60% damage for each hit',     icon: 'card_doublehit' },
-  103: { name: 'Aggression',          category: 'Swordsmanship', color: 0xffd700, positiveText: '+50% damage for 2s after being hit',  negativeText: '-25% damage for 1s after boost',  icon: 'card_aggression' },
+  103: { name: 'Aggression',          category: 'Swordsmanship', color: 0xffd700, positiveText: '+30% damage for 2s after being hit',  negativeText: '-25% damage for 1s after boost',  icon: 'card_aggression' },
 
   // Throwing
   104: { name: 'Twin Throw',          category: 'Throwing',      color: 0xffd700, positiveText: 'Throw 2 swords in a row',           negativeText: '-30% throw damage, +25% cooldown', icon: 'card_twinthrow' },
@@ -39,7 +39,7 @@ export const MajorCardData: Record<number, MajorCardInfo> = {
   106: { name: 'Spare Sword',         category: 'Throwing',      color: 0xffd700, positiveText: 'Keep melee attack while throwing',  negativeText: '-25% throw speed, -30% throw dmg', icon: 'card_sparesword' },
 
   // Predator
-  107: { name: 'Finisher',            category: 'Predator',      color: 0xffd700, positiveText: '+25% vs under 40% HP targets',     negativeText: '-15% vs over 80% HP targets',     icon: 'card_finisher' },
+  107: { name: 'Finisher',            category: 'Predator',      color: 0xffd700, positiveText: '+15% vs under 40% HP targets',     negativeText: '-15% vs over 80% HP targets',     icon: 'card_finisher' },
   108: { name: 'Regensteal',          category: 'Predator',      color: 0xffd700, positiveText: 'Hits reduce regen wait by 0.5s',   negativeText: '-25% regen rate',                  icon: 'card_regensteal' },
   109: { name: 'Boxer',               category: 'Predator',      color: 0xffd700, positiveText: '-50% throw damage/knockback taken', negativeText: 'Also affects own throws',          icon: 'card_boxer' },
 
@@ -51,7 +51,7 @@ export const MajorCardData: Record<number, MajorCardInfo> = {
   // Vampiric
   113: { name: 'Vampire Aspect',      category: 'Vampiric',      color: 0xffd700, positiveText: 'Heal 10% of melee damage dealt',  negativeText: '-8% max HP',                       icon: 'card_vampireaspect' },
   114: { name: 'Soul Harvest',        category: 'Vampiric',      color: 0xffd700, positiveText: 'Kill a player = full heal',        negativeText: '-15% regen rate',                  icon: 'card_soulharvest' },
-  115: { name: 'Blood Frenzy',        category: 'Vampiric',      color: 0xffd700, positiveText: 'Under 35% HP: +25% damage, +5% speed', negativeText: 'Over 80% HP: -10% damage',   icon: 'card_bloodfrenzy' },
+  115: { name: 'Blood Frenzy',        category: 'Vampiric',      color: 0xffd700, positiveText: 'Under 35% HP: +15% damage, +5% speed', negativeText: 'Over 80% HP: -10% damage',   icon: 'card_bloodfrenzy' },
 
   // Fortification
   116: { name: 'Rejuvenation',        category: 'Fortification', color: 0xffd700, positiveText: 'Regen ramps over time (up to 3x)',negativeText: '-25% base regen',                  icon: 'card_rejuvenation' },
@@ -69,9 +69,9 @@ export const MajorCardData: Record<number, MajorCardInfo> = {
   124: { name: 'Tank Shell',          category: 'Pacifism',      color: 0xffd700, positiveText: '+25% damage reduction',            negativeText: '-50% knockback dealt',             icon: 'card_tankshell' },
 
   // Beast Slayer
-  125: { name: 'Hunting Instinct',    category: 'Beast Slayer',  color: 0xffd700, positiveText: '+25% damage vs mobs, +10% mob coins', negativeText: '-30% damage vs players',       icon: 'card_huntinginstinct' },
+  125: { name: 'Hunting Instinct',    category: 'Beast Slayer',  color: 0xffd700, positiveText: '+15% damage vs mobs, +10% mob coins', negativeText: '-30% damage vs players',       icon: 'card_huntinginstinct' },
   126: { name: 'Butcherer',           category: 'Beast Slayer',  color: 0xffd700, positiveText: 'Mobs don\'t get angry when hit',   negativeText: '-50% knockback vs mobs',           icon: 'card_butcherer' },
-  127: { name: 'Boss Hunter',         category: 'Beast Slayer',  color: 0xffd700, positiveText: '+15% boss damage',                 negativeText: '-80% damage vs mobs, bosses deal +20% damage', icon: 'card_bosshunter' },
+  127: { name: 'Boss Hunter',         category: 'Beast Slayer',  color: 0xffd700, positiveText: '+10% boss damage',                 negativeText: '-80% damage vs mobs, bosses deal +20% damage', icon: 'card_bosshunter' },
 
   // Endurance
   128: { name: 'Fortress',            category: 'Endurance',     color: 0xffd700, positiveText: '+1% defense per 100k gold (max 35%)', negativeText: '-20% player damage dealt',     icon: 'card_fortress' },

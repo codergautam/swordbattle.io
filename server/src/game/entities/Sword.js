@@ -366,7 +366,12 @@ processTargetsCollision(entity) {
     if (!this.canCollide(entity)) return;
     if (entity.cards && entity.cards.choosingCard) return;
     if (entity.cards && entity.cards.isTutorial && this.player.type === Types.Entity.Player) return;
-    if (this.player.cards && this.player.cards.isTutorial && entity.type === Types.Entity.Player) return;
+    if (this.player.cards && this.player.cards.isTutorial && entity.type === Types.Entity.Player) {
+      if (!entity.isBot) {
+        this.player.flags.set(Types.Flags.TutorialHitBlocked, true);
+      }
+      return;
+    }
     
     // safezone
     if (this.player.modifiers.safe && entity.type === Types.Entity.Player && !this.player.isBot) return;

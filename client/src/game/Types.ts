@@ -60,6 +60,7 @@ export enum FlagTypes {
   DiscoFieldActive = 18,
   FirstLife = 19,
   SelectUpgrade = 20,
+  TutorialHitBlocked = 21,
 }
 
 export enum EvolutionTypes {

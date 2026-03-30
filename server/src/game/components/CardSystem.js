@@ -407,7 +407,7 @@ class CardSystem {
     if (this.hasMajor(103)) {
       const timeSinceHit = this.aggressionLastHitTime > 0 ? (now - this.aggressionLastHitTime) : Infinity;
       if (timeSinceHit < 2000) {
-        p.sword.damage.multiplier *= 1.5;
+        p.sword.damage.multiplier *= 1.3;
         this.aggressionBoosted = true;
       } else if (timeSinceHit < 3000) {
         p.sword.damage.multiplier *= 0.75;
@@ -469,7 +469,7 @@ class CardSystem {
 
     if (this.hasMajor(115)) {
       if (p.health.percent < 0.35) {
-        p.sword.damage.multiplier *= 1.25;
+        p.sword.damage.multiplier *= 1.15;
         p.speed.multiplier *= 1.05;
       } else if (p.health.percent > 0.80) {
         p.sword.damage.multiplier *= 0.90;
@@ -538,7 +538,7 @@ class CardSystem {
     let dmgMult = 1;
     if (this.hasMajor(107) && entity.health) {
       let bonus = 1;
-      if (entity.health.percent < 0.40) bonus = 1.25;
+      if (entity.health.percent < 0.40) bonus = 1.15;
       else if (entity.health.percent > 0.80) bonus = 0.85;
       dmgMult *= bonus;
     }
@@ -572,7 +572,7 @@ class CardSystem {
     if (this.hasMajor(125)) {
       const isMob = Types.Groups.Mobs.includes(entity.type);
       if (isMob) {
-        dmgMult *= 1.25;
+        dmgMult *= 1.15;
       } else if (entity.type === Types.Entity.Player) {
         dmgMult *= 0.70;
       }
@@ -582,7 +582,7 @@ class CardSystem {
       const isBoss = [Types.Entity.Yeti, Types.Entity.Chimera, Types.Entity.Roku, Types.Entity.Ancient].includes(entity.type);
       const isMob = Types.Groups.Mobs.includes(entity.type);
       if (isBoss) {
-        dmgMult *= 1.15;
+        dmgMult *= 1.10;
       } else if (isMob && !isBoss) {
         dmgMult *= 0.20;
       }

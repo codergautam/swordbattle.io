@@ -75,7 +75,6 @@ function LeaderboardLine({ player }: any) {
     angel: '#acfffc',
     "cool guy 53": '#0099ff',
     "update testing account": '#00ff00',
-    amethystbladeyt: '#7802ab',
     oy: '#000000',
     bobz: '#000000',
   };

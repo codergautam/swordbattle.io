@@ -170,7 +170,6 @@ class Player extends BaseEntity {
       angel: '#acfffc',
       "cool guy 53": '#0055ff',
       "update testing account": '#00ff00',
-      amethystbladeyt: '#7802ab',
       oy: '#000000',
       bobz: '#000000',
     };
@@ -461,6 +460,10 @@ class Player extends BaseEntity {
 
       if (data.flags[FlagTypes.ShockwaveHit]) {
         this.addShockwaveParticles();
+      }
+
+      if (data.flags[FlagTypes.TutorialHitBlocked] && this.isMe) {
+        this.game.hud.showAnnouncement('Complete the tutorial to fight other players!', '#ff4444', 2000, 0.5, true);
       }
     }
   }

@@ -84,7 +84,7 @@ class Chest extends Entity {
 
       let chestCoins = this.coins;
       if (sword.player.cards && sword.player.cards.hasMajor(121)) {
-        chestCoins = Math.round(chestCoins * 0.75);
+        chestCoins = Math.round(chestCoins * 0.70);
       }
       // Chest Keys card (120)
       if (sword.player.cards && sword.player.cards.hasMajor(120)) {

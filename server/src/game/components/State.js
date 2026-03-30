@@ -5,6 +5,8 @@ function hasOwnProperties(obj) {
   return false;
 }
 
+const empty = Object.freeze({});
+
 class State {
   constructor(createFields) {
     this.createFields = createFields;
@@ -36,31 +38,37 @@ class State {
       return this.changed;
     }
 
+    const isRoot = fields === this.fields;
+    const prev = previousFields || empty;
     let changed = false;
+
     for (const key in fields) {
-      if (Array.isArray(fields[key])) {
-        if (!previousFields[key] || fields[key].length !== previousFields[key].length) {
+      const val = fields[key];
+      const prevVal = prev[key];
+
+      if (val === prevVal) continue;
+
+      if (Array.isArray(val)) {
+        if (!prevVal || val.length !== prevVal.length) {
           changed = true;
-        } else {
-          for (let i = 0; i < fields[key].length; i++) {
-            if (fields[key][i] !== previousFields[key][i]) {
-              changed = true;
-            }
+          break;
+        }
+        for (let i = 0; i < val.length; i++) {
+          if (val[i] !== prevVal[i]) {
+            changed = true;
+            break;
           }
         }
-      } else if (typeof fields[key] === 'object') {
-        // If previous fields is undefined, set it to object
-        // to prevent previousFields === this.previousFields.
-        changed = this.hasChanged(fields[key], previousFields[key] || {});
-      } else if (fields[key] !== previousFields[key]) {
+        if (changed) break;
+      } else if (typeof val === 'object' && val !== null) {
+        changed = this.hasChanged(val, prevVal || empty);
+        if (changed) break;
+      } else {
         changed = true;
-      }
-
-      if (changed) {
         break;
       }
     }
-    if (fields === this.fields) {
+    if (isRoot) {
       this.changed = changed;
     }
     return changed;
@@ -71,23 +79,36 @@ class State {
       return this.changes;
     }
 
+    const isRoot = fields === this.fields;
+    const prev = previousFields || empty;
     const changes = {};
+
     for (const key in fields) {
-      if (Array.isArray(fields[key])) {
-        const subChanged = this.getChanges(fields[key], previousFields[key] || []);
-        if (hasOwnProperties(subChanged)) {
-          changes[key] = fields[key];
+      const val = fields[key];
+      const prevVal = prev[key];
+
+      if (val === prevVal) continue;
+
+      if (Array.isArray(val)) {
+        if (!prevVal || val.length !== prevVal.length) {
+          changes[key] = val;
+        } else {
+          let arrChanged = false;
+          for (let i = 0; i < val.length; i++) {
+            if (val[i] !== prevVal[i]) { arrChanged = true; break; }
+          }
+          if (arrChanged) changes[key] = val;
         }
-      } else if (typeof fields[key] === 'object') {
-        const subChanges = this.getChanges(fields[key], previousFields[key] || {});
+      } else if (typeof val === 'object' && val !== null) {
+        const subChanges = this.getChanges(val, prevVal || empty);
         if (hasOwnProperties(subChanges)) {
           changes[key] = subChanges;
         }
-      } else if (fields[key] !== previousFields[key]) {
-        changes[key] = fields[key];
+      } else {
+        changes[key] = val;
       }
     }
-    if (fields === this.fields) {
+    if (isRoot) {
       this.changes = changes;
     }
     return changes;

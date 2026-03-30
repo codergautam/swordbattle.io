@@ -20,7 +20,7 @@ class CardSystem {
     this.instantSelect = false;
     this.availableUpgrades = 0;
 
-    this.rerollsAvailable = 1;
+    this.rerollsAvailable = 3;
     this.currentExcluded = [];
     this.hasRerolledThisPick = false;
 
@@ -259,6 +259,7 @@ class CardSystem {
 
     this.majorPicksSkipped++;
     this.cardPickNumber++;
+    this.rerollsAvailable++;
     this.finishPick();
   }
 
@@ -409,11 +410,10 @@ class CardSystem {
     p.health.regen.multiplier *= regenEff;
     if (regenMult !== 1) p.health.regenWait.multiplier *= (1 / regenEff);
     p.speed.multiplier *= 1 + (this.getMultiplier(9) - 1) * dimReturn;
-    const vm = this.getMultiplier(11);
-    if (vm !== 1) {
-      const effVm = 1 + (vm - 1) * dimReturn;
-      const zoomReduction = 1 / effVm;
-      p.viewport.zoom.multiplier *= Math.max(zoomReduction, 0.65);
+    const sm = this.getMultiplier(13);
+    if (sm !== 1) {
+      const effSm = 1 + (sm - 1) * dimReturn;
+      p.shape.setScale(Math.min(effSm, 1.20));
     }
 
     const now = Date.now();
@@ -512,16 +512,16 @@ class CardSystem {
     }
 
     if (this.hasMajor(119)) {
-      p.coinMultiplier *= 1.35;
-      p.damageReduction *= 1.25;
+      p.coinMultiplier *= 1.20;
+      p.damageReduction *= 1.30;
     }
 
     if (this.hasMajor(120)) {
-      p.chestDamageMultiplier *= 2.0;
+      p.chestDamageMultiplier *= 1.50;
     }
 
     if (this.hasMajor(123)) {
-      p.chestDamageMultiplier = 1.25;
+      p.chestDamageMultiplier *= 1.15;
     }
 
     if (this.hasMajor(124)) {
@@ -591,9 +591,9 @@ class CardSystem {
     if (this.hasMajor(125)) {
       const isMob = Types.Groups.Mobs.includes(entity.type);
       if (isMob) {
-        dmgMult *= 1.40;
+        dmgMult *= 1.25;
       } else if (entity.type === Types.Entity.Player) {
-        dmgMult *= 0.75;
+        dmgMult *= 0.70;
       }
     }
 
@@ -601,7 +601,7 @@ class CardSystem {
       const isBoss = [Types.Entity.Yeti, Types.Entity.Chimera, Types.Entity.Roku, Types.Entity.Ancient].includes(entity.type);
       const isMob = Types.Groups.Mobs.includes(entity.type);
       if (isBoss) {
-        dmgMult *= 1.25;
+        dmgMult *= 1.15;
       } else if (isMob && !isBoss) {
         dmgMult *= 0.20;
       }
@@ -650,7 +650,7 @@ class CardSystem {
     if (this.hasMajor(127) && attacker) {
       const isBoss = [Types.Entity.Yeti, Types.Entity.Chimera, Types.Entity.Roku, Types.Entity.Ancient].includes(attacker.type);
       if (isBoss) {
-        return 1.15;
+        return 1.20;
       }
     }
 

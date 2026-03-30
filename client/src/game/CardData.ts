@@ -24,7 +24,7 @@ export const MinorCardData: Record<number, MinorCardInfo> = {
   5:  { name: 'Defense Training', category: 'Defensive', color: 0xb050d0, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Max health',         icon: 'card_maxhealth' },
   7:  { name: 'Fast Heal',        category: 'Defensive', color: 0x40c8b8, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Regen power',        icon: 'card_regenrate' },
   9:  { name: 'Swiftness',        category: 'Utility',   color: 0x2850e0, values: [5, 4, 4, 3, 3, 3, 2],   max: 7, description: 'Move speed',         icon: 'card_movespeed' },
-  11: { name: 'Sniper Vision',    category: 'Utility',   color: 0xe0e0e0, values: [8, 6, 5, 4, 3],          max: 5, description: 'View distance',      icon: 'card_viewdistance' },
+  13: { name: 'Size Scale',       category: 'Utility',   color: 0xc8c070, values: [4, 3, 3, 2, 2, 2, 2],   max: 7, description: 'Player size',        icon: 'card_playersize' },
 };
 
 export const MajorCardData: Record<number, MajorCardInfo> = {
@@ -59,19 +59,19 @@ export const MajorCardData: Record<number, MajorCardInfo> = {
   118: { name: 'Disengage',           category: 'Fortification', color: 0xffd700, positiveText: 'After getting hit: +25% speed for 2s', negativeText: '-35% damage while speed boosted', icon: 'card_disengage' },
 
   // Prospector
-  119: { name: 'Midas Touch',         category: 'Prospector',    color: 0xffd700, positiveText: '+35% gold from all sources',       negativeText: '+25% damage taken',                icon: 'card_midastouch' },
-  120: { name: 'Chest Keys',          category: 'Prospector',    color: 0xffd700, positiveText: 'Deal double damage to chests',     negativeText: 'Chests drop half coins',           icon: 'card_chestkeys' },
-  121: { name: 'Scavenger',           category: 'Prospector',    color: 0xffd700, positiveText: 'Ground-spawned coins value 1 -> 50', negativeText: '-25% chest coins',              icon: 'card_scavenger' },
+  119: { name: 'Midas Touch',         category: 'Prospector',    color: 0xffd700, positiveText: '+20% gold from all sources',       negativeText: '+30% damage taken',                icon: 'card_midastouch' },
+  120: { name: 'Chest Keys',          category: 'Prospector',    color: 0xffd700, positiveText: '+50% chest damage',                negativeText: 'Chests drop half coins',           icon: 'card_chestkeys' },
+  121: { name: 'Scavenger',           category: 'Prospector',    color: 0xffd700, positiveText: 'Ground coins value 1 -> 25',       negativeText: '-30% chest coins',                 icon: 'card_scavenger' },
 
   // Pacifism
   122: { name: 'Ceasefire',           category: 'Pacifism',      color: 0xffd700, positiveText: 'Nearby players deal -25% damage',  negativeText: 'Affects your damage too',          icon: 'card_ceasefire' },
-  123: { name: 'PvE Master',          category: 'Pacifism',      color: 0xffd700, positiveText: '+25% chest damage',                negativeText: '-50% coins from player kills',     icon: 'card_pvemaster' },
+  123: { name: 'PvE Master',          category: 'Pacifism',      color: 0xffd700, positiveText: '+15% chest damage',                negativeText: '-50% coins from player kills',     icon: 'card_pvemaster' },
   124: { name: 'Tank Shell',          category: 'Pacifism',      color: 0xffd700, positiveText: '+25% damage reduction',            negativeText: '-50% knockback dealt',             icon: 'card_tankshell' },
 
   // Beast Slayer
-  125: { name: 'Hunting Instinct',    category: 'Beast Slayer',  color: 0xffd700, positiveText: '+40% damage vs mobs, +20% mob coins', negativeText: '-25% damage vs players',       icon: 'card_huntinginstinct' },
+  125: { name: 'Hunting Instinct',    category: 'Beast Slayer',  color: 0xffd700, positiveText: '+25% damage vs mobs, +10% mob coins', negativeText: '-30% damage vs players',       icon: 'card_huntinginstinct' },
   126: { name: 'Butcherer',           category: 'Beast Slayer',  color: 0xffd700, positiveText: 'Mobs don\'t get angry when hit',   negativeText: '-50% knockback vs mobs',           icon: 'card_butcherer' },
-  127: { name: 'Boss Hunter',         category: 'Beast Slayer',  color: 0xffd700, positiveText: '+25% boss damage',                 negativeText: '-80% damage vs mobs, bosses deal more damage', icon: 'card_bosshunter' },
+  127: { name: 'Boss Hunter',         category: 'Beast Slayer',  color: 0xffd700, positiveText: '+15% boss damage',                 negativeText: '-80% damage vs mobs, bosses deal +20% damage', icon: 'card_bosshunter' },
 
   // Endurance
   128: { name: 'Fortress',            category: 'Endurance',     color: 0xffd700, positiveText: '+1% defense per 100k gold (max 35%)', negativeText: '-20% player damage dealt',     icon: 'card_fortress' },

@@ -108,7 +108,7 @@ class TutorialOverlay extends HudComponent {
     const panelW = 460;
     const centerX = width / (2 * this.scale);
 
-    const targetY = (panelId === 3) ? 175 : 10;
+    const targetY = (panelId === 3) ? 180 : 10;
     if (this.panelContainer) {
       const currentY = this.panelContainer.y;
       this.panelContainer.x = centerX;
@@ -332,6 +332,13 @@ class TutorialOverlay extends HudComponent {
       if (possEvols && Object.keys(possEvols).length > 0) {
         this.panel = 3;
         this.showPanel(3);
+      }
+    }
+
+    if (this.panel === 3) {
+      const evolution = player.evolution;
+      if (evolution && evolution !== 0) {
+        this.advancePanel();
       }
     }
   }

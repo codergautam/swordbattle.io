@@ -65,30 +65,39 @@ export default class MobileControls extends HudComponent {
   setScale(scale: number): void {
     this.scale = scale;
 
-    const joystick = this.game.controls.joystick;
-    joystick?.thumb?.setScale(this.scale);
-    joystick?.base?.setScale(this.scale);
+    if (this.game.isMobile) {
+      const joystick = this.game.controls.joystick;
+      joystick?.thumb?.setScale(this.scale);
+      joystick?.base?.setScale(this.scale);
 
-    const targetPx = 100 * scale;
-    
-    if (this.chatButton) {
-      this.chatButton.setScale(targetPx / this.chatButton.texture.getSourceImage().width);
-    }
-    if (this.abilityButton) {
-      this.abilityButtonContainer.setScale(targetPx / this.abilityButton.texture.getSourceImage().width);
-    }
-    if (this.swordThrowButton) {
-      this.swordThrowButton.setScale(targetPx / this.swordThrowButton.texture.getSourceImage().width);
+      const targetPx = 100 * scale;
+      if (this.chatButton) {
+        this.chatButton.setScale(targetPx / this.chatButton.texture.getSourceImage().width);
+      }
+      if (this.abilityButton) {
+        this.abilityButtonContainer.setScale(targetPx / this.abilityButton.texture.getSourceImage().width);
+      }
+      if (this.swordThrowButton) {
+        this.swordThrowButton.setScale(targetPx / this.swordThrowButton.texture.getSourceImage().width);
+      }
+    } else {
+      this.abilityButtonContainer?.setScale(scale);
     }
 
     this.resize();
   }
 
   resize() {
-    const joystick = this.game.controls.joystick;
     const w = this.game.scale.width;
     const h = this.game.scale.height;
     const s = this.scale;
+
+    if (!this.game.isMobile) {
+      this.abilityButtonContainer?.setPosition(175 * s, h * 0.825);
+      return;
+    }
+
+    const joystick = this.game.controls.joystick;
     const isPortrait = h > w;
 
     joystick?.setPosition(150 * s, h / 1.5);
@@ -98,7 +107,6 @@ export default class MobileControls extends HudComponent {
 
     if (isPortrait) {
       const btnY = h - 160 * s;
-      
       this.chatButton?.setPosition(startX, btnY);
       this.abilityButtonContainer?.setPosition(startX + spacing, btnY);
       this.swordThrowButton?.setPosition(startX + spacing * 2, btnY);

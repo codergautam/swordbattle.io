@@ -430,62 +430,66 @@ span {
   cursor: pointer;
 }
 
+.bottom-left-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  padding: 8px;
+  gap: 0;
+}
+
 #settingsButton,
 #githubButton,
 #discordButton,
 #playlightButton,
-#tutorialButton {
-  position: absolute;
+#tutorialButton,
+#fullscreenButton {
   cursor: pointer;
   line-height: 20px;
-  bottom: 12px;
   transition: transform cubic-bezier(0.77, 0, 0.175, 1) 0.1s;
-  height: auto;
-}
 
-#settingsButton:hover,
-#githubButton:hover,
-#discordButton:hover,
-#playlightButton:hover
-#tutorialButton:hover {
-  transform: scale(1.05);
-}
+  &:hover {
+    transform: scale(1.05);
+  }
 
-#settingsButton:active,
-#githubButton:active,
-#discordButton:active,
-#playlightButton:active
-#tutorialButton:active {
-  transform: scale(0.95);
-}
-
-#settingsButton {
-  left: 12px;
-}
-
-#githubButton {
-  left: 87px;
-}
-
-#discordButton {
-  left: 162px;
-}
-
-#playlightButton {
-  font-size: 17px;
-  text-align: center;
-  color: #fff;
-  left: 312px;
-  height: 60px;
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
 #tutorialButton {
   font-size: 20px;
   text-align: center;
-  color: #fff;
-  left: 237px;
   height: 60px;
   width: 60px;
+  background-color: rgb(44, 40, 16) !important;
+
+  &::after {
+    box-shadow: 0 0 0 3px rgba(60, 55, 20, 0.98) !important;
+  }
+
+  .ui-icon {
+    color: #f5d442;
+  }
+}
+
+#fullscreenButton {
+  font-size: 20px;
+  text-align: center;
+  height: 60px;
+  width: 60px;
+}
+
+#playlightButton {
+  font-size: 17px;
+  text-align: center;
+  height: 60px;
+  background-color: rgb(16, 36, 40) !important;
+  color: #4de8f5 !important;
+
+  &::after {
+    box-shadow: 0 0 0 3px rgba(20, 48, 54, 0.98) !important;
+  }
 }
 
 .fullWidth {
@@ -655,7 +659,7 @@ span {
   pointer-events: none;
   top: -50%;
   left: 50%;
-  transform: translate(-50%, -120%);
+  transform: translate(-50%, -130%);
 }
 
 // Special handling for small desktop iframes (like CrazyGames)
@@ -675,13 +679,21 @@ span {
   }
 
   .tipCard {
+    font-size: 11px;
+    padding: 5px;
+    margin-top: 3px;
+  }
+}
+
+@media only screen and (max-height: 480px) {
+  #menuCardHolder.small-iframe .tipCard {
     display: none !important;
   }
 }
 
 // Scale down title image for small iframes
 body:has(#menuCardHolder.small-iframe) .title-img {
-  transform: translate(-50%, -100%) scale(var(--menu-scale, 0.75)) !important;
+  transform: translate(-50%, -110%) scale(var(--menu-scale, 0.75)) !important;
 }
 
 @media only screen and (min-width: 800px) and (max-width: 1300px) and (min-height: 450px) and (max-height: 750px) {
@@ -701,25 +713,6 @@ body:has(#menuCardHolder.small-iframe) .title-img {
     transform: translate(-50%, -90%) scale(0.65) !important;
   }
 
-  #settingsButton,
-  #githubButton,
-  #discordButton,
-  #playlightButton,
-  #tutorialButton {
-    bottom: 6px;
-    transform: scale(0.75);
-    transform-origin: bottom left;
-  }
-
-  footer {
-    height: 40px;
-    bottom: 4px;
-    gap: 15px;
-
-    a {
-      font-size: 22px;
-    }
-  }
 }
 
 @media only screen and (max-width: 1040px) {
@@ -747,42 +740,10 @@ body:has(#menuCardHolder.small-iframe) .title-img {
   #menuCardHolder:not(.small-iframe) .menu .joinCard {
     order: -1;
   }
-  .tipCard {
+  #menuCardHolder:not(.small-iframe) .tipCard {
     display: none !important;
   }
 }
-// Scale down bottom buttons for small height viewports
-@media only screen and (max-height: 520px) {
-  #settingsButton,
-  #githubButton,
-  #discordButton,
-  #playlightButton,
-  #tutorialButton {
-    bottom: 4px;
-    transform: scale(0.6);
-    transform-origin: bottom left;
-  }
-
-  footer {
-    height: 30px;
-    bottom: 2px;
-    gap: 10px;
-
-    a {
-      font-size: 18px;
-    }
-  }
-
-  .game-buttons .game-btn img {
-    height: 80px;
-    width: auto;
-  }
-
-  .auth-buttons .auth-btn {
-    height: 80px;
-  }
-}
-
 @media only screen and (max-width: 768px) {
   #loadingText {
     margin-top: 20px;

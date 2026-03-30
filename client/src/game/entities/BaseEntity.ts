@@ -126,17 +126,9 @@ export class BaseEntity {
     if (this.healthBar) this.healthBar.hidden = !show;
     if (this.hidden !== show) {
       const targetAlpha = show ? 1 : 0;
-      if (this.justSpawned) {
-        if (this.container) this.container.alpha = targetAlpha;
-        if (this.healthBar?.bar) this.healthBar.bar.alpha = targetAlpha;
-        if (this.healthBar?.cooldownBar) this.healthBar.cooldownBar.alpha = targetAlpha;
-      } else {
-        this.game.tweens.add({
-          targets: [this.container, this.healthBar?.bar, this.healthBar?.cooldownBar].filter(Boolean),
-          alpha: targetAlpha,
-          duration: 50,
-        });
-      }
+      if (this.container) this.container.alpha = targetAlpha;
+      if (this.healthBar?.bar) this.healthBar.bar.alpha = targetAlpha;
+      if (this.healthBar?.cooldownBar) this.healthBar.cooldownBar.alpha = targetAlpha;
       this.hidden = show;
     }
 

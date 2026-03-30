@@ -103,7 +103,6 @@ class CardSelect extends HudComponent {
       this.cardIdMap.set(cardId, cardContainer);
     }
 
-    this.actionButtonUsed = false;
     const player = this.game.gameState.self.entity;
     const isTutorial = player && (player as any).isTutorial;
     if (!isTutorial) {
@@ -313,7 +312,7 @@ class CardSelect extends HudComponent {
       this.actionButton = null;
     }
 
-    const disabled = !isMajor && rerollsAvailable <= 0;
+    const disabled = !isMajor && (rerollsAvailable <= 0 || this.actionButtonUsed);
 
     const { width, height } = this.game.scale;
     const btnW = 200;
@@ -331,7 +330,7 @@ class CardSelect extends HudComponent {
     bg.strokeRoundedRect(-btnW / 2, -btnH / 2, btnW, btnH, 8);
     elements.push(bg);
 
-    const label = isMajor ? 'Skip (3 random cards)' : `Reroll (${rerollsAvailable})`;
+    const label = isMajor ? 'Skip (3 random cards)' : (this.actionButtonUsed ? 'Reroll Used' : `Reroll (${rerollsAvailable})`);
     const btnTextColor = disabled ? '#555555' : (isMajor ? '#d4a017' : '#4488ff');
     const text = scene.add.text(0, 0, label, {
       fontSize: '15px',
@@ -357,11 +356,19 @@ class CardSelect extends HudComponent {
       hitZone.on('pointerdown', () => {
         if (this.actionButtonUsed) return;
         this.actionButtonUsed = true;
-        btnContainer.setAlpha(0.4);
         if (isMajor) {
+          btnContainer.setAlpha(0.4);
           this.game.gameState.skipMajorCard = true;
         } else {
           this.game.gameState.rerollCard = true;
+          bg.clear();
+          bg.fillStyle(0x555555, 0.08);
+          bg.fillRoundedRect(-btnW / 2, -btnH / 2, btnW, btnH, 8);
+          bg.lineStyle(2, 0x555555, 0.3);
+          bg.strokeRoundedRect(-btnW / 2, -btnH / 2, btnW, btnH, 8);
+          text.setText('Reroll Used');
+          text.setColor('#555555');
+          hitZone.disableInteractive();
         }
       });
     }
@@ -457,6 +464,10 @@ class CardSelect extends HudComponent {
     const cardOffers: number[] = (player as any).cardOffers || [];
     const chosenCards: number[] = (player as any).chosenCards || [];
     const cardTimer: number = (player as any).cardTimer || 0;
+
+    if (choosingCard && !this.wasChoosing) {
+      this.actionButtonUsed = false;
+    }
 
     if (choosingCard && cardOffers.length > 0) {
       const offersKey = cardOffers.join(',');

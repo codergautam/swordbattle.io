@@ -5,7 +5,7 @@ const MinorCards = {
   5:  { id: 5,  name: 'Defense Training', category: 'defensive', values: [0.08, 0.07, 0.06, 0.05, 0.05, 0.04, 0.04], max: 7, stat: 'maxHp' },
   7:  { id: 7,  name: 'Fast Heal',        category: 'defensive', values: [0.08, 0.07, 0.06, 0.05, 0.05, 0.04, 0.04], max: 7, stat: 'regenPower' },
   9:  { id: 9,  name: 'Swiftness',        category: 'utility',   values: [0.05, 0.04, 0.04, 0.03, 0.03, 0.03, 0.02], max: 7, stat: 'speed' },
-  11: { id: 11, name: 'Sniper Vision',    category: 'utility',   values: [0.08, 0.06, 0.05, 0.04, 0.03],              max: 5, stat: 'vision', inverse: true },
+  13: { id: 13, name: 'Size Scale',       category: 'utility',   values: [0.04, 0.03, 0.03, 0.02, 0.02, 0.02, 0.02], max: 7, stat: 'size' },
 };
 
 const MajorCards = {
@@ -40,19 +40,19 @@ const MajorCards = {
   118: { id: 118, name: 'Disengage',            category: 'fortification', positiveText: 'After getting hit: +25% speed for 2s',      negativeText: '-35% damage while speed boosted',  stubEffect: { stat: 'speed', value: 0.10 } },
 
   // Prospector
-  119: { id: 119, name: 'Midas Touch',          category: 'prospector',    positiveText: '+35% gold from all sources',        negativeText: '+25% damage taken',                stubEffect: { stat: 'coinMagnet', value: 0.10 } },
-  120: { id: 120, name: 'Chest Keys',           category: 'prospector',    positiveText: 'Deal double damage to chests',      negativeText: 'Chests drop half coins',           stubEffect: { stat: 'coinMagnet', value: 0.10 } },
-  121: { id: 121, name: 'Scavenger',            category: 'prospector',    positiveText: 'Ground-spawned coins value 1 -> 50',             negativeText: '-25% chest coins',                 stubEffect: { stat: 'coinMagnet', value: 0.10 } },
+  119: { id: 119, name: 'Midas Touch',          category: 'prospector',    positiveText: '+20% gold from all sources',        negativeText: '+30% damage taken',                stubEffect: { stat: 'coinMagnet', value: 0.10 } },
+  120: { id: 120, name: 'Chest Keys',           category: 'prospector',    positiveText: '+50% chest damage',                 negativeText: 'Chests drop half coins',           stubEffect: { stat: 'coinMagnet', value: 0.10 } },
+  121: { id: 121, name: 'Scavenger',            category: 'prospector',    positiveText: 'Ground coins value 1 -> 25',        negativeText: '-30% chest coins',                 stubEffect: { stat: 'coinMagnet', value: 0.10 } },
 
   // Pacifism
   122: { id: 122, name: 'Ceasefire',            category: 'pacifism',      positiveText: 'Nearby players deal -25% damage',  negativeText: 'Affects your damage too',          stubEffect: { stat: 'maxHp', value: 0.10 } },
-  123: { id: 123, name: 'PvE Master',           category: 'pacifism',      positiveText: '+25% chest damage',                 negativeText: '-50% coins from player kills',     stubEffect: { stat: 'damage', value: 0.10 } },
+  123: { id: 123, name: 'PvE Master',           category: 'pacifism',      positiveText: '+15% chest damage',                 negativeText: '-50% coins from player kills',     stubEffect: { stat: 'damage', value: 0.10 } },
   124: { id: 124, name: 'Tank Shell',           category: 'pacifism',      positiveText: '+25% damage reduction',             negativeText: '-50% knockback dealt',             stubEffect: { stat: 'maxHp', value: 0.10 } },
 
   // Beast Slayer
-  125: { id: 125, name: 'Hunting Instinct',     category: 'beastSlayer',   positiveText: '+40% damage vs mobs, +20% mob coins',      negativeText: '-25% damage vs players',           stubEffect: { stat: 'damage', value: 0.10 } },
+  125: { id: 125, name: 'Hunting Instinct',     category: 'beastSlayer',   positiveText: '+25% damage vs mobs, +10% mob coins',      negativeText: '-30% damage vs players',           stubEffect: { stat: 'damage', value: 0.10 } },
   126: { id: 126, name: 'Butcherer',            category: 'beastSlayer',   positiveText: 'Mobs don\'t get angry when hit',          negativeText: '-50% knockback vs mobs',           stubEffect: { stat: 'damage', value: 0.10 } },
-  127: { id: 127, name: 'Boss Hunter',          category: 'beastSlayer',   positiveText: '+25% boss damage',                  negativeText: '-80% damage vs mobs, bosses deal more damage', stubEffect: { stat: 'damage', value: 0.10 } },
+  127: { id: 127, name: 'Boss Hunter',          category: 'beastSlayer',   positiveText: '+15% boss damage',                  negativeText: '-80% damage vs mobs, bosses deal +20% damage', stubEffect: { stat: 'damage', value: 0.10 } },
 
   // Endurance
   128: { id: 128, name: 'Fortress',             category: 'endurance',     positiveText: '+1% defense per 100k gold (max 35%)',    negativeText: '-20% player damage dealt',         stubEffect: { stat: 'maxHp', value: 0.10 } },

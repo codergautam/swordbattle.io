@@ -66,7 +66,7 @@ class Coin extends Entity {
     }
     let coinVal = this.value;
     if (player.cards && player.cards.hasMajor(121) && this.respawnable) {
-      coinVal = 50;
+      coinVal = 25;
     }
 
     if (player.name === "Update Testing Account") {

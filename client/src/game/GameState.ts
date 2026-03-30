@@ -467,6 +467,7 @@ class GameState {
 
   onTabReturn() {
     this._returningFromHidden = true;
+    this.tickAccumulator = 0;
   }
 
   updateGraphics(dt: number) {
@@ -476,13 +477,40 @@ class GameState {
         this.processServerMessage(this._pendingMessage);
         this._pendingMessage = null;
       }
+      for (const id in this.entities) {
+        const entity = this.entities[id];
+        if (entity.container && entity.shape) {
+          entity.container.x = entity.shape.x;
+          entity.container.y = entity.shape.y;
+        }
+      }
     }
+
+    const camera = this.game.cameras?.main;
+    const pad = 200;
+    const hasCamera = camera && camera.worldView;
+    const cullLeft = hasCamera ? camera.worldView.x - pad : -Infinity;
+    const cullRight = hasCamera ? camera.worldView.right + pad : Infinity;
+    const cullTop = hasCamera ? camera.worldView.y - pad : -Infinity;
+    const cullBottom = hasCamera ? camera.worldView.bottom + pad : Infinity;
 
     for (const entity of this.removedEntities) {
       entity.update(dt);
     }
     for (const id in this.entities) {
-      this.entities[id].update(dt);
+      const entity = this.entities[id];
+      if (hasCamera && entity.shape) {
+        const ex = entity.shape.x;
+        const ey = entity.shape.y;
+        if (ex < cullLeft || ex > cullRight || ey < cullTop || ey > cullBottom) {
+          if (entity.container) {
+            entity.container.x = ex;
+            entity.container.y = ey;
+          }
+          continue;
+        }
+      }
+      entity.update(dt);
     }
     for (const id in this.globalEntities) {
       this.globalEntities[id].update(dt);

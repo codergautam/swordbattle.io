@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSignOut, faICursor, faGear, faX, faQuestion } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOut, faICursor, faGear, faX, faQuestion, faExpand, faCompress } from '@fortawesome/free-solid-svg-icons';
 
 import clsx from 'clsx';
 import { useScale } from './Scale';
@@ -40,6 +40,7 @@ import { Settings } from '../game/Settings';
 import { getServerList, updatePing } from '../ServerList';
 import AccountCard from './AccountCard';
 import ChangelogCard from './ChangelogCard';
+import LeaderboardCard from './LeaderboardCard';
 // import Game from '../game/scenes/Game';
 import titleImg from '../assets/img/final.png';
 import Leaderboard from './game/Leaderboard';
@@ -83,6 +84,7 @@ function App() {
   const [showMenuTutorial, setShowMenuTutorial] = useState(false);
   const [isFirstVisit] = useState(() => !localStorage.getItem('swordbattle:hasVisited'));
   const [instantStart, setInstantStart] = useState<boolean>((window as any).instantStart || false);
+  const [isFullscreen, setIsFullscreen] = useState(!!document.fullscreenElement);
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
@@ -168,12 +170,18 @@ function App() {
     ? Math.min(scale.factor, dimensions.height / 650)
     : scale.factor;
 
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  };
+
   const bottomLeftContainerStyle: React.CSSProperties = {
     position: 'fixed',
     left: 0,
     bottom: 0,
-    transform: `scale(${isSmallIframe ? gameButtonsScale : scale.factor})`,
-    transformOrigin: 'bottom left',
     pointerEvents: 'none',
   };
 
@@ -195,9 +203,14 @@ function App() {
       timeout = setTimeout(updateSize, 100);
     };
     window.addEventListener('resize', onResize);
+
+    const onFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+
     return () => {
       window.removeEventListener('resize', onResize);
       window.removeEventListener('load', updateSize);
+      document.removeEventListener('fullscreenchange', onFullscreenChange);
     };
   }, []);
 
@@ -1102,11 +1115,21 @@ function App() {
     left: '50%',
     transform: 'translate(-50%, -25%)' }} >
               <div className="menu">
-                {!(crazygamesSDK.shouldUseSDK() && !account.isLoggedIn) && (
-                <div className="accountCard menuCard panel">
-                  <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} onViewProfile={openProfile} />
-                </div>
-                )}
+                {(() => {
+                  const showLeaderboardCard = true;
+                  if (showLeaderboardCard) {
+                    return (
+                      <div className="accountCard menuCard panel">
+                        <LeaderboardCard onViewLeaderboard={openLeaderboard} />
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="accountCard menuCard panel">
+                      <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} onViewProfile={openProfile} />
+                    </div>
+                  );
+                })()}
 
                 {/* <div className="announcementCard menuCard panel">
                     {account?.username === "Update Testing Account" ? (
@@ -1197,11 +1220,8 @@ function App() {
 
           {/* <!-- BUTTONS --> */}
           <div style={bottomLeftContainerStyle} className="bottom-left-buttons">
-          <div id="settingsButton" className="altLink panel" style={{ pointerEvents: 'auto' }} onClick={openSettings}>
+          <div id="settingsButton" className="altLink imgPanel" style={{ pointerEvents: 'auto' }} onClick={openSettings}>
             <FontAwesomeIcon icon={faGear} className='ui-icon'/>
-          </div>
-          <div id="tutorialButton" className="altLink panel" style={{ pointerEvents: 'auto' }} onClick={openTutorial}>
-            <FontAwesomeIcon icon={faQuestion} className='ui-icon'/>
           </div>
           <a id="githubButton" className="altLink imgPanel" href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
             <img src={GithubLogo} width={60} alt="GitHub" />
@@ -1209,6 +1229,12 @@ function App() {
           <a id="discordButton" className="altLink imgPanel" href="https://discord.com/invite/9A9dNTGWb9" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
             <img src={DiscordLogo} width={60} alt="Discord" />
           </a>
+          <div id="tutorialButton" className="imgPanel" style={{ pointerEvents: 'auto' }} onClick={openTutorial}>
+            <FontAwesomeIcon icon={faQuestion} className='ui-icon'/>
+          </div>
+          <div id="fullscreenButton" className="imgPanel" style={{ pointerEvents: 'auto' }} onClick={toggleFullscreen}>
+            <FontAwesomeIcon icon={isFullscreen ? faCompress : faExpand} className='ui-icon'/>
+          </div>
           {!crazygamesSDK.shouldUseSDK() && (
             <div id="playlightButton" className="imgPanel" style={{ pointerEvents: 'auto' }} onClick={() => {
                 try {

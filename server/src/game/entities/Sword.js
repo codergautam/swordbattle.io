@@ -23,6 +23,8 @@ class Sword extends Entity {
     this.boomerangReturning = false;
     this.boomerangReturnTime = 0;
     this.boomerangOrigAngle = 0;
+    this.boomerangOriginX = 0;
+    this.boomerangOriginY = 0;
 
     // Twin Throw (104)
     this.twinThrowProj = null;
@@ -95,8 +97,7 @@ class Sword extends Entity {
   }
 
   stopFly() {
-    // Boomerang (105)
-    if (this.player.cards && this.player.cards.hasMajor(105) && !this.boomerangReturning) {
+    if (this.player.cards && this.player.cards.hasMajor(105) && !this.boomerangReturning && !this.player.modifiers.pullback) {
       this.boomerangReturning = true;
       this.boomerangReturnTime = 0;
       this.collidedEntities.clear();
@@ -152,8 +153,8 @@ class Sword extends Entity {
       player.speed.multiplier *= this.playerSpeedBoost.value;
 
       if (this.boomerangReturning) {
-        const dx = player.shape.x - this.shape.x;
-        const dy = player.shape.y - this.shape.y;
+        const dx = this.boomerangOriginX - this.shape.x;
+        const dy = this.boomerangOriginY - this.shape.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const returnAngle = Math.atan2(dy, dx);
         const speed = this.flySpeed.value * 1.1;
@@ -301,6 +302,8 @@ class Sword extends Entity {
         this.boomerangReturning = false;
         this.boomerangReturnTime = 0;
         this.boomerangOrigAngle = this.player.angle;
+        this.boomerangOriginX = this.player.shape.x;
+        this.boomerangOriginY = this.player.shape.y;
         if (this.player.modifiers.ramAbility) {
           this.flyCooldownTime = this.flyCooldown.value / 5;
         } else if (this.player.modifiers.ramThrow) {

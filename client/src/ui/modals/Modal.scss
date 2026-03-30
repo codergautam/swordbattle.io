@@ -51,15 +51,28 @@
 
 @media screen and (max-width: 768px) {
   .modal.modal-fullscreen {
-    padding: 4px;
+    padding: 8px;
     min-width: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    > :first-child {
+      margin: 0;
+    }
   }
 }
 
-// Small desktop viewports (non-fullscreen windows, iframes)
 @media screen and (max-height: 750px) and (min-width: 769px) {
   .modal.modal-fullscreen {
-    padding: 4px;
+    padding: 8px;
     min-width: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    > :first-child {
+      margin: 0;
+    }
   }
 }

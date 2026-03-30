@@ -161,6 +161,7 @@ class Player extends Entity {
     state.cardPickNumber = this.cards.cardPickNumber;
     state.availableUpgrades = this.cards.availableUpgrades;
     state.rerollsAvailable = this.cards.rerollsAvailable;
+    state.pendingPicks = this.cards.pendingPicks;
     state.skipResults = this.cards.lastSkipResults.length > 0 ? [...this.cards.lastSkipResults] : [];
     state.isTutorial = this.cards.isTutorial;
 

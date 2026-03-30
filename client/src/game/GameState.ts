@@ -46,6 +46,7 @@ class GameState {
   selectedCard: number | null = null;
   majorOfferPositions: Record<number, number> = {};
   openCardSelect: boolean = false;
+  closeCardSelect: boolean = false;
   rerollCard: boolean = false;
   skipMajorCard: boolean = false;
   tutorialComplete: boolean = false;
@@ -468,6 +469,7 @@ class GameState {
 
   onTabReturn() {
     this._returningFromHidden = true;
+    this.tickAccumulator = 0;
   }
 
   updateGraphics(dt: number) {
@@ -476,6 +478,13 @@ class GameState {
       if (this._pendingMessage) {
         this.processServerMessage(this._pendingMessage);
         this._pendingMessage = null;
+      }
+      for (const id in this.entities) {
+        const entity = this.entities[id];
+        if (entity.container && entity.shape) {
+          entity.container.x = entity.shape.x;
+          entity.container.y = entity.shape.y;
+        }
       }
     }
 
@@ -536,6 +545,10 @@ class GameState {
     if (this.openCardSelect) {
       data.openCardSelect = true;
       this.openCardSelect = false;
+    }
+    if (this.closeCardSelect) {
+      data.closeCardSelect = true;
+      this.closeCardSelect = false;
     }
     if (this.rerollCard) {
       data.rerollCard = true;

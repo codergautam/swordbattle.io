@@ -30,6 +30,8 @@ class CardSelect extends HudComponent {
   isMajorPick = false;
   actionButton: Phaser.GameObjects.Container | null = null;
   actionButtonUsed = false;
+  closeButton: Phaser.GameObjects.Container | null = null;
+  remainingText: Phaser.GameObjects.Text | null = null;
 
   initialize() {
     if (!this.hud.scene) return;
@@ -52,7 +54,14 @@ class CardSelect extends HudComponent {
       color: textColor,
     }).setOrigin(0.5).setDepth(101);
 
-    this.container = scene.add.container(0, 0, [this.backdrop, this.headerText, this.timerText]);
+    this.remainingText = scene.add.text(0, 0, '', {
+      fontSize: '16px',
+      fontFamily: 'Ubuntu, sans-serif',
+      fontStyle: 'bold',
+      color: '#888888',
+    }).setOrigin(0.5).setDepth(101);
+
+    this.container = scene.add.container(0, 0, [this.backdrop, this.headerText, this.timerText, this.remainingText]);
     this.container.setDepth(100);
     this.container.setAlpha(0);
     this.container.setVisible(false);
@@ -73,6 +82,10 @@ class CardSelect extends HudComponent {
 
     this.headerText.setPosition(width / (2 * this.scale), height * 0.15 / this.scale);
     this.timerText.setPosition(width / (2 * this.scale), height * 0.22 / this.scale);
+
+    if (this.remainingText) {
+      this.remainingText.setPosition(width / (2 * this.scale), height * 0.27 / this.scale);
+    }
 
     const player = this.game.gameState.self.entity;
     const isTutorial = player && (player as any).isTutorial;
@@ -108,6 +121,8 @@ class CardSelect extends HudComponent {
     if (!isTutorial) {
       const rerolls: number = player ? (player as any).rerollsAvailable || 0 : 0;
       this.createActionButton(scene, hasMajor, rerolls);
+      const cardsRightEdge = startX + totalWidth;
+      this.createCloseButton(scene, cardsRightEdge);
     }
   }
 
@@ -377,6 +392,64 @@ class CardSelect extends HudComponent {
     (this.container as Phaser.GameObjects.Container).add(btnContainer);
   }
 
+  createCloseButton(scene: Phaser.Scene, cardsRightEdge: number) {
+    if (this.closeButton) {
+      this.closeButton.destroy();
+      this.closeButton = null;
+    }
+
+    const { height } = this.game.scale;
+    const radius = 18;
+    const btnX = cardsRightEdge + radius + 10;
+    const btnY = height * 0.15 / this.scale;
+
+    const elements: Phaser.GameObjects.GameObject[] = [];
+
+    const bg = scene.add.graphics();
+    bg.fillStyle(0x222222, 0.9);
+    bg.fillCircle(0, 0, radius);
+    bg.lineStyle(2, 0x555555, 1);
+    bg.strokeCircle(0, 0, radius);
+    elements.push(bg);
+
+    const xText = scene.add.text(0, 0, '\u2715', {
+      fontSize: '20px',
+      fontFamily: 'Ubuntu, sans-serif',
+      fontStyle: 'bold',
+      color: '#aaaaaa',
+    }).setOrigin(0.5);
+    elements.push(xText);
+
+    const btnContainer = scene.add.container(btnX, btnY, elements);
+
+    const hitZone = scene.add.zone(0, 0, radius * 2 + 8, radius * 2 + 8).setInteractive({ useHandCursor: true });
+    btnContainer.add(hitZone);
+
+    hitZone.on('pointerover', () => {
+      bg.clear();
+      bg.fillStyle(0x333333, 0.9);
+      bg.fillCircle(0, 0, radius);
+      bg.lineStyle(2, 0xaa3333, 1);
+      bg.strokeCircle(0, 0, radius);
+      xText.setColor('#ff4444');
+    });
+    hitZone.on('pointerout', () => {
+      bg.clear();
+      bg.fillStyle(0x222222, 0.9);
+      bg.fillCircle(0, 0, radius);
+      bg.lineStyle(2, 0x555555, 1);
+      bg.strokeCircle(0, 0, radius);
+      xText.setColor('#aaaaaa');
+    });
+    hitZone.on('pointerdown', () => {
+      this.game.gameState.closeCardSelect = true;
+      this.hide();
+    });
+
+    this.closeButton = btnContainer;
+    (this.container as Phaser.GameObjects.Container).add(btnContainer);
+  }
+
   clearCards() {
     for (const card of this.cardContainers) {
       card.destroy();
@@ -386,6 +459,10 @@ class CardSelect extends HudComponent {
     if (this.actionButton) {
       this.actionButton.destroy();
       this.actionButton = null;
+    }
+    if (this.closeButton) {
+      this.closeButton.destroy();
+      this.closeButton = null;
     }
   }
 
@@ -469,6 +546,8 @@ class CardSelect extends HudComponent {
       this.actionButtonUsed = false;
     }
 
+    const pendingPicks: number = (player as any).pendingPicks || 0;
+
     if (choosingCard && cardOffers.length > 0) {
       const offersKey = cardOffers.join(',');
       if (offersKey !== this.lastOffersKey) {
@@ -481,6 +560,15 @@ class CardSelect extends HudComponent {
         this.showCards(cardOffers, chosenCards);
         if (!this.isShowing) {
           this.show();
+        }
+      }
+
+      if (this.remainingText) {
+        if (pendingPicks > 1) {
+          this.remainingText.setText(`${pendingPicks - 1} more upgrade${pendingPicks - 1 > 1 ? 's' : ''} remaining`);
+          this.remainingText.setVisible(true);
+        } else {
+          this.remainingText.setVisible(false);
         }
       }
 

@@ -48,7 +48,7 @@ class State {
             }
           }
         }
-      } else if (typeof fields[key] === 'object') {
+      } else if (fields[key] !== null && typeof fields[key] === 'object') {
         // If previous fields is undefined, set it to object
         // to prevent previousFields === this.previousFields.
         changed = this.hasChanged(fields[key], previousFields[key] || {});
@@ -78,7 +78,7 @@ class State {
         if (hasOwnProperties(subChanged)) {
           changes[key] = fields[key];
         }
-      } else if (typeof fields[key] === 'object') {
+      } else if (fields[key] !== null && typeof fields[key] === 'object') {
         const subChanges = this.getChanges(fields[key], previousFields[key] || {});
         if (hasOwnProperties(subChanges)) {
           changes[key] = subChanges;

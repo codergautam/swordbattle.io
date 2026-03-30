@@ -332,6 +332,9 @@ class Game {
     if (data.openCardSelect) {
       player.cards.openCardSelect();
     }
+    if (data.closeCardSelect) {
+      player.cards.closeCardSelect();
+    }
     if (data.rerollCard) {
       player.cards.rerollOffers();
     }

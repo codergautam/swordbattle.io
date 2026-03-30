@@ -79,9 +79,22 @@ class CardSystem {
     if (this.availableUpgrades <= 0) return;
     if (this.choosingCard) return;
 
-    this.availableUpgrades--;
-    this.pendingPicks++;
+    this.pendingPicks += this.availableUpgrades;
+    this.availableUpgrades = 0;
     this.startCardPick();
+  }
+
+  closeCardSelect() {
+    if (!this.choosingCard && this.pendingPicks <= 0) return;
+
+    this.availableUpgrades += this.pendingPicks;
+    this.pendingPicks = 0;
+
+    if (this.choosingCard) {
+      this.choosingCard = false;
+      this.cardOffers = [];
+      this.cardTimer = 0;
+    }
   }
 
   _botAutoPickMinor() {
@@ -292,7 +305,7 @@ class CardSystem {
     this.cardTimer = 0;
     this.pendingPicks = Math.max(0, this.pendingPicks - 1);
     if (this.pendingPicks > 0) {
-      this._nextPickPending = true;
+      this.startCardPick();
     }
   }
 
@@ -313,12 +326,6 @@ class CardSystem {
       }
     }
 
-    if (this._nextPickPending && !this.choosingCard) {
-      this._nextPickPending = false;
-      if (this.pendingPicks > 0) {
-        this.startCardPick();
-      }
-    }
 
     const now = Date.now();
 

@@ -29,6 +29,7 @@ export interface ClientMessage {
   skipMajorCard?: boolean;
   tutorialComplete?: boolean;
   tutorialPanel?: number;
+  closeCardSelect?: boolean;
 }
 
 export function encodeClientMessage(message: ClientMessage): Uint8Array {
@@ -257,6 +258,13 @@ function _encodeClientMessage(message: ClientMessage, bb: ByteBuffer): void {
     writeVarint32(bb, 464);
     writeVarint64(bb, intToLong($tutorialPanel));
   }
+
+  // optional bool closeCardSelect = 59;
+  let $closeCardSelect = message.closeCardSelect;
+  if ($closeCardSelect !== undefined) {
+    writeVarint32(bb, 472);
+    writeByte(bb, $closeCardSelect ? 1 : 0);
+  }
 }
 
 export function decodeClientMessage(binary: Uint8Array): ClientMessage {
@@ -455,6 +463,12 @@ function _decodeClientMessage(bb: ByteBuffer): ClientMessage {
       // optional int32 tutorialPanel = 58;
       case 58: {
         message.tutorialPanel = readVarint32(bb);
+        break;
+      }
+
+      // optional bool closeCardSelect = 59;
+      case 59: {
+        message.closeCardSelect = !!readByte(bb);
         break;
       }
 

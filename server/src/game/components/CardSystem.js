@@ -1,6 +1,5 @@
-const { MinorCards, MajorCards, getCard, isMinorCard, isMajorCard, getAllMinorIds, getAllMajorIds, getMajorCardsByCategory } = require('./CardDefinitions');
+const { MinorCards, MajorCards, isMinorCard, isMajorCard, getAllMinorIds, getAllMajorIds, getMajorCardsByCategory } = require('./CardDefinitions');
 const Types = require('../Types');
-const api = require('../../network/api');
 
 const pickTimeout = 20;
 const tutorialPickTimeout = 45;
@@ -282,24 +281,6 @@ class CardSystem {
 
     if (this.player.flags) {
       this.player.flags.set(Types.Flags.SelectUpgrade, true);
-    }
-
-    try {
-      const card = getCard(cardId);
-      const accountId = this.player.client?.account?.id;
-      api.post('/analytics/upgrade-select', {
-        card_id: cardId,
-        card_name: card?.name || String(cardId),
-        is_major: isMajorCard(cardId),
-        card_pick_number: this.cardPickNumber,
-        evolution: this.player.evolutions?.evolution || 0,
-        coins: this.player.levels?.coins || 0,
-        level: this.player.levels?.level || 0,
-        minor_stacks: JSON.stringify(this.minorStacks),
-        major_cards: JSON.stringify(this.majorCards),
-        account_id: accountId || null,
-      });
-    } catch (e) {
     }
 
     this.finishPick();

@@ -9,7 +9,6 @@ import { GamesModule } from './games/games.module';
 import { StatsModule } from './stats/stats.module';
 import { CosmeticsModule } from './cosmetics/cosmetics.module';
 import { ModerationModule } from './moderation/moderation.module';
-import { AnalyticsModule } from './analytics/analytics.module';
 import { AuthService } from './auth/auth.service';
 
 @Module({
@@ -46,7 +45,6 @@ import { AuthService } from './auth/auth.service';
     StatsModule,
     CosmeticsModule,
     ModerationModule,
-    AnalyticsModule,
   ],
   providers: [
     AuthService,

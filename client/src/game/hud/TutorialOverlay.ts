@@ -1,5 +1,6 @@
 import HudComponent from './HudComponent';
 import { BiomeTypes } from '../Types';
+import { store } from '../../redux/store';
 
 class TutorialOverlay extends HudComponent {
   panel = -1;
@@ -299,6 +300,13 @@ class TutorialOverlay extends HudComponent {
       if (player && isReady && (player as any).following && (player as any).isTutorial) {
         let tutorialDone = false;
         try { tutorialDone = localStorage.getItem('swordbattle:tutorialComplete') === 'true'; } catch (e) {}
+        if (!tutorialDone) {
+          const accountState = store.getState().account;
+          if (accountState.isLoggedIn && !accountState.isCrazygames) {
+            tutorialDone = true;
+            try { localStorage.setItem('swordbattle:tutorialComplete', 'true'); } catch (e) {}
+          }
+        }
         if (!tutorialDone) {
           this.start();
         }

@@ -20,6 +20,11 @@ export class Controls {
   private _blurHandler: (() => void) | null = null;
   private _swingPointerId = -1;
 
+  // Queue of input changes not yet flushed — allows immediate dispatch
+  pendingInputChanges: Array<{inputType: InputTypes, inputDown: boolean}> = [];
+  // Called whenever a key state changes so the owner can send immediately
+  onInputChange: (() => void) | null = null;
+
   constructor(game: Game) {
     this.game = game;
   }
@@ -244,6 +249,8 @@ export class Controls {
       return;
     }
     this.downInputs.push(inputType);
+    this.pendingInputChanges.push({ inputType, inputDown: true });
+    this.onInputChange?.();
   }
 
   inputUp(inputType: InputTypes) {
@@ -251,6 +258,17 @@ export class Controls {
       return;
     }
     this.downInputs.splice(this.downInputs.indexOf(inputType), 1);
+    this.pendingInputChanges.push({ inputType, inputDown: false });
+    this.onInputChange?.();
+  }
+
+  flushInputChanges(): Array<{inputType: InputTypes, inputDown: boolean}> {
+    if (this.pendingInputChanges.length === 0) return [];
+    const changes = this.pendingInputChanges;
+    this.pendingInputChanges = [];
+    // Keep previousDownInputs in sync so getChanges() doesn't re-emit
+    this.previousDownInputs = this.downInputs.slice();
+    return changes;
   }
 
   getChanges() {

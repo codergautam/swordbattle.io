@@ -93,6 +93,14 @@ class Player extends BaseEntity {
   previousAngle = 0;
   following = false;
 
+  // Client-side prediction (local player only)
+  predictedX: number = 0;
+  predictedY: number = 0;
+  private _predictionReady: boolean = false;
+  private _lastServerX: number = 0;
+  private _lastServerY: number = 0;
+  private static readonly BASE_SPEED = 800;
+
   survivalStarted: number = 0;
   swordRaiseStarted: boolean = false;
   swordDecreaseStarted: boolean = false;
@@ -114,6 +122,13 @@ class Player extends BaseEntity {
 
   createSprite() {
     this.isMe = this.id === this.game.gameState.self.id;
+    if (this.isMe && this.shape) {
+      this.predictedX = this.shape.x;
+      this.predictedY = this.shape.y;
+      this._lastServerX = this.shape.x;
+      this._lastServerY = this.shape.y;
+      this._predictionReady = true;
+    }
     if (this.account && this.account.clan && this.account.clan.toString().toUpperCase() !== "X79Q") {
       this.clan = this.account.clan.toString().toUpperCase();
     }
@@ -406,8 +421,98 @@ class Player extends BaseEntity {
     }
   }
 
+  // ─── Client-side prediction helpers ──────────────────────────────────────
+
+  private _applyLocalMovement(dt: number) {
+    if ((this as any).choosingCard) return;
+    const isHypnotized = !!(this.flags && this.flags[FlagTypes.Hypnotized]);
+    if (isHypnotized) return;
+
+    const dtSec = dt / 1000;
+    const controls = this.game.controls;
+    const speed = Player.BASE_SPEED;
+
+    const useMouseMove =
+      (Settings.movementMode === 'mouse' || this.game.isMobile) &&
+      controls.mouse.force > 0;
+
+    if (useMouseMove) {
+      const maxDist = 150;
+      const scale = Math.min(controls.mouse.force, maxDist) / maxDist;
+      this.predictedX += speed * scale * Math.cos(controls.mouse.angle) * dtSec;
+      this.predictedY += speed * scale * Math.sin(controls.mouse.angle) * dtSec;
+    } else {
+      let dirX = 0, dirY = 0;
+      if (controls.isInputDown(InputTypes.Up))        dirY = -1;
+      else if (controls.isInputDown(InputTypes.Down)) dirY =  1;
+      if (controls.isInputDown(InputTypes.Right))      dirX =  1;
+      else if (controls.isInputDown(InputTypes.Left))  dirX = -1;
+
+      if (dirX !== 0 || dirY !== 0) {
+        const angle = Math.atan2(dirY, dirX);
+        this.predictedX += speed * Math.cos(angle) * dtSec;
+        this.predictedY += speed * Math.sin(angle) * dtSec;
+      }
+    }
+
+    // Clamp to map bounds
+    const map = this.game.gameState.gameMap;
+    if (map.width > 0) {
+      const hw = map.width / 2;
+      const hh = map.height / 2;
+      this.predictedX = Math.max(-hw, Math.min(hw, this.predictedX));
+      this.predictedY = Math.max(-hh, Math.min(hh, this.predictedY));
+    }
+  }
+
+  private _reconcileWithServer() {
+    const sx = this.shape.x;
+    const sy = this.shape.y;
+
+    // How far did the server move us relative to the last known server position?
+    const serverDeltaX = sx - this._lastServerX;
+    const serverDeltaY = sy - this._lastServerY;
+
+    // Reconstruct where we should be: server correction + our movement on top
+    const clientDeltaX = this.predictedX - this._lastServerX;
+    const clientDeltaY = this.predictedY - this._lastServerY;
+
+    // Raw diff between full prediction and full server state
+    const rawDiff = Math.hypot(this.predictedX - sx, this.predictedY - sy);
+
+    if (rawDiff > 500) {
+      // Large jump (teleport / heavy knockback) — snap immediately
+      this.predictedX = sx;
+      this.predictedY = sy;
+    } else {
+      // Blend: preserve client-predicted movement on top of the server's
+      // corrected position, then gently pull toward the blended target
+      const reconciledX = sx + (clientDeltaX - serverDeltaX);
+      const reconciledY = sy + (clientDeltaY - serverDeltaY);
+      this.predictedX = Phaser.Math.Linear(this.predictedX, reconciledX, 0.4);
+      this.predictedY = Phaser.Math.Linear(this.predictedY, reconciledY, 0.4);
+    }
+
+    this._lastServerX = sx;
+    this._lastServerY = sy;
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+
   afterStateUpdate(data: any): void {
     super.afterStateUpdate(data);
+
+    if (this.isMe && data.shapeData !== undefined) {
+      if (!this._predictionReady) {
+        this.predictedX  = this.shape.x;
+        this.predictedY  = this.shape.y;
+        this._lastServerX = this.shape.x;
+        this._lastServerY = this.shape.y;
+        this._predictionReady = true;
+      } else {
+        this._reconcileWithServer();
+      }
+    }
 
     if (this.isMe && data.viewportZoom !== undefined) {
       this.game.updateZoom(data.viewportZoom);
@@ -1034,7 +1139,19 @@ class Player extends BaseEntity {
   }
 
   update(dt: number) {
-    super.update(dt);
+    if (this.isMe && this._predictionReady) {
+      // Local player: apply prediction this frame, bypass interpolation
+      this._applyLocalMovement(dt);
+      if (this.container) {
+        this.container.x = this.predictedX;
+        this.container.y = this.predictedY;
+      }
+      // Still need depth, healthbar (rotation is handled by interpolate/updatePrediction below)
+      this.updateWorldDepth();
+      this.healthBar?.update(dt);
+    } else {
+      super.update(dt);
+    }
 
     const isChoosing = (this as any).choosingCard;
     const isTutorial = (this as any).isTutorial;

@@ -8,6 +8,7 @@ import Game from '../scenes/Game';
 export class BaseEntity {
   static stateFields: string[] = ['id', 'type', 'shapeData', 'depth', 'healthPercent'];
   static removeTransition = 0;
+  static readonly INTERP_DELAY_MS = 75;
 
   [key: string]: any;
   game: Game;
@@ -18,6 +19,7 @@ export class BaseEntity {
   hidden: boolean = false;
   depth = 0;
   justSpawned = true;
+  _snapshots: Array<{time: number, x: number, y: number}> = [];
 
   constructor(game: Game) {
     this.game = game;
@@ -88,6 +90,14 @@ export class BaseEntity {
       } else {
         this.shape.update(data.shapeData);
       }
+      // Record snapshot for interpolation
+      const now = Date.now();
+      this._snapshots.push({ time: now, x: this.shape.x, y: this.shape.y });
+      // Prune old snapshots (keep only recent history)
+      const cutoff = now - (BaseEntity.INTERP_DELAY_MS * 5);
+      while (this._snapshots.length > 2 && this._snapshots[0].time < cutoff) {
+        this._snapshots.shift();
+      }
     }
   }
 
@@ -95,16 +105,53 @@ export class BaseEntity {
 
   update(dt: number) {
     if (!this.container) return;
-    const tps = this.game.gameState.tps || 20;
-    const lerpRate = 1 - Math.exp(-dt / (1000 / tps));
-    this.container.x = Phaser.Math.Linear(this.container.x, this.shape.x, lerpRate);
-    this.container.y = Phaser.Math.Linear(this.container.y, this.shape.y, lerpRate);
+    this._updatePosition(dt);
     if (this.shape.type === ShapeTypes.Polygon) {
       this.container.setRotation(this.shape.angle);
     }
     this.updateRotation(dt);
     this.updateWorldDepth();
     this.healthBar?.update(dt);
+  }
+
+  _updatePosition(dt: number) {
+    const snaps = this._snapshots;
+    if (snaps.length >= 2) {
+      const renderTime = Date.now() - BaseEntity.INTERP_DELAY_MS;
+
+      // Find the highest snapshot at or before renderTime
+      let lowerIdx = 0;
+      for (let i = 1; i < snaps.length; i++) {
+        if (snaps[i].time <= renderTime) {
+          lowerIdx = i;
+        } else {
+          break;
+        }
+      }
+
+      const s1 = snaps[lowerIdx];
+      const s2 = snaps[lowerIdx + 1];
+
+      if (s2 && s1.time <= renderTime) {
+        // Interpolate between s1 and s2
+        const span = s2.time - s1.time;
+        const t = span > 0 ? Math.min(1, (renderTime - s1.time) / span) : 1;
+        this.container.x = s1.x + (s2.x - s1.x) * t;
+        this.container.y = s1.y + (s2.y - s1.y) * t;
+      } else {
+        // renderTime is past all snapshots — lerp toward the latest to keep up
+        const tps = this.game.gameState.tps || 20;
+        const lerpRate = 1 - Math.exp(-dt / (1000 / tps));
+        this.container.x = Phaser.Math.Linear(this.container.x, s1.x, lerpRate);
+        this.container.y = Phaser.Math.Linear(this.container.y, s1.y, lerpRate);
+      }
+    } else {
+      // Not enough snapshots yet — fall back to original lerp
+      const tps = this.game.gameState.tps || 20;
+      const lerpRate = 1 - Math.exp(-dt / (1000 / tps));
+      this.container.x = Phaser.Math.Linear(this.container.x, this.shape.x, lerpRate);
+      this.container.y = Phaser.Math.Linear(this.container.y, this.shape.y, lerpRate);
+    }
   }
 
   updateRotation(dt?: number) {

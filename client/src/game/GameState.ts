@@ -114,6 +114,19 @@ class GameState {
     this.game.game.events.on('restartGame', this.restart, this);
     this.game.game.events.on('startSpectate', this.spectate, this);
     this.game.game.events.on('tokenUpdate', this.updateToken, this);
+
+    // Wire up immediate input dispatch: send keyboard events as soon as they fire
+    this.game.controls.onInputChange = () => this._sendInputsImmediate();
+  }
+
+  // Sends only pending keyboard input changes right away, without waiting for
+  // the 50 ms tick.  Other data (mouse, angle, etc.) still goes through the
+  // normal tick-based sendInputs() path.
+  private _sendInputsImmediate() {
+    if (!this.self.entity?.following) return;
+    const inputs = this.game.controls.flushInputChanges();
+    if (inputs.length === 0) return;
+    Socket.emit({ inputs });
   }
 
   start(name: string) {
@@ -508,7 +521,8 @@ class GameState {
 
   sendInputs() {
     if(!this.self.entity?.following) return;
-    const inputs = this.game.controls.getChanges();
+    // flushInputChanges() returns events not yet sent by _sendInputsImmediate
+    const inputs = this.game.controls.flushInputChanges();
 
     const data: any = {};
     if (Settings.movementMode === 'mouse' || this.game.isMobile) {

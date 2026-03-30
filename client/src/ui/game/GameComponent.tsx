@@ -74,7 +74,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
           gameplayDelayTimer = null;
         }
         if (gameplayStartCalled) {
-          // crazygamesSDK.gameplayStop();
+          crazygamesSDK.gameplayStop();
         }
         gameplayStartCalled = false;
       });

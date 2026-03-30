@@ -1115,21 +1115,15 @@ function App() {
     left: '50%',
     transform: 'translate(-50%, -25%)' }} >
               <div className="menu">
-                {(() => {
-                  const showLeaderboardCard = true;
-                  if (showLeaderboardCard) {
-                    return (
-                      <div className="accountCard menuCard panel">
-                        <LeaderboardCard onViewLeaderboard={openLeaderboard} />
-                      </div>
-                    );
-                  }
-                  return (
-                    <div className="accountCard menuCard panel">
-                      <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} onViewProfile={openProfile} />
-                    </div>
-                  );
-                })()}
+                {crazygamesSDK.shouldUseSDK() && !account?.secret ? (
+                  <div className="accountCard menuCard panel">
+                    <LeaderboardCard onViewLeaderboard={openLeaderboard} />
+                  </div>
+                ) : (
+                  <div className="accountCard menuCard panel">
+                    <AccountCard account={account} onLogin={onLogin} onSignup={onSignup} onViewProfile={openProfile} />
+                  </div>
+                )}
 
                 {/* <div className="announcementCard menuCard panel">
                     {account?.username === "Update Testing Account" ? (

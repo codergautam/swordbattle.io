@@ -273,9 +273,11 @@
 @media screen and (max-width: 768px) {
   .rewards-modal {
     width: calc(100vw - 16px);
-    height: calc(100vh - 16px);
+    height: calc(100% - 16px);
+    max-width: calc(100vw - 16px);
     padding: 12px 10px;
     margin: 0 auto;
+    border-radius: 10px;
   }
 
   .rewards-grid {

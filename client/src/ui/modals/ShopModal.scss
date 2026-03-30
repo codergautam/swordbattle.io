@@ -373,7 +373,7 @@ h1 {
 @media screen and (max-width: 768px) {
   .shop-modal {
     width: calc(100vw - 16px);
-    height: calc(100vh - 16px);
+    height: calc(100% - 16px);
     padding: 10px;
     margin: 0 auto;
     flex-wrap: nowrap;

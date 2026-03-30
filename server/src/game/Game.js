@@ -450,6 +450,7 @@ class Game {
           changes[entityId].disconnectReasonMessage = removedEntity.client.disconnectReason.message;
           changes[entityId].disconnectReasonType = removedEntity.client.disconnectReason.type;
         }
+        player.viewportEntityIds = player.viewportEntityIds.filter(id => id !== entityId);
         continue;
       }
       if (entity.isStatic) continue;

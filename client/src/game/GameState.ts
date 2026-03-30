@@ -375,11 +375,12 @@ class GameState {
       if (entityData.removed) {
         if (id === this.self.id) {
           if(typeof entityData.disconnectReasonType !== "undefined") {
-          this.disconnectReason = {
-            reason: entityData.disconnectReasonMessage,
-            code: entityData.disconnectReasonType,
+            this.disconnectReason = {
+              reason: entityData.disconnectReasonMessage,
+              code: entityData.disconnectReasonType,
+            }
           }
-        }
+          this.self.id = -1;
           this.showGameResults();
           try { this.game.hud.tutorialOverlay.onDeath(); } catch (e) {}
         }

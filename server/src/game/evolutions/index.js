@@ -1,5 +1,6 @@
 const fs = require('fs');
 const BasicEvolution = require('./BasicEvolution');
+const Timer = require('../components/Timer');
 const evolutions = {};
 
 fs.readdirSync(__dirname).forEach((file) => {
@@ -77,11 +78,23 @@ class EvolutionSystem {
 
     const Evolution = evolutions[key];
     if (!Evolution) return;
+
+    const isFromBasic = this.evolution === BasicEvolution.type;
+    const abilityOnCooldown = !this.evolutionEffect.canActivateAbility;
+    const cooldownRemaining = this.evolutionEffect.cooldownTime;
+
     this.player.effects.delete('evolution');
     this.evolutionEffect.remove();
     this.evolutionEffect = new Evolution(this.player);
     this.evolution = Evolution.type;
     this.player.effects.set('evolution', this.evolutionEffect);
+
+    const newAbilityCooldown = Evolution.abilityCooldown;
+    if (!isFromBasic && abilityOnCooldown && newAbilityCooldown > 15 && cooldownRemaining >= 5) {
+      const remaining = Math.min(cooldownRemaining, newAbilityCooldown);
+      const elapsed = newAbilityCooldown - remaining;
+      this.evolutionEffect.abilityCooldownTimer = new Timer(elapsed, newAbilityCooldown, newAbilityCooldown);
+    }
 
     this.possibleEvols.forEach(type => this.skippedEvols.add(type));
     this.possibleEvols.clear();

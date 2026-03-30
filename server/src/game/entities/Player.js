@@ -656,7 +656,7 @@ class Player extends Entity {
 
     super.remove();
 
-    if (this.name !== "Update Testing Account") {
+    if (this.name !== "Update Testing Account" && !this.cards.isTutorial) {
       let dropAmount = this.calculateDropAmount();
       if (this.client && this.client.insuranceUsed && this.cards.hasMajor(130)) {
         const keptGold = Math.round(this.levels.coins * 0.40);

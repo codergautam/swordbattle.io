@@ -32,6 +32,7 @@ export class Sound {
   play() {
     if (this.cooldown <= 0) {
       const sound = Phaser.Math.RND.pick(this.sounds);
+      if (!sound) return;
       sound.play();
       this.cooldown = this.cooldownTime;
     }

@@ -247,7 +247,7 @@ function App() {
     if (crazygamesSDK.isInitialized()) {
       try { cgChatDisabled = (window as any).CrazyGames?.SDK?.game?.settings?.disableChat === true; } catch (e) {}
     }
-    if (account?.isLoggedIn && !localStorage.getItem('swordbattle:chatAutoEnabled') && !cgChatDisabled) {
+    if (account?.isLoggedIn && !localStorage.getItem('swordbattle:chatAutoEnabled') && !cgChatDisabled && !crazygamesSDK.isInitialized()) {
       Settings.enableChat = true;
       localStorage.setItem('swordbattle:chatAutoEnabled', '1');
     }

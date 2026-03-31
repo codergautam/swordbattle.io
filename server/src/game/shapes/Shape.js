@@ -56,6 +56,10 @@ class Shape {
   }
 
   applyCollision(vector) {
+    if (isNaN(vector.x) || isNaN(vector.y)) {
+      console.error(`[COLLISION_NAN] applyCollision got NaN vector: (${vector.x}, ${vector.y})`);
+      return;
+    }
     this.x += vector.x;
     this.y += vector.y;
   }

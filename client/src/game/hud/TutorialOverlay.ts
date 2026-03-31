@@ -5,6 +5,7 @@ import { store } from '../../redux/store';
 class TutorialOverlay extends HudComponent {
   panel = -1;
   active = false;
+  _tutorialSkipSent = false;
   panelContainer: Phaser.GameObjects.Container | null = null;
   bgGraphics: Phaser.GameObjects.Graphics | null = null;
   headerText: Phaser.GameObjects.Text | null = null;
@@ -85,6 +86,7 @@ class TutorialOverlay extends HudComponent {
 
   start() {
     if (this.active) return;
+    if (!this.hidden) return;
     this.active = true;
     this.gameIsPlaying = true;
     this.panel = 0;
@@ -92,11 +94,24 @@ class TutorialOverlay extends HudComponent {
     this.isDead = false;
     this.lastCardPickNumber = 0;
     this.shownUpgradePanel = false;
+
+    if (this.panelContainer) {
+      const { width } = this.game.scale;
+      const centerX = width / (2 * this.scale);
+      this.panelContainer.x = centerX;
+      this.panelContainer.y = 10;
+    }
+
     if (this.container) {
       this.container.setVisible(true);
-      this.container.setAlpha(1);
+      this.container.setAlpha(0);
+      this.hud.scene?.tweens.add({
+        targets: this.container,
+        alpha: 1,
+        duration: 400,
+        ease: 'Power2',
+      });
     }
-    console.log('[Tutorial] Started, panel 0');
     this.showPanel(0);
     try { sessionStorage.setItem('swordbattle:tutorialSession', JSON.stringify({ panel: 0, active: true })); } catch (e) {}
   }
@@ -105,22 +120,31 @@ class TutorialOverlay extends HudComponent {
     this.panel = panelId;
     if (!this.bodyText || !this.progressText || !this.nextButton || !this.nextButtonText) return;
 
-    const { width } = this.game.scale;
+    const { width, height } = this.game.scale;
     const panelW = 460;
     const centerX = width / (2 * this.scale);
 
-    const targetY = (panelId === 3) ? 180 : 10;
+    let targetX = centerX;
+    let targetY = (panelId === 3) ? 180 : 10;
+
+    if (panelId === 2) {
+      const cardSelectRightEdge = this.game.hud.cardSelect._getPanelScreenWidth() / this.scale;
+      const gap = 20 / this.scale;
+      targetX = cardSelectRightEdge + gap + panelW / 2;
+      targetY = height / (2 * this.scale) - 80;
+    }
     if (this.panelContainer) {
-      const currentY = this.panelContainer.y;
-      this.panelContainer.x = centerX;
-      if (currentY !== targetY && this.hud.scene) {
+      if (this.hud.scene) {
+        this.hud.scene.tweens.killTweensOf(this.panelContainer);
         this.hud.scene.tweens.add({
           targets: this.panelContainer,
+          x: targetX,
           y: targetY,
           duration: 400,
-          ease: 'Power2',
+          ease: 'Back.easeOut',
         });
       } else {
+        this.panelContainer.x = targetX;
         this.panelContainer.y = targetY;
       }
     }
@@ -160,7 +184,7 @@ class TutorialOverlay extends HudComponent {
         break;
       }
       case 2: {
-        body = 'You\'ve unlocked your first upgrade! Select 1 of the 3 cards to improve a stat and specialize your build.\n\nEvery 5th upgrade, you\'ll get a Major upgrade that gives you unique powers!';
+        body = 'You\'ve unlocked your first upgrade! Select 1 of the 3 cards to improve a stat and specialize your build.\n\nFuture upgrades appear via the Upgrades button on the left. Every 5th upgrade is a Major upgrade with unique powers!';
         this.progressText.setText('Choose an upgrade to proceed');
         break;
       }
@@ -282,11 +306,17 @@ class TutorialOverlay extends HudComponent {
   }
 
   setShow(show: boolean, force?: boolean) {
-    if (this.active) {
-      if (this.container) { this.container.setAlpha(1); this.container.setVisible(true); }
+    if (this.active && show) {
+      if (this.container) this.container.setVisible(true);
       return;
     }
-    super.setShow(show, force);
+    if (!show && this.container) {
+      this.container.setVisible(false);
+      this.container.setAlpha(0);
+    }
+    if (!this.active) {
+      super.setShow(show, force);
+    }
   }
 
   resize() {
@@ -307,7 +337,12 @@ class TutorialOverlay extends HudComponent {
             try { localStorage.setItem('swordbattle:tutorialComplete', 'true'); } catch (e) {}
           }
         }
-        if (!tutorialDone) {
+        if (tutorialDone) {
+          if (!this._tutorialSkipSent) {
+            this._tutorialSkipSent = true;
+            this.game.gameState.tutorialComplete = true;
+          }
+        } else {
           this.start();
         }
       }
@@ -355,6 +390,10 @@ class TutorialOverlay extends HudComponent {
     }
 
     if (this.panel === 2) {
+      const choosingCard = (player as any).choosingCard;
+      const cardSelectOpen = this.game.hud?.cardSelect?.isShowing;
+      if (choosingCard || cardSelectOpen) return;
+
       const pickNum = (player as any).cardPickNumber || 0;
       if (pickNum > this.lastCardPickNumber) {
         this.lastCardPickNumber = pickNum;

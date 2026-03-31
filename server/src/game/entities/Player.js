@@ -247,8 +247,8 @@ class Player extends Entity {
     }
 
     this.effects.forEach(effect => effect.update(dt));
-    if (!this.cards.choosingCard) {
-      this.health.update(dt); // No regen while choosing
+    if (!this.cards.choosingCard || !this.cards.instantSelect) {
+      this.health.update(dt);
     }
     this.applyInputs(dt);
     this.sword.flySpeed.value = clamp(this.speed.value / 10, 100, 200);
@@ -260,7 +260,7 @@ class Player extends Entity {
 
     this.viewport.zoom.multiplier /= this.shape.scaleRadius.multiplier;
 
-    if (this.chatMessage && !this.cards.choosingCard) {
+    if (this.chatMessage && (!this.cards.choosingCard || !this.cards.instantSelect)) {
       this.chatMessageTimer.update(dt);
       if (this.chatMessageTimer.finished) {
         this.chatMessage = '';
@@ -311,7 +311,7 @@ class Player extends Entity {
   }
 
   processTargetsCollision(entity, response) {
-    if (this.cards.choosingCard) return; // No collision while choosing card
+    if (this.cards.choosingCard && this.cards.instantSelect) return;
 
     if (this.modifiers.ramThrow && this.sword.isFlying) {
       return
@@ -330,8 +330,7 @@ class Player extends Entity {
   }
 
   applyInputs(dt) {
-    // no movement no knockback while card
-    if (this.cards.choosingCard) {
+    if (this.cards.choosingCard && this.cards.instantSelect) {
       this.velocity.x = 0;
       this.velocity.y = 0;
       return;
@@ -454,20 +453,33 @@ class Player extends Entity {
     this.movedDistance.x = dx;
     this.movedDistance.y = dy;
 
-    // Clamp to map bounds
+    if (isNaN(this.shape.x) || isNaN(this.shape.y)) {
+      console.error(`[POSITION_BUG] Player "${this.name}" (id=${this.id}) position became NaN! dx=${dx}, dy=${dy}, dt=${dt}, mouse=${JSON.stringify(this.mouse)}, velocity=${JSON.stringify(this.velocity)}`);
+      this.shape.x = 0;
+      this.shape.y = 0;
+      this.game.map.spawnPlayer(this);
+    }
+
     this.shape.x = clamp(this.shape.x, -this.game.map.width / 2, this.game.map.width / 2);
     this.shape.y = clamp(this.shape.y, -this.game.map.height / 2, this.game.map.height / 2);
   }
 
   damaged(damage, entity = null, isThrown = false) {
-    if (this.cards.choosingCard) return;
+    if (this.cards.choosingCard && this.cards.instantSelect) return;
+    if (this.removed) return;
 
+    const origDamage = damage;
     damage *= this.damageReduction;
 
     const cardDmgMult = this.cards.onDamaged(damage, entity);
     damage *= cardDmgMult;
 
     damage *= this.cards.getDamageTakenMultiplier(entity, isThrown);
+
+    if (isNaN(damage) || !isFinite(damage)) {
+      console.error(`[DAMAGE_BUG] "${this.name}" received NaN/Inf damage! orig=${origDamage}, dmgReduction=${this.damageReduction}, cardMult=${cardDmgMult}, entity=${entity?.type}`);
+      return;
+    }
 
 
     if (entity && entity.type === Types.Entity.Player && !this.isBot && !entity.isBot) {
@@ -537,6 +549,8 @@ class Player extends Entity {
           } catch (e) { /* */ }
         }
       }
+
+      console.log(`[DEATH] "${this.name}" (id=${this.id}) killed by "${reason}" | pos=(${Math.round(this.shape.x)},${Math.round(this.shape.y)}) | hp=${this.health.percent.toFixed(3)} | finalDmg=${damage.toFixed(2)} | dmgReduction=${this.damageReduction.toFixed(3)} | coins=${this.levels.coins} | entity=${entity ? entity.type + '(id=' + entity.id + ',pos=' + Math.round(entity.shape.x) + ',' + Math.round(entity.shape.y) + ')' : 'null'} | isBot=${!!this.isBot} | effects=[${[...this.effects.keys()]}]`);
 
       this.killerEntity = entity;
       this.remove(reason, disconnectType);

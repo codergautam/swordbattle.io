@@ -69,6 +69,9 @@ export class BaseEntity {
     this.beforeStateUpdate(data);
     for (const key of (this.constructor as typeof BaseEntity).stateFields) {
       if (data[key] !== undefined) {
+        if (Array.isArray(data[key]) && data[key].length === 0 && Array.isArray(this[key]) && this[key].length > 0) {
+          continue;
+        }
         if (this[key] instanceof BaseEntity) {
           this[key].updateState(data[key]);
         } else if (isObject(data[key]) && this[key]) {

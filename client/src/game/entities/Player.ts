@@ -5,6 +5,7 @@ import { Health } from '../components/Health';
 import { BiomeTypes, EntityTypes, FlagTypes, InputTypes, EvolutionTypes, ShapeTypes } from '../Types';
 import { random } from '../../helpers';
 import { Settings } from '../Settings';
+import { MinorCardData, isMajorCard, isMinorCard, getMinorTotalPercent, countStacks } from '../CardData';
 import * as cosmetics from '../cosmetics.json';
 const {skins} = cosmetics;
 
@@ -65,7 +66,7 @@ class Player extends BaseEntity {
     'swordRaising', 'swordDecreasing',
     'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing', 'coinShield',
     'cardOffers', 'chosenCards', 'choosingCard', 'cardTimer', 'cardPickNumber', 'availableUpgrades',
-    'rerollsAvailable', 'skipResults', 'isTutorial',
+    'rerollsAvailable', 'pendingPicks', 'skipResults', 'isTutorial',
   ];
   static removeTransition = 500;
   static shadowOffsetX = 10;
@@ -101,6 +102,11 @@ class Player extends BaseEntity {
   poisonParticlesLast: number = 0;
   private _lastSwordVisible: boolean | null = null;
   private _lastContainerScale: number = -1;
+
+  cardSummaryContainer: Phaser.GameObjects.Container | null = null;
+  cardSummaryBg: Phaser.GameObjects.Graphics | null = null;
+  cardSummaryItems: Phaser.GameObjects.GameObject[] = [];
+  private _lastSummaryKey = '';
 
   discoFieldGraphic!: Phaser.GameObjects.Graphics;
   discoFieldAlpha: number = 0;
@@ -203,6 +209,10 @@ class Player extends BaseEntity {
       align: 'center',
     }).setOrigin(0.5, 0.5).setAlpha(0);
 
+    this.cardSummaryBg = this.game.add.graphics();
+    this.cardSummaryContainer = this.game.add.container(0, -this.body.height / 2 - 130, [this.cardSummaryBg]);
+    this.cardSummaryContainer.setAlpha(0);
+
     this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.swordContainer, this.body, this.evolutionOverlay]);
 
     const submergedRadius = this.body.width * 0.6;
@@ -211,7 +221,7 @@ class Player extends BaseEntity {
     this.submergedShadow.fillCircle(0, 0, submergedRadius);
     this.submergedShadow.setAlpha(0);
 
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.evolutionOverlayShadow, this.swordShadow, this.submergedShadow, this.bodyContainer, name, this.messageText, this.choosingText]);
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.evolutionOverlayShadow, this.swordShadow, this.submergedShadow, this.bodyContainer, this.cardSummaryContainer, name, this.messageText, this.choosingText]);
 
     if (ogex) {
       try {
@@ -416,9 +426,6 @@ class Player extends BaseEntity {
     }
     if (data.chatMessage !== undefined) {
       this.updateChatMessage();
-    }
-    if (data.choosingCard !== undefined && !this.isMe) {
-      this.updateChoosingOverlay(data.choosingCard);
     }
     if (data.biome !== undefined) {
       const isTextBlack = data.biome !== BiomeTypes.Fire;
@@ -1036,27 +1043,143 @@ class Player extends BaseEntity {
     if (this.evolutionOverlayShadow) this.evolutionOverlayShadow.setAlpha(shadowAlpha);
   }
 
+  updateCardSummary() {
+    if (!this.cardSummaryContainer) return;
+
+    const chosenCards: number[] = (this as any).chosenCards || [];
+    const key = chosenCards.join(',');
+
+    const shouldShow = this.game.hud.cardSelect.isShowing && chosenCards.length > 0;
+
+    if (shouldShow && key !== this._lastSummaryKey) {
+      this._lastSummaryKey = key;
+      this.rebuildCardSummary(chosenCards);
+    }
+
+    this.cardSummaryContainer.setAlpha(shouldShow ? 1 : 0);
+  }
+
+  rebuildCardSummary(chosenCards: number[]) {
+    if (!this.cardSummaryContainer || !this.cardSummaryBg) return;
+
+    for (const item of this.cardSummaryItems) item.destroy();
+    this.cardSummaryItems = [];
+    this.cardSummaryBg.clear();
+
+    const stacks = countStacks(chosenCards);
+    const majorPositions = this.game.gameState?.majorOfferPositions || {};
+
+    const majorEntries: { id: number; offerPos: number }[] = [];
+    const minorEntries: { id: number; stacks: number }[] = [];
+    const seen = new Set<number>();
+
+    for (const id of chosenCards) {
+      if (seen.has(id)) continue;
+      seen.add(id);
+      if (isMajorCard(id)) {
+        majorEntries.push({ id, offerPos: majorPositions[id] ?? 0 });
+      } else if (isMinorCard(id)) {
+        minorEntries.push({ id, stacks: stacks[id] || 1 });
+      }
+    }
+
+    if (majorEntries.length === 0 && minorEntries.length === 0) return;
+
+    const iconSz = 40;
+    const gap = 12;
+    const sepW = 12;
+    const fontSize = 28;
+    const hasMajors = majorEntries.length > 0;
+    const hasMinors = minorEntries.length > 0;
+
+    const majorW = majorEntries.length * (iconSz + gap) - (majorEntries.length > 0 ? gap : 0);
+    const minorWidths: number[] = [];
+    for (const { id, stacks: sc } of minorEntries) {
+      const pct = getMinorTotalPercent(id, sc);
+      const labelW = `+${pct}%`.length * (fontSize * 0.6);
+      minorWidths.push(iconSz + 4 + labelW);
+    }
+    const minorW = minorWidths.length > 0 ? minorWidths.reduce((a, b) => a + b, 0) + (minorWidths.length - 1) * gap : 0;
+    const sepSpace = (hasMajors && hasMinors) ? sepW + gap * 2 : 0;
+    const totalW = majorW + sepSpace + minorW;
+
+    this.cardSummaryBg.fillStyle(0x000000, 0.45);
+    this.cardSummaryBg.fillRoundedRect(-totalW / 2 - 10, -iconSz / 2 - 5, totalW + 20, iconSz + 10, 12);
+
+    let curX = -totalW / 2;
+
+    for (const { offerPos } of majorEntries) {
+      const iconKey = `card_major${offerPos + 1}`;
+      if (this.game.textures.exists(iconKey)) {
+        const icon = this.game.add.image(curX + iconSz / 2, 0, iconKey);
+        const s = Math.min(iconSz / icon.frame.width, iconSz / icon.frame.height);
+        icon.setScale(s);
+        this.cardSummaryContainer.add(icon);
+        this.cardSummaryItems.push(icon);
+      } else {
+        const dot = this.game.add.graphics();
+        dot.fillStyle(0xd4a017, 1);
+        dot.fillCircle(curX + iconSz / 2, 0, iconSz / 3);
+        dot.lineStyle(2, 0xffd700, 1);
+        dot.strokeCircle(curX + iconSz / 2, 0, iconSz / 3);
+        this.cardSummaryContainer.add(dot);
+        this.cardSummaryItems.push(dot);
+      }
+      curX += iconSz + gap;
+    }
+
+    if (hasMajors && hasMinors) {
+      const sep = this.game.add.graphics();
+      sep.lineStyle(2, 0x666666, 0.7);
+      sep.lineBetween(curX + sepW / 2, -iconSz / 2, curX + sepW / 2, iconSz / 2);
+      this.cardSummaryContainer.add(sep);
+      this.cardSummaryItems.push(sep);
+      curX += sepW + gap;
+    }
+
+    for (let i = 0; i < minorEntries.length; i++) {
+      const { id, stacks: sc } = minorEntries[i];
+      const cardInfo = MinorCardData[id];
+      if (!cardInfo) continue;
+
+      const hexColor = '#' + cardInfo.color.toString(16).padStart(6, '0');
+
+      if (this.game.textures.exists(cardInfo.icon)) {
+        const icon = this.game.add.image(curX + iconSz / 2, 0, cardInfo.icon);
+        const s = Math.min(iconSz / icon.frame.width, iconSz / icon.frame.height);
+        icon.setScale(s);
+        this.cardSummaryContainer.add(icon);
+        this.cardSummaryItems.push(icon);
+      } else {
+        const dot = this.game.add.graphics();
+        dot.fillStyle(cardInfo.color, 1);
+        dot.fillCircle(curX + iconSz / 2, 0, iconSz / 3);
+        this.cardSummaryContainer.add(dot);
+        this.cardSummaryItems.push(dot);
+      }
+
+      const pct = getMinorTotalPercent(id, sc);
+      const text = this.game.add.text(curX + iconSz + 4, 0, `+${pct}%`, {
+        fontSize: `${fontSize}px`,
+        fontFamily: 'Ubuntu, sans-serif',
+        fontStyle: 'bold',
+        color: hexColor,
+        stroke: '#000000',
+        strokeThickness: 3,
+      }).setOrigin(0, 0.5);
+      this.cardSummaryContainer.add(text);
+      this.cardSummaryItems.push(text);
+
+      curX += minorWidths[i] + gap;
+    }
+  }
+
   update(dt: number) {
     super.update(dt);
 
-    const isChoosing = (this as any).choosingCard;
-    const isTutorial = (this as any).isTutorial;
-    let targetAlpha = 1;
-    if (isChoosing) targetAlpha = 0.5;
-    else if (isTutorial && !this.isMe) targetAlpha = 0.7;
-    if (this.bodyContainer) this.bodyContainer.setAlpha(targetAlpha);
+    if (this.choosingText) this.choosingText.setAlpha(0);
 
-    if (this.choosingText && !this.isMe) {
-      if (isTutorial) {
-        this.choosingText.setText('In Tutorial');
-        this.choosingText.setAlpha(1);
-      } else if (isChoosing) {
-        this.choosingText.setText('Choosing an upgrade...');
-        this.choosingText.setAlpha(1);
-      } else {
-        this.choosingText.setAlpha(0);
-      }
-    }
+    this.updateCardSummary();
 
     const swordVisible = !this.swordFlying;
     if (this._lastSwordVisible !== swordVisible) {

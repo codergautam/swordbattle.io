@@ -59,7 +59,7 @@ class ThrownSword extends Entity {
     if (entity.depth !== this.depth) return;
     if (this.owner && entity === this.owner) return;
     if (this.collidedEntities.has(entity)) return;
-    if (entity.cards && entity.cards.choosingCard) return;
+    if (entity.cards && entity.cards.choosingCard && entity.cards.instantSelect) return;
     if (this.owner && this.owner.cards && this.owner.cards.isTutorial && entity.type === Types.Entity.Player) return;
 
     this.collidedEntities.add(entity);

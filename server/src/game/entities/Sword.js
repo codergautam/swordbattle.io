@@ -84,7 +84,7 @@ class Sword extends Entity {
       && this.isAnimationFinished
       && this.player.modifiers.invisible == false
       && !this.player.modifiers.stunned
-      && !this.player.cards.choosingCard;
+      && !(this.player.cards.choosingCard && this.player.cards.instantSelect);
   }
 
   canFly() {
@@ -93,7 +93,7 @@ class Sword extends Entity {
       && this.flyCooldownTime <= 0
       && this.player.modifiers.invisible == false
       && !this.player.modifiers.stunned
-      && !this.player.cards.choosingCard;
+      && !(this.player.cards.choosingCard && this.player.cards.instantSelect);
   }
 
   stopFly() {
@@ -364,7 +364,7 @@ class Sword extends Entity {
 processTargetsCollision(entity) {
     if (entity === this.player) return;
     if (!this.canCollide(entity)) return;
-    if (entity.cards && entity.cards.choosingCard) return;
+    if (entity.cards && entity.cards.choosingCard && entity.cards.instantSelect) return;
     if (entity.cards && entity.cards.isTutorial && this.player.type === Types.Entity.Player) return;
     if (this.player.cards && this.player.cards.isTutorial && entity.type === Types.Entity.Player) {
       if (!entity.isBot) {

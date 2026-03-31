@@ -1,8 +1,6 @@
 const { MinorCards, MajorCards, isMinorCard, isMajorCard, getAllMinorIds, getAllMajorIds, getMajorCardsByCategory } = require('./CardDefinitions');
 const Types = require('../Types');
 
-const pickTimeout = 20;
-const tutorialPickTimeout = 45;
 
 class CardSystem {
   constructor(player) {
@@ -61,14 +59,13 @@ class CardSystem {
       return;
     }
 
-    if (this.isTutorial && this.instantSelect && this.cardPickNumber >= 2) {
-      this.instantSelect = false;
-    }
-
     if (this.instantSelect) {
       this.pendingPicks++;
       if (!this.choosingCard) {
         this.startCardPick();
+      }
+      if (this.isTutorial) {
+        this.instantSelect = false;
       }
     } else {
       this.availableUpgrades++;
@@ -125,10 +122,8 @@ class CardSystem {
 
     if (this.instantSelect && this.isTutorial) {
       this.cardTimer = 999;
-    } else if (this.isTutorial) {
-      this.cardTimer = tutorialPickTimeout;
     } else {
-      this.cardTimer = pickTimeout;
+      this.cardTimer = 0;
     }
   }
 
@@ -318,13 +313,6 @@ class CardSystem {
   }
 
   update(dt) {
-    if (this.choosingCard) {
-      this.cardTimer -= dt;
-      if (this.cardTimer <= 0) {
-        const randomCard = this.cardOffers[Math.floor(Math.random() * this.cardOffers.length)];
-        this.selectCard(randomCard);
-      }
-    }
 
 
     const now = Date.now();

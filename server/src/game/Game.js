@@ -83,8 +83,8 @@ class Game {
 
       if (!entity.targets.has(targetEntity.type)) continue;
 
-      if (entity.cards && entity.cards.choosingCard) continue;
-      if (targetEntity.cards && targetEntity.cards.choosingCard) continue;
+      if (entity.cards && entity.cards.choosingCard && entity.cards.instantSelect) continue;
+      if (targetEntity.cards && targetEntity.cards.choosingCard && targetEntity.cards.instantSelect) continue;
 
       response.clear();
       if (targetEntity.shape.collides(entity.shape, response)) {
@@ -297,7 +297,7 @@ class Game {
       player = this.addPlayer(client, data);
     }
 
-    if (!player) return;
+    if (!player || player.removed) return;
 
     if (data.inputs) {
       for (const input of data.inputs) {

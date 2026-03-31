@@ -5,6 +5,7 @@ export interface MinorCardInfo {
   values: number[];
   max: number;
   description: string;
+  boostWord: string;
   icon: string;
 }
 
@@ -18,13 +19,13 @@ export interface MajorCardInfo {
 }
 
 export const MinorCardData: Record<number, MinorCardInfo> = {
-  1:  { name: 'Sharp Stabs',      category: 'Offensive', color: 0xe83a3a, values: [5, 4, 4, 3, 3, 2, 2],   max: 7, description: 'Sword damage',       icon: 'card_damage' },
-  2:  { name: 'Quick Swing',      category: 'Offensive', color: 0x5b9ee6, values: [6, 5, 5, 4, 4, 3, 3],   max: 7, description: 'Attack speed',       icon: 'card_attackspeed' },
-  4:  { name: 'Sharpshooter',     category: 'Offensive', color: 0x2d8c4e, values: [5, 4, 4, 3, 3, 2, 2],   max: 7, description: 'Throw power',        icon: 'card_throwdamage' },
-  5:  { name: 'Defense Training', category: 'Defensive', color: 0xb050d0, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Max health',         icon: 'card_maxhealth' },
-  7:  { name: 'Fast Heal',        category: 'Defensive', color: 0x40c8b8, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Regen power',        icon: 'card_regenrate' },
-  9:  { name: 'Swiftness',        category: 'Utility',   color: 0x2850e0, values: [5, 4, 4, 3, 3, 3, 2],   max: 7, description: 'Move speed',         icon: 'card_movespeed' },
-  13: { name: 'Size Scale',       category: 'Utility',   color: 0xc8c070, values: [4, 3, 3, 2, 2, 2, 2],   max: 7, description: 'Player size',        icon: 'card_playersize' },
+  1:  { name: 'Sharp Stabs',      category: 'Offensive', color: 0xe83a3a, values: [5, 4, 4, 3, 3, 2, 2],   max: 7, description: 'Sword Damage',       boostWord: 'Damage',        icon: 'card_damage' },
+  2:  { name: 'Quick Swing',      category: 'Offensive', color: 0x5b9ee6, values: [6, 5, 5, 4, 4, 3, 3],   max: 7, description: 'Attack Speed',       boostWord: 'Faster',        icon: 'card_attackspeed' },
+  4:  { name: 'Sharpshooter',     category: 'Offensive', color: 0x2d8c4e, values: [5, 4, 4, 3, 3, 2, 2],   max: 7, description: 'Throw Power',        boostWord: 'Power',         icon: 'card_throwdamage' },
+  5:  { name: 'Defense Training', category: 'Defensive', color: 0xb050d0, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Max Health',         boostWord: 'Health',        icon: 'card_maxhealth' },
+  7:  { name: 'Fast Heal',        category: 'Defensive', color: 0x40c8b8, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Regeneration',       boostWord: 'Regeneration',  icon: 'card_regenrate' },
+  9:  { name: 'Swiftness',        category: 'Utility',   color: 0x2850e0, values: [5, 4, 4, 3, 3, 3, 2],   max: 7, description: 'Move Speed',         boostWord: 'Faster',        icon: 'card_movespeed' },
+  13: { name: 'Size Scale',       category: 'Utility',   color: 0xc8c070, values: [4, 3, 3, 2, 2, 2, 2],   max: 7, description: 'Player Size',        boostWord: 'Increase',      icon: 'card_playersize' },
 };
 
 export const MajorCardData: Record<number, MajorCardInfo> = {

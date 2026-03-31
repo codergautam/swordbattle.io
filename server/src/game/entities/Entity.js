@@ -184,6 +184,13 @@ class Entity {
     // Use velocity to restrict spawn outside biomes
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
+    if (isNaN(this.shape.x) || isNaN(this.shape.y)) {
+      console.error(`[ENTITY_NAN] type=${this.type} id=${this.id} pos became NaN after velocity. vx=${this.velocity.x} vy=${this.velocity.y}`);
+      this.shape.x = 0;
+      this.shape.y = 0;
+      this.velocity.x = 0;
+      this.velocity.y = 0;
+    }
     // prevent leaving map
     const map = this.game.map;
     this.shape.x = helpers.clamp(this.shape.x, -map.halfWidth, map.halfWidth);

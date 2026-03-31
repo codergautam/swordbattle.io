@@ -58,7 +58,7 @@ class CardSummary extends HudComponent {
     const iconSize = 16;
     const itemGap = 6;
     const separatorWidth = 8;
-    const y = height * 0.28 / this.scale;
+    const y = height * 0.30 / this.scale;
     const hasMajors = majorEntries.length > 0;
     const hasMinors = minorEntries.length > 0;
 
@@ -164,9 +164,8 @@ class CardSummary extends HudComponent {
     const player = this.game.gameState.self.entity;
     if (!player || !this.summaryContainer) return;
 
+    const shouldShow = false;
     const chosenCards: number[] = (player as any).chosenCards || [];
-    const choosingCard = (player as any).choosingCard;
-    const shouldShow = choosingCard && chosenCards.length > 0;
 
     const key = chosenCards.join(',');
     if (key !== this.lastChosenKey) {
@@ -176,10 +175,29 @@ class CardSummary extends HudComponent {
 
     if (shouldShow && !this.wasShowing) {
       this.rebuild();
-      this.summaryContainer.setAlpha(1);
+      this.hud.scene?.tweens.killTweensOf(this.summaryContainer);
+      this.summaryContainer.setAlpha(0);
+      this.summaryContainer.y = 10 / this.scale;
+      this.hud.scene?.tweens.add({
+        targets: this.summaryContainer,
+        alpha: 1,
+        y: 0,
+        duration: 300,
+        ease: 'Back.easeOut',
+      });
       this.wasShowing = true;
     } else if (!shouldShow && this.wasShowing) {
-      this.summaryContainer.setAlpha(0);
+      this.hud.scene?.tweens.killTweensOf(this.summaryContainer);
+      this.hud.scene?.tweens.add({
+        targets: this.summaryContainer,
+        alpha: 0,
+        y: 10 / this.scale,
+        duration: 200,
+        ease: 'Power2',
+        onComplete: () => {
+          this.summaryContainer?.setY(0);
+        },
+      });
       this.wasShowing = false;
     }
   }

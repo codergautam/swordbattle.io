@@ -390,10 +390,6 @@ class TutorialOverlay extends HudComponent {
     }
 
     if (this.panel === 2) {
-      const choosingCard = (player as any).choosingCard;
-      const cardSelectOpen = this.game.hud?.cardSelect?.isShowing;
-      if (choosingCard || cardSelectOpen) return;
-
       const pickNum = (player as any).cardPickNumber || 0;
       if (pickNum > this.lastCardPickNumber) {
         this.lastCardPickNumber = pickNum;

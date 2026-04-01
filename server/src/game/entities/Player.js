@@ -423,6 +423,12 @@ class Player extends Entity {
       }
     }
 
+    if (isNaN(this.velocity.x) || isNaN(this.velocity.y)) {
+      console.error(`[VELOCITY_NAN] Player "${this.name}" (id=${this.id}) velocity is NaN! vx=${this.velocity.x}, vy=${this.velocity.y}, pos=(${this.shape.x},${this.shape.y}), effects=[${[...this.effects.keys()]}]`);
+      this.velocity.x = 0;
+      this.velocity.y = 0;
+    }
+
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
 
@@ -432,7 +438,13 @@ class Player extends Entity {
 
     const slide = this.movedDistance;
     const friction = 1 - this.friction.value;
-    slide.scale(friction);
+    if (isNaN(friction)) {
+      console.error(`[FRICTION_NAN] Player "${this.name}" (id=${this.id}) friction is NaN! friction.value=${this.friction.value}, base=${this.friction.baseValue}, mult=${this.friction.multiplier}, boost=${this.friction.boost}`);
+      slide.x = 0;
+      slide.y = 0;
+    } else {
+      slide.scale(friction);
+    }
 
     dx += slide.x;
     dy += slide.y;
@@ -447,18 +459,24 @@ class Player extends Entity {
       dy *= speed / absDy;
     }
 
+    if (isNaN(dx) || isNaN(dy)) {
+      if (!this._nanLogged) {
+        console.error(`[POSITION_NAN] Player "${this.name}" (id=${this.id}) dx/dy became NaN! dx=${dx}, dy=${dy}, dt=${dt}, speed=${speed}, mouse=${JSON.stringify(this.mouse)}, velocity=${JSON.stringify(this.velocity)}, friction=${this.friction.value}, pos=(${this.shape.x},${this.shape.y})`);
+        this._nanLogged = true;
+      }
+      dx = isNaN(dx) ? 0 : dx;
+      dy = isNaN(dy) ? 0 : dy;
+      this.velocity.x = 0;
+      this.velocity.y = 0;
+    } else {
+      this._nanLogged = false;
+    }
+
     this.shape.x += dx * dt;
     this.shape.y += dy * dt;
 
     this.movedDistance.x = dx;
     this.movedDistance.y = dy;
-
-    if (isNaN(this.shape.x) || isNaN(this.shape.y)) {
-      console.error(`[POSITION_BUG] Player "${this.name}" (id=${this.id}) position became NaN! dx=${dx}, dy=${dy}, dt=${dt}, mouse=${JSON.stringify(this.mouse)}, velocity=${JSON.stringify(this.velocity)}`);
-      this.shape.x = 0;
-      this.shape.y = 0;
-      this.game.map.spawnPlayer(this);
-    }
 
     this.shape.x = clamp(this.shape.x, -this.game.map.width / 2, this.game.map.width / 2);
     this.shape.y = clamp(this.shape.y, -this.game.map.height / 2, this.game.map.height / 2);

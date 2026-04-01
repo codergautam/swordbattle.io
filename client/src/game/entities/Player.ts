@@ -1108,8 +1108,9 @@ class Player extends BaseEntity {
 
     let curX = -totalW / 2;
 
-    for (const { offerPos } of majorEntries) {
-      const iconKey = `card_major${offerPos + 1}`;
+    for (const { id } of majorEntries) {
+      const majorIndex = ((id - 101) % 3) + 1;
+      const iconKey = `card_major${majorIndex}`;
       if (this.game.textures.exists(iconKey)) {
         const icon = this.game.add.image(curX + iconSz / 2, 0, iconKey);
         const s = Math.min(iconSz / icon.frame.width, iconSz / icon.frame.height);
@@ -1177,7 +1178,15 @@ class Player extends BaseEntity {
   update(dt: number) {
     super.update(dt);
 
-    if (this.choosingText) this.choosingText.setAlpha(0);
+    if (this.choosingText && !this.isMe) {
+      const isTutorial = (this as any).isTutorial;
+      if (isTutorial) {
+        this.choosingText.setText('In Tutorial');
+        this.choosingText.setAlpha(1);
+      } else {
+        this.choosingText.setAlpha(0);
+      }
+    }
 
     this.updateCardSummary();
 

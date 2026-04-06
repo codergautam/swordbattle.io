@@ -858,7 +858,6 @@ class Player extends BaseEntity {
         ? this.game.input.pointer2
         : this.game.input.pointer1;
     }
-    pointer.updateWorldPoint(this.game.cameras.main);
 
     if (this.game.controls.isInputDown(InputTypes.SwordSwing)) {
       if (!(this.swordFlying || this.swordRaiseStarted || this.swordDecreaseStarted)) {
@@ -875,7 +874,16 @@ class Player extends BaseEntity {
       return;
     }
 
-    let angle = Math.atan2(pointer.worldY - this.container.y, pointer.worldX - this.container.x);
+    let angle: number;
+    if ((this.game as any)._isZooming) {
+      const camera = this.game.cameras.main;
+      const cx = camera.width / 2;
+      const cy = camera.height / 2;
+      angle = Math.atan2(pointer.y - cy, pointer.x - cx);
+    } else {
+      pointer.updateWorldPoint(this.game.cameras.main);
+      angle = Math.atan2(pointer.worldY - this.container.y, pointer.worldX - this.container.x);
+    }
     // Round to 2 decimal places
     angle = Math.round(angle * 100) / 100;
 

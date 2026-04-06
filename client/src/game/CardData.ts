@@ -7,6 +7,7 @@ export interface MinorCardInfo {
   description: string;
   boostWord: string;
   icon: string;
+  plainBoost: string;
 }
 
 export interface MajorCardInfo {
@@ -19,13 +20,13 @@ export interface MajorCardInfo {
 }
 
 export const MinorCardData: Record<number, MinorCardInfo> = {
-  1:  { name: 'Sharp Stabs',      category: 'Offensive', color: 0xe83a3a, values: [5, 4, 4, 3, 3, 2, 2],   max: 7, description: 'Sword Damage',       boostWord: 'Damage',        icon: 'card_damage' },
-  2:  { name: 'Quick Swing',      category: 'Offensive', color: 0x5b9ee6, values: [6, 5, 5, 4, 4, 3, 3],   max: 7, description: 'Attack Speed',       boostWord: 'Faster',        icon: 'card_attackspeed' },
-  4:  { name: 'Sharpshooter',     category: 'Offensive', color: 0x2d8c4e, values: [5, 4, 4, 3, 3, 2, 2],   max: 7, description: 'Throw Power',        boostWord: 'Power',         icon: 'card_throwdamage' },
-  5:  { name: 'Defense Training', category: 'Defensive', color: 0xb050d0, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Max Health',         boostWord: 'Health',        icon: 'card_maxhealth' },
-  7:  { name: 'Fast Heal',        category: 'Defensive', color: 0x40c8b8, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Regeneration',       boostWord: 'Regeneration',  icon: 'card_regenrate' },
-  9:  { name: 'Swiftness',        category: 'Utility',   color: 0x2850e0, values: [5, 4, 4, 3, 3, 3, 2],   max: 7, description: 'Move Speed',         boostWord: 'Faster',        icon: 'card_movespeed' },
-  13: { name: 'Size Scale',       category: 'Utility',   color: 0xc8c070, values: [4, 3, 3, 2, 2, 2, 2],   max: 7, description: 'Player Size',        boostWord: 'Increase',      icon: 'card_playersize' },
+  1:  { name: 'Sharp Stabs',      category: 'Offensive', color: 0xe83a3a, values: [5, 4, 4, 3, 3, 2, 2],   max: 7, description: 'Sharp Stabs',        boostWord: 'Damage',        icon: 'card_damage',       plainBoost: 'More damage' },
+  2:  { name: 'Quick Swing',      category: 'Offensive', color: 0x5b9ee6, values: [6, 5, 5, 4, 4, 3, 3],   max: 7, description: 'Quick Swing',        boostWord: 'Faster',        icon: 'card_attackspeed',  plainBoost: 'Faster swings' },
+  4:  { name: 'Sharpshooter',     category: 'Offensive', color: 0x2d8c4e, values: [5, 4, 4, 3, 3, 2, 2],   max: 7, description: 'Sharpshooter',       boostWord: 'Power',         icon: 'card_throwdamage',  plainBoost: 'Better throwing' },
+  5:  { name: 'Heavy Defense',    category: 'Defensive', color: 0xb050d0, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Heavy Defense',      boostWord: 'Health',        icon: 'card_maxhealth',    plainBoost: 'More health' },
+  7:  { name: 'Regeneration',     category: 'Defensive', color: 0x40c8b8, values: [8, 7, 6, 5, 5, 4, 4],   max: 7, description: 'Regeneration',       boostWord: 'Regeneration',  icon: 'card_regenrate',    plainBoost: 'Heal faster' },
+  9:  { name: 'Swiftness',        category: 'Utility',   color: 0x2850e0, values: [5, 4, 4, 3, 3, 3, 2],   max: 7, description: 'Swiftness',          boostWord: 'Faster',        icon: 'card_movespeed',    plainBoost: 'Move faster' },
+  13: { name: 'Size Scale',       category: 'Utility',   color: 0xc8c070, values: [4, 3, 3, 2, 2, 2, 2],   max: 7, description: 'Size Scale',         boostWord: 'Increase',      icon: 'card_playersize',   plainBoost: 'Bigger player' },
 };
 
 export const MajorCardData: Record<number, MajorCardInfo> = {
@@ -80,12 +81,29 @@ export const MajorCardData: Record<number, MajorCardInfo> = {
   130: { name: 'Insurance',           category: 'Endurance',     color: 0xffd700, positiveText: 'Keep 40% coins next respawn',       negativeText: 'Respawn with 0 coins after that death', icon: 'card_insurance' },
 };
 
+export interface StarterCardInfo {
+  name: string;
+  color: number;
+  boostText: string;
+  icon: string;
+}
+
+export const StarterCardData: Record<number, StarterCardInfo> = {
+  201: { name: 'Heavy Armor',  color: 0xb050d0, boostText: '+20% Max Health',  icon: 'card_maxhealth' },
+  202: { name: 'Super Speed',  color: 0x2850e0, boostText: '+15% Move Speed',  icon: 'card_movespeed' },
+  203: { name: 'Sharpness',    color: 0xe83a3a, boostText: '+10% Sword Damage', icon: 'card_damage' },
+};
+
 export function isMinorCard(id: number): boolean {
   return id >= 1 && id <= 13;
 }
 
 export function isMajorCard(id: number): boolean {
   return id >= 101 && id <= 130;
+}
+
+export function isStarterCard(id: number): boolean {
+  return id >= 201 && id <= 203;
 }
 
 export function getCardInfo(id: number): MinorCardInfo | MajorCardInfo | null {

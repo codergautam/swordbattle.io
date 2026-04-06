@@ -50,7 +50,7 @@ export const settingsList: Record<string, SettingType> = {
   useWebGL: {
     name: 'Use WebGL (requires reload)',
     type: 'toggle',
-    default: false,
+    default: true,
     onChange: (newValue: boolean) => {
       const saved = localStorage.getItem('swordbattle:WebGL');
       if (newValue) localStorage.setItem('swordbattle:WebGL', 'OK');
@@ -132,6 +132,14 @@ class SettingsManager {
           this.saveSetting(key, newValue);
         },
       })
+    }
+
+    if (!localStorage.getItem('swordbattle:webgl_migrated')) {
+      localStorage.setItem('swordbattle:webgl_migrated', '1');
+      const saved = this.get();
+      if (saved.useWebGL === undefined) {
+        localStorage.setItem('swordbattle:WebGL', 'OK');
+      }
     }
 
     const savedSettings = this.get();

@@ -452,8 +452,8 @@ class GameState {
 
   updateTick(dt: number) {
     this.tickAccumulator += dt;
-    if (this.tickAccumulator > 200) {
-      this.tickAccumulator = 50;
+    if (this.tickAccumulator > 150) {
+      this.tickAccumulator = 150;
     }
     while (this.tickAccumulator >= 50) {
       this.tick();

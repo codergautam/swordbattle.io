@@ -133,11 +133,8 @@ class CardSelect extends HudComponent {
     this.panelBg.fillRoundedRect(-60 / this.scale, 0, layout.panelW + 60 / this.scale, layout.panelH, { tl: 0, tr: 12, bl: 0, br: 12 } as any);
     this.panelBg.setVisible(true);
 
-    const gradW = gradientWidth / this.scale;
     this.panelGradient.clear();
-    this.panelGradient.fillGradientStyle(0x000000, 0x000000, 0x000000, 0x000000, panelOpacity, 0, panelOpacity, 0);
-    this.panelGradient.fillRect(layout.panelW, 0, gradW, layout.panelH);
-    this.panelGradient.setVisible(true);
+    this.panelGradient.setVisible(false);
 
     this.headerText.setPosition(layout.centerX, layout.headerY);
     this.headerText.setFontSize(layout.headerFontSize).setText('SELECT AN\nUPGRADE');
@@ -156,13 +153,8 @@ class CardSelect extends HudComponent {
     this._currentChosenCards = chosenCards;
 
     const stacks = countStacks(chosenCards);
-    const hasStarter = offers.some(id => isStarterCard(id));
     const hasMajor = offers.some(id => isMajorCard(id));
     this.isMajorPick = hasMajor;
-
-    if (hasStarter && this.headerText) {
-      this.headerText.setText('CHOOSE YOUR\nSTARTER BOOST');
-    }
 
     const layout = this._getPanelLayout();
     const numCards = offers.length;

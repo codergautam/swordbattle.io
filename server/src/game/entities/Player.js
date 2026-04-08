@@ -274,8 +274,17 @@ class Player extends Entity {
 
   applyBiomeEffects() {
     const response = new SAT.Response();
-    let topBiome = null;
-    let topZIndex = -Infinity;
+
+    const BIOME_PRIORITY = {
+      [Types.Biome.Safezone]: 3,
+      [Types.Biome.River]: 2,
+      [Types.Biome.Earth]: 1,
+      [Types.Biome.Fire]: 1,
+      [Types.Biome.Ice]: 1,
+    };
+
+    let bestBiome = null;
+    let bestScore = -Infinity;
     let foundSafezone = false;
 
     const appliedBiomeTypes = new Set();
@@ -294,21 +303,23 @@ class Player extends Entity {
           biome.applyEffects(this, response);
         }
 
-        if (biome.zIndex > topZIndex) {
-          topZIndex = biome.zIndex;
-          topBiome = biome;
+        const score = BIOME_PRIORITY[biome.type] ?? 0;
+        if (score > bestScore) {
+          bestScore = score;
+          bestBiome = biome;
         }
       }
     }
 
-    if (topBiome) {
-      this.biome = topBiome.type;
+    if (bestBiome) {
+      this.biome = bestBiome.type;
     }
 
     if (!foundSafezone) {
       this.inSafezone = false;
     }
   }
+
 
   processTargetsCollision(entity, response) {
     if (this.cards.choosingCard && this.cards.instantSelect) return;

@@ -430,6 +430,11 @@ class Player extends BaseEntity {
     if (data.biome !== undefined) {
       const isTextBlack = data.biome !== BiomeTypes.Fire;
       this.messageText?.setFill(isTextBlack ? '#000000' : '#ffffff');
+
+      if (this.isMe) {
+        const biomeName = BiomeTypes[data.biome];
+        this.game.events.emit('biomeUpdate', biomeName);
+      }
     }
 
     if (data.biome !== undefined || data.coins !== undefined || (data.flags && data.flags[FlagTypes.RespawnShield] !== undefined)) {

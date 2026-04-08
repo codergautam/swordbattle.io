@@ -83,8 +83,8 @@ class Game {
 
       if (!entity.targets.has(targetEntity.type)) continue;
 
-      if (entity.cards && entity.cards.choosingCard && entity.cards.instantSelect) continue;
-      if (targetEntity.cards && targetEntity.cards.choosingCard && targetEntity.cards.instantSelect) continue;
+      if (entity.cards && entity.cards.choosingCard && entity.cards.instantSelect && !entity.cards.isTutorial) continue;
+      if (targetEntity.cards && targetEntity.cards.choosingCard && targetEntity.cards.instantSelect && !targetEntity.cards.isTutorial) continue;
 
       response.clear();
       if (targetEntity.shape.collides(entity.shape, response)) {
@@ -353,7 +353,7 @@ class Game {
         player.coinShield = 500;
         player.cards.isTutorial = false;
         player.respawnShieldFadeActive = true;
-        player.respawnShieldFadeTimer = 5;
+        player.respawnShieldFadeTimer = 8;
 
       }
     }
@@ -581,7 +581,7 @@ class Game {
         }
 
         player.respawnShieldActive = true;
-        player.respawnShieldTimer = 10;
+        player.respawnShieldTimer = 15;
 
         player.respawnedAt = Date.now();
         player.respawnKillerName = pendingRespawn.killerName;

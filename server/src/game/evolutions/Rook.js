@@ -37,12 +37,12 @@ module.exports = class Rook extends Evolution {
 
     this.player.shape.setScale(1.15);
     this.player.speed.multiplier *= 0.925;
-    this.player.sword.damage.multiplier *= 1.25;
+    this.player.sword.damage.multiplier *= 1.2;
     this.player.sword.swingDuration.multiplier['ability'] = 1.325;
     this.player.sword.knockback.multiplier['ability'] = 0.9;
-    this.player.knockbackResistance.multiplier *= 1.35;
-    this.player.health.max.multiplier *= 1.45;
-    this.player.health.regen.multiplier *= 1.3;
+    this.player.knockbackResistance.multiplier *= 1.3;
+    this.player.health.max.multiplier *= 1.4;
+    this.player.health.regen.multiplier *= 1.25;
     this.player.health.regenWait.multiplier *= 1.1;
     super.update(dt);
   }

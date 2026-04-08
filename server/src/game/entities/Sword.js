@@ -365,7 +365,7 @@ processTargetsCollision(entity) {
     if (entity === this.player) return;
     if (!this.canCollide(entity)) return;
     if (entity.cards && entity.cards.choosingCard && entity.cards.instantSelect) return;
-    if (entity.cards && entity.cards.isTutorial && this.player.type === Types.Entity.Player) return;
+    if (entity.cards && entity.cards.isTutorial && this.player.type === Types.Entity.Player && !this.player.isBot) return;
     if (this.player.cards && this.player.cards.isTutorial && entity.type === Types.Entity.Player) {
       if (!entity.isBot) {
         this.player.flags.set(Types.Flags.TutorialHitBlocked, true);

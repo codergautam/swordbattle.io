@@ -17,6 +17,9 @@ class Minimap extends HudComponent {
   scaleX = 0;
   scaleY = 0;
   minimized = false;
+  private _minimapAccumulator: number = 0;
+  private _minimapInterval: number = 67;
+  private _dotPositions: Map<string, { x: number, y: number, targetX: number, targetY: number, radius: number, isSelf: boolean }> = new Map();
 
   initialize() {
     const arrowStyle = {
@@ -177,37 +180,67 @@ class Minimap extends HudComponent {
 
     const { graphics } = this;
     const map = this.game.gameState.gameMap;
-    this.updateGlobalEntities();
 
+    this._minimapAccumulator += dt;
+    const shouldRecalc = this._minimapAccumulator >= this._minimapInterval;
+    if (shouldRecalc) {
+      this._minimapAccumulator -= this._minimapInterval;
+      this.updateGlobalEntities();
+
+      const globalEntities = this.game.gameState.globalEntities;
+      const activeIds = new Set<string>();
+      for (const id in globalEntities) {
+        const player = globalEntities[id] as any;
+        if (player.type !== EntityTypes.Player) continue;
+        const targetX = (player.shape.x - map.x) * this.scaleX;
+        const targetY = (player.shape.y - map.y) * this.scaleY;
+        const isSelf = player.id === this.game.gameState.self.id;
+        const scale = this.scaleX * (isSelf ? 3 : 2);
+        const dotRadius = player.shape.radius * scale;
+
+        activeIds.add(id);
+        const existing = this._dotPositions.get(id);
+        if (existing) {
+          existing.targetX = targetX;
+          existing.targetY = targetY;
+          existing.radius = dotRadius;
+          existing.isSelf = isSelf;
+        } else {
+          this._dotPositions.set(id, { x: targetX, y: targetY, targetX, targetY, radius: dotRadius, isSelf });
+        }
+      }
+      for (const id of this._dotPositions.keys()) {
+        if (!activeIds.has(id)) this._dotPositions.delete(id);
+      }
+    }
+
+    const lerpRate = 1 - Math.exp(-dt / this._minimapInterval);
     graphics.clear();
     graphics.lineStyle(1, 0x000000);
 
-    const globalEntities = this.game.gameState.globalEntities;
-    let leader;
+    let leader: any = null;
     let leaderDotVisible = true;
-    for (const id in globalEntities) {
-      const player = globalEntities[id] as any;
-      if (player.type !== EntityTypes.Player) continue;
-      const playerX = (player.shape.x - map.x) * this.scaleX;
-      const playerY = (player.shape.y - map.y) * this.scaleY;
-      const isSelf = player.id === this.game.gameState.self.id;
-      const scale = this.scaleX * (isSelf ? 3 : 2);
-      const dotRadius = player.shape.radius * scale;
+    const globalEntities = this.game.gameState.globalEntities;
 
-      // Hide dot if too small
-      if (dotRadius < 1) {
-        if (!leader || (player.coins > leader.coins)) {
+    for (const [id, dot] of this._dotPositions) {
+      dot.x += (dot.targetX - dot.x) * lerpRate;
+      dot.y += (dot.targetY - dot.y) * lerpRate;
+
+      if (dot.radius < 1) {
+        const player = globalEntities[id as any] as any;
+        if (player && (!leader || player.coins > leader.coins)) {
           leader = player;
           leaderDotVisible = false;
         }
         continue;
       }
 
-      graphics.fillStyle(isSelf ? 0xffffff : 0xff0000);
-      graphics.fillCircle(playerX, playerY, dotRadius);
+      graphics.fillStyle(dot.isSelf ? 0xffffff : 0xff0000);
+      graphics.fillCircle(dot.x, dot.y, dot.radius);
       graphics.stroke();
 
-      if (!leader || (player.coins > leader.coins)) {
+      const player = globalEntities[id as any] as any;
+      if (player && (!leader || player.coins > leader.coins)) {
         leader = player;
         leaderDotVisible = true;
       }

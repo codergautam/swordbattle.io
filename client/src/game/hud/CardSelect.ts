@@ -1,5 +1,5 @@
 import HudComponent from './HudComponent';
-import { MinorCardData, MajorCardData, isMinorCard, isMajorCard, getMinorTotalPercent, getMinorNextValue, countStacks } from '../CardData';
+import { MinorCardData, MajorCardData, StarterCardData, isMinorCard, isMajorCard, isStarterCard, getMinorTotalPercent, getMinorNextValue, countStacks } from '../CardData';
 
 const bgColor = 0x141414;
 const borderColor = 0x2f2f2f;
@@ -133,11 +133,8 @@ class CardSelect extends HudComponent {
     this.panelBg.fillRoundedRect(-60 / this.scale, 0, layout.panelW + 60 / this.scale, layout.panelH, { tl: 0, tr: 12, bl: 0, br: 12 } as any);
     this.panelBg.setVisible(true);
 
-    const gradW = gradientWidth / this.scale;
     this.panelGradient.clear();
-    this.panelGradient.fillGradientStyle(0x000000, 0x000000, 0x000000, 0x000000, panelOpacity, 0, panelOpacity, 0);
-    this.panelGradient.fillRect(layout.panelW, 0, gradW, layout.panelH);
-    this.panelGradient.setVisible(true);
+    this.panelGradient.setVisible(false);
 
     this.headerText.setPosition(layout.centerX, layout.headerY);
     this.headerText.setFontSize(layout.headerFontSize).setText('SELECT AN\nUPGRADE');
@@ -199,8 +196,9 @@ class CardSelect extends HudComponent {
 
   createCard(scene: Phaser.Scene, cardId: number, currentStacks: number, x: number, y: number, offerIndex: number, baseScale: number, cw: number, ch: number): Phaser.GameObjects.Container {
     const isMajor = isMajorCard(cardId);
-    const accentColor = isMajor ? accentMajor : accentMinor;
-    const cardInfo = isMajor ? MajorCardData[cardId] : MinorCardData[cardId];
+    const isStarter = isStarterCard(cardId);
+    const accentColor = isStarter ? 0xffd700 : (isMajor ? accentMajor : accentMinor);
+    const cardInfo = isStarter ? StarterCardData[cardId] : (isMajor ? MajorCardData[cardId] : MinorCardData[cardId]);
     if (!cardInfo) return scene.add.container(x, y);
 
     const elements: Phaser.GameObjects.GameObject[] = [];
@@ -223,7 +221,35 @@ class CardSelect extends HudComponent {
     const contentH = ch - padTop - padBottom;
     const tScale = cw / 140;
 
-    if (isMinorCard(cardId)) {
+    if (isStarterCard(cardId)) {
+      const starterInfo = StarterCardData[cardId];
+      const z = contentH / 3;
+
+      const iconSz = Math.min(z * 0.6, cw * 0.28);
+      const iconY = contentTop + z * 0.45;
+      if (scene.textures.exists(starterInfo.icon)) {
+        const img = scene.add.image(0, iconY, starterInfo.icon);
+        img.setScale(Math.min(iconSz / img.frame.width, iconSz / img.frame.height));
+        elements.push(img);
+      } else {
+        const fb = scene.add.graphics();
+        fb.fillStyle(0xffd700, 0.15);
+        fb.fillRoundedRect(-iconSz / 2, iconY - iconSz / 2, iconSz, iconSz, 8);
+        elements.push(fb);
+      }
+
+      const titleSz = Math.round(Math.max(9, Math.min(18, z * 0.3 * tScale)));
+      elements.push(scene.add.text(0, contentTop + z * 1.2, starterInfo.name, {
+        fontSize: `${titleSz}px`, fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
+        color: '#ffd700', align: 'center', wordWrap: { width: cw - 12 },
+      }).setOrigin(0.5));
+
+      const boostSz = Math.round(Math.max(8, Math.min(15, z * 0.28 * tScale)));
+      elements.push(scene.add.text(0, contentTop + z * 1.95, starterInfo.boostText, {
+        fontSize: `${boostSz}px`, fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
+        color: '#66ff66', align: 'center', wordWrap: { width: cw - 12 },
+      }).setOrigin(0.5));
+    } else if (isMinorCard(cardId)) {
       const minorInfo = MinorCardData[cardId];
       const nextVal = getMinorNextValue(cardId, currentStacks);
       const totalPct = getMinorTotalPercent(cardId, currentStacks);
@@ -249,7 +275,7 @@ class CardSelect extends HudComponent {
       }).setOrigin(0.5));
 
       const boostSz = Math.round(Math.max(9, Math.min(20, z * 0.38 * tScale)));
-      const valText = nextVal !== null ? `+${nextVal}% ${minorInfo.boostWord}` : 'MAXED';
+      const valText = nextVal !== null ? minorInfo.plainBoost : 'MAXED';
       elements.push(scene.add.text(0, contentTop + z * 2.5, valText, {
         fontSize: `${boostSz}px`, fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
         color: nextVal !== null ? '#66ff66' : '#ff6666', align: 'center',

@@ -15,7 +15,7 @@ class YetiMob extends Entity {
     regen: 2,
     speed: 35,
     damage: 2,
-    bossDamage: 15,
+    bossDamage: 10,
     snowballCooldown: [0.2, 0.4],
     snowballDuration: [2, 3],
     snowballSpeed: 90,

@@ -22,11 +22,11 @@ class Chimera extends Entity {
     // this.tokensDrop = 100;
 
     this.jumpTimer = new Timer(0, 4, 5);
-    this.angryTimer = new Timer(0, 15, 20);
+    this.angryTimer = new Timer(0, 4, 7);
 
-    this.health = new Health(60, 5);
+    this.health = new Health(35, 3);
     this.speed = new Property(7);
-    this.damage = new Property(3);
+    this.damage = new Property(2);
 
     this.target = null;
     this.targets.add(Types.Entity.Player);
@@ -42,8 +42,8 @@ class Chimera extends Entity {
     this.turnDirection = 1;
 
     this.normalSpeed = this.speed.value * 8;
-    this.maxChargeSpeed = this.speed.value * 13.0;
-    this.chargeAccel = 2200;
+    this.maxChargeSpeed = this.speed.value * 5.5;
+    this.chargeAccel = 800;
 
     this.climbRate = 350;
     this.diveRate = 450;
@@ -55,7 +55,7 @@ class Chimera extends Entity {
     this.hasDealtChargeDamage = false;
     this.chargeSpeed = 0;
 
-    this.knockbackResistance = new Property(99999999999999999);
+    this.knockbackResistance = new Property(8);
 
     this.spawn();
   }
@@ -138,7 +138,7 @@ class Chimera extends Entity {
 
     if (diff < 0.25) {
       this.aiState = 'charge';
-      this.chargeSpeed = this.speed.value * 4.4;
+      this.chargeSpeed = this.speed.value * 2.0;
       this.hasDealtChargeDamage = false;
     }
   }
@@ -226,10 +226,10 @@ class Chimera extends Entity {
   processTargetsCollision(entity) {
     if (entity.type === Types.Entity.Player) {
       if (this.aiState === 'charge' && this.canBeHitByPlayer && !this.hasDealtChargeDamage) {
-        entity.damaged(this.damage.value * 5, this);
+        entity.damaged(this.damage.value * 4, this);
 
         if (this.altitude <= this.lowAltitude) {
-          this.applyVelocityKnockback(entity, 5 * 2);
+          this.applyVelocityKnockback(entity, 5 * 4);
         }
 
         this.hasDealtChargeDamage = true;

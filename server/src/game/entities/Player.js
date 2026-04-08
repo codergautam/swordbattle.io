@@ -207,11 +207,11 @@ class Player extends Entity {
         this.respawnShieldTimer = 0;
         this.respawnShieldActive = false;
         this.respawnShieldFadeActive = true;
-        this.respawnShieldFadeTimer = 3;
+        this.respawnShieldFadeTimer = 5;
       }
     } else if (this.respawnShieldFadeActive) {
       this.respawnShieldFadeTimer -= dt;
-      this.respawnShieldFadeMult = 1 - Math.max(0, this.respawnShieldFadeTimer / 3);
+      this.respawnShieldFadeMult = 1 - Math.max(0, this.respawnShieldFadeTimer / 5);
       this.flags.set(Types.Flags.RespawnShield, 2);
       if (this.respawnShieldFadeTimer <= 0) {
         this.respawnShieldFadeTimer = 0;
@@ -341,7 +341,7 @@ class Player extends Entity {
   }
 
   applyInputs(dt) {
-    if (this.cards.choosingCard && this.cards.instantSelect) {
+    if (this.cards.choosingCard && this.cards.instantSelect && !this.cards.isTutorial) {
       this.velocity.x = 0;
       this.velocity.y = 0;
       return;
@@ -494,7 +494,7 @@ class Player extends Entity {
   }
 
   damaged(damage, entity = null, isThrown = false) {
-    if (this.cards.choosingCard && this.cards.instantSelect) return;
+    if (this.cards.choosingCard && this.cards.instantSelect && !this.cards.isTutorial) return;
     if (this.removed) return;
 
     const origDamage = damage;
@@ -531,6 +531,13 @@ class Player extends Entity {
 
     if (this.name !== "Update Testing Account") {
       this.health.damaged(damage);
+    }
+
+    if (this.cards.isTutorial && this.health.isDead) {
+      this.health.percent = 1;
+      this.health.isDead = false;
+      this.flags.set(Types.Flags.TutorialSaved, true);
+      return;
     }
 
     if (this.evolutions && this.evolutions.evolutionEffect && typeof this.evolutions.evolutionEffect.onDamaged === 'function') {

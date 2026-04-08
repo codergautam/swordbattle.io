@@ -1,4 +1,4 @@
-const { MinorCards, MajorCards, isMinorCard, isMajorCard, getAllMinorIds, getAllMajorIds, getMajorCardsByCategory } = require('./CardDefinitions');
+const { MinorCards, MajorCards, StarterCards, isMinorCard, isMajorCard, isStarterCard, getAllMinorIds, getAllMajorIds, getAllStarterIds, getMajorCardsByCategory } = require('./CardDefinitions');
 const Types = require('../Types');
 
 
@@ -24,6 +24,7 @@ class CardSystem {
     this.lastSkipResults = [];
     this.majorPicksSkipped = 0;
 
+    this.starterBoost = null;
     this.isTutorial = false;
 
     this.aggressionLastHitTime = 0;
@@ -128,6 +129,10 @@ class CardSystem {
   }
 
   generateOffers() {
+    if (this.cardPickNumber === 0) {
+      return getAllStarterIds();
+    }
+
     const isMajorPick = this.cardPickNumber > 0 && (this.cardPickNumber + 1) % 5 === 0;
     if (isMajorPick) {
       return this.generateMajorOffers();
@@ -274,7 +279,10 @@ class CardSystem {
     if (!this.choosingCard) return;
     if (!this.cardOffers.includes(cardId)) return;
 
-    if (isMinorCard(cardId)) {
+    if (isStarterCard(cardId)) {
+      const starter = StarterCards[cardId];
+      this.starterBoost = { stat: starter.stat, value: starter.value };
+    } else if (isMinorCard(cardId)) {
       const card = MinorCards[cardId];
       const stacks = this.minorStacks[cardId] || 0;
       if (stacks >= card.max) return;
@@ -368,6 +376,13 @@ class CardSystem {
 
   applyCardEffects() {
     const p = this.player;
+
+    if (this.starterBoost) {
+      const { stat, value } = this.starterBoost;
+      if (stat === 'maxHp') p.health.max.multiplier *= 1 + value;
+      else if (stat === 'speed') p.speed.multiplier *= 1 + value;
+      else if (stat === 'damage') p.sword.damage.multiplier *= 1 + value;
+    }
 
     const totalStacks = Object.values(this.minorStacks).reduce((sum, s) => sum + (s || 0), 0);
     const dimReturn = totalStacks > 0 ? 1 / (1 + totalStacks * 0.008) : 1;

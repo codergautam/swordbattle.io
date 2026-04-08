@@ -76,7 +76,6 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
           gameplayDelayTimer = null;
         }
         if (gameplayStartCalled) {
-          crazygamesSDK.gameplayStop();
         }
         gameplayStartCalled = false;
       });

@@ -14,6 +14,8 @@ class TutorialOverlay extends HudComponent {
   nextButton: Phaser.GameObjects.Container | null = null;
   nextButtonBg: Phaser.GameObjects.Graphics | null = null;
   nextButtonText: Phaser.GameObjects.Text | null = null;
+  arrowText: Phaser.GameObjects.Text | null = null;
+  shieldWasActive = false;
   hasSwung = false;
   isDead = false;
   isMobile = false;
@@ -54,11 +56,16 @@ class TutorialOverlay extends HudComponent {
     nextHit.on('pointerout', () => this._drawNextButton(false));
     this.nextButton = scene.add.container(0, 0, [this.nextButtonBg, this.nextButtonText, nextHit]);
 
+    this.arrowText = scene.add.text(0, 0, '\u2190', {
+      fontSize: '64px', fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
+      color: '#ffd700', stroke: '#000000', strokeThickness: 5,
+    }).setOrigin(0.5).setVisible(false).setDepth(106);
+
     this.panelContainer = scene.add.container(0, 0, [
       this.bgGraphics, this.headerText, this.bodyText, this.progressText, this.nextButton,
     ]);
 
-    this.container = scene.add.container(0, 0, [this.panelContainer]);
+    this.container = scene.add.container(0, 0, [this.panelContainer, this.arrowText]);
     this.container.setDepth(105);
     this.container.setVisible(false);
   }
@@ -179,12 +186,12 @@ class TutorialOverlay extends HudComponent {
         if (!this.shownUpgradePanel) {
           body = 'You\'ve spawned in the Safezone. Move left, past the water, to reach the Grass biome!\n\nCollect coins to get stronger! Coins spawn on the ground, but you can break nearby chests or hunt down mobs for WAY more!';
         } else {
-          body = 'Keep collecting coins! Remember: bigger chests drop more coins, but take longer to break. Also be careful when fighting mobs, some fight back!';
+          body = 'Keep collecting coins! Remember: bigger chests drop more coins, but take longer to break. Also be careful when fighting mobs, some fight back!\n\nAt 1,000 coins you\'ll be able to choose an Evolution!';
         }
         break;
       }
       case 2: {
-        body = 'You\'ve unlocked your first upgrade! Select 1 of the 3 cards to improve a stat and specialize your build.\n\nFuture upgrades appear via the Upgrades button on the left. Every 5th upgrade is a Major upgrade with unique powers!';
+        body = 'You\'ve unlocked your first upgrade! Select 1 of the 3 cards to improve a stat and specialize your build.\n\nEvery 5th upgrade is a powerful Major upgrade with unique powers!';
         this.progressText.setText('Choose an upgrade to proceed');
         break;
       }
@@ -194,7 +201,7 @@ class TutorialOverlay extends HudComponent {
         break;
       }
       case 4: {
-        body = 'Your shield is now fading! Other players can now duel you. Keep picking upgrades and creating a strong build!\n\nWhen fighting, make sure to time your hits and use your throw when far away, but you can always stay back if you don\'t want to fight! The choice is yours!';
+        body = 'Your shield is now fading! Other players can now duel you. Keep picking upgrades and creating a strong build!\n\nRemember to stay back from enemies if you don\'t want to fight!';
         showNext = true;
         break;
       }
@@ -213,6 +220,35 @@ class TutorialOverlay extends HudComponent {
     if (panelId === 1 || panelId === 2) {
       panelH += 22;
       this.progressText.setPosition(0, 42 + textHeight);
+    }
+
+    if (this.arrowText && this.hud.scene) {
+      this.hud.scene.tweens.killTweensOf(this.arrowText);
+      if (panelId === 1 && !this.shownUpgradePanel) {
+        const { width, height } = this.game.scale;
+        const arrowX = width / (4 * this.scale);
+        const arrowY = height / (2 * this.scale);
+        this.arrowText.setPosition(arrowX, arrowY);
+        this.arrowText.setVisible(true);
+        this.arrowText.setAlpha(1);
+        this.hud.scene.tweens.add({
+          targets: this.arrowText,
+          x: arrowX - 30,
+          duration: 500,
+          yoyo: true,
+          repeat: 3,
+          ease: 'Sine.easeInOut',
+        });
+        this.hud.scene.tweens.add({
+          targets: this.arrowText,
+          alpha: 0,
+          delay: 3500,
+          duration: 800,
+          onComplete: () => { if (this.arrowText) this.arrowText.setVisible(false); },
+        });
+      } else {
+        this.arrowText.setVisible(false);
+      }
     }
 
     if (showNext || isEnd) {
@@ -266,7 +302,9 @@ class TutorialOverlay extends HudComponent {
 
   advancePanel() {
     if (this.panel >= 5) {
-      this.endTutorial();
+      this.active = false;
+      this.panel = -1;
+      this.container?.setVisible(false);
       return;
     }
 
@@ -276,17 +314,14 @@ class TutorialOverlay extends HudComponent {
 
     this.panel++;
     this.showPanel(this.panel);
-  }
 
-  endTutorial() {
-    this.active = false;
-    this.panel = -1;
-    this.container?.setVisible(false);
-    this.game.gameState.tutorialComplete = true;
-    try {
-      localStorage.setItem('swordbattle:tutorialComplete', 'true');
-      sessionStorage.removeItem('swordbattle:tutorialSession');
-    } catch (e) {}
+    if (this.panel === 5) {
+      this.game.gameState.tutorialComplete = true;
+      try {
+        localStorage.setItem('swordbattle:tutorialComplete', 'true');
+        sessionStorage.removeItem('swordbattle:tutorialSession');
+      } catch (e) {}
+    }
   }
 
   onDeath() {
@@ -358,6 +393,11 @@ class TutorialOverlay extends HudComponent {
       this._drawNextButton(false, this.panel === 5);
     }
 
+    const flags = (player as any).flags;
+    if (flags && flags[22]) {
+      this.game.hud.showAnnouncement('Close call! You can\'t die during the tutorial, but be careful!', '#ff8800', 3000, 0.5, true);
+    }
+
     if (this.isDead) return;
 
     if (this.panel === 0) {
@@ -377,28 +417,36 @@ class TutorialOverlay extends HudComponent {
       if (remaining > 0) {
         this.progressText.setText(`Collect ${remaining} more coins to proceed`);
       } else {
-        this.panel = 2;
-        this.showPanel(2);
+        const possEvols = (player as any).possibleEvolutions;
+        if (possEvols && Object.keys(possEvols).length > 0) {
+          this.panel = 3;
+          this.showPanel(3);
+        } else {
+          this.lastCardPickNumber = (player as any).cardPickNumber || 0;
+          this.panel = 2;
+          this.showPanel(2);
+        }
       }
 
       const choosingCard = (player as any).choosingCard;
       if (choosingCard && !this.shownUpgradePanel) {
         this.shownUpgradePanel = true;
+        this.lastCardPickNumber = ((player as any).cardPickNumber || 0) - 1;
         this.panel = 2;
         this.showPanel(2);
       }
     }
 
     if (this.panel === 2) {
-      const pickNum = (player as any).cardPickNumber || 0;
-      if (pickNum > this.lastCardPickNumber) {
-        this.lastCardPickNumber = pickNum;
-        this.shownUpgradePanel = true;
-        const possEvols = (player as any).possibleEvolutions;
-        if (possEvols && Object.keys(possEvols).length > 0) {
-          this.panel = 3;
-          this.showPanel(3);
-        } else {
+      const possEvols = (player as any).possibleEvolutions;
+      if (possEvols && Object.keys(possEvols).length > 0) {
+        this.panel = 3;
+        this.showPanel(3);
+      } else {
+        const pickNum = (player as any).cardPickNumber || 0;
+        if (pickNum > this.lastCardPickNumber) {
+          this.lastCardPickNumber = pickNum;
+          this.shownUpgradePanel = true;
           this.panel = 1;
           this.showPanel(1);
         }
@@ -416,6 +464,16 @@ class TutorialOverlay extends HudComponent {
     if (this.panel === 3) {
       const evolution = player.evolution;
       if (evolution && evolution !== 0) {
+        this.advancePanel();
+      }
+    }
+
+    if (this.panel === 4) {
+      const flags = (player as any).flags;
+      const shieldFlag = flags ? flags[15] : 0;
+      if (shieldFlag) {
+        this.shieldWasActive = true;
+      } else if (this.shieldWasActive) {
         this.advancePanel();
       }
     }

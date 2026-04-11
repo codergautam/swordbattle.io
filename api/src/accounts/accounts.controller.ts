@@ -68,7 +68,7 @@ export class AccountsController {
   }
 
   @UseGuards(AccountGuard)
-  @SkipThrottle()
+  @SkipThrottle({ short: true, medium: true, long: true })
   @Post('getPrivateUserInfo')
   async getPrivateAccount(@Req() request: AccountRequest) {
     const id = request.account.id;

@@ -19,7 +19,7 @@ export class ClansController {
   constructor(private readonly clansService: ClansService) {}
 
   @Post('me')
-  @SkipThrottle()
+  @SkipThrottle({ short: true, medium: true, long: true })
   async getMyClan(@Req() req: AccountRequest) {
     const config = {
       clanCreationCost,
@@ -33,7 +33,7 @@ export class ClansController {
   }
 
   @Post('recommended')
-  @SkipThrottle()
+  @SkipThrottle({ short: true, medium: true, long: true })
   async listRecommended(@Req() req: AccountRequest, @Body() body: { seed?: number; showRequest?: boolean; showIneligible?: boolean }) {
     return this.clansService.listRecommended(req.account, {
       seed: body?.seed,
@@ -49,14 +49,14 @@ export class ClansController {
   }
 
   @Post('leaderboard')
-  @SkipThrottle()
+  @SkipThrottle({ short: true, medium: true, long: true })
   async leaderboard(@Body() body: { sort?: 'xp' | 'mastery' }) {
     const mode = body?.sort === 'mastery' ? 'mastery' : 'xp';
     return this.clansService.leaderboard(mode);
   }
 
   @Post('view/:id')
-  @SkipThrottle()
+  @SkipThrottle({ short: true, medium: true, long: true })
   async getClan(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { sort?: 'role' | 'xp' | 'mastery' | 'joined' },
@@ -163,7 +163,7 @@ export class ClansController {
   }
 
   @Post(':id/chat/history')
-  @SkipThrottle()
+  @SkipThrottle({ short: true, medium: true, long: true })
   async getChat(
     @Req() req: AccountRequest,
     @Param('id', ParseIntPipe) id: number,

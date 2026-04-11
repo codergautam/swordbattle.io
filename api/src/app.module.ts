@@ -27,18 +27,18 @@ import { AuthService } from './auth/auth.service';
     ThrottlerModule.forRoot([
       {
         name: 'short',
-        ttl: 1000, // 1 second
-        limit: 10, // 10 requests per second max
+        ttl: 1000,
+        limit: 30,
       },
       {
         name: 'medium',
-        ttl: 60000, // 1 minute
-        limit: 100, // 100 requests per minute max
+        ttl: 60000,
+        limit: 600,
       },
       {
         name: 'long',
-        ttl: 3600000, // 1 hour
-        limit: 1000, // 1000 requests per hour max
+        ttl: 3600000,
+        limit: 10000,
       },
     ]),
     AuthModule,

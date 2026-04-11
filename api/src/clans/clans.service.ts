@@ -23,8 +23,8 @@ import { containsProfanity } from '../helpers/profanityFilter';
 export const clanXpRequirement = 25_000;
 export const clanCreationCost = 20_000; // 100_000 after first day
 export const clanMemberCap = 25;
-export const clanLeaveCooldownMs = 24 * 60 * 60 * 1000;
-export const clanKickCooldownMs = 60 * 60 * 1000;
+export const clanLeaveCooldownMs = 0; // 24 * 60 * 60 * 1000
+export const clanKickCooldownMs = 0; // 60 * 60 * 1000
 export const clanDescriptionMax = 250;
 export const clanChatMaxLength = 200;
 export const clanChatHistoryLimit = 50;

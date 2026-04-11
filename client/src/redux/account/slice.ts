@@ -18,6 +18,8 @@ export type ClanSummary = {
   memberCount: number;
   leaderId: number;
   leaderUsername?: string;
+  xpRank?: number;
+  masteryRank?: number;
 };
 
 export type AccountClan = {
@@ -31,6 +33,7 @@ export type AccountState = {
   email: string;
   username: string;
   clan: AccountClan | null;
+  clanCooldownUntil: string | null;
   isLoggedIn: boolean;
   secret: string;
   gems: number;
@@ -61,6 +64,7 @@ const initialState: AccountState = {
   email: '',
   username: '',
   clan: null,
+  clanCooldownUntil: null,
   secret: '',
   isLoggedIn: false,
   gems: 0,
@@ -207,6 +211,7 @@ const accountSlice = createSlice({
       state.email = '';
       state.username = '';
       state.clan = null;
+      state.clanCooldownUntil = null;
       state.secret = '';
       state.gems = 0;
       state.mastery = 0;
@@ -237,6 +242,7 @@ const accountSlice = createSlice({
       state.email = action.payload.email;
       state.username = action.payload.username;
       state.clan = action.payload.clan ?? null;
+      state.clanCooldownUntil = action.payload.clanCooldownUntil ?? null;
       state.isLoggedIn = true;
       const previousToken = state.secret;
       state.secret = action.payload.secret;

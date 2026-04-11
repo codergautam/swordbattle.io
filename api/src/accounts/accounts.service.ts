@@ -1,17 +1,15 @@
-import { Injectable, NotFoundException, UnauthorizedException, Module } from '@nestjs/common';
-import { InjectRepository, TypeOrmModule } from '@nestjs/typeorm';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { Account } from './account.entity';
 import * as config from '../config';
 import validateUsername from 'src/helpers/validateUsername';
-import validateClantag from 'src/helpers/validateClantag';
 import validateUserbio from 'src/helpers/validateUserbio';
 import { Transaction } from 'src/transactions/transactions.entity';
 import * as cosmetics from '../cosmetics.json';
 import { CosmeticsService } from 'src/cosmetics/cosmetics.service';
 
 const usernameWaitTime = config.config.usernameWaitTime;
-const clanWaitTime = config.config.clanWaitTime;
 
 
 @Injectable()
@@ -310,24 +308,6 @@ export class AccountsService {
     return this.sanitizeAccount(account);
   }
 
-  async getClan(username: string) {
-    const account = await this.findOne({ where: { username: username } });
-    if (!account) {
-      throw new NotFoundException('User not found');
-    }
-    this.sanitizeAccount(account);
-    return account.clan || null;
-  }
-
-  async getClanById(id: number) {
-    const account = await this.findOne({ where: { id: id } });
-    if (!account) {
-      throw new NotFoundException('User not found');
-    }
-    this.sanitizeAccount(account);
-    return account.clan || null;
-  }
-
   async changeUserbio(id: number, userbio: string) {
     // validate userbio
     if (validateUserbio(userbio)) {
@@ -345,45 +325,6 @@ export class AccountsService {
       return { success: true };
     } catch (e) {
       return { error: "Failed to update bio, " + e.message };
-    }
-  }
-
-  async changeClantag(id: number, clantag: string) {
-    // validate clantag
-    if(validateClantag(clantag)) {
-      return {error: validateClantag(clantag)};
-    }
-    const account = await this.getById(id);
-
-    // Make sure the clantag is not changed too often
-    const now = new Date();
-    const lastClanChange = new Date(account.lastClanChange);
-    const diff = now.getTime() - lastClanChange.getTime();
-    if (diff < clanWaitTime) {
-
-      // Human readable error time left (seconds, hours, days)
-      let human = '';
-      const seconds = Math.ceil((clanWaitTime - diff) / 1000);
-      if (seconds < 60) {
-        human = seconds + ' seconds';
-      } else if (seconds < 3600) {
-        human = Math.ceil(seconds / 60) + ' minutes';
-      } else if (seconds < 86400) {
-        human = Math.ceil(seconds / 3600) + ' hours';
-      } else {
-        human = Math.ceil(seconds / 86400) + ' days';
-      }
-
-     return {error: 'You can change your clan again in ' + human};
-    }
-
-    account.clan = clantag.toUpperCase();
-    account.lastClanChange = new Date();
-    try {
-    await this.accountsRepository.save(account);
-    return {success: true};
-    } catch(e) {
-      return {error: 'Failed to update clan, '+ e.message};
     }
   }
 

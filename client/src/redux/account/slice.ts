@@ -1,10 +1,33 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../api';
 
+export type ClanSummary = {
+  id: number;
+  tag: string;
+  name: string;
+  frameId: number;
+  iconId: number;
+  frameColor: string;
+  iconColor: string;
+  description: string;
+  status: number;
+  xpRequirement: number;
+  masteryRequirement: number;
+  clanXp: number;
+  clanRank: number;
+  memberCount: number;
+};
+
+export type AccountClan = {
+  clan: ClanSummary;
+  role: number;
+  contributedXp: number;
+};
+
 export type AccountState = {
   email: string;
   username: string;
-  clan: string;
+  clan: AccountClan | null;
   isLoggedIn: boolean;
   secret: string;
   gems: number;
@@ -33,7 +56,7 @@ export type AccountState = {
 const initialState: AccountState = {
   email: '',
   username: '',
-  clan: '',
+  clan: null,
   secret: '',
   isLoggedIn: false,
   gems: 0,
@@ -120,31 +143,6 @@ export const changeNameAsync = createAsyncThunk(
   }
 );
 
-export const changeClanAsync = createAsyncThunk(
-  'account/changeClan',
-  async (newClantag: string, { getState, dispatch }) => {
-    // const state: any = getState();
-    try {
-      const response = await api.postAsync(`${api.endpoint}/auth/change-clantag?now=${Date.now()}`, {
-        newClantag
-      });
-
-      if (response.error) {
-        alert(response.error);
-      } else if (response.success) {
-        alert('Clan tag changed successfully');
-        // Dispatching actions to update clan and token in the state
-        dispatch(setClan(newClantag));
-        dispatch(setSecret(response.secret));
-      }
-    } catch (error) {
-      // Handle any other errors, such as network issues
-      console.error(error);
-      alert('An error occurred while changing the clan tag.');
-    }
-  }
-);
-
 export const changeBioAsync = createAsyncThunk(
   'account/changeBio',
   async (newUserbio: string, { getState, dispatch }) => {
@@ -203,16 +201,16 @@ const accountSlice = createSlice({
     clearAccount: (state) => {
       state.email = '';
       state.username = '';
-      state.clan = '';
+      state.clan = null;
       state.secret = '';
       state.gems = 0;
       state.mastery = 0;
       state.tokens = 0;
-      state.isLoggedIn = false;
+      state.isLoggedIn = true;
       state.skins = { equipped: 1, owned: [1] };
       window.phaser_game?.events.emit('tokenUpdate', '');
       state.is_v1 = false;
-      state.xp = 0;
+      state.xp = 25000;
       state.recovered = false;
       state.profiles = { equipped: 1, owned: [1] };
       state.bio = '';
@@ -232,7 +230,7 @@ const accountSlice = createSlice({
     setAccount: (state, action) => {
       state.email = action.payload.email;
       state.username = action.payload.username;
-      state.clan = action.payload.clan;
+      state.clan = action.payload.clan ?? null;
       state.isLoggedIn = true;
       const previousToken = state.secret;
       state.secret = action.payload.secret;
@@ -266,6 +264,9 @@ const accountSlice = createSlice({
     setClan: (state, action) => {
       state.clan = action.payload;
     },
+    clearClan: (state) => {
+      state.clan = null;
+    },
     setBio: (state, action) => {
       state.bio = action.payload;
     },
@@ -292,5 +293,5 @@ const accountSlice = createSlice({
   },
 });
 
-export const { setAccount, clearAccount, setName, setClan, setBio, setSecret, setDailyLogin } = accountSlice.actions;
+export const { setAccount, clearAccount, setName, setClan, clearClan, setBio, setSecret, setDailyLogin } = accountSlice.actions;
 export default accountSlice.reducer;

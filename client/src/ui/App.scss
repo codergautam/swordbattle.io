@@ -149,7 +149,6 @@ footer {
 }
 
 .auth-buttons {
-  overflow: hidden;
   position: absolute;
   top: 10px;
   right: 0;
@@ -158,6 +157,11 @@ footer {
   transform-origin: top right;
 
   .dropdown {
+    position: relative;
+    // Stacks the entire dropdown (including the absolute-positioned menu) above
+    // sibling .auth-btn elements, which create their own stacking context via
+    // `transform`. Without this, source order would paint .auth-btn on top.
+    z-index: 100;
 
     .dropdown-menu {
       background-color: rgb(20, 20, 20) !important;
@@ -167,8 +171,13 @@ footer {
       margin-right: 20px;
       margin-left: 10px;
       user-select: none;
-      display: none;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
       text-align: left;
+      position: absolute;
+      top: 100%;
+      right: 0;
 
       li {
         list-style: none;
@@ -191,8 +200,13 @@ footer {
       }
     }
   }
-  .dropdown:hover .dropdown-menu {
-    display: block;
+  // Open state is driven by React via the data-open attribute on .dropdown.
+  // CSS :hover would lose its grip when the cursor crosses the sibling Clans
+  // button, so the JS-managed state with a small close delay handles that case.
+  .dropdown[data-open="true"] .dropdown-menu {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .auth-username {

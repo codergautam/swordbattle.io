@@ -1,25 +1,25 @@
-import { config } from "src/config";
 import { containsProfanity } from './profanityFilter';
 
-export default function validateClantag(clantag: string): string {
-  const forbiddenTags = ["DEV", "ADMIN", "OWNER", "CODER"];
-  // just to be safe
-  if(clantag === "__proto__" || clantag === "constructor" || clantag === "prototype") {
-    return "Clan is not allowed";
+const forbiddenTags = new Set([
+  'DEV', 'ADMIN', 'OWNER', 'CODER', 'MOD', 'STAFF', 'OP', 'GM',
+]);
+
+export default function validateClanTag(tag: string): string {
+  if (typeof tag !== 'string') return 'Invalid clan tag';
+  if (tag === '__proto__' || tag === 'constructor' || tag === 'prototype') {
+    return 'Clan tag is not allowed';
   }
-  if (forbiddenTags.includes(clantag.toUpperCase())) {
-    return "Clan is not allowed";
+  if (tag.length < 1 || tag.length > 4) {
+    return 'Clan tag must be between 1 and 4 characters';
   }
-  // normal validation
-  if(clantag.length < config.clanLength[0] || clantag.length > config.clanLength[1]) {
-    return `Clan must be between ${config.clanLength[0]} and ${config.clanLength[1]} characters`;
+  if (!/^[A-Za-z0-9]+$/.test(tag)) {
+    return 'Clan tag can only contain letters and numbers';
   }
-  const regex = /^[a-zA-Z0-9]+$/;
-  if (!regex.test(clantag)) {
-    return "Clan name can only contain letters and numbers";
+  if (forbiddenTags.has(tag.toUpperCase())) {
+    return 'Clan tag is not allowed';
   }
-  if(containsProfanity(clantag)) {
-    return "Clan contains a bad word!\nIf this is a mistake, please contact an admin.";
+  if (containsProfanity(tag)) {
+    return 'Clan tag contains a bad word!\nIf this is a mistake, please contact an admin.';
   }
-  return "";
+  return '';
 }

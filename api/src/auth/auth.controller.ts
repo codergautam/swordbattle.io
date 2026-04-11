@@ -7,10 +7,14 @@ import { ServerGuard } from './guards/server.guard';
 import { config } from 'src/config';
 import { RecaptchaGuard } from './guards/recaptcha.guard';
 import { AccountGuard } from './guards/account.guard';
+import { ClansService } from 'src/clans/clans.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly clansService: ClansService,
+  ) {}
 
   @Post('register')
   @UseGuards(RecaptchaGuard)
@@ -24,14 +28,13 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginData: LoginDTO, @Res({ passthrough: true }) res: Response) {
     const data = await this.authService.login(loginData);
-    // res.set('Authorization', `Bearer ${data.token}`);
-    // this.setCookie(res, 'auth-token', data.token);
     if (data.account.is_v1) {
       // assume the migration screen will be shown
       data.account.is_v1 = false;
       await this.authService.updateAccount(data.account);
       data.account.is_v1 = true;
     }
+    (data.account as any).clan = await this.clansService.getMembershipForAccount(data.account.id);
     return data;
   }
 
@@ -46,6 +49,7 @@ export class AuthController {
       await this.authService.updateAccount(data.account);
       data.account.is_v1 = true;
     }
+    (data.account as any).clan = await this.clansService.getMembershipForAccount(data.account.id);
     return data;
   }
 
@@ -86,7 +90,8 @@ export class AuthController {
   @UseGuards(ServerGuard, AccountGuard)
   @Post('verify')
   async verify(@Req() req) {
-    return { account: req.account };
+    const clan = await this.clansService.getMembershipForAccount(req.account.id);
+    return { account: { ...req.account, clan } };
   }
 
   @UseGuards(AccountGuard)
@@ -109,14 +114,6 @@ export class AuthController {
   @Post('change-username')
   async changeUsername(@Req() request) {
     let result = await this.authService.changeUsername(request.account, request.body.newUsername);
-    return result;
-  }
-
-  @UseGuards(AccountGuard)
-  @Throttle({ short: { limit: 1, ttl: 1000 }, medium: { limit: 5, ttl: 60000 } })
-  @Post('change-clantag')
-  async changeClantag(@Req() request) {
-    let result = await this.authService.changeClantag(request.account, request.body.newClantag);
     return result;
   }
 

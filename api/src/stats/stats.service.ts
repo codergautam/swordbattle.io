@@ -187,9 +187,15 @@ export class StatsService {
       return this.totalStatsRepository
         .createQueryBuilder('total_stats')
         .leftJoinAndSelect('total_stats.account', 'account', 'account.id = total_stats.id')
+        .leftJoin('clan_members', 'cm', 'cm.accountId = account.id')
+        .leftJoin('clans', 'clan', 'clan.id = cm.clanId')
         .select([
           'account.username as username',
-          'account.clan as clan',
+          'clan.tag as clan_tag',
+          'clan.name as clan_name',
+          'clan.frameId as clan_frameId',
+          'clan.frameColor as clan_frameColor',
+          'clan.iconId as clan_iconId',
           'total_stats.xp as xp',
           'total_stats.coins as coins',
           'total_stats.kills as kills',
@@ -203,9 +209,15 @@ export class StatsService {
       return this.dailyStatsRepository
         .createQueryBuilder('daily_stats')
         .leftJoinAndSelect('daily_stats.account', 'account', 'account.id = daily_stats.account_id')
+        .leftJoin('clan_members', 'cm', 'cm.accountId = account.id')
+        .leftJoin('clans', 'clan', 'clan.id = cm.clanId')
         .select([
           'account.username as username',
-          'account.clan as clan',
+          'clan.tag as clan_tag',
+          'clan.name as clan_name',
+          'clan.frameId as clan_frameId',
+          'clan.frameColor as clan_frameColor',
+          'clan.iconId as clan_iconId',
           'SUM(daily_stats.xp) as xp',
           'SUM(daily_stats.coins) as coins',
           'SUM(daily_stats.kills) as kills',
@@ -216,7 +228,11 @@ export class StatsService {
         .limit(limit)
         .groupBy('daily_stats.account_id')
         .addGroupBy('account.username')
-        .addGroupBy('account.clan')
+        .addGroupBy('clan.tag')
+        .addGroupBy('clan.name')
+        .addGroupBy('clan.frameId')
+        .addGroupBy('clan.frameColor')
+        .addGroupBy('clan.iconId')
         .orderBy('SUM(daily_stats.' + sortBy + ')', 'DESC')
         .getRawMany();
     }

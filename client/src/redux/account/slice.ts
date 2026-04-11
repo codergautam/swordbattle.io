@@ -14,8 +14,10 @@ export type ClanSummary = {
   xpRequirement: number;
   masteryRequirement: number;
   clanXp: number;
-  clanRank: number;
+  clanMastery: number;
   memberCount: number;
+  leaderId: number;
+  leaderUsername?: string;
 };
 
 export type AccountClan = {
@@ -25,6 +27,7 @@ export type AccountClan = {
 };
 
 export type AccountState = {
+  id: number | null;
   email: string;
   username: string;
   clan: AccountClan | null;
@@ -54,6 +57,7 @@ export type AccountState = {
 }
 
 const initialState: AccountState = {
+  id: null,
   email: '',
   username: '',
   clan: null,
@@ -199,6 +203,7 @@ const accountSlice = createSlice({
   initialState,
   reducers: {
     clearAccount: (state) => {
+      state.id = null;
       state.email = '';
       state.username = '';
       state.clan = null;
@@ -206,11 +211,11 @@ const accountSlice = createSlice({
       state.gems = 0;
       state.mastery = 0;
       state.tokens = 0;
-      state.isLoggedIn = false;
+      state.isLoggedIn = true;
       state.skins = { equipped: 1, owned: [1] };
       window.phaser_game?.events.emit('tokenUpdate', '');
       state.is_v1 = false;
-      state.xp = 0;
+      state.xp = 25000;
       state.recovered = false;
       state.profiles = { equipped: 1, owned: [1] };
       state.bio = '';
@@ -228,6 +233,7 @@ const accountSlice = createSlice({
       };
     },
     setAccount: (state, action) => {
+      state.id = action.payload.id ?? state.id;
       state.email = action.payload.email;
       state.username = action.payload.username;
       state.clan = action.payload.clan ?? null;

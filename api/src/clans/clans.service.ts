@@ -6,7 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Account } from '../accounts/account.entity';
 import { Clan, ClanStatus } from './clan.entity';
 import { ClanMember, ClanRole } from './clan-member.entity';
@@ -21,9 +21,10 @@ import validateTagNameSimilarity from '../helpers/validateTagNameSimilarity';
 import { containsProfanity } from '../helpers/profanityFilter';
 
 export const clanXpRequirement = 25_000;
-export const clanCreationCost = 100_000;
+export const clanCreationCost = 20_000; // 100_000 after first day
 export const clanMemberCap = 25;
-export const clanRejoinCooldownMs = 24 * 60 * 60 * 1000;
+export const clanLeaveCooldownMs = 24 * 60 * 60 * 1000;
+export const clanKickCooldownMs = 60 * 60 * 1000;
 export const clanDescriptionMax = 250;
 export const clanChatMaxLength = 200;
 export const clanChatHistoryLimit = 50;
@@ -61,8 +62,10 @@ export type ClanSummary = {
   xpRequirement: number;
   masteryRequirement: number;
   clanXp: number;
-  clanRank: number;
+  clanMastery: number;
   memberCount: number;
+  leaderId: number;
+  leaderUsername?: string;
 };
 
 export type ClanMemberSummary = {
@@ -118,7 +121,7 @@ export class ClansService {
     }
   }
 
-  private toSummary(clan: Clan, memberCount: number): ClanSummary {
+  private toSummary(clan: Clan, memberCount: number, leaderUsername?: string): ClanSummary {
     return {
       id: clan.id,
       tag: clan.tag,
@@ -132,13 +135,20 @@ export class ClansService {
       xpRequirement: Number(clan.xpRequirement),
       masteryRequirement: Number(clan.masteryRequirement),
       clanXp: Number(clan.clanXp),
-      clanRank: clan.clanRank,
+      clanMastery: Number(clan.clanMastery),
       memberCount,
+      leaderId: clan.leaderId,
+      leaderUsername,
     };
   }
 
   private async countMembers(clanId: number): Promise<number> {
     return this.members.count({ where: { clanId } });
+  }
+
+  private async getLeaderUsername(leaderId: number): Promise<string | undefined> {
+    const leader = await this.accounts.findOne({ where: { id: leaderId }, select: ['username'] });
+    return leader?.username;
   }
 
   async getMembershipForAccount(accountId: number): Promise<{
@@ -151,8 +161,9 @@ export class ClansService {
     const clan = await this.clans.findOne({ where: { id: member.clanId } });
     if (!clan) return null;
     const memberCount = await this.countMembers(clan.id);
+    const leaderUsername = await this.getLeaderUsername(clan.leaderId);
     return {
-      clan: this.toSummary(clan, memberCount),
+      clan: this.toSummary(clan, memberCount, leaderUsername),
       role: member.role,
       contributedXp: Number(member.contributedXp),
     };
@@ -233,11 +244,11 @@ export class ClansService {
       throw new BadRequestException('Invalid mastery requirement');
     }
 
-    if (account.lastClanLeave) {
-      const elapsed = Date.now() - new Date(account.lastClanLeave).getTime();
-      if (elapsed < clanRejoinCooldownMs) {
-        const hours = Math.ceil((clanRejoinCooldownMs - elapsed) / (60 * 60 * 1000));
-        throw new ForbiddenException(`You must wait ${hours} more hours before joining/creating another clan`);
+    if (account.clanCooldownUntil) {
+      const remaining = new Date(account.clanCooldownUntil).getTime() - Date.now();
+      if (remaining > 0) {
+        const hours = Math.ceil(remaining / (60 * 60 * 1000));
+        throw new ForbiddenException(`You must wait ${hours} more hour${hours === 1 ? '' : 's'} before joining/creating another clan`);
       }
     }
 
@@ -270,6 +281,7 @@ export class ClansService {
         masteryRequirement,
         leaderId: account.id,
         clanXp: account.xp ?? 0,
+        clanMastery: account.mastery ?? 0,
       });
       const savedClan = await tx.getRepository(Clan).save(clan);
 
@@ -281,7 +293,13 @@ export class ClansService {
       });
       await tx.getRepository(ClanMember).save(member);
 
-      return this.toSummary(savedClan, 1);
+      await this.postSystemMessage(tx, savedClan.id, ClanChatMessageType.Create, {
+        actorId: account.id,
+        actorName: account.username,
+        clanName: savedClan.name,
+      });
+
+      return this.toSummary(savedClan, 1, account.username);
     });
   }
 
@@ -291,11 +309,11 @@ export class ClansService {
     if (await this.getMembership(account.id)) {
       throw new ConflictException('You are already in a clan');
     }
-    if (account.lastClanLeave) {
-      const elapsed = Date.now() - new Date(account.lastClanLeave).getTime();
-      if (elapsed < clanRejoinCooldownMs) {
-        const hours = Math.ceil((clanRejoinCooldownMs - elapsed) / (60 * 60 * 1000));
-        throw new ForbiddenException(`You must wait ${hours} more hours before joining another clan`);
+    if (account.clanCooldownUntil) {
+      const remaining = new Date(account.clanCooldownUntil).getTime() - Date.now();
+      if (remaining > 0) {
+        const hours = Math.ceil(remaining / (60 * 60 * 1000));
+        throw new ForbiddenException(`You must wait ${hours} more hour${hours === 1 ? '' : 's'} before joining another clan`);
       }
     }
 
@@ -440,8 +458,15 @@ export class ClansService {
     });
   }
 
+  private async setClanCooldown(tx: any, accountId: number, durationMs: number) {
+    await tx.getRepository(Account).update(
+      { id: accountId },
+      { clanCooldownUntil: new Date(Date.now() + durationMs) },
+    );
+  }
+
   private async markLeft(tx: any, account: Account) {
-    await tx.getRepository(Account).update({ id: account.id }, { lastClanLeave: new Date() });
+    await this.setClanCooldown(tx, account.id, clanLeaveCooldownMs);
   }
 
   async kickMember(actor: Account, clanId: number, targetAccountId: number) {
@@ -467,7 +492,7 @@ export class ClansService {
     return this.dataSource.transaction(async (tx) => {
       await tx.getRepository(ClanMember).delete({ id: targetMember.id });
       if (targetAccount) {
-        await tx.getRepository(Account).update({ id: targetAccount.id }, { lastClanLeave: new Date() });
+        await this.setClanCooldown(tx, targetAccount.id, clanKickCooldownMs);
       }
       await this.postSystemMessage(tx, clanId, ClanChatMessageType.Kick, {
         actorId: actor.id,
@@ -504,6 +529,12 @@ export class ClansService {
 
     const messageType = newRole < targetMember.role ? ClanChatMessageType.Promote : ClanChatMessageType.Demote;
     const targetAccount = await this.accounts.findOne({ where: { id: targetAccountId } });
+    const roleLabelMap: Record<number, string> = {
+      [ClanRole.Leader]: 'Leader',
+      [ClanRole.CoLeader]: 'Co-Leader',
+      [ClanRole.Elite]: 'Elite',
+      [ClanRole.Member]: 'Member',
+    };
 
     return this.dataSource.transaction(async (tx) => {
       targetMember.role = newRole;
@@ -514,6 +545,7 @@ export class ClansService {
         targetId: targetAccountId,
         targetName: targetAccount?.username ?? 'Unknown',
         newRole,
+        newRoleLabel: roleLabelMap[newRole],
       });
       return { ok: true };
     });
@@ -544,12 +576,13 @@ export class ClansService {
     if (actorMember.role !== ClanRole.Leader) {
       throw new ForbiddenException('Only the leader can disband the clan');
     }
+    const memberCount = await this.countMembers(clanId);
+    if (memberCount > 1) {
+      throw new ForbiddenException('You can only disband a clan when you are the only member');
+    }
     return this.dataSource.transaction(async (tx) => {
-      const memberAccountIds = (await tx.getRepository(ClanMember).find({ where: { clanId } })).map((m) => m.accountId);
       await tx.getRepository(Clan).delete({ id: clanId });
-      if (memberAccountIds.length) {
-        await tx.getRepository(Account).update({ id: In(memberAccountIds) }, { lastClanLeave: new Date() });
-      }
+      await this.setClanCooldown(tx, actor.id, clanLeaveCooldownMs);
       return { disbanded: true };
     });
   }
@@ -615,7 +648,19 @@ export class ClansService {
     await this.clans.update({ id: clanId }, updates);
     const fresh = await this.getClanOrThrow(clanId);
     const memberCount = await this.countMembers(clanId);
-    return this.toSummary(fresh, memberCount);
+    const leaderUsername = await this.getLeaderUsername(fresh.leaderId);
+    return this.toSummary(fresh, memberCount, leaderUsername);
+  }
+
+  private async batchLeaderUsernames(leaderIds: number[]): Promise<Map<number, string>> {
+    if (leaderIds.length === 0) return new Map();
+    const rows = await this.accounts.createQueryBuilder('a')
+      .select(['a.id AS id', 'a.username AS username'])
+      .where('a.id IN (:...ids)', { ids: leaderIds })
+      .getRawMany();
+    const map = new Map<number, string>();
+    for (const r of rows) map.set(Number(r.id), r.username);
+    return map;
   }
 
   async listRecommended(account: Account, opts: { seed?: number; showRequest?: boolean }) {
@@ -642,7 +687,8 @@ export class ClansService {
       .filter((c) => (memberCounts.get(c.id) ?? 0) < clanMemberCap)
       .slice(0, recommendedClanLimit);
 
-    return shuffled.map((c) => this.toSummary(c, memberCounts.get(c.id) ?? 0));
+    const leaderNames = await this.batchLeaderUsernames(shuffled.map((c) => c.leaderId));
+    return shuffled.map((c) => this.toSummary(c, memberCounts.get(c.id) ?? 0, leaderNames.get(c.leaderId)));
   }
 
   async search(query: string, by: 'tag' | 'name') {
@@ -654,17 +700,19 @@ export class ClansService {
       .limit(50)
       .getMany();
     const memberCounts = await this.batchMemberCounts(clans.map((c) => c.id));
-    return clans.map((c) => this.toSummary(c, memberCounts.get(c.id) ?? 0));
+    const leaderNames = await this.batchLeaderUsernames(clans.map((c) => c.leaderId));
+    return clans.map((c) => this.toSummary(c, memberCounts.get(c.id) ?? 0, leaderNames.get(c.leaderId)));
   }
 
-  async leaderboard(sort: 'xp' | 'mastery' | 'rank') {
-    const column = sort === 'xp' ? 'c.clanXp' : sort === 'mastery' ? 'c.clanRank' : 'c.clanRank';
+  async leaderboard(sort: 'xp' | 'mastery') {
+    const column = sort === 'mastery' ? 'c.clanMastery' : 'c.clanXp';
     const clans = await this.clans.createQueryBuilder('c')
       .orderBy(column, 'DESC')
       .limit(leaderboardLimit)
       .getMany();
     const memberCounts = await this.batchMemberCounts(clans.map((c) => c.id));
-    return clans.map((c) => this.toSummary(c, memberCounts.get(c.id) ?? 0));
+    const leaderNames = await this.batchLeaderUsernames(clans.map((c) => c.leaderId));
+    return clans.map((c) => this.toSummary(c, memberCounts.get(c.id) ?? 0, leaderNames.get(c.leaderId)));
   }
 
   private async batchMemberCounts(clanIds: number[]): Promise<Map<number, number>> {
@@ -683,7 +731,7 @@ export class ClansService {
   }
 
 
-  async getClanProfile(clanId: number, sort: 'username' | 'role' | 'xp' | 'mastery' | 'joined' = 'xp') {
+  async getClanProfile(clanId: number, sort: 'role' | 'xp' | 'mastery' | 'joined' = 'xp') {
     const clan = await this.getClanOrThrow(clanId);
 
     const rows: any[] = await this.members.createQueryBuilder('m')
@@ -713,7 +761,6 @@ export class ClansService {
     }));
 
     const sortFns: Record<string, (a: ClanMemberSummary, b: ClanMemberSummary) => number> = {
-      username: (a, b) => a.username.localeCompare(b.username),
       role: (a, b) => a.role - b.role,
       xp: (a, b) => b.xp - a.xp,
       mastery: (a, b) => b.mastery - a.mastery,
@@ -734,9 +781,9 @@ export class ClansService {
       created_at: new Date(r.created_at),
     }));
 
+    const leaderUsername = await this.getLeaderUsername(clan.leaderId);
     return {
-      ...this.toSummary(clan, memberSummaries.length),
-      leaderId: clan.leaderId,
+      ...this.toSummary(clan, memberSummaries.length, leaderUsername),
       members: memberSummaries,
       pendingRequests,
     };
@@ -829,11 +876,12 @@ export class ClansService {
 
   private systemMessageContent(type: ClanChatMessageType, metadata: Record<string, any>): string {
     switch (type) {
+      case ClanChatMessageType.Create: return `${metadata.actorName} created the clan ${metadata.clanName}!`;
       case ClanChatMessageType.Join: return `${metadata.actorName} joined the clan`;
       case ClanChatMessageType.Leave: return `${metadata.actorName} left the clan`;
       case ClanChatMessageType.Kick: return `${metadata.targetName} was kicked by ${metadata.actorName}`;
-      case ClanChatMessageType.Promote: return `${metadata.targetName} was promoted by ${metadata.actorName}`;
-      case ClanChatMessageType.Demote: return `${metadata.targetName} was demoted by ${metadata.actorName}`;
+      case ClanChatMessageType.Promote: return `${metadata.targetName} was promoted to ${metadata.newRoleLabel} by ${metadata.actorName}`;
+      case ClanChatMessageType.Demote: return `${metadata.targetName} was demoted to ${metadata.newRoleLabel} by ${metadata.actorName}`;
       case ClanChatMessageType.Bank: return `${metadata.actorName} added ${metadata.amount} to the clan bank`;
       default: return '';
     }

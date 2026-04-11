@@ -28,6 +28,7 @@ export default function EditClanTab() {
   const [masteryRequirement, setMasteryRequirement] = useState(0);
   const [saving, setSaving] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [savedFlash, setSavedFlash] = useState(false);
 
   useEffect(() => {
     if (clanId && !profile) dispatch(fetchClanProfile(clanId) as any);
@@ -52,11 +53,17 @@ export default function EditClanTab() {
   const onSave = async () => {
     setSaving(true);
     setServerError(null);
+    setSavedFlash(false);
     try {
       const res: any = await dispatch(editClan(clanId, {
         description, frameId, iconId, frameColor, iconColor, status, xpRequirement, masteryRequirement,
       }) as any);
-      if (res?.message || res?.error) setServerError(res?.message ?? res?.error);
+      if (res?.message || res?.error) {
+        setServerError(res?.message ?? res?.error);
+      } else {
+        setSavedFlash(true);
+        setTimeout(() => setSavedFlash(false), 2000);
+      }
     } catch (e: any) {
       setServerError(e?.message ?? 'Failed to save');
     } finally {
@@ -75,7 +82,7 @@ export default function EditClanTab() {
       )}
 
       <div className="clans-form">
-        <div>
+        <div className="clans-form__left">
           <div className="clans-form__field">
             <label>Tag (cannot be changed)</label>
             <input value={profile.tag} disabled />
@@ -97,21 +104,30 @@ export default function EditClanTab() {
               <option value={ClanStatus.Private}>{statusLabels[ClanStatus.Private]}</option>
             </select>
           </div>
-          <div className="clans-form__field">
-            <label>XP Requirement</label>
-            <select value={xpRequirement} onChange={(e) => setXpRequirement(Number(e.target.value))}>
-              {allowedXpRequirements.map((v) => (
-                <option key={v} value={v}>{v === 0 ? 'None' : numberWithCommas(v)}</option>
-              ))}
-            </select>
+
+          <div className="clans-form__row-2">
+            <div className="clans-form__field">
+              <label>XP Requirement</label>
+              <select value={xpRequirement} onChange={(e) => setXpRequirement(Number(e.target.value))}>
+                {allowedXpRequirements.map((v) => (
+                  <option key={v} value={v}>{v === 0 ? 'None' : numberWithCommas(v)}</option>
+                ))}
+              </select>
+            </div>
+            <div className="clans-form__field">
+              <label>Mastery Requirement</label>
+              <select value={masteryRequirement} onChange={(e) => setMasteryRequirement(Number(e.target.value))}>
+                {allowedMasteryRequirements.map((v) => (
+                  <option key={v} value={v}>{v === 0 ? 'None' : numberWithCommas(v)}</option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="clans-form__field">
-            <label>Mastery Requirement</label>
-            <select value={masteryRequirement} onChange={(e) => setMasteryRequirement(Number(e.target.value))}>
-              {allowedMasteryRequirements.map((v) => (
-                <option key={v} value={v}>{v === 0 ? 'None' : numberWithCommas(v)}</option>
-              ))}
-            </select>
+
+          <div className="clans-form__submit-row">
+            {serverError && <span className="err">{serverError}</span>}
+            {savedFlash && <span className="success">Saved!</span>}
+            <button disabled={saving || !canEdit} onClick={onSave}>{saving ? 'Saving...' : 'Save Changes'}</button>
           </div>
         </div>
 
@@ -163,11 +179,6 @@ export default function EditClanTab() {
               <span className="hint">This icon is grayscale and won't change color.</span>
             )}
           </div>
-        </div>
-
-        <div className="clans-form__submit">
-          {serverError && <span style={{ color: '#ff6666', alignSelf: 'center' }}>{serverError}</span>}
-          <button disabled={saving || !canEdit} onClick={onSave}>{saving ? 'Saving...' : 'Save Changes'}</button>
         </div>
       </div>
     </div>

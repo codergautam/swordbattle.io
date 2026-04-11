@@ -220,10 +220,13 @@ footer {
   .auth-btn {
     transform: translateX(55%);
     margin-bottom: 10px;
+    width: 300px;
     height: 110px;
+    object-fit: contain;
+    flex-shrink: 0;
     margin-right: 5px;
 
-    transition: all 0.2s ease-in-out;
+    transition: transform 0.2s ease-in-out;
 
     &:hover {
       transform: translateX(40%);

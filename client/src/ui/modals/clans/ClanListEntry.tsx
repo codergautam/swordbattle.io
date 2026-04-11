@@ -1,23 +1,23 @@
-import { ClanSummary } from '../../../redux/account/slice';
+import { ClanSummary, AccountState } from '../../../redux/account/slice';
 import { numberWithCommas } from '../../../helpers';
-import { ClanStatus, statusLabels } from './constants';
+import { ClanStatus, statusLabels, clanMemberCap } from './constants';
 import ClanEmblem from './ClanEmblem';
 
 interface ClanListEntryProps {
   clan: ClanSummary;
+  account?: AccountState;
   xpRank?: number;
   masteryRank?: number;
   onClick?: () => void;
-  showJoinButton?: boolean;
-  joinDisabled?: boolean;
-  joinLabel?: string;
-  onJoinClick?: () => void;
 }
 
 export default function ClanListEntry({
-  clan, xpRank, masteryRank, onClick,
-  showJoinButton, joinDisabled, joinLabel, onJoinClick,
+  clan, account, xpRank, masteryRank, onClick,
 }: ClanListEntryProps) {
+  const xpUnmet = !!account && (account.xp ?? 0) < clan.xpRequirement;
+  const masteryUnmet = !!account && (account.mastery ?? 0) < clan.masteryRequirement;
+  const isFull = clan.memberCount >= clanMemberCap;
+
   return (
     <div className="clan-list-entry" onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
       <ClanEmblem frameId={clan.frameId} iconId={clan.iconId} frameColor={clan.frameColor} iconColor={clan.iconColor} size={72} />
@@ -33,32 +33,23 @@ export default function ClanListEntry({
               <span className="clan-list-entry__rank"> (#{xpRank})</span>
             )}
             {masteryRank !== undefined && masteryRank <= 25 && (
-              <span className="clan-list-entry__rank"> · M#{masteryRank}</span>
+              <span className="clan-list-entry__rank"> (#{masteryRank})</span>
             )}
           </span>
         </div>
 
         <div className="clan-list-entry__sub">
           <span>{statusLabels[clan.status as ClanStatus]}</span>
-          {clan.xpRequirement > 0 && <span>{numberWithCommas(clan.xpRequirement)} XP req</span>}
-          {clan.masteryRequirement > 0 && <span>{numberWithCommas(clan.masteryRequirement)} mastery req</span>}
-          <span>{clan.memberCount}/25 members</span>
+          {clan.xpRequirement > 0 && (
+            <span className={xpUnmet ? 'unmet' : ''}>{numberWithCommas(clan.xpRequirement)} XP required</span>
+          )}
+          {clan.masteryRequirement > 0 && (
+            <span className={masteryUnmet ? 'unmet' : ''}>{numberWithCommas(clan.masteryRequirement)} mastery required</span>
+          )}
+          <span className={isFull ? 'unmet' : ''}>{clan.memberCount}/{clanMemberCap} members</span>
           {clan.description && <span className="clan-list-entry__desc">{clan.description}</span>}
         </div>
       </div>
-
-      {showJoinButton && (
-        <button
-          className="clan-list-entry__join"
-          disabled={joinDisabled}
-          onClick={(e) => {
-            e.stopPropagation();
-            onJoinClick?.();
-          }}
-        >
-          {joinLabel ?? (clan.status === ClanStatus.Request ? 'Request' : 'Join')}
-        </button>
-      )}
     </div>
   );
 }

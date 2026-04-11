@@ -40,8 +40,7 @@ export class Account {
 
   @Column({ nullable: true })  lastUsernameChange: Date;
 
-  // 24h cooldown for re-joining/creating a clan after leaving one.
-  @Column({ nullable: true })  lastClanLeave: Date;
+  @Column({ nullable: true })  clanCooldownUntil: Date;
 
   @OneToOne(() => ClanMember, (member) => member.account)
   clanMember: ClanMember | null;

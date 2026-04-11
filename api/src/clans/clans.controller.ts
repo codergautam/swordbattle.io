@@ -5,7 +5,6 @@ import {
   Post,
   Req,
   UseGuards,
-  Patch,
   ParseIntPipe,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
@@ -42,17 +41,17 @@ export class ClansController {
   }
 
   @Post('leaderboard')
-  async leaderboard(@Body() body: { sort?: 'xp' | 'mastery' | 'rank' }) {
-    const mode = body?.sort === 'mastery' ? 'mastery' : body?.sort === 'rank' ? 'rank' : 'xp';
+  async leaderboard(@Body() body: { sort?: 'xp' | 'mastery' }) {
+    const mode = body?.sort === 'mastery' ? 'mastery' : 'xp';
     return this.clansService.leaderboard(mode);
   }
 
   @Post('view/:id')
   async getClan(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { sort?: 'username' | 'role' | 'xp' | 'mastery' | 'joined' },
+    @Body() body: { sort?: 'role' | 'xp' | 'mastery' | 'joined' },
   ) {
-    const allowed = ['username', 'role', 'xp', 'mastery', 'joined'] as const;
+    const allowed = ['role', 'xp', 'mastery', 'joined'] as const;
     const sortKey = (allowed as readonly string[]).includes(body?.sort ?? '')
       ? (body!.sort as (typeof allowed)[number])
       : 'xp';
@@ -128,7 +127,7 @@ export class ClansController {
     return this.clansService.transferLeadership(req.account, id, targetId);
   }
 
-  @Patch(':id')
+  @Post(':id/edit')
   @Throttle({ short: { limit: 1, ttl: 1000 }, medium: { limit: 10, ttl: 60000 } })
   async edit(
     @Req() req: AccountRequest,

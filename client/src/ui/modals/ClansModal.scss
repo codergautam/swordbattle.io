@@ -40,6 +40,7 @@
     flex-wrap: wrap;
 
     button {
+      position: relative;
       background: rgba(255, 255, 255, 0.1);
       border: 2px solid rgba(255, 255, 255, 0.25);
       color: white;
@@ -55,6 +56,24 @@
         background: #ffaa00;
         border-color: #ffd700;
         color: black;
+      }
+
+      .tab-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #ee3344;
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+        border-radius: 999px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 0 2px #0a0a1f;
       }
     }
   }
@@ -107,6 +126,8 @@
     margin-top: 6px;
     font-size: 13px;
     color: #aaa;
+
+    .unmet { color: #ff6666; }
   }
 
   &__desc {
@@ -218,7 +239,9 @@
     }
 
     .cost {
-      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       color: #ffd700;
       font-weight: bold;
       font-size: 14px;
@@ -226,6 +249,22 @@
       &--unaffordable {
         color: #ff6666;
       }
+
+      &__gem {
+        width: 20px;
+        height: 20px;
+      }
+
+      &__have {
+        font-weight: normal;
+        font-size: 13px;
+      }
+    }
+
+    .success {
+      color: #44dd44;
+      font-size: 13px;
+      flex: 1;
     }
 
     button {
@@ -324,6 +363,11 @@
 }
 
 .clan-profile {
+  $col-name: 1.6fr;
+  $col-role: 1fr;
+  $col-stat: 1.1fr;
+  $col-actions: 1.4fr;
+
   &__header {
     display: flex;
     gap: 20px;
@@ -337,68 +381,150 @@
 
   &__heading {
     flex: 1;
-    h2 { margin: 0; font-size: 28px; }
+    text-align: left;
+    h2 { margin: 0; font-size: 28px; text-align: left; }
     .tag { color: #ffd700; font-weight: bold; }
     .description { color: #ccc; font-style: italic; margin-top: 8px; }
-    .meta { color: #999; font-size: 14px; margin-top: 6px; display: flex; gap: 16px; flex-wrap: wrap; }
+    .meta {
+      color: #999;
+      font-size: 14px;
+      margin-top: 6px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+
+      .unmet { color: #ff6666; }
+      .status-label {
+        background: rgba(160, 160, 160, 0.25);
+        padding: 2px 10px;
+        border-radius: 999px;
+        color: #ddd;
+      }
+    }
   }
 
   &__actions {
     display: flex;
     gap: 8px;
     flex-direction: column;
+    flex-shrink: 0;
+
     button {
-      background: #ee3344;
+      background: rgba(255,255,255,0.12);
       color: white;
-      border: none;
-      padding: 10px 16px;
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 10px 18px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
+      font-size: 14px;
+      white-space: nowrap;
+
+      &:hover:not(:disabled) { background: rgba(255,255,255,0.22); }
+      &:disabled { background: #444; cursor: not-allowed; opacity: 0.6; }
+
+      &.primary {
+        background: #33cc33;
+        border-color: #33cc33;
+        &:hover:not(:disabled) { background: #44dd44; }
+      }
+      &.danger {
+        background: #aa1122;
+        border-color: #aa1122;
+        &:hover:not(:disabled) { background: #cc2233; }
+      }
     }
   }
 
+  &__error {
+    background: rgba(238, 51, 68, 0.18);
+    border: 1px solid rgba(238, 51, 68, 0.5);
+    color: #ff9999;
+    padding: 8px 14px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+
   &__members-header {
-    display: flex;
-    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  &__columns {
+    display: grid;
+    grid-template-columns: $col-name $col-role $col-stat $col-stat $col-stat $col-actions;
     align-items: center;
-    margin-bottom: 8px;
-    h3 { margin: 0; }
-    .sort-buttons { display: flex; gap: 6px; }
-    .sort-buttons button {
-      background: rgba(255,255,255,0.1);
+    gap: 10px;
+    padding: 0 14px;
+    color: #888;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    button {
+      background: transparent;
       border: 1px solid rgba(255,255,255,0.2);
-      color: white;
+      color: #ddd;
       padding: 4px 10px;
       border-radius: 4px;
       cursor: pointer;
       font-size: 12px;
-      &.active { background: #ffaa00; color: black; }
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      &:hover { background: rgba(255,255,255,0.1); }
+      &.active { background: #ffaa00; color: black; border-color: #ffd700; }
     }
   }
 
-  &__member {
+  &__members {
     display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__member {
+    display: grid;
+    grid-template-columns: $col-name $col-role $col-stat $col-stat $col-stat $col-actions;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
     background: rgba(0,0,0,0.3);
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px;
     padding: 10px 14px;
-    margin-bottom: 6px;
 
-    .member-name { flex: 1; font-weight: bold; }
-    .member-role { color: #ffd700; min-width: 80px; }
-    .member-stat { color: #aaa; font-size: 13px; min-width: 80px; text-align: right; }
-    .member-actions { display: flex; gap: 6px; }
-    .member-actions button {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: white;
-      padding: 4px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
+    .col {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .col-name { font-weight: bold; }
+    .col-role { color: #ffd700; }
+    .col-stat { color: #aaa; font-size: 13px; }
+    .col-actions {
+      display: flex;
+      gap: 4px;
+      justify-content: flex-end;
+      white-space: nowrap;
+
+      button {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+
+        &:hover { background: rgba(255,255,255,0.2); }
+        &.danger {
+          background: rgba(238, 51, 68, 0.7);
+          border-color: rgba(238, 51, 68, 0.9);
+          &:hover { background: #ee3344; }
+        }
+      }
     }
   }
 
@@ -415,7 +541,7 @@
       padding: 8px 12px;
       margin-bottom: 6px;
 
-      .username { flex: 1; }
+      .user-link { flex: 1; }
       button {
         background: #33cc33;
         border: none;
@@ -429,11 +555,46 @@
   }
 }
 
+.user-link {
+  color: #cce0ff;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+}
+
+.clan-back-button {
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 14px;
+
+  &:hover { background: rgba(255,255,255,0.22); }
+}
+
 .clan-chat {
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 400px;
+
+  &__error {
+    background: rgba(238, 51, 68, 0.18);
+    border: 1px solid rgba(238, 51, 68, 0.5);
+    color: #ff9999;
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin-top: 8px;
+    font-size: 13px;
+  }
 
   &__messages {
     flex: 1;

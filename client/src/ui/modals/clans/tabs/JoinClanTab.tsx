@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AccountState } from '../../../../redux/account/slice';
 import { RootState } from '../../../../redux/store';
 import {
-  fetchRecommended, searchClans, joinClan, fetchClanProfile,
+  fetchRecommended, searchClans, fetchClanProfile,
 } from '../../../../redux/clans/slice';
 import ClanListEntry from '../ClanListEntry';
 import XpGateOverlay from '../XpGateOverlay';
@@ -12,9 +12,12 @@ import ClanProfile from '../ClanProfile';
 
 interface JoinClanTabProps {
   account: AccountState;
+  selectedClanId: number | null;
+  setSelectedClanId: (id: number | null) => void;
+  onOpenUserProfile: (username: string) => void;
 }
 
-export default function JoinClanTab({ account }: JoinClanTabProps) {
+export default function JoinClanTab({ account, selectedClanId, setSelectedClanId, onOpenUserProfile }: JoinClanTabProps) {
   const dispatch = useDispatch();
   const recommended = useSelector((s: RootState) => s.clans.recommended);
   const searchResults = useSelector((s: RootState) => s.clans.searchResults);
@@ -25,7 +28,6 @@ export default function JoinClanTab({ account }: JoinClanTabProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchBy, setSearchBy] = useState<'name' | 'tag'>('name');
-  const [selectedClanId, setSelectedClanId] = useState<number | null>(null);
 
   const eligible = (account.xp ?? 0) >= clanXpRequirement;
 
@@ -40,14 +42,6 @@ export default function JoinClanTab({ account }: JoinClanTabProps) {
     dispatch(searchClans(searchTerm.trim(), searchBy) as any);
   };
 
-  const handleJoin = async (clanId: number) => {
-    if (!eligible) return;
-    const res: any = await dispatch(joinClan(clanId) as any);
-    if (res?.requested) alert('Join request sent');
-    else if (res?.joined) setSelectedClanId(null);
-    else if (res?.message || res?.error) alert(res?.message ?? res?.error);
-  };
-
   const openProfile = async (clanId: number) => {
     setSelectedClanId(clanId);
     dispatch(fetchClanProfile(clanId) as any);
@@ -56,8 +50,13 @@ export default function JoinClanTab({ account }: JoinClanTabProps) {
   if (selectedClanId !== null) {
     return (
       <div>
-        <button className="back-link" onClick={() => setSelectedClanId(null)}>← Back to list</button>
-        <ClanProfile clanId={selectedClanId} viewerInClan={false} onJoin={() => handleJoin(selectedClanId)} eligible={eligible} />
+        <button className="clan-back-button" onClick={() => setSelectedClanId(null)}>← Back to list</button>
+        <ClanProfile
+          clanId={selectedClanId}
+          viewerInClan={false}
+          account={account}
+          onOpenUserProfile={onOpenUserProfile}
+        />
       </div>
     );
   }
@@ -98,10 +97,8 @@ export default function JoinClanTab({ account }: JoinClanTabProps) {
           <ClanListEntry
             key={clan.id}
             clan={clan}
-            showJoinButton
+            account={account}
             onClick={() => openProfile(clan.id)}
-            onJoinClick={() => handleJoin(clan.id)}
-            joinDisabled={!eligible}
           />
         ))}
         {!loading && list.length === 0 && (

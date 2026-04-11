@@ -18,6 +18,7 @@ export enum ClanChatMessageType {
   Promote = 4,
   Demote = 5,
   Bank = 6,
+  Create = 7,
 }
 
 @Entity({ name: 'clan_chat_messages' })

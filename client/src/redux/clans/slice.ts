@@ -16,7 +16,6 @@ export type ClanMemberRow = {
 };
 
 export type ClanProfile = ClanSummary & {
-  leaderId: number;
   members: ClanMemberRow[];
   pendingRequests: { id: number; accountId: number; username: string; created_at: string }[];
 };
@@ -38,12 +37,13 @@ type ClansState = {
   recommendedLoading: boolean;
   searchResults: ClanSummary[];
   searchLoading: boolean;
-  leaderboard: { xp: ClanSummary[]; mastery: ClanSummary[]; rank: ClanSummary[] };
+  leaderboard: { xp: ClanSummary[]; mastery: ClanSummary[] };
   leaderboardLoading: boolean;
   profileCache: Record<number, ClanProfile>;
   profileLoading: boolean;
   chat: ClanChatRow[];
   chatLoading: boolean;
+  lastSeenChatId: number;
   error: string | null;
 };
 
@@ -52,12 +52,13 @@ const initialState: ClansState = {
   recommendedLoading: false,
   searchResults: [],
   searchLoading: false,
-  leaderboard: { xp: [], mastery: [], rank: [] },
+  leaderboard: { xp: [], mastery: [] },
   leaderboardLoading: false,
   profileCache: {},
   profileLoading: false,
   chat: [],
   chatLoading: false,
+  lastSeenChatId: 0,
   error: null,
 };
 
@@ -77,7 +78,7 @@ const slice = createSlice({
     setSearchLoading(state, action: PayloadAction<boolean>) {
       state.searchLoading = action.payload;
     },
-    setLeaderboard(state, action: PayloadAction<{ key: 'xp' | 'mastery' | 'rank'; rows: ClanSummary[] }>) {
+    setLeaderboard(state, action: PayloadAction<{ key: 'xp' | 'mastery'; rows: ClanSummary[] }>) {
       state.leaderboard[action.payload.key] = action.payload.rows;
     },
     setLeaderboardLoading(state, action: PayloadAction<boolean>) {
@@ -101,9 +102,14 @@ const slice = createSlice({
     },
     clearChat(state) {
       state.chat = [];
+      state.lastSeenChatId = 0;
     },
     setChatLoading(state, action: PayloadAction<boolean>) {
       state.chatLoading = action.payload;
+    },
+    markChatRead(state) {
+      const newest = state.chat[state.chat.length - 1]?.id ?? 0;
+      if (newest > state.lastSeenChatId) state.lastSeenChatId = newest;
     },
     setError(state, action: PayloadAction<string | null>) {
       state.error = action.payload;
@@ -116,7 +122,7 @@ export const {
   setSearchResults, setSearchLoading,
   setLeaderboard, setLeaderboardLoading,
   putProfile, setProfileLoading,
-  setChat, appendChat, clearChat, setChatLoading,
+  setChat, appendChat, clearChat, setChatLoading, markChatRead,
   setError,
 } = slice.actions;
 
@@ -141,8 +147,10 @@ export const fetchMyClan = () => async (dispatch: any) => {
         xpRequirement: res.clan.xpRequirement,
         masteryRequirement: res.clan.masteryRequirement,
         clanXp: res.clan.clanXp,
-        clanRank: res.clan.clanRank,
+        clanMastery: res.clan.clanMastery,
         memberCount: res.clan.memberCount,
+        leaderId: res.clan.leaderId,
+        leaderUsername: res.clan.leaderUsername,
       },
       role: res.role,
       contributedXp: res.contributedXp,
@@ -165,7 +173,7 @@ export const fetchRecommended = (seed?: number, showRequest?: boolean) => async 
   }
 };
 
-export const fetchLeaderboard = (sort: 'xp' | 'mastery' | 'rank') => async (dispatch: any) => {
+export const fetchLeaderboard = (sort: 'xp' | 'mastery') => async (dispatch: any) => {
   dispatch(setLeaderboardLoading(true));
   try {
     const res = await post('/clans/leaderboard', { sort });
@@ -175,7 +183,7 @@ export const fetchLeaderboard = (sort: 'xp' | 'mastery' | 'rank') => async (disp
   }
 };
 
-export const fetchClanProfile = (clanId: number, sort: 'username' | 'role' | 'xp' | 'mastery' | 'joined' = 'xp') => async (dispatch: any) => {
+export const fetchClanProfile = (clanId: number, sort: 'role' | 'xp' | 'mastery' | 'joined' = 'xp') => async (dispatch: any) => {
   dispatch(setProfileLoading(true));
   try {
     const res = await post(`/clans/view/${clanId}`, { sort });
@@ -221,7 +229,7 @@ export const leaveClan = (clanId: number) => async (dispatch: any) => {
 };
 
 export const editClan = (clanId: number, body: any) => async (dispatch: any) => {
-  const res = await post(`/clans/${clanId}`, body);
+  const res = await post(`/clans/${clanId}/edit`, body);
   if (res?.id) {
     await dispatch(fetchMyClan());
   }

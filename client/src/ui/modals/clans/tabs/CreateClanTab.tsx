@@ -5,6 +5,7 @@ import { createClan } from '../../../../redux/clans/slice';
 import { numberWithCommas } from '../../../../helpers';
 import ClanEmblem from '../ClanEmblem';
 import XpGateOverlay from '../XpGateOverlay';
+import GemImg from '../../../../assets/img/gem.png';
 import {
   allowedFrameIds, allowedIconIds, allowedFrameColors, allowedIconColors,
   allowedXpRequirements, allowedMasteryRequirements,
@@ -152,13 +153,16 @@ export default function CreateClanTab({ account }: CreateClanTabProps) {
 
           <div className="clans-form__submit-row">
             {serverError && <span className="err">{serverError}</span>}
-            <span className={canAfford ? 'cost' : 'cost cost--unaffordable'}>
-              Cost: {numberWithCommas(clanCreationCost)} gems
-              {!canAfford && ` (you have ${numberWithCommas(account.gems ?? 0)})`}
-            </span>
             <button disabled={!canSubmit} onClick={onSubmit}>
               {submitting ? 'Creating...' : 'Create Clan'}
             </button>
+            <span className={canAfford ? 'cost' : 'cost cost--unaffordable'}>
+              Cost: {numberWithCommas(clanCreationCost)}
+              <img src={GemImg} alt="gems" className="cost__gem" />
+              {!canAfford && (
+                <span className="cost__have"> (you have {numberWithCommas(account.gems ?? 0)})</span>
+              )}
+            </span>
           </div>
         </div>
 

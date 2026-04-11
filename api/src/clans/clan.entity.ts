@@ -48,7 +48,7 @@ export class Clan {
 
   @Column({ type: 'bigint', default: 0 }) clanXp: number;
 
-  @Column({ default: 0 }) clanRank: number;
+  @Column({ type: 'bigint', default: 0 }) clanMastery: number;
 
   @Column({ type: 'jsonb', default: () => `'{"allies":[],"enemies":[]}'` })
   relations: { allies: number[]; enemies: number[] };

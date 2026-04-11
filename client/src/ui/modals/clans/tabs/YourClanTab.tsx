@@ -1,10 +1,16 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { AccountState } from '../../../../redux/account/slice';
 import { RootState } from '../../../../redux/store';
 import { fetchClanProfile } from '../../../../redux/clans/slice';
 import ClanProfile from '../ClanProfile';
 
-export default function YourClanTab() {
+interface YourClanTabProps {
+  account: AccountState;
+  onOpenUserProfile: (username: string) => void;
+}
+
+export default function YourClanTab({ account, onOpenUserProfile }: YourClanTabProps) {
   const dispatch = useDispatch();
   const myClan = useSelector((s: RootState) => s.account.clan);
 
@@ -13,5 +19,12 @@ export default function YourClanTab() {
   }, [dispatch, myClan?.clan?.id]);
 
   if (!myClan) return <p>You are not in a clan.</p>;
-  return <ClanProfile clanId={myClan.clan.id} viewerInClan={true} />;
+  return (
+    <ClanProfile
+      clanId={myClan.clan.id}
+      viewerInClan={true}
+      account={account}
+      onOpenUserProfile={onOpenUserProfile}
+    />
+  );
 }

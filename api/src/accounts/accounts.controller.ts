@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Req, UseGuards, Body } from '@nestjs/common';
 import { Request } from 'express';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { AccountsService } from './accounts.service';
 import { StatsService } from 'src/stats/stats.service';
 import { AuthService } from 'src/auth/auth.service';
@@ -68,6 +68,7 @@ export class AccountsController {
   }
 
   @UseGuards(AccountGuard)
+  @SkipThrottle()
   @Post('getPrivateUserInfo')
   async getPrivateAccount(@Req() request: AccountRequest) {
     const id = request.account.id;

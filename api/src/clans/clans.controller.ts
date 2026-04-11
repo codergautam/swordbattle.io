@@ -7,7 +7,7 @@ import {
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { AccountGuard, AccountRequest } from '../auth/guards/account.guard';
 import { ClansService, clanCreationCost, clanXpRequirement, clanMemberCap } from './clans.service';
 import { ClanRole } from './clan-member.entity';
@@ -19,7 +19,7 @@ export class ClansController {
   constructor(private readonly clansService: ClansService) {}
 
   @Post('me')
-  @Throttle({ short: { limit: 10, ttl: 1000 }, medium: { limit: 300, ttl: 60000 } })
+  @SkipThrottle()
   async getMyClan(@Req() req: AccountRequest) {
     const config = {
       clanCreationCost,
@@ -33,7 +33,7 @@ export class ClansController {
   }
 
   @Post('recommended')
-  @Throttle({ short: { limit: 10, ttl: 1000 }, medium: { limit: 300, ttl: 60000 } })
+  @SkipThrottle()
   async listRecommended(@Req() req: AccountRequest, @Body() body: { seed?: number; showRequest?: boolean; showIneligible?: boolean }) {
     return this.clansService.listRecommended(req.account, {
       seed: body?.seed,
@@ -49,14 +49,14 @@ export class ClansController {
   }
 
   @Post('leaderboard')
-  @Throttle({ short: { limit: 10, ttl: 1000 }, medium: { limit: 300, ttl: 60000 } })
+  @SkipThrottle()
   async leaderboard(@Body() body: { sort?: 'xp' | 'mastery' }) {
     const mode = body?.sort === 'mastery' ? 'mastery' : 'xp';
     return this.clansService.leaderboard(mode);
   }
 
   @Post('view/:id')
-  @Throttle({ short: { limit: 10, ttl: 1000 }, medium: { limit: 300, ttl: 60000 } })
+  @SkipThrottle()
   async getClan(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { sort?: 'role' | 'xp' | 'mastery' | 'joined' },
@@ -163,7 +163,7 @@ export class ClansController {
   }
 
   @Post(':id/chat/history')
-  @Throttle({ short: { limit: 10, ttl: 1000 }, medium: { limit: 300, ttl: 60000 } })
+  @SkipThrottle()
   async getChat(
     @Req() req: AccountRequest,
     @Param('id', ParseIntPipe) id: number,

@@ -25,7 +25,7 @@ interface ClansModalProps {
 type OutsideTab = 'join' | 'create' | 'leaderboard';
 type InsideTab = 'your' | 'chat' | 'edit' | 'leaderboard' | 'search';
 
-const pollIntervalMs = 3000;
+const pollIntervalMs = 5000;
 
 function formatCooldown(ms: number): string {
   const total = Math.ceil(ms / 1000);
@@ -78,7 +78,6 @@ function ClansModal({ account }: ClansModalProps) {
         .catch(() => {});
       dispatch(fetchMyClan() as any);
       if (clanId) {
-        dispatch(fetchClanProfile(clanId) as any);
         dispatch(fetchChatHistory(clanId) as any);
       }
       if (selectedClanId && selectedClanId !== clanId) {

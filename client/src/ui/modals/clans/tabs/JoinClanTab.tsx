@@ -25,7 +25,8 @@ export default function JoinClanTab({ account, selectedClanId, setSelectedClanId
   const loading = useSelector((s: RootState) => s.clans.recommendedLoading);
 
   const [seed, setSeed] = useState<number>(() => Math.floor(Math.random() * 1e9));
-  const [showRequest, setShowRequest] = useState(false);
+  const [showRequest, setShowRequest] = useState(true);
+  const [showIneligible, setShowIneligible] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchBy, setSearchBy] = useState<'name' | 'tag'>('name');
@@ -33,8 +34,8 @@ export default function JoinClanTab({ account, selectedClanId, setSelectedClanId
   const eligible = (account.xp ?? 0) >= clanXpRequirement;
 
   useEffect(() => {
-    if (eligible) dispatch(fetchRecommended(seed, showRequest) as any);
-  }, [dispatch, eligible, seed, showRequest]);
+    if (eligible) dispatch(fetchRecommended(seed, showRequest, showIneligible) as any);
+  }, [dispatch, eligible, seed, showRequest, showIneligible]);
 
   const onRefresh = () => setSeed(Math.floor(Math.random() * 1e9));
 
@@ -84,10 +85,14 @@ export default function JoinClanTab({ account, selectedClanId, setSelectedClanId
       </div>
 
       {showFilters && (
-        <div className="clans-filters" style={{ marginBottom: 12, color: '#ccc', fontSize: 14 }}>
+        <div className="clans-filters" style={{ marginBottom: 12, color: '#ccc', fontSize: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
           <label>
             <input type="checkbox" checked={showRequest} onChange={(e) => setShowRequest(e.target.checked)} />{' '}
             Show request-to-join clans
+          </label>
+          <label>
+            <input type="checkbox" checked={showIneligible} onChange={(e) => setShowIneligible(e.target.checked)} />{' '}
+            Show clans I can't join
           </label>
         </div>
       )}

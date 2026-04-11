@@ -1,4 +1,4 @@
-export const clanXpRequirement = 25_000;
+export const clanXpRequirement = 10_000;
 export const clanCreationCost = 20_000;
 export const clanMemberCap = 25;
 export const clanDescriptionMax = 250;

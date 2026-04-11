@@ -20,7 +20,7 @@ import validateClanName from '../helpers/validateClanName';
 import validateTagNameSimilarity from '../helpers/validateTagNameSimilarity';
 import { containsProfanity } from '../helpers/profanityFilter';
 
-export const clanXpRequirement = 25_000;
+export const clanXpRequirement = 10_000;
 export const clanCreationCost = 20_000; // 100_000 after first day
 export const clanMemberCap = 25;
 export const clanLeaveCooldownMs = 0; // 24 * 60 * 60 * 1000
@@ -733,8 +733,9 @@ export class ClansService {
     return map;
   }
 
-  async listRecommended(account: Account, opts: { seed?: number; showRequest?: boolean }) {
-    const showRequest = !!opts.showRequest;
+  async listRecommended(account: Account, opts: { seed?: number; showRequest?: boolean; showIneligible?: boolean }) {
+    const showRequest = opts.showRequest !== false;
+    const showIneligible = !!opts.showIneligible;
     const statuses: ClanStatus[] = showRequest
       ? [ClanStatus.Public, ClanStatus.Request]
       : [ClanStatus.Public];
@@ -744,17 +745,19 @@ export class ClansService {
 
     const qb = this.clans.createQueryBuilder('c')
       .where('c.status IN (:...statuses)', { statuses })
-      .andWhere('c.xpRequirement <= :xp', { xp })
-      .andWhere('c.masteryRequirement <= :mastery', { mastery })
       .orderBy('c.created_at', 'DESC')
       .limit(100);
+    if (!showIneligible) {
+      qb.andWhere('c.xpRequirement <= :xp', { xp })
+        .andWhere('c.masteryRequirement <= :mastery', { mastery });
+    }
 
     const candidates = await qb.getMany();
     const stats = await this.batchClanStats(candidates.map((c) => c.id));
 
     const seed = opts.seed ?? Math.floor(Date.now() / 60000);
     const shuffled = stableShuffle(candidates, seed)
-      .filter((c) => (stats.get(c.id)?.memberCount ?? 0) < clanMemberCap)
+      .filter((c) => showIneligible || (stats.get(c.id)?.memberCount ?? 0) < clanMemberCap)
       .slice(0, recommendedClanLimit);
 
     const leaderNames = await this.batchLeaderUsernames(shuffled.map((c) => c.leaderId));

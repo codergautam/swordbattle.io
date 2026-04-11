@@ -221,10 +221,10 @@ export const fetchMyClan = () => async (dispatch: any, getState: any) => {
   return res;
 };
 
-export const fetchRecommended = (seed?: number, showRequest?: boolean) => async (dispatch: any) => {
+export const fetchRecommended = (seed?: number, showRequest?: boolean, showIneligible?: boolean) => async (dispatch: any) => {
   dispatch(setRecommendedLoading(true));
   try {
-    const res = await post('/clans/recommended', { seed, showRequest });
+    const res = await post('/clans/recommended', { seed, showRequest, showIneligible });
     if (isErrorResponse(res)) return res;
     if (Array.isArray(res)) dispatch(setRecommended(res));
   } finally {

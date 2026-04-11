@@ -34,10 +34,11 @@ export class ClansController {
 
   @Post('recommended')
   @Throttle({ short: { limit: 10, ttl: 1000 }, medium: { limit: 300, ttl: 60000 } })
-  async listRecommended(@Req() req: AccountRequest, @Body() body: { seed?: number; showRequest?: boolean }) {
+  async listRecommended(@Req() req: AccountRequest, @Body() body: { seed?: number; showRequest?: boolean; showIneligible?: boolean }) {
     return this.clansService.listRecommended(req.account, {
       seed: body?.seed,
-      showRequest: !!body?.showRequest,
+      showRequest: body?.showRequest !== false,
+      showIneligible: !!body?.showIneligible,
     });
   }
 

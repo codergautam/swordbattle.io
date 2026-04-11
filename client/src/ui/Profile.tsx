@@ -243,7 +243,13 @@ export default function Profile() {
         <h4 className="stat">Joined {sinceFrom(data.account.created_at)} ago</h4>
         <h4 className="stat">
           {data.dailyStats && data.dailyStats.length
-            ? `Last seen ${lastSeen(data.dailyStats[data.dailyStats.length - 1].date)}`
+            ? `Last seen ${lastSeen(
+                data.dailyStats.reduce(
+                  (latest, s) =>
+                    new Date(s.date).getTime() > new Date(latest).getTime() ? s.date : latest,
+                  data.dailyStats[0].date
+                )
+              )}`
             : ''}
         </h4>
         <br />
@@ -271,17 +277,13 @@ export default function Profile() {
         </div>
 
         <div className="profile-stat-separator">
-          <span>
-            {data.account.recovered ? 'Account Statistics not found' : 'Account Statistics'}
-          </span>
+          <span>Account Statistics</span>
           <span className="profile-stat-separator-arrow">▼</span>
         </div>
 
         <br />
 
-        {!data.account.recovered && (
-          <>
-          <div className="profile-top-games">
+        <div className="profile-top-games">
               <div className="profile-top-games__header">
                 <h3>Top 10 Games</h3>
                 <div className="profile-top-games__sort">
@@ -358,7 +360,7 @@ export default function Profile() {
               </table>
             </div>
 
-          {data.dailyStats && data.dailyStats.length &&
+          {!data.account.recovered && data.dailyStats && data.dailyStats.length &&
             <div className="xp-graph">
               <Line data={prepareGraphData(data.dailyStats)}
                 options={{
@@ -395,8 +397,6 @@ export default function Profile() {
     
             </div>
           }
-          </>
-        )}
         </div>
 
         <div style={{

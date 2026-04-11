@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AccountState, updateAccountAsync } from '../../redux/account/slice';
+import { AccountState, setAccount, updateAccountAsync } from '../../redux/account/slice';
 import { RootState } from '../../redux/store';
 import {
   fetchMyClan, fetchClanProfile, fetchChatHistory, setLastSeenChatId,
 } from '../../redux/clans/slice';
+import api from '../../api';
 import './ClansModal.scss';
 
 import JoinClanTab from './clans/tabs/JoinClanTab';
@@ -67,6 +68,14 @@ function ClansModal({ account }: ClansModalProps) {
   useEffect(() => {
     if (!account.isLoggedIn) return;
     const interval = setInterval(() => {
+      api.postAsync(`${api.endpoint}/profile/getPrivateUserInfo?now=${Date.now()}`, {})
+        .then((res: any) => {
+          if (res?.account && !res?.error && typeof res?.statusCode !== 'number') {
+            res.account.secret = account.secret;
+            dispatch(setAccount(res.account));
+          }
+        })
+        .catch(() => {});
       dispatch(fetchMyClan() as any);
       if (clanId) {
         dispatch(fetchClanProfile(clanId) as any);
@@ -77,7 +86,7 @@ function ClansModal({ account }: ClansModalProps) {
       }
     }, pollIntervalMs);
     return () => clearInterval(interval);
-  }, [dispatch, account.isLoggedIn, clanId, selectedClanId]);
+  }, [dispatch, account.isLoggedIn, account.secret, clanId, selectedClanId]);
 
   useEffect(() => {
     if (!clanCooldownUntil) return;

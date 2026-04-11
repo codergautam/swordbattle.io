@@ -238,14 +238,6 @@ export class AccountsService {
     });
     await this.transactionsRepository.save(transaction);
 
-    if (mastery > 0) {
-      await this.accountsRepository.manager.query(
-        `UPDATE clans SET "clanMastery" = "clanMastery" + $1
-           WHERE id = (SELECT "clanId" FROM clan_members WHERE "accountId" = $2)`,
-        [mastery, account.id],
-      );
-    }
-
     return account;
   }
 
@@ -261,18 +253,6 @@ export class AccountsService {
     if(xp === 0) return account;
     account.xp += xp;
     await this.accountsRepository.save(account);
-    if (xp > 0) {
-      await this.accountsRepository.manager.query(
-        `UPDATE clans SET "clanXp" = "clanXp" + $1
-           WHERE id = (SELECT "clanId" FROM clan_members WHERE "accountId" = $2)`,
-        [xp, account.id],
-      );
-      await this.accountsRepository.manager.query(
-        `UPDATE clan_members SET "contributedXp" = "contributedXp" + $1
-           WHERE "accountId" = $2`,
-        [xp, account.id],
-      );
-    }
     return account;
   }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/store';
 import { editClan, fetchClanProfile } from '../../../../redux/clans/slice';
@@ -29,23 +29,25 @@ export default function EditClanTab() {
   const [saving, setSaving] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
+  const hydratedForClanIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (clanId && !profile) dispatch(fetchClanProfile(clanId) as any);
   }, [dispatch, clanId, profile]);
 
   useEffect(() => {
-    if (profile) {
-      setDescription(profile.description ?? '');
-      setFrameId(profile.frameId);
-      setIconId(profile.iconId);
-      setFrameColor(profile.frameColor);
-      setIconColor(profile.iconColor ?? allowedIconColors[0]);
-      setStatus(profile.status as ClanStatus);
-      setXpRequirement(profile.xpRequirement);
-      setMasteryRequirement(profile.masteryRequirement);
-    }
-  }, [profile]);
+    if (!profile || !clanId) return;
+    if (hydratedForClanIdRef.current === clanId) return;
+    setDescription(profile.description ?? '');
+    setFrameId(profile.frameId);
+    setIconId(profile.iconId);
+    setFrameColor(profile.frameColor);
+    setIconColor(profile.iconColor ?? allowedIconColors[0]);
+    setStatus(profile.status as ClanStatus);
+    setXpRequirement(profile.xpRequirement);
+    setMasteryRequirement(profile.masteryRequirement);
+    hydratedForClanIdRef.current = clanId;
+  }, [profile, clanId]);
 
   if (!clanId) return <p>You are not in a clan.</p>;
   if (!profile) return <p style={{ color: '#aaa' }}>Loading...</p>;
@@ -84,11 +86,11 @@ export default function EditClanTab() {
       <div className="clans-form">
         <div className="clans-form__left">
           <div className="clans-form__field">
-            <label>Tag (cannot be changed)</label>
+            <label>Tag</label>
             <input value={profile.tag} disabled />
           </div>
           <div className="clans-form__field">
-            <label>Name (cannot be changed)</label>
+            <label>Name</label>
             <input value={profile.name} disabled />
           </div>
           <div className="clans-form__field">

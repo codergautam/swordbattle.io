@@ -7,6 +7,23 @@ import cosmetics from '../../../../game/cosmetics.json';
 
 const skinBase = 'assets/game/player/';
 const sendCooldownMs = 1500;
+const dividerGapMs = 60 * 60 * 1000;
+
+function dividerLabel(date: Date): string {
+  const now = new Date();
+  const sameDay = date.toDateString() === now.toDateString();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const wasYesterday = date.toDateString() === yesterday.toDateString();
+  const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (sameDay) return time;
+  if (wasYesterday) return `Yesterday ${time}`;
+  const daysAgo = Math.floor((now.getTime() - date.getTime()) / (24 * 60 * 60 * 1000));
+  if (daysAgo < 7) {
+    return `${date.toLocaleDateString([], { weekday: 'long' })} ${time}`;
+  }
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
 
 const skinUrlCache: Record<number, string> = {};
 function skinImage(skinId: number | null): string | null {
@@ -117,33 +134,48 @@ export default function ChatTab({ onOpenUserProfile }: ChatTabProps) {
     }
   };
 
-  const messageList = useMemo(() => messages.map((m) => {
-    const isSystem = m.accountId == null;
-    if (isSystem) {
-      return (
-        <div key={m.id} className="clan-chat__msg clan-chat__msg--system">
-          {m.content}
+  const messageList = useMemo(() => {
+    const nodes: JSX.Element[] = [];
+    let previousDate: Date | null = null;
+    for (const m of messages) {
+      const currentDate = new Date(m.created_at);
+      if (previousDate && currentDate.getTime() - previousDate.getTime() >= dividerGapMs) {
+        nodes.push(
+          <div key={`divider-${m.id}`} className="clan-chat__divider">
+            <span>{dividerLabel(currentDate)}</span>
+          </div>
+        );
+      }
+      previousDate = currentDate;
+      const isSystem = m.accountId == null;
+      if (isSystem) {
+        nodes.push(
+          <div key={m.id} className="clan-chat__msg clan-chat__msg--system">
+            {m.content}
+          </div>
+        );
+        continue;
+      }
+      const skin = skinImage(m.skinId);
+      nodes.push(
+        <div key={m.id} className="clan-chat__msg">
+          {skin ? <img className="skin" src={skin} alt="" /> : <div className="skin" />}
+          <div className="body">
+            <div className="top">
+              <a className="username user-link" onClick={() => m.username && onOpenUserProfile(m.username)}>
+                {m.username}
+              </a>
+              <span className="time" title={currentDate.toLocaleString()}>
+                {relativeTime(currentDate, now)}
+              </span>
+            </div>
+            <div className="text">{m.content}</div>
+          </div>
         </div>
       );
     }
-    const skin = skinImage(m.skinId);
-    return (
-      <div key={m.id} className="clan-chat__msg">
-        {skin ? <img className="skin" src={skin} alt="" /> : <div className="skin" />}
-        <div className="body">
-          <div className="top">
-            <a className="username user-link" onClick={() => m.username && onOpenUserProfile(m.username)}>
-              {m.username}
-            </a>
-            <span className="time" title={new Date(m.created_at).toLocaleString()}>
-              {relativeTime(new Date(m.created_at), now)}
-            </span>
-          </div>
-          <div className="text">{m.content}</div>
-        </div>
-      </div>
-    );
-  }), [messages, now, onOpenUserProfile]);
+    return nodes;
+  }, [messages, now, onOpenUserProfile]);
 
   if (!clanId) return <p>You are not in a clan.</p>;
 

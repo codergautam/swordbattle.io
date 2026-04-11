@@ -15,9 +15,10 @@ interface JoinClanTabProps {
   selectedClanId: number | null;
   setSelectedClanId: (id: number | null) => void;
   onOpenUserProfile: (username: string) => void;
+  setLoadingLabel: (label: string | null) => void;
 }
 
-export default function JoinClanTab({ account, selectedClanId, setSelectedClanId, onOpenUserProfile }: JoinClanTabProps) {
+export default function JoinClanTab({ account, selectedClanId, setSelectedClanId, onOpenUserProfile, setLoadingLabel }: JoinClanTabProps) {
   const dispatch = useDispatch();
   const recommended = useSelector((s: RootState) => s.clans.recommended);
   const searchResults = useSelector((s: RootState) => s.clans.searchResults);
@@ -56,6 +57,7 @@ export default function JoinClanTab({ account, selectedClanId, setSelectedClanId
           viewerInClan={false}
           account={account}
           onOpenUserProfile={onOpenUserProfile}
+          setLoadingLabel={setLoadingLabel}
         />
       </div>
     );

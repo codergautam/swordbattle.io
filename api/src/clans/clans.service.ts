@@ -6,7 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { Account } from '../accounts/account.entity';
 import { Clan, ClanStatus } from './clan.entity';
 import { ClanMember, ClanRole } from './clan-member.entity';
@@ -66,6 +66,8 @@ export type ClanSummary = {
   memberCount: number;
   leaderId: number;
   leaderUsername?: string;
+  xpRank?: number;
+  masteryRank?: number;
 };
 
 export type ClanMemberSummary = {
@@ -121,7 +123,15 @@ export class ClansService {
     }
   }
 
-  private toSummary(clan: Clan, memberCount: number, leaderUsername?: string): ClanSummary {
+  private toSummary(
+    clan: Clan,
+    memberCount: number,
+    clanXp: number,
+    clanMastery: number,
+    leaderUsername?: string,
+    xpRank?: number,
+    masteryRank?: number,
+  ): ClanSummary {
     return {
       id: clan.id,
       tag: clan.tag,
@@ -134,11 +144,13 @@ export class ClansService {
       status: clan.status,
       xpRequirement: Number(clan.xpRequirement),
       masteryRequirement: Number(clan.masteryRequirement),
-      clanXp: Number(clan.clanXp),
-      clanMastery: Number(clan.clanMastery),
+      clanXp,
+      clanMastery,
       memberCount,
       leaderId: clan.leaderId,
       leaderUsername,
+      xpRank,
+      masteryRank,
     };
   }
 
@@ -151,6 +163,63 @@ export class ClansService {
     return leader?.username;
   }
 
+  private async batchClanStats(clanIds: number[]): Promise<Map<number, { memberCount: number; clanXp: number; clanMastery: number }>> {
+    const map = new Map<number, { memberCount: number; clanXp: number; clanMastery: number }>();
+    if (clanIds.length === 0) return map;
+    const rows: any[] = await this.members.createQueryBuilder('m')
+      .leftJoin('m.account', 'a')
+      .select('m.clanId', 'clanId')
+      .addSelect('COUNT(m.id)', 'memberCount')
+      .addSelect('COALESCE(SUM(a.xp), 0)', 'clanXp')
+      .addSelect('COALESCE(SUM(a.mastery), 0)', 'clanMastery')
+      .where('m.clanId IN (:...ids)', { ids: clanIds })
+      .groupBy('m.clanId')
+      .getRawMany();
+    for (const r of rows) {
+      map.set(Number(r.clanId), {
+        memberCount: Number(r.memberCount),
+        clanXp: Number(r.clanXp),
+        clanMastery: Number(r.clanMastery),
+      });
+    }
+    for (const id of clanIds) {
+      if (!map.has(id)) map.set(id, { memberCount: 0, clanXp: 0, clanMastery: 0 });
+    }
+    return map;
+  }
+
+  private async getClanStats(clanId: number) {
+    const map = await this.batchClanStats([clanId]);
+    return map.get(clanId)!;
+  }
+
+  // Returns { xpRank, masteryRank } based on SUM of member xp/mastery, with the
+  // ranks only filled in if the clan is in the top 25 of that stat.
+  private async getClanRanks(clanId: number): Promise<{ xpRank?: number; masteryRank?: number }> {
+    const xpRows: any[] = await this.members.createQueryBuilder('m')
+      .leftJoin('m.account', 'a')
+      .select('m.clanId', 'clanId')
+      .addSelect('COALESCE(SUM(a.xp), 0)', 'total')
+      .groupBy('m.clanId')
+      .orderBy('total', 'DESC')
+      .limit(25)
+      .getRawMany();
+    const masteryRows: any[] = await this.members.createQueryBuilder('m')
+      .leftJoin('m.account', 'a')
+      .select('m.clanId', 'clanId')
+      .addSelect('COALESCE(SUM(a.mastery), 0)', 'total')
+      .groupBy('m.clanId')
+      .orderBy('total', 'DESC')
+      .limit(25)
+      .getRawMany();
+    const xpIdx = xpRows.findIndex((r) => Number(r.clanId) === clanId);
+    const masteryIdx = masteryRows.findIndex((r) => Number(r.clanId) === clanId);
+    return {
+      xpRank: xpIdx >= 0 ? xpIdx + 1 : undefined,
+      masteryRank: masteryIdx >= 0 ? masteryIdx + 1 : undefined,
+    };
+  }
+
   async getMembershipForAccount(accountId: number): Promise<{
     clan: ClanSummary;
     role: ClanRole;
@@ -160,10 +229,11 @@ export class ClansService {
     if (!member) return null;
     const clan = await this.clans.findOne({ where: { id: member.clanId } });
     if (!clan) return null;
-    const memberCount = await this.countMembers(clan.id);
+    const stats = await this.getClanStats(clan.id);
     const leaderUsername = await this.getLeaderUsername(clan.leaderId);
+    const ranks = await this.getClanRanks(clan.id);
     return {
-      clan: this.toSummary(clan, memberCount, leaderUsername),
+      clan: this.toSummary(clan, stats.memberCount, stats.clanXp, stats.clanMastery, leaderUsername, ranks.xpRank, ranks.masteryRank),
       role: member.role,
       contributedXp: Number(member.contributedXp),
     };
@@ -299,7 +369,7 @@ export class ClansService {
         clanName: savedClan.name,
       });
 
-      return this.toSummary(savedClan, 1, account.username);
+      return this.toSummary(savedClan, 1, account.xp ?? 0, account.mastery ?? 0, account.username);
     });
   }
 
@@ -647,9 +717,9 @@ export class ClansService {
 
     await this.clans.update({ id: clanId }, updates);
     const fresh = await this.getClanOrThrow(clanId);
-    const memberCount = await this.countMembers(clanId);
+    const stats = await this.getClanStats(clanId);
     const leaderUsername = await this.getLeaderUsername(fresh.leaderId);
-    return this.toSummary(fresh, memberCount, leaderUsername);
+    return this.toSummary(fresh, stats.memberCount, stats.clanXp, stats.clanMastery, leaderUsername);
   }
 
   private async batchLeaderUsernames(leaderIds: number[]): Promise<Map<number, string>> {
@@ -680,15 +750,18 @@ export class ClansService {
       .limit(100);
 
     const candidates = await qb.getMany();
-    const memberCounts = await this.batchMemberCounts(candidates.map((c) => c.id));
+    const stats = await this.batchClanStats(candidates.map((c) => c.id));
 
     const seed = opts.seed ?? Math.floor(Date.now() / 60000);
     const shuffled = stableShuffle(candidates, seed)
-      .filter((c) => (memberCounts.get(c.id) ?? 0) < clanMemberCap)
+      .filter((c) => (stats.get(c.id)?.memberCount ?? 0) < clanMemberCap)
       .slice(0, recommendedClanLimit);
 
     const leaderNames = await this.batchLeaderUsernames(shuffled.map((c) => c.leaderId));
-    return shuffled.map((c) => this.toSummary(c, memberCounts.get(c.id) ?? 0, leaderNames.get(c.leaderId)));
+    return shuffled.map((c) => {
+      const s = stats.get(c.id) ?? { memberCount: 0, clanXp: 0, clanMastery: 0 };
+      return this.toSummary(c, s.memberCount, s.clanXp, s.clanMastery, leaderNames.get(c.leaderId));
+    });
   }
 
   async search(query: string, by: 'tag' | 'name') {
@@ -699,37 +772,41 @@ export class ClansService {
       .where(`LOWER(${column}) LIKE LOWER(:q)`, { q: `${q}%` })
       .limit(50)
       .getMany();
-    const memberCounts = await this.batchMemberCounts(clans.map((c) => c.id));
+    const stats = await this.batchClanStats(clans.map((c) => c.id));
     const leaderNames = await this.batchLeaderUsernames(clans.map((c) => c.leaderId));
-    return clans.map((c) => this.toSummary(c, memberCounts.get(c.id) ?? 0, leaderNames.get(c.leaderId)));
+    return clans.map((c) => {
+      const s = stats.get(c.id) ?? { memberCount: 0, clanXp: 0, clanMastery: 0 };
+      return this.toSummary(c, s.memberCount, s.clanXp, s.clanMastery, leaderNames.get(c.leaderId));
+    });
   }
 
+  // Sort by live SUM of member xp/mastery (the stored clanXp/clanMastery columns
+  // are unused and trail reality). Pulls top-N clan ids first via aggregate query,
+  // then loads their full rows.
   async leaderboard(sort: 'xp' | 'mastery') {
-    const column = sort === 'mastery' ? 'c.clanMastery' : 'c.clanXp';
-    const clans = await this.clans.createQueryBuilder('c')
-      .orderBy(column, 'DESC')
-      .limit(leaderboardLimit)
-      .getMany();
-    const memberCounts = await this.batchMemberCounts(clans.map((c) => c.id));
-    const leaderNames = await this.batchLeaderUsernames(clans.map((c) => c.leaderId));
-    return clans.map((c) => this.toSummary(c, memberCounts.get(c.id) ?? 0, leaderNames.get(c.leaderId)));
-  }
-
-  private async batchMemberCounts(clanIds: number[]): Promise<Map<number, number>> {
-    if (clanIds.length === 0) return new Map();
-    const rows = await this.members.createQueryBuilder('m')
+    const sumColumn = sort === 'mastery' ? 'a.mastery' : 'a.xp';
+    const idRows: any[] = await this.members.createQueryBuilder('m')
+      .leftJoin('m.account', 'a')
       .select('m.clanId', 'clanId')
-      .addSelect('COUNT(*)', 'count')
-      .where('m.clanId IN (:...ids)', { ids: clanIds })
+      .addSelect(`COALESCE(SUM(${sumColumn}), 0)`, 'total')
       .groupBy('m.clanId')
+      .orderBy('total', 'DESC')
+      .limit(leaderboardLimit)
       .getRawMany();
-    const map = new Map<number, number>();
-    for (const r of rows) {
-      map.set(Number(r.clanId), Number(r.count));
-    }
-    return map;
-  }
+    const orderedIds = idRows.map((r) => Number(r.clanId));
+    if (orderedIds.length === 0) return [];
 
+    const clans = await this.clans.find({ where: { id: In(orderedIds) } });
+    const clanById = new Map(clans.map((c) => [c.id, c]));
+    const stats = await this.batchClanStats(orderedIds);
+    const leaderNames = await this.batchLeaderUsernames(clans.map((c) => c.leaderId));
+
+    return orderedIds.map((id) => {
+      const c = clanById.get(id)!;
+      const s = stats.get(id) ?? { memberCount: 0, clanXp: 0, clanMastery: 0 };
+      return this.toSummary(c, s.memberCount, s.clanXp, s.clanMastery, leaderNames.get(c.leaderId));
+    });
+  }
 
   async getClanProfile(clanId: number, sort: 'role' | 'xp' | 'mastery' | 'joined' = 'xp') {
     const clan = await this.getClanOrThrow(clanId);
@@ -782,8 +859,11 @@ export class ClansService {
     }));
 
     const leaderUsername = await this.getLeaderUsername(clan.leaderId);
+    const clanXp = memberSummaries.reduce((acc, m) => acc + m.xp, 0);
+    const clanMastery = memberSummaries.reduce((acc, m) => acc + m.mastery, 0);
+    const ranks = await this.getClanRanks(clanId);
     return {
-      ...this.toSummary(clan, memberSummaries.length, leaderUsername),
+      ...this.toSummary(clan, memberSummaries.length, clanXp, clanMastery, leaderUsername, ranks.xpRank, ranks.masteryRank),
       members: memberSummaries,
       pendingRequests,
     };

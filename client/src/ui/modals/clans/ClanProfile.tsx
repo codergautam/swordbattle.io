@@ -14,6 +14,7 @@ interface ClanProfileProps {
   viewerInClan: boolean;
   account: AccountState;
   onOpenUserProfile?: (username: string) => void;
+  setLoadingLabel?: (label: string | null) => void;
 }
 
 type SortKey = 'xp' | 'mastery' | 'role' | 'joined';
@@ -22,7 +23,7 @@ const sortLabels: Record<SortKey, string> = {
   role: 'Role', xp: 'XP', mastery: 'Mastery', joined: 'Joined',
 };
 
-export default function ClanProfile({ clanId, viewerInClan, account, onOpenUserProfile }: ClanProfileProps) {
+export default function ClanProfile({ clanId, viewerInClan, account, onOpenUserProfile, setLoadingLabel }: ClanProfileProps) {
   const dispatch = useDispatch();
   const profile = useSelector((s: RootState) => s.clans.profileCache[clanId]);
   const myMembership = useSelector((s: RootState) => s.account.clan);
@@ -54,13 +55,17 @@ export default function ClanProfile({ clanId, viewerInClan, account, onOpenUserP
     }
   });
 
-  const wrapAction = async (fn: () => Promise<any>) => {
+  const wrapAction = async (label: string | null, fn: () => Promise<any>) => {
     try {
       setActionError(null);
+      if (label) setLoadingLabel?.(label);
       const res = await fn();
       if (res?.message || res?.error) setActionError(res.message ?? res.error);
+      return res;
     } catch (e: any) {
       setActionError(e?.message ?? 'Action failed');
+    } finally {
+      if (label) setLoadingLabel?.(null);
     }
   };
 
@@ -73,7 +78,7 @@ export default function ClanProfile({ clanId, viewerInClan, account, onOpenUserP
       return;
     }
     if (!window.confirm(`Promote ${m.username} to ${roleLabels[newRole]}?`)) return;
-    await wrapAction(() => dispatch(changeRole(clanId, m.accountId, newRole as 0 | 1 | 2 | 3) as any));
+    await wrapAction(null, () => dispatch(changeRole(clanId, m.accountId, newRole as 0 | 1 | 2 | 3) as any));
   };
 
   const onDemote = async (m: typeof sorted[number]) => {
@@ -84,38 +89,38 @@ export default function ClanProfile({ clanId, viewerInClan, account, onOpenUserP
       return;
     }
     if (!window.confirm(`Demote ${m.username} to ${roleLabels[newRole]}?`)) return;
-    await wrapAction(() => dispatch(changeRole(clanId, m.accountId, newRole as 0 | 1 | 2 | 3) as any));
+    await wrapAction(null, () => dispatch(changeRole(clanId, m.accountId, newRole as 0 | 1 | 2 | 3) as any));
   };
 
   const onKick = async (m: typeof sorted[number]) => {
     if (!window.confirm(`Kick ${m.username} from the clan?`)) return;
-    await wrapAction(() => dispatch(kickMember(clanId, m.accountId) as any));
+    await wrapAction(`Kicking ${m.username}...`, () => dispatch(kickMember(clanId, m.accountId) as any));
   };
 
   const onTransfer = async (m: typeof sorted[number]) => {
     if (!window.confirm(`Transfer leadership to ${m.username}? You will become co-leader.`)) return;
-    await wrapAction(() => dispatch(transferLeadership(clanId, m.accountId) as any));
+    await wrapAction('Transferring leadership...', () => dispatch(transferLeadership(clanId, m.accountId) as any));
   };
 
   const onLeave = async () => {
     if (!window.confirm('Are you sure you want to leave this clan? You won\'t be able to join another clan for 24 hours.')) return;
-    await wrapAction(() => dispatch(leaveClan(clanId) as any));
+    await wrapAction('Leaving clan...', () => dispatch(leaveClan(clanId) as any));
   };
 
   const onDisband = async () => {
     if (!window.confirm('Disband the clan? This cannot be undone. You will not receive any refunds.')) return;
-    await wrapAction(() => dispatch(disbandClan(clanId) as any));
+    await wrapAction('Disbanding clan...', () => dispatch(disbandClan(clanId) as any));
   };
 
   const onJoin = async () => {
     if (!canActuallyJoin) return;
-    const res: any = await dispatch(joinClan(clanId) as any);
+    const res: any = await wrapAction('Joining clan...', () => dispatch(joinClan(clanId) as any));
     if (res?.requested) alert('Join request sent');
     else if (res?.message || res?.error) alert(res?.message ?? res?.error);
   };
 
-  const acceptReq = (reqId: number) => wrapAction(() => dispatch(respondRequest(clanId, reqId, true) as any));
-  const rejectReq = (reqId: number) => wrapAction(() => dispatch(respondRequest(clanId, reqId, false) as any));
+  const acceptReq = (reqId: number) => wrapAction(null, () => dispatch(respondRequest(clanId, reqId, true) as any));
+  const rejectReq = (reqId: number) => wrapAction(null, () => dispatch(respondRequest(clanId, reqId, false) as any));
 
   const canPromoteRow = (m: typeof sorted[number]) => {
     if (!canManage) return false;
@@ -158,8 +163,18 @@ export default function ClanProfile({ clanId, viewerInClan, account, onOpenUserP
               <span>{statusLabels[profile.status as ClanStatus]}</span>
             )}
             <span className={isFull ? 'unmet' : ''}>{profile.memberCount}/{clanMemberCap} members</span>
-            <span>{numberWithCommas(profile.clanXp)} clan XP</span>
-            <span>{numberWithCommas(profile.clanMastery)} clan mastery</span>
+            <span>
+              {numberWithCommas(profile.clanXp)} clan XP
+              {profile.xpRank !== undefined && profile.xpRank <= 25 && (
+                <span className="rank-badge"> #{profile.xpRank}</span>
+              )}
+            </span>
+            <span>
+              {numberWithCommas(profile.clanMastery)} clan mastery
+              {profile.masteryRank !== undefined && profile.masteryRank <= 25 && (
+                <span className="rank-badge"> #{profile.masteryRank}</span>
+              )}
+            </span>
             {profile.xpRequirement > 0 && (
               <span className={xpUnmet ? 'unmet' : ''}>{numberWithCommas(profile.xpRequirement)} XP required</span>
             )}

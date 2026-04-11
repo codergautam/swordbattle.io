@@ -12,9 +12,10 @@ interface LeaderboardTabProps {
   account: AccountState;
   selectedClanId: number | null;
   setSelectedClanId: (id: number | null) => void;
+  onOpenUserProfile?: (username: string) => void;
 }
 
-export default function LeaderboardTab({ account, selectedClanId, setSelectedClanId }: LeaderboardTabProps) {
+export default function LeaderboardTab({ account, selectedClanId, setSelectedClanId, onOpenUserProfile }: LeaderboardTabProps) {
   const dispatch = useDispatch();
   const [sort, setSort] = useState<SortKey>('xp');
   const rows = useSelector((s: RootState) => s.clans.leaderboard[sort]);
@@ -37,6 +38,7 @@ export default function LeaderboardTab({ account, selectedClanId, setSelectedCla
           clanId={selectedClanId}
           viewerInClan={!!myClan && myClan.clan.id === selectedClanId}
           account={account}
+          onOpenUserProfile={onOpenUserProfile}
         />
       </div>
     );
@@ -50,13 +52,12 @@ export default function LeaderboardTab({ account, selectedClanId, setSelectedCla
       </div>
 
       <div className="clan-list">
-        {rows.map((clan, idx) => (
+        {rows.map((clan) => (
           <ClanListEntry
             key={clan.id}
             clan={clan}
             account={account}
-            xpRank={sort === 'xp' ? idx + 1 : undefined}
-            masteryRank={sort === 'mastery' ? idx + 1 : undefined}
+            statSort={sort}
             onClick={() => openProfile(clan.id)}
           />
         ))}

@@ -154,6 +154,7 @@ footer {
   right: 0;
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   transform-origin: top right;
 
   .dropdown {

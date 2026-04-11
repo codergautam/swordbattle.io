@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { AccountState } from '../../../../redux/account/slice';
 import { createClan } from '../../../../redux/clans/slice';
 import { numberWithCommas } from '../../../../helpers';
@@ -15,6 +15,7 @@ import {
 
 interface CreateClanTabProps {
   account: AccountState;
+  setLoadingLabel: (label: string | null) => void;
 }
 
 function localSimilarityCheck(tag: string, name: string): string {
@@ -38,10 +39,12 @@ function localSimilarityCheck(tag: string, name: string): string {
   return '';
 }
 
-export default function CreateClanTab({ account }: CreateClanTabProps) {
+export default function CreateClanTab({ account, setLoadingLabel }: CreateClanTabProps) {
   const dispatch = useDispatch();
+  const serverConfig = useSelector((s: any) => s.clans.config);
   const eligible = (account.xp ?? 0) >= clanXpRequirement;
-  const canAfford = (account.gems ?? 0) >= clanCreationCost;
+  const effectiveCost = serverConfig?.clanCreationCost ?? clanCreationCost;
+  const canAfford = (account.gems ?? 0) >= effectiveCost;
 
   const [tag, setTag] = useState('');
   const [name, setName] = useState('');
@@ -83,6 +86,7 @@ export default function CreateClanTab({ account }: CreateClanTabProps) {
     if (!canSubmit) return;
     setSubmitting(true);
     setServerError(null);
+    setLoadingLabel('Creating clan...');
     try {
       const res: any = await dispatch(createClan({
         tag, name, description, frameId, iconId, frameColor, iconColor,
@@ -95,6 +99,7 @@ export default function CreateClanTab({ account }: CreateClanTabProps) {
       setServerError(e?.message ?? 'Failed to create clan');
     } finally {
       setSubmitting(false);
+      setLoadingLabel(null);
     }
   };
 
@@ -157,7 +162,7 @@ export default function CreateClanTab({ account }: CreateClanTabProps) {
               {submitting ? 'Creating...' : 'Create Clan'}
             </button>
             <span className={canAfford ? 'cost' : 'cost cost--unaffordable'}>
-              Cost: {numberWithCommas(clanCreationCost)}
+              Cost: {numberWithCommas(effectiveCost)}
               <img src={GemImg} alt="gems" className="cost__gem" />
               {!canAfford && (
                 <span className="cost__have"> (you have {numberWithCommas(account.gems ?? 0)})</span>

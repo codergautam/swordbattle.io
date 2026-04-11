@@ -8,9 +8,10 @@ import ClanProfile from '../ClanProfile';
 interface YourClanTabProps {
   account: AccountState;
   onOpenUserProfile: (username: string) => void;
+  setLoadingLabel: (label: string | null) => void;
 }
 
-export default function YourClanTab({ account, onOpenUserProfile }: YourClanTabProps) {
+export default function YourClanTab({ account, onOpenUserProfile, setLoadingLabel }: YourClanTabProps) {
   const dispatch = useDispatch();
   const myClan = useSelector((s: RootState) => s.account.clan);
 
@@ -25,6 +26,7 @@ export default function YourClanTab({ account, onOpenUserProfile }: YourClanTabP
       viewerInClan={true}
       account={account}
       onOpenUserProfile={onOpenUserProfile}
+      setLoadingLabel={setLoadingLabel}
     />
   );
 }

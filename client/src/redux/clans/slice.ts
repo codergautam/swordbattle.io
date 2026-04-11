@@ -32,6 +32,12 @@ export type ClanChatRow = {
   created_at: string;
 };
 
+export type ClanConfig = {
+  clanCreationCost: number;
+  clanXpRequirement: number;
+  clanMemberCap: number;
+};
+
 type ClansState = {
   recommended: ClanSummary[];
   recommendedLoading: boolean;
@@ -44,8 +50,25 @@ type ClansState = {
   chat: ClanChatRow[];
   chatLoading: boolean;
   lastSeenChatId: number;
+  config: ClanConfig | null;
   error: string | null;
 };
+
+function readLastSeenChatId(clanId: number | null | undefined): number {
+  if (!clanId) return 0;
+  try {
+    const v = window.localStorage.getItem(`clanChatLastSeen:${clanId}`);
+    return v ? Number(v) || 0 : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function writeLastSeenChatId(clanId: number, id: number) {
+  try {
+    window.localStorage.setItem(`clanChatLastSeen:${clanId}`, String(id));
+  } catch {}
+}
 
 const initialState: ClansState = {
   recommended: [],
@@ -59,6 +82,7 @@ const initialState: ClansState = {
   chat: [],
   chatLoading: false,
   lastSeenChatId: 0,
+  config: null,
   error: null,
 };
 
@@ -107,9 +131,25 @@ const slice = createSlice({
     setChatLoading(state, action: PayloadAction<boolean>) {
       state.chatLoading = action.payload;
     },
-    markChatRead(state) {
+    setLastSeenChatId(state, action: PayloadAction<{ clanId: number; id: number }>) {
+      const { clanId, id } = action.payload;
+      if (id > state.lastSeenChatId) {
+        state.lastSeenChatId = id;
+        writeLastSeenChatId(clanId, id);
+      }
+    },
+    hydrateLastSeenChatId(state, action: PayloadAction<number>) {
+      state.lastSeenChatId = readLastSeenChatId(action.payload);
+    },
+    markChatRead(state, action: PayloadAction<number | undefined>) {
       const newest = state.chat[state.chat.length - 1]?.id ?? 0;
-      if (newest > state.lastSeenChatId) state.lastSeenChatId = newest;
+      if (newest > state.lastSeenChatId) {
+        state.lastSeenChatId = newest;
+        if (action.payload) writeLastSeenChatId(action.payload, newest);
+      }
+    },
+    setConfig(state, action: PayloadAction<ClanConfig | null>) {
+      state.config = action.payload;
     },
     setError(state, action: PayloadAction<string | null>) {
       state.error = action.payload;
@@ -123,6 +163,7 @@ export const {
   setLeaderboard, setLeaderboardLoading,
   putProfile, setProfileLoading,
   setChat, appendChat, clearChat, setChatLoading, markChatRead,
+  setLastSeenChatId, hydrateLastSeenChatId, setConfig,
   setError,
 } = slice.actions;
 
@@ -130,9 +171,21 @@ export default slice.reducer;
 
 const post = (path: string, body: any = {}): Promise<any> => api.postAsync(`${api.endpoint}${path}?now=${Date.now()}`, body);
 
-export const fetchMyClan = () => async (dispatch: any) => {
+// NestJS error responses (4xx/5xx) come back as { statusCode, message, ... }.
+// Polled endpoints must NOT mutate redux state on these — otherwise a transient
+// 429 from the throttler wipes the user's clan from local state.
+function isErrorResponse(res: any): boolean {
+  if (!res || typeof res !== 'object') return true;
+  if (typeof res.statusCode === 'number' && res.statusCode >= 400) return true;
+  return false;
+}
+
+export const fetchMyClan = () => async (dispatch: any, getState: any) => {
   const res = await post('/clans/me');
+  if (isErrorResponse(res)) return res;
+  if (res?.config) dispatch(setConfig(res.config));
   if (res?.clan) {
+    const previousClanId = getState().account.clan?.clan?.id ?? null;
     const accountClan: AccountClan = {
       clan: {
         id: res.clan.id,
@@ -151,12 +204,17 @@ export const fetchMyClan = () => async (dispatch: any) => {
         memberCount: res.clan.memberCount,
         leaderId: res.clan.leaderId,
         leaderUsername: res.clan.leaderUsername,
+        xpRank: res.clan.xpRank,
+        masteryRank: res.clan.masteryRank,
       },
       role: res.role,
       contributedXp: res.contributedXp,
     };
     dispatch(setClan(accountClan));
     dispatch(putProfile(res.clan));
+    if (previousClanId !== res.clan.id) {
+      dispatch(hydrateLastSeenChatId(res.clan.id));
+    }
   } else {
     dispatch(clearClan());
   }
@@ -167,6 +225,7 @@ export const fetchRecommended = (seed?: number, showRequest?: boolean) => async 
   dispatch(setRecommendedLoading(true));
   try {
     const res = await post('/clans/recommended', { seed, showRequest });
+    if (isErrorResponse(res)) return res;
     if (Array.isArray(res)) dispatch(setRecommended(res));
   } finally {
     dispatch(setRecommendedLoading(false));
@@ -177,6 +236,7 @@ export const fetchLeaderboard = (sort: 'xp' | 'mastery') => async (dispatch: any
   dispatch(setLeaderboardLoading(true));
   try {
     const res = await post('/clans/leaderboard', { sort });
+    if (isErrorResponse(res)) return res;
     if (Array.isArray(res)) dispatch(setLeaderboard({ key: sort, rows: res }));
   } finally {
     dispatch(setLeaderboardLoading(false));
@@ -187,6 +247,7 @@ export const fetchClanProfile = (clanId: number, sort: 'role' | 'xp' | 'mastery'
   dispatch(setProfileLoading(true));
   try {
     const res = await post(`/clans/view/${clanId}`, { sort });
+    if (isErrorResponse(res)) return res;
     if (res?.id) dispatch(putProfile(res));
     return res;
   } finally {
@@ -198,6 +259,7 @@ export const searchClans = (q: string, by: 'tag' | 'name') => async (dispatch: a
   dispatch(setSearchLoading(true));
   try {
     const res = await post('/clans/search', { q, by });
+    if (isErrorResponse(res)) return res;
     if (Array.isArray(res)) dispatch(setSearchResults(res));
   } finally {
     dispatch(setSearchLoading(false));
@@ -216,6 +278,7 @@ export const createClan = (body: any) => async (dispatch: any) => {
 export const joinClan = (clanId: number) => async (dispatch: any) => {
   const res = await post(`/clans/${clanId}/join`);
   if (res?.joined) {
+    dispatch(setRecommended([]));
     await dispatch(fetchMyClan());
   }
   return res;
@@ -225,6 +288,8 @@ export const leaveClan = (clanId: number) => async (dispatch: any) => {
   const res = await post(`/clans/${clanId}/leave`);
   dispatch(clearClan());
   dispatch(clearChat());
+  dispatch(setRecommended([]));
+  try { window.localStorage.removeItem(`clanChatLastSeen:${clanId}`); } catch {}
   return res;
 };
 
@@ -240,6 +305,7 @@ export const fetchChatHistory = (clanId: number, before?: number) => async (disp
   if (!before) dispatch(setChatLoading(true));
   try {
     const res = await post(`/clans/${clanId}/chat/history`, before ? { before } : {});
+    if (isErrorResponse(res)) return res;
     if (Array.isArray(res)) {
       if (before) {
         dispatch(appendChat(res));
@@ -289,5 +355,7 @@ export const disbandClan = (clanId: number) => async (dispatch: any) => {
   const res = await post(`/clans/${clanId}/disband`);
   dispatch(clearClan());
   dispatch(clearChat());
+  dispatch(setRecommended([]));
+  try { window.localStorage.removeItem(`clanChatLastSeen:${clanId}`); } catch {}
   return res;
 };

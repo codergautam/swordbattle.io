@@ -6,17 +6,20 @@ import ClanEmblem from './ClanEmblem';
 interface ClanListEntryProps {
   clan: ClanSummary;
   account?: AccountState;
-  xpRank?: number;
-  masteryRank?: number;
+  statSort?: 'xp' | 'mastery';
   onClick?: () => void;
 }
 
 export default function ClanListEntry({
-  clan, account, xpRank, masteryRank, onClick,
+  clan, account, statSort, onClick,
 }: ClanListEntryProps) {
   const xpUnmet = !!account && (account.xp ?? 0) < clan.xpRequirement;
   const masteryUnmet = !!account && (account.mastery ?? 0) < clan.masteryRequirement;
   const isFull = clan.memberCount >= clanMemberCap;
+
+  const primaryStat = statSort === 'mastery'
+    ? { label: 'Mastery', value: clan.clanMastery, rank: clan.masteryRank }
+    : { label: 'XP', value: clan.clanXp, rank: clan.xpRank };
 
   return (
     <div className="clan-list-entry" onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
@@ -28,12 +31,9 @@ export default function ClanListEntry({
             <span className="clan-list-entry__tag">[{clan.tag}]</span> {clan.name}
           </span>
           <span className="clan-list-entry__stats">
-            <span title="Clan XP">{numberWithCommas(clan.clanXp)} XP</span>
-            {xpRank !== undefined && xpRank <= 25 && (
-              <span className="clan-list-entry__rank"> (#{xpRank})</span>
-            )}
-            {masteryRank !== undefined && masteryRank <= 25 && (
-              <span className="clan-list-entry__rank"> (#{masteryRank})</span>
+            <span title={`Clan ${primaryStat.label}`}>{numberWithCommas(primaryStat.value)} {primaryStat.label}</span>
+            {primaryStat.rank !== undefined && primaryStat.rank <= 25 && (
+              <span className="clan-list-entry__rank"> (#{primaryStat.rank})</span>
             )}
           </span>
         </div>
@@ -47,9 +47,20 @@ export default function ClanListEntry({
             <span className={masteryUnmet ? 'unmet' : ''}>{numberWithCommas(clan.masteryRequirement)} mastery required</span>
           )}
           <span className={isFull ? 'unmet' : ''}>{clan.memberCount}/{clanMemberCap} members</span>
-          {clan.description && <span className="clan-list-entry__desc">{clan.description}</span>}
         </div>
       </div>
+
+      {onClick && (
+        <button
+          className="clan-list-entry__view"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick();
+          }}
+        >
+          View
+        </button>
+      )}
     </div>
   );
 }

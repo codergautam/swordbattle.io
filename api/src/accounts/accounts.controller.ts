@@ -5,6 +5,7 @@ import { AccountsService } from './accounts.service';
 import { StatsService } from 'src/stats/stats.service';
 import { AuthService } from 'src/auth/auth.service';
 import { CosmeticsService } from 'src/cosmetics/cosmetics.service';
+import { ClansService } from 'src/clans/clans.service';
 import { ServerGuard } from 'src/auth/guards/server.guard';
 import { AccountGuard, AccountRequest } from 'src/auth/guards/account.guard';
 
@@ -17,6 +18,7 @@ export class AccountsController {
     private readonly accountsService: AccountsService,
     private readonly authService: AuthService,
     private readonly cosmeticsService: CosmeticsService,
+    private readonly clansService: ClansService,
   ) {}
 
   @Get('skins/buys')
@@ -70,8 +72,9 @@ export class AccountsController {
   async getPrivateAccount(@Req() request: AccountRequest) {
     const id = request.account.id;
     const account = await this.accountsService.getById(id);
-
-    return { account: this.accountsService.sanitizeAccount(account) };
+    const sanitized: any = this.accountsService.sanitizeAccount(account);
+    sanitized.clan = await this.clansService.getMembershipForAccount(id);
+    return { account: sanitized };
   }
 
   @UseGuards(ServerGuard)
@@ -88,7 +91,7 @@ export class AccountsController {
     const account = await this.accountsService.getByUsername(username);
     const totalStats = await this.statsService.getTotalStats(account);
     const dailyStats = await this.statsService.getAllDailyStats(account);
-    const clan = await this.accountsService.getClan(username);
+    const clan = await this.clansService.getMembershipForAccount(account.id);
     const rank = await this.statsService.getAccountRankByXp(account);
 
     const ip = request.ip;
@@ -111,7 +114,7 @@ export class AccountsController {
     const account = await this.accountsService.getById(id);
     const totalStats = await this.statsService.getTotalStats(account);
     const dailyStats = await this.statsService.getAllDailyStats(account);
-    const clan = await this.accountsService.getClanById(id);
+    const clan = await this.clansService.getMembershipForAccount(id);
     const rank = await this.statsService.getAccountRankByXp(account);
 
     const ip = request.ip;

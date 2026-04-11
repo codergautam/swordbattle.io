@@ -3,7 +3,6 @@ import { AccountsService } from '../accounts/accounts.service';
 import { SecretLoginDTO, LoginDTO, RegisterDTO } from './auth.dto';
 import { Account } from 'src/accounts/account.entity';
 import validateUsername from 'src/helpers/validateUsername';
-import validateClantag from 'src/helpers/validateClantag';
 import { v4 as uuidv4 } from 'uuid';
 import * as crypto from 'crypto';
 import axios from 'axios';
@@ -367,19 +366,6 @@ export class AuthService {
   async changeUsername(account: Account, newUsername: string) {
     try {
       let result = await this.accountsService.changeUsername(account.id, newUsername);
-      if(result.success) {
-        (result as any).secret = account.secret;
-      }
-    return result;
-    } catch (e) {
-      console.log(e);
-      return {error: e.message};
-    }
-  }
-
-  async changeClantag(account: Account, newClantag: string) {
-    try {
-      let result = await this.accountsService.changeClantag(account.id, newClantag);
       if(result.success) {
         (result as any).secret = account.secret;
       }

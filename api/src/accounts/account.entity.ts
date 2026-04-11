@@ -1,10 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany, BeforeInsert, OneToOne, Generated } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany, BeforeInsert, OneToOne } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
 import { Game } from 'src/games/games.entity';
 import { Transaction } from 'src/transactions/transactions.entity';
 import { DailyStats } from 'src/stats/dailyStats.entity';
 import { TotalStats } from 'src/stats/totalStats.entity';
+import { ClanMember } from 'src/clans/clan-member.entity';
 
 @Entity({ name: 'accounts' })
 export class Account {
@@ -13,7 +14,6 @@ export class Account {
   @CreateDateColumn() created_at: Date;
 
   @Column({ unique: true }) username: string;
-  @Column({ default: '' }) clan: string;
   @Column({ default: '' }) bio: string;
 
   @Exclude()
@@ -39,7 +39,12 @@ export class Account {
   @Column({ default: 0 }) profile_views: number;
 
   @Column({ nullable: true })  lastUsernameChange: Date;
-  @Column({ nullable: true })  lastClanChange: Date;
+
+  // 24h cooldown for re-joining/creating a clan after leaving one.
+  @Column({ nullable: true })  lastClanLeave: Date;
+
+  @OneToOne(() => ClanMember, (member) => member.account)
+  clanMember: ClanMember | null;
 
   @OneToMany(() => Transaction, transaction => transaction.account)
   transactions: Transaction[];

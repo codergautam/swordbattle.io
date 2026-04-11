@@ -120,7 +120,10 @@ class Player extends BaseEntity {
 
   createSprite() {
     this.isMe = this.id === this.game.gameState.self.id;
-    if (this.account && this.account.clan && this.account.clan.toString().toUpperCase() !== "X79Q") {
+    if (this.account && this.account.clan && typeof this.account.clan === 'object' && this.account.clan.tag) {
+      this.clan = this.account.clan.tag.toString().toUpperCase();
+    } else if (this.account && typeof this.account.clan === 'string' && this.account.clan) {
+      // Legacy server payload still sends a plain string clan tag — keep tolerant.
       this.clan = this.account.clan.toString().toUpperCase();
     }
     this.shape = Shape.create(this.shapeData);

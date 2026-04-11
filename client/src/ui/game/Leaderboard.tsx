@@ -92,11 +92,16 @@ function LeaderboardLine({ player }: any) {
   return (
     <div className="leaderboard-line">
       <span className="leaderboard-place">#{player.place}: </span>
-      {player.account?.clan && player.account?.clan !== "X79Q" && (
-        <span className="leaderboard-clan" style={{ color: 'yellow' }}>
-          [{player.account.clan}]{' '}
-        </span>
-      )}
+      {(() => {
+        const c = player.account?.clan;
+        const tag = c && typeof c === 'object' ? c.tag : (typeof c === 'string' ? c : null);
+        if (!tag) return null;
+        return (
+          <span className="leaderboard-clan" style={{ color: 'yellow' }}>
+            [{tag}]{' '}
+          </span>
+        );
+      })()}
       <span className="leaderboard-name" style={nameStyle}>
         {player.name}
         {player.account?.rank && (

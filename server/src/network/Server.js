@@ -12,6 +12,20 @@ class Server {
     this.clients = new Map();
     this.disconnectedClients = new Set();
     this.maxConnectionsPerIP = 50;
+
+    // Maintenance mode
+    this.maintenanceMode = true;
+    this.allowedIPs = [];
+    this._refreshAllowedIPs();
+    setInterval(() => this._refreshAllowedIPs(), 30000); // refresh every 30s
+  }
+
+  _refreshAllowedIPs() {
+    api.get('/maintenance/allowed-ips', (data) => {
+      if (data && !data.error && Array.isArray(data)) {
+        this.allowedIPs = data;
+      }
+    });
   }
 
   get online() {
@@ -27,9 +41,7 @@ class Server {
         const forwardedFor = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
         const ips = forwardedFor.split(',').map(i => i.trim());
         const ip = ips[0];
-        const maintenanceMode = false;
-        const allowedIPs = ['24.117.49.197', '75.33.179.28', '24.116.29.36', '127.0.0.1'];
-        if (maintenanceMode && !allowedIPs.includes(ip)) {
+        if (this.maintenanceMode && !this.allowedIPs.includes(ip)) {
           res.upgrade({ maintenance: true }, req.getHeader('sec-websocket-key'), req.getHeader('sec-websocket-protocol'), req.getHeader('sec-websocket-extensions'), context);
           return;
         }

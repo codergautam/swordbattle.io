@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,7 +16,7 @@ import LoginModal from './modals/LoginModal';
 import SignupModal from './modals/SignupModal';
 import ConnectionError from './modals/ConnectionError';
 
-import { clearAccount, setAccount, setDailyLogin, logoutAsync, changeNameAsync, changeClanAsync, changeBioAsync } from '../redux/account/slice';
+import { clearAccount, setAccount, setDailyLogin, logoutAsync, changeNameAsync, changeBioAsync } from '../redux/account/slice';
 import { selectAccount } from '../redux/account/selector';
 import api from '../api';
 
@@ -25,6 +25,7 @@ import DiscordLogo from '../assets/img/discordLogo.png';
 import GithubLogo from '../assets/img/githubLogo.png';
 import SignupImg from '../assets/img/signup.png';
 import LoginImg from '../assets/img/login.png';
+import ClanImg from '../assets/img/clan.png';
 import './App.scss';
 import GemCount from './ValueCnt';
 import ShopButton from './ShopButton';
@@ -52,6 +53,7 @@ import LeaderboardModal from './modals/LeaderboardModal';
 import RewardsModal from './modals/RewardsModal';
 import ProfileModal from './modals/ProfileModal';
 import FullChangelogModal from './modals/FullChangelogModal';
+import ClansModal from './modals/ClansModal';
 import TutorialModal from './game/TutorialModal';
 
 let debugMode = false;
@@ -933,23 +935,11 @@ function App() {
 
     dispatch(changeNameAsync(newName) as any);
   }
-  const onChangeClan = () => {
-    const newClan = prompt('What do you want your clan tag to be? Clans can only be 1-5 characters long, and you can only change your clan once every 7 days.');
-    if (!newClan) return;
-
-    dispatch(changeClanAsync(newClan) as any);
-  }
   const onChangeBio = () => {
     const newBio = prompt('What do you want your bio to be? You can change it whenever you want, but it can only be up to 100 characters long.');
     if (!newBio) return;
 
     dispatch(changeBioAsync(newBio) as any);
-  }
-  const onRemoveClan = () => {
-    const newClan = prompt('Are you sure you want to remove your clan tag? You cannot change it again for 7 days. Type anything to confirm.');
-    if (!newClan) return;
-
-    dispatch(changeClanAsync('X79Q') as any);
   }
   const openShop = () => {
     setModal(<ShopModal account={account} />);
@@ -978,6 +968,30 @@ function App() {
   const openProfile = () => {
     setModal(<ProfileModal username={account.isLoggedIn ? account.username : undefined} isOwnProfile={account.isLoggedIn} />);
   };
+
+  const openClans = () => {
+    setModal(<ClansModal account={account} />);
+  };
+
+  // Auth-username dropdown state. We use JS instead of `:hover` so the menu stays
+  // open while the cursor transits through the sibling Clans button area, which is
+  // physically between the username trigger and the absolutely-positioned menu.
+  const [authDropdownOpen, setAuthDropdownOpen] = useState(false);
+  const authDropdownTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const openAuthDropdown = useCallback(() => {
+    if (authDropdownTimeoutRef.current) {
+      clearTimeout(authDropdownTimeoutRef.current);
+      authDropdownTimeoutRef.current = null;
+    }
+    setAuthDropdownOpen(true);
+  }, []);
+  const closeAuthDropdown = useCallback(() => {
+    if (authDropdownTimeoutRef.current) clearTimeout(authDropdownTimeoutRef.current);
+    authDropdownTimeoutRef.current = setTimeout(() => setAuthDropdownOpen(false), 250);
+  }, []);
+  useEffect(() => () => {
+    if (authDropdownTimeoutRef.current) clearTimeout(authDropdownTimeoutRef.current);
+  }, []);
 
   const openFullChangelog = () => {
     setModal(<FullChangelogModal />);
@@ -1243,19 +1257,17 @@ function App() {
             </div>
           )}
           </div>
-          {modal && (() => { const n = modal.type.displayName || modal.type.name; const isFullscreen = ['ShopModal', 'RewardsModal', 'LeaderboardModal', 'InventoryModal', 'ProfileModal', 'FullChangelogModal'].includes(n); return <Modal child={modal} close={closeModal} scaleDisabled={isFullscreen} className={isFullscreen ? 'modal-fullscreen' : ''} />; })()}
+          {modal && (() => { const n = modal.type.displayName || modal.type.name; const isFullscreen = ['ShopModal', 'RewardsModal', 'LeaderboardModal', 'InventoryModal', 'ProfileModal', 'FullChangelogModal', 'ClansModal'].includes(n); return <Modal child={modal} close={closeModal} scaleDisabled={isFullscreen} className={isFullscreen ? 'modal-fullscreen' : ''} />; })()}
           {showMenuTutorial && <TutorialModal onClose={() => setShowMenuTutorial(false)} centered />}
 
 <div className="auth-buttons" style={{ ...scale.styles, transform: `scale(${gameButtonsScale})` }}>
              {account.isLoggedIn ? (
                <>
-               <div className="dropdown">
+               <div className="dropdown" data-open={authDropdownOpen} onMouseEnter={openAuthDropdown} onMouseLeave={closeAuthDropdown}>
                 {account.clan ? (
                     <div className="auth-username">
                     <FontAwesomeIcon icon={faUser} />{' '}
-                    {account.clan?.toUpperCase() !== 'X79Q' && (
-                      <span style={{ color: 'yellow' }}>[{account.clan?.toUpperCase()}]</span>
-                    )}{' '}
+                    <span style={{ color: 'yellow' }}>[{account.clan.clan.tag.toUpperCase()}]</span>{' '}
                     {account.username}
                     </div>
                 ) : (
@@ -1263,7 +1275,7 @@ function App() {
                     <FontAwesomeIcon icon={faUser} /> {account.username}
                   </div>
                 )}
-                 <ul className="dropdown-menu">
+                 <ul className="dropdown-menu" onMouseEnter={openAuthDropdown} onMouseLeave={closeAuthDropdown}>
                    <li>
                    <a className="dropdown-item" href="#" onClick={onChangeName}>
                      <FontAwesomeIcon icon={faICursor} /> Change Name
@@ -1276,16 +1288,6 @@ function App() {
                         </a>
                       </li>
                     )}
-                    <li>
-                   <a className="dropdown-item" href="#" onClick={onChangeClan}>
-                     <FontAwesomeIcon icon={faICursor} /> Change Clan
-                   </a>
-                   </li>
-                   <li>
-                   <a className="dropdown-item" href="#" onClick={onRemoveClan}>
-                     <FontAwesomeIcon icon={faX} /> Remove Clan
-                   </a>
-                   </li>
                    {!account.isCrazygames && (
                      <li><a className="dropdown-item" href="#" onClick={onLogout}>
                        <FontAwesomeIcon icon={faSignOut} /> Logout
@@ -1293,6 +1295,7 @@ function App() {
                    )}
                  </ul>
                </div>
+               <img src={ClanImg} alt="Clans" role="button" className="auth-btn" onClick={openClans} title="Clans" />
                </>
              ) : (
                <>

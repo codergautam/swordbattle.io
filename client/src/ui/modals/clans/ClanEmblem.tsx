@@ -6,8 +6,6 @@ import { ReactComponent as Frame4 } from './frames/frame_4.svg';
 import { ReactComponent as Frame5 } from './frames/frame_5.svg';
 import { getIconRecolorFilter } from './constants';
 
-// Frames are SVGs whose strokes/fills use `currentColor`. Setting `color` on the parent
-// element recolors the entire frame, which is how the dynamic frameColor picker works.
 const frames: Record<number, React.FC<React.SVGProps<SVGSVGElement>>> = {
   1: Frame1, 2: Frame2, 3: Frame3, 4: Frame4, 5: Frame5,
 };
@@ -46,10 +44,6 @@ export default function ClanEmblem({ frameId, iconId, frameColor, iconColor, siz
           pointerEvents: 'none',
         }}
       />
-      {/* Flex wrapper guarantees horizontal centering even if the source PNG has
-          asymmetric transparent padding. Vertical alignment is set to flex-start
-          with a small top offset so the icon sits in the upper portion of the
-          banner (above the bottom point/notch on most frame shapes). */}
       <div
         style={{
           position: 'absolute',

@@ -21,6 +21,7 @@ import validateTagNameSimilarity from '../helpers/validateTagNameSimilarity';
 import { containsProfanity } from '../helpers/profanityFilter';
 
 export const clanXpRequirement = 25_000;
+export const clanCreationCost = 100_000;
 export const clanMemberCap = 25;
 export const clanRejoinCooldownMs = 24 * 60 * 60 * 1000;
 export const clanDescriptionMax = 250;
@@ -29,15 +30,12 @@ export const clanChatHistoryLimit = 50;
 export const recommendedClanLimit = 20;
 export const leaderboardLimit = 25;
 
-// Allowed picker values for create/edit. Anything outside these is rejected.
 export const allowedFrameIds = [1, 2, 3, 4, 5];
 export const allowedIconIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-// White is intentionally first so it's the default for new clans.
 export const allowedFrameColors = [
   '#ffffff', '#ffaa00', '#ff4444', '#ff66cc', '#cc66ff', '#6666ff',
   '#33aaff', '#00cccc', '#33cc33', '#aaff44', '#ffee44', '#888888',
 ];
-// Icons skip white/gray since hue-rotate doesn't recolor neutrals.
 export const allowedIconColors = [
   '#33cc33', '#aaff44', '#ffee44', '#ffaa00', '#ff4444',
   '#ff66cc', '#cc66ff', '#6666ff', '#33aaff', '#00cccc',
@@ -80,8 +78,6 @@ export type ClanMemberSummary = {
 
 function sanitizeChatContent(raw: string): string {
   if (typeof raw !== 'string') return '';
-  // Strip control characters and zero-width characters that confuse postgres/render.
-  // Keeps standard whitespace.
   return raw
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u200B-\u200F\u2028-\u202F\u2060-\u206F\uFEFF]/g, '')
     .trim();
@@ -97,8 +93,6 @@ export class ClansService {
     @InjectRepository(Account) private accounts: Repository<Account>,
     private dataSource: DataSource,
   ) {}
-
-  // ───── helpers ─────
 
   private requireXpEligible(account: Account) {
     if ((account.xp ?? 0) < clanXpRequirement) {
@@ -147,8 +141,6 @@ export class ClansService {
     return this.members.count({ where: { clanId } });
   }
 
-  // Used by AccountsService when serving public profile / private profile / game-server
-  // verify so the client always gets the user's clan badge alongside their account.
   async getMembershipForAccount(accountId: number): Promise<{
     clan: ClanSummary;
     role: ClanRole;
@@ -166,8 +158,6 @@ export class ClansService {
     };
   }
 
-  // ───── creation ─────
-
   async createClan(account: Account, body: {
     tag: string;
     name: string;
@@ -181,6 +171,12 @@ export class ClansService {
     masteryRequirement?: number;
   }) {
     this.requireXpEligible(account);
+
+    if ((account.gems ?? 0) < clanCreationCost) {
+      throw new ForbiddenException(
+        `You need ${clanCreationCost.toLocaleString()} gems to create a clan`,
+      );
+    }
 
     if (await this.getMembership(account.id)) {
       throw new ConflictException('You are already in a clan');
@@ -237,7 +233,6 @@ export class ClansService {
       throw new BadRequestException('Invalid mastery requirement');
     }
 
-    // 24h cooldown after leaving a previous clan.
     if (account.lastClanLeave) {
       const elapsed = Date.now() - new Date(account.lastClanLeave).getTime();
       if (elapsed < clanRejoinCooldownMs) {
@@ -251,6 +246,16 @@ export class ClansService {
       if (existingTag) throw new ConflictException('That clan tag is already taken');
       const existingName = await tx.getRepository(Clan).findOne({ where: { name } });
       if (existingName) throw new ConflictException('That clan name is already taken');
+
+      const liveAccount = await tx.getRepository(Account).findOne({ where: { id: account.id } });
+      if (!liveAccount) throw new NotFoundException('Account not found');
+      if (liveAccount.gems < clanCreationCost) {
+        throw new ForbiddenException(
+          `You need ${clanCreationCost.toLocaleString()} gems to create a clan`,
+        );
+      }
+      liveAccount.gems -= clanCreationCost;
+      await tx.getRepository(Account).save(liveAccount);
 
       const clan = tx.getRepository(Clan).create({
         tag,
@@ -280,7 +285,6 @@ export class ClansService {
     });
   }
 
-  // ───── joining ─────
 
   async joinOrRequest(account: Account, clanId: number) {
     this.requireXpEligible(account);
@@ -384,7 +388,6 @@ export class ClansService {
     });
   }
 
-  // ───── leave / kick / role changes ─────
 
   private async requireMemberOf(accountId: number, clanId: number): Promise<ClanMember> {
     const member = await this.members.findOne({ where: { accountId, clanId } });
@@ -399,7 +402,6 @@ export class ClansService {
 
     return this.dataSource.transaction(async (tx) => {
       if (member.role === ClanRole.Leader) {
-        // Promote longest-tenured non-leader, fallback through hierarchy.
         const candidates = await tx.getRepository(ClanMember).find({
           where: { clanId },
           order: { joined_at: 'ASC' },
@@ -409,7 +411,6 @@ export class ClansService {
           .sort((a, b) => a.role - b.role || a.joined_at.getTime() - b.joined_at.getTime())[0];
 
         if (!replacement) {
-          // Last member — disband the clan entirely.
           await tx.getRepository(ClanMember).delete({ id: member.id });
           await tx.getRepository(Clan).delete({ id: clanId });
           await this.markLeft(tx, account);
@@ -553,7 +554,6 @@ export class ClansService {
     });
   }
 
-  // ───── editing ─────
 
   async editClan(actor: Account, clanId: number, body: {
     description?: string;
@@ -618,11 +618,7 @@ export class ClansService {
     return this.toSummary(fresh, memberCount);
   }
 
-  // ───── browse / search / leaderboard ─────
-
   async listRecommended(account: Account, opts: { seed?: number; showRequest?: boolean }) {
-    // Pull a generous candidate set, then deterministically shuffle in JS using the seed.
-    // This keeps things "mostly the same" between refreshes per the spec.
     const showRequest = !!opts.showRequest;
     const statuses: ClanStatus[] = showRequest
       ? [ClanStatus.Public, ClanStatus.Request]
@@ -663,8 +659,6 @@ export class ClansService {
 
   async leaderboard(sort: 'xp' | 'mastery' | 'rank') {
     const column = sort === 'xp' ? 'c.clanXp' : sort === 'mastery' ? 'c.clanRank' : 'c.clanRank';
-    // mastery sort uses clanRank as a placeholder until total mastery is tracked.
-    // For v1, the leaderboard XP query is the meaningful one.
     const clans = await this.clans.createQueryBuilder('c')
       .orderBy(column, 'DESC')
       .limit(leaderboardLimit)
@@ -688,7 +682,6 @@ export class ClansService {
     return map;
   }
 
-  // ───── full clan profile ─────
 
   async getClanProfile(clanId: number, sort: 'username' | 'role' | 'xp' | 'mastery' | 'joined' = 'xp') {
     const clan = await this.getClanOrThrow(clanId);
@@ -749,7 +742,6 @@ export class ClansService {
     };
   }
 
-  // ───── chat ─────
 
   async getChatHistory(account: Account, clanId: number, before?: number) {
     await this.requireMemberOf(account.id, clanId);
@@ -847,8 +839,6 @@ export class ClansService {
     }
   }
 
-  // Keeps each clan's chat at roughly the most recent clanChatHistoryLimit * 4 messages
-  // so the table doesn't grow unbounded but pagination still has some history to fetch.
   private async trimChatHistory(clanId: number) {
     const keep = clanChatHistoryLimit * 4;
     const newest = await this.messages.find({
@@ -866,8 +856,6 @@ export class ClansService {
   }
 }
 
-// Deterministic Fisher-Yates shuffle seeded by an integer. Used so that pressing the
-// "refresh" button on the recommended list gives a stable-but-different ordering.
 function stableShuffle<T>(input: T[], seed: number): T[] {
   const arr = [...input];
   let s = seed >>> 0;

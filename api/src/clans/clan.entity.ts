@@ -33,13 +33,11 @@ export class Clan {
   @Column({ default: 1 }) frameId: number;
   @Column({ default: 1 }) iconId: number;
 
-  // reserved for the deferred banner system
   @Column({ default: 0 }) bannerId: number;
 
   @Column({ length: 7, default: '#ffffff' }) frameColor: string;
   @Column({ length: 7, default: '#33cc33' }) iconColor: string;
 
-  // reserved for the deferred custom-tag-color feature
   @Column({ length: 7, default: '#ffd700' }) tagColor: string;
   @Column({ default: false }) customTagColor: boolean;
 
@@ -48,15 +46,10 @@ export class Clan {
   @Column({ type: 'bigint', default: 0 }) xpRequirement: number;
   @Column({ type: 'bigint', default: 0 }) masteryRequirement: number;
 
-  // Denormalized aggregate of all members' contributedXp. Updated incrementally so the
-  // leaderboard query stays cheap.
   @Column({ type: 'bigint', default: 0 }) clanXp: number;
 
-  // Composite "rank" stat — kept as a column so it can be sorted on directly. Computed
-  // by an offline job (not implemented for v1, stays at 0).
   @Column({ default: 0 }) clanRank: number;
 
-  // Reserved schema for the deferred relations and bank features.
   @Column({ type: 'jsonb', default: () => `'{"allies":[],"enemies":[]}'` })
   relations: { allies: number[]; enemies: number[] };
 

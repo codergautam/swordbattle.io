@@ -973,9 +973,6 @@ function App() {
     setModal(<ClansModal account={account} />);
   };
 
-  // Auth-username dropdown state. We use JS instead of `:hover` so the menu stays
-  // open while the cursor transits through the sibling Clans button area, which is
-  // physically between the username trigger and the absolutely-positioned menu.
   const [authDropdownOpen, setAuthDropdownOpen] = useState(false);
   const authDropdownTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const openAuthDropdown = useCallback(() => {

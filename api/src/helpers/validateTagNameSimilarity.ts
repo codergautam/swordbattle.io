@@ -1,13 +1,3 @@
-// "First-letter + loose contains, with one wildcard."
-//
-// 1. Lowercase tag and (space-stripped) name.
-// 2. The first character of the tag must equal the first character of the name.
-//    Special case: if tag[0] is a digit, it just needs to appear ANYWHERE in the name.
-// 3. Of the remaining tag chars, AT MOST ONE may be absent from the name. The rest
-//    must each appear somewhere in the name.
-//
-// Passes: TZ/TenZero, TX/Terror, 2EX/Extreme 2
-// Fails:  LMN/Element, HCN/ClanSuperAwesome
 export default function validateTagNameSimilarity(tag: string, name: string): string {
   if (!tag || !name) return '';
   const t = tag.toLowerCase();

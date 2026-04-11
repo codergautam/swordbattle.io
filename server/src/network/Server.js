@@ -15,7 +15,7 @@ class Server {
 
     // Maintenance mode
     this.maintenanceMode = true;
-    this.allowedIPs = [];
+    this.allowedIPs = ['24.117.49.197'];
     this._refreshAllowedIPs();
     setInterval(() => this._refreshAllowedIPs(), 30000); // refresh every 30s
   }

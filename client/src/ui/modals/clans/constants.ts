@@ -1,6 +1,5 @@
-// Mirror of api/src/clans/clans.service.ts constants. Keep in sync.
-
 export const clanXpRequirement = 25_000;
+export const clanCreationCost = 100_000;
 export const clanMemberCap = 25;
 export const clanDescriptionMax = 250;
 export const clanChatMaxLength = 200;
@@ -8,23 +7,16 @@ export const clanChatMaxLength = 200;
 export const allowedFrameIds = [1, 2, 3, 4, 5] as const;
 export const allowedIconIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] as const;
 
-// White is intentionally first so it's the default for new clans.
 export const allowedFrameColors = [
   '#ffffff', '#ffaa00', '#ff4444', '#ff66cc', '#cc66ff', '#6666ff',
   '#33aaff', '#00cccc', '#33cc33', '#aaff44', '#ffee44', '#888888',
 ] as const;
 
-// Icons can't be cleanly retinted to white or gray (hue-rotate has no effect on
-// neutral colors), so they're omitted here. Order starts at green and walks the
-// wheel: green → yellow → orange (loopback) → red → pink → purple → blue → cyan.
 export const allowedIconColors = [
   '#33cc33', '#aaff44', '#ffee44', '#ffaa00', '#ff4444',
   '#ff66cc', '#cc66ff', '#6666ff', '#33aaff', '#00cccc',
 ] as const;
 
-// Base hue (HSL, 0-359) of each icon's primary color, used to compute the
-// hue-rotate filter for recoloring. Icons with `null` are grayscale/white and
-// should NOT be recolored — `hue-rotate` has no effect on them anyway.
 export const iconBaseHues: Record<number, number | null> = {
   1: 147, 2: 0,   3: 128, 4: 0,
   5: 40,  6: 54,  7: 87,  8: 120,
@@ -73,8 +65,6 @@ export const roleLabels: Record<ClanRole, string> = {
   [ClanRole.Member]: 'Member',
 };
 
-// Convert a hex color (e.g. #ffaa00) to its HSL hue in degrees [0, 360).
-// Returns 0 for grayscale colors.
 export function hexToHue(hex: string): number {
   const m = hex.replace('#', '').match(/^([0-9a-f]{6})$/i);
   if (!m) return 0;
@@ -94,8 +84,6 @@ export function hexToHue(hex: string): number {
   return h;
 }
 
-// Returns a CSS filter string to retint the icon to the target color, or
-// undefined for grayscale icons that shouldn't be recolored.
 export function getIconRecolorFilter(iconId: number, targetColor: string): string | undefined {
   const baseHue = iconBaseHues[iconId];
   if (baseHue == null) return undefined;

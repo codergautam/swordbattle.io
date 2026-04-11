@@ -31,7 +31,6 @@ export class ClanMember {
   @JoinColumn({ name: 'clanId' })
   clan: Clan;
 
-  // A user can be in at most one clan at a time — enforced by UNIQUE.
   @Index({ unique: true })
   @Column() accountId: number;
 

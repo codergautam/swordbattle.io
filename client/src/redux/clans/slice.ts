@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import api from '../../api';
-import { ClanSummary, AccountClan, setClan, clearClan } from '../account/slice';
+import { ClanSummary, AccountClan, setClan, clearClan, updateAccountAsync } from '../account/slice';
 
 export type ClanRoleId = 0 | 1 | 2 | 3;
 
@@ -122,9 +122,6 @@ export const {
 
 export default slice.reducer;
 
-// Thunk-style helpers. Plain async functions instead of createAsyncThunk because the
-// component flows here are simple "fire and update redux".
-
 const post = (path: string, body: any = {}): Promise<any> => api.postAsync(`${api.endpoint}${path}?now=${Date.now()}`, body);
 
 export const fetchMyClan = () => async (dispatch: any) => {
@@ -203,6 +200,7 @@ export const createClan = (body: any) => async (dispatch: any) => {
   const res = await post('/clans/create', body);
   if (res?.id) {
     await dispatch(fetchMyClan());
+    dispatch(updateAccountAsync() as any);
   }
   return res;
 };

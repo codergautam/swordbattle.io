@@ -8,7 +8,7 @@ import XpGateOverlay from '../XpGateOverlay';
 import {
   allowedFrameIds, allowedIconIds, allowedFrameColors, allowedIconColors,
   allowedXpRequirements, allowedMasteryRequirements,
-  clanDescriptionMax, clanXpRequirement,
+  clanDescriptionMax, clanXpRequirement, clanCreationCost,
   ClanStatus, statusLabels, grayscaleIconIds,
 } from '../constants';
 
@@ -16,7 +16,6 @@ interface CreateClanTabProps {
   account: AccountState;
 }
 
-// Mirror of validateTagNameSimilarity in api/src/helpers/validateTagNameSimilarity.ts.
 function localSimilarityCheck(tag: string, name: string): string {
   if (!tag || !name) return '';
   const t = tag.toLowerCase();
@@ -41,6 +40,7 @@ function localSimilarityCheck(tag: string, name: string): string {
 export default function CreateClanTab({ account }: CreateClanTabProps) {
   const dispatch = useDispatch();
   const eligible = (account.xp ?? 0) >= clanXpRequirement;
+  const canAfford = (account.gems ?? 0) >= clanCreationCost;
 
   const [tag, setTag] = useState('');
   const [name, setName] = useState('');
@@ -76,7 +76,7 @@ export default function CreateClanTab({ account }: CreateClanTabProps) {
     return e;
   }, [tag, name, description]);
 
-  const canSubmit = eligible && !errors.tag && !errors.name && !errors.description && tag && name && !submitting;
+  const canSubmit = eligible && canAfford && !errors.tag && !errors.name && !errors.description && tag && name && !submitting;
 
   const onSubmit = async () => {
     if (!canSubmit) return;
@@ -152,6 +152,10 @@ export default function CreateClanTab({ account }: CreateClanTabProps) {
 
           <div className="clans-form__submit-row">
             {serverError && <span className="err">{serverError}</span>}
+            <span className={canAfford ? 'cost' : 'cost cost--unaffordable'}>
+              Cost: {numberWithCommas(clanCreationCost)} gems
+              {!canAfford && ` (you have ${numberWithCommas(account.gems ?? 0)})`}
+            </span>
             <button disabled={!canSubmit} onClick={onSubmit}>
               {submitting ? 'Creating...' : 'Create Clan'}
             </button>

@@ -217,6 +217,17 @@
       flex: 1;
     }
 
+    .cost {
+      flex: 1;
+      color: #ffd700;
+      font-weight: bold;
+      font-size: 14px;
+
+      &--unaffordable {
+        color: #ff6666;
+      }
+    }
+
     button {
       background: #33cc33;
       color: white;

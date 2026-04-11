@@ -17,7 +17,6 @@ export enum ClanChatMessageType {
   Kick = 3,
   Promote = 4,
   Demote = 5,
-  // reserved for the deferred bank feature
   Bank = 6,
 }
 
@@ -34,7 +33,6 @@ export class ClanChatMessage {
   @JoinColumn({ name: 'clanId' })
   clan: Clan;
 
-  // null when the message is system-generated
   @Column({ nullable: true }) accountId: number | null;
 
   @ManyToOne(() => Account, { onDelete: 'SET NULL', nullable: true })
@@ -46,7 +44,6 @@ export class ClanChatMessage {
   @Column({ type: 'int', default: ClanChatMessageType.User })
   type: ClanChatMessageType;
 
-  // For system messages: stores actor/target account ids and any extra context.
   @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any> | null;
 }

@@ -14,8 +14,6 @@ import { ClansService } from './clans.service';
 import { ClanRole } from './clan-member.entity';
 import { ClanStatus } from './clan.entity';
 
-// Convention in this codebase: AccountGuard reads `body.secret`, so all authenticated
-// reads use POST (matching profile/getPrivateUserInfo etc.)
 @Controller('clans')
 @UseGuards(AccountGuard)
 export class ClansController {

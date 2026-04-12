@@ -21,8 +21,8 @@ import validateTagNameSimilarity from '../helpers/validateTagNameSimilarity';
 import { containsProfanity } from '../helpers/profanityFilter';
 
 export const clanXpRequirement = 10_000;
-export const clanCreationCost = 20_000; // 100_000 after first day
-export const clanMemberCap = 25;
+export const clanCreationCost = 100_000;
+export const clanMemberCap = 15;
 export const clanLeaveCooldownMs = 0; // 24 * 60 * 60 * 1000
 export const clanKickCooldownMs = 0; // 60 * 60 * 1000
 export const clanDescriptionMax = 250;

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AccountState, setAccount, updateAccountAsync } from '../../redux/account/slice';
 import { RootState } from '../../redux/store';
 import {
-  fetchMyClan, fetchClanProfile, fetchChatHistory, setLastSeenChatId,
+  fetchMyClan, fetchClanProfile, fetchChatHistory, setLastSeenChatId, hydrateLastSeenChatId,
 } from '../../redux/clans/slice';
 import api from '../../api';
 import './ClansModal.scss';
@@ -62,6 +62,9 @@ function ClansModal({ account }: ClansModalProps) {
     if (account.isLoggedIn) {
       dispatch(updateAccountAsync() as any);
       dispatch(fetchMyClan() as any);
+    }
+    if (clanId) {
+      dispatch(hydrateLastSeenChatId(clanId));
     }
   }, [dispatch, account.isLoggedIn]);
 

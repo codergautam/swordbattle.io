@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/store';
-import { postChat } from '../../../../redux/clans/slice';
+import { postChat, fetchChatHistory } from '../../../../redux/clans/slice';
 import { clanChatMaxLength } from '../constants';
 import cosmetics from '../../../../game/cosmetics.json';
 
@@ -68,12 +68,23 @@ export default function ChatTab({ onOpenUserProfile }: ChatTabProps) {
   const [cooldownLeft, setCooldownLeft] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
   const lastIdRef = useRef<number>(0);
   const stickToBottomRef = useRef(true);
   const lastSendTimeRef = useRef<number>(0);
 
   const clanId = myClan?.clan?.id ?? null;
+
+  useEffect(() => {
+    if (clanId) {
+      dispatch(fetchChatHistory(clanId) as any).then(() => setInitialLoadDone(true));
+    }
+  }, [dispatch, clanId]);
+
+  useEffect(() => {
+    if (!initialLoadDone && messages.length > 0) setInitialLoadDone(true);
+  }, [initialLoadDone, messages.length]);
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 30000);
@@ -185,8 +196,9 @@ export default function ChatTab({ onOpenUserProfile }: ChatTabProps) {
   return (
     <div className="clan-chat">
       <div className="clan-chat__messages" ref={messagesRef} onScroll={onScroll}>
-        {loading && messages.length === 0 && <p style={{ color: '#888' }}>Loading messages...</p>}
-        {messageList}
+        {!initialLoadDone && <p style={{ color: '#888', textAlign: 'center', marginTop: 24 }}>Loading messages...</p>}
+        {initialLoadDone && messages.length === 0 && <p style={{ color: '#666', textAlign: 'center', marginTop: 24 }}>No messages yet. Say something!</p>}
+        {initialLoadDone && messageList}
       </div>
 
       {error && <div className="clan-chat__error">{error}</div>}

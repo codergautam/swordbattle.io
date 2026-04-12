@@ -23,7 +23,7 @@ export class Clan {
   @CreateDateColumn() created_at: Date;
 
   @Index({ unique: true })
-  @Column({ length: 4 }) tag: string;
+  @Column({ length: 5 }) tag: string;
 
   @Index({ unique: true })
   @Column({ length: 25 }) name: string;

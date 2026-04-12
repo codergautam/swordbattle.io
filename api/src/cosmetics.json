@@ -163,10 +163,7 @@
       "displayName": "Pi Guy",
       "id": 197,
       "buyable": true,
-      "sale": true,
-      "saletag": "50% OFF",
-      "ogprice": 314159,
-      "price": 159265,
+      "price": 314159,
       "swordFileName": "piGuySword.png",
       "bodyFileName": "piGuyPlayer.png",
       "description": "The ratio of a circle's circumference to its diameter"
@@ -4034,10 +4031,7 @@
       "displayName": "Pi Man",
       "id": 399,
       "buyable": true,
-      "sale": true,
-      "saletag": "50% OFF",
-      "ogprice": 314159,
-      "price": 159265,
+      "price": 314159,
       "swordFileName": "ultimatePiguySword.png",
       "bodyFileName": "ultimatePiguyPlayer.png",
       "description": "The original Pi Guy"

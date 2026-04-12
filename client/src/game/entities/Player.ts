@@ -179,6 +179,7 @@ class Player extends BaseEntity {
       angel: '#acfffc',
       "cool guy 53": '#0055ff',
       "update testing account": '#00ff00',
+      "amethyst nightveil": '#7802ab',
       oy: '#000000',
       bobz: '#000000',
     };

@@ -83,7 +83,7 @@ class Coin extends Entity {
         }
         player.levels.addCoins(coinValue);
       } else {
-        player.levels.addCoins(coinVal * 50);
+        player.levels.addCoins(coinVal);
       }
     }
     

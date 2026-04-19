@@ -207,11 +207,11 @@ class Player extends Entity {
         this.respawnShieldTimer = 0;
         this.respawnShieldActive = false;
         this.respawnShieldFadeActive = true;
-        this.respawnShieldFadeTimer = 5;
+        this.respawnShieldFadeTimer = 8;
       }
     } else if (this.respawnShieldFadeActive) {
       this.respawnShieldFadeTimer -= dt;
-      this.respawnShieldFadeMult = 1 - Math.max(0, this.respawnShieldFadeTimer / 5);
+      this.respawnShieldFadeMult = 1 - Math.max(0, this.respawnShieldFadeTimer / 8);
       this.flags.set(Types.Flags.RespawnShield, 2);
       if (this.respawnShieldFadeTimer <= 0) {
         this.respawnShieldFadeTimer = 0;
@@ -242,8 +242,31 @@ class Player extends Entity {
     this.cards.applyCardEffects();
 
     if (this.teamDisadvantage && now < this.teamDisadvantage.expiry && !this.isBot) {
-      const regenMult = Math.max(0.25, this.teamDisadvantage.myTeam / this.teamDisadvantage.enemyTeam);
-      this.health.regenWait.multiplier *= regenMult;
+      const ratio = this.teamDisadvantage.myTeam / this.teamDisadvantage.enemyTeam;
+      this.health.regenWait.multiplier *= Math.max(0.15, ratio);
+      this.speed.multiplier *= 1 + 0.15 * (1 - ratio);
+      this.sword.knockback.multiplier['antiteam_victim'] = 1 + 0.5 * (1 - ratio);
+    }
+
+    if (!this.isBot) {
+      for (const [targetId, log] of this.combatLog) {
+        const totalCombat = log.damageDealt + log.damageReceived;
+        if (totalCombat < 5) continue;
+        const target = this.game.entities.get(targetId);
+        if (!target || target.removed || target.type !== Types.Entity.Player) continue;
+        const dx = target.shape.x - this.shape.x;
+        const dy = target.shape.y - this.shape.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > 2000) continue;
+        const mx = this.movedDistance.x;
+        const my = this.movedDistance.y;
+        if (mx === 0 && my === 0) continue;
+        const dot = mx * dx + my * dy;
+        if (dot > 0 && dot * dot > 0.25 * (mx * mx + my * my) * (dx * dx + dy * dy)) {
+          this.speed.multiplier *= 1.08;
+          break;
+        }
+      }
     }
 
     this.effects.forEach(effect => effect.update(dt));

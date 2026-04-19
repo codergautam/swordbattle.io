@@ -72,6 +72,23 @@ class Player extends BaseEntity {
   static shadowOffsetX = 10;
   static shadowOffsetY = 10;
 
+  static computeSwordReduction(r: number): number {
+    if (r <= 260) return 0;
+    if (r <= 300) return (r - 260) / 40 * 0.14;
+    if (r <= 340) return 0.14 + (r - 300) / 40 * 0.11;
+    if (r <= 416) return 0.25 + (r - 340) / 76 * 0.05;
+    return Math.min(0.35, 0.30 + (r - 416) * 0.0005);
+  }
+  static computeSwordPullback(r: number): number {
+    if (r <= 260) return 0;
+    return Math.min((r - 260) * 0.08, 20) * (r / 100);
+  }
+  static abilitySwordScales: { [key: number]: number } = {
+    1: 1.5,
+    8: 1.4,
+    10: 1.7,
+  };
+
   body!: Phaser.GameObjects.Sprite;
   sword!: Phaser.GameObjects.Sprite;
   swordShadow!: Phaser.GameObjects.Sprite;
@@ -1213,6 +1230,26 @@ class Player extends BaseEntity {
       this.container.scale = newScale;
       this._lastContainerScale = newScale;
     }
+    const r = this.shape.radius;
+    const baseX = this.body.width / 2;
+    const baseY = this.body.height / 2;
+    const abilityScale = (this.abilityActive && this.evolution != null)
+      ? (Player.abilitySwordScales[this.evolution] ?? 1) : 1;
+    const swordR = r / abilityScale;
+    const swordReduction = Player.computeSwordReduction(swordR);
+    if (swordReduction > 0 || abilityScale !== 1) {
+      const visualScale = (1 - swordReduction) / abilityScale;
+      this.sword.setScale(visualScale);
+      if (this.swordShadow) this.swordShadow.setScale(visualScale);
+      const worldPullback = Player.computeSwordPullback(swordR);
+      const localPullback = newScale > 0 ? worldPullback / newScale : 0;
+      this.sword.setPosition(baseX - localPullback, baseY - localPullback);
+    } else {
+      this.sword.setScale(1);
+      this.sword.setPosition(baseX, baseY);
+      if (this.swordShadow) this.swordShadow.setScale(1);
+    }
+
     this.interpolate(dt);
 
     if (this.abilityActive) {

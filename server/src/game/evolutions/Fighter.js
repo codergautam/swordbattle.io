@@ -6,12 +6,12 @@ module.exports = class Fighter extends Evolution {
   static type = Types.Evolution.Fighter;
   static level = 18;
   static previousEvol = Types.Evolution.Berserker;
-  static abilityDuration = 4;
-  static abilityCooldown = 24;
+  static abilityDuration = 5;
+  static abilityCooldown = 20;
 
   constructor(player) {
     super(player);
-    this.boostTimer = new Timer(0, 2, 2);
+    this.boostTimer = new Timer(0, 2.5, 2.5);
     this.boostTimer.finished = true;
   }
 
@@ -46,8 +46,8 @@ module.exports = class Fighter extends Evolution {
     this.player.sword.swingDuration.multiplier['default'] = 0.9;
 
     if (boostActive) {
-      this.player.speed.multiplier *= 1.25;
-      this.player.sword.damage.multiplier *= 1.25;
+      this.player.speed.multiplier *= 1.3;
+      this.player.sword.damage.multiplier *= 1.3;
     }
 
     this.player.health.max.multiplier *= 0.95;

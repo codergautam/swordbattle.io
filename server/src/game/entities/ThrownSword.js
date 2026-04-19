@@ -70,6 +70,10 @@ class ThrownSword extends Entity {
     entity.velocity.x += power * Math.cos(angle);
     entity.velocity.y += power * Math.sin(angle);
 
+    const maxVel = 500;
+    entity.velocity.x = Math.max(-maxVel, Math.min(maxVel, entity.velocity.x));
+    entity.velocity.y = Math.max(-maxVel, Math.min(maxVel, entity.velocity.y));
+
     let dmg = this.damage.value;
 
     if (this.owner && this.owner.cards) {

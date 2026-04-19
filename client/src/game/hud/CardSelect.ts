@@ -410,8 +410,14 @@ class CardSelect extends HudComponent {
         if (this.actionButtonUsed || this.isSliding) return;
         this.actionButtonUsed = true;
         if (isMajor) {
-          btnContainer.setAlpha(0.4);
           this.game.gameState.skipMajorCard = true;
+          bg.clear();
+          bg.fillStyle(0x555555, 0.08);
+          bg.fillRoundedRect(-btnW / 2, -btnH / 2, btnW, btnH, 8);
+          bg.lineStyle(2, 0x555555, 0.3);
+          bg.strokeRoundedRect(-btnW / 2, -btnH / 2, btnW, btnH, 8);
+          text.setText('Skipped'); text.setColor('#555555');
+          hitZone.disableInteractive();
         } else {
           this.game.gameState.rerollCard = true;
           bg.clear();

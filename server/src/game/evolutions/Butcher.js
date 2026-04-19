@@ -34,10 +34,11 @@ module.exports = class Butcher extends Evolution {
       }
     }
 
-    this.player.speed.multiplier *= 1.025;
+    this.player.speed.multiplier *= 1.05;
+    this.player.sword.damage.multiplier *= 1.175;
     this.player.shape.setScale(1.025);
     this.player.sword.knockback.multiplier['ability'] = 1.2;
-    this.player.health.max.multiplier *= 1.1;
+    this.player.health.max.multiplier *= 1.25;
     this.player.health.regen.multiplier *= 1.1;
     this.player.health.regenWait.multiplier *= 0.8;
   }

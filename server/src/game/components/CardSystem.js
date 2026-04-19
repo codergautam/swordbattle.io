@@ -44,6 +44,9 @@ class CardSystem {
     this._trackingExpiry = 0;
     this._trackingSpeedMult = 1;
 
+    this._currentPickId = 0;
+    this._lastStartedPickId = -1;
+
     this.insuranceUsed = false;
 
     this.doubleHitPending = false;
@@ -117,8 +120,11 @@ class CardSystem {
     }
     this.cardOffers = offers;
     this.choosingCard = true;
-    this.hasRerolledThisPick = false;
-    this.currentExcluded = [];
+    if (this._currentPickId !== this._lastStartedPickId) {
+      this.hasRerolledThisPick = false;
+      this.currentExcluded = [];
+      this._lastStartedPickId = this._currentPickId;
+    }
     this.lastSkipResults = [];
 
     if (this.instantSelect && this.isTutorial) {
@@ -306,6 +312,7 @@ class CardSystem {
     this.choosingCard = false;
     this.cardOffers = [];
     this.cardTimer = 0;
+    this._currentPickId++;
     this.pendingPicks = Math.max(0, this.pendingPicks - 1);
     if (this.pendingPicks > 0) {
       this.startCardPick();
@@ -455,7 +462,8 @@ class CardSystem {
     }
 
     if (this.hasMajor(110) && this._trackingExpiry && now < this._trackingExpiry) {
-      p.speed.multiplier = this._trackingSpeedMult || 1;
+      const clampedMult = Math.min(Math.max(this._trackingSpeedMult || 1, 0.5), 1.5);
+      p.speed.multiplier *= clampedMult;
     }
 
     if (this.hasMajor(111)) {
@@ -610,13 +618,9 @@ class CardSystem {
     }
 
     if (this.hasMajor(110) && attacker && attacker.type === Types.Entity.Player && attacker.speed) {
-      const mySpeed = this.player.speed.value;
       const theirSpeed = attacker.speed.value;
-      if (theirSpeed > mySpeed) {
-        this._trackingSpeedMult = theirSpeed / this.player.speed.baseValue;
-      } else {
-        this._trackingSpeedMult = theirSpeed / this.player.speed.baseValue;
-      }
+      const ratio = theirSpeed / this.player.speed.baseValue;
+      this._trackingSpeedMult = Math.min(Math.max(ratio, 0.5), 1.5);
       this._trackingExpiry = now + 2000;
     }
 

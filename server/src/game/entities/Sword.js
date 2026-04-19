@@ -41,7 +41,7 @@ class Sword extends Entity {
     this.flySpeed = new Property(95);
     this.flyDuration = new Property(1.5);
     this.flyCooldown = new Property(6);
-    this.playerSpeedBoost = new Property(1.3);
+    this.playerSpeedBoost = new Property(1.15);
 
     this.swingTime = 0;
     this.swingProgress = 0;
@@ -53,7 +53,7 @@ class Sword extends Entity {
     this.flyLog = 0;
     this.skin = player.skin;
 
-    this.focusTime = 200;
+    this.focusTime = 350;
     this.focusDamageMultiplier = 1;
     this.lastSwordSwing = Date.now();
 
@@ -67,8 +67,31 @@ class Sword extends Entity {
     return this.swingArc * this.swingProgress;
   }
 
+  _swordReduction(r) {
+    if (r <= 260) return 0;
+    if (r <= 300) return (r - 260) / 40 * 0.14;
+    if (r <= 340) return 0.14 + (r - 300) / 40 * 0.11;
+    if (r <= 416) return 0.25 + (r - 340) / 76 * 0.05;
+    return Math.min(0.35, 0.30 + (r - 416) * 0.0005);
+  }
+
+  _swordPullback(r) {
+    if (r <= 260) return 0;
+    return Math.min((r - 260) * 0.08, 20) * (r / 100);
+  }
+
+  _baseRadius() {
+    const r = this.player.shape.radius;
+    const evo = this.player.evolutions && this.player.evolutions.evolutionEffect;
+    if (evo && evo.isAbilityActive && evo.constructor.abilityScale) {
+      return r / evo.constructor.abilityScale;
+    }
+    return r;
+  }
+
   get size() {
-    return this.player.shape.radius * this.proportion;
+    const r = this._baseRadius();
+    return r * this.proportion * (1 - this._swordReduction(r));
   }
 
   canCollide(entity) {
@@ -214,8 +237,10 @@ class Sword extends Entity {
     if (this.player.modifiers.swingWide) {
       angle += Math.PI / 4;
     }
-    const offsetX = player.shape.radius - this.size / 2.5;
-    const offsetY = -player.shape.radius + this.size / 1.7;
+    const baseR = this._baseRadius();
+    const effectiveR = baseR - this._swordPullback(baseR);
+    const offsetX = effectiveR - this.size / 2.5;
+    const offsetY = -effectiveR + this.size / 1.7;
     if (!this._offsetVec) this._offsetVec = new SAT.Vector(0, 0);
     this._offsetVec.x = offsetX;
     this._offsetVec.y = offsetY;
@@ -277,7 +302,7 @@ class Sword extends Entity {
 
       const elapsed = Date.now() - this.lastSwordSwing;
       const multiplier = elapsed / this.focusTime;
-      this.focusDamageMultiplier = Math.max(0.5, Math.min(1.2, multiplier));
+      this.focusDamageMultiplier = Math.max(0.4, Math.min(1.35, multiplier));
 
       if (this.player.evolutions && this.player.evolutions.evolutionEffect && typeof this.player.evolutions.evolutionEffect.onSwordSwing === 'function') {
         try {
@@ -448,7 +473,7 @@ processTargetsCollision(entity) {
         const newRatio = attackerTeam / defenderTeam;
         const oldRatio = defender.teamDisadvantage ? defender.teamDisadvantage.enemyTeam / defender.teamDisadvantage.myTeam : 0;
         if (!defender.teamDisadvantage || now > defender.teamDisadvantage.expiry || newRatio >= oldRatio) {
-          defender.teamDisadvantage = { enemyTeam: attackerTeam, myTeam: defenderTeam, expiry: now + 5000 };
+          defender.teamDisadvantage = { enemyTeam: attackerTeam, myTeam: defenderTeam, expiry: now + 8000 };
         }
       }
     }
@@ -519,7 +544,7 @@ processTargetsCollision(entity) {
       } else {
       power = Math.max(Math.min(power, 400), 100);
       }
-    power *= antiTeamMult * coinDisparityMult;
+    power *= (antiTeamMult * antiTeamMult) * coinDisparityMult;
 
     if (this.player.cards) {
       power *= this.player.cards.getKnockbackMultiplier(entity);

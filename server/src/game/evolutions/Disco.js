@@ -5,7 +5,7 @@ module.exports = class Disco extends Evolution {
   static type = Types.Evolution.Disco;
   static level = 24;
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
-  static abilityDuration = 7;
+  static abilityDuration = 8;
   static abilityCooldown = 80;
   static discoFieldRadius = 1250;
   static discoFieldDuration = 0.2;
@@ -52,11 +52,11 @@ module.exports = class Disco extends Evolution {
 
     this.player.speed.multiplier *= 1.05;
     this.player.shape.setScale(1);
-    this.player.sword.damage.multiplier *= 0.5;
+    this.player.sword.damage.multiplier *= 0.7;
     this.player.sword.knockback.multiplier['ability'] = 0.9;
     this.player.knockbackResistance.multiplier *= 0.9;
     this.player.health.max.multiplier *= 0.95;
-    this.player.health.regen.multiplier *= 0.95;
+    this.player.health.regen.multiplier *= 1.15;
     this.player.health.regenWait.multiplier *= 1.2;
 
     if (this.discoFieldTimer > 0) {

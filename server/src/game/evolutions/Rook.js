@@ -5,43 +5,55 @@ module.exports = class Rook extends Evolution {
   static type = Types.Evolution.Rook;
   static level = 12;
   static previousEvol = Types.Evolution.Tank;
-  static abilityDuration = 0.2;
-  static abilityCooldown = 5.5;
+  static abilityDuration = 0.6;
+  static abilityCooldown = 8;
+
+  constructor(player) {
+    super(player);
+    this._dashAngle = 0;
+    this._dashDistance = 0;
+    this._dt = 0;
+  }
+
+  activateAbility() {
+    if (!this.canActivateAbility || this.isAbilityActive) return;
+
+    const lastInput = this.player.lastDirectionInput ?? 3;
+    switch (lastInput) {
+      case 1: this._dashAngle = -Math.PI / 2; break;
+      case 2: this._dashAngle = 0; break;
+      case 3: this._dashAngle = Math.PI / 2; break;
+      case 4: this._dashAngle = Math.PI; break;
+    }
+    this._dashDistance = 0;
+
+    super.activateAbility();
+  }
 
   applyAbilityEffects() {
-    const lastInput = this.player.lastDirectionInput ?? 3; // dwn
+    const totalDist = 375;
+    const remaining = totalDist - this._dashDistance;
+    if (remaining <= 0) return;
 
-    let angle = Math.PI / 2; // dwn
+    const speed = totalDist / 0.6;
+    const frameDist = Math.min(speed * this._dt, remaining);
 
-    switch (lastInput) {
-      case 1: // u
-        angle = -Math.PI / 2;
-        break;
-      case 2: // r
-        angle = 0;
-        break;
-      case 3: // d
-        angle = Math.PI / 2;
-        break;
-      case 4: // l
-        angle = Math.PI;
-        break;
-    }
-
-    this.player.shape.x = this.player.shape.x + (375 * Math.cos(angle));
-    this.player.shape.y = this.player.shape.y + (375 * Math.sin(angle));
+    this.player.shape.x += frameDist * Math.cos(this._dashAngle);
+    this.player.shape.y += frameDist * Math.sin(this._dashAngle);
+    this._dashDistance += frameDist;
   }
 
   update(dt) {
+    this._dt = dt;
     this.player.modifiers.disableDiagonalMovement = true;
 
-    this.player.shape.setScale(1.15);
+    this.player.shape.setScale(1.1);
     this.player.speed.multiplier *= 0.925;
     this.player.sword.damage.multiplier *= 1.2;
     this.player.sword.swingDuration.multiplier['ability'] = 1.325;
     this.player.sword.knockback.multiplier['ability'] = 0.9;
     this.player.knockbackResistance.multiplier *= 1.3;
-    this.player.health.max.multiplier *= 1.4;
+    this.player.health.max.multiplier *= 1.25;
     this.player.health.regen.multiplier *= 1.25;
     this.player.health.regenWait.multiplier *= 1.1;
     super.update(dt);

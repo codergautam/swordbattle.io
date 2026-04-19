@@ -4,14 +4,14 @@ const Types = require('../Types');
 module.exports = class Knight extends Evolution {
   static type = Types.Evolution.Knight;
   static level = 7;
-  static abilityDuration = 7;
-  static abilityCooldown = 90;
+  static abilityDuration = 5;
+  static abilityCooldown = 60;
 
   applyAbilityEffects() {
     this.player.shape.setScale(1);
     this.player.sword.damage.multiplier *= 1.1;
     this.player.sword.knockback.multiplier['ability'] = 1.4;
-    this.player.speed.multiplier *= 1.2;
+    this.player.speed.multiplier *= 1.3;
      this.player.sword.swingDuration.multiplier['ability'] = 0.75;
      this.player.knockbackResistance.multiplier *= 1.2;
   }
@@ -19,9 +19,9 @@ module.exports = class Knight extends Evolution {
   update(dt) {
     super.update(dt);
     this.player.shape.setScale(0.95);
-    this.player.sword.damage.multiplier *= 0.9;
+    this.player.sword.damage.multiplier *= 0.95;
     this.player.knockbackResistance.multiplier *= 1.05;
     this.player.speed.multiplier *= 1.1;
-    this.player.health.max.multiplier *= 0.9;
+    this.player.health.max.multiplier *= 0.95;
   }
 }

@@ -7,6 +7,7 @@ module.exports = class Defender extends Evolution {
   static previousEvol = Types.Evolution.Rook;
   static abilityDuration = 7;
   static abilityCooldown = 120;
+  static abilityScale = 1.7;
 
   applyAbilityEffects() {
     this.player.modifiers.noRestrictKnockback = true;
@@ -25,11 +26,11 @@ module.exports = class Defender extends Evolution {
   update(dt) {
     super.update(dt);
     this.player.speed.multiplier *= 0.8;
-    this.player.shape.setScale(1.3);
+    this.player.shape.setScale(1.2);
     this.player.sword.damage.multiplier *= 0.7;
     this.player.sword.knockback.multiplier['ability'] = 1.5;
-    this.player.knockbackResistance.multiplier *= 1.6;
-    this.player.health.max.multiplier *= 1.8;
+    this.player.knockbackResistance.multiplier *= 1.4;
+    this.player.health.max.multiplier *= 1.5;
     this.player.health.regen.multiplier *= 1.35;
     this.player.health.regenWait.multiplier *= 0.75;
     //TODO: Damagecooldown: 1.1

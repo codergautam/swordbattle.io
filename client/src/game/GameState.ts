@@ -516,10 +516,28 @@ class GameState {
         const entity = this.entities[id];
         const c = entity.container;
         if (!c || c.__ownVisibility || c.__noCull) continue;
-        const r = (entity.shape && entity.shape.radius) ? entity.shape.radius : 100;
-        const half = Math.max(500, r * 4);
-        const inView = (c.x + half) > vx && (c.x - half) < vxMax
-                    && (c.y + half) > vy && (c.y - half) < vyMax;
+        let halfW = 0;
+        let halfH = 0;
+        const shape = entity.shape;
+        if (shape) {
+          if (shape.radius) {
+            halfW = shape.radius;
+            halfH = shape.radius;
+          }
+          if (shape.polygonBounds) {
+            const pb = shape.polygonBounds;
+            if (pb.width / 2 > halfW) halfW = pb.width / 2;
+            if (pb.height / 2 > halfH) halfH = pb.height / 2;
+          }
+        }
+        if (typeof entity.size === 'number') {
+          if (entity.size > halfW) halfW = entity.size;
+          if (entity.size > halfH) halfH = entity.size;
+        }
+        const padX = Math.max(500, halfW * 2);
+        const padY = Math.max(500, halfH * 2);
+        const inView = (c.x + padX) > vx && (c.x - padX) < vxMax
+                    && (c.y + padY) > vy && (c.y - padY) < vyMax;
         if (inView !== c.visible) c.visible = inView;
       }
     }

@@ -31,11 +31,12 @@ module.exports = class Rook extends Evolution {
   }
 
   applyAbilityEffects() {
-    const totalDist = 375;
+    const totalDist = 450;
+    const dashDuration = 0.15;
     const remaining = totalDist - this._dashDistance;
     if (remaining <= 0) return;
 
-    const speed = totalDist / 0.6;
+    const speed = totalDist / dashDuration;
     const frameDist = Math.min(speed * this._dt, remaining);
 
     this.player.shape.x += frameDist * Math.cos(this._dashAngle);

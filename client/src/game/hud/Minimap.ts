@@ -3,6 +3,22 @@ import GlobalEntity from '../entities/GlobalEntity';
 import { BiomeTypes, EntityTypes } from '../Types';
 import { config } from '../../config';
 
+const _circleSides = 16;
+const _circleCos: number[] = [];
+const _circleSin: number[] = [];
+for (let i = 0; i <= _circleSides; i++) {
+  const a = (i / _circleSides) * Math.PI * 2;
+  _circleCos.push(Math.cos(a));
+  _circleSin.push(Math.sin(a));
+}
+
+function _tracePolyCircle(g: Phaser.GameObjects.Graphics, cx: number, cy: number, r: number) {
+  g.moveTo(cx + r * _circleCos[0], cy + r * _circleSin[0]);
+  for (let i = 1; i <= _circleSides; i++) {
+    g.lineTo(cx + r * _circleCos[i], cy + r * _circleSin[i]);
+  }
+}
+
 class Minimap extends HudComponent {
   graphics: Phaser.GameObjects.Graphics | null = null;
   mapBackground: Phaser.GameObjects.Graphics | null = null;
@@ -41,9 +57,12 @@ class Minimap extends HudComponent {
       .setInteractive()
       .on('pointerover', () => {
         const shift = this.minimized ? -3 : 3;
-        this.game.add.tween({ targets: [this.leftArrow, this.rightArrow], y: this.leftArrow.y + shift, duration: 100 });
+        const targets = [this.leftArrow, this.rightArrow];
+        this.game.tweens.killTweensOf(targets);
+        this.game.add.tween({ targets, y: this.leftArrow.y + shift, duration: 100 });
       })
       .on('pointerout', () => {
+        this.game.tweens.killTweensOf([this.leftArrow, this.rightArrow]);
         this.updateArrows();
       })
       .on('pointerdown', () => this.toggleMinimize());
@@ -76,10 +95,20 @@ class Minimap extends HudComponent {
     this.minimized = !this.minimized;
     this.updateArrows();
 
+    const fadeTargets = [this.mapBackground, this.mapContainer, this.graphics, this.crown];
+    if (!this.minimized) {
+      for (const t of fadeTargets) t?.setVisible(true);
+    }
     this.hud.scene!.tweens.add({
-      targets: [this.mapBackground, this.mapContainer, this.graphics, this.crown],
+      targets: fadeTargets,
       alpha: this.minimized ? 0 : 1,
       duration: 250,
+      onComplete: () => {
+        if (this.minimized) {
+          for (const t of fadeTargets) t?.setVisible(false);
+          this.graphics?.clear();
+        }
+      },
     });
     const targetY = (this.minimized ? this.height : 0) - 25;
     this.hud.scene!.tweens.add({
@@ -118,6 +147,7 @@ class Minimap extends HudComponent {
     if (!this.mapContainer) return;
 
     const map = this.game.gameState.gameMap;
+    const scene = this.game;
     this.scaleX = this.width / map.width;
     this.scaleY = this.height / map.height;
 
@@ -125,6 +155,9 @@ class Minimap extends HudComponent {
     this.mapContainer.setScale(this.scaleX, this.scaleY);
     this.mapContainer.setPosition(-map.x * this.scaleX, -map.y * this.scaleY);
 
+    const tempContainer = scene.add.container(0, 0);
+
+    const biomeGraphics = scene.add.graphics();
     for (const biome of map.biomes) {
       let color = 0x4854a2;
       switch (biome.type) {
@@ -134,17 +167,56 @@ class Minimap extends HudComponent {
         case BiomeTypes.River: color = 0x4854a2; break;
         case BiomeTypes.Safezone: color = 0x999999; break;
       }
-
-      const graphics = this.game.add.graphics();
-      graphics.fillStyle(color);
-      biome.shape.fillShape(graphics);
-      this.mapContainer.add(graphics);
+      biomeGraphics.fillStyle(color);
+      biome.shape.fillShape(biomeGraphics);
     }
+    tempContainer.add(biomeGraphics);
 
+    const visualKeys = ['container', 'body', 'shadow', 'houseSprite', 'roofSprite'];
+    const gameEntities = this.game.gameState.entities;
     for (const staticObject of map.staticObjects) {
-      const container = staticObject.createSprite();
-      this.mapContainer.add(container);
+      const entity = staticObject as any;
+      const snap: Record<string, any> = {};
+      for (const key of visualKeys) {
+        if (entity[key] !== undefined) {
+          snap[key] = entity[key];
+          entity[key] = null;
+        }
+      }
+
+      const before = new Set(scene.children.list);
+      try {
+        staticObject.createSprite();
+      } catch (e) {
+        console.warn('[Minimap] static createSprite failed', e);
+      }
+
+      for (const child of scene.children.list) {
+        if (!before.has(child) && !(child as any).parentContainer) {
+          tempContainer.add(child);
+        }
+      }
+
+      for (const key of visualKeys) {
+        if (key in snap) entity[key] = snap[key];
+        else delete entity[key];
+      }
+
+      if (entity.id !== undefined && gameEntities[entity.id] && snap.container) {
+        (snap.container as any).visible = false;
+      }
     }
+
+    tempContainer.setScale(this.scaleX, this.scaleY);
+    tempContainer.setPosition(-map.x * this.scaleX, -map.y * this.scaleY);
+
+    const rt = scene.add.renderTexture(0, 0, this.width, this.height).setOrigin(0, 0);
+    rt.draw(tempContainer);
+    tempContainer.destroy(true);
+
+    rt.setPosition(map.x, map.y);
+    rt.setDisplaySize(map.width, map.height);
+    this.mapContainer.add(rt);
   }
 
   updateCrown(player: any, dt: number) {
@@ -177,9 +249,11 @@ class Minimap extends HudComponent {
 
   update(dt: number) {
     if (!this.graphics) return;
+    if (this.minimized) return;
 
     const { graphics } = this;
     const map = this.game.gameState.gameMap;
+    const globalEntities = this.game.gameState.globalEntities;
 
     this._minimapAccumulator += dt;
     const shouldRecalc = this._minimapAccumulator >= this._minimapInterval;
@@ -187,7 +261,6 @@ class Minimap extends HudComponent {
       this._minimapAccumulator -= this._minimapInterval;
       this.updateGlobalEntities();
 
-      const globalEntities = this.game.gameState.globalEntities;
       const activeIds = new Set<string>();
       for (const id in globalEntities) {
         const player = globalEntities[id] as any;
@@ -216,34 +289,50 @@ class Minimap extends HudComponent {
 
     const lerpRate = 1 - Math.exp(-dt / this._minimapInterval);
     graphics.clear();
-    graphics.lineStyle(1, 0x000000);
 
     let leader: any = null;
     let leaderDotVisible = true;
-    const globalEntities = this.game.gameState.globalEntities;
+    let selfDot: { x: number, y: number, radius: number } | null = null;
+    let enemyCount = 0;
 
     for (const [id, dot] of this._dotPositions) {
       dot.x += (dot.targetX - dot.x) * lerpRate;
       dot.y += (dot.targetY - dot.y) * lerpRate;
 
-      if (dot.radius < 1) {
-        const player = globalEntities[id as any] as any;
-        if (player && (!leader || player.coins > leader.coins)) {
-          leader = player;
-          leaderDotVisible = false;
-        }
-        continue;
-      }
-
-      graphics.fillStyle(dot.isSelf ? 0xffffff : 0xff0000);
-      graphics.fillCircle(dot.x, dot.y, dot.radius);
-      graphics.stroke();
-
+      const tooSmall = dot.radius < 1;
       const player = globalEntities[id as any] as any;
       if (player && (!leader || player.coins > leader.coins)) {
         leader = player;
-        leaderDotVisible = true;
+        leaderDotVisible = !tooSmall;
       }
+      if (tooSmall) continue;
+
+      if (dot.isSelf) {
+        selfDot = { x: dot.x, y: dot.y, radius: dot.radius };
+      } else {
+        enemyCount++;
+      }
+    }
+
+    if (enemyCount > 0) {
+      graphics.fillStyle(0xff0000);
+      graphics.lineStyle(1, 0x000000);
+      graphics.beginPath();
+      for (const [, dot] of this._dotPositions) {
+        if (dot.isSelf || dot.radius < 1) continue;
+        _tracePolyCircle(graphics, dot.x, dot.y, dot.radius);
+      }
+      graphics.fillPath();
+      graphics.strokePath();
+    }
+
+    if (selfDot) {
+      graphics.fillStyle(0xffffff);
+      graphics.lineStyle(1, 0x000000);
+      graphics.beginPath();
+      _tracePolyCircle(graphics, selfDot.x, selfDot.y, selfDot.radius);
+      graphics.fillPath();
+      graphics.strokePath();
     }
 
     if (leader && leaderDotVisible) {

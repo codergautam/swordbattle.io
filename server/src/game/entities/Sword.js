@@ -53,6 +53,9 @@ class Sword extends Entity {
     this.flyLog = 0;
     this.skin = player.skin;
 
+    this.inputHeldTime = 0;
+    this.swingBufferPenalty = 0;
+
     this.focusTime = 350;
     this.focusDamageMultiplier = 1;
     this.lastSwordSwing = Date.now();
@@ -104,7 +107,7 @@ class Sword extends Entity {
   canSwing() {
     return !this.isFlying
       && this.player.inputs.isInputDown(Types.Input.SwordSwing)
-      && this.isAnimationFinished
+      && (this.isAnimationFinished || this.decreaseAnimation)
       && this.player.modifiers.invisible == false
       && !this.player.modifiers.stunned
       && !(this.player.cards.choosingCard && this.player.cards.instantSelect);
@@ -232,6 +235,54 @@ class Sword extends Entity {
     this.shape.setScale(player.shape.scale);
   }
 
+  _instantHitCheck() {
+    const player = this.player;
+    const game = player.game;
+    if (!game || !game.entitiesQuadtree) return;
+
+    const savedProgress = this.swingProgress;
+    const reach = (this._baseRadius() || 200) + this.size * 3 + (player.shape.radius || 100);
+    const boundary = {
+      x: player.shape.x - reach,
+      y: player.shape.y - reach,
+      width: reach * 2,
+      height: reach * 2,
+    };
+    const candidates = game.entitiesQuadtree.get(boundary);
+    const response = new SAT.Response();
+
+    const tryCollide = (entity) => {
+      if (!entity || entity === player || entity === this) return;
+      if (entity.removed) return;
+      if (this.collidedEntities.has(entity)) return;
+      if (!entity.shape || typeof entity.shape.collides !== 'function') return;
+      response.clear();
+      if (entity.shape.collides(this.shape, response)) {
+        if (this.targets.has(entity.type)) {
+          this.processTargetsCollision(entity);
+        } else if (entity.targets && entity.targets.has && entity.targets.has(this.type)) {
+          try { entity.processTargetsCollision(this, response); } catch (e) {}
+        }
+      }
+    };
+
+    this._positionMeleeCollision(player);
+    for (const { entity } of candidates) tryCollide(entity);
+
+    const steps = 5;
+    for (let i = 0; i <= steps; i++) {
+      this.swingProgress = i / steps;
+      this._positionMeleeCollision(player);
+      for (const { entity } of candidates) {
+        if (!entity || entity.type === Types.Entity.Player) continue;
+        tryCollide(entity);
+      }
+    }
+
+    this.swingProgress = savedProgress;
+    this._positionMeleeCollision(player);
+  }
+
   _positionMeleeCollision(player) {
     let angle = player.angle + this.angle + Math.PI / 2;
     if (this.player.modifiers.swingWide) {
@@ -288,12 +339,27 @@ class Sword extends Entity {
       }
     }
 
+    const swingPressed = this.player.inputs.isInputDown(Types.Input.SwordSwing);
+    if (swingPressed && (!this.isAnimationFinished || this.isFlying)) {
+      this.inputHeldTime += dt;
+    } else if (!swingPressed) {
+      this.inputHeldTime = 0;
+    }
+
     if (this.canSwing()) {
       this.isFlying = false;
       this.flyTime = 0;
+      this.decreaseAnimation = false;
+      this.swingTime = 0;
+      this.swingProgress = 0;
+      this.collidedEntities.clear();
       this.raiseAnimation = true;
       this.isAnimationFinished = false;
+      this.swingBufferPenalty = this.inputHeldTime;
+      this.inputHeldTime = 0;
       this.player.flags.set(Types.Flags.SwordSwing, true);
+
+      this._instantHitCheck();
 
       // Double Hit (102)
       const hasDoubleHit = this.player.cards && this.player.cards.hasMajor(102);
@@ -576,6 +642,11 @@ processTargetsCollision(entity) {
 
         if (this.doubleHitActive) {
           finalDamage *= 0.60;
+        }
+
+        if (!isThrown && this.swingBufferPenalty > 0.22) {
+          const pen = Math.max(0.7, 1 - (this.swingBufferPenalty - 0.22) * 1.5);
+          finalDamage *= pen;
         }
 
         if (this.player.modifiers.damageScale) {

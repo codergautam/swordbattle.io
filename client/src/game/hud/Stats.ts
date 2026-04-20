@@ -41,7 +41,7 @@ class Stats extends HudComponent {
     this.lastUpdate = now;
     this.game.gameState.updatePing();
 
-    const playersCount = this.game.gameState.getPlayers().length;
+    const playersCount = this.game.gameState.realPlayersCnt;
     const fps = Number(this.game.game.loop.actualFps.toFixed(1));
     const tps = this.game.gameState.tps;
     const ping = this.game.gameState.ping;

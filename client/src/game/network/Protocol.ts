@@ -611,6 +611,7 @@ export interface ServerMessage {
   globalEntities?: { [key: number]: Entity };
   isPong?: boolean;
   tps?: number;
+  realPlayersCnt?: number;
 }
 
 export function encodeServerMessage(message: ServerMessage): Uint8Array {
@@ -710,6 +711,13 @@ function _encodeServerMessage(message: ServerMessage, bb: ByteBuffer): void {
   if ($tps !== undefined) {
     writeVarint32(bb, 64);
     writeVarint64(bb, intToLong($tps));
+  }
+
+  // optional int32 realPlayersCnt = 9;
+  let $realPlayersCnt = message.realPlayersCnt;
+  if ($realPlayersCnt !== undefined) {
+    writeVarint32(bb, 72);
+    writeVarint64(bb, intToLong($realPlayersCnt));
   }
 }
 
@@ -828,6 +836,12 @@ function _decodeServerMessage(bb: ByteBuffer): ServerMessage {
       // optional int32 tps = 8;
       case 8: {
         message.tps = readVarint32(bb);
+        break;
+      }
+
+      // optional int32 realPlayersCnt = 9;
+      case 9: {
+        message.realPlayersCnt = readVarint32(bb);
         break;
       }
 

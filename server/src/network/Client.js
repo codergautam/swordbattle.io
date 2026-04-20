@@ -89,7 +89,11 @@ class Client {
       this.account = null;
     }
     if (message.isPing) {
-      this.send({ isPong: true, tps: this.game.tps });
+      let realPlayersCnt = 0;
+      for (const p of this.game.players.values()) {
+        if (!p.isBot) realPlayersCnt++;
+      }
+      this.send({ isPong: true, tps: this.game.tps, realPlayersCnt });
     } else if (message.token) {
       // console.log('Client', this.id, 'authenticated with token');
       this.token = message.token;

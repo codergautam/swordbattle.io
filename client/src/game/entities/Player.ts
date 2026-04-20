@@ -119,6 +119,9 @@ class Player extends BaseEntity {
   poisonParticlesLast: number = 0;
   private _lastSwordVisible: boolean | null = null;
   private _lastContainerScale: number = -1;
+  private _lastSwordScale: number = -1;
+  private _lastSwordLocalPullback: number = -1;
+  private _submergedAccum: number = 0;
 
   cardSummaryContainer: Phaser.GameObjects.Container | null = null;
   cardSummaryBg: Phaser.GameObjects.Graphics | null = null;
@@ -1237,17 +1240,18 @@ class Player extends BaseEntity {
       ? (Player.abilitySwordScales[this.evolution] ?? 1) : 1;
     const swordR = r / abilityScale;
     const swordReduction = Player.computeSwordReduction(swordR);
-    if (swordReduction > 0 || abilityScale !== 1) {
-      const visualScale = (1 - swordReduction) / abilityScale;
-      this.sword.setScale(visualScale);
-      if (this.swordShadow) this.swordShadow.setScale(visualScale);
-      const worldPullback = Player.computeSwordPullback(swordR);
-      const localPullback = newScale > 0 ? worldPullback / newScale : 0;
-      this.sword.setPosition(baseX - localPullback, baseY - localPullback);
-    } else {
-      this.sword.setScale(1);
-      this.sword.setPosition(baseX, baseY);
-      if (this.swordShadow) this.swordShadow.setScale(1);
+    const targetSwordScale = swordReduction > 0 ? 1 - swordReduction : 1;
+    const targetLocalPullback = swordReduction > 0
+      ? (newScale > 0 ? Player.computeSwordPullback(swordR) / newScale : 0)
+      : 0;
+    if (targetSwordScale !== this._lastSwordScale) {
+      this.sword.setScale(targetSwordScale);
+      if (this.swordShadow) this.swordShadow.setScale(targetSwordScale);
+      this._lastSwordScale = targetSwordScale;
+    }
+    if (targetLocalPullback !== this._lastSwordLocalPullback) {
+      this.sword.setPosition(baseX - targetLocalPullback, baseY - targetLocalPullback);
+      this._lastSwordLocalPullback = targetLocalPullback;
     }
 
     this.interpolate(dt);
@@ -1260,7 +1264,15 @@ class Player extends BaseEntity {
         }
       }
      }
-    this.updateSubmergedEffect(dt);
+    if (this.isMe) {
+      this.updateSubmergedEffect(dt);
+    } else {
+      this._submergedAccum += dt;
+      if (this._submergedAccum >= 200) {
+        this.updateSubmergedEffect(this._submergedAccum);
+        this._submergedAccum = 0;
+      }
+    }
     this.updateDiscoEffects(dt);
     if (this.following) {
       this.game.cameras.main.centerOn(this.container.x, this.container.y);

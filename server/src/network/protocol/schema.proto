@@ -51,6 +51,7 @@ message ServerMessage {
   map<int32, Entity> globalEntities = 6;
   bool isPong = 7;
   int32 tps = 8;
+  int32 realPlayersCnt = 9;
 }
 message Shape {
   int32 type = 1;

@@ -445,6 +445,9 @@ class CardSystem {
       p.sword.flyDuration.multiplier *= 0.7;
       if (p.sword.isFlying) {
         p.sword.damage.multiplier *= 0.65;
+        if (p.evolutions && p.evolutions.evolution === Types.Evolution.SuperArcher) {
+          p.sword.damage.multiplier *= 0.4;
+        }
       }
     }
 

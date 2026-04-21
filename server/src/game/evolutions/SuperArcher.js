@@ -14,15 +14,15 @@ module.exports = class SuperArcher extends Evolution {
 
   update(dt) {
     super.update(dt);
-    this.player.shape.setScale(0.925);
+    this.player.shape.setScale(0.85);
 
     this.player.modifiers.scaleThrow = true;
     this.player.modifiers.throwDamage = 1.4;
     
     this.player.health.max.multiplier *= 1;
-    this.player.health.regenWait.multiplier = 0.7;
+    this.player.health.regenWait.multiplier = 1.25;
     this.player.health.regen.multiplier *= 0.85;
-    this.player.speed.multiplier *= 0.925;
+    this.player.speed.multiplier *= 0.85;
 
     this.player.sword.damage.multiplier *= 0.45;
     this.player.modifiers.chestPower = 2.2;

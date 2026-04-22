@@ -1,5 +1,5 @@
 import Game from './scenes/Game';
-import Biome, { BiomeType } from './biomes/Biome';
+import Biome, { BiomeType, riverFlowDrift, riverBottomDrift } from './biomes/Biome';
 import Safezone from './biomes/Safezone';
 import River from './biomes/River';
 import { BiomeTypes, ShapeTypes } from './Types';
@@ -10,21 +10,92 @@ class GameMap {
   biomes: BiomeType[] = [];
   staticObjects: any[] = [];
   riverBorderSprites: Phaser.GameObjects.Sprite[] = [];
+  tideBorders: { sprite: Phaser.GameObjects.Sprite, width: number }[] = [];
+  shoreLayers: { sprite: Phaser.GameObjects.TileSprite, mask: Phaser.GameObjects.Graphics }[] = [];
   x = 0;
   y = 0;
   width = 0;
   height = 0;
+  scale = 1;
   borderGraphics: Phaser.GameObjects.Graphics | null = null;
+  riverBackdrop: Phaser.GameObjects.TileSprite | null = null;
+  riverBackdropTop: Phaser.GameObjects.TileSprite | null = null;
+  riverBackdropShimmer: Phaser.GameObjects.TileSprite | null = null;
+  riverBackdropMask: Phaser.GameObjects.Graphics | null = null;
+  worldCutout: Phaser.GameObjects.TileSprite | null = null;
+  worldCutoutMask: Phaser.GameObjects.Graphics | null = null;
+  private lastCamW = -1;
+  private lastCamH = -1;
+  private camResized = true;
 
   constructor(scene: Game) {
     this.scene = scene;
   }
 
   update() {
-    this.biomes.forEach((biome: any) => biome.update());
+    const camera = this.scene.cameras.main;
+    this.camResized = camera.width !== this.lastCamW || camera.height !== this.lastCamH;
+    for (let i = 0; i < this.biomes.length; i++) (this.biomes[i] as any).update();
+    this.updateRiverBackdrop();
+    this.updateWorldCutout();
+    this.updateShoreTide();
+    this.updateBiomeShores();
+    this.lastCamW = camera.width;
+    this.lastCamH = camera.height;
   }
 
+  updateRiverBackdrop() {
+    const camera = this.scene.cameras.main;
+    const tileScale = 2;
+    const layer = (sprite: Phaser.GameObjects.TileSprite | null, drift: { x: number, y: number }) => {
+      if (!sprite) return;
+      if (this.camResized) {
+        sprite.setSize(camera.width, camera.height);
+        sprite.setPosition(camera.width / 2, camera.height / 2);
+      }
+      sprite.setDisplaySize(camera.displayWidth, camera.displayHeight);
+      sprite.setTileScale(camera.zoom * tileScale);
+      sprite.setTilePosition(
+        (camera.scrollX - camera.displayWidth / 2) / tileScale + drift.x,
+        (camera.scrollY - camera.displayHeight / 2) / tileScale + drift.y,
+      );
+    };
+    layer(this.riverBackdrop, riverBottomDrift(this.scene));
+    layer(this.riverBackdropTop, riverFlowDrift(this.scene));
+  }
+
+  updateWorldCutout() {
+    if (!this.worldCutout) return;
+    const camera = this.scene.cameras.main;
+    const v = camera.worldView;
+    const m = 100;
+    const nearEdge = v.x <= this.x + m || v.y <= this.y + m ||
+      v.right >= this.x + this.width - m || v.bottom >= this.y + this.height - m;
+    if (this.worldCutout.visible !== nearEdge) this.worldCutout.setVisible(nearEdge);
+    if (!nearEdge) return;
+    const tileScale = 2;
+    if (this.camResized) {
+      this.worldCutout.setSize(camera.width, camera.height);
+      this.worldCutout.setPosition(camera.width / 2, camera.height / 2);
+    }
+    this.worldCutout.setDisplaySize(camera.displayWidth, camera.displayHeight);
+    this.worldCutout.setTileScale(camera.zoom * tileScale);
+    this.worldCutout.setTilePosition(
+      (camera.scrollX - camera.displayWidth / 2) / tileScale,
+      (camera.scrollY - camera.displayHeight / 2) / tileScale,
+    );
+  }
+
+  private lastMapSig: string | null = null;
+
   updateMapData(mapData: any) {
+    let sig: string | null = null;
+    try { sig = JSON.stringify(mapData); } catch (e) { sig = null; }
+    if (sig && sig === this.lastMapSig && this.biomes.length > 0) {
+      return;
+    }
+    this.lastMapSig = sig;
+
     for (const biome of this.biomes) {
       biome.destroy();
     }
@@ -39,20 +110,96 @@ class GameMap {
       sprite.destroy();
     }
     this.riverBorderSprites = [];
+    this.tideBorders = [];
+
+    for (const { sprite, mask } of this.shoreLayers) {
+      try { sprite.clearMask(true); } catch (e) {}
+      sprite.destroy();
+      mask.destroy();
+    }
+    this.shoreLayers = [];
+
+    for (const l of [this.riverBackdrop, this.riverBackdropTop, this.riverBackdropShimmer]) {
+      if (l) { l.clearMask(true); l.destroy(); }
+    }
+    this.riverBackdrop = null;
+    this.riverBackdropTop = null;
+    this.riverBackdropShimmer = null;
+    if (this.riverBackdropMask) {
+      this.riverBackdropMask.destroy();
+      this.riverBackdropMask = null;
+    }
+    if (this.worldCutout) {
+      this.worldCutout.clearMask(true);
+      this.worldCutout.destroy();
+      this.worldCutout = null;
+    }
+    if (this.worldCutoutMask) {
+      this.worldCutoutMask.destroy();
+      this.worldCutoutMask = null;
+    }
 
     this.x = mapData.x;
     this.y = mapData.y;
     this.width = mapData.width;
     this.height = mapData.height;
+    this.scale = typeof mapData.scale === 'number' && mapData.scale > 0 ? mapData.scale : 1;
     this.scene.physics.world.setBounds(this.x, this.y, this.width, this.height);
     mapData.biomes.forEach((biomeData: any) => this.addBiome(biomeData));
     if (mapData.staticObjects) {
       mapData.staticObjects.forEach(((objectData: any) => this.addStaticObject(objectData)));
     }
+    console.log('[map] static decorations on map:', this.staticObjects.length);
     this.sortBiomes();
+    this.createRiverBackdrop();
     this.createRiverBorders();
+    this.createWorldCutout();
     this.createMapBorder();
     this.scene.hud.minimap.updateMapData();
+  }
+
+  createWorldCutout() {
+    if (!this.scene.textures.exists('rockTile')) return;
+
+    this.worldCutoutMask = this.scene.make.graphics({}, false);
+    this.worldCutoutMask.fillStyle(0xffffff);
+    this.worldCutoutMask.fillRect(this.x, this.y, this.width, this.height);
+
+    const camera = this.scene.cameras.main;
+    this.worldCutout = this.scene.add.tileSprite(
+      camera.width / 2, camera.height / 2,
+      camera.width, camera.height,
+      'rockTile',
+    )
+      .setScrollFactor(0)
+      .setDepth(-2)
+      .setTileScale(2);
+
+    const mask = new Phaser.Display.Masks.GeometryMask(this.scene, this.worldCutoutMask);
+    mask.invertAlpha = true;
+    this.worldCutout.setMask(mask);
+    this.updateWorldCutout();
+  }
+
+  createRiverBackdrop() {
+    if (!this.scene.textures.exists('riverBottom')) return;
+
+    this.riverBackdropMask = this.scene.make.graphics({}, false);
+    this.riverBackdropMask.fillStyle(0xffffff);
+    this.riverBackdropMask.fillRect(this.x, this.y, this.width, this.height);
+
+    const camera = this.scene.cameras.main;
+    const make = (key: string, depth: number, alpha: number, add = false) => {
+      const s = this.scene.add.tileSprite(
+        camera.width / 2, camera.height / 2, camera.width, camera.height, key,
+      ).setScrollFactor(0).setDepth(depth).setTileScale(2).setAlpha(alpha);
+      if (add) s.setBlendMode(Phaser.BlendModes.ADD);
+      return s;
+    };
+
+    this.riverBackdrop = make('riverBottom', -5.6, 1);
+    this.riverBackdropTop = make('riverTop', -5.4, 0.62);
+    this.updateRiverBackdrop();
   }
 
   addStaticObject(objectData: any) {
@@ -73,10 +220,20 @@ class GameMap {
       case BiomeTypes.Earth: BiomeClass = Biome; break;
       case BiomeTypes.River: BiomeClass = River; break;
       case BiomeTypes.Safezone: BiomeClass = Safezone; break;
+      case BiomeTypes.TutorialZone: BiomeClass = Safezone; break;
+      case BiomeTypes.Meadow: BiomeClass = Biome; break;
+      case BiomeTypes.Savanna: BiomeClass = Biome; break;
+      case BiomeTypes.Alpine: BiomeClass = Biome; break;
+      case BiomeTypes.Dirt: BiomeClass = Biome; break;
+      case BiomeTypes.Rocks: BiomeClass = Biome; break;
+      case BiomeTypes.Desert: BiomeClass = Biome; break;
+      case BiomeTypes.Oasis: BiomeClass = Biome; break;
     }
     if (!BiomeClass) return console.log('Unknown biome type: ', biomeData.type);
 
     const biome = new BiomeClass(this.scene, biomeData);
+    const depth = biomeData.nestingDepth || 0;
+    if (depth > 0) biome.zIndex = biome.zIndex + depth * 10;
     biome.createSprite();
     this.biomes.push(biome);
   }
@@ -86,8 +243,15 @@ class GameMap {
   }
 
   createRiverBorders() {
-    const rivers = this.biomes.filter(b => b.type === BiomeTypes.River);
-    if (rivers.length === 0) return;
+    const lands = this.biomes.filter(b =>
+      b.type !== BiomeTypes.River &&
+      b.type !== BiomeTypes.Safezone &&
+      b.type !== BiomeTypes.TutorialZone
+    );
+    if (lands.length === 0) return;
+    const rivers = lands;
+    const tileShore = [BiomeTypes.Rocks, BiomeTypes.Dirt, BiomeTypes.Alpine];
+    const sandLands = rivers.filter(r => !tileShore.includes(r.type));
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     for (const river of rivers) {
@@ -107,18 +271,17 @@ class GameMap {
       }
     }
 
-    const padding = 150;
+    const padding = 460;
     minX -= padding; minY -= padding;
     maxX += padding; maxY += padding;
     const worldW = maxX - minX;
     const worldH = maxY - minY;
 
     const isMobile = this.scene.isMobile;
-    const canvasScale = isMobile ? 0.1 : 0.2;
+    const canvasScale = isMobile ? 0.07 : 0.13;
     const canvasW = Math.ceil(worldW * canvasScale);
     const canvasH = Math.ceil(worldH * canvasScale);
 
-    // Cap canvas size to prevent mobile GPU memory crashes
     const maxCanvasSize = isMobile ? 4092 : 8192;
     if (canvasW > maxCanvasSize || canvasH > maxCanvasSize) {
       console.warn(`[GameMap] River border canvas too large (${canvasW}x${canvasH}), skipping`);
@@ -128,48 +291,242 @@ class GameMap {
     const toX = (wx: number) => (wx - minX) * canvasScale;
     const toY = (wy: number) => (wy - minY) * canvasScale;
 
-    const borders = [
-      { width: 330, alpha: 0.075, texture: 'sand', key: 'riverBorderOuter' },
-      { width: 300, alpha: 0.2, texture: 'sand', key: 'riverBorderShadow' },
-      { width: 270, alpha: 1,    texture: 'sand', key: 'riverBorder' },
-      { width: 30, alpha: 1,    color: '#000000', key: 'riverBorderBlack' },
-    ];
+    const sandImg = (key: string): HTMLImageElement => {
+      const k = this.scene.textures.exists(key) ? key : 'sand';
+      return this.scene.textures.get(k).getSourceImage() as HTMLImageElement;
+    };
+    const sandSources: Record<string, HTMLImageElement> = {
+      sand: sandImg('sand'), sandRock: sandImg('sandRock'),
+      sandMud: sandImg('sandMud'), sandAsh: sandImg('sandAsh'),
+    };
+    const sandKeyForBiome = (type: BiomeTypes): string => {
+      if (type === BiomeTypes.Ice || type === BiomeTypes.Alpine || type === BiomeTypes.Rocks) return 'sandRock';
+      if (type === BiomeTypes.Dirt) return 'sandMud';
+      if (type === BiomeTypes.Fire) return 'sandAsh';
+      return 'sand';
+    };
+    const makePatterns = (ctx: CanvasRenderingContext2D): Record<string, CanvasPattern> => ({
+      sand: ctx.createPattern(sandSources.sand, 'repeat')!,
+      sandRock: ctx.createPattern(sandSources.sandRock, 'repeat')!,
+      sandMud: ctx.createPattern(sandSources.sandMud, 'repeat')!,
+      sandAsh: ctx.createPattern(sandSources.sandAsh, 'repeat')!,
+    });
 
-    const sandSource = this.scene.textures.get('sand').getSourceImage() as HTMLImageElement;
+    const clipWorld = (ctx: CanvasRenderingContext2D) => {
+      ctx.beginPath();
+      ctx.rect(toX(this.x), toY(this.y), this.width * canvasScale, this.height * canvasScale);
+      ctx.clip();
+    };
 
-    for (const border of borders) {
+    {
       const canvas = document.createElement('canvas');
-      canvas.width = canvasW;
-      canvas.height = canvasH;
+      canvas.width = canvasW; canvas.height = canvasH;
       const ctx = canvas.getContext('2d')!;
+      const pats = makePatterns(ctx);
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
 
-      if (border.texture) {
-        const pattern = ctx.createPattern(sandSource, 'repeat')!;
-        ctx.fillStyle = pattern;
-      } else {
-        ctx.fillStyle = border.color!;
+      const eMid = 250, feather = 215;
+      const maxw = 440, minw = 36, steps = 30;
+      ctx.save();
+      clipWorld(ctx);
+      ctx.globalCompositeOperation = 'source-over';
+      for (let i = 0; i < steps; i++) {
+        const f = i / (steps - 1);
+        const width = maxw + (minw - maxw) * f;
+        let a = (eMid + feather - width) / feather;
+        a = Math.max(0, Math.min(1, a));
+        a = a * a * (3 - 2 * a);
+        if (a <= 0.001) continue;
+        ctx.globalAlpha = a;
+        ctx.lineWidth = width * 2 * canvasScale;
+        for (const river of sandLands) {
+          ctx.strokeStyle = pats[sandKeyForBiome(river.type)];
+          this.strokeRiverOutline(ctx, river.shape as any, toX, toY, canvasScale);
+        }
       }
-      for (const river of rivers) {
-        this.fillRiverOnCanvas(ctx, river.shape as any, toX, toY, canvasScale);
-      }
-
+      ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'destination-out';
-      ctx.fillStyle = '#000000';
-      for (const river of rivers) {
-        this.fillInsetOnCanvas(ctx, river.shape as any, border.width, toX, toY, canvasScale, rivers);
-      }
+      ctx.fillStyle = '#000';
+      for (const river of sandLands) this.fillRiverOnCanvas(ctx, river.shape as any, toX, toY, canvasScale);
+      ctx.restore();
 
-      if (this.scene.textures.exists(border.key)) {
-        this.scene.textures.remove(border.key);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+      ctx.save();
+      clipWorld(ctx);
+      const ov = 30;
+      const riverSegs = sandLands.map(r => this.coastSegments(r.shape as any));
+      for (let ri = 0; ri < sandLands.length; ri++) {
+        ctx.fillStyle = pats[sandKeyForBiome(sandLands[ri].type)];
+        for (const seg of riverSegs[ri]) {
+          if (seg.length < 2) continue;
+          ctx.beginPath();
+          ctx.moveTo(toX(seg[0].x - seg[0].nx * ov), toY(seg[0].y - seg[0].ny * ov));
+          for (let i = 1; i < seg.length; i++) ctx.lineTo(toX(seg[i].x - seg[i].nx * ov), toY(seg[i].y - seg[i].ny * ov));
+          for (let i = seg.length - 1; i >= 0; i--) {
+            const ins = this.coastInset(seg[i].x, seg[i].y);
+            ctx.lineTo(toX(seg[i].x + seg[i].nx * ins), toY(seg[i].y + seg[i].ny * ins));
+          }
+          ctx.closePath();
+          ctx.fill();
+        }
       }
-      this.scene.textures.addCanvas(border.key, canvas);
+      ctx.restore();
 
-      const sprite = this.scene.add.sprite(minX + worldW / 2, minY + worldH / 2, border.key);
+      const key = 'riverShoreBlobs';
+      if (this.scene.textures.exists(key)) this.scene.textures.remove(key);
+      this.scene.textures.addCanvas(key, canvas);
+      const sprite = this.scene.add.sprite(minX + worldW / 2, minY + worldH / 2, key);
       sprite.setDisplaySize(worldW, worldH);
       sprite.setDepth(-1.5);
-      sprite.setAlpha(border.alpha);
       this.riverBorderSprites.push(sprite);
     }
+
+    this.createBiomeShores(rivers);
+  }
+
+  createBiomeShores(lands: BiomeType[]) {
+    const camera = this.scene.cameras.main;
+    const groups: { type: BiomeTypes, tex: string }[] = [
+      { type: BiomeTypes.Rocks, tex: 'rocksTile' },
+      { type: BiomeTypes.Dirt, tex: 'dirtTile' },
+      { type: BiomeTypes.Alpine, tex: 'rockcoast' },
+    ];
+    const out = 360;
+    const over = 45;
+    for (const grp of groups) {
+      const gl = lands.filter(l => l.type === grp.type);
+      if (!gl.length || !this.scene.textures.exists(grp.tex)) continue;
+
+      const mask = this.scene.make.graphics({}, false);
+      mask.fillStyle(0xffffff, 1);
+      for (const l of gl) {
+        const s: any = l.shape;
+        // Pre-triangulate ONCE (fillTriangle) instead of fillPath, which makes
+        // Phaser re-Earcut these complex coastline polygons EVERY frame when the
+        // mask renders to the stencil — the per-frame render bottleneck. Same
+        // mask shape, but the triangulation is baked into the command buffer.
+        if (s.points && s.points.length) {
+          const flat: number[] = [];
+          for (const p of s.points) flat.push(s.x + p.x, s.y + p.y);
+          this.fillTriangulated(mask, flat);
+        } else {
+          s.fillShape(mask);
+        }
+        for (const seg of this.coastSegments(s)) {
+          if (seg.length < 2) continue;
+          const flat: number[] = [];
+          for (let i = 0; i < seg.length; i++) flat.push(seg[i].x + seg[i].nx * over, seg[i].y + seg[i].ny * over);
+          for (let i = seg.length - 1; i >= 0; i--) flat.push(seg[i].x - seg[i].nx * out, seg[i].y - seg[i].ny * out);
+          this.fillTriangulated(mask, flat);
+        }
+      }
+
+      const sprite = this.scene.add.tileSprite(camera.width / 2, camera.height / 2, camera.width, camera.height, grp.tex)
+        .setScrollFactor(0).setDepth(-3.4).setTileScale(2);
+      sprite.setMask(new Phaser.Display.Masks.GeometryMask(this.scene, mask));
+
+      this.shoreLayers.push({ sprite, mask });
+    }
+    this.updateBiomeShores();
+  }
+
+  updateBiomeShores() {
+    const camera = this.scene.cameras.main;
+    const tileScale = 2;
+    for (const { sprite } of this.shoreLayers) {
+      if (this.camResized) {
+        sprite.setSize(camera.width, camera.height);
+        sprite.setPosition(camera.width / 2, camera.height / 2);
+      }
+      sprite.setDisplaySize(camera.displayWidth, camera.displayHeight);
+      sprite.setTileScale(camera.zoom * tileScale);
+      sprite.setTilePosition(
+        (camera.scrollX - camera.displayWidth / 2) / tileScale,
+        (camera.scrollY - camera.displayHeight / 2) / tileScale,
+      );
+    }
+  }
+
+  updateShoreTide() {
+    if (this.tideBorders.length === 0) return;
+    const t = ((this.scene.game.loop && this.scene.game.loop.time) || 0) / 1000;
+    const tidePeriod = 9;
+    const w = (2 * Math.PI) / tidePeriod;
+    const eMid = 250, eAmp = 60, feather = 215;
+    const edge = eMid + eAmp * Math.sin(t * w);
+    for (const b of this.tideBorders) {
+      let a = (edge + feather - b.width) / feather;
+      a = Math.max(0, Math.min(1, a));
+      a = a * a * (3 - 2 * a);
+      b.sprite.setAlpha(a);
+    }
+  }
+
+  private pointInPolygon(shape: any, wx: number, wy: number): boolean {
+    const pts = shape.points, ox = shape.x, oy = shape.y;
+    let inside = false;
+    for (let j = 0, k = pts.length - 1; j < pts.length; k = j++) {
+      const xi = ox + pts[j].x, yi = oy + pts[j].y;
+      const xk = ox + pts[k].x, yk = oy + pts[k].y;
+      if ((yi > wy) !== (yk > wy) && wx < (xk - xi) * (wy - yi) / (yk - yi) + xi) inside = !inside;
+    }
+    return inside;
+  }
+
+  private coastInset(wx: number, wy: number): number {
+    const base = 12, amp = 60;
+    let n = 0.40 * Math.sin(wx * 0.0028 + wy * 0.0010)
+          + 0.24 * Math.sin(wy * 0.0064 - wx * 0.0016 + 1.7)
+          + 0.18 * Math.sin((wx - wy) * 0.0115 + 3.1)
+          + 0.12 * Math.sin((wx + wy) * 0.0190 + 5.0)
+          + 0.06 * Math.sin(wx * 0.0240 - wy * 0.0220 + 0.7);
+    n = Math.max(0, Math.min(1, (n + 1) / 2));
+    return base + amp * n;
+  }
+
+  private coastSegments(shape: any): { x: number, y: number, nx: number, ny: number }[][] {
+    const spacing = 24;
+    if (shape.type === ShapeTypes.Circle) {
+      const r = shape.radius;
+      const n = Math.max(24, Math.floor((2 * Math.PI * r) / spacing));
+      const seg: { x: number, y: number, nx: number, ny: number }[] = [];
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2;
+        seg.push({ x: shape.x + Math.cos(a) * r, y: shape.y + Math.sin(a) * r, nx: -Math.cos(a), ny: -Math.sin(a) });
+      }
+      seg.push({ ...seg[0] });
+      return [seg];
+    }
+    if (shape.type !== ShapeTypes.Polygon) return [];
+    const pts = shape.points, np = pts.length;
+    const wl = this.x, wr = this.x + this.width, wt = this.y, wb = this.y + this.height, tol = 1;
+    const segs: { x: number, y: number, nx: number, ny: number }[][] = [];
+    let cur: { x: number, y: number, nx: number, ny: number }[] = [];
+    const flush = () => { if (cur.length >= 2) segs.push(cur); cur = []; };
+    for (let i = 0; i < np; i++) {
+      const a = pts[i], b = pts[(i + 1) % np];
+      const ax = shape.x + a.x, ay = shape.y + a.y, bx = shape.x + b.x, by = shape.y + b.y;
+      const onBorder =
+        (Math.abs(ax - wl) < tol && Math.abs(bx - wl) < tol) ||
+        (Math.abs(ax - wr) < tol && Math.abs(bx - wr) < tol) ||
+        (Math.abs(ay - wt) < tol && Math.abs(by - wt) < tol) ||
+        (Math.abs(ay - wb) < tol && Math.abs(by - wb) < tol);
+      if (onBorder) { flush(); continue; }
+      let nx = -(by - ay), ny = bx - ax;
+      const nl = Math.hypot(nx, ny) || 1; nx /= nl; ny /= nl;
+      if (!this.pointInPolygon(shape, (ax + bx) / 2 + nx * 6, (ay + by) / 2 + ny * 6)) { nx = -nx; ny = -ny; }
+      const len = Math.hypot(bx - ax, by - ay);
+      const steps = Math.max(1, Math.floor(len / spacing));
+      for (let k = 0; k < steps; k++) {
+        const t = k / steps;
+        cur.push({ x: ax + (bx - ax) * t, y: ay + (by - ay) * t, nx, ny });
+      }
+      cur.push({ x: bx, y: by, nx, ny });
+    }
+    flush();
+    return segs;
   }
 
   private fillRiverOnCanvas(
@@ -191,102 +548,68 @@ class GameMap {
     }
   }
 
-  private fillInsetOnCanvas(
-    ctx: CanvasRenderingContext2D, shape: any, inset: number,
+  private strokeRiverOutline(
+    ctx: CanvasRenderingContext2D, shape: any,
     toX: (x: number) => number, toY: (y: number) => number, scale: number,
-    rivers: BiomeType[],
   ) {
     if (shape.type === ShapeTypes.Circle) {
-      const r = Math.max(0, (shape.radius - inset) * scale);
       ctx.beginPath();
-      ctx.arc(toX(shape.x), toY(shape.y), r, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (shape.type === ShapeTypes.Polygon) {
-      const points: { x: number; y: number }[] = shape.points;
-      const n = points.length;
+      ctx.arc(toX(shape.x), toY(shape.y), shape.radius * scale, 0, Math.PI * 2);
+      ctx.stroke();
+      return;
+    }
+    if (shape.type !== ShapeTypes.Polygon) return;
 
-      const worldLeft = this.x;
-      const worldRight = this.x + this.width;
-      const worldTop = this.y;
-      const worldBottom = this.y + this.height;
-      const tolerance = 1;
+    const points: { x: number; y: number }[] = shape.points;
+    const n = points.length;
+    const worldLeft = this.x, worldRight = this.x + this.width;
+    const worldTop = this.y, worldBottom = this.y + this.height;
+    const tolerance = 1;
 
-      const edgeInsets: number[] = [];
-      for (let i = 0; i < n; i++) {
-        const j = (i + 1) % n;
-        const ax = shape.x + points[i].x;
-        const ay = shape.y + points[i].y;
-        const bx = shape.x + points[j].x;
-        const by = shape.y + points[j].y;
+    const isWorldBorderEdge = (i: number) => {
+      const j = (i + 1) % n;
+      const ax = shape.x + points[i].x, ay = shape.y + points[i].y;
+      const bx = shape.x + points[j].x, by = shape.y + points[j].y;
+      return (
+        (Math.abs(ax - worldLeft) < tolerance && Math.abs(bx - worldLeft) < tolerance) ||
+        (Math.abs(ax - worldRight) < tolerance && Math.abs(bx - worldRight) < tolerance) ||
+        (Math.abs(ay - worldTop) < tolerance && Math.abs(by - worldTop) < tolerance) ||
+        (Math.abs(ay - worldBottom) < tolerance && Math.abs(by - worldBottom) < tolerance)
+      );
+    };
 
-        const onWorldBorder =
-          (Math.abs(ax - worldLeft) < tolerance && Math.abs(bx - worldLeft) < tolerance) ||
-          (Math.abs(ax - worldRight) < tolerance && Math.abs(bx - worldRight) < tolerance) ||
-          (Math.abs(ay - worldTop) < tolerance && Math.abs(by - worldTop) < tolerance) ||
-          (Math.abs(ay - worldBottom) < tolerance && Math.abs(by - worldBottom) < tolerance);
+    let start = -1;
+    for (let i = 0; i < n; i++) {
+      if (isWorldBorderEdge(i)) { start = (i + 1) % n; break; }
+    }
 
-        const insideCircle = rivers.some(r => {
-          const cs = r.shape as any;
-          if (cs.type !== ShapeTypes.Circle) return false;
-          const margin = inset;
-          const distA = Math.sqrt((ax - cs.x) ** 2 + (ay - cs.y) ** 2);
-          const distB = Math.sqrt((bx - cs.x) ** 2 + (by - cs.y) ** 2);
-          return distA < cs.radius + margin && distB < cs.radius + margin;
-        });
-
-        edgeInsets.push((onWorldBorder || insideCircle) ? 0 : inset);
-      }
-
-      const normals: { x: number; y: number }[] = [];
-      for (let i = 0; i < n; i++) {
-        const j = (i + 1) % n;
-        const dx = points[j].x - points[i].x;
-        const dy = points[j].y - points[i].y;
-        const len = Math.sqrt(dx * dx + dy * dy);
-        normals.push({ x: -dy / len, y: dx / len });
-      }
-
-      let area = 0;
-      for (let i = 0; i < n; i++) {
-        const j = (i + 1) % n;
-        area += points[i].x * points[j].y - points[j].x * points[i].y;
-      }
-      if (area < 0) {
-        for (const nm of normals) { nm.x = -nm.x; nm.y = -nm.y; }
-      }
-
+    if (start === -1) {
       ctx.beginPath();
-      for (let i = 0; i < n; i++) {
-        const prevEdge = (i - 1 + n) % n;
-        const currEdge = i;
-        const n1 = normals[prevEdge];
-        const n2 = normals[currEdge];
-        const inset1 = edgeInsets[prevEdge];
-        const inset2 = edgeInsets[currEdge];
-
-        let ix: number, iy: number;
-        const det = n1.x * n2.y - n2.x * n1.y;
-
-        if (Math.abs(det) > 0.001) {
-          const ox = (inset1 * n2.y - inset2 * n1.y) / det;
-          const oy = (inset2 * n1.x - inset1 * n2.x) / det;
-          ix = points[i].x + ox;
-          iy = points[i].y + oy;
-        } else {
-          const avgInset = (inset1 + inset2) / 2;
-          const dot = n1.x * n2.x + n1.y * n2.y;
-          const denom = 1 + dot;
-          const f = denom > 0.001 ? avgInset / denom : avgInset;
-          ix = points[i].x + (n1.x + n2.x) * f;
-          iy = points[i].y + (n1.y + n2.y) * f;
-        }
-
-        if (i === 0) ctx.moveTo(toX(shape.x + ix), toY(shape.y + iy));
-        else ctx.lineTo(toX(shape.x + ix), toY(shape.y + iy));
+      ctx.moveTo(toX(shape.x + points[0].x), toY(shape.y + points[0].y));
+      for (let i = 1; i < n; i++) {
+        ctx.lineTo(toX(shape.x + points[i].x), toY(shape.y + points[i].y));
       }
       ctx.closePath();
-      ctx.fill();
+      ctx.stroke();
+      return;
     }
+
+    ctx.beginPath();
+    let inSegment = false;
+    for (let k = 0; k < n; k++) {
+      const i = (start + k) % n;
+      if (isWorldBorderEdge(i)) {
+        inSegment = false;
+        continue;
+      }
+      const j = (i + 1) % n;
+      if (!inSegment) {
+        ctx.moveTo(toX(shape.x + points[i].x), toY(shape.y + points[i].y));
+        inSegment = true;
+      }
+      ctx.lineTo(toX(shape.x + points[j].x), toY(shape.y + points[j].y));
+    }
+    ctx.stroke();
   }
 
   createMapBorder() {

@@ -1,6 +1,7 @@
 const SAT = require('sat');
 const Shape = require('./Shape');
 const Types = require('../Types');
+const helpers = require('../../helpers');
 
 class ComplexPolygon extends Shape {
   constructor(shapes, originalPoints) {
@@ -31,6 +32,11 @@ class ComplexPolygon extends Shape {
     }
   }
 
+  get center() {
+    const b = this.boundary;
+    return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+  }
+
   get area() {
     let area = 0;
     for (const shape of this.shapes) {
@@ -44,13 +50,12 @@ class ComplexPolygon extends Shape {
     let minY = Infinity;
     let maxX = -Infinity;
     let maxY = -Infinity;
-    
+
     for (const point of this.points) {
       if (minX > point.x) minX = point.x;
-      else if (maxX < point.x) maxX = point.x;
-
+      if (maxX < point.x) maxX = point.x;
       if (minY > point.y) minY = point.y;
-      else if (maxY < point.y) maxY = point.y;
+      if (maxY < point.y) maxY = point.y;
     }
 
     this.bounds = {
@@ -69,6 +74,18 @@ class ComplexPolygon extends Shape {
       }
     }
     return false;
+  }
+
+  getRandomPoint() {
+    const bounds = this.boundary;
+    const point = new SAT.Vector();
+    let tries = 0;
+    do {
+      point.x = helpers.random(bounds.x, bounds.x + bounds.width);
+      point.y = helpers.random(bounds.y, bounds.y + bounds.height);
+      tries++;
+    } while (!this.isPointInside(point.x, point.y) && tries < 100);
+    return point;
   }
 
   collides(otherShape, response) {

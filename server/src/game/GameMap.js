@@ -6,15 +6,24 @@ const FireBiome = require('./biomes/FireBiome');
 const IceBiome = require('./biomes/IceBiome');
 const River = require('./biomes/River');
 const Safezone = require('./biomes/Safezone');
+const TutorialZone = require('./biomes/TutorialZone');
 const House1 = require('./entities/mapObjects/House1');
 const MossyRock = require('./entities/mapObjects/MossyRock');
 const Pond = require('./entities/mapObjects/Pond');
+const Cactus = require('./entities/mapObjects/Cactus');
+const OasisLake = require('./entities/mapObjects/OasisLake');
+const DeadBush = require('./entities/mapObjects/DeadBush');
+const AmbientShrub = require('./entities/mapObjects/AmbientShrub');
+const SandBlock = require('./entities/SandBlock');
+const SandBall = require('./entities/SandBall');
+const SphinxMob = require('./entities/mobs/Sphinx');
 const Bush = require('./entities/mapObjects/Bush');
 const IceMound = require('./entities/mapObjects/IceMound');
 const IcePond = require('./entities/mapObjects/IcePond');
 const IceSpike = require('./entities/mapObjects/IceSpike');
 const Rock = require('./entities/mapObjects/Rock');
 const LavaRock = require('./entities/mapObjects/LavaRock');
+const Ore = require('./entities/mapObjects/Ore');
 const LavaPool = require('./entities/mapObjects/LavaPool');
 const Chest = require('./entities/Chest');
 const Coin = require('./entities/Coin');
@@ -39,7 +48,7 @@ const Snowball = require('./entities/Snowball');
 const CaptureZone = require('./entities/CaptureZone');
 const Timer = require('./components/Timer');
 const Types = require('./Types');
-const map = require('./maps/main');
+const map = require('./maps/mapLoader');
 const helpers = require('../helpers');
 const config = require('../config');
 
@@ -53,10 +62,11 @@ class GameMap {
     this.width = 0;
     this.height = 0;
     this.safezone = null;
+    this.tutorialSafezone = null;
     this.shape = null;
     this.entityTimers = new Set();
     this.coinsCount = map.coinsCount !== undefined ? map.coinsCount : 100;
-    this.chestsCount = map.chestCount !== undefined ? map.chestsCount : 50;
+    this.chestsCount = map.chestCount !== undefined ? map.chestCount : 150;
     this.aiPlayersCount = map.aiPlayersCount !== undefined ? map.aiPlayersCount : 10;
 
     this.captureZoneTimer = new Timer(0, 30, 60);
@@ -67,22 +77,14 @@ class GameMap {
     for (const biomeData of map.biomes) {
       this.addBiome(biomeData);
     }
-    this.biomes.forEach(biome => biome.initialize()); // Initialize biomes after they're added to map.biomes
     this.calculateMapBounds();
+    this.computeBiomeContainment();
+    this.biomes.forEach(biome => biome.initialize());
 
     const Circle = require('./shapes/Circle');
-    const centerChestOpts = { maxRarity: 2, rarityWeights: [50, 35, 15] };
-    const earthCenter = Circle.create(-3500, 2000, 3500);
-    for (let i = 0; i < 16; i++) {
-      this.addEntity({ type: Types.Entity.Chest, respawnable: true, spawnZone: earthCenter, ...centerChestOpts });
-    }
-    const iceCenter = Circle.create(-2000, -5000, 3000);
-    for (let i = 0; i < 8; i++) {
-      this.addEntity({ type: Types.Entity.Chest, respawnable: true, spawnZone: iceCenter, ...centerChestOpts });
-    }
-    const fireCenter = Circle.create(3500, 2000, 3000);
-    for (let i = 0; i < 8; i++) {
-      this.addEntity({ type: Types.Entity.Chest, respawnable: true, spawnZone: fireCenter, ...centerChestOpts });
+    this.applySpawnZones(Circle, map.spawnZones);
+    for (const biomeData of map.biomes) {
+      this.applySpawnZones(Circle, biomeData.spawnZones);
     }
 
     for (let i = 0; i < this.chestsCount; i++) {
@@ -108,6 +110,7 @@ class GameMap {
   update(dt) {
     for (const [id, entity] of this.game.entities) {
       if (entity.isStatic) continue;
+      if (entity.skipBorderCollision) continue;
       this.processBorderCollision(entity, dt);
     }
 
@@ -265,6 +268,13 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     switch (objectData.type) {
       case Types.Entity.MossyRock: ObjectClass = MossyRock; break;
       case Types.Entity.Pond: ObjectClass = Pond; break;
+      case Types.Entity.Cactus: ObjectClass = Cactus; break;
+      case Types.Entity.OasisLake: ObjectClass = OasisLake; break;
+      case Types.Entity.DeadBush: ObjectClass = DeadBush; break;
+      case Types.Entity.AmbientShrub: ObjectClass = AmbientShrub; break;
+      case Types.Entity.SandBlock: ObjectClass = SandBlock; break;
+      case Types.Entity.SandBall: ObjectClass = SandBall; break;
+      case Types.Entity.Sphinx: ObjectClass = SphinxMob; break;
       case Types.Entity.Bush: ObjectClass = Bush; break;
       case Types.Entity.House1: ObjectClass = House1; break;
       case Types.Entity.IceMound: ObjectClass = IceMound; break;
@@ -272,6 +282,7 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
       case Types.Entity.IceSpike: ObjectClass = IceSpike; break;
       case Types.Entity.Rock: ObjectClass = Rock; break;
       case Types.Entity.LavaRock: ObjectClass = LavaRock; break;
+      case Types.Entity.Ore: ObjectClass = Ore; break;
       case Types.Entity.LavaPool: ObjectClass = LavaPool; break;
       case Types.Entity.Chest: ObjectClass = Chest; break;
       case Types.Entity.Coin: ObjectClass = Coin; break;
@@ -298,6 +309,9 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     if (!ObjectClass) return console.warn('Unknown entity type: ', objectData);
 
     const entity = new ObjectClass(this.game, objectData);
+    if (entity.spawnFailed) {
+      return null;
+    }
     if (entity.isStatic) {
       this.staticObjects.push(entity);
     }
@@ -316,22 +330,34 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     let BiomeClass = Biome;
     switch (biomeData.type) {
       case Types.Biome.Safezone: BiomeClass = Safezone; break;
+      case Types.Biome.TutorialZone: BiomeClass = TutorialZone; break;
       case Types.Biome.River: BiomeClass = River; break;
       case Types.Biome.Earth: BiomeClass = EarthBiome; break;
       case Types.Biome.Fire: BiomeClass = FireBiome; break;
       case Types.Biome.Ice: BiomeClass = IceBiome; break;
     }
 
-    const biome = new BiomeClass(this.game, biomeData);
+    const biome = BiomeClass === Biome
+      ? new Biome(this.game, biomeData.type, biomeData)
+      : new BiomeClass(this.game, biomeData);
     this.biomes.push(biome);
     if (biome.type === Types.Biome.Safezone) {
       this.safezone = biome;
+    } else if (biome.type === Types.Biome.TutorialZone) {
+      this.tutorialSafezone = biome;
     }
     return biome;
   }
 
   spawnPlayer(player) {
-    this.safezone.shape.randomSpawnInside(player.shape);
+    const isTutorial = player && player.isFirstLife && !(player.client && player.client.tutorialCompleted);
+    const zone = isTutorial ? (this.tutorialSafezone || this.safezone) : this.safezone;
+    if (zone && zone.shape) {
+      zone.shape.randomSpawnInside(player.shape);
+      return;
+    }
+    player.shape.x = 0;
+    player.shape.y = 0;
   }
 
   findSafeSpawnNear(x, y, radius) {
@@ -437,33 +463,77 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
   }
 
   calculateMapBounds() {
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
-
-    for (const biome of this.biomes) {
-      const bounds = biome.shape.boundary;
-      if (minX > bounds.x) minX = bounds.x;
-      if (minY > bounds.y) minY = bounds.y;
-      if (maxX < bounds.x + bounds.width) maxX = bounds.x + bounds.width;
-      if (maxY < bounds.y + bounds.height) maxY = bounds.y + bounds.height;
+    if (map.worldWidth && map.worldHeight) {
+      this.width = map.worldWidth;
+      this.height = map.worldHeight;
+      this.x = -this.width / 2;
+      this.y = -this.height / 2;
+    } else {
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const biome of this.biomes) {
+        const bounds = biome.shape.boundary;
+        if (minX > bounds.x) minX = bounds.x;
+        if (minY > bounds.y) minY = bounds.y;
+        if (maxX < bounds.x + bounds.width) maxX = bounds.x + bounds.width;
+        if (maxY < bounds.y + bounds.height) maxY = bounds.y + bounds.height;
+      }
+      this.x = minX;
+      this.y = minY;
+      this.width = maxX - minX;
+      this.height = maxY - minY;
     }
 
-    this.x = minX;
-    this.y = minY;
-    this.width = maxX - minX;
-    this.height = maxY - minY;
+    config.world.worldWidth = this.width;
+    config.world.worldHeight = this.height;
 
-    if (this.width !== config.world.worldWidth) {
-      throw new Error(`Map width in config is ${config.world.worldWidth}, which differs from ${this.width} calculated from biome definitions`);
-    }
-    if (this.height !== config.world.worldHeight) {
-      throw new Error(`Map height in config is ${config.world.worldHeight}, which differs from ${this.height} calculated from biome definitions`);
-    }
     this.shape = Polygon.createFromRectangle(this.x, this.y, this.width, this.height);
     this.halfWidth = this.width / 2;
     this.halfHeight = this.height / 2;
+  }
+
+  computeBiomeContainment() {
+    for (const outer of this.biomes) {
+      outer.contains = [];
+    }
+    for (const outer of this.biomes) {
+      for (const inner of this.biomes) {
+        if (outer === inner) continue;
+        const c = inner.shape.center;
+        if (outer.shape.isPointInside(c.x, c.y)) {
+          outer.contains.push(inner);
+        }
+      }
+    }
+    for (const b of this.biomes) {
+      let depth = 0;
+      for (const other of this.biomes) {
+        if (other.contains.includes(b)) depth++;
+      }
+      b.nestingDepth = depth;
+      b.zIndex = (b.zIndex || 0) + depth * 10;
+    }
+  }
+
+  applySpawnZones(Circle, zones) {
+    if (!zones || !zones.length) return;
+    for (const zone of zones) {
+      if (!zone.type) continue;
+      const shape = zone.circle
+        ? Circle.create(zone.circle[0], zone.circle[1], zone.circle[2])
+        : this.shape;
+      const count = zone.count || 0;
+      const opts = {};
+      if (zone.maxRarity !== undefined) opts.maxRarity = zone.maxRarity;
+      if (zone.rarityWeights) opts.rarityWeights = zone.rarityWeights;
+      for (let i = 0; i < count; i++) {
+        this.addEntity({
+          type: zone.type,
+          respawnable: zone.respawnable !== false,
+          spawnZone: shape,
+          ...opts,
+        });
+      }
+    }
   }
 
   processBorderCollision(entity, dt) {
@@ -489,6 +559,7 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
       y: this.y,
       width: this.width,
       height: this.height,
+      scale: map.scale || 1,
       biomes: biomesData,
       staticObjects: this.staticObjects.map((obj) => obj.createState()),
     };

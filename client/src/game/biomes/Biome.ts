@@ -8,6 +8,34 @@ export type BiomeType = Biome | River;
 const containers: Phaser.GameObjects.TileSprite[] = [];
 const biomesCount = 12;
 
+export const riverFlowSpeed = 26;
+export const riverBottomSpeed = 7;
+export const riverShimmerSpeed = 13;
+
+const flowScratch = { x: 0, y: 0 };
+const bottomScratch = { x: 0, y: 0 };
+const shimmerScratch = { x: 0, y: 0 };
+const zeroDrift = { x: 0, y: 0 };
+
+export function riverFlowDrift(scene: Game): { x: number, y: number } {
+  const t = ((scene.game.loop && scene.game.loop.time) || 0) / 1000;
+  const d = t * riverFlowSpeed;
+  flowScratch.x = d; flowScratch.y = d;
+  return flowScratch;
+}
+export function riverBottomDrift(scene: Game): { x: number, y: number } {
+  const t = ((scene.game.loop && scene.game.loop.time) || 0) / 1000;
+  const d = t * riverBottomSpeed;
+  bottomScratch.x = d; bottomScratch.y = d;
+  return bottomScratch;
+}
+export function riverShimmerDrift(scene: Game): { x: number, y: number } {
+  const t = ((scene.game.loop && scene.game.loop.time) || 0) / 1000;
+  const d = t * riverShimmerSpeed;
+  shimmerScratch.x = d * 0.7; shimmerScratch.y = -d * 0.5;
+  return shimmerScratch;
+}
+
 class Biome {
   scene: Game;
   container: Phaser.GameObjects.TileSprite | null = null;
@@ -28,6 +56,38 @@ class Biome {
     };
   }
 
+  static simplifyRing(pts: any[], tol: number): any[] {
+    const n = pts.length;
+    if (n < 4) return pts;
+    const keep = new Array(n).fill(false);
+    keep[0] = true; keep[n - 1] = true;
+    const tol2 = tol * tol;
+    const stack: [number, number][] = [[0, n - 1]];
+    while (stack.length) {
+      const [s, e] = stack.pop()!;
+      const ax = pts[s].x, ay = pts[s].y, bx = pts[e].x, by = pts[e].y;
+      const dx = bx - ax, dy = by - ay;
+      const len2 = dx * dx + dy * dy;
+      let maxD = 0, idx = -1;
+      for (let i = s + 1; i < e; i++) {
+        const px = pts[i].x, py = pts[i].y;
+        let d2: number;
+        if (len2 === 0) { const ex = px - ax, ey = py - ay; d2 = ex * ex + ey * ey; }
+        else {
+          let t = ((px - ax) * dx + (py - ay) * dy) / len2;
+          t = t < 0 ? 0 : t > 1 ? 1 : t;
+          const ex = px - (ax + t * dx), ey = py - (ay + t * dy);
+          d2 = ex * ex + ey * ey;
+        }
+        if (d2 > maxD) { maxD = d2; idx = i; }
+      }
+      if (maxD > tol2 && idx !== -1) { keep[idx] = true; stack.push([s, idx]); stack.push([idx, e]); }
+    }
+    const out: any[] = [];
+    for (let i = 0; i < n; i++) if (keep[i]) out.push(pts[i]);
+    return out;
+  }
+
   static initialize(scene: Phaser.Scene) {
     for (let i = 0; i < biomesCount; i++) {
       containers.push(scene.add.tileSprite(0, 0, 0, 0, '').setVisible(false));
@@ -40,16 +100,47 @@ class Biome {
       case BiomeTypes.Fire: texture = 'fireTile'; break;
       case BiomeTypes.Earth: texture = 'earthTile'; break;
       case BiomeTypes.Ice: texture = 'iceTile'; break;
-      case BiomeTypes.River: texture = 'river'; break;
+      case BiomeTypes.River: texture = 'riverBottom'; break;
       case BiomeTypes.Safezone: texture = 'safezone'; break;
+      case BiomeTypes.TutorialZone: texture = 'tutorialTile'; break;
+      case BiomeTypes.Meadow: texture = 'meadowTile'; break;
+      case BiomeTypes.Savanna: texture = 'savannaTile'; break;
+      case BiomeTypes.Alpine: texture = 'alpineTile'; break;
+      case BiomeTypes.Dirt: texture = 'dirtTile'; break;
+      case BiomeTypes.Rocks: texture = 'rocksTile'; break;
+      case BiomeTypes.Desert: texture = 'desertTile'; break;
+      case BiomeTypes.Oasis: texture = 'oasisTile'; break;
     }
 
     this.maskGraphics = this.scene.make.graphics();
     this.maskGraphics.fillStyle(0xffffff);
-    this.shape.fillShape(this.maskGraphics);
+    const pts: any[] = (this.shape as any).points;
+    if (pts && pts.length > 10) {
+      const sp = Biome.simplifyRing(pts, 8);
+      const ox = this.shape.x, oy = this.shape.y;
+      const flat: number[] = [];
+      for (let i = 0; i < sp.length; i++) flat.push(ox + sp[i].x, oy + sp[i].y);
+      let tris: number[] | null = null;
+      try { tris = (Phaser.Geom.Polygon as any).Earcut(flat); } catch (e) { tris = null; }
+      if (tris && tris.length >= 3) {
+        for (let i = 0; i < tris.length; i += 3) {
+          const a = tris[i] * 2, b = tris[i + 1] * 2, c = tris[i + 2] * 2;
+          this.maskGraphics.fillTriangle(flat[a], flat[a + 1], flat[b], flat[b + 1], flat[c], flat[c + 1]);
+        }
+      } else {
+        this.maskGraphics.beginPath();
+        this.maskGraphics.moveTo(flat[0], flat[1]);
+        for (let i = 1; i < sp.length; i++) this.maskGraphics.lineTo(flat[i * 2], flat[i * 2 + 1]);
+        this.maskGraphics.closePath();
+        this.maskGraphics.fillPath();
+      }
+    } else {
+      this.shape.fillShape(this.maskGraphics);
+    }
     const mask = new Phaser.Display.Masks.GeometryMask(this.scene, this.maskGraphics);
 
-    this.container = containers.pop()!
+    const container = containers.pop() ?? this.scene.add.tileSprite(0, 0, 0, 0, '').setVisible(false);
+    this.container = container
       .setTexture(texture)
       .setOrigin(0.5)
       .setScrollFactor(0)
@@ -73,12 +164,17 @@ class Biome {
     this.container.setVisible(isInViewport);
 
     if (isInViewport) {
+      const drift = this.tileDrift();
       this.container.setDisplaySize(camera.displayWidth, camera.displayHeight);
       this.container.setTileScale(camera.zoom * this.tileScale);
       this.container.setTilePosition(
-        (camera.scrollX - camera.displayWidth / 2) / this.tileScale,
-        (camera.scrollY - camera.displayHeight / 2) / this.tileScale);
+        (camera.scrollX - camera.displayWidth / 2) / this.tileScale + drift.x,
+        (camera.scrollY - camera.displayHeight / 2) / this.tileScale + drift.y);
     }
+  }
+
+  protected tileDrift(): { x: number, y: number } {
+    return zeroDrift;
   }
 
   destroy() {

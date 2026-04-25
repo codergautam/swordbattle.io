@@ -1,8 +1,9 @@
 import { BaseEntity } from '../BaseEntity';
+import { TreeShake, shake } from '../../effects/TreeShake';
 
 class IceMound extends BaseEntity {
   static stateFields = [...BaseEntity.stateFields];
-  private isFaded = false;
+  private shake?: TreeShake;
 
   createSprite() {
     // If sprite already exists, don't create a duplicate
@@ -10,8 +11,12 @@ class IceMound extends BaseEntity {
       return this.container;
     }
 
-    this.container = this.game.add.sprite(this.shape.x, this.shape.y, 'iceMound');
-    this.container.scale = (this.shape.radius * 2 * 1.2) / this.container.width;
+    const body = this.game.add.sprite(0, 0, 'iceMound').setOrigin(0.5, 0.5);
+    body.setScale((this.shape.radius * 2 * 1.2) / body.width);
+    const shadow = this.createOutlineShadow('iceMound', 0.5, 0.5);
+    this.syncOutlineShadow(shadow, body);
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [shadow, body]);
+    this.shake = new TreeShake(this, body, shadow, shake.snow);
     return this.container;
   }
 
@@ -20,33 +25,12 @@ class IceMound extends BaseEntity {
     // Ice mounds are always visible (depth 0), no alpha modification needed
   }
 
+  updateRotation() {
+  }
+
   update(dt: number) {
     super.update(dt);
-
-    if (!this.container) return;
-
-    // Get the local player
-    const localPlayer = this.game.gameState.self.entity;
-    if (!localPlayer || !localPlayer.shape) return;
-
-    // Calculate distance between ice mound and player
-    const dx = this.shape.x - localPlayer.shape.x;
-    const dy = this.shape.y - localPlayer.shape.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    // Check if player is colliding with ice mound (under it)
-    const playerRadius = localPlayer.shape.radius || 0;
-    const iceMoundRadius = this.shape.radius || 0;
-    const isColliding = distance < (iceMoundRadius + playerRadius);
-
-    // Switch texture based on collision state
-    if (isColliding && !this.isFaded) {
-      this.container.setTexture('iceMoundFaded');
-      this.isFaded = true;
-    } else if (!isColliding && this.isFaded) {
-      this.container.setTexture('iceMound');
-      this.isFaded = false;
-    }
+    this.shake?.update(dt);
   }
 }
 

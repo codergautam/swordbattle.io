@@ -17,9 +17,17 @@ import IcePond from './mapObjects/IcePond';
 import IceSpike from './mapObjects/IceSpike';
 import LavaPool from './mapObjects/LavaPool';
 import LavaRock from './mapObjects/LavaRock';
+import Ore from './mapObjects/Ore';
 import MossyRock from './mapObjects/MossyRock';
 import Pond from './mapObjects/Pond';
 import Rock from './mapObjects/Rock';
+import Cactus from './mapObjects/Cactus';
+import OasisLake from './mapObjects/OasisLake';
+import DeadBush from './mapObjects/DeadBush';
+import AmbientShrub from './mapObjects/AmbientShrub';
+import SandBlock from './SandBlock';
+import SandBall from './SandBall';
+import SphinxMob from './mobs/Sphinx';
 import BunnyMob from './mobs/Bunny';
 import ChimeraMob from './mobs/Chimera';
 import MooseMob from './mobs/Moose';
@@ -39,6 +47,7 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.CaptureZone]: 0.5,
   [EntityTypes.Pond]: 1,
   [EntityTypes.LavaPool]: 2,
+  [EntityTypes.OasisLake]: 2,
   [EntityTypes.IcePond]: 3,
   [EntityTypes.IceSpike]: 4,
   [EntityTypes.Coin]: 5,
@@ -48,6 +57,7 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.Rock]: 10,
   [EntityTypes.LavaRock]: 10,
   [EntityTypes.MossyRock]: 10,
+  [EntityTypes.Ore]: 10,
 
   [EntityTypes.Wolf]: 11,
   [EntityTypes.Cat]: 11,
@@ -72,6 +82,13 @@ export const EntityDepth: Record<any, number> = {
 
   [EntityTypes.Bush]: 30,
   [EntityTypes.IceMound]: 30,
+  [EntityTypes.Cactus]: 30,
+  [EntityTypes.DeadBush]: 30,
+
+  [EntityTypes.AmbientShrub]: 4,
+  [EntityTypes.SandBlock]: 22,
+  [EntityTypes.SandBall]: 22,
+  [EntityTypes.Sphinx]: 23,
 
   [EntityTypes.Chimera]: 31,
 } as const;
@@ -106,11 +123,19 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.Rock: return Rock;
     case EntityTypes.Bush: return Bush;
     case EntityTypes.Pond: return Pond;
+    case EntityTypes.Cactus: return Cactus;
+    case EntityTypes.OasisLake: return OasisLake;
+    case EntityTypes.DeadBush: return DeadBush;
+    case EntityTypes.AmbientShrub: return AmbientShrub;
+    case EntityTypes.SandBlock: return SandBlock;
+    case EntityTypes.SandBall: return SandBall;
+    case EntityTypes.Sphinx: return SphinxMob;
     case EntityTypes.MossyRock: return MossyRock;
     case EntityTypes.IcePond: return IcePond;
     case EntityTypes.IceMound: return IceMound;
     case EntityTypes.IceSpike: return IceSpike;
     case EntityTypes.LavaRock: return LavaRock;
+    case EntityTypes.Ore: return Ore;
     case EntityTypes.LavaPool: return LavaPool;
     case EntityTypes.ThrownSword: return ThrownSword;
     case EntityTypes.CaptureZone: return CaptureZone;

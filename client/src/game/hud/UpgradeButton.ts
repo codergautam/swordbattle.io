@@ -146,6 +146,11 @@ class UpgradeButton extends HudComponent {
   }
 
   update() {
+    if (!this.container) return;
+    this.container.setVisible(false);
+  }
+
+  updateLegacy() {
     const player = this.game.gameState.self.entity;
     if (!player || !this.container) return;
 

@@ -5,7 +5,7 @@ module.exports = class Tank extends Evolution {
   static type = Types.Evolution.Tank;
   static level = 7;
   static abilityDuration = 6;
-  static abilityCooldown = 100;
+  static abilityCooldown = 150;
   static abilityScale = 1.5;
 
   applyAbilityEffects() {

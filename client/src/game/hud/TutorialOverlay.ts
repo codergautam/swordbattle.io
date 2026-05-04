@@ -183,16 +183,11 @@ class TutorialOverlay extends HudComponent {
         break;
       }
       case 1: {
-        if (!this.shownUpgradePanel) {
-          body = 'You\'ve spawned in the Safezone. Move left, past the water, to reach the Grass biome!\n\nCollect coins to get stronger! Coins spawn on the ground, but you can break nearby chests or hunt down mobs for WAY more!';
-        } else {
-          body = 'Keep collecting coins! Remember: bigger chests drop more coins, but take longer to break. Also be careful when fighting mobs, some fight back!\n\nAt 1,000 coins you\'ll be able to choose an Evolution!';
-        }
+        body = 'You\'ve spawned in the Safezone. Move left, past the water, to reach the Grass biome!\n\nCollect coins to get stronger! Coins spawn on the ground, but you can break nearby chests or hunt down mobs for WAY more!\n\nAt 1,000 coins you\'ll be able to choose an Evolution!';
         break;
       }
       case 2: {
-        body = 'You\'ve unlocked your first upgrade! Select 1 of the 3 cards to improve a stat and specialize your build.\n\nEvery 5th upgrade is a powerful Major upgrade with unique powers!';
-        this.progressText.setText('Choose an upgrade to proceed');
+        body = '';
         break;
       }
       case 3: {
@@ -201,12 +196,12 @@ class TutorialOverlay extends HudComponent {
         break;
       }
       case 4: {
-        body = 'Your shield is now fading! Other players can now duel you. Keep picking upgrades and creating a strong build!\n\nRemember to stay back from enemies if you don\'t want to fight!';
+        body = 'Your shield is now fading! Other players can now duel you. Keep fighting and growing stronger!\n\nRemember to stay back from enemies if you don\'t want to fight!';
         showNext = true;
         break;
       }
       case 5: {
-        body = 'Tutorial complete! Collect upgrades and try new evolutions to become the strongest. Survive as long as you can!\n\nHappy Battling!';
+        body = 'Tutorial complete! Try new evolutions to become the strongest. Survive as long as you can!\n\nHappy Battling!';
         isEnd = true;
         break;
       }
@@ -422,42 +417,8 @@ class TutorialOverlay extends HudComponent {
           this.panel = 3;
           this.showPanel(3);
         } else {
-          this.lastCardPickNumber = (player as any).cardPickNumber || 0;
-          this.panel = 2;
-          this.showPanel(2);
+          this.progressText.setText('Waiting for evolutions to unlock...');
         }
-      }
-
-      const choosingCard = (player as any).choosingCard;
-      if (choosingCard && !this.shownUpgradePanel) {
-        this.shownUpgradePanel = true;
-        this.lastCardPickNumber = ((player as any).cardPickNumber || 0) - 1;
-        this.panel = 2;
-        this.showPanel(2);
-      }
-    }
-
-    if (this.panel === 2) {
-      const possEvols = (player as any).possibleEvolutions;
-      if (possEvols && Object.keys(possEvols).length > 0) {
-        this.panel = 3;
-        this.showPanel(3);
-      } else {
-        const pickNum = (player as any).cardPickNumber || 0;
-        if (pickNum > this.lastCardPickNumber) {
-          this.lastCardPickNumber = pickNum;
-          this.shownUpgradePanel = true;
-          this.panel = 1;
-          this.showPanel(1);
-        }
-      }
-    }
-
-    if (this.panel === 1 && this.shownUpgradePanel) {
-      const possEvols = (player as any).possibleEvolutions;
-      if (possEvols && Object.keys(possEvols).length > 0) {
-        this.panel = 3;
-        this.showPanel(3);
       }
     }
 

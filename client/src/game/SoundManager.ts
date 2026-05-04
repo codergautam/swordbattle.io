@@ -12,7 +12,7 @@ class SoundManager {
     this.game = game;
     this.manager = {
       [FlagTypes.EnemyHit]: new Sound(FlagTypes.EnemyHit, [
-        'HitEnemy/EnemyHit4.wav', 'HitEnemy/EnemyHit5.wav', 'HitEnemy/EnemyHit6.wav',
+        'HitEnemy/EnemyHit7.wav' // 1-3 for old v2, 4-6 for new v2, 7 for v1
       ]),
       [FlagTypes.Damaged]: new Sound(FlagTypes.Damaged, [
         'TakeDamage/TakeDamage1.wav', 'TakeDamage/TakeDamage2.wav', 'TakeDamage/TakeDamage3.wav',

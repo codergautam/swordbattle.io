@@ -31,6 +31,7 @@ export class Health {
   entity: BaseEntity;
   bar: Phaser.GameObjects.Sprite;
   cooldownBar: Phaser.GameObjects.Sprite | null = null;
+  blockBar: Phaser.GameObjects.Sprite | null = null;
   options: HealthOptions;
   value: number;
   hidden = false;
@@ -46,12 +47,21 @@ export class Health {
   private smoothCooldownRatio = 1;
   private lastRawCooldown = 0;
 
+  private lastDrawnBlockRatio = -1;
+  private lastDrawnBlockWidth = -1;
+  private smoothBlockAlpha = 0;
+  private lastBlockEnergy = 1;
+  private blockSeenInUseTime = 0;
+
   private _barGraphics: Phaser.GameObjects.Graphics;
   private _cooldownGraphics: Phaser.GameObjects.Graphics | null = null;
+  private blockGraphics: Phaser.GameObjects.Graphics | null = null;
   private _barTextureKey: string;
   private _cooldownTextureKey: string;
+  private blockTextureKey: string;
   private _barBorderWidth: number = 0;
   private _cooldownBorderWidth: number = 0;
+  private blockBorderWidth: number = 0;
   private static readonly supersample = 2;
 
   constructor(entity: any, options: Partial<HealthOptions> = {}) {
@@ -65,6 +75,7 @@ export class Health {
     const uid = `${Date.now().toString(36)}_${(healthInstanceCounter++).toString(36)}`;
     this._barTextureKey = `hbar_${uid}`;
     this._cooldownTextureKey = `hcb_${uid}`;
+    this.blockTextureKey = `hblk_${uid}`;
 
     this._barGraphics = this.game.make.graphics({ x: 0, y: 0 }, false);
     this.bar = this.game.add.sprite(0, 0, '__DEFAULT').setOrigin(0, 0).setDepth(29).setVisible(false);
@@ -72,6 +83,9 @@ export class Health {
     if (this.options.isPlayer) {
       this._cooldownGraphics = this.game.make.graphics({ x: 0, y: 0 }, false);
       this.cooldownBar = this.game.add.sprite(0, 0, '__DEFAULT').setOrigin(0, 0).setDepth(29).setVisible(false);
+
+      this.blockGraphics = this.game.make.graphics({ x: 0, y: 0 }, false);
+      this.blockBar = this.game.add.sprite(0, 0, '__DEFAULT').setOrigin(0, 0).setDepth(29).setVisible(false);
     }
   }
 
@@ -86,6 +100,7 @@ export class Health {
     if (this.isInvisible()) {
       this.bar.setAlpha(0);
       if (this.cooldownBar) this.cooldownBar.setAlpha(0);
+      if (this.blockBar) this.blockBar.setAlpha(0);
       this.lastDrawnValue = -1;
       this.lastDrawnCooldownRatio = -1;
       return;
@@ -118,6 +133,7 @@ export class Health {
 
     if (this.hidden || this.internalHidden) {
       if (this.cooldownBar) this.cooldownBar.setAlpha(0);
+      if (this.blockBar) this.blockBar.setAlpha(0);
       this.bar.setPosition(barCenterX - this._barBorderWidth, barTopY - this._barBorderWidth);
       return;
     }
@@ -137,6 +153,7 @@ export class Health {
 
     if (this.options.isPlayer) {
       this.updateCooldownBar(dt, barCenterX, barTopY, width, height, scale);
+      this.updateBlockBar(dt, barCenterX, barTopY, width, height, scale);
     }
   }
 
@@ -279,13 +296,102 @@ export class Health {
     this.cooldownBar.setVisible(true);
   }
 
+  private updateBlockBar(dt: number, healthBarCenterX: number, healthBarTopY: number, healthWidth: number, healthHeight: number, scale: number) {
+    if (!this.blockBar || !this.blockGraphics) return;
+
+    const e = this.entity as any;
+    const energy: number = Math.max(0, Math.min(1, e.blockEnergy ?? 1));
+    const isBlocking: boolean = !!e.isBlocking;
+
+    const now = Date.now();
+    const energyChanged = Math.abs(energy - this.lastBlockEnergy) > 0.001;
+    if (isBlocking || energy < 0.999 || energyChanged) {
+      this.blockSeenInUseTime = now;
+    }
+    this.lastBlockEnergy = energy;
+
+    const idleFor = now - this.blockSeenInUseTime;
+    const wantVisible = isBlocking || energy < 0.999 || idleFor < 600;
+    const targetAlpha = wantVisible ? this.bar.alpha : 0;
+    const lerpSpeed = 1 - Math.exp(-dt / 200);
+    this.smoothBlockAlpha = Phaser.Math.Linear(this.smoothBlockAlpha, targetAlpha, lerpSpeed);
+
+    if (this.smoothBlockAlpha < 0.01) {
+      this.blockBar.setAlpha(0);
+      this.blockBar.setVisible(false);
+      return;
+    }
+    this.blockBar.setAlpha(this.smoothBlockAlpha);
+
+    const barWidth = healthWidth;
+    const barHeight = healthHeight * 0.5;
+    const cooldownGap = 4 * scale;
+    const blockGap = 4 * scale;
+
+    const barCenterX = healthBarCenterX;
+    const barTopY = healthBarTopY + healthHeight + cooldownGap + barHeight + blockGap;
+
+    const ratio = energy;
+    const roundedRatio = Math.round(ratio * 100) / 100;
+    const roundedBarWidth = Math.round(barWidth);
+    if (roundedRatio !== this.lastDrawnBlockRatio || roundedBarWidth !== this.lastDrawnBlockWidth) {
+      this.lastDrawnBlockRatio = roundedRatio;
+      this.lastDrawnBlockWidth = roundedBarWidth;
+
+      const fillColor = 0x33aaff;
+      const fillColorDark = 0x1f6dbf;
+      const borderWidth = Math.max(1.5, 2.5 * scale);
+      this.blockBorderWidth = borderWidth;
+
+      const totalW = barWidth + borderWidth * 2;
+      const totalH = barHeight + borderWidth * 2;
+
+      this.blockGraphics.clear();
+      this.blockGraphics.fillStyle(0x000000, 0.85);
+      this.blockGraphics.fillRoundedRect(0, 0, totalW, totalH, borderWidth * 1.5);
+      this.blockGraphics.fillStyle(0x16242f, 0.85);
+      this.blockGraphics.fillRoundedRect(borderWidth, borderWidth, barWidth, barHeight, borderWidth);
+
+      const fillWidth = barWidth * ratio;
+      if (fillWidth > 0) {
+        this.blockGraphics.fillStyle(fillColor, 1);
+        this.blockGraphics.fillRoundedRect(borderWidth, borderWidth, fillWidth, barHeight, borderWidth);
+        this.blockGraphics.fillStyle(0xffffff, 0.25);
+        this.blockGraphics.fillRoundedRect(borderWidth, borderWidth, fillWidth, barHeight * 0.4, borderWidth);
+        this.blockGraphics.fillStyle(fillColorDark, 0.4);
+        this.blockGraphics.fillRect(borderWidth, borderWidth + barHeight * 0.6, fillWidth, barHeight * 0.4);
+      }
+
+      const ss = Health.supersample;
+      const texW = Math.max(1, Math.ceil(totalW * ss));
+      const texH = Math.max(1, Math.ceil(totalH * ss));
+      if (this.game.textures.exists(this.blockTextureKey)) {
+        const src = this.game.textures.get(this.blockTextureKey).getSourceImage() as HTMLCanvasElement;
+        if (src && (src.width !== texW || src.height !== texH)) {
+          this.game.textures.remove(this.blockTextureKey);
+        }
+      }
+      this.blockGraphics.setScale(ss);
+      this.blockGraphics.generateTexture(this.blockTextureKey, texW, texH);
+      this.blockGraphics.setScale(1);
+      this.blockBar.setTexture(this.blockTextureKey);
+      this.blockBar.setDisplaySize(totalW, totalH);
+    }
+
+    this.blockBar.setPosition(barCenterX - this.blockBorderWidth, barTopY - this.blockBorderWidth);
+    this.blockBar.setVisible(true);
+  }
+
   destroy() {
     this.bar.destroy();
     if (this.cooldownBar) this.cooldownBar.destroy();
+    if (this.blockBar) this.blockBar.destroy();
     this._barGraphics.destroy();
     this._cooldownGraphics?.destroy();
+    this.blockGraphics?.destroy();
     if (this.game.textures.exists(this._barTextureKey)) this.game.textures.remove(this._barTextureKey);
     if (this.game.textures.exists(this._cooldownTextureKey)) this.game.textures.remove(this._cooldownTextureKey);
+    if (this.game.textures.exists(this.blockTextureKey)) this.game.textures.remove(this.blockTextureKey);
     this.entity.healthBar = undefined;
   }
 }

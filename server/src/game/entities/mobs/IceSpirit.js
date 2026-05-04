@@ -127,14 +127,19 @@ class IceSpiritMob extends Entity {
 
     const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
     if (this.target && entity.id === this.target.id) {
-      if (this.attackTimer.finished) {
-        entity.damaged(this.damage.value, this);
-        this.attackTimer.renew();
-      }
+      const willAttack = this.attackTimer.finished;
+      if (willAttack) this.attackTimer.renew();
 
       this.velocity.scale(-0.5);
-      entity.velocity.x += 75 * Math.cos(angle);
-      entity.velocity.y += 75 * Math.sin(angle);
+      const kbX = 75 * Math.cos(angle);
+      const kbY = 75 * Math.sin(angle);
+      if (typeof entity.applyMobHit === 'function') {
+        entity.applyMobHit(willAttack ? this.damage.value : 0, kbX, kbY, this.shape.x, this.shape.y, this);
+      } else {
+        entity.velocity.x += kbX;
+        entity.velocity.y += kbY;
+        if (willAttack) entity.damaged(this.damage.value, this);
+      }
 
       this.shape.applyCollision(mtv);
       entity.shape.applyCollision(mtv.clone().scale(-1));

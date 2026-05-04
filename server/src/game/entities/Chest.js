@@ -90,6 +90,13 @@ class Chest extends Entity {
     this.lastAttacker = sword.player;
     this.lastAttackTime = currentTime;
 
+    const evol = sword.player.evolutions && sword.player.evolutions.evolutionEffect;
+    if (evol && typeof evol.refundCooldownByKind === 'function') {
+      if (!sword.player.isInPvpCombat || !sword.player.isInPvpCombat()) {
+        evol.refundCooldownByKind('chest');
+      }
+    }
+
     if (this.health.isDead) {
       sword.player.flags.set(Types.Flags.ChestDestroy, true);
 

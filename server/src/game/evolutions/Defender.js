@@ -6,7 +6,7 @@ module.exports = class Defender extends Evolution {
   static level = 18;
   static previousEvol = Types.Evolution.Rook;
   static abilityDuration = 7;
-  static abilityCooldown = 120;
+  static abilityCooldown = 180;
   static abilityScale = 1.7;
 
   applyAbilityEffects() {

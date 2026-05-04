@@ -157,4 +157,8 @@ message Entity {
   bool isTutorial = 56;
   bool swordRaising = 57;
   bool swordDecreasing = 58;
+
+  // Sword block
+  bool isBlocking = 59;
+  float blockEnergy = 60;
 }

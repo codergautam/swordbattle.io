@@ -6,7 +6,7 @@ module.exports = class IceSpike extends Evolution {
   static level = 9999; // No winter evols now
   static previousEvol = Types.Evolution.Snowboarder;
   static abilityDuration = 5;
-  static abilityCooldown = 65;
+  static abilityCooldown = 98;
   static dashDistance = 300;
   static dashDuration = 0.15;
 

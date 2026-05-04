@@ -7,7 +7,7 @@ module.exports = class CandyWalker extends Evolution {
   static level = 9999; // No winter evols now
   static previousEvol = Types.Evolution.SnowWalker;
   static abilityDuration = 7.5;
-  static abilityCooldown = 75;
+  static abilityCooldown = 113;
 
   constructor(player) {
     super(player);

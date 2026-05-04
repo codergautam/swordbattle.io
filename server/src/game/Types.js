@@ -125,6 +125,7 @@ module.exports = {
     SelectUpgrade: 20,
     TutorialHitBlocked: 21,
     TutorialSaved: 22,
+    CooldownRefund: 23,
   },
   Effect: {
     Custom: 1,

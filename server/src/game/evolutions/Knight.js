@@ -5,7 +5,7 @@ module.exports = class Knight extends Evolution {
   static type = Types.Evolution.Knight;
   static level = 7;
   static abilityDuration = 5;
-  static abilityCooldown = 60;
+  static abilityCooldown = 90;
 
   applyAbilityEffects() {
     this.player.shape.setScale(1);

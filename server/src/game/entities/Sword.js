@@ -40,7 +40,7 @@ class Sword extends Entity {
     this.knockback = new Property(knockback, true);
     this.flySpeed = new Property(95);
     this.flyDuration = new Property(1.5);
-    this.flyCooldown = new Property(6);
+    this.flyCooldown = new Property(9.375); // 7.5 * 1.25 — throws are 25% slower to recharge
     this.playerSpeedBoost = new Property(1.15);
 
     this.swingTime = 0;
@@ -56,6 +56,9 @@ class Sword extends Entity {
     this.inputHeldTime = 0;
     this.swingBufferPenalty = 0;
 
+    this.lastSwingPressed = false;
+    this.swingRequested = false;
+
     this.focusTime = 350;
     this.focusDamageMultiplier = 1;
     this.lastSwordSwing = Date.now();
@@ -68,6 +71,19 @@ class Sword extends Entity {
 
   get angle() {
     return this.swingArc * this.swingProgress;
+  }
+
+  swingPhaseSpeeds() {
+    const baseDuration = 0.1;
+    const ratio = (this.swingDuration && this.swingDuration.value > 0)
+      ? this.swingDuration.value / baseDuration
+      : 1;
+    const t = Math.min(1, Math.max(0, (ratio - 1) / 2));
+    const raiseRatio = 0.5 - 0.28 * t;
+    return {
+      raiseSpeed: 0.5 / raiseRatio,
+      decreaseSpeed: 0.5 / (1 - raiseRatio),
+    };
   }
 
   _swordReduction(r) {
@@ -84,12 +100,7 @@ class Sword extends Entity {
   }
 
   _baseRadius() {
-    const r = this.player.shape.radius;
-    const evo = this.player.evolutions && this.player.evolutions.evolutionEffect;
-    if (evo && evo.isAbilityActive && evo.constructor.abilityScale) {
-      return r / evo.constructor.abilityScale;
-    }
-    return r;
+    return this.player.shape.radius;
   }
 
   get size() {
@@ -105,9 +116,10 @@ class Sword extends Entity {
   }
 
   canSwing() {
+    const wantsSwing = this.player.inputs.isInputDown(Types.Input.SwordSwing) || this.swingRequested;
     return !this.isFlying
-      && this.player.inputs.isInputDown(Types.Input.SwordSwing)
-      && (this.isAnimationFinished || this.decreaseAnimation)
+      && wantsSwing
+      && this.isAnimationFinished
       && this.player.modifiers.invisible == false
       && !this.player.modifiers.stunned
       && !(this.player.cards.choosingCard && this.player.cards.instantSelect);
@@ -232,7 +244,6 @@ class Sword extends Entity {
       }
     }
 
-    this.shape.setScale(player.shape.scale);
   }
 
   _instantHitCheck() {
@@ -340,6 +351,12 @@ class Sword extends Entity {
     }
 
     const swingPressed = this.player.inputs.isInputDown(Types.Input.SwordSwing);
+
+    if (swingPressed && !this.lastSwingPressed && !this.isAnimationFinished) {
+      this.swingRequested = true;
+    }
+    this.lastSwingPressed = swingPressed;
+
     if (swingPressed && (!this.isAnimationFinished || this.isFlying)) {
       this.inputHeldTime += dt;
     } else if (!swingPressed) {
@@ -349,14 +366,11 @@ class Sword extends Entity {
     if (this.canSwing()) {
       this.isFlying = false;
       this.flyTime = 0;
-      this.decreaseAnimation = false;
-      this.swingTime = 0;
-      this.swingProgress = 0;
-      this.collidedEntities.clear();
       this.raiseAnimation = true;
       this.isAnimationFinished = false;
       this.swingBufferPenalty = this.inputHeldTime;
       this.inputHeldTime = 0;
+      this.swingRequested = false;
       this.player.flags.set(Types.Flags.SwordSwing, true);
 
       this._instantHitCheck();
@@ -429,17 +443,19 @@ class Sword extends Entity {
       this.flyCooldownTime = 0;
     }
 
+    const { raiseSpeed, decreaseSpeed } = this.swingPhaseSpeeds();
+
     if (this.raiseAnimation) {
       this.isFlying = false;
       this.flyTime = 0;
-      this.swingTime += dt;
+      this.swingTime += dt * raiseSpeed;
       if (this.swingTime >= this.swingDuration.value) {
         this.swingTime = this.swingDuration.value;
         this.raiseAnimation = false;
       }
     }
     if (this.decreaseAnimation) {
-      this.swingTime -= dt;
+      this.swingTime -= dt * decreaseSpeed;
       if (this.swingTime <= 0) {
         this.swingTime = 0;
         this.decreaseAnimation = false;
@@ -616,12 +632,36 @@ processTargetsCollision(entity) {
       power *= this.player.cards.getKnockbackMultiplier(entity);
     }
 
+    if (this.isFlying) {
+      power *= 0.75;
+    }
+
+    let blockEffect = { applies: false, dmgMult: 1, kbMult: 1, reflectRatio: 0, breakBlock: false };
+    const isThrownAttack = this.isFlying;
+    if (entity.type === Types.Entity.Player && typeof entity.getBlockEffect === 'function') {
+      const fallbackDir = isThrownAttack ? (this.shape.angle - Math.PI / 2 + Math.PI) : null;
+      blockEffect = entity.getBlockEffect(
+        isThrownAttack ? 'playerThrown' : 'playerMelee',
+        this.player.shape.x,
+        this.player.shape.y,
+        fallbackDir,
+      );
+    }
+    if (blockEffect.applies && blockEffect.kbMult !== 1) {
+      power *= blockEffect.kbMult;
+    }
+
     const xComp = power * Math.cos(angle);
     const yComp = power * Math.sin(angle);
     // Boomerang (105)
     const knockbackDir = (this.boomerangReturning) ? 1 : -1;
     entity.velocity.x = knockbackDir * xComp;
     entity.velocity.y = knockbackDir * yComp;
+
+    if (blockEffect.applies && blockEffect.reflectRatio > 0 && this.player.velocity) {
+      this.player.velocity.x -= knockbackDir * xComp * blockEffect.reflectRatio;
+      this.player.velocity.y -= knockbackDir * yComp * blockEffect.reflectRatio;
+    }
 
     if (!respawnShielded && !coinShieldFullBlock && ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) ||
       (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation)))) {
@@ -670,6 +710,13 @@ processTargetsCollision(entity) {
           finalDamage *= respawnFadeMult;
         }
 
+        if (blockEffect.applies && blockEffect.dmgMult !== 1) {
+          finalDamage *= blockEffect.dmgMult;
+        }
+        if (blockEffect.applies && blockEffect.breakBlock && typeof entity.cancelBlock === 'function') {
+          entity.cancelBlock(true);
+        }
+
         if (this.player.modifiers.poisonDamage) {
           const immediate = finalDamage * 0.5;
           const poisonTotal = finalDamage * 0.5;
@@ -691,6 +738,20 @@ processTargetsCollision(entity) {
           }
         } else {
           entity.damaged(finalDamage, this.player, isThrown);
+        }
+
+        const evol = this.player.evolutions && this.player.evolutions.evolutionEffect;
+        if (evol && typeof evol.refundCooldownByKind === 'function') {
+          const isHumanPlayer = entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot;
+          const isBotOrMob = (entity.type === Types.Entity.Player && entity.isBot)
+            || Types.Groups.Mobs.includes(entity.type);
+          if (isHumanPlayer) {
+            evol.refundCooldownByKind(isThrown ? 'playerThrown' : 'playerMelee');
+          } else if (isBotOrMob) {
+            if (!this.player.isInPvpCombat || !this.player.isInPvpCombat()) {
+              evol.refundCooldownByKind('mob');
+            }
+          }
         }
     }
 
@@ -806,7 +867,7 @@ processTargetsCollision(entity) {
         angle: angle,
         speed: this.flySpeed.value,
         damage: this.damage.value * 0.7,
-        knockback: this.knockback.value * 0.6,
+        knockback: this.knockback.value * 0.45, // 0.6 * 0.75 — throws are 25% weaker on knockback
         duration: this.flyDuration.value,
         skin: this.skin,
         x: x,

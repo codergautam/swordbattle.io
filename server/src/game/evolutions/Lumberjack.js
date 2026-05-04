@@ -6,7 +6,7 @@ module.exports = class Lumberjack extends Evolution {
   static level = 18;
   static previousEvol = [Types.Evolution.Samurai, Types.Evolution.Rook];
   static abilityDuration = 4;
-  static abilityCooldown = 36;
+  static abilityCooldown = 54;
 
   applyAbilityEffects() {
     this.player.modifiers.chestPower = 3.5;

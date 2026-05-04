@@ -1,5 +1,5 @@
 import HudComponent from './HudComponent';
-import { InputTypes } from '../Types';
+import { InputTypes, FlagTypes } from '../Types';
 
 export default class MobileControls extends HudComponent {
   chatButton?: Phaser.GameObjects.Sprite;
@@ -7,6 +7,9 @@ export default class MobileControls extends HudComponent {
   abilityCooldown!: Phaser.GameObjects.Text;
   abilityButtonContainer!: Phaser.GameObjects.Container;
   swordThrowButton?: Phaser.GameObjects.Sprite;
+
+  private hadRefundLastTick = false;
+  private refundFloaters: Phaser.GameObjects.Text[] = [];
 
   initialize() {
     this.container = this.game.add.container(0, 0);
@@ -55,6 +58,49 @@ export default class MobileControls extends HudComponent {
     const text = isCooldown ? self.abilityCooldown.toFixed(1)
       : (isActivated ? self.abilityDuration.toFixed(1) : '');
     this.abilityCooldown.text = text;
+
+    const flags = (self as any).flags;
+    const refundCs = (flags && flags[FlagTypes.CooldownRefund]) || 0;
+    if (refundCs > 0 && !this.hadRefundLastTick) {
+      this.spawnRefundFloater(refundCs / 100);
+    }
+    this.hadRefundLastTick = refundCs > 0;
+  }
+
+  private spawnRefundFloater(seconds: number) {
+    const scene = this.hud.scene;
+    if (!scene || !this.abilityButtonContainer) return;
+    const label = `-${seconds < 1 ? seconds.toFixed(1) : seconds.toFixed(1)}s`;
+    const floater = scene.add.text(0, 0, label, {
+      fontSize: '22px',
+      fontFamily: 'Ubuntu, sans-serif',
+      fontStyle: 'bold',
+      color: '#7cf07c',
+      stroke: '#000000',
+      strokeThickness: 4,
+    }).setOrigin(0.5);
+
+    const btn = this.abilityButtonContainer;
+    const btnScale = btn.scaleX || 1;
+    const btnHalfH = (this.abilityButton.height * btnScale) / 2;
+    floater.setPosition(btn.x, btn.y + btnHalfH + 14);
+    floater.setDepth((btn.depth || 0) + 5);
+
+    (this.container as Phaser.GameObjects.Container)?.add(floater);
+    this.refundFloaters.push(floater);
+
+    scene.tweens.add({
+      targets: floater,
+      y: floater.y - 60,
+      alpha: { from: 1, to: 0 },
+      duration: 900,
+      ease: 'Sine.easeOut',
+      onComplete: () => {
+        const idx = this.refundFloaters.indexOf(floater);
+        if (idx >= 0) this.refundFloaters.splice(idx, 1);
+        floater.destroy();
+      },
+    });
   }
 
   setShow(show: boolean, force?: boolean): void {

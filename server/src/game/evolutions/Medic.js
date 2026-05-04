@@ -5,7 +5,7 @@ module.exports = class Medic extends Evolution {
   static type = Types.Evolution.Medic;
   static level = 9999; // Not in rotation
   static abilityDuration = 0.01; // Instant ability
-  static abilityCooldown = 70;
+  static abilityCooldown = 105;
 
   activateAbility() {
     super.activateAbility();

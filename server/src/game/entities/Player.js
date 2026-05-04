@@ -126,6 +126,156 @@ class Player extends Entity {
     this.teamDisadvantage = null;
 
     this.hypnotizedBy = null;
+
+    this.lastPvpHitTime = 0;
+
+    this.blockEnergy = 1;
+    this.isBlocking = false;
+    this.blockHoldTime = 0;
+    this.blockLockoutUntil = 0;
+    this.blockSpeedFactor = 1;
+  }
+
+  static blockHoldRequired = 0.35;
+  static blockDrainRate = 1 / 5;
+  static blockRegenRate = 1 / 5;
+  static blockLockoutAfterEmpty = 1.0;
+  static blockSpeedRamp = 0.25;
+  static blockSpeedFloor = 0.5;
+  static blockFrontCone = Math.PI / 2;
+
+  get blockPower() {
+    return 0.5 + 0.5 * Math.max(0, Math.min(1, this.blockEnergy));
+  }
+
+  isAttackInBlockArc(attackerX, attackerY, fallbackDir = null) {
+    if (typeof this.angle !== 'number') return false;
+    const dx = attackerX - this.shape.x;
+    const dy = attackerY - this.shape.y;
+    let attackerAngle;
+    if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+      if (fallbackDir == null) return false;
+      attackerAngle = fallbackDir;
+    } else {
+      attackerAngle = Math.atan2(dy, dx);
+    }
+    let diff = attackerAngle - this.angle;
+    while (diff > Math.PI) diff -= 2 * Math.PI;
+    while (diff < -Math.PI) diff += 2 * Math.PI;
+    return Math.abs(diff) <= Player.blockFrontCone;
+  }
+
+  getBlockEffect(sourceKind, attackerX, attackerY, fallbackDir = null) {
+    const empty = { applies: false, dmgMult: 1, kbMult: 1, reflectRatio: 0, breakBlock: false };
+    if (!this.isBlocking) return empty;
+    if (!this.isAttackInBlockArc(attackerX, attackerY, fallbackDir)) return empty;
+
+    const bp = this.blockPower;
+    const t = (bp - 0.5) / 0.5;
+
+    if (sourceKind === 'playerThrown') {
+      return { applies: true, dmgMult: 1, kbMult: 1, reflectRatio: 0, breakBlock: true };
+    }
+    if (sourceKind === 'playerMelee') {
+      return {
+        applies: true,
+        dmgMult: 1 - 0.75 * bp,
+        kbMult: 1 - 0.5 * bp,
+        reflectRatio: 0.25 + 0.25 * t,
+        breakBlock: false,
+      };
+    }
+    if (sourceKind === 'mob') {
+      const reduce = 0.25 + 0.25 * t;
+      return { applies: true, dmgMult: 1 - reduce, kbMult: 1 - reduce, reflectRatio: 0, breakBlock: false };
+    }
+    const reduce = 0.5 + 0.5 * t;
+    return { applies: true, dmgMult: 1 - reduce, kbMult: 1 - reduce, reflectRatio: 0, breakBlock: false };
+  }
+
+  applyMobHit(damage, kbX, kbY, attackerX, attackerY, attacker = null) {
+    let kbMult = 1;
+    let dmgMult = 1;
+    if (typeof this.getBlockEffect === 'function') {
+      const eff = this.getBlockEffect('mob', attackerX, attackerY);
+      if (eff.applies) {
+        kbMult = eff.kbMult;
+        dmgMult = eff.dmgMult;
+      }
+    }
+    if (this.velocity) {
+      this.velocity.x += kbX * kbMult;
+      this.velocity.y += kbY * kbMult;
+    }
+    if (damage > 0) {
+      this.damaged(damage * dmgMult, attacker || this);
+    }
+  }
+
+  cancelBlock(zeroEnergy = false) {
+    if (!this.isBlocking && !zeroEnergy) return;
+    this.isBlocking = false;
+    this.blockHoldTime = 0;
+    if (zeroEnergy) {
+      this.blockEnergy = 0;
+      this.blockLockoutUntil = Date.now() + Player.blockLockoutAfterEmpty * 1000;
+    }
+  }
+
+  updateBlock(dt) {
+    const sword = this.sword;
+    const swingPressed = this.inputs.isInputDown(Types.Input.SwordSwing);
+    const swordAtPeak = sword
+      && !sword.isAnimationFinished
+      && !sword.raiseAnimation
+      && !sword.decreaseAnimation
+      && !sword.isFlying;
+
+    const stunned = this.modifiers && (this.modifiers.stunned || this.modifiers.invisible);
+    const inLockout = Date.now() < this.blockLockoutUntil;
+    const canEngage = swingPressed && swordAtPeak && !stunned && !inLockout && this.blockEnergy > 0;
+
+    if (this.isBlocking) {
+      if (!swingPressed || !swordAtPeak || stunned) {
+        this.isBlocking = false;
+        this.blockHoldTime = 0;
+      } else {
+        this.blockEnergy -= dt * Player.blockDrainRate;
+        if (this.blockEnergy <= 0) {
+          this.blockEnergy = 0;
+          this.isBlocking = false;
+          this.blockHoldTime = 0;
+          this.blockLockoutUntil = Date.now() + Player.blockLockoutAfterEmpty * 1000;
+        }
+      }
+    } else if (canEngage) {
+      this.blockHoldTime += dt;
+      if (this.blockHoldTime >= Player.blockHoldRequired) {
+        this.isBlocking = true;
+        this.blockHoldTime = 0;
+      }
+    } else {
+      this.blockHoldTime = 0;
+    }
+
+    if (!this.isBlocking && !inLockout && this.blockEnergy < 1) {
+      this.blockEnergy = Math.min(1, this.blockEnergy + dt * Player.blockRegenRate);
+    }
+
+    const target = this.isBlocking ? Player.blockSpeedFloor : 1;
+    const step = dt / Player.blockSpeedRamp;
+    if (this.blockSpeedFactor < target) {
+      this.blockSpeedFactor = Math.min(target, this.blockSpeedFactor + (1 - Player.blockSpeedFloor) * step);
+    } else if (this.blockSpeedFactor > target) {
+      this.blockSpeedFactor = Math.max(target, this.blockSpeedFactor - (1 - Player.blockSpeedFloor) * step);
+    }
+    if (this.blockSpeedFactor !== 1 && this.speed && this.speed.multiplier !== undefined) {
+      this.speed.multiplier *= this.blockSpeedFactor;
+    }
+  }
+
+  isInPvpCombat() {
+    return Date.now() - (this.lastPvpHitTime || 0) < 6000;
   }
 
   get playtime() {
@@ -188,6 +338,8 @@ class Player extends Entity {
     state.swordBoomerangReturning = this.sword.boomerangReturning;
     state.wideSwing = this.wideSwing;
     state.coinShield = this.coinShield;
+    state.isBlocking = this.isBlocking;
+    state.blockEnergy = this.blockEnergy;
     if (this.removed && this.client) {
       state.disconnectReasonMessage = this.client.disconnectReason.message;
       state.disconnectReasonType = this.client.disconnectReason.type;
@@ -273,6 +425,8 @@ class Player extends Entity {
     if (!this.cards.choosingCard || !this.cards.instantSelect) {
       this.health.update(dt);
     }
+
+    this.updateBlock(dt);
     this.applyInputs(dt);
     this.sword.flySpeed.value = clamp(this.speed.value / 10, 100, 200);
     this.sword.update(dt);
@@ -538,11 +692,21 @@ class Player extends Entity {
           entity.combatLog.set(this.id, { damageDealt: 0, damageReceived: 0 });
         }
         entity.combatLog.get(this.id).damageDealt += damage;
+
+        const now = Date.now();
+        this.lastPvpHitTime = now;
+        entity.lastPvpHitTime = now;
       }
     }
 
     if (this.name !== "Update Testing Account") {
-      this.health.damaged(damage);
+      let source = 'map';
+      if (entity && entity.type === Types.Entity.Player) {
+        source = isThrown ? 'throw' : 'melee';
+      } else if (entity && Types.Groups.Mobs.includes(entity.type)) {
+        source = 'mob';
+      }
+      this.health.damaged(damage, { source });
     }
 
     if (this.cards.isTutorial && this.health.isDead) {
@@ -762,6 +926,8 @@ class Player extends Entity {
     this.coinMultiplier = 1;
     this.damageReduction = 1;
     this.chestDamageMultiplier = 1;
+
+    this.blockSpeedFactor = this.isBlocking ? Player.blockSpeedFloor : 1;
   }
 }
 

@@ -5,7 +5,7 @@ module.exports = class Colossal extends Evolution {
   static type = Types.Evolution.Colossal;
   static level = 9999; // Not in rotation
   static abilityDuration = 7;
-  static abilityCooldown = 70;
+  static abilityCooldown = 105;
 
   applyAbilityEffects() {
     this.player.sword.knockback.multiplier['ability'] = 3;

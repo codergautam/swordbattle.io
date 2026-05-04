@@ -6,7 +6,7 @@ module.exports = class Butcher extends Evolution {
   static level = 24;
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
   static abilityDuration = 7;
-  static abilityCooldown = 50;
+  static abilityCooldown = 75;
   
   applyAbilityEffects() {
     this.player.health.max.multiplier *= 1.75;

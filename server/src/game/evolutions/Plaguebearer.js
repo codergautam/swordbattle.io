@@ -6,7 +6,7 @@ module.exports = class Plaguebearer extends Evolution {
   static level = 1000; // Plaguebearer not in rotation
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
   static abilityDuration = 6;
-  static abilityCooldown = 90;
+  static abilityCooldown = 135;
   static poisonRadius = 2000;
   static poisonDPS = 10;
 

@@ -6,7 +6,7 @@ module.exports = class Rook extends Evolution {
   static level = 12;
   static previousEvol = Types.Evolution.Tank;
   static abilityDuration = 0.6;
-  static abilityCooldown = 8;
+  static abilityCooldown = 12;
 
   constructor(player) {
     super(player);

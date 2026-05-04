@@ -1421,6 +1421,8 @@ export interface Entity {
   isTutorial?: boolean;
   swordRaising?: boolean;
   swordDecreasing?: boolean;
+  isBlocking?: boolean;
+  blockEnergy?: number;
   cardOffers?: number[];
   chosenCards?: number[];
   choosingCard?: boolean;
@@ -1888,6 +1890,20 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
     writeVarint32(bb, 464);
     writeByte(bb, $swordDecreasing ? 1 : 0);
   }
+
+  // optional bool isBlocking = 59;
+  let $isBlocking = message.isBlocking;
+  if ($isBlocking !== undefined) {
+    writeVarint32(bb, 472);
+    writeByte(bb, $isBlocking ? 1 : 0);
+  }
+
+  // optional float blockEnergy = 60;
+  let $blockEnergy = message.blockEnergy;
+  if ($blockEnergy !== undefined) {
+    writeVarint32(bb, 485);
+    writeFloat(bb, $blockEnergy);
+  }
 }
 
 export function decodeEntity(binary: Uint8Array): Entity {
@@ -2354,6 +2370,18 @@ function _decodeEntity(bb: ByteBuffer): Entity {
       // optional bool swordDecreasing = 58;
       case 58: {
         message.swordDecreasing = !!readByte(bb);
+        break;
+      }
+
+      // optional bool isBlocking = 59;
+      case 59: {
+        message.isBlocking = !!readByte(bb);
+        break;
+      }
+
+      // optional float blockEnergy = 60;
+      case 60: {
+        message.blockEnergy = readFloat(bb);
         break;
       }
 

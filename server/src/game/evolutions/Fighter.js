@@ -7,7 +7,7 @@ module.exports = class Fighter extends Evolution {
   static level = 18;
   static previousEvol = Types.Evolution.Berserker;
   static abilityDuration = 5;
-  static abilityCooldown = 20;
+  static abilityCooldown = 30;
 
   constructor(player) {
     super(player);

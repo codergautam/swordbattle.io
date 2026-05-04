@@ -64,6 +64,7 @@ class Player extends BaseEntity {
     'isAbilityAvailable', 'abilityActive', 'abilityDuration', 'abilityCooldown',
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordSwingArc', 'swordFlying', 'swordFlyingCooldown', 'swordBoomerangReturning',
     'swordRaising', 'swordDecreasing',
+    'isBlocking', 'blockEnergy',
     'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing', 'coinShield',
     'cardOffers', 'chosenCards', 'choosingCard', 'cardTimer', 'cardPickNumber', 'availableUpgrades',
     'rerollsAvailable', 'pendingPicks', 'skipResults', 'isTutorial',
@@ -94,6 +95,14 @@ class Player extends BaseEntity {
   swordShadow!: Phaser.GameObjects.Sprite;
   bodyContainer!: Phaser.GameObjects.Container;
   swordContainer!: Phaser.GameObjects.Container;
+  blockBodyOutlines: Phaser.GameObjects.Sprite[] = [];
+  blockSwordOutlines: Phaser.GameObjects.Sprite[] = [];
+  private blockVisualPhase = 0;
+  static outlineOffsets: ReadonlyArray<readonly [number, number]> = [
+    [-6, 0], [6, 0], [0, -6], [0, 6],
+    [-5, -5], [5, -5], [-5, 5], [5, 5],
+  ];
+  static outlineTint = 0x33e0ff;
   evolutionOverlay!: Phaser.GameObjects.Sprite;
   evolutionOverlayShadow!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
@@ -170,7 +179,25 @@ class Player extends BaseEntity {
     const swordShadowKey = this.createShadowTexture('playerSword');
     this.swordShadow = this.game.add.sprite(0, 0, swordShadowKey).setRotation(Math.PI / 4);
     this.swordShadow.setAlpha(0.085);
-    this.swordContainer = this.game.add.container(0, 0, [this.sword]);
+
+    this.blockBodyOutlines = Player.outlineOffsets.map(([ox, oy]) => {
+      const s = this.game.add.sprite(ox, oy, 'playerBody').setRotation(-Math.PI / 2);
+      s.setTintFill(Player.outlineTint);
+      s.setAlpha(0);
+      return s;
+    });
+    if (this.skin === 459) this.blockBodyOutlines.forEach(s => s.setScale(1.25));
+
+    const swordX = this.body.width / 2;
+    const swordY = this.body.height / 2;
+    this.blockSwordOutlines = Player.outlineOffsets.map(([ox, oy]) => {
+      const s = this.game.add.sprite(swordX + ox, swordY + oy, 'playerSword').setRotation(Math.PI / 4);
+      s.setTintFill(Player.outlineTint);
+      s.setAlpha(0);
+      return s;
+    });
+
+    this.swordContainer = this.game.add.container(0, 0, [...this.blockSwordOutlines, this.sword]);
 
     this.protectionAura = this.game.add.graphics();
     const auraRadius = Math.max(this.body.width, this.body.height) * 0.75;
@@ -237,7 +264,7 @@ class Player extends BaseEntity {
     this.cardSummaryContainer = this.game.add.container(0, -this.body.height / 2 - 130, [this.cardSummaryBg]);
     this.cardSummaryContainer.setAlpha(0);
 
-    this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.swordContainer, this.body, this.evolutionOverlay]);
+    this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, ...this.blockBodyOutlines, this.swordContainer, this.body, this.evolutionOverlay]);
 
     const submergedRadius = this.body.width * 0.6;
     this.submergedShadow = this.game.add.graphics();
@@ -810,9 +837,17 @@ class Player extends BaseEntity {
   }
 
   interpolate(dt: number) {
+    const baseDuration = 0.1;
+    const overall = this.swordSwingDuration > 0 ? this.swordSwingDuration : baseDuration;
+    const ratio = overall / baseDuration;
+    const t = Math.min(1, Math.max(0, (ratio - 1) / 2));
+    const raiseRatio = 0.5 - 0.28 * t;
+    const raiseSpeed = 0.5 / raiseRatio;
+    const decreaseSpeed = 0.5 / (1 - raiseRatio);
+
     const swordLerpDt = dt / (this.swordSwingDuration * 1000);
     if (this.swordRaiseStarted) {
-      this.swordLerpProgress += swordLerpDt;
+      this.swordLerpProgress += swordLerpDt * raiseSpeed;
       if (this.swordLerpProgress >= 1) {
         this.swordLerpProgress = 1;
         this.swordRaiseStarted = false;
@@ -823,7 +858,7 @@ class Player extends BaseEntity {
         }
       }
     } else if (this.swordDecreaseStarted) {
-      this.swordLerpProgress -= swordLerpDt;
+      this.swordLerpProgress -= swordLerpDt * decreaseSpeed;
       if (this.swordLerpProgress <= 0) {
         this.swordLerpProgress = 0;
         if (this.isMe && this.swordDecreaseStarted) {
@@ -1247,14 +1282,22 @@ class Player extends BaseEntity {
     if (targetSwordScale !== this._lastSwordScale) {
       this.sword.setScale(targetSwordScale);
       if (this.swordShadow) this.swordShadow.setScale(targetSwordScale);
+      for (const s of this.blockSwordOutlines) s.setScale(targetSwordScale);
       this._lastSwordScale = targetSwordScale;
     }
     if (targetLocalPullback !== this._lastSwordLocalPullback) {
       this.sword.setPosition(baseX - targetLocalPullback, baseY - targetLocalPullback);
+      const swordPosX = baseX - targetLocalPullback;
+      const swordPosY = baseY - targetLocalPullback;
+      for (let i = 0; i < this.blockSwordOutlines.length; i++) {
+        const [ox, oy] = Player.outlineOffsets[i];
+        this.blockSwordOutlines[i].setPosition(swordPosX + ox, swordPosY + oy);
+      }
       this._lastSwordLocalPullback = targetLocalPullback;
     }
 
     this.interpolate(dt);
+    this.updateBlockGlow(dt);
 
     if (this.abilityActive) {
       if (this.evolution) {
@@ -1279,6 +1322,31 @@ class Player extends BaseEntity {
     }
     if (this.isMe) {
       this.updatePrediction();
+    }
+  }
+
+  updateBlockGlow(dt: number) {
+    const isBlocking = !!(this as any).isBlocking;
+    const energy = Math.max(0, Math.min(1, (this as any).blockEnergy ?? 0));
+    const target = isBlocking ? 1 : 0;
+    const ramp = dt / 250;
+    if (this.blockVisualPhase < target) {
+      this.blockVisualPhase = Math.min(target, this.blockVisualPhase + ramp);
+    } else if (this.blockVisualPhase > target) {
+      this.blockVisualPhase = Math.max(target, this.blockVisualPhase - ramp);
+    }
+
+    const alpha = this.blockVisualPhase <= 0.001
+      ? 0
+      : (0.25 + 0.75 * energy) * this.blockVisualPhase;
+
+    for (const s of this.blockBodyOutlines) {
+      if (s.alpha !== alpha) s.setAlpha(alpha);
+    }
+    const swordVisible = !this.swordFlying;
+    for (const s of this.blockSwordOutlines) {
+      if (s.alpha !== alpha) s.setAlpha(alpha);
+      if (s.visible !== swordVisible) s.setVisible(swordVisible);
     }
   }
 

@@ -7,7 +7,7 @@ module.exports = class Vampire extends Evolution {
   static previousEvol = Types.Evolution.Knight;
   // static level = 1;
   static abilityDuration = 6;
-  static abilityCooldown = 85;
+  static abilityCooldown = 128;
 
   applyAbilityEffects() {
     this.player.shape.setScale(0.925);

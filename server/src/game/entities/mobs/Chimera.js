@@ -215,21 +215,40 @@ class Chimera extends Entity {
   applyVelocityKnockback(entity, mult = 1) {
     const vx = this.velocity.x, vy = this.velocity.y;
     const speed = Math.sqrt(vx * vx + vy * vy);
-    if (speed <= 0.001) return;
+    if (speed <= 0.001) return { x: 0, y: 0 };
 
     const force = (2 + speed) * 0.2 * mult;
-
-    entity.velocity.x += (vx / speed) * force / (entity.knockbackResistance.value || 1);
-    entity.velocity.y += (vy / speed) * force / (entity.knockbackResistance.value || 1);
+    const resist = (entity.knockbackResistance.value || 1);
+    const kbX = (vx / speed) * force / resist;
+    const kbY = (vy / speed) * force / resist;
+    entity.velocity.x += kbX;
+    entity.velocity.y += kbY;
+    return { x: kbX, y: kbY };
   }
 
   processTargetsCollision(entity) {
     if (entity.type === Types.Entity.Player) {
       if (this.aiState === 'charge' && this.canBeHitByPlayer && !this.hasDealtChargeDamage) {
-        entity.damaged(this.damage.value * 4, this);
-
+        const dmg = this.damage.value * 4;
         if (this.altitude <= this.lowAltitude) {
-          this.applyVelocityKnockback(entity, 5 * 4);
+          const vx = this.velocity.x, vy = this.velocity.y;
+          const speed = Math.sqrt(vx * vx + vy * vy);
+          if (speed > 0.001 && typeof entity.applyMobHit === 'function') {
+            const force = (2 + speed) * 0.2 * (5 * 4);
+            const resist = (entity.knockbackResistance.value || 1);
+            const kbX = (vx / speed) * force / resist;
+            const kbY = (vy / speed) * force / resist;
+            entity.applyMobHit(dmg, kbX, kbY, this.shape.x, this.shape.y, this);
+          } else {
+            entity.damaged(dmg, this);
+            this.applyVelocityKnockback(entity, 5 * 4);
+          }
+        } else {
+          if (typeof entity.applyMobHit === 'function') {
+            entity.applyMobHit(dmg, 0, 0, this.shape.x, this.shape.y, this);
+          } else {
+            entity.damaged(dmg, this);
+          }
         }
 
         this.hasDealtChargeDamage = true;

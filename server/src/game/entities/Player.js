@@ -180,7 +180,7 @@ class Player extends Entity {
       return {
         applies: true,
         dmgMult: 1 - 0.75 * bp,
-        kbMult: 1 - 0.5 * bp,
+        kbMult: 1,
         reflectRatio: 0.25 + 0.25 * t,
         breakBlock: false,
       };

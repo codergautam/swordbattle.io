@@ -654,9 +654,6 @@ processTargetsCollision(entity) {
         fallbackDir,
       );
     }
-    if (blockEffect.applies && blockEffect.kbMult !== 1) {
-      power *= blockEffect.kbMult;
-    }
 
     const xComp = power * Math.cos(angle);
     const yComp = power * Math.sin(angle);

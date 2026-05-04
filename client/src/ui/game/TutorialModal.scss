@@ -34,7 +34,7 @@
   border-radius: 10px;
   padding: 14px 24px 10px;
   color: rgb(231, 231, 231);
-  font-family: 'Franklin Gothic Medium', Arial, sans-serif;
+  font-family: 'Rajdhani', sans-serif;
 }
 
 .tutorial-close {
@@ -75,7 +75,7 @@
 
 .tutorial-title {
   font-size: 23px;
-  font-weight: bold;
+  font-weight: 700;
   letter-spacing: 1px;
   margin-bottom: 6px;
   text-align: center;
@@ -94,7 +94,7 @@
 
 .tutorial-heading {
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 700;
   color: #5bc0ff;
   margin-bottom: 6px !important;
 }
@@ -111,13 +111,13 @@
   text-align: center;
 }
 
-.hl-yellow  { color: #ffdd44; font-weight: bold; }
-.hl-gold    { color: #ffc107; font-weight: bold; }
-.hl-red     { color: #ff5555; font-weight: bold; }
-.hl-green   { color: #55dd55; font-weight: bold; }
-.hl-blue    { color: #55aaff; font-weight: bold; }
-.hl-cyan    { color: #44dddd; font-weight: bold; }
-.hl-purple  { color: #cc77ff; font-weight: bold; }
+.hl-yellow  { color: #ffdd44; font-weight: 700; }
+.hl-gold    { color: #ffc107; font-weight: 700; }
+.hl-red     { color: #ff5555; font-weight: 700; }
+.hl-green   { color: #55dd55; font-weight: 700; }
+.hl-blue    { color: #55aaff; font-weight: 700; }
+.hl-cyan    { color: #44dddd; font-weight: 700; }
+.hl-purple  { color: #cc77ff; font-weight: 700; }
 
 .tutorial-image {
   display: block;

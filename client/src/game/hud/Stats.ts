@@ -8,6 +8,7 @@ class Stats extends HudComponent {
   fpsSprite: any;
   tpsSprite: any;
   pingSprite: any;
+  blockHintSprite: any;
   initialize() {
     if (this.game.isMobile) return;
     const { indent } = this;
@@ -22,15 +23,19 @@ class Stats extends HudComponent {
     this.fpsSprite = this.game.add.text(0, indent * 1, '', style);
     this.tpsSprite = this.game.add.text(0, indent * 2, '', style);
     this.pingSprite = this.game.add.text(0, indent * 3, '', style);
+    this.blockHintSprite = this.game.add.text(0, indent * 4, 'Hold attack to block', {
+      ...style,
+      color: '#33aaff',
+    });
 
-    this.container = this.game.add.container(0, 0, [this.playersSprite, this.fpsSprite, this.tpsSprite, this.pingSprite]);
+    this.container = this.game.add.container(0, 0, [this.playersSprite, this.fpsSprite, this.tpsSprite, this.pingSprite, this.blockHintSprite]);
     this.hud.add(this.container);
   }
 
   resize() {
     if (!this.container) return;
     this.container.x = 10;
-  this.container.y = this.game.scale.height - (this.indent * 4.7) * this.scale;
+  this.container.y = this.game.scale.height - (this.indent * 5.7) * this.scale;
   }
 
   update() {

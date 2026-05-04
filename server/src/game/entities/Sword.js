@@ -59,6 +59,8 @@ class Sword extends Entity {
     this.lastSwingPressed = false;
     this.swingRequested = false;
 
+    this.swingLockedUntilRelease = false;
+
     this.focusTime = 350;
     this.focusDamageMultiplier = 1;
     this.lastSwordSwing = Date.now();
@@ -116,6 +118,7 @@ class Sword extends Entity {
   }
 
   canSwing() {
+    if (this.swingLockedUntilRelease) return false;
     const wantsSwing = this.player.inputs.isInputDown(Types.Input.SwordSwing) || this.swingRequested;
     return !this.isFlying
       && wantsSwing
@@ -356,6 +359,10 @@ class Sword extends Entity {
       this.swingRequested = true;
     }
     this.lastSwingPressed = swingPressed;
+
+    if (this.swingLockedUntilRelease && !swingPressed) {
+      this.swingLockedUntilRelease = false;
+    }
 
     if (swingPressed && (!this.isAnimationFinished || this.isFlying)) {
       this.inputHeldTime += dt;

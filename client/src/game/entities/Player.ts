@@ -315,6 +315,7 @@ class Player extends BaseEntity {
           this.shadow.setTexture(this.createShadowTexture(skinBase+'Body'));
           this.sword.setTexture(skinBase+'Sword');
           this.swordShadow.setTexture(this.createShadowTexture(skinBase+'Sword'));
+          this.applyOutlineSkin(skinBase+'Body', skinBase+'Sword');
         }).catch(() => {
           console.log('failed to load skin', this.skin);
         });
@@ -324,6 +325,7 @@ class Player extends BaseEntity {
           this.shadow.setTexture(this.createShadowTexture(this.skinName+'Body'));
           this.sword.setTexture(this.skinName+'Sword');
           this.swordShadow.setTexture(this.createShadowTexture(this.skinName+'Sword'));
+          this.applyOutlineSkin(this.skinName+'Body', this.skinName+'Sword');
         }).catch(() => {
           console.log('failed to load skin', this.skin);
         });
@@ -340,6 +342,17 @@ class Player extends BaseEntity {
     this.hypnotizeSwirlSprite.setAlpha(0);
 
     return this.container;
+  }
+
+  applyOutlineSkin(bodyTextureKey: string, swordTextureKey: string) {
+    for (const s of this.blockBodyOutlines) {
+      s.setTexture(bodyTextureKey);
+      s.setTintFill(Player.outlineTint);
+    }
+    for (const s of this.blockSwordOutlines) {
+      s.setTexture(swordTextureKey);
+      s.setTintFill(Player.outlineTint);
+    }
   }
 
   skinLoaded(id: number) {

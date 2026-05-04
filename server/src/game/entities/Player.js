@@ -214,11 +214,31 @@ class Player extends Entity {
 
   cancelBlock(zeroEnergy = false) {
     if (!this.isBlocking && !zeroEnergy) return;
+    if (zeroEnergy) {
+      this.endBlockWithLockout();
+    } else {
+      this.isBlocking = false;
+      this.blockHoldTime = 0;
+    }
+  }
+
+  endBlockWithLockout() {
     this.isBlocking = false;
     this.blockHoldTime = 0;
-    if (zeroEnergy) {
-      this.blockEnergy = 0;
-      this.blockLockoutUntil = Date.now() + Player.blockLockoutAfterEmpty * 1000;
+    this.blockEnergy = 0;
+    this.blockLockoutUntil = Date.now() + Player.blockLockoutAfterEmpty * 1000;
+    if (this.sword) {
+      this.sword.raiseAnimation = false;
+      this.sword.decreaseAnimation = false;
+      this.sword.isAnimationFinished = true;
+      this.sword.swingTime = 0;
+      this.sword.swingProgress = 0;
+      if (this.sword.collidedEntities && typeof this.sword.collidedEntities.clear === 'function') {
+        this.sword.collidedEntities.clear();
+      }
+      this.sword.doubleHitActive = false;
+      this.sword.swingRequested = false;
+      this.sword.swingLockedUntilRelease = true;
     }
   }
 
@@ -237,15 +257,14 @@ class Player extends Entity {
 
     if (this.isBlocking) {
       if (!swingPressed || !swordAtPeak || stunned) {
+        // Voluntary or interrupted exit (input released, sword left peak,
+        // got stunned). No lockout, no swing-end punishment.
         this.isBlocking = false;
         this.blockHoldTime = 0;
       } else {
         this.blockEnergy -= dt * Player.blockDrainRate;
         if (this.blockEnergy <= 0) {
-          this.blockEnergy = 0;
-          this.isBlocking = false;
-          this.blockHoldTime = 0;
-          this.blockLockoutUntil = Date.now() + Player.blockLockoutAfterEmpty * 1000;
+          this.endBlockWithLockout();
         }
       }
     } else if (canEngage) {

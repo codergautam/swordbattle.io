@@ -64,7 +64,7 @@ class Player extends BaseEntity {
     'isAbilityAvailable', 'abilityActive', 'abilityDuration', 'abilityCooldown',
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordSwingArc', 'swordFlying', 'swordFlyingCooldown', 'swordBoomerangReturning',
     'swordRaising', 'swordDecreasing',
-    'isBlocking', 'blockEnergy',
+    'isBlocking', 'blockEnergy', 'parriedRemaining',
     'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing', 'coinShield',
     'cardOffers', 'chosenCards', 'choosingCard', 'cardTimer', 'cardPickNumber', 'availableUpgrades',
     'rerollsAvailable', 'pendingPicks', 'skipResults', 'isTutorial',
@@ -98,11 +98,17 @@ class Player extends BaseEntity {
   blockBodyOutlines: Phaser.GameObjects.Sprite[] = [];
   blockSwordOutlines: Phaser.GameObjects.Sprite[] = [];
   private blockVisualPhase = 0;
+  private blockEngagedAtLocal = 0;
+  private currentOutlineTint = 0x33e0ff;
   static outlineOffsets: ReadonlyArray<readonly [number, number]> = [
     [-6, 0], [6, 0], [0, -6], [0, 6],
     [-5, -5], [5, -5], [-5, 5], [5, 5],
   ];
+  static outlineTintParry = 0x33e0ff;
+  static outlineTintBlock = 0x4070ff;
+  static blockParryWindowMs = 750;
   static outlineTint = 0x33e0ff;
+  private blockTintLerp = 0;
   evolutionOverlay!: Phaser.GameObjects.Sprite;
   evolutionOverlayShadow!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
@@ -850,17 +856,13 @@ class Player extends BaseEntity {
   }
 
   interpolate(dt: number) {
-    const baseDuration = 0.1;
-    const overall = this.swordSwingDuration > 0 ? this.swordSwingDuration : baseDuration;
-    const ratio = overall / baseDuration;
-    const t = Math.min(1, Math.max(0, (ratio - 1) / 2));
-    const raiseRatio = 0.5 - 0.28 * t;
-    const raiseSpeed = 0.5 / raiseRatio;
-    const decreaseSpeed = 0.5 / (1 - raiseRatio);
-
+    // Visual swing animation is intentionally symmetric (50/50). The
+    // server still uses the asymmetric raise/decrease pacing for hit
+    // detection and timing, but the client renders the sword movement
+    // with a clean even tempo so it doesn't feel abrupt.
     const swordLerpDt = dt / (this.swordSwingDuration * 1000);
     if (this.swordRaiseStarted) {
-      this.swordLerpProgress += swordLerpDt * raiseSpeed;
+      this.swordLerpProgress += swordLerpDt;
       if (this.swordLerpProgress >= 1) {
         this.swordLerpProgress = 1;
         this.swordRaiseStarted = false;
@@ -871,7 +873,7 @@ class Player extends BaseEntity {
         }
       }
     } else if (this.swordDecreaseStarted) {
-      this.swordLerpProgress -= swordLerpDt * decreaseSpeed;
+      this.swordLerpProgress -= swordLerpDt;
       if (this.swordLerpProgress <= 0) {
         this.swordLerpProgress = 0;
         if (this.isMe && this.swordDecreaseStarted) {
@@ -1341,6 +1343,18 @@ class Player extends BaseEntity {
   updateBlockGlow(dt: number) {
     const isBlocking = !!(this as any).isBlocking;
     const energy = Math.max(0, Math.min(1, (this as any).blockEnergy ?? 0));
+
+    // Detect the false -> true transition locally so we know when this
+    // player's parry window started. Server sends parriedRemaining for the
+    // PARRIED status (which lives on the attacker), but every blocker
+    // needs their own parry-window timer for the outline color.
+    const now = Date.now();
+    if (isBlocking && this.blockEngagedAtLocal === 0) {
+      this.blockEngagedAtLocal = now;
+    } else if (!isBlocking && this.blockEngagedAtLocal !== 0) {
+      this.blockEngagedAtLocal = 0;
+    }
+
     const target = isBlocking ? 1 : 0;
     const ramp = dt / 250;
     if (this.blockVisualPhase < target) {
@@ -1352,6 +1366,31 @@ class Player extends BaseEntity {
     const alpha = this.blockVisualPhase <= 0.001
       ? 0
       : (0.25 + 0.75 * energy) * this.blockVisualPhase;
+
+    // Smoothly lerp the outline color from cyan (parry window) to a normal
+    // lighter blue (post-parry). Transition takes ~250ms so the moment the
+    // parry window expires you see the color drift, not a hard cut.
+    const inParryWindow = isBlocking
+      && this.blockEngagedAtLocal !== 0
+      && (now - this.blockEngagedAtLocal) < Player.blockParryWindowMs;
+    const targetLerp = inParryWindow ? 0 : 1;
+    const lerpStep = dt / 250;
+    if (this.blockTintLerp < targetLerp) {
+      this.blockTintLerp = Math.min(targetLerp, this.blockTintLerp + lerpStep);
+    } else if (this.blockTintLerp > targetLerp) {
+      this.blockTintLerp = Math.max(targetLerp, this.blockTintLerp - lerpStep);
+    }
+    const cP = Player.outlineTintParry;
+    const cB = Player.outlineTintBlock;
+    const r = Math.round(((cP >> 16) & 0xff) + (((cB >> 16) & 0xff) - ((cP >> 16) & 0xff)) * this.blockTintLerp);
+    const g = Math.round(((cP >> 8) & 0xff) + (((cB >> 8) & 0xff) - ((cP >> 8) & 0xff)) * this.blockTintLerp);
+    const b = Math.round((cP & 0xff) + ((cB & 0xff) - (cP & 0xff)) * this.blockTintLerp);
+    const desiredTint = (r << 16) | (g << 8) | b;
+    if (desiredTint !== this.currentOutlineTint) {
+      this.currentOutlineTint = desiredTint;
+      for (const s of this.blockBodyOutlines) s.setTintFill(desiredTint);
+      for (const s of this.blockSwordOutlines) s.setTintFill(desiredTint);
+    }
 
     for (const s of this.blockBodyOutlines) {
       if (s.alpha !== alpha) s.setAlpha(alpha);

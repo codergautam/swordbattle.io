@@ -161,4 +161,5 @@ message Entity {
   // Sword block
   bool isBlocking = 59;
   float blockEnergy = 60;
+  float parriedRemaining = 61;
 }

@@ -134,15 +134,20 @@ class Player extends Entity {
     this.blockHoldTime = 0;
     this.blockLockoutUntil = 0;
     this.blockSpeedFactor = 1;
+    this.blockEngagedAt = 0;
+    this.parriedUntil = 0;
   }
 
-  static blockHoldRequired = 0.35;
+  static blockHoldRequired = 0.25;
   static blockDrainRate = 1 / 5;
   static blockRegenRate = 1 / 5;
   static blockLockoutAfterEmpty = 1.0;
-  static blockSpeedRamp = 0.25;
-  static blockSpeedFloor = 0.5;
+  static blockSpeedRampEngage = 0.25;
+  static blockSpeedRampRelease = 0.25;
+  static blockSpeedFloor = 0.75;
   static blockFrontCone = Math.PI / 2;
+  static blockParryWindow = 0.75;
+  static blockParryStun = 0.5;
 
   get blockPower() {
     return 0.5 + 0.5 * Math.max(0, Math.min(1, this.blockEnergy));
@@ -165,32 +170,55 @@ class Player extends Entity {
     return Math.abs(diff) <= Player.blockFrontCone;
   }
 
+  isInParryWindow() {
+    if (!this.isBlocking) return false;
+    if (!this.blockEngagedAt) return false;
+    return (Date.now() - this.blockEngagedAt) < Player.blockParryWindow * 1000;
+  }
+
   getBlockEffect(sourceKind, attackerX, attackerY, fallbackDir = null) {
-    const empty = { applies: false, dmgMult: 1, kbMult: 1, reflectRatio: 0, breakBlock: false };
+    const empty = { applies: false, dmgMult: 1, kbMult: 1, reflectRatio: 0, damageReflect: 0, stunAttacker: 0, breakBlock: false, parry: false };
     if (!this.isBlocking) return empty;
     if (!this.isAttackInBlockArc(attackerX, attackerY, fallbackDir)) return empty;
+
+    if (sourceKind === 'playerThrown') {
+      return { applies: true, dmgMult: 1, kbMult: 1, reflectRatio: 0, damageReflect: 0, stunAttacker: 0, breakBlock: true, parry: false };
+    }
+
+    if (this.isInParryWindow()) {
+      return {
+        applies: true,
+        dmgMult: 0,
+        kbMult: 0,
+        reflectRatio: 1,
+        damageReflect: 1,
+        stunAttacker: Player.blockParryStun,
+        breakBlock: false,
+        parry: true,
+      };
+    }
 
     const bp = this.blockPower;
     const t = (bp - 0.5) / 0.5;
 
-    if (sourceKind === 'playerThrown') {
-      return { applies: true, dmgMult: 1, kbMult: 1, reflectRatio: 0, breakBlock: true };
-    }
     if (sourceKind === 'playerMelee') {
       return {
         applies: true,
         dmgMult: 1 - 0.75 * bp,
         kbMult: 1,
         reflectRatio: 0.25 + 0.25 * t,
+        damageReflect: 0,
+        stunAttacker: 0,
         breakBlock: false,
+        parry: false,
       };
     }
     if (sourceKind === 'mob') {
       const reduce = 0.25 + 0.25 * t;
-      return { applies: true, dmgMult: 1 - reduce, kbMult: 1 - reduce, reflectRatio: 0, breakBlock: false };
+      return { applies: true, dmgMult: 1 - reduce, kbMult: 1 - reduce, reflectRatio: 0, damageReflect: 0, stunAttacker: 0, breakBlock: false, parry: false };
     }
     const reduce = 0.5 + 0.5 * t;
-    return { applies: true, dmgMult: 1 - reduce, kbMult: 1 - reduce, reflectRatio: 0, breakBlock: false };
+    return { applies: true, dmgMult: 1 - reduce, kbMult: 1 - reduce, reflectRatio: 0, damageReflect: 0, stunAttacker: 0, breakBlock: false, parry: false };
   }
 
   applyMobHit(damage, kbX, kbY, attackerX, attackerY, attacker = null) {
@@ -222,23 +250,42 @@ class Player extends Entity {
     }
   }
 
-  endBlockWithLockout() {
+  consumeBlockOnParry() {
     this.isBlocking = false;
     this.blockHoldTime = 0;
     this.blockEnergy = 0;
-    this.blockLockoutUntil = Date.now() + Player.blockLockoutAfterEmpty * 1000;
+    this.blockEngagedAt = 0;
     if (this.sword) {
       this.sword.raiseAnimation = false;
-      this.sword.decreaseAnimation = false;
-      this.sword.isAnimationFinished = true;
-      this.sword.swingTime = 0;
-      this.sword.swingProgress = 0;
-      if (this.sword.collidedEntities && typeof this.sword.collidedEntities.clear === 'function') {
-        this.sword.collidedEntities.clear();
+      this.sword.decreaseAnimation = true;
+      this.sword.isAnimationFinished = false;
+      if (!this.sword.swingTime || this.sword.swingTime <= 0) {
+        this.sword.swingTime = this.sword.swingDuration.value;
       }
       this.sword.doubleHitActive = false;
       this.sword.swingRequested = false;
       this.sword.swingLockedUntilRelease = true;
+      this.sword.fastDecrease = true;
+    }
+  }
+
+  endBlockWithLockout() {
+    this.isBlocking = false;
+    this.blockHoldTime = 0;
+    this.blockEnergy = 0;
+    this.blockEngagedAt = 0;
+    this.blockLockoutUntil = Date.now() + Player.blockLockoutAfterEmpty * 1000;
+    if (this.sword) {
+      this.sword.raiseAnimation = false;
+      this.sword.decreaseAnimation = true;
+      this.sword.isAnimationFinished = false;
+      if (!this.sword.swingTime || this.sword.swingTime <= 0) {
+        this.sword.swingTime = this.sword.swingDuration.value;
+      }
+      this.sword.doubleHitActive = false;
+      this.sword.swingRequested = false;
+      this.sword.swingLockedUntilRelease = true;
+      this.sword.fastDecrease = true;
     }
   }
 
@@ -257,10 +304,10 @@ class Player extends Entity {
 
     if (this.isBlocking) {
       if (!swingPressed || !swordAtPeak || stunned) {
-        // Voluntary or interrupted exit (input released, sword left peak,
-        // got stunned). No lockout, no swing-end punishment.
         this.isBlocking = false;
         this.blockHoldTime = 0;
+        this.blockEngagedAt = 0;
+        if (this.sword) this.sword.fastDecrease = true;
       } else {
         this.blockEnergy -= dt * Player.blockDrainRate;
         if (this.blockEnergy <= 0) {
@@ -272,6 +319,7 @@ class Player extends Entity {
       if (this.blockHoldTime >= Player.blockHoldRequired) {
         this.isBlocking = true;
         this.blockHoldTime = 0;
+        this.blockEngagedAt = Date.now();
       }
     } else {
       this.blockHoldTime = 0;
@@ -282,11 +330,13 @@ class Player extends Entity {
     }
 
     const target = this.isBlocking ? Player.blockSpeedFloor : 1;
-    const step = dt / Player.blockSpeedRamp;
-    if (this.blockSpeedFactor < target) {
-      this.blockSpeedFactor = Math.min(target, this.blockSpeedFactor + (1 - Player.blockSpeedFloor) * step);
-    } else if (this.blockSpeedFactor > target) {
-      this.blockSpeedFactor = Math.max(target, this.blockSpeedFactor - (1 - Player.blockSpeedFloor) * step);
+    const range = 1 - Player.blockSpeedFloor;
+    if (this.blockSpeedFactor > target) {
+      const step = dt / Player.blockSpeedRampEngage;
+      this.blockSpeedFactor = Math.max(target, this.blockSpeedFactor - range * step);
+    } else if (this.blockSpeedFactor < target) {
+      const step = dt / Player.blockSpeedRampRelease;
+      this.blockSpeedFactor = Math.min(target, this.blockSpeedFactor + range * step);
     }
     if (this.blockSpeedFactor !== 1 && this.speed && this.speed.multiplier !== undefined) {
       this.speed.multiplier *= this.blockSpeedFactor;
@@ -359,6 +409,7 @@ class Player extends Entity {
     state.coinShield = this.coinShield;
     state.isBlocking = this.isBlocking;
     state.blockEnergy = this.blockEnergy;
+    state.parriedRemaining = Math.max(0, (this.parriedUntil - Date.now()) / 1000);
     if (this.removed && this.client) {
       state.disconnectReasonMessage = this.client.disconnectReason.message;
       state.disconnectReasonType = this.client.disconnectReason.type;

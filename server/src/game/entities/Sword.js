@@ -61,6 +61,8 @@ class Sword extends Entity {
 
     this.swingLockedUntilRelease = false;
 
+    this.fastDecrease = false;
+
     this.focusTime = 350;
     this.focusDamageMultiplier = 1;
     this.lastSwordSwing = Date.now();
@@ -462,13 +464,15 @@ class Sword extends Entity {
       }
     }
     if (this.decreaseAnimation) {
-      this.swingTime -= dt * decreaseSpeed;
+      const effectiveDecreaseSpeed = this.fastDecrease ? 1 : decreaseSpeed;
+      this.swingTime -= dt * effectiveDecreaseSpeed;
       if (this.swingTime <= 0) {
         this.swingTime = 0;
         this.decreaseAnimation = false;
         this.collidedEntities.clear();
         this.isAnimationFinished = true;
         this.doubleHitActive = false;
+        this.fastDecrease = false;
       }
     }
 
@@ -665,6 +669,33 @@ processTargetsCollision(entity) {
     if (blockEffect.applies && blockEffect.reflectRatio > 0 && this.player.velocity) {
       this.player.velocity.x -= knockbackDir * xComp * blockEffect.reflectRatio;
       this.player.velocity.y -= knockbackDir * yComp * blockEffect.reflectRatio;
+    }
+
+    if (blockEffect.applies && blockEffect.parry) {
+      const parryDuration = blockEffect.stunAttacker || 0.5;
+      try {
+        if (typeof this.player.addEffect === 'function') {
+          this.player.addEffect(Types.Effect.Stun, `parry_${Date.now()}_${Math.random()}`, { duration: parryDuration });
+        }
+      } catch (e) {}
+      this.player.parriedUntil = Date.now() + parryDuration * 1000;
+
+      let reflectedDamage = this.damage.value;
+      if (this.player.cards) {
+        reflectedDamage *= this.player.cards.getDamageDealtMultiplier(entity);
+      }
+      reflectedDamage *= (blockEffect.damageReflect || 1);
+      try { this.player.damaged(reflectedDamage, entity, false); } catch (e) {}
+
+      if (typeof entity.consumeBlockOnParry === 'function') {
+        entity.consumeBlockOnParry();
+      } else {
+        entity.cancelBlock(true);
+      }
+
+      this.collidedEntities.add(entity);
+      this.player.flags.set(Types.Flags.EnemyHit, entity.id);
+      return;
     }
 
     if (!respawnShielded && !coinShieldFullBlock && ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) ||

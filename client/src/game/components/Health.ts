@@ -43,6 +43,7 @@ export class Health {
   private lastDrawnCooldownRatio = -1;
   private lastDrawnCooldownWidth = -1;
   private lastDrawnCooldownReady = false;
+  private lastDrawnCooldownParried = false;
   private cooldownMax = 0;
   private smoothCooldownRatio = 1;
   private lastRawCooldown = 0;
@@ -230,6 +231,7 @@ export class Health {
     if (this.smoothCooldownRatio > 0.995) this.smoothCooldownRatio = 1;
 
     const isReady = rawCooldown <= 0;
+    const isParried = (e.parriedRemaining || 0) > 0;
     const ratio = this.smoothCooldownRatio;
 
     const barWidth = healthWidth;
@@ -243,13 +245,14 @@ export class Health {
 
     const roundedRatio = Math.round(ratio * 100) / 100;
     const roundedBarWidth = Math.round(barWidth);
-    if (roundedRatio !== this.lastDrawnCooldownRatio || roundedBarWidth !== this.lastDrawnCooldownWidth || isReady !== this.lastDrawnCooldownReady) {
+    if (roundedRatio !== this.lastDrawnCooldownRatio || roundedBarWidth !== this.lastDrawnCooldownWidth || isReady !== this.lastDrawnCooldownReady || isParried !== this.lastDrawnCooldownParried) {
       this.lastDrawnCooldownRatio = roundedRatio;
       this.lastDrawnCooldownWidth = roundedBarWidth;
       this.lastDrawnCooldownReady = isReady;
+      this.lastDrawnCooldownParried = isParried;
 
-      const fillColor = isReady ? 0xffdd00 : 0xcc4422;
-      const fillColorDark = isReady ? 0xbb9900 : 0x882211;
+      const fillColor = isParried ? 0x808080 : (isReady ? 0xffdd00 : 0xcc4422);
+      const fillColorDark = isParried ? 0x4a4a4a : (isReady ? 0xbb9900 : 0x882211);
       const borderWidth = Math.max(1.5, 2.5 * scale);
       this._cooldownBorderWidth = borderWidth;
 

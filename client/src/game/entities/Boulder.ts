@@ -1,22 +1,20 @@
 import { BaseEntity } from './BaseEntity';
 
 class Boulder extends BaseEntity {
-  static stateFields = [...BaseEntity.stateFields, 'angle'];
+  static stateFields = [...BaseEntity.stateFields, 'angle', 'skin'];
   static baseAngle = -Math.PI / 2;
-
-  static shadowOffsetX = 20;
-  static shadowOffsetY = 20;
 
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
 
   createSprite() {
-    this.body = this.game.add.sprite(0, 0, 'boulder');
-    this.shadow = this.game.add.sprite(Boulder.shadowOffsetX, Boulder.shadowOffsetY, 'boulderShadow');
-    this.shadow.setAlpha(0.175);
+    const bodyKey = this.skin === 2 && this.game.textures.exists('boulderDirt')
+      ? 'boulderDirt' : 'boulder';
+    this.body = this.game.add.sprite(0, 0, bodyKey);
     const scale = (this.shape.radius * 2.75) / this.body.width;
     this.body.setScale(scale);
-    this.shadow.setScale(scale);
+    this.shadow = this.createOutlineShadow(bodyKey, 0.5, 0.5);
+    this.syncOutlineShadow(this.shadow, this.body);
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);
     return this.container;
   }

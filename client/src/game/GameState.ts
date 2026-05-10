@@ -37,6 +37,7 @@ class GameState {
   }
   name = '';
   tps = 0;
+  realPlayersCnt = 0;
   ping = 0;
   pingStart = 0;
   debugMode = false;
@@ -56,6 +57,7 @@ class GameState {
   failedSkinLoads: Record<number, boolean> = {};
   recentDeadPlayers: Record<number, { name: string, time: number }> = {};
   chainDamagedTimestamps: Record<number, number> = {};
+  private _chainTimestampPruneAccum: number = 0;
 
   private _boundOnOpen: () => void;
   private _boundOnMessage: (data: any) => void;
@@ -338,6 +340,9 @@ class GameState {
     if (data.tps) {
       this.tps = data.tps;
     }
+    if (typeof data.realPlayersCnt === 'number') {
+      this.realPlayersCnt = data.realPlayersCnt;
+    }
 
     if (data.fullSync) {
       Object.values(this.entities).forEach(entity => entity.remove());
@@ -452,8 +457,8 @@ class GameState {
 
   updateTick(dt: number) {
     this.tickAccumulator += dt;
-    if (this.tickAccumulator > 200) {
-      this.tickAccumulator = 50;
+    if (this.tickAccumulator > 150) {
+      this.tickAccumulator = 150;
     }
     while (this.tickAccumulator >= 50) {
       this.tick();
@@ -499,6 +504,53 @@ class GameState {
     }
     this.gameMap.update();
     this.spectator.update(dt);
+
+    const camera = this.game.cameras.main;
+    const view = camera.worldView;
+    if (view.width > 0 && view.height > 0) {
+      const vx = view.x;
+      const vy = view.y;
+      const vxMax = view.x + view.width;
+      const vyMax = view.y + view.height;
+      for (const id in this.entities) {
+        const entity = this.entities[id];
+        const c = entity.container;
+        if (!c || c.__ownVisibility || c.__noCull) continue;
+        let halfW = 0;
+        let halfH = 0;
+        const shape = entity.shape;
+        if (shape) {
+          if (shape.radius) {
+            halfW = shape.radius;
+            halfH = shape.radius;
+          }
+          if (shape.polygonBounds) {
+            const pb = shape.polygonBounds;
+            if (pb.width / 2 > halfW) halfW = pb.width / 2;
+            if (pb.height / 2 > halfH) halfH = pb.height / 2;
+          }
+        }
+        if (typeof entity.size === 'number') {
+          if (entity.size > halfW) halfW = entity.size;
+          if (entity.size > halfH) halfH = entity.size;
+        }
+        const padX = Math.max(500, halfW * 2);
+        const padY = Math.max(500, halfH * 2);
+        const inView = (c.x + padX) > vx && (c.x - padX) < vxMax
+                    && (c.y + padY) > vy && (c.y - padY) < vyMax;
+        if (inView !== c.visible) c.visible = inView;
+      }
+    }
+
+    this._chainTimestampPruneAccum += dt;
+    if (this._chainTimestampPruneAccum > 5000) {
+      this._chainTimestampPruneAccum = 0;
+      const cutoff = Date.now() - 2000;
+      const cache = this.chainDamagedTimestamps;
+      for (const id in cache) {
+        if (cache[id] < cutoff) delete cache[id];
+      }
+    }
   }
 
   updateLeaderboard() {

@@ -22,11 +22,11 @@ class Chimera extends Entity {
     // this.tokensDrop = 100;
 
     this.jumpTimer = new Timer(0, 4, 5);
-    this.angryTimer = new Timer(0, 15, 20);
+    this.angryTimer = new Timer(0, 4, 7);
 
-    this.health = new Health(60, 5);
+    this.health = new Health(35, 3);
     this.speed = new Property(7);
-    this.damage = new Property(3);
+    this.damage = new Property(2);
 
     this.target = null;
     this.targets.add(Types.Entity.Player);
@@ -42,8 +42,8 @@ class Chimera extends Entity {
     this.turnDirection = 1;
 
     this.normalSpeed = this.speed.value * 8;
-    this.maxChargeSpeed = this.speed.value * 13.0;
-    this.chargeAccel = 2200;
+    this.maxChargeSpeed = this.speed.value * 5.5;
+    this.chargeAccel = 800;
 
     this.climbRate = 350;
     this.diveRate = 450;
@@ -55,7 +55,7 @@ class Chimera extends Entity {
     this.hasDealtChargeDamage = false;
     this.chargeSpeed = 0;
 
-    this.knockbackResistance = new Property(99999999999999999);
+    this.knockbackResistance = new Property(8);
 
     this.spawn();
   }
@@ -138,7 +138,7 @@ class Chimera extends Entity {
 
     if (diff < 0.25) {
       this.aiState = 'charge';
-      this.chargeSpeed = this.speed.value * 4.4;
+      this.chargeSpeed = this.speed.value * 2.0;
       this.hasDealtChargeDamage = false;
     }
   }
@@ -215,21 +215,40 @@ class Chimera extends Entity {
   applyVelocityKnockback(entity, mult = 1) {
     const vx = this.velocity.x, vy = this.velocity.y;
     const speed = Math.sqrt(vx * vx + vy * vy);
-    if (speed <= 0.001) return;
+    if (speed <= 0.001) return { x: 0, y: 0 };
 
     const force = (2 + speed) * 0.2 * mult;
-
-    entity.velocity.x += (vx / speed) * force / (entity.knockbackResistance.value || 1);
-    entity.velocity.y += (vy / speed) * force / (entity.knockbackResistance.value || 1);
+    const resist = (entity.knockbackResistance.value || 1);
+    const kbX = (vx / speed) * force / resist;
+    const kbY = (vy / speed) * force / resist;
+    entity.velocity.x += kbX;
+    entity.velocity.y += kbY;
+    return { x: kbX, y: kbY };
   }
 
   processTargetsCollision(entity) {
     if (entity.type === Types.Entity.Player) {
       if (this.aiState === 'charge' && this.canBeHitByPlayer && !this.hasDealtChargeDamage) {
-        entity.damaged(this.damage.value * 5, this);
-
+        const dmg = this.damage.value * 4;
         if (this.altitude <= this.lowAltitude) {
-          this.applyVelocityKnockback(entity, 5 * 2);
+          const vx = this.velocity.x, vy = this.velocity.y;
+          const speed = Math.sqrt(vx * vx + vy * vy);
+          if (speed > 0.001 && typeof entity.applyMobHit === 'function') {
+            const force = (2 + speed) * 0.2 * (5 * 4);
+            const resist = (entity.knockbackResistance.value || 1);
+            const kbX = (vx / speed) * force / resist;
+            const kbY = (vy / speed) * force / resist;
+            entity.applyMobHit(dmg, kbX, kbY, this.shape.x, this.shape.y, this);
+          } else {
+            entity.damaged(dmg, this);
+            this.applyVelocityKnockback(entity, 5 * 4);
+          }
+        } else {
+          if (typeof entity.applyMobHit === 'function') {
+            entity.applyMobHit(dmg, 0, 0, this.shape.x, this.shape.y, this);
+          } else {
+            entity.damaged(dmg, this);
+          }
         }
 
         this.hasDealtChargeDamage = true;

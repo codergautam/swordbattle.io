@@ -29,11 +29,22 @@ class Chest extends Entity {
   constructor(game, objectData) {
     super(game, Types.Entity.Chest, objectData);
 
-    let rand = helpers.randomInteger(0, totalWeight - 1);
-    this.rarity = rarities.findIndex(rarity => {
-      rand -= rarity[3];
-      return rand < 0;
-    });
+    const maxRarity = objectData.maxRarity !== undefined ? objectData.maxRarity : rarities.length - 1;
+    const customWeights = objectData.rarityWeights;
+    let filteredWeight = 0;
+    for (let i = 0; i <= maxRarity && i < rarities.length; i++) {
+      filteredWeight += (customWeights ? customWeights[i] || 0 : rarities[i][3]);
+    }
+    let rand = helpers.randomInteger(0, filteredWeight - 1);
+    this.rarity = 0;
+    for (let i = 0; i <= maxRarity && i < rarities.length; i++) {
+      const w = customWeights ? customWeights[i] || 0 : rarities[i][3];
+      rand -= w;
+      if (rand < 0) {
+        this.rarity = i;
+        break;
+      }
+    }
 
     this.size = rarities[this.rarity][0];
     this.coins = rarities[this.rarity][1];
@@ -78,6 +89,13 @@ class Chest extends Entity {
 
     this.lastAttacker = sword.player;
     this.lastAttackTime = currentTime;
+
+    const evol = sword.player.evolutions && sword.player.evolutions.evolutionEffect;
+    if (evol && typeof evol.refundCooldownByKind === 'function') {
+      if (!sword.player.isInPvpCombat || !sword.player.isInPvpCombat()) {
+        evol.refundCooldownByKind('chest');
+      }
+    }
 
     if (this.health.isDead) {
       sword.player.flags.set(Types.Flags.ChestDestroy, true);

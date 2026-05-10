@@ -6,7 +6,7 @@ module.exports = class Stalker extends Evolution {
   static level = 18;
   static previousEvol = Types.Evolution.Vampire;
   static abilityDuration = 7;
-  static abilityCooldown = 90;
+  static abilityCooldown = 135;
 
   applyAbilityEffects() {
     this.player.modifiers.invisible = true;

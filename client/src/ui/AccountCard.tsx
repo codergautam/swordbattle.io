@@ -22,7 +22,7 @@ export default function AccountCard({account, onLogin, onSignup, onViewProfile}:
         </div> */}
         <br />
         <div className="stats"><ValueCnt scale={0.4} value={account.mastery} img={UltimacyImg}/>
-    
+
         </div>
                    <a className="profilebutton" onClick={onViewProfile} style={{ cursor: 'pointer' }}>
                       <FontAwesomeIcon icon={faUser} /> View Profile

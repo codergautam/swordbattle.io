@@ -15,6 +15,11 @@ class Account {
         console.error('Error parsing skins', e);
       }
     }
+    if (this.clan && typeof this.clan === 'object') {
+      this.clan = this.clan.clan?.tag || '';
+    } else if (typeof this.clan !== 'string') {
+      this.clan = '';
+    }
   }
 }
 

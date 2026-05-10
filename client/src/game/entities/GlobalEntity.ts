@@ -77,7 +77,7 @@ class GlobalEntity extends BaseEntity {
     if (this.gameWorldEntity) {
       this.gameWorldEntity.update(dt);
     }
-    if (this.minimapEntity) {
+    if (this.minimapEntity && !this.game.hud?.minimap?.minimized) {
       this.minimapEntity.update(dt);
     }
   }
@@ -88,15 +88,17 @@ class GlobalEntity extends BaseEntity {
       this.minimapGraphics.destroy();
       this.minimapGraphics = undefined;
     }
-    if (this.container) {
-      this.container.destroy();
-    }
     if (this.gameWorldEntity) {
       this.gameWorldEntity.remove();
       this.gameWorldEntity = undefined;
     }
     if (this.minimapEntity) {
       this.minimapEntity.remove();
+      this.minimapEntity = undefined;
+      this.container = null;
+    } else if (this.container) {
+      this.container.destroy();
+      this.container = null;
     }
   }
 }

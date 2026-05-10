@@ -6,7 +6,7 @@ module.exports = class Butcher extends Evolution {
   static level = 24;
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
   static abilityDuration = 7;
-  static abilityCooldown = 50;
+  static abilityCooldown = 75;
   
   applyAbilityEffects() {
     this.player.health.max.multiplier *= 1.75;
@@ -34,10 +34,11 @@ module.exports = class Butcher extends Evolution {
       }
     }
 
-    this.player.speed.multiplier *= 1.025;
+    this.player.speed.multiplier *= 1.05;
+    this.player.sword.damage.multiplier *= 1.175;
     this.player.shape.setScale(1.025);
     this.player.sword.knockback.multiplier['ability'] = 1.2;
-    this.player.health.max.multiplier *= 1.1;
+    this.player.health.max.multiplier *= 1.25;
     this.player.health.regen.multiplier *= 1.1;
     this.player.health.regenWait.multiplier *= 0.8;
   }

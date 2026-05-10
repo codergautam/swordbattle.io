@@ -44,12 +44,22 @@ class Boulder extends Entity {
   processTargetsCollision(entity, response) {
     if (entity.depth !== this.depth) return;
 
+    let blockEffect = { applies: false, dmgMult: 1, kbMult: 1 };
+    if (entity.type === Types.Entity.Player && typeof entity.getBlockEffect === 'function') {
+      blockEffect = entity.getBlockEffect('projectile', this.shape.x, this.shape.y, this.angle + Math.PI);
+    }
+
     const mtv = this.shape.getCollisionOverlap(response);
     entity.velocity.sub(mtv.scale(0.1));
-    entity.damaged(this.damage.value, this);
 
-    entity.velocity.x += this.speed.value * Math.cos(this.angle) * this.knockbackMultiplier.value / (entity.knockbackResistance.value || 1);
-    entity.velocity.y += this.speed.value * Math.sin(this.angle) * this.knockbackMultiplier.value / (entity.knockbackResistance.value || 1);
+    const dmg = this.damage.value * (blockEffect.applies ? blockEffect.dmgMult : 1);
+    if (dmg > 0) {
+      entity.damaged(dmg, this);
+    }
+
+    const kbMult = blockEffect.applies ? blockEffect.kbMult : 1;
+    entity.velocity.x += this.speed.value * Math.cos(this.angle) * this.knockbackMultiplier.value * kbMult / (entity.knockbackResistance.value || 1);
+    entity.velocity.y += this.speed.value * Math.sin(this.angle) * this.knockbackMultiplier.value * kbMult / (entity.knockbackResistance.value || 1);
 
     this.remove();
   }

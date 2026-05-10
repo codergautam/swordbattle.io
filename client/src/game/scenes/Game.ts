@@ -32,6 +32,10 @@ export default class Game extends Phaser.Scene {
   private _adStartHandler: (() => void) | null = null;
   private _adFinishHandler: (() => void) | null = null;
   private _visibilityHandler: (() => void) | null = null;
+  private _contextLostHandler: ((e: Event) => void) | null = null;
+  private _contextRestoredHandler: (() => void) | null = null;
+  private _contextWasLost = false;
+  _isZooming = false;
 
 	constructor() {
 		super('game');
@@ -273,6 +277,37 @@ export default class Game extends Phaser.Scene {
       }
     };
 
+    this._contextLostHandler = (e: Event) => {
+      e.preventDefault();
+      console.warn('[Game] WebGL context lost');
+      this._contextWasLost = true;
+    };
+    this._contextRestoredHandler = () => {
+      console.log('[Game] WebGL context restored — rebuilding textures');
+      this._contextWasLost = false;
+      try {
+        const map = this.gameState.gameMap;
+        for (const sprite of map.riverBorderSprites) {
+          sprite.destroy();
+        }
+        map.riverBorderSprites = [];
+        map.createRiverBorders();
+        map.update();
+        for (const biome of map.biomes) {
+          if (biome.container) {
+            const texture = biome.container.texture.key;
+            if (texture) biome.container.setTexture(texture);
+          }
+        }
+      } catch (e) {
+        console.error('[Game] Failed to rebuild textures after context restore:', e);
+      }
+    };
+
+    const canvas = this.game.canvas;
+    canvas.addEventListener('webglcontextlost', this._contextLostHandler);
+    canvas.addEventListener('webglcontextrestored', this._contextRestoredHandler);
+
     window.addEventListener('resize', this._resizeHandler);
     window.addEventListener('orientationchange', this._orientationHandler);
     window.addEventListener('crazyGamesAdStarted', this._adStartHandler);
@@ -300,6 +335,14 @@ export default class Game extends Phaser.Scene {
     if (this._visibilityHandler) {
       document.removeEventListener('visibilitychange', this._visibilityHandler);
       this._visibilityHandler = null;
+    }
+    if (this._contextLostHandler) {
+      this.game.canvas.removeEventListener('webglcontextlost', this._contextLostHandler);
+      this._contextLostHandler = null;
+    }
+    if (this._contextRestoredHandler) {
+      this.game.canvas.removeEventListener('webglcontextrestored', this._contextRestoredHandler);
+      this._contextRestoredHandler = null;
     }
     this.controls.cleanup();
     this.hud.cleanup();
@@ -330,7 +373,12 @@ export default class Game extends Phaser.Scene {
 
   updateZoom(zoom: number, duration = 1500) {
     this.zoom = zoom;
-    this.cameras.main.zoomTo(zoom * this.scaleZoom, duration, Phaser.Math.Easing.Cubic.InOut, true);
+    this._isZooming = true;
+    this.cameras.main.zoomTo(zoom * this.scaleZoom, duration, Phaser.Math.Easing.Cubic.InOut, true, (_cam: any, progress: number) => {
+      if (progress >= 1) {
+        this._isZooming = false;
+      }
+    });
   }
 
   setScaleZoom(zoom: number) {
@@ -351,8 +399,31 @@ export default class Game extends Phaser.Scene {
     });
   }
 
+  private _smoothedDt: number = 16;
+  private _dtVarianceAccum: number = 0;
+  private _dtVarianceSamples: number = 0;
+  private _lastRawDt: number = 16;
+
 	update(time: number, dt: number) {
-    dt = Math.min(dt, 100);
+    dt = Math.min(dt, 50);
+
+    const dtDiff = Math.abs(dt - this._lastRawDt);
+    this._dtVarianceAccum += dtDiff;
+    this._dtVarianceSamples++;
+    this._lastRawDt = dt;
+
+    if (this._dtVarianceSamples > 60) {
+      this._dtVarianceAccum *= 0.5;
+      this._dtVarianceSamples = Math.floor(this._dtVarianceSamples * 0.5);
+    }
+    const avgVariance = this._dtVarianceAccum / this._dtVarianceSamples;
+
+    if (avgVariance > 3) {
+      this._smoothedDt = this._smoothedDt * 0.8 + dt * 0.2;
+      dt = this._smoothedDt;
+    } else {
+      this._smoothedDt = dt;
+    }
 
     if (!this.isReady) {
       this.isReady = true;

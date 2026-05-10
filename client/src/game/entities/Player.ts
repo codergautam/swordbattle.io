@@ -64,6 +64,7 @@ class Player extends BaseEntity {
     'isAbilityAvailable', 'abilityActive', 'abilityDuration', 'abilityCooldown',
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordSwingArc', 'swordFlying', 'swordFlyingCooldown', 'swordBoomerangReturning',
     'swordRaising', 'swordDecreasing',
+    'isBlocking', 'blockEnergy', 'parriedRemaining',
     'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing', 'coinShield',
     'cardOffers', 'chosenCards', 'choosingCard', 'cardTimer', 'cardPickNumber', 'availableUpgrades',
     'rerollsAvailable', 'pendingPicks', 'skipResults', 'isTutorial',
@@ -72,11 +73,42 @@ class Player extends BaseEntity {
   static shadowOffsetX = 10;
   static shadowOffsetY = 10;
 
+  static computeSwordReduction(r: number): number {
+    if (r <= 260) return 0;
+    if (r <= 300) return (r - 260) / 40 * 0.14;
+    if (r <= 340) return 0.14 + (r - 300) / 40 * 0.11;
+    if (r <= 416) return 0.25 + (r - 340) / 76 * 0.05;
+    return Math.min(0.35, 0.30 + (r - 416) * 0.0005);
+  }
+  static computeSwordPullback(r: number): number {
+    if (r <= 260) return 0;
+    return Math.min((r - 260) * 0.08, 20) * (r / 100);
+  }
+  static abilitySwordScales: { [key: number]: number } = {
+    1: 1.5,
+    8: 1.4,
+    10: 1.7,
+  };
+
   body!: Phaser.GameObjects.Sprite;
   sword!: Phaser.GameObjects.Sprite;
   swordShadow!: Phaser.GameObjects.Sprite;
   bodyContainer!: Phaser.GameObjects.Container;
   swordContainer!: Phaser.GameObjects.Container;
+  blockBodyOutlines: Phaser.GameObjects.Sprite[] = [];
+  blockSwordOutlines: Phaser.GameObjects.Sprite[] = [];
+  private blockVisualPhase = 0;
+  private blockEngagedAtLocal = 0;
+  private currentOutlineTint = 0x33e0ff;
+  static outlineOffsets: ReadonlyArray<readonly [number, number]> = [
+    [-6, 0], [6, 0], [0, -6], [0, 6],
+    [-5, -5], [5, -5], [-5, 5], [5, 5],
+  ];
+  static outlineTintParry = 0x33e0ff;
+  static outlineTintBlock = 0x4070ff;
+  static blockParryWindowMs = 750;
+  static outlineTint = 0x33e0ff;
+  private blockTintLerp = 0;
   evolutionOverlay!: Phaser.GameObjects.Sprite;
   evolutionOverlayShadow!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
@@ -102,6 +134,9 @@ class Player extends BaseEntity {
   poisonParticlesLast: number = 0;
   private _lastSwordVisible: boolean | null = null;
   private _lastContainerScale: number = -1;
+  private _lastSwordScale: number = -1;
+  private _lastSwordLocalPullback: number = -1;
+  private _submergedAccum: number = 0;
 
   cardSummaryContainer: Phaser.GameObjects.Container | null = null;
   cardSummaryBg: Phaser.GameObjects.Graphics | null = null;
@@ -120,7 +155,10 @@ class Player extends BaseEntity {
 
   createSprite() {
     this.isMe = this.id === this.game.gameState.self.id;
-    if (this.account && this.account.clan && this.account.clan.toString().toUpperCase() !== "X79Q") {
+    if (this.account && this.account.clan && typeof this.account.clan === 'object' && this.account.clan.tag) {
+      this.clan = this.account.clan.tag.toString().toUpperCase();
+    } else if (this.account && typeof this.account.clan === 'string' && this.account.clan) {
+      // Legacy server payload still sends a plain string clan tag — keep tolerant.
       this.clan = this.account.clan.toString().toUpperCase();
     }
     this.shape = Shape.create(this.shapeData);
@@ -147,7 +185,25 @@ class Player extends BaseEntity {
     const swordShadowKey = this.createShadowTexture('playerSword');
     this.swordShadow = this.game.add.sprite(0, 0, swordShadowKey).setRotation(Math.PI / 4);
     this.swordShadow.setAlpha(0.085);
-    this.swordContainer = this.game.add.container(0, 0, [this.sword]);
+
+    this.blockBodyOutlines = Player.outlineOffsets.map(([ox, oy]) => {
+      const s = this.game.add.sprite(ox, oy, 'playerBody').setRotation(-Math.PI / 2);
+      s.setTintFill(Player.outlineTint);
+      s.setAlpha(0);
+      return s;
+    });
+    if (this.skin === 459) this.blockBodyOutlines.forEach(s => s.setScale(1.25));
+
+    const swordX = this.body.width / 2;
+    const swordY = this.body.height / 2;
+    this.blockSwordOutlines = Player.outlineOffsets.map(([ox, oy]) => {
+      const s = this.game.add.sprite(swordX + ox, swordY + oy, 'playerSword').setRotation(Math.PI / 4);
+      s.setTintFill(Player.outlineTint);
+      s.setAlpha(0);
+      return s;
+    });
+
+    this.swordContainer = this.game.add.container(0, 0, [...this.blockSwordOutlines, this.sword]);
 
     this.protectionAura = this.game.add.graphics();
     const auraRadius = Math.max(this.body.width, this.body.height) * 0.75;
@@ -176,6 +232,7 @@ class Player extends BaseEntity {
       angel: '#acfffc',
       "cool guy 53": '#0055ff',
       "update testing account": '#00ff00',
+      "amethyst nightveil": '#7802ab',
       oy: '#000000',
       bobz: '#000000',
     };
@@ -213,7 +270,7 @@ class Player extends BaseEntity {
     this.cardSummaryContainer = this.game.add.container(0, -this.body.height / 2 - 130, [this.cardSummaryBg]);
     this.cardSummaryContainer.setAlpha(0);
 
-    this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.swordContainer, this.body, this.evolutionOverlay]);
+    this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, ...this.blockBodyOutlines, this.swordContainer, this.body, this.evolutionOverlay]);
 
     const submergedRadius = this.body.width * 0.6;
     this.submergedShadow = this.game.add.graphics();
@@ -264,6 +321,7 @@ class Player extends BaseEntity {
           this.shadow.setTexture(this.createShadowTexture(skinBase+'Body'));
           this.sword.setTexture(skinBase+'Sword');
           this.swordShadow.setTexture(this.createShadowTexture(skinBase+'Sword'));
+          this.applyOutlineSkin(skinBase+'Body', skinBase+'Sword');
         }).catch(() => {
           console.log('failed to load skin', this.skin);
         });
@@ -273,6 +331,7 @@ class Player extends BaseEntity {
           this.shadow.setTexture(this.createShadowTexture(this.skinName+'Body'));
           this.sword.setTexture(this.skinName+'Sword');
           this.swordShadow.setTexture(this.createShadowTexture(this.skinName+'Sword'));
+          this.applyOutlineSkin(this.skinName+'Body', this.skinName+'Sword');
         }).catch(() => {
           console.log('failed to load skin', this.skin);
         });
@@ -289,6 +348,17 @@ class Player extends BaseEntity {
     this.hypnotizeSwirlSprite.setAlpha(0);
 
     return this.container;
+  }
+
+  applyOutlineSkin(bodyTextureKey: string, swordTextureKey: string) {
+    for (const s of this.blockBodyOutlines) {
+      s.setTexture(bodyTextureKey);
+      s.setTintFill(Player.outlineTint);
+    }
+    for (const s of this.blockSwordOutlines) {
+      s.setTexture(swordTextureKey);
+      s.setTintFill(Player.outlineTint);
+    }
   }
 
   skinLoaded(id: number) {
@@ -791,6 +861,10 @@ class Player extends BaseEntity {
   }
 
   interpolate(dt: number) {
+    // Visual swing animation is intentionally symmetric (50/50). The
+    // server still uses the asymmetric raise/decrease pacing for hit
+    // detection and timing, but the client renders the sword movement
+    // with a clean even tempo so it doesn't feel abrupt.
     const swordLerpDt = dt / (this.swordSwingDuration * 1000);
     if (this.swordRaiseStarted) {
       this.swordLerpProgress += swordLerpDt;
@@ -863,7 +937,6 @@ class Player extends BaseEntity {
         ? this.game.input.pointer2
         : this.game.input.pointer1;
     }
-    pointer.updateWorldPoint(this.game.cameras.main);
 
     if (this.game.controls.isInputDown(InputTypes.SwordSwing)) {
       if (!(this.swordFlying || this.swordRaiseStarted || this.swordDecreaseStarted)) {
@@ -880,7 +953,16 @@ class Player extends BaseEntity {
       return;
     }
 
-    let angle = Math.atan2(pointer.worldY - this.container.y, pointer.worldX - this.container.x);
+    let angle: number;
+    if ((this.game as any)._isZooming) {
+      const camera = this.game.cameras.main;
+      const cx = camera.width / 2;
+      const cy = camera.height / 2;
+      angle = Math.atan2(pointer.y - cy, pointer.x - cx);
+    } else {
+      pointer.updateWorldPoint(this.game.cameras.main);
+      angle = Math.atan2(pointer.worldY - this.container.y, pointer.worldX - this.container.x);
+    }
     // Round to 2 decimal places
     angle = Math.round(angle * 100) / 100;
 
@@ -1206,7 +1288,36 @@ class Player extends BaseEntity {
       this.container.scale = newScale;
       this._lastContainerScale = newScale;
     }
+    const r = this.shape.radius;
+    const baseX = this.body.width / 2;
+    const baseY = this.body.height / 2;
+    const abilityScale = (this.abilityActive && this.evolution != null)
+      ? (Player.abilitySwordScales[this.evolution] ?? 1) : 1;
+    const swordR = r / abilityScale;
+    const swordReduction = Player.computeSwordReduction(swordR);
+    const targetSwordScale = swordReduction > 0 ? 1 - swordReduction : 1;
+    const targetLocalPullback = swordReduction > 0
+      ? (newScale > 0 ? Player.computeSwordPullback(swordR) / newScale : 0)
+      : 0;
+    if (targetSwordScale !== this._lastSwordScale) {
+      this.sword.setScale(targetSwordScale);
+      if (this.swordShadow) this.swordShadow.setScale(targetSwordScale);
+      for (const s of this.blockSwordOutlines) s.setScale(targetSwordScale);
+      this._lastSwordScale = targetSwordScale;
+    }
+    if (targetLocalPullback !== this._lastSwordLocalPullback) {
+      this.sword.setPosition(baseX - targetLocalPullback, baseY - targetLocalPullback);
+      const swordPosX = baseX - targetLocalPullback;
+      const swordPosY = baseY - targetLocalPullback;
+      for (let i = 0; i < this.blockSwordOutlines.length; i++) {
+        const [ox, oy] = Player.outlineOffsets[i];
+        this.blockSwordOutlines[i].setPosition(swordPosX + ox, swordPosY + oy);
+      }
+      this._lastSwordLocalPullback = targetLocalPullback;
+    }
+
     this.interpolate(dt);
+    this.updateBlockGlow(dt);
 
     if (this.abilityActive) {
       if (this.evolution) {
@@ -1216,13 +1327,83 @@ class Player extends BaseEntity {
         }
       }
      }
-    this.updateSubmergedEffect(dt);
+    if (this.isMe) {
+      this.updateSubmergedEffect(dt);
+    } else {
+      this._submergedAccum += dt;
+      if (this._submergedAccum >= 200) {
+        this.updateSubmergedEffect(this._submergedAccum);
+        this._submergedAccum = 0;
+      }
+    }
     this.updateDiscoEffects(dt);
     if (this.following) {
       this.game.cameras.main.centerOn(this.container.x, this.container.y);
     }
     if (this.isMe) {
       this.updatePrediction();
+    }
+  }
+
+  updateBlockGlow(dt: number) {
+    const isBlocking = !!(this as any).isBlocking;
+    const energy = Math.max(0, Math.min(1, (this as any).blockEnergy ?? 0));
+
+    // Detect the false -> true transition locally so we know when this
+    // player's parry window started. Server sends parriedRemaining for the
+    // PARRIED status (which lives on the attacker), but every blocker
+    // needs their own parry-window timer for the outline color.
+    const now = Date.now();
+    if (isBlocking && this.blockEngagedAtLocal === 0) {
+      this.blockEngagedAtLocal = now;
+    } else if (!isBlocking && this.blockEngagedAtLocal !== 0) {
+      this.blockEngagedAtLocal = 0;
+    }
+
+    const target = isBlocking ? 1 : 0;
+    const ramp = dt / 250;
+    if (this.blockVisualPhase < target) {
+      this.blockVisualPhase = Math.min(target, this.blockVisualPhase + ramp);
+    } else if (this.blockVisualPhase > target) {
+      this.blockVisualPhase = Math.max(target, this.blockVisualPhase - ramp);
+    }
+
+    const alpha = this.blockVisualPhase <= 0.001
+      ? 0
+      : (0.25 + 0.75 * energy) * this.blockVisualPhase;
+
+    // Smoothly lerp the outline color from cyan (parry window) to a normal
+    // lighter blue (post-parry). Transition takes ~250ms so the moment the
+    // parry window expires you see the color drift, not a hard cut.
+    const inParryWindow = isBlocking
+      && this.blockEngagedAtLocal !== 0
+      && (now - this.blockEngagedAtLocal) < Player.blockParryWindowMs;
+    const targetLerp = inParryWindow ? 0 : 1;
+    const lerpStep = dt / 250;
+    if (this.blockTintLerp < targetLerp) {
+      this.blockTintLerp = Math.min(targetLerp, this.blockTintLerp + lerpStep);
+    } else if (this.blockTintLerp > targetLerp) {
+      this.blockTintLerp = Math.max(targetLerp, this.blockTintLerp - lerpStep);
+    }
+    const cP = Player.outlineTintParry;
+    const cB = Player.outlineTintBlock;
+    const r = Math.round(((cP >> 16) & 0xff) + (((cB >> 16) & 0xff) - ((cP >> 16) & 0xff)) * this.blockTintLerp);
+    const g = Math.round(((cP >> 8) & 0xff) + (((cB >> 8) & 0xff) - ((cP >> 8) & 0xff)) * this.blockTintLerp);
+    const b = Math.round((cP & 0xff) + ((cB & 0xff) - (cP & 0xff)) * this.blockTintLerp);
+    const desiredTint = (r << 16) | (g << 8) | b;
+    if (desiredTint !== this.currentOutlineTint) {
+      this.currentOutlineTint = desiredTint;
+      for (const s of this.blockBodyOutlines) s.setTintFill(desiredTint);
+      for (const s of this.blockSwordOutlines) s.setTintFill(desiredTint);
+    }
+
+    for (const s of this.blockBodyOutlines) {
+      if (s.alpha !== alpha) s.setAlpha(alpha);
+    }
+    const swordVisible = !this.swordFlying;
+    for (const s of this.blockSwordOutlines) {
+      if (s.alpha !== alpha) s.setAlpha(alpha);
+      if (s.visible !== swordVisible) s.setVisible(swordVisible);
     }
   }
 

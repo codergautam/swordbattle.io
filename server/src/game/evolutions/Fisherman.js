@@ -7,7 +7,7 @@ module.exports = class Fisherman extends Evolution {
   static previousEvol = [Types.Evolution.Vampire, Types.Evolution.Berserker];
   // static level = 1;
   static abilityDuration = 5;
-  static abilityCooldown = 65;
+  static abilityCooldown = 98;
 
   applyAbilityEffects() {
     this.player.shape.setScale(1.25);

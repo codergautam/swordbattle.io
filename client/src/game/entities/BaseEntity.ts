@@ -100,8 +100,18 @@ export class BaseEntity {
     if (!this.container) return;
     const tps = this.game.gameState.tps || 20;
     const lerpRate = 1 - Math.exp(-dt / (1000 / tps));
-    this.container.x = Phaser.Math.Linear(this.container.x, this.shape.x, lerpRate);
-    this.container.y = Phaser.Math.Linear(this.container.y, this.shape.y, lerpRate);
+
+    const dx = this.shape.x - this.container.x;
+    const dy = this.shape.y - this.container.y;
+
+    if (dx * dx + dy * dy < 0.25) {
+      this.container.x = this.shape.x;
+      this.container.y = this.shape.y;
+    } else {
+      this.container.x += dx * lerpRate;
+      this.container.y += dy * lerpRate;
+    }
+
     if (this.shape.type === ShapeTypes.Polygon) {
       this.container.setRotation(this.shape.angle);
     }

@@ -70,6 +70,21 @@ class GameMap {
     this.biomes.forEach(biome => biome.initialize()); // Initialize biomes after they're added to map.biomes
     this.calculateMapBounds();
 
+    const Circle = require('./shapes/Circle');
+    const centerChestOpts = { maxRarity: 2, rarityWeights: [50, 35, 15] };
+    const earthCenter = Circle.create(-3500, 2000, 3500);
+    for (let i = 0; i < 16; i++) {
+      this.addEntity({ type: Types.Entity.Chest, respawnable: true, spawnZone: earthCenter, ...centerChestOpts });
+    }
+    const iceCenter = Circle.create(-2000, -5000, 3000);
+    for (let i = 0; i < 8; i++) {
+      this.addEntity({ type: Types.Entity.Chest, respawnable: true, spawnZone: iceCenter, ...centerChestOpts });
+    }
+    const fireCenter = Circle.create(3500, 2000, 3000);
+    for (let i = 0; i < 8; i++) {
+      this.addEntity({ type: Types.Entity.Chest, respawnable: true, spawnZone: fireCenter, ...centerChestOpts });
+    }
+
     for (let i = 0; i < this.chestsCount; i++) {
       this.addEntity({
         type: Types.Entity.Chest,
@@ -110,19 +125,6 @@ class GameMap {
       }
     }
 
-    this.activeCaptureZones = this.activeCaptureZones.filter(z => !z.removed);
-    this.captureZoneTimer.update(dt);
-    if (this.captureZoneTimer.finished && this.activeCaptureZones.length < 2) {
-      this.spawnCaptureZone();
-      if (this.activeCaptureZones.length === 1 && Math.random() < 0.3) {
-        this.captureZoneTimer.minTime = 45;
-        this.captureZoneTimer.maxTime = 75;
-      } else {
-        this.captureZoneTimer.minTime = 90;
-        this.captureZoneTimer.maxTime = 120;
-      }
-      this.captureZoneTimer.renew();
-    }
   }
 
   spawnCaptureZone() {

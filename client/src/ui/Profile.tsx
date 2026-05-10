@@ -22,7 +22,6 @@ interface Stats {
 interface AccountData {
   id: number;
   username: string;
-  clan: string;
   created_at: string;
   profile_views: number;
   skins: { equipped: number, owned: number[] };
@@ -31,11 +30,16 @@ interface AccountData {
   bio: string;
   tags: { tags: string[], colors: string[] };
 }
+interface ClanInfo {
+  clan: { id: number; tag: string; name: string; frameId: number; iconId: number; frameColor: string };
+  role: number;
+}
 interface ProfileData {
   account: AccountData;
   totalStats?: Stats;
   dailyStats?: Stats[];
   rank?: number;
+  clan?: ClanInfo | null;
 }
 
 const sorts = [
@@ -160,7 +164,7 @@ export default function Profile() {
 
 
   console.log('Username: ', data?.account.username)
-  console.log('Clan: ', data?.account.clan)
+  console.log('Clan: ', data?.clan?.clan?.tag ?? null)
   console.log('Profile Views: ', data?.account.profile_views)
   console.log('Created at: ', data?.account.created_at)
 
@@ -181,37 +185,22 @@ export default function Profile() {
         }}>X</button>
       )}
           <center>
-        {data.account.clan ? (
-          <h1>
-            <img
-              src={
-                'assets/game/player/' +
-                Object.values(cosmetics.skins).find(
-                  (skin: any) => skin.id === data.account.skins.equipped
-                )?.bodyFileName
-              }
-              alt="Equipped skin"
-              className="equipped-skin"
-            />
-            {data.account.clan !== 'X79Q' && (
-              <span style={{ color: 'yellow' }}>[{data.account.clan}]</span>
-            )} {data.account.username}
-          </h1>
-        ) : (
-          <h1>
-            <img
-              src={
-                'assets/game/player/' +
-                Object.values(cosmetics.skins).find(
-                  (skin: any) => skin.id === data.account.skins.equipped
-                )?.bodyFileName
-              }
-              alt="Equipped skin"
-              className="equipped-skin"
-            />
-            {data.account.username}
-          </h1>
-        )}</center>
+        <h1>
+          <img
+            src={
+              'assets/game/player/' +
+              Object.values(cosmetics.skins).find(
+                (skin: any) => skin.id === data.account.skins.equipped
+              )?.bodyFileName
+            }
+            alt="Equipped skin"
+            className="equipped-skin"
+          />
+          {data.clan?.clan && (
+            <span style={{ color: 'yellow' }}>[{data.clan.clan.tag}]</span>
+          )}{data.clan?.clan ? ' ' : ''}{data.account.username}
+        </h1>
+        </center>
         <br />
         {data.account.tags.tags.length > 0 && (
           <div className="profile-tags" style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -254,7 +243,13 @@ export default function Profile() {
         <h4 className="stat">Joined {sinceFrom(data.account.created_at)} ago</h4>
         <h4 className="stat">
           {data.dailyStats && data.dailyStats.length
-            ? `Last seen ${lastSeen(data.dailyStats[data.dailyStats.length - 1].date)}`
+            ? `Last seen ${lastSeen(
+                data.dailyStats.reduce(
+                  (latest, s) =>
+                    new Date(s.date).getTime() > new Date(latest).getTime() ? s.date : latest,
+                  data.dailyStats[0].date
+                )
+              )}`
             : ''}
         </h4>
         <br />
@@ -282,17 +277,13 @@ export default function Profile() {
         </div>
 
         <div className="profile-stat-separator">
-          <span>
-            {data.account.recovered ? 'Account Statistics not found' : 'Account Statistics'}
-          </span>
+          <span>Account Statistics</span>
           <span className="profile-stat-separator-arrow">▼</span>
         </div>
 
         <br />
 
-        {!data.account.recovered && (
-          <>
-          <div className="profile-top-games">
+        <div className="profile-top-games">
               <div className="profile-top-games__header">
                 <h3>Top 10 Games</h3>
                 <div className="profile-top-games__sort">
@@ -369,7 +360,7 @@ export default function Profile() {
               </table>
             </div>
 
-          {data.dailyStats && data.dailyStats.length &&
+          {!data.account.recovered && data.dailyStats && data.dailyStats.length &&
             <div className="xp-graph">
               <Line data={prepareGraphData(data.dailyStats)}
                 options={{
@@ -406,8 +397,6 @@ export default function Profile() {
     
             </div>
           }
-          </>
-        )}
         </div>
 
         <div style={{

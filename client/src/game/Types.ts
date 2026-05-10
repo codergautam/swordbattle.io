@@ -61,6 +61,8 @@ export enum FlagTypes {
   FirstLife = 19,
   SelectUpgrade = 20,
   TutorialHitBlocked = 21,
+  TutorialSaved = 22,
+  CooldownRefund = 23,
 }
 
 export enum EvolutionTypes {

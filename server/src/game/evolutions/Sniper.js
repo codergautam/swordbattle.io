@@ -6,7 +6,7 @@ module.exports = class Sniper extends Evolution {
   static level = 24;
   static previousEvol = Types.Evolution.Archer;
   static abilityDuration = 6.5;
-  static abilityCooldown = 72;
+  static abilityCooldown = 108;
 
   applyAbilityEffects() {
     this.player.viewport.zoom.multiplier *= 0.625;

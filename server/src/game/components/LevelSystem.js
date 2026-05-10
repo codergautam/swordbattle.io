@@ -122,6 +122,7 @@ class LevelSystem {
     if (sizeBuff.level > 0) {
       const multiplier = 1 + sizeBuff.level * sizeBuff.step;
       this.player.shape.setScale(multiplier);
+      this.player.speed.multiplier *= Math.max(0.835, 1 - sizeBuff.level * 0.003);
     }
     this.player.sword.swingDuration.multiplier['level'] = Math.min(maxSwingDuration, Math.max(1, swingDurationIncrease * (this.level-1)));
     this.player.sword.knockback.multiplier['level'] = 1 + (sizeBuff.level * 0.015);
@@ -136,9 +137,6 @@ class LevelSystem {
     let sizeBuffsNeeded = levels[this.level].scale - levels[this.level-1].scale;
     if(!sizeBuffsNeeded) sizeBuffsNeeded = 0;
     this.addSizeBuff(sizeBuffsNeeded);
-
-    // Queue a card pick instead of granting upgrade points
-    this.player.cards.queueCardPick();
   }
 }
 

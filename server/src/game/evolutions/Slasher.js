@@ -6,7 +6,7 @@ module.exports = class Slasher extends Evolution {
   static level = 1000; // Slasher not in rotation
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
   static abilityDuration = 7;
-  static abilityCooldown = 70;
+  static abilityCooldown = 105;
 
   applyAbilityEffects() {
     this.player.sword.knockback.multiplier['ability'] = 0.7;

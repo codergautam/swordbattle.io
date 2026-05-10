@@ -7,6 +7,7 @@ import { StatsModule } from '../stats/stats.module';
 import { TransactionModule } from 'src/transactions/transactions.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { CosmeticsModule } from 'src/cosmetics/cosmetics.module';
+import { ClansModule } from 'src/clans/clans.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CosmeticsModule } from 'src/cosmetics/cosmetics.module';
     forwardRef(() => StatsModule),
     forwardRef(() => AuthModule),
     CosmeticsModule,
+    forwardRef(() => ClansModule),
   ],
   providers: [AccountsService],
   exports: [AccountsService],

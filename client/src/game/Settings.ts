@@ -50,11 +50,16 @@ export const settingsList: Record<string, SettingType> = {
   useWebGL: {
     name: 'Use WebGL (requires reload)',
     type: 'toggle',
-    default: false,
+    default: true,
     onChange: (newValue: boolean) => {
       const saved = localStorage.getItem('swordbattle:WebGL');
-      if (newValue) localStorage.setItem('swordbattle:WebGL', 'OK');
-      else localStorage.removeItem('swordbattle:WebGL');
+      if (newValue) {
+        localStorage.setItem('swordbattle:WebGL', 'OK');
+        // Player explicitly re-enabled WebGL — clear the auto-fail flag so it's tried again
+        localStorage.removeItem('swordbattle:webgl_failed');
+      } else {
+        localStorage.removeItem('swordbattle:WebGL');
+      }
       if (saved !== (newValue ? 'OK' : null)) {
         window.location.reload();
       }
@@ -132,6 +137,14 @@ class SettingsManager {
           this.saveSetting(key, newValue);
         },
       })
+    }
+
+    if (!localStorage.getItem('swordbattle:webgl_migrated')) {
+      localStorage.setItem('swordbattle:webgl_migrated', '1');
+      const saved = this.get();
+      if (saved.useWebGL === undefined) {
+        localStorage.setItem('swordbattle:WebGL', 'OK');
+      }
     }
 
     const savedSettings = this.get();

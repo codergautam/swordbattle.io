@@ -60,8 +60,22 @@ const MajorCards = {
   130: { id: 130, name: 'Insurance',            category: 'endurance',     positiveText: 'Keep 40% coins next respawn',           negativeText: 'Respawn with 0 coins after that death',   stubEffect: { stat: 'maxHp', value: 0.10 } },
 };
 
+const StarterCards = {
+  201: { id: 201, name: 'Heavy Armor',  stat: 'maxHp',  value: 0.20, linkedMinor: 5 },
+  202: { id: 202, name: 'Super Speed',  stat: 'speed',  value: 0.15, linkedMinor: 9 },
+  203: { id: 203, name: 'Sharpness',    stat: 'damage', value: 0.10, linkedMinor: 1 },
+};
+
+function isStarterCard(id) {
+  return id >= 201 && id <= 203;
+}
+
+function getAllStarterIds() {
+  return Object.keys(StarterCards).map(Number);
+}
+
 function getCard(id) {
-  return MinorCards[id] || MajorCards[id] || null;
+  return MinorCards[id] || MajorCards[id] || StarterCards[id] || null;
 }
 
 function isMinorCard(id) {
@@ -92,10 +106,13 @@ function getMajorCardsByCategory() {
 module.exports = {
   MinorCards,
   MajorCards,
+  StarterCards,
   getCard,
   isMinorCard,
   isMajorCard,
+  isStarterCard,
   getAllMinorIds,
   getAllMajorIds,
+  getAllStarterIds,
   getMajorCardsByCategory,
 };

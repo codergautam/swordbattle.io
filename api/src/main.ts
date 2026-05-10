@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, HttpStatus } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import * as cookieParser from 'cookie-parser';
 
 import { AppModule } from './app.module';
@@ -7,8 +8,9 @@ import { ExcludeInterceptor } from './exclude.interceptor';
 import { config } from './config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  app.set('trust proxy', true);
 
   app.use(cookieParser(config.appSecret));
   app.enableCors({

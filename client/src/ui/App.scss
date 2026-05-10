@@ -149,15 +149,17 @@ footer {
 }
 
 .auth-buttons {
-  overflow: hidden;
   position: absolute;
   top: 10px;
   right: 0;
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   transform-origin: top right;
 
   .dropdown {
+    position: relative;
+    z-index: 100;
 
     .dropdown-menu {
       background-color: rgb(20, 20, 20) !important;
@@ -167,8 +169,13 @@ footer {
       margin-right: 20px;
       margin-left: 10px;
       user-select: none;
-      display: none;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
       text-align: left;
+      position: absolute;
+      top: 100%;
+      right: 0;
 
       li {
         list-style: none;
@@ -191,8 +198,10 @@ footer {
       }
     }
   }
-  .dropdown:hover .dropdown-menu {
-    display: block;
+  .dropdown[data-open="true"] .dropdown-menu {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .auth-username {
@@ -212,10 +221,13 @@ footer {
   .auth-btn {
     transform: translateX(55%);
     margin-bottom: 10px;
+    width: 300px;
     height: 110px;
+    object-fit: contain;
+    flex-shrink: 0;
     margin-right: 5px;
 
-    transition: all 0.2s ease-in-out;
+    transition: transform 0.2s ease-in-out;
 
     &:hover {
       transform: translateX(40%);

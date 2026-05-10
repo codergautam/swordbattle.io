@@ -10,6 +10,8 @@ class ProgressBar extends HudComponent {
   levelUpText!: Phaser.GameObjects.Text;
   stabbedText!: Phaser.GameObjects.Text;
   burningText!: Phaser.GameObjects.Text;
+  parriedText!: Phaser.GameObjects.Text;
+  statusSeparator!: Phaser.GameObjects.Text;
   inSafezoneMessage!: Phaser.GameObjects.Text;
   width = 500;
   height = 15;
@@ -26,6 +28,7 @@ class ProgressBar extends HudComponent {
   currentProtectionMessage: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'respawnShieldFading' | 'captureZone' | 'tutorial' = 'none';
   isBurning = false;
   isHypnotized = false;
+  isParried = false;
 
 
   initialize() {
@@ -80,7 +83,23 @@ class ProgressBar extends HudComponent {
       strokeThickness: 5,
     }).setOrigin(0.5).setAlpha(0);
 
-    this.progressBarContainer = this.hud.scene.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText, this.inSafezoneMessage, this.burningText]);
+    this.statusSeparator = this.game.add.text(this.width / 2, -this.height - 90, ' + ', {
+      fontSize: 24,
+      fontStyle: 'bold',
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 5,
+    }).setOrigin(0.5).setAlpha(0);
+
+    this.parriedText = this.game.add.text(this.width / 2, -this.height - 90, 'Parried!', {
+      fontSize: 24,
+      fontStyle: 'bold',
+      color: '#33e0ff',
+      stroke: '#000000',
+      strokeThickness: 5,
+    }).setOrigin(0.5).setAlpha(0);
+
+    this.progressBarContainer = this.hud.scene.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText, this.inSafezoneMessage, this.burningText, this.statusSeparator, this.parriedText]);
     this.container = this.game.add.container(0, 0, [this.progressBarContainer, this.levelUpText, this.stabbedText]);
     this.hud.add(this.container);
   }
@@ -262,6 +281,68 @@ class ProgressBar extends HudComponent {
     }
   }
 
+  updateParriedText(isParried: boolean, hasProtectionMessage: boolean) {
+    const targetY = hasProtectionMessage ? -this.height - 110 : -this.height - 90;
+
+    if (isParried && !this.isParried) {
+      this.isParried = true;
+      this.game.tweens.killTweensOf(this.parriedText);
+      this.parriedText.y = targetY;
+      this.game.tweens.add({
+        targets: this.parriedText,
+        alpha: 1,
+        scaleX: 1.2,
+        scaleY: 1.2,
+        duration: 200,
+        ease: 'Back.easeOut',
+        yoyo: true,
+        repeat: -1,
+        repeatDelay: 300,
+      });
+    } else if (!isParried && this.isParried) {
+      this.isParried = false;
+      this.game.tweens.killTweensOf(this.parriedText);
+      this.game.tweens.add({
+        targets: this.parriedText,
+        alpha: 0,
+        scaleX: 1,
+        scaleY: 1,
+        duration: 200,
+        ease: 'Power2',
+      });
+    } else if (isParried && this.isParried) {
+      if (Math.abs(this.parriedText.y - targetY) > 5) {
+        this.game.tweens.add({
+          targets: this.parriedText,
+          y: targetY,
+          duration: 200,
+          ease: 'Power2',
+        });
+      }
+    }
+  }
+
+  layoutStatusRow() {
+    const burningOn = this.burningText.alpha > 0.01;
+    const parriedOn = this.parriedText.alpha > 0.01;
+    const cx = this.width / 2;
+
+    if (burningOn && parriedOn) {
+      const sepW = this.statusSeparator.width;
+      const total = this.burningText.width + sepW + this.parriedText.width;
+      const startX = cx - total / 2;
+      this.burningText.x = startX + this.burningText.width / 2;
+      this.statusSeparator.x = startX + this.burningText.width + sepW / 2;
+      this.parriedText.x = startX + this.burningText.width + sepW + this.parriedText.width / 2;
+      this.statusSeparator.y = this.burningText.y;
+      this.statusSeparator.setAlpha(Math.min(this.burningText.alpha, this.parriedText.alpha));
+    } else {
+      this.burningText.x = cx;
+      this.parriedText.x = cx;
+      this.statusSeparator.setAlpha(0);
+    }
+  }
+
   update() {
     const player = this.game.gameState.self.entity;
     if (!this.container || !player) return;
@@ -391,8 +472,11 @@ class ProgressBar extends HudComponent {
 
     const isCurrentlyBurning = !!player.flags[FlagTypes.LavaDamaged];
     const isCurrentlyHypnotized = !!player.flags[FlagTypes.Hypnotized];
+    const isCurrentlyParried = ((player as any).parriedRemaining || 0) > 0;
     const hasProtectionMessage = desiredProtectionState !== 'none';
     this.updateBurningText(isCurrentlyBurning, hasProtectionMessage, isCurrentlyHypnotized);
+    this.updateParriedText(isCurrentlyParried, hasProtectionMessage);
+    this.layoutStatusRow();
 
     const stabbedId = player.flags[FlagTypes.PlayerKill];
     if(!stabbedId) return;

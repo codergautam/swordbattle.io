@@ -9,12 +9,26 @@ class Health {
     this.percent = 1;
     this.isDead = false;
     this.lastDamage = null;
+    this.regenWaitUntil = 0;
   }
 
-  damaged(damage) {
+  static sourceWaitMult(source) {
+    if (source === 'throw') return 0.5;
+    if (source === 'mob') return 0.66;
+    if (source === 'map') return 0.33;
+    return 1.0;
+  }
+
+  damaged(damage, opts = {}) {
+    const { source = 'melee' } = opts;
     const coef = damage / this.max.value;
-    this.percent -= coef; 
+    this.percent -= coef;
     this.lastDamage = Date.now();
+
+    const newWaitUntil = this.lastDamage + this.regenWait.value * Health.sourceWaitMult(source);
+    if (newWaitUntil > this.regenWaitUntil) {
+      this.regenWaitUntil = newWaitUntil;
+    }
 
     if (this.percent <= 0) {
       this.percent = 0;
@@ -27,7 +41,7 @@ class Health {
   }
 
   update(dt) {
-    if(Date.now() - this.lastDamage < this.regenWait.value) return;
+    if (Date.now() < this.regenWaitUntil) return;
     const coef = this.regen.value / this.max.value * dt;
     this.percent = Math.min(this.percent + coef, 1);
   }

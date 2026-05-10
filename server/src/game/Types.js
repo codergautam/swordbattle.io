@@ -124,6 +124,8 @@ module.exports = {
     FirstLife: 19,
     SelectUpgrade: 20,
     TutorialHitBlocked: 21,
+    TutorialSaved: 22,
+    CooldownRefund: 23,
   },
   Effect: {
     Custom: 1,

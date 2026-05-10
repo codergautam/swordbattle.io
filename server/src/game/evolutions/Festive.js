@@ -7,7 +7,7 @@ module.exports = class Festive extends Evolution {
   static level = 9999; // No winter evols now
   static previousEvol = Types.Evolution.CandyWalker;
   static abilityDuration = 6;
-  static abilityCooldown = 60;
+  static abilityCooldown = 90;
 
   constructor(player) {
     super(player);

@@ -1,4 +1,4 @@
-const { MinorCards, MajorCards, isMinorCard, isMajorCard, getAllMinorIds, getAllMajorIds, getMajorCardsByCategory } = require('./CardDefinitions');
+const { MinorCards, MajorCards, StarterCards, isMinorCard, isMajorCard, isStarterCard, getAllMinorIds, getAllMajorIds, getAllStarterIds, getMajorCardsByCategory } = require('./CardDefinitions');
 const Types = require('../Types');
 
 
@@ -24,6 +24,7 @@ class CardSystem {
     this.lastSkipResults = [];
     this.majorPicksSkipped = 0;
 
+    this.starterBoost = null;
     this.isTutorial = false;
 
     this.aggressionLastHitTime = 0;
@@ -42,6 +43,9 @@ class CardSystem {
 
     this._trackingExpiry = 0;
     this._trackingSpeedMult = 1;
+
+    this._currentPickId = 0;
+    this._lastStartedPickId = -1;
 
     this.insuranceUsed = false;
 
@@ -116,8 +120,11 @@ class CardSystem {
     }
     this.cardOffers = offers;
     this.choosingCard = true;
-    this.hasRerolledThisPick = false;
-    this.currentExcluded = [];
+    if (this._currentPickId !== this._lastStartedPickId) {
+      this.hasRerolledThisPick = false;
+      this.currentExcluded = [];
+      this._lastStartedPickId = this._currentPickId;
+    }
     this.lastSkipResults = [];
 
     if (this.instantSelect && this.isTutorial) {
@@ -128,6 +135,10 @@ class CardSystem {
   }
 
   generateOffers() {
+    if (this.cardPickNumber === 0) {
+      return getAllStarterIds();
+    }
+
     const isMajorPick = this.cardPickNumber > 0 && (this.cardPickNumber + 1) % 5 === 0;
     if (isMajorPick) {
       return this.generateMajorOffers();
@@ -274,7 +285,10 @@ class CardSystem {
     if (!this.choosingCard) return;
     if (!this.cardOffers.includes(cardId)) return;
 
-    if (isMinorCard(cardId)) {
+    if (isStarterCard(cardId)) {
+      const starter = StarterCards[cardId];
+      this.starterBoost = { stat: starter.stat, value: starter.value };
+    } else if (isMinorCard(cardId)) {
       const card = MinorCards[cardId];
       const stacks = this.minorStacks[cardId] || 0;
       if (stacks >= card.max) return;
@@ -298,6 +312,7 @@ class CardSystem {
     this.choosingCard = false;
     this.cardOffers = [];
     this.cardTimer = 0;
+    this._currentPickId++;
     this.pendingPicks = Math.max(0, this.pendingPicks - 1);
     if (this.pendingPicks > 0) {
       this.startCardPick();
@@ -369,6 +384,13 @@ class CardSystem {
   applyCardEffects() {
     const p = this.player;
 
+    if (this.starterBoost) {
+      const { stat, value } = this.starterBoost;
+      if (stat === 'maxHp') p.health.max.multiplier *= 1 + value;
+      else if (stat === 'speed') p.speed.multiplier *= 1 + value;
+      else if (stat === 'damage') p.sword.damage.multiplier *= 1 + value;
+    }
+
     const totalStacks = Object.values(this.minorStacks).reduce((sum, s) => sum + (s || 0), 0);
     const dimReturn = totalStacks > 0 ? 1 / (1 + totalStacks * 0.008) : 1;
 
@@ -423,6 +445,9 @@ class CardSystem {
       p.sword.flyDuration.multiplier *= 0.7;
       if (p.sword.isFlying) {
         p.sword.damage.multiplier *= 0.65;
+        if (p.evolutions && p.evolutions.evolution === Types.Evolution.SuperArcher) {
+          p.sword.damage.multiplier *= 0.1;
+        }
       }
     }
 
@@ -440,7 +465,8 @@ class CardSystem {
     }
 
     if (this.hasMajor(110) && this._trackingExpiry && now < this._trackingExpiry) {
-      p.speed.multiplier = this._trackingSpeedMult || 1;
+      const clampedMult = Math.min(Math.max(this._trackingSpeedMult || 1, 0.5), 1.5);
+      p.speed.multiplier *= clampedMult;
     }
 
     if (this.hasMajor(111)) {
@@ -595,13 +621,9 @@ class CardSystem {
     }
 
     if (this.hasMajor(110) && attacker && attacker.type === Types.Entity.Player && attacker.speed) {
-      const mySpeed = this.player.speed.value;
       const theirSpeed = attacker.speed.value;
-      if (theirSpeed > mySpeed) {
-        this._trackingSpeedMult = theirSpeed / this.player.speed.baseValue;
-      } else {
-        this._trackingSpeedMult = theirSpeed / this.player.speed.baseValue;
-      }
+      const ratio = theirSpeed / this.player.speed.baseValue;
+      this._trackingSpeedMult = Math.min(Math.max(ratio, 0.5), 1.5);
       this._trackingExpiry = now + 2000;
     }
 

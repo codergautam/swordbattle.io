@@ -6,7 +6,7 @@ module.exports = class Drifter extends Evolution {
   static level = 9999; // No winter evols now
   static previousEvol = [Types.Evolution.Tree, Types.Evolution.Festive, Types.Evolution.Snowtrekker, Types.Evolution.IceSpike];
   static abilityDuration = 6;
-  static abilityCooldown = 75;
+  static abilityCooldown = 113;
 
   constructor(player) {
     super(player);

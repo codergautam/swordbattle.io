@@ -29,6 +29,7 @@ class Sword extends BaseEntity {
     this.shadow = this.game.add.sprite(Sword.shadowOffsetX, Sword.shadowOffsetY, shadowKey).setOrigin(-0.2, 0.5);
     this.shadow.setAlpha(0.075);
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);
+    (this.container as any).__ownVisibility = true;
     return this.container;
   }
 

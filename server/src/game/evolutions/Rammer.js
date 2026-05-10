@@ -5,7 +5,7 @@ module.exports = class Rammer extends Evolution {
   static type = Types.Evolution.Rammer;
   static level = 1000; // Rammer not in rotation
   static abilityDuration = 6;
-  static abilityCooldown = 110;
+  static abilityCooldown = 165;
 
   applyAbilityEffects() {
     this.player.modifiers.ramAbility = true;

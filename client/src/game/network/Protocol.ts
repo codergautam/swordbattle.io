@@ -611,6 +611,7 @@ export interface ServerMessage {
   globalEntities?: { [key: number]: Entity };
   isPong?: boolean;
   tps?: number;
+  realPlayersCnt?: number;
 }
 
 export function encodeServerMessage(message: ServerMessage): Uint8Array {
@@ -710,6 +711,13 @@ function _encodeServerMessage(message: ServerMessage, bb: ByteBuffer): void {
   if ($tps !== undefined) {
     writeVarint32(bb, 64);
     writeVarint64(bb, intToLong($tps));
+  }
+
+  // optional int32 realPlayersCnt = 9;
+  let $realPlayersCnt = message.realPlayersCnt;
+  if ($realPlayersCnt !== undefined) {
+    writeVarint32(bb, 72);
+    writeVarint64(bb, intToLong($realPlayersCnt));
   }
 }
 
@@ -828,6 +836,12 @@ function _decodeServerMessage(bb: ByteBuffer): ServerMessage {
       // optional int32 tps = 8;
       case 8: {
         message.tps = readVarint32(bb);
+        break;
+      }
+
+      // optional int32 realPlayersCnt = 9;
+      case 9: {
+        message.realPlayersCnt = readVarint32(bb);
         break;
       }
 
@@ -1407,6 +1421,9 @@ export interface Entity {
   isTutorial?: boolean;
   swordRaising?: boolean;
   swordDecreasing?: boolean;
+  isBlocking?: boolean;
+  blockEnergy?: number;
+  parriedRemaining?: number;
   cardOffers?: number[];
   chosenCards?: number[];
   choosingCard?: boolean;
@@ -1874,6 +1891,27 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
     writeVarint32(bb, 464);
     writeByte(bb, $swordDecreasing ? 1 : 0);
   }
+
+  // optional bool isBlocking = 59;
+  let $isBlocking = message.isBlocking;
+  if ($isBlocking !== undefined) {
+    writeVarint32(bb, 472);
+    writeByte(bb, $isBlocking ? 1 : 0);
+  }
+
+  // optional float blockEnergy = 60;
+  let $blockEnergy = message.blockEnergy;
+  if ($blockEnergy !== undefined) {
+    writeVarint32(bb, 485);
+    writeFloat(bb, $blockEnergy);
+  }
+
+  // optional float parriedRemaining = 61;
+  let $parriedRemaining = message.parriedRemaining;
+  if ($parriedRemaining !== undefined) {
+    writeVarint32(bb, 493);
+    writeFloat(bb, $parriedRemaining);
+  }
 }
 
 export function decodeEntity(binary: Uint8Array): Entity {
@@ -2340,6 +2378,24 @@ function _decodeEntity(bb: ByteBuffer): Entity {
       // optional bool swordDecreasing = 58;
       case 58: {
         message.swordDecreasing = !!readByte(bb);
+        break;
+      }
+
+      // optional bool isBlocking = 59;
+      case 59: {
+        message.isBlocking = !!readByte(bb);
+        break;
+      }
+
+      // optional float blockEnergy = 60;
+      case 60: {
+        message.blockEnergy = readFloat(bb);
+        break;
+      }
+
+      // optional float parriedRemaining = 61;
+      case 61: {
+        message.parriedRemaining = readFloat(bb);
         break;
       }
 

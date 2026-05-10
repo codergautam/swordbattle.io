@@ -75,6 +75,20 @@ export const settingsList: Record<string, SettingType> = {
       }
     },
   },
+  gpuPreference: {
+    name: 'GPU preference (requires reload)',
+    list: [
+      { name: 'Auto (recommended)', value: 'default' },
+      { name: 'High performance (force dGPU)', value: 'high-performance' },
+      { name: 'Power saving (force iGPU)', value: 'low-power' },
+    ],
+    default: 'default',
+    onChange: () => {
+      if (isLoaded) {
+        window.location.reload();
+      }
+    },
+  },
   resolution: {
     name: 'Resolution',
     type: 'range',
@@ -84,6 +98,22 @@ export const settingsList: Record<string, SettingType> = {
     onChange: () => {
       // Emit resize event to update game resolution
       window.dispatchEvent(new Event('resize'));
+    },
+  },
+  fpsLimit: {
+    name: 'FPS limit',
+    list: [
+      { name: 'Unlimited', value: 0 },
+      { name: '144 FPS', value: 144 },
+      { name: '120 FPS', value: 120 },
+      { name: '90 FPS', value: 90 },
+      { name: '75 FPS', value: 75 },
+      { name: '60 FPS', value: 60 },
+      { name: '30 FPS', value: 30 },
+    ],
+    default: 0,
+    onChange: (value: any) => {
+      window.dispatchEvent(new CustomEvent('fpsLimitChanged', { detail: { limit: Number(value) || 0 } }));
     },
   },
   movementMode: {
@@ -100,6 +130,9 @@ export const settingsList: Record<string, SettingType> = {
     min: 0,
     max: 10,
     default: 3,
+    onChange: (value: number) => {
+      window.dispatchEvent(new CustomEvent('soundVolumeChanged', { detail: { volume: Number(value) } }));
+    },
   },
   server: {
     name: 'Server',
@@ -115,6 +148,27 @@ export const settingsList: Record<string, SettingType> = {
   },
   unloadSkins: {
     name: 'Unload skins (use default only)',
+    type: 'toggle',
+    default: false,
+  },
+  livingShadows: {
+    name: 'Shadows on players & mobs',
+    type: 'toggle',
+    default: true,
+    onChange: (value: boolean) => {
+      window.dispatchEvent(new CustomEvent('livingShadowsChanged', { detail: { enabled: value } }));
+    },
+  },
+  screenEffects: {
+    name: 'Screen effects (snow, heat haze, etc.)',
+    type: 'toggle',
+    default: true,
+    onChange: (value: boolean) => {
+      window.dispatchEvent(new CustomEvent('screenEffectsChanged', { detail: { enabled: value } }));
+    },
+  },
+  interpolation: {
+    name: 'Smooth other players (interpolation, experimental)',
     type: 'toggle',
     default: false,
   },

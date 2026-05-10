@@ -97,12 +97,6 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         setGame(null);
       };
     }
-  }, []);
-
-  useEffect(() => {
-    if (!game) return;
-
-    // ⭐ Get the actual running game scene
     const scene = game.scene.getScene('game');
     if (!scene) return;
 
@@ -115,8 +109,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
     return () => {
       scene.events.off('biomeUpdate', handler);
     };
-  }, [game]);
-
+  }, []);
 
   return (
     <div className="game">

@@ -30,6 +30,7 @@ export interface ClientMessage {
   tutorialComplete?: boolean;
   tutorialPanel?: number;
   closeCardSelect?: boolean;
+  chestHitZone?: number;
 }
 
 export function encodeClientMessage(message: ClientMessage): Uint8Array {
@@ -264,6 +265,12 @@ function _encodeClientMessage(message: ClientMessage, bb: ByteBuffer): void {
   if ($closeCardSelect !== undefined) {
     writeVarint32(bb, 472);
     writeByte(bb, $closeCardSelect ? 1 : 0);
+  }
+
+  let $chestHitZone = message.chestHitZone;
+  if ($chestHitZone !== undefined) {
+    writeVarint32(bb, 480);
+    writeVarint64(bb, intToLong($chestHitZone));
   }
 }
 

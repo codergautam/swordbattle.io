@@ -37,6 +37,14 @@ export enum EntityTypes {
 
   CaptureZone = 33,
   ThrownSword = 34,
+  Cactus = 36,
+  OasisLake = 37,
+  DeadBush = 38,
+  Sphinx = 40,
+  SandBlock = 41,
+  SandBall = 42,
+  Ore = 43,
+  AmbientShrub = 44,
 }
 
 export enum FlagTypes {
@@ -62,6 +70,12 @@ export enum FlagTypes {
   SelectUpgrade = 20,
   TutorialHitBlocked = 21,
   TutorialSaved = 22,
+  CactusHit = 23,
+  FootstepGrass = 24,
+  FootstepSnow = 25,
+  FootstepStone = 26,
+  FootstepWater = 27,
+  ContestedObject = 28,
 }
 
 export enum EvolutionTypes {
@@ -116,6 +130,14 @@ export enum BiomeTypes {
   Ice = 3,
   River = 4,
   Safezone = 5,
+  TutorialZone = 6,
+  Meadow = 7,
+  Savanna = 8,
+  Alpine = 9,
+  Dirt = 10,
+  Rocks = 11,
+  Desert = 12,
+  Oasis = 13,
 }
 
 export enum ShapeTypes {

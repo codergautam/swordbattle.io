@@ -1,6 +1,7 @@
 import Game from './scenes/Game';
 import Socket from './network/Socket';
-import { EntityTypes } from './Types';
+import { EntityTypes, InputTypes } from './Types';
+import { movers } from './effects/TreeShake';
 import { Settings } from './Settings';
 import GameMap from './GameMap';
 import Player from './entities/Player';
@@ -12,6 +13,9 @@ import { config } from '../config';
 import exportCaptcha from './components/captchaEncoder';
 import { findCoinCollector } from '../helpers';
 import { crazygamesSDK } from '../crazygames/sdk';
+import * as cosmetics from './cosmetics.json';
+import { perfMark } from './debug/perfStats';
+const { skins } = cosmetics as any;
 
 class GameState {
   game: Game;
@@ -53,11 +57,28 @@ class GameState {
   tutorialComplete: boolean = false;
   tutorialPanel: number | null = null;
   chatMessage: string | null = null;
+  chestBarActive = false;
+  chestBarZone = 0;
+  chestCombo = 1;
+  frameLerpRate = 0.5;
+  frameRotLerpRate = 0.2;
+  interpolationEnabled = false;
+  readonly interpDelay = 100;
+  snapClock = 0;
+  snapClockInit = false;
+  renderClock = 0;
+  renderClockInit = false;
+  moverList: any[] = [];
   captchaVerified = false;
   failedSkinLoads: Record<number, boolean> = {};
   recentDeadPlayers: Record<number, { name: string, time: number }> = {};
   chainDamagedTimestamps: Record<number, number> = {};
   private _chainTimestampPruneAccum: number = 0;
+
+  private skinSweepAccum: number = 0;
+  private skinIdleSince: Record<string, number> = {};
+  private static readonly skinCap = 60;
+  private static readonly skinIdleMs = 25000;
 
   private _boundOnOpen: () => void;
   private _boundOnMessage: (data: any) => void;
@@ -344,6 +365,15 @@ class GameState {
       this.realPlayersCnt = data.realPlayersCnt;
     }
 
+    if (this.interpolationEnabled && (data.entities || data.globalEntities || data.fullSync)) {
+      if (!this.snapClockInit) {
+        this.snapClock = 0;
+        this.snapClockInit = true;
+      } else {
+        this.snapClock += 1000 / (this.tps || 20);
+      }
+    }
+
     if (data.fullSync) {
       Object.values(this.entities).forEach(entity => entity.remove());
       this.entities = {};
@@ -437,6 +467,16 @@ class GameState {
         this.isReady = true;
         this.game.game.events.emit('gameReady');
 
+        try {
+          const typeCounts: Record<string, number> = {};
+          for (const id in this.entities) {
+            const t = String(this.entities[id]?.type);
+            typeCounts[t] = (typeCounts[t] || 0) + 1;
+          }
+          console.log(`[dupe] live gameState.entities = ${Object.keys(this.entities).length} by type:`, typeCounts,
+            `| gameMap.staticObjects = ${this.gameMap.staticObjects.length}`);
+        } catch (e) {}
+
         const serverSaysTutorial = selfEntity && (selfEntity as any).isTutorial;
         let isFirstEverPlay = false;
         try { isFirstEverPlay = !localStorage.getItem('swordbattle:tutorialComplete'); } catch (e) {}
@@ -477,6 +517,45 @@ class GameState {
     this.tickAccumulator = 0;
   }
 
+  private cullContainer(entity: any, vx: number, vy: number, vxMax: number, vyMax: number) {
+    const c = entity && entity.container;
+    if (!c || c.__ownVisibility || c.__noCull) return;
+    const body = entity.body;
+    const bodyW = (body && body.displayWidth) || 0;
+    if (entity.cullPadX === undefined || entity.cullBodyW !== bodyW || entity.cullSize !== entity.size) {
+      let halfW = 0;
+      let halfH = 0;
+      const shape = entity.shape;
+      if (shape) {
+        if (shape.radius) { halfW = shape.radius; halfH = shape.radius; }
+        if (shape.polygonBounds) {
+          const pb = shape.polygonBounds;
+          if (pb.width / 2 > halfW) halfW = pb.width / 2;
+          if (pb.height / 2 > halfH) halfH = pb.height / 2;
+        }
+      }
+      if (typeof entity.size === 'number') {
+        if (entity.size > halfW) halfW = entity.size;
+        if (entity.size > halfH) halfH = entity.size;
+      }
+      if (bodyW) {
+        const shadowMargin = 1.3;
+        entity.cullPadX = Math.max(500, halfW * 2, (bodyW / 2) * shadowMargin);
+        entity.cullPadY = Math.max(500, halfH * 2, (body.displayHeight / 2) * shadowMargin);
+      } else {
+        entity.cullPadX = Math.max(500, halfW * 2);
+        entity.cullPadY = Math.max(500, halfH * 2);
+      }
+      entity.cullBodyW = bodyW;
+      entity.cullSize = entity.size;
+    }
+    const padX = entity.cullPadX;
+    const padY = entity.cullPadY;
+    const inView = (c.x + padX) > vx && (c.x - padX) < vxMax
+                && (c.y + padY) > vy && (c.y - padY) < vyMax;
+    if (inView !== c.visible) c.visible = inView;
+  }
+
   updateGraphics(dt: number) {
     if (this._returningFromHidden) {
       this._returningFromHidden = false;
@@ -489,58 +568,66 @@ class GameState {
         if (entity.container && entity.shape) {
           entity.container.x = entity.shape.x;
           entity.container.y = entity.shape.y;
+          if (entity.posBuffer) entity.posBuffer.length = 0;
         }
       }
     }
+
+    const tps = this.tps || 20;
+    this.frameLerpRate = 1 - Math.exp(-(dt || 16) / (1000 / tps));
+    this.frameRotLerpRate = 1 - Math.exp(-(dt || 16) / (10000 / tps));
+
+    this.interpolationEnabled = Settings.interpolation === true;
+    if (this.interpolationEnabled && this.snapClockInit) {
+      if (!this.renderClockInit) {
+        this.renderClock = this.snapClock - this.interpDelay;
+        this.renderClockInit = true;
+      } else {
+        this.renderClock += (dt || 16);
+        this.renderClock += ((this.snapClock - this.interpDelay) - this.renderClock) * 0.1;
+      }
+    } else {
+      this.renderClockInit = false;
+    }
+
+    let pt = perfMark();
+    this.moverList.length = 0;
+    for (const id in this.entities) {
+      const e = this.entities[id] as any;
+      if (e && movers.has(e.type)) this.moverList.push(e);
+    }
+    pt = perfMark('moverList', pt);
 
     for (const entity of this.removedEntities) {
       entity.update(dt);
     }
+    pt = perfMark('removedUpd', pt);
     for (const id in this.entities) {
       this.entities[id].update(dt);
     }
+    pt = perfMark('entitiesUpd', pt);
     for (const id in this.globalEntities) {
       this.globalEntities[id].update(dt);
     }
+    pt = perfMark('globalUpd', pt);
     this.gameMap.update();
+    pt = perfMark('gameMapUpd', pt);
     this.spectator.update(dt);
+    pt = perfMark('spectator', pt);
 
     const camera = this.game.cameras.main;
     const view = camera.worldView;
     if (view.width > 0 && view.height > 0) {
-      const vx = view.x;
-      const vy = view.y;
-      const vxMax = view.x + view.width;
-      const vyMax = view.y + view.height;
+      const boost = this.spectator.active ? Math.max(view.width, view.height) * 1.5 : 0;
+      const vx = view.x - boost;
+      const vy = view.y - boost;
+      const vxMax = view.x + view.width + boost;
+      const vyMax = view.y + view.height + boost;
       for (const id in this.entities) {
-        const entity = this.entities[id];
-        const c = entity.container;
-        if (!c || c.__ownVisibility || c.__noCull) continue;
-        let halfW = 0;
-        let halfH = 0;
-        const shape = entity.shape;
-        if (shape) {
-          if (shape.radius) {
-            halfW = shape.radius;
-            halfH = shape.radius;
-          }
-          if (shape.polygonBounds) {
-            const pb = shape.polygonBounds;
-            if (pb.width / 2 > halfW) halfW = pb.width / 2;
-            if (pb.height / 2 > halfH) halfH = pb.height / 2;
-          }
-        }
-        if (typeof entity.size === 'number') {
-          if (entity.size > halfW) halfW = entity.size;
-          if (entity.size > halfH) halfH = entity.size;
-        }
-        const padX = Math.max(500, halfW * 2);
-        const padY = Math.max(500, halfH * 2);
-        const inView = (c.x + padX) > vx && (c.x - padX) < vxMax
-                    && (c.y + padY) > vy && (c.y - padY) < vyMax;
-        if (inView !== c.visible) c.visible = inView;
+        this.cullContainer(this.entities[id], vx, vy, vxMax, vyMax);
       }
     }
+    pt = perfMark('cullLoop', pt);
 
     this._chainTimestampPruneAccum += dt;
     if (this._chainTimestampPruneAccum > 5000) {
@@ -550,6 +637,62 @@ class GameState {
       for (const id in cache) {
         if (cache[id] < cutoff) delete cache[id];
       }
+    }
+
+    this.skinSweepAccum += dt;
+    if (this.skinSweepAccum > 5000) {
+      this.skinSweepAccum = 0;
+      try { this.sweepSkinTextures(); } catch (e) {}
+    }
+  }
+
+  private sweepSkinTextures() {
+    const textures = this.game.textures;
+    const defaultName = skins?.player?.name;
+
+    const resident: string[] = [];
+    for (const key in skins) {
+      const name = skins[key]?.name;
+      if (!name || name === defaultName) continue;
+      if (textures.exists(name + 'Body') || textures.exists(name + 'Sword')) resident.push(name);
+    }
+    if (resident.length <= GameState.skinCap) {
+      this.skinIdleSince = {};
+      return;
+    }
+
+    const inUse = new Set<string>();
+    const collect = (obj: any) => {
+      if (!obj) return;
+      const k = obj.texture && obj.texture.key;
+      if (k) inUse.add(k);
+      const list = obj.list;
+      if (list) for (let i = 0; i < list.length; i++) collect(list[i]);
+    };
+    for (const id in this.entities) collect(this.entities[id]?.container);
+    for (const id in this.globalEntities) collect((this.globalEntities[id] as any)?.gameWorldEntity?.container);
+    collect(this.self.entity?.container);
+
+    const now = Date.now();
+    const idleSince = this.skinIdleSince;
+    const evictable: { name: string, since: number }[] = [];
+    for (const name of resident) {
+      const used = inUse.has(name + 'Body') || inUse.has(name + 'Sword') ||
+                   inUse.has(name + 'Body_shadow') || inUse.has(name + 'Sword_shadow');
+      if (used) { delete idleSince[name]; continue; }
+      if (!idleSince[name]) idleSince[name] = now;
+      if (now - idleSince[name] >= GameState.skinIdleMs) evictable.push({ name, since: idleSince[name] });
+    }
+
+    evictable.sort((a, b) => a.since - b.since);
+    let count = resident.length;
+    for (const { name } of evictable) {
+      if (count <= GameState.skinCap) break;
+      for (const key of [name + 'Body', name + 'Sword', name + 'Body_shadow', name + 'Sword_shadow']) {
+        if (textures.exists(key)) textures.remove(key);
+      }
+      delete idleSince[name];
+      count--;
     }
   }
 
@@ -621,6 +764,14 @@ class GameState {
     if (this.chatMessage) {
       data.chatMessage = this.chatMessage;
       this.chatMessage = null;
+    }
+    if (data.inputs && data.inputs.some((i: any) => i.inputType === InputTypes.SwordSwing && i.inputDown)) {
+      if (this.chestBarActive) {
+        const comboX100 = Math.max(100, Math.min(200, Math.round((this.chestCombo || 1) * 100)));
+        data.chestHitZone = (this.chestBarZone + 1) | (comboX100 << 3);
+      } else {
+        data.chestHitZone = 0;
+      }
     }
     if (Object.keys(data).length !== 0) {
       Socket.emit(data);

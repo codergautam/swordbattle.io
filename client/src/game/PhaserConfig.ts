@@ -2,6 +2,20 @@ import Phaser from 'phaser';
 import Game from './scenes/Game';
 import { Settings } from './Settings';
 
+(() => {
+  const proto: any = (Phaser.GameObjects as any)?.GameObjectFactory?.prototype;
+  if (!proto || typeof proto.text !== 'function' || proto.fontPatched) return;
+  const orig = proto.text;
+  proto.text = function (x: number, y: number, text: any, style: any) {
+    style = style || {};
+    style.fontFamily = "'Rajdhani', sans-serif";
+    if (style.fontStyle == null || style.fontStyle === 'normal') style.fontStyle = '700';
+    else if (style.fontStyle === 'bold') style.fontStyle = '700';
+    return orig.call(this, x, y, text, style);
+  };
+  proto.fontPatched = true;
+})();
+
 // Test if WebGL context can actually be created on this device.
 // Some devices (broken drivers, school Chromebooks, blocked GPUs) can't create
 // a WebGL context, which causes Phaser to crash. Detect and fall back to Canvas.
@@ -55,15 +69,17 @@ const config: Phaser.Types.Core.GameConfig = {
 	antialias: Settings.antialiasing,
 	parent: 'phaser-container',
 	backgroundColor: '#000000',
-	powerPreference: 'high-performance',
+	powerPreference: (Settings.gpuPreference as any) || 'default',
 	autoRound: true,
 	autoMobilePipeline: true,
 	scale: {
 		mode: Phaser.Scale.NONE,
 	},
 	fps: {
-		target: 60,
-		smoothStep: false,
+		target: 144,
+		min: 30,
+		smoothStep: true,
+		...(Number(Settings.fpsLimit) > 0 ? { limit: Number(Settings.fpsLimit) } : {}),
 	},
 	physics: {
 		default: 'arcade',

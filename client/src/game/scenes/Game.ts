@@ -9,6 +9,13 @@ import { BaseEntity } from '../entities/BaseEntity';
 import { Settings } from '../Settings';
 import { config } from '../../config';
 import { Controls } from '../Controls';
+import ScreenEffectsPipeline from '../effects/ScreenEffectsPipeline';
+import { screenEffectsState, screenEffectsRuntime, onEffectsChange, updateEffects } from '../effects/screenEffectsState';
+import { updateWind } from '../effects/Wind';
+import { updateBiomeEffects } from '../effects/biomeEffects';
+import { initPerfStats, tickPerfStats } from '../debug/perfStats';
+import { initAblation } from '../debug/ablation';
+import { buildTextureAtlas } from '../render/textureAtlas';
 import { crazygamesSDK } from '../../crazygames/sdk';
 import * as cosmetics from '../cosmetics.json';
 const {skins} = cosmetics;
@@ -27,11 +34,15 @@ export default class Game extends Phaser.Scene {
   scaleZoom = 1;
   backgroundTile: Phaser.GameObjects.TileSprite | null = null;
 
+  static maxRenderDpr = 1.5;
+
   private _resizeHandler: (() => void) | null = null;
   private _orientationHandler: (() => void) | null = null;
   private _adStartHandler: (() => void) | null = null;
   private _adFinishHandler: (() => void) | null = null;
   private _visibilityHandler: (() => void) | null = null;
+  private fpsLimitHandler: ((e: any) => void) | null = null;
+  private screenEffectsHandler: ((e: any) => void) | null = null;
   private _contextLostHandler: ((e: Event) => void) | null = null;
   private _contextRestoredHandler: (() => void) | null = null;
   private _contextWasLost = false;
@@ -64,8 +75,22 @@ export default class Game extends Phaser.Scene {
     this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice-new.png');
     this.load.image('river', publicPath + '/assets/game/tiles/river-new.png');
+    this.load.image('riverBottom', publicPath + '/assets/game/tiles/river-bottom.png');
+    this.load.image('riverTop', publicPath + '/assets/game/tiles/river-top.png');
     this.load.image('safezone', publicPath + '/assets/game/tiles/spawn.png');
     this.load.image('sand', publicPath + '/assets/game/tiles/sand.png');
+    this.load.image('sandRock', publicPath + '/assets/game/tiles/sandrock.png');
+    this.load.image('sandMud', publicPath + '/assets/game/tiles/sandmud.png');
+    this.load.image('sandAsh', publicPath + '/assets/game/tiles/sandash.png');
+    this.load.image('rockcoast', publicPath + '/assets/game/tiles/rockcoast.png');
+    this.load.image('tutorialTile', publicPath + '/assets/game/tiles/tutorial.png');
+    this.load.image('meadowTile', publicPath + '/assets/game/tiles/meadow.jpg');
+    this.load.image('savannaTile', publicPath + '/assets/game/tiles/savanna.jpg');
+    this.load.image('alpineTile', publicPath + '/assets/game/tiles/alpine.jpg');
+    this.load.image('dirtTile', publicPath + '/assets/game/tiles/dirt.png');
+    this.load.image('rocksTile', publicPath + '/assets/game/tiles/rocks.png');
+    this.load.image('desertTile', publicPath + '/assets/game/tiles/desert.png');
+    this.load.image('oasisTile', publicPath + '/assets/game/tiles/oasis.png');
 
     if (Settings.coins) {
       this.load.image('coin', publicPath + '/assets/game/coin.png');
@@ -77,22 +102,68 @@ export default class Game extends Phaser.Scene {
     this.load.image('mastery', publicPath + '/assets/game/ui/mastery.png');
     this.load.image('house1', publicPath + '/assets/game/house1.png');
     this.load.image('house1roof', publicPath + '/assets/game/house1roof.png');
-    this.load.image('mossyRock', publicPath + '/assets/game/Mossy_Rock-shaded.png');
+    this.load.image('mossyRock', publicPath + '/assets/game/Mossy_Rock.png');
     this.load.image('pond', publicPath + '/assets/game/Pond_Earth.png');
-    this.load.image('bush', publicPath + '/assets/game/grass-shaded.png');
-    this.load.image('bushFaded', publicPath + '/assets/game/grass-50-shaded.png');
-    this.load.image('iceMound', publicPath + '/assets/game/Ice_Mound-new-shaded.png');
-    this.load.image('iceMoundFaded', publicPath + '/assets/game/Ice_Mound-50-shaded.png');
-    this.load.image('iceSpike', publicPath + '/assets/game/Ice_Spike-shaded.png');
-    this.load.image('icePond', publicPath + '/assets/game/Ice_Pond-shaded.png');
+    this.load.image('bush', publicPath + '/assets/game/grass.png');
+    this.load.image('bushPine',         publicPath + '/assets/game/pinetree.png');
+    this.load.image('bushPalm',         publicPath + '/assets/game/palmtree.png');
+    this.load.image('bushSavannaPalm',  publicPath + '/assets/game/savannapalm.png');
+    this.load.image('bushMeadow',       publicPath + '/assets/game/meadowtree.png');
+    this.load.image('bushCactus',       publicPath + '/assets/game/cactus.png');
+    this.load.image('cactus',           publicPath + '/assets/game/cactus.png');
+    this.load.image('oasisDown',        publicPath + '/assets/game/oasisDown.png');
+    this.load.image('oasisUp',          publicPath + '/assets/game/oasisUp.png');
+    this.load.image('deadBush',         publicPath + '/assets/game/deadbush.png');
+    this.load.image('partTree',  publicPath + '/assets/game/partTree.png');
+    this.load.image('partPine',  publicPath + '/assets/game/partPine.png');
+    this.load.image('partPalm',  publicPath + '/assets/game/partPalm.png');
+    this.load.image('partSav',   publicPath + '/assets/game/partSav.png');
+    this.load.image('partDead',  publicPath + '/assets/game/partDead.png');
+    this.load.image('partMound', publicPath + '/assets/game/partMound.png');
+    for (let i = 1; i <= 3; i++) {
+      this.load.image('ambShrubAlpine' + i, publicPath + '/assets/game/ambShrub' + i + 'alpine.png');
+      this.load.image('ambShrubGrass' + i,  publicPath + '/assets/game/ambShrub' + i + 'grass.png');
+      this.load.image('ambShrubMeadow' + i, publicPath + '/assets/game/ambShrub' + i + 'meadow.png');
+      this.load.image('ambRock' + i,        publicPath + '/assets/game/ambRock' + i + '.png');
+      this.load.image('ambRock' + i + 'desert', publicPath + '/assets/game/ambRock' + i + 'desert.png');
+    }
+    for (let i = 1; i <= 5; i++) {
+      this.load.image('ambFlower' + i, publicPath + '/assets/game/ambFlower' + i + '.png');
+    }
+    this.load.image('sandBlock',        publicPath + '/assets/game/mobs/sandblock.png');
+    this.load.image('sandBall',         publicPath + '/assets/game/mobs/sandball.png');
+    this.load.image('iceMound', publicPath + '/assets/game/Ice_Mound.png');
+    this.load.image('iceSpike', publicPath + '/assets/game/Ice_Spike.png');
+    this.load.image('icePond', publicPath + '/assets/game/Ice_Pond.png');
     this.load.image('rock', publicPath + '/assets/game/Rock.png');
     this.load.image('rockShadow', publicPath + '/assets/game/rockShadow.png');
     this.load.image('lavaRock', publicPath + '/assets/game/Lava_Rock.png');
     this.load.image('lavaPool', publicPath + '/assets/game/Lava_Pool.png');
+    for (let i = 1; i <= 9; i++) {
+      this.load.image('ore' + i, publicPath + '/assets/game/ore' + i + '.png');
+      for (const suffix of ['-lava', '-desert', '-dirt', '-snow']) {
+        this.load.image('ore' + i + suffix, publicPath + '/assets/game/ore' + i + suffix + '.png');
+      }
+    }
+    this.load.image('ore10', publicPath + '/assets/game/ore10.png');
 
     this.load.image('wolfMobPassive', publicPath + '/assets/game/mobs/wolfPassive.png');
     this.load.image('wolfMobAggressive', publicPath + '/assets/game/mobs/wolfAggressive.png');
     this.load.image('wolfShadow', publicPath + '/assets/game/mobs/wolfShadow.png');
+    this.load.image('scorpion',         publicPath + '/assets/game/mobs/scorpion.png');
+    this.load.image('scorpionShadow',   publicPath + '/assets/game/mobs/scorpionShadow.png');
+    this.load.image('camelPassive',     publicPath + '/assets/game/mobs/camelPassive.png');
+    this.load.image('camelAngry',       publicPath + '/assets/game/mobs/camelAngry.png');
+    this.load.image('camelShadow',      publicPath + '/assets/game/mobs/camelShadow.png');
+    this.load.image('desertBunny',      publicPath + '/assets/game/mobs/desertbunny.png');
+    this.load.image('desertCat',        publicPath + '/assets/game/mobs/desertcat.png');
+    this.load.image('fireSpirit',       publicPath + '/assets/game/mobs/firespirit.png');
+    this.load.image('fireSpiritShadow', publicPath + '/assets/game/mobs/firespiritShadow.png');
+    this.load.image('sphinx',           publicPath + '/assets/game/mobs/sphinx.png');
+    this.load.image('sphinxShadow',     publicPath + '/assets/game/mobs/sphinxShadow.png');
+    this.load.image('ancientDirt',       publicPath + '/assets/game/mobs/ancient-dirt.png');
+    this.load.image('swordProjDirt',     publicPath + '/assets/game/mobs/sword-dirt.png');
+    this.load.image('boulderDirt',       publicPath + '/assets/game/mobs/boulder-dirt.png');
     this.load.image('catMobPassive', publicPath + '/assets/game/mobs/cat.png');
     this.load.image('catShadow', publicPath + '/assets/game/mobs/catShadow.png');
     this.load.image('bunny', publicPath + '/assets/game/mobs/bunny.png');
@@ -125,13 +196,13 @@ export default class Game extends Phaser.Scene {
     this.load.image('ornament1', publicPath + '/assets/game/mobs/ornament1.png');
     this.load.image('ornament2', publicPath + '/assets/game/mobs/ornament2.png');
 
-    this.load.image('chest1', publicPath + '/assets/game/Chest1-shaded.png');
-    this.load.image('chest2', publicPath + '/assets/game/Chest2-shaded.png');
-    this.load.image('chest3', publicPath + '/assets/game/Chest3-shaded.png');
-    this.load.image('chest4', publicPath + '/assets/game/Chest4-shaded.png');
-    this.load.image('chest5', publicPath + '/assets/game/Chest5-shaded.png');
-    this.load.image('chest6', publicPath + '/assets/game/Chest6-shaded.png');
-    this.load.image('chest7', publicPath + '/assets/game/Chest7-shaded.png');
+    this.load.image('chest1', publicPath + '/assets/game/Chest1.png');
+    this.load.image('chest2', publicPath + '/assets/game/Chest2.png');
+    this.load.image('chest3', publicPath + '/assets/game/Chest3.png');
+    this.load.image('chest4', publicPath + '/assets/game/Chest4.png');
+    this.load.image('chest5', publicPath + '/assets/game/Chest5.png');
+    this.load.image('chest6', publicPath + '/assets/game/Chest6.png');
+    this.load.image('chest7', publicPath + '/assets/game/Chest7.png');
     this.load.image('chest8', publicPath + '/assets/game/Chest8.png'); // Removed
 
     this.load.image('crown', publicPath + '/assets/game/player/crown-new.png');
@@ -230,9 +301,63 @@ export default class Game extends Phaser.Scene {
     });
   }
 
+  private fxAttached = false;
+
+  private setupScreenEffects() {
+    if (this.renderer.type !== Phaser.WEBGL) return;
+    try {
+      const renderer = this.renderer as Phaser.Renderer.WebGL.WebGLRenderer;
+      if (!renderer.pipelines.getPostPipeline('ScreenEffects')) {
+        renderer.pipelines.addPostPipeline('ScreenEffects', ScreenEffectsPipeline);
+      }
+      try {
+        const warm = renderer.pipelines.getPostPipeline('ScreenEffects') as any;
+        if (warm && !warm.hasBooted && typeof warm.bootFX === 'function') {
+          warm.bootFX();
+        }
+        if (warm && typeof warm.destroy === 'function') {
+          warm.destroy();
+        }
+      } catch (warmErr) {
+        console.warn('[ScreenEffects] pre-warm failed (non-fatal)', warmErr);
+      }
+    } catch (e) {
+      console.warn('[ScreenEffects] failed to register post-FX pipeline', e);
+      return;
+    }
+
+    const refresh = () => this.refreshScreenEffects();
+    onEffectsChange(refresh);
+    screenEffectsState.enabled = Settings.screenEffects !== false;
+    refresh();
+  }
+
+  private refreshScreenEffects() {
+    if (this.renderer.type !== Phaser.WEBGL || !this.cameras?.main) return;
+    const s = screenEffectsState;
+    const active = s.enabled;
+    if (active === this.fxAttached) return;
+    try {
+      if (active) {
+        this.cameras.main.setPostPipeline(ScreenEffectsPipeline);
+      } else {
+        this.cameras.main.resetPostPipeline(true);
+      }
+      this.fxAttached = active;
+    } catch (e) {
+      console.warn('[ScreenEffects] attach/detach failed', e);
+    }
+  }
+
   create() {
     // Signal that asset loading has finished
     crazygamesSDK.loadingStop();
+
+    initPerfStats(this);
+    initAblation();
+    buildTextureAtlas(this);
+
+
 
     this.cameras.main.setBackgroundColor('#000000');
 
@@ -241,6 +366,8 @@ export default class Game extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(-10)
       .setTileScale(2);
+
+    this.setupScreenEffects();
 
     this.soundManager.initialize();
     this.hud.initialize();
@@ -313,6 +440,23 @@ export default class Game extends Phaser.Scene {
     window.addEventListener('crazyGamesAdStarted', this._adStartHandler);
     window.addEventListener('crazyGamesAdFinished', this._adFinishHandler);
     document.addEventListener('visibilitychange', this._visibilityHandler);
+
+    BaseEntity.setLivingShadowsEnabled(Settings.livingShadows !== false);
+    window.addEventListener('livingShadowsChanged', (e: any) => {
+      BaseEntity.setLivingShadowsEnabled(!!e?.detail?.enabled);
+    });
+
+    window.addEventListener('soundVolumeChanged', (e: any) => {
+      const v = Number(e?.detail?.volume);
+      if (!Number.isNaN(v)) this.soundManager.setVolume(v / 10);
+    });
+
+    this.applyFpsLimit(Number(Settings.fpsLimit) || 0);
+    this.fpsLimitHandler = (e: any) => this.applyFpsLimit(Number(e?.detail?.limit) || 0);
+    window.addEventListener('fpsLimitChanged', this.fpsLimitHandler);
+
+    this.screenEffectsHandler = (e: any) => updateEffects({ enabled: !!e?.detail?.enabled });
+    window.addEventListener('screenEffectsChanged', this.screenEffectsHandler);
   }
 
   shutdown() {
@@ -336,6 +480,14 @@ export default class Game extends Phaser.Scene {
       document.removeEventListener('visibilitychange', this._visibilityHandler);
       this._visibilityHandler = null;
     }
+    if (this.fpsLimitHandler) {
+      window.removeEventListener('fpsLimitChanged', this.fpsLimitHandler);
+      this.fpsLimitHandler = null;
+    }
+    if (this.screenEffectsHandler) {
+      window.removeEventListener('screenEffectsChanged', this.screenEffectsHandler);
+      this.screenEffectsHandler = null;
+    }
     if (this._contextLostHandler) {
       this.game.canvas.removeEventListener('webglcontextlost', this._contextLostHandler);
       this._contextLostHandler = null;
@@ -353,11 +505,17 @@ export default class Game extends Phaser.Scene {
 
     const view = config.viewportSize;
     const resolution = Settings.resolution / 100;
-    const scale = window.devicePixelRatio * resolution;
+    const dpr = Math.min(window.devicePixelRatio || 1, Game.maxRenderDpr);
+    const scale = dpr * resolution;
     const width = document.documentElement.clientWidth * scale;
     const height = document.documentElement.clientHeight * scale;
     this.game.scale.resize(width, height);
     this.game.scale.setZoom(1 / scale);
+
+    if (this.fxAttached && this.cameras?.main) {
+      try { this.cameras.main.resetPostPipeline(true); } catch (e) { }
+      this.fxAttached = false;
+    }
 
     const cameraScale = Math.max(width / view, height / view);
     this.setScaleZoom(cameraScale);
@@ -369,6 +527,19 @@ export default class Game extends Phaser.Scene {
 
     this.hud.resize();
     this.gameState.resize();
+  }
+
+  applyFpsLimit(limit: number) {
+    const loop: any = this.game?.loop;
+    if (!loop) return;
+    const n = Number(limit) > 0 ? Number(limit) : 0;
+    loop.fpsLimit = n;
+    loop.hasFpsLimit = n > 0;
+    loop._limitRate = n > 0 ? 1000 / n : 0;
+    loop.delta = 0;
+    if (loop.raf) {
+      loop.raf.callback = (loop.hasFpsLimit ? loop.stepLimitFPS : loop.step).bind(loop);
+    }
   }
 
   updateZoom(zoom: number, duration = 1500) {
@@ -403,8 +574,11 @@ export default class Game extends Phaser.Scene {
   private _dtVarianceAccum: number = 0;
   private _dtVarianceSamples: number = 0;
   private _lastRawDt: number = 16;
+  realFrameCount = 0;
 
 	update(time: number, dt: number) {
+    this.realFrameCount++;
+    tickPerfStats();
     dt = Math.min(dt, 50);
 
     const dtDiff = Math.abs(dt - this._lastRawDt);
@@ -431,15 +605,28 @@ export default class Game extends Phaser.Scene {
       console.log('Game is ready');
     }
     if (this.backgroundTile) {
-      const camera = this.cameras.main;
-      const tileScale = 2;
-      this.backgroundTile.setDisplaySize(camera.displayWidth, camera.displayHeight);
-      this.backgroundTile.setTileScale(camera.zoom * tileScale);
-      this.backgroundTile.setTilePosition(
-        (camera.scrollX - camera.displayWidth / 2) / tileScale,
-        (camera.scrollY - camera.displayHeight / 2) / tileScale);
+      const backdrop = this.gameState.gameMap?.riverBackdrop;
+      const covered = !!backdrop && backdrop.visible;
+      if (this.backgroundTile.visible === covered) this.backgroundTile.setVisible(!covered);
+      if (!covered) {
+        const camera = this.cameras.main;
+        const tileScale = 2;
+        this.backgroundTile.setDisplaySize(camera.displayWidth, camera.displayHeight);
+        this.backgroundTile.setTileScale(camera.zoom * tileScale);
+        this.backgroundTile.setTilePosition(
+          (camera.scrollX - camera.displayWidth / 2) / tileScale,
+          (camera.scrollY - camera.displayHeight / 2) / tileScale);
+      }
     }
 
+    if (this.fxAttached) {
+      screenEffectsRuntime.scrollX = this.cameras.main.scrollX;
+      screenEffectsRuntime.scrollY = this.cameras.main.scrollY;
+    }
+
+    updateWind(dt);
+    updateBiomeEffects(this.gameState.self.entity?.biome as number | undefined, dt);
+    this.refreshScreenEffects();
     this.soundManager.update(dt);
     this.gameState.updateTick(dt);
     this.gameState.updateGraphics(dt);

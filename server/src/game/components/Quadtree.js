@@ -1,5 +1,7 @@
 const { rectangleRectangle } = require('../collisions');
 
+let queryGen = 0;
+
 class QuadTree {
   constructor(boundary, capacity = 10, maxLevel = 4, level = 0) {
     this.boundary = boundary;
@@ -78,26 +80,29 @@ class QuadTree {
   }
 
   get(collisionRect) {
-    const seen = new Set();
+    const gen = ++queryGen;
     const result = [];
-    this._query(collisionRect, seen, result);
+    this._query(collisionRect, gen, result);
     return result;
   }
 
-  _query(collisionRect, seen, result) {
+  _query(collisionRect, gen, result) {
     if (!rectangleRectangle(this.boundary, collisionRect)) {
       return;
     }
 
-    for (const item of this.items) {
-      if (!seen.has(item)) {
-        seen.add(item);
+    const items = this.items;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.qgen !== gen) {
+        item.qgen = gen;
         result.push(item);
       }
     }
 
-    for (const node of this.nodes) {
-      node._query(collisionRect, seen, result);
+    const nodes = this.nodes;
+    for (let i = 0; i < nodes.length; i++) {
+      nodes[i]._query(collisionRect, gen, result);
     }
   }
 
@@ -119,8 +124,11 @@ class QuadTree {
   }
 
   clear() {
-    this.items = [];
-    this.nodes = [];
+    this.items.length = 0;
+    const nodes = this.nodes;
+    for (let i = 0; i < nodes.length; i++) {
+      nodes[i].clear();
+    }
   }
 };
 

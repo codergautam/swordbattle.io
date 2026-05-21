@@ -37,16 +37,25 @@ const Entity = {
 
   CaptureZone: 33,
   ThrownSword: 34,
+  Cactus: 36,
+  OasisLake: 37,
+  DeadBush: 38,
+  Sphinx: 40,
+  SandBlock: 41,
+  SandBall: 42,
+  Ore: 43,
+  AmbientShrub: 44,
 };
 
 const Mobs = [
-  Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Santa, Entity.Chimera, Entity.Roku, Entity.Ancient, Entity.Cat, Entity.Fish, Entity.AngryFish, Entity.IceSpirit
+  Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Santa, Entity.Chimera, Entity.Roku, Entity.Ancient, Entity.Cat, Entity.Fish, Entity.AngryFish, Entity.IceSpirit,
+  Entity.Sphinx,
 ];
 const Groups = {
   Obstacles: [
-    Entity.Player, Entity.Sword, Entity.Coin, Entity.Token,
-    Entity.IceSpike, Entity.Rock, Entity.MossyRock, Entity.LavaRock,
-    Entity.Fireball, Entity.Boulder, Entity.SwordProj, Entity.Snowball, Entity.Chest, Entity.Ornament,
+    Entity.Player, Entity.Sword, Entity.Token,
+    Entity.IceSpike, Entity.Rock, Entity.MossyRock, Entity.LavaRock, Entity.Ore,
+    Entity.Fireball, Entity.Boulder, Entity.SwordProj, Entity.Snowball, Entity.Ornament,
     ...Mobs,
   ],
   Mobs,
@@ -125,6 +134,8 @@ module.exports = {
     SelectUpgrade: 20,
     TutorialHitBlocked: 21,
     TutorialSaved: 22,
+    CactusHit: 23,
+    ContestedObject: 28,
   },
   Effect: {
     Custom: 1,
@@ -141,6 +152,14 @@ module.exports = {
     Ice: 3,
     River: 4,
     Safezone: 5,
+    TutorialZone: 6,
+    Meadow: 7,
+    Savanna: 8,
+    Alpine: 9,
+    Dirt: 10,
+    Rocks: 11,
+    Desert: 12,
+    Oasis: 13,
   },
   Shape: {
     Point: 1,

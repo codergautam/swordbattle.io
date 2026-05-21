@@ -32,6 +32,10 @@ message ClientMessage {
   bool tutorialComplete = 57;
   int32 tutorialPanel = 58;
   bool closeCardSelect = 59;
+  // Client-authoritative chest timing-bar result. `optional` so the field has
+  // real presence (absent ≠ 0) — pings/other messages don't clobber it.
+  // 0 = none, 1 = miss, 2 = good, 3 = great, 4 = perfect.
+  optional int32 chestHitZone = 60;
 }
 message InputData {
   int32 inputType = 1;

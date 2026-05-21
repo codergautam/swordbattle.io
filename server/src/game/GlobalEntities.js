@@ -1,7 +1,7 @@
 const Types = require('./Types');
 
 class GlobalEntities {
-  static fields = ['id', 'type', 'name', 'coins', 'tokens', 'shapeData', 'removed', 'angle', 'account', 'healthPercent'];
+  static fields = ['id', 'type', 'name', 'coins', 'tokens', 'shapeData', 'removed', 'angle', 'account', 'healthPercent', 'skin', 'size', 'rarity'];
 
   constructor(game) {
     this.game = game;

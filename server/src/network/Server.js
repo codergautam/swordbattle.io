@@ -162,6 +162,7 @@ class Server {
       this.clients.delete(client.id);
       this.disconnectedClients.delete(client);
     }
+    Protocol.beginBroadcast();
     for (const client of this.clients.values()) {
       const payload = this.game.createPayload(client);
       client.send(payload);

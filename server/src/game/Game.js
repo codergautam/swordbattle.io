@@ -308,6 +308,11 @@ class Game {
         }
       }
     }
+    if (data.chestHitZone != null) {
+      const raw = data.chestHitZone;
+      player.reportedChestZone = raw & 7;
+      player.reportedChestCombo = raw >= 8 ? Math.max(1, Math.min(2, (raw >> 3) / 100)) : 1;
+    }
     if (data.angle && !isNaN(data.angle)) {
       player.angle = Number(data.angle);
     }
@@ -438,8 +443,13 @@ class Game {
     const previousViewport = player.viewportEntityIds;
     const currentViewport = player.getEntitiesInViewport();
 
-    const previousSet = new Set(previousViewport);
-    const seen = new Set();
+    const previousSet = this.gefPrevSet || (this.gefPrevSet = new Set());
+    const seen = this.gefSeenSet || (this.gefSeenSet = new Set());
+    previousSet.clear();
+    seen.clear();
+    for (let i = 0; i < previousViewport.length; i++) {
+      previousSet.add(previousViewport[i]);
+    }
 
     for (const entityId of currentViewport) {
       if (seen.has(entityId)) continue;
@@ -558,8 +568,7 @@ class Game {
       player.cards.instantSelect = true;
       player.cards.rerollsAvailable = 0;
       player.coinShield = 999999; // during tutorial
-      player.shape.x = 0;
-      player.shape.y = 0;
+      this.map.spawnPlayer(player);
       player.inSafezone = true;
       client.pendingRespawn = null;
 

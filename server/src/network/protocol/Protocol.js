@@ -3,8 +3,13 @@ const protobuf = require('protobufjs');
 const root = protobuf.loadSync(__dirname + '/schema.proto');
 const ServerMessage = root.lookupType('ServerMessage');
 const ClientMessage = root.lookupType('ClientMessage');
+let walkedThisBroadcast = new WeakSet();
+const beginBroadcast = () => { walkedThisBroadcast = new WeakSet(); };
+
 const makeSendable = (data, depth = 0) => {
   if(depth > 3) return data;
+  if (walkedThisBroadcast.has(data)) return data;
+  walkedThisBroadcast.add(data);
   for (const key in data) {
     const val = data[key];
     if (typeof val === 'number') {
@@ -48,6 +53,7 @@ const decode = (msg) => {
 module.exports = {
   encode,
   decode,
+  beginBroadcast,
   ServerMessage,
   ClientMessage,
 };

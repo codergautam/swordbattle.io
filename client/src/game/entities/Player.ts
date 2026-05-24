@@ -7,7 +7,22 @@ import { random } from '../../helpers';
 import { Settings } from '../Settings';
 import { MinorCardData, isMajorCard, isMinorCard, getMinorTotalPercent, countStacks } from '../CardData';
 import * as cosmetics from '../cosmetics.json';
+import { FootstepTrail } from '../effects/Footsteps';
+import { skinBodyScales } from '../skinScales';
 const {skins} = cosmetics;
+
+type NameStyle = { fill: string; outline?: string | null; shadow?: string | null };
+const nameColors: Record<string, NameStyle> = {
+  codergautam: { fill: '#ff0000' },
+  angel: { fill: '#acfffc' },
+  'cool guy 53': { fill: '#00bbff' },
+  'update testing account': { fill: '#00ff00' },
+  'amethyst nightveil': { fill: '#7802ab' },
+  oy: { fill: '#000000', shadow: '#ffffff' },
+  bobz: { fill: '#000000', shadow: '#ffffff', outline: '#ff0000' },
+};
+const defaultNameStyle: NameStyle = { fill: '#ffffff', outline: '#000000' };
+const accountNameStyle: NameStyle = { fill: '#5b8cff' };
 
 const particlePool: Phaser.GameObjects.Sprite[] = [];
 const graphicsPool: Phaser.GameObjects.Graphics[] = [];
@@ -69,8 +84,8 @@ class Player extends BaseEntity {
     'rerollsAvailable', 'pendingPicks', 'skipResults', 'isTutorial',
   ];
   static removeTransition = 500;
-  static shadowOffsetX = 10;
-  static shadowOffsetY = 10;
+  static shadowOffsetX = 0;
+  static shadowOffsetY = 12;
 
   static computeSwordReduction(r: number): number {
     if (r <= 260) return 0;
@@ -88,6 +103,7 @@ class Player extends BaseEntity {
     8: 1.4,
     10: 1.7,
   };
+  static bodyScales: { [key: number]: number } = skinBodyScales;
 
   body!: Phaser.GameObjects.Sprite;
   sword!: Phaser.GameObjects.Sprite;
@@ -101,11 +117,15 @@ class Player extends BaseEntity {
   choosingText!: Phaser.GameObjects.Text;
   submergedShadow!: Phaser.GameObjects.Graphics;
   private _submergedProgress: number = 0;
+  private footsteps?: FootstepTrail;
+  shadowRT?: Phaser.GameObjects.RenderTexture;
+  private evoShadowActive = false;
 
   protectionAura!: Phaser.GameObjects.Graphics;
   sparkleInterval?: number;
 
   isMe: boolean = false;
+  bodyScale: number = 1;
   swordLerpProgress = 0;
   angleLerp = 0;
   previousAngle = 0;
@@ -121,7 +141,7 @@ class Player extends BaseEntity {
   private _lastContainerScale: number = -1;
   private _lastSwordScale: number = -1;
   private _lastSwordLocalPullback: number = -1;
-  private _submergedAccum: number = 0;
+  private submergedAccum: number = 0;
 
   cardSummaryContainer: Phaser.GameObjects.Container | null = null;
   cardSummaryBg: Phaser.GameObjects.Graphics | null = null;
@@ -138,6 +158,9 @@ class Player extends BaseEntity {
     return (Date.now() - this.survivalStarted) / 1000;
   }
 
+  get effectiveBodyWidth() { return this.body.width / this.bodyScale; }
+  get effectiveBodyHeight() { return this.body.height / this.bodyScale; }
+
   createSprite() {
     this.isMe = this.id === this.game.gameState.self.id;
     if (this.account && this.account.clan && typeof this.account.clan === 'object' && this.account.clan.tag) {
@@ -151,29 +174,32 @@ class Player extends BaseEntity {
     this.skinName = Object.values(skins).find(skin => skin.id === this.skin)?.name;
     const ogex = this.skinName?.includes("ogex") || false;
     this.body = this.game.add.sprite(0, 0, 'playerBody').setRotation(-Math.PI / 2);
+    this.bodyScale = Player.bodyScales[this.skin] ?? 1;
     if (this.skin === 459) {
       this.body.setScale(1.25);
     }
-    const bodyShadowKey = this.createShadowTexture('playerBody');
-    this.shadow = this.game.add.sprite(Player.shadowOffsetX, Player.shadowOffsetY, bodyShadowKey).setRotation(-Math.PI / 2);
-    this.shadow.setAlpha(0.085);
-    if (this.skin === 459) {
-      this.shadow.setScale(1.25);
-    }
+    const bodyShadowScale = (this.skin === 459 ? 1.25 : 1) * BaseEntity.shadow.scaleMul;
+    this.shadow = this.createBakedOutlineShadow('playerBody', 0.5, 0.5).setRotation(-Math.PI / 2);
+    this.shadow.setPosition(Player.shadowOffsetX, Player.shadowOffsetY);
+    this.shadow.setScale(bodyShadowScale);
+    this.shadow.setAlpha(1).setVisible(false);
     this.evolutionOverlay = this.game.add.sprite(0, 0, '').setRotation(-Math.PI / 2);
     this.evolutionOverlayShadow = this.game.add.sprite(Player.shadowOffsetX, Player.shadowOffsetY, '').setRotation(-Math.PI / 2);
-    this.evolutionOverlayShadow.setAlpha(0.085);
-    this.evolutionOverlayShadow.setVisible(false);
+    this.evolutionOverlayShadow.setAlpha(1).setVisible(false);
     this.updateEvolution();
 
-    this.sword = this.game.add.sprite(this.body.width / 2, this.body.height / 2, 'playerSword').setRotation(Math.PI / 4);
-    const swordShadowKey = this.createShadowTexture('playerSword');
-    this.swordShadow = this.game.add.sprite(0, 0, swordShadowKey).setRotation(Math.PI / 4);
-    this.swordShadow.setAlpha(0.085);
+    this.sword = this.game.add.sprite(this.effectiveBodyWidth / 2, this.effectiveBodyHeight / 2, 'playerSword').setRotation(Math.PI / 4);
+    this.swordShadow = this.createBakedOutlineShadow('playerSword', 0.5, 0.5).setRotation(Math.PI / 4);
+    this.swordShadow.setScale(BaseEntity.shadow.scaleMul);
+    this.swordShadow.setAlpha(1).setVisible(false);
     this.swordContainer = this.game.add.container(0, 0, [this.sword]);
 
+    const rtSize = Math.ceil(Math.max(this.body.width, this.body.height) * 3.2);
+    this.shadowRT = this.game.add.renderTexture(0, 0, rtSize, rtSize).setOrigin(0.5, 0.5);
+    this.shadowRT.setAlpha(BaseEntity.shadow.alpha);
+
     this.protectionAura = this.game.add.graphics();
-    const auraRadius = Math.max(this.body.width, this.body.height) * 0.75;
+    const auraRadius = Math.max(this.effectiveBodyWidth, this.effectiveBodyHeight) * 0.75;
     this.protectionAura.fillStyle(0x33bbff, 0.12);
     this.protectionAura.fillCircle(0, 0, auraRadius);
     this.protectionAura.setBlendMode(Phaser.BlendModes.ADD);
@@ -184,47 +210,31 @@ class Player extends BaseEntity {
     this.healthBar = new Health(this, {
       hideWhenFull: false,
       line: 0,
-      offsetY: -this.body.height / 2 - 40,
+      offsetY: -this.effectiveBodyHeight / 2 - 40,
       isPlayer: true,
     });
     const displayName = this.clan ? `[${this.clan}] ${this.name}`.replace(/\s+/, ' ') : this.name;
-    const name = this.game.add.text(0, -this.body.height / 2 - 50, displayName);
-    name.setFontFamily('Arial');
-    name.setFontSize(50);
+    const name = this.game.add.text(0, -this.effectiveBodyHeight / 2 - 50, displayName);
+    name.setFontFamily("'Rajdhani', sans-serif");
+    name.setFontSize(42);
+    name.setFontStyle('700');
     name.setOrigin(0.5, 1);
-    const specialColors: {
-      [key: string]: string
-    } = {
-      codergautam: '#ff0000',
-      angel: '#acfffc',
-      "cool guy 53": '#0055ff',
-      "update testing account": '#00ff00',
-      "amethyst nightveil": '#7802ab',
-      oy: '#000000',
-      bobz: '#000000',
-    };
 
-    const applyNameColor = (hex: string) => {
-      name.setFill(hex);
-    };
+    const lower = (this.name || '').toLowerCase();
+    const ns = nameColors[lower] || (this.account ? accountNameStyle : defaultNameStyle);
+    name.setFill(ns.fill);
+    name.setStroke(ns.outline || '#000000', ns.outline ? 5 : 0);
+    if (ns.shadow) name.setShadow(0, 0, ns.shadow, 6, true, true);
+    else name.setShadow(0, 0, '#000000', 0, false, false);
 
-    const special = specialColors[this.name?.toLowerCase() as keyof typeof specialColors];
-    if (special) {
-      applyNameColor(special);
-    } else if (this.account) {
-      applyNameColor('#0000ff');
-    } else {
-      applyNameColor('#000000');
-    }
-
-    this.messageText = this.game.add.text(0, -this.body.height / 2 - 100, '')
-      .setFontFamily('Arial')
+    this.messageText = this.game.add.text(0, -this.effectiveBodyHeight / 2 - 100, '')
+      .setFontFamily("'Rajdhani', sans-serif")
       .setFontSize(75)
       .setOrigin(0.5, 1)
       .setFill('#ffffff');
 
     this.choosingText = this.game.add.text(0, 0, 'Choosing an upgrade...', {
-      fontFamily: 'monospace',
+      fontFamily: 'Rajdhani, sans-serif',
       fontSize: '60px',
       fontStyle: 'bold',
       color: '#ffffff',
@@ -234,31 +244,37 @@ class Player extends BaseEntity {
     }).setOrigin(0.5, 0.5).setAlpha(0);
 
     this.cardSummaryBg = this.game.add.graphics();
-    this.cardSummaryContainer = this.game.add.container(0, -this.body.height / 2 - 130, [this.cardSummaryBg]);
+    this.cardSummaryContainer = this.game.add.container(0, -this.effectiveBodyHeight / 2 - 130, [this.cardSummaryBg]);
     this.cardSummaryContainer.setAlpha(0);
 
     this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.swordContainer, this.body, this.evolutionOverlay]);
 
-    const submergedRadius = this.body.width * 0.6;
+    const submergedRadius = this.effectiveBodyWidth * 0.6;
     this.submergedShadow = this.game.add.graphics();
     this.submergedShadow.fillStyle(0x000000, 1);
     this.submergedShadow.fillCircle(0, 0, submergedRadius);
     this.submergedShadow.setAlpha(0);
 
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.evolutionOverlayShadow, this.swordShadow, this.submergedShadow, this.bodyContainer, this.cardSummaryContainer, name, this.messageText, this.choosingText]);
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadowRT, this.shadow, this.evolutionOverlayShadow, this.swordShadow, this.submergedShadow, this.bodyContainer, this.cardSummaryContainer, name, this.messageText, this.choosingText]);
 
     if (ogex) {
       try {
+        const clearSparkle = () => {
+          if (this.sparkleInterval) { clearInterval(this.sparkleInterval); this.sparkleInterval = undefined; }
+        };
+        this.game.events.once(Phaser.Scenes.Events.SHUTDOWN, clearSparkle);
+        this.game.events.once(Phaser.Scenes.Events.DESTROY, clearSparkle);
         this.sparkleInterval = window.setInterval(() => {
+          if (!this.game || !this.game.sys || !this.game.sys.events || !this.container) return;
           const fps = this.game.game.loop?.actualFps ?? 60;
-          if (fps < 15 || !this.container) return;
+          if (fps < 15) return;
 
           const sprite = getParticle(this.game, 'sparkleParticle');
-          const rx = Phaser.Math.FloatBetween(-this.body.width * 0.3, this.body.width * 0.3);
-          const ry = Phaser.Math.FloatBetween(-this.body.height * 0.3, this.body.height * 0.3);
+          const rx = Phaser.Math.FloatBetween(-this.effectiveBodyWidth * 0.3, this.effectiveBodyWidth * 0.3);
+          const ry = Phaser.Math.FloatBetween(-this.effectiveBodyHeight * 0.3, this.effectiveBodyHeight * 0.3);
           sprite.x = Math.round(this.container.x + rx + Phaser.Math.FloatBetween(-5, 5));
           sprite.y = Math.round(this.container.y + ry + Phaser.Math.FloatBetween(-5, 5));
-          sprite.setScale(Phaser.Math.FloatBetween(0.06, 0.09))
+          sprite.setScale(Phaser.Math.FloatBetween(0.4, 0.6))
             .setAlpha(1)
             .setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
           sprite.setDepth(50);
@@ -531,12 +547,13 @@ class Player extends BaseEntity {
 
     const particles = this.game.add.particles(entity.container.x, entity.container.y, 'starParticle', {
       maxParticles: 5,
-      scale: 0.1,
+      scale: 0.667,
       speed: 200,
     });
     particles.setDepth(45);
     particles.setBlendMode(Phaser.BlendModes.ADD);
     particles.once('complete', () => particles.destroy());
+    this.game.time.delayedCall(2000, () => { try { if ((particles as any).scene) particles.destroy(); } catch (e) {} });
   }
 
   addDamagedParticles() {
@@ -544,12 +561,13 @@ class Player extends BaseEntity {
     try {
     const particles = this.game.add.particles(this.container.x, this.container.y, 'hitParticle', {
       maxParticles: 5,
-      scale: 0.01,
+      scale: 0.5,
       speed: 200,
     });
     particles.setDepth(45);
     particles.setBlendMode(Phaser.BlendModes.ADD);
     particles.once('complete', () => particles.destroy());
+    this.game.time.delayedCall(2000, () => { try { if ((particles as any).scene) particles.destroy(); } catch (e) {} });
   } catch (e) {
     console.log(e);
   }
@@ -561,7 +579,7 @@ class Player extends BaseEntity {
       // Create burst of red particles emanating from player
       const particles = this.game.add.particles(this.container.x, this.container.y, 'hitParticle', {
         maxParticles: 30,
-        scale: { start: 0.015, end: 0.005 },
+        scale: { start: 0.75, end: 0.25 },
         speed: { min: 300, max: 600 },
         lifespan: 800,
         angle: { min: 0, max: 360 },
@@ -570,6 +588,7 @@ class Player extends BaseEntity {
       particles.setDepth(45);
       particles.setBlendMode(Phaser.BlendModes.ADD);
       particles.once('complete', () => particles.destroy());
+    this.game.time.delayedCall(2000, () => { try { if ((particles as any).scene) particles.destroy(); } catch (e) {} });
     } catch (e) {
       console.log(e);
     }
@@ -578,6 +597,9 @@ class Player extends BaseEntity {
   addLightningParticles() {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
+    const now = Date.now();
+    if (now - (this.lastLightningT || 0) < 130) return;
+    this.lastLightningT = now;
     try {
       const entitiesMap = this.game.gameState.entities;
       const allEntities: BaseEntity[] = [];
@@ -633,13 +655,13 @@ class Player extends BaseEntity {
           const sprite = getParticle(this.game, 'lightningParticle');
           sprite.x = px;
           sprite.y = py;
-          sprite.setScale(Phaser.Math.FloatBetween(0.12, 0.28)).setAlpha(1);
+          sprite.setScale(Phaser.Math.FloatBetween(0.8, 1.868)).setAlpha(1);
 
           const delay = Phaser.Math.Between(0, 80);
           this.game.tweens.add({
             targets: sprite,
             alpha: 0,
-            scale: 0.01,
+            scale: 0.0667,
             duration: 500,
             delay,
             ease: 'Linear',
@@ -689,7 +711,7 @@ class Player extends BaseEntity {
           const s = getParticle(this.game, 'lightningParticle');
           s.x = px;
           s.y = py;
-          s.setScale(Phaser.Math.FloatBetween(0.12, 0.36))
+          s.setScale(Phaser.Math.FloatBetween(0.8, 2.401))
             .setRotation(baseAngle + Phaser.Math.FloatBetween(-0.2, 0.2))
             .setAlpha(1);
 
@@ -697,7 +719,7 @@ class Player extends BaseEntity {
           this.game.tweens.add({
             targets: s,
             alpha: 0,
-            scale: 0.02,
+            scale: 0.1334,
             duration: 500,
             delay,
             ease: 'Cubic.easeOut',
@@ -730,11 +752,11 @@ class Player extends BaseEntity {
       const s = getParticle(this.game, 'starParticle');
       s.x = this.container.x + random(-this.body.displayWidth, this.body.displayWidth) * 0.5;
       s.y = this.container.y + random(-this.body.displayHeight, this.body.displayHeight) * 0.5;
-      s.setScale(0.05).setAlpha(1).setDepth(45);
+      s.setScale(0.334).setAlpha(1).setDepth(45);
       this.game.tweens.add({
         targets: s,
         alpha: 0,
-        scale: 0.01,
+        scale: 0.0667,
         duration: 400,
         onComplete: () => releaseParticle(s),
       });
@@ -765,7 +787,7 @@ class Player extends BaseEntity {
         const s = getParticle(this.game, 'poisonParticle');
         s.x = px;
         s.y = py;
-        s.setScale(Phaser.Math.FloatBetween(0.04, 0.09))
+        s.setScale(Phaser.Math.FloatBetween(0.267, 0.6))
           .setAlpha(0.9)
           .setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
 
@@ -792,19 +814,19 @@ class Player extends BaseEntity {
     const evolutionClass = Evolutions[this.evolution];
     if (!evolutionClass) {
       this.evolutionOverlay.setVisible(false);
-      if (this.evolutionOverlayShadow) this.evolutionOverlayShadow.setVisible(false);
+      this.evoShadowActive = false;
     } else {
       this.evolutionOverlay.setVisible(true);
       this.evolutionOverlay.setTexture(evolutionClass[1]);
       this.evolutionOverlay.setOrigin(evolutionClass[3][0], evolutionClass[3][1]);
-      this.evolutionOverlay.setScale(this.body.width / this.evolutionOverlay.width * evolutionClass[2]);
+      this.evolutionOverlay.setScale(this.effectiveBodyWidth / this.evolutionOverlay.width * evolutionClass[2]);
 
       if (this.evolutionOverlayShadow) {
         const shadowKey = this.createShadowTexture(evolutionClass[1]);
         this.evolutionOverlayShadow.setTexture(shadowKey);
         this.evolutionOverlayShadow.setOrigin(evolutionClass[3][0], evolutionClass[3][1]);
-        this.evolutionOverlayShadow.setScale(this.body.width / this.evolutionOverlayShadow.width * evolutionClass[2]);
-        this.evolutionOverlayShadow.setVisible(true);
+        this.evolutionOverlayShadow.setScale(this.effectiveBodyWidth / this.evolutionOverlayShadow.width * evolutionClass[2] * BaseEntity.shadow.scaleMul);
+        this.evoShadowActive = true;
       }
     }
   }
@@ -853,12 +875,12 @@ class Player extends BaseEntity {
     if (this.shadow) {
       this.shadow.setRotation(angle - Math.PI / 2);
     }
-    if (this.evolutionOverlayShadow && this.evolutionOverlayShadow.visible) {
+    if (this.evolutionOverlayShadow && this.evoShadowActive) {
       this.evolutionOverlayShadow.setRotation(angle - Math.PI / 2);
     }
     if (this.swordShadow) {
-      const sx = this.body.width / 2;
-      const sy = this.body.height / 2;
+      const sx = this.effectiveBodyWidth / 2;
+      const sy = this.effectiveBodyHeight / 2;
       const cos1 = Math.cos(swordRotation);
       const sin1 = Math.sin(swordRotation);
       const rx = sx * cos1 - sy * sin1;
@@ -926,27 +948,38 @@ class Player extends BaseEntity {
     const biomes = this.game.gameState.gameMap.biomes;
     for (let i = 0; i < biomes.length; i++) {
       const biome = biomes[i];
-      if (biome.type !== BiomeTypes.River) continue;
-      const shape = biome.shape as any;
-      if (shape.type === ShapeTypes.Circle) {
-        const dx = wx - shape.x;
-        const dy = wy - shape.y;
-        if (dx * dx + dy * dy <= shape.radius * shape.radius) return true;
-      } else if (shape.type === ShapeTypes.Polygon) {
-        if (shape.polygonBounds && !Phaser.Geom.Rectangle.Contains(shape.polygonBounds, wx, wy)) continue;
-        const points = shape.points;
-        const ox = shape.x;
-        const oy = shape.y;
-        let inside = false;
-        for (let j = 0, k = points.length - 1; j < points.length; k = j++) {
-          const xi = ox + points[j].x, yi = oy + points[j].y;
-          const xk = ox + points[k].x, yk = oy + points[k].y;
-          if ((yi > wy) !== (yk > wy) && wx < (xk - xi) * (wy - yi) / (yk - yi) + xi) {
-            inside = !inside;
-          }
-        }
-        if (inside) return true;
+      if (biome.type === BiomeTypes.River) {
+        if (this.biomeContains(biome, wx, wy)) return true;
+        continue;
       }
+      if (biome.type === BiomeTypes.Safezone || biome.type === BiomeTypes.TutorialZone) continue;
+      if (this.biomeContains(biome, wx, wy)) return false;
+    }
+    return true;
+  }
+
+  private biomeContains(biome: any, wx: number, wy: number): boolean {
+    const shape = biome.shape;
+    if (!shape) return false;
+    if (shape.type === ShapeTypes.Circle) {
+      const dx = wx - shape.x;
+      const dy = wy - shape.y;
+      return dx * dx + dy * dy <= shape.radius * shape.radius;
+    }
+    if (shape.type === ShapeTypes.Polygon) {
+      if (shape.polygonBounds && !Phaser.Geom.Rectangle.Contains(shape.polygonBounds, wx, wy)) return false;
+      const points = shape.points;
+      const ox = shape.x;
+      const oy = shape.y;
+      let inside = false;
+      for (let j = 0, k = points.length - 1; j < points.length; k = j++) {
+        const xi = ox + points[j].x, yi = oy + points[j].y;
+        const xk = ox + points[k].x, yk = oy + points[k].y;
+        if ((yi > wy) !== (yk > wy) && wx < (xk - xi) * (wy - yi) / (yk - yi) + xi) {
+          inside = !inside;
+        }
+      }
+      return inside;
     }
     return false;
   }
@@ -981,32 +1014,32 @@ class Player extends BaseEntity {
   }
 
   private isPointInDeepRiver(wx: number, wy: number): boolean {
+    if (!this.isPointInRiver(wx, wy)) return false;
+
     const borderWidth = 240;
+    const borderWidthSq = borderWidth * borderWidth;
     const biomes = this.game.gameState.gameMap.biomes;
     for (let i = 0; i < biomes.length; i++) {
       const biome = biomes[i];
-      if (biome.type !== BiomeTypes.River) continue;
+      if (biome.type === BiomeTypes.River
+        || biome.type === BiomeTypes.Safezone
+        || biome.type === BiomeTypes.TutorialZone) continue;
       const shape = biome.shape as any;
       if (shape.type === ShapeTypes.Circle) {
         const dx = wx - shape.x;
         const dy = wy - shape.y;
-        const innerR = shape.radius - borderWidth;
-        if (innerR > 0 && dx * dx + dy * dy <= innerR * innerR) return true;
+        const d = Math.sqrt(dx * dx + dy * dy) - shape.radius;
+        if (d < borderWidth) return false;
       } else if (shape.type === ShapeTypes.Polygon) {
-        if (shape.polygonBounds && !Phaser.Geom.Rectangle.Contains(shape.polygonBounds, wx, wy)) continue;
+        if (shape.polygonBounds) {
+          const b = shape.polygonBounds as Phaser.Geom.Rectangle;
+          const bdx = wx < b.x ? b.x - wx : wx > b.right ? wx - b.right : 0;
+          const bdy = wy < b.y ? b.y - wy : wy > b.bottom ? wy - b.bottom : 0;
+          if (bdx * bdx + bdy * bdy > borderWidthSq) continue;
+        }
         const points = shape.points;
         const ox = shape.x;
         const oy = shape.y;
-        let inside = false;
-        for (let j = 0, k = points.length - 1; j < points.length; k = j++) {
-          const xi = ox + points[j].x, yi = oy + points[j].y;
-          const xk = ox + points[k].x, yk = oy + points[k].y;
-          if ((yi > wy) !== (yk > wy) && wx < (xk - xi) * (wy - yi) / (yk - yi) + xi) {
-            inside = !inside;
-          }
-        }
-        if (!inside) continue;
-        let minDist = Infinity;
         for (let j = 0; j < points.length; j++) {
           const k = (j + 1) % points.length;
           const ax = ox + points[j].x, ay = oy + points[j].y;
@@ -1015,13 +1048,12 @@ class Player extends BaseEntity {
           const lenSq = edx * edx + edy * edy;
           const t = lenSq === 0 ? 0 : Math.max(0, Math.min(1, ((wx - ax) * edx + (wy - ay) * edy) / lenSq));
           const px = ax + t * edx, py = ay + t * edy;
-          const d = Math.sqrt((wx - px) * (wx - px) + (wy - py) * (wy - py));
-          if (d < minDist) minDist = d;
+          const ddx = wx - px, ddy = wy - py;
+          if (ddx * ddx + ddy * ddy < borderWidthSq) return false;
         }
-        if (minDist >= borderWidth) return true;
       }
     }
-    return false;
+    return true;
   }
 
   private updateSubmergedEffect(dt: number) {
@@ -1069,10 +1101,9 @@ class Player extends BaseEntity {
     this.submergedShadow.setScale(this._submergedProgress);
     this.submergedShadow.setAlpha(this._submergedProgress * 0.15);
 
-    const shadowAlpha = 0.085 * (1 - this._submergedProgress * 0.5);
-    this.shadow.setAlpha(shadowAlpha);
-    if (this.swordShadow) this.swordShadow.setAlpha(shadowAlpha);
-    if (this.evolutionOverlayShadow) this.evolutionOverlayShadow.setAlpha(shadowAlpha);
+    if (this.shadowRT) {
+      this.shadowRT.setAlpha(BaseEntity.shadow.alpha * (1 - this._submergedProgress));
+    }
   }
 
   updateCardSummary() {
@@ -1194,7 +1225,7 @@ class Player extends BaseEntity {
       const pct = getMinorTotalPercent(id, sc);
       const text = this.game.add.text(curX + iconSz + 4, 0, `+${pct}%`, {
         fontSize: `${fontSize}px`,
-        fontFamily: 'Ubuntu, sans-serif',
+        fontFamily: 'Rajdhani, sans-serif',
         fontStyle: 'bold',
         color: hexColor,
         stroke: '#000000',
@@ -1225,17 +1256,16 @@ class Player extends BaseEntity {
     const swordVisible = !this.swordFlying;
     if (this._lastSwordVisible !== swordVisible) {
       this.sword.setVisible(swordVisible);
-      if (this.swordShadow) this.swordShadow.setVisible(swordVisible);
       this._lastSwordVisible = swordVisible;
     }
-    const newScale = (this.shape.radius * 2) / this.body.width;
+    const newScale = (this.shape.radius * 2) / this.effectiveBodyWidth;
     if (this._lastContainerScale !== newScale) {
       this.container.scale = newScale;
       this._lastContainerScale = newScale;
     }
     const r = this.shape.radius;
-    const baseX = this.body.width / 2;
-    const baseY = this.body.height / 2;
+    const baseX = this.effectiveBodyWidth / 2;
+    const baseY = this.effectiveBodyHeight / 2;
     const abilityScale = (this.abilityActive && this.evolution != null)
       ? (Player.abilitySwordScales[this.evolution] ?? 1) : 1;
     const swordR = r / abilityScale;
@@ -1246,7 +1276,7 @@ class Player extends BaseEntity {
       : 0;
     if (targetSwordScale !== this._lastSwordScale) {
       this.sword.setScale(targetSwordScale);
-      if (this.swordShadow) this.swordShadow.setScale(targetSwordScale);
+      if (this.swordShadow) this.swordShadow.setScale(targetSwordScale * BaseEntity.shadow.scaleMul);
       this._lastSwordScale = targetSwordScale;
     }
     if (targetLocalPullback !== this._lastSwordLocalPullback) {
@@ -1264,14 +1294,11 @@ class Player extends BaseEntity {
         }
       }
      }
-    if (this.isMe) {
-      this.updateSubmergedEffect(dt);
-    } else {
-      this._submergedAccum += dt;
-      if (this._submergedAccum >= 200) {
-        this.updateSubmergedEffect(this._submergedAccum);
-        this._submergedAccum = 0;
-      }
+    this.submergedAccum += dt;
+    const submergeInterval = this.isMe ? 100 : 200;
+    if (this.submergedAccum >= submergeInterval) {
+      this.updateSubmergedEffect(this.submergedAccum);
+      this.submergedAccum = 0;
     }
     this.updateDiscoEffects(dt);
     if (this.following) {
@@ -1280,7 +1307,52 @@ class Player extends BaseEntity {
     if (this.isMe) {
       this.updatePrediction();
     }
+
+    if (this.container) {
+      if (!this.footsteps) this.footsteps = new FootstepTrail(this);
+      this.footsteps.update(dt);
+    }
+
+    this.updateShadowRT();
   }
+
+  private updateShadowRT() {
+    const rt = this.shadowRT;
+    if (!rt || !this.container) return;
+    const on = BaseEntity.livingShadowsEnabled;
+    if (rt.visible !== on) rt.setVisible(on);
+    if (!on) return;
+
+    const v = this.game.cameras.main.worldView;
+    const cx = this.container.x, cy = this.container.y;
+    const m = 600;
+    if (cx < v.x - m || cx > v.right + m || cy < v.y - m || cy > v.bottom + m) return;
+
+    const evr = this.evoShadowActive ? Math.round(this.evolutionOverlayShadow.rotation * 100) : 0;
+    const sig = Math.round(this.shadow.rotation * 100)
+      + (this.shadow.x | 0) * 7 + (this.shadow.y | 0) * 13
+      + Math.round(this.swordShadow.rotation * 100) * 17
+      + (this.swordShadow.x | 0) * 23 + (this.swordShadow.y | 0) * 29
+      + Math.round(this.swordShadow.scaleX * 100) * 37
+      + (this.evoShadowActive ? 1 : 0) * 1000003
+      + (this.swordFlying ? 1 : 0) * 1000033
+      + evr * 41;
+    if (sig === this.shadowSig) return;
+    this.shadowSig = sig;
+
+    const ox = rt.width / 2, oy = rt.height / 2;
+    rt.clear();
+    rt.beginDraw();
+    rt.batchDraw(this.shadow, ox + this.shadow.x, oy + this.shadow.y);
+    if (this.evoShadowActive) {
+      rt.batchDraw(this.evolutionOverlayShadow, ox + this.evolutionOverlayShadow.x, oy + this.evolutionOverlayShadow.y);
+    }
+    if (!this.swordFlying) {
+      rt.batchDraw(this.swordShadow, ox + this.swordShadow.x, oy + this.swordShadow.y);
+    }
+    rt.endDraw();
+  }
+  private shadowSig = NaN;
 
   updateDiscoEffects(dt: number) {
     const discoFieldActive = this.evolution === EvolutionTypes.Disco && !!(this.flags && this.flags[FlagTypes.DiscoFieldActive]);

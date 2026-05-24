@@ -307,7 +307,7 @@ class Player extends Entity {
       if (biome.shape.collides(this.shape, response)) {
         biome.collides(this, response);
 
-        if (biome.type === Types.Biome.Safezone) {
+        if (biome.type === Types.Biome.Safezone || biome.type === Types.Biome.TutorialZone) {
           foundSafezone = true;
           if (!this.inSafezone) continue;
         }
@@ -322,6 +322,21 @@ class Player extends Entity {
           topBiome = biome;
         }
       }
+    }
+
+    let inLand = false;
+    for (const t of appliedBiomeTypes) {
+      if (t !== Types.Biome.River
+        && t !== Types.Biome.Safezone
+        && t !== Types.Biome.TutorialZone) {
+        inLand = true;
+        break;
+      }
+    }
+    if (!inLand && !foundSafezone) {
+      this.speed.multiplier *= 1.25;
+      this.viewport.zoom.multiplier *= 0.8;
+      if (!topBiome) this.biome = Types.Biome.River;
     }
 
     if (topBiome) {
@@ -472,14 +487,11 @@ class Player extends Entity {
     dx += slide.x;
     dy += slide.y;
 
-    const absDx = Math.abs(dx);
-    const absDy = Math.abs(dy);
-
-    if (absDx > speed) {
-      dx *= speed / absDx;
-    }
-    if (absDy > speed) {
-      dy *= speed / absDy;
+    const mag = Math.sqrt(dx * dx + dy * dy);
+    if (mag > speed) {
+      const k = speed / mag;
+      dx *= k;
+      dy *= k;
     }
 
     if (isNaN(dx) || isNaN(dy)) {
@@ -582,6 +594,10 @@ class Player extends Entity {
           case Types.Entity.SwordProj: reason = 'An Ancient Statue'; break; // the ancient statue throws swords
           case Types.Entity.Ancient: reason = 'An Ancient Statue'; break;
           case Types.Entity.Boulder: reason = 'An Ancient Statue'; break; // the ancient statue throws boulders
+          case Types.Entity.Cactus: reason = 'A Cactus'; break;
+          case Types.Entity.Sphinx: reason = 'The Sphinx'; break;
+          case Types.Entity.SandBlock: reason = 'The Sphinx'; break;
+          case Types.Entity.SandBall: reason = 'The Sphinx'; break;
         }
 
         disconnectType = (entity.type === Types.Entity.Player) ? Types.DisconnectReason.Player : Types.DisconnectReason.Mob;

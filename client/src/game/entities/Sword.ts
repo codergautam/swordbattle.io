@@ -10,9 +10,6 @@ class Sword extends BaseEntity {
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
 
-  static shadowOffsetX = 10;
-  static shadowOffsetY = 10;
-
   createSprite() {
     if(this.skin && !Settings.unloadSkins) {
       const skinObj = Object.values(skins).find(skin => skin.id === this.skin)
@@ -25,9 +22,7 @@ class Sword extends BaseEntity {
       this.skinName = 'playerSword';
     }
     this.body = this.game.add.sprite(0, 0, this.skinName).setOrigin(-0.2, 0.5);
-    const shadowKey = this.createShadowTexture(this.skinName);
-    this.shadow = this.game.add.sprite(Sword.shadowOffsetX, Sword.shadowOffsetY, shadowKey).setOrigin(-0.2, 0.5);
-    this.shadow.setAlpha(0.075);
+    this.shadow = this.createOutlineShadow(this.skinName, -0.2, 0.5, { living: true });
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);
     (this.container as any).__ownVisibility = true;
     return this.container;
@@ -46,7 +41,7 @@ class Sword extends BaseEntity {
       this.skinName = skinName;
       this.body.setTexture(this.skinName);
       if (this.shadow) {
-        this.shadow.setTexture(this.createShadowTexture(this.skinName));
+        this.setShadowSilhouette(this.shadow, this.skinName);
       }
       resolve();
     });
@@ -81,10 +76,11 @@ class Sword extends BaseEntity {
       this.container.x - width * this.body.originX + random(-width, width) / 2,
       this.container.y - height * this.body.originY + random(-height, height) / 2,
       'starParticle',
-      { scale: 0.05, speed: 200, maxParticles: 1 },
+      { scale: 0.334, speed: 200, maxParticles: 1 },
     );
     particles.setDepth(45);
     particles.once('complete', () => particles.destroy());
+    this.game.time.delayedCall(2000, () => { try { if ((particles as any).scene) particles.destroy(); } catch (e) {} });
   }
 
   addPullbackParticles() {
@@ -111,6 +107,7 @@ class Sword extends BaseEntity {
     );
     particles.setDepth(45);
     particles.once('complete', () => particles.destroy());
+    this.game.time.delayedCall(2000, () => { try { if ((particles as any).scene) particles.destroy(); } catch (e) {} });
   }
 
   update(dt: number) {
@@ -119,11 +116,10 @@ class Sword extends BaseEntity {
 
     const scale = (this.size * 3) / this.body.width;
     this.body.setScale(scale);
-    this.shadow.setScale(scale);
     this.container.setVisible(this.isFlying);
     let rotation = this.shape.angle - Math.PI / 4;
     this.body.setRotation(rotation);
-    this.shadow.setRotation(rotation);
+    this.syncOutlineShadow(this.shadow, this.body);
 
     if (this.isFlying && this.abilityActive) {
       this.addAbilityParticles();

@@ -99,7 +99,7 @@ class YetiMob extends Entity {
       }
     }
 
-    if (this.definition.isBoss) {
+    if (this.definition.isBoss && this.target) {
       this.snowballTimer.update(dt);
       if (this.snowballTimer.finished) {
         this.snowballTimer.renew();

@@ -5,8 +5,6 @@ class ChimeraMob extends BaseEntity {
   static stateFields = [...BaseEntity.stateFields, 'angle', 'isAngry'];
   static basicAngle = -Math.PI / 2;
   static removeTransition = 500;
-  static shadowOffsetX = 20;
-  static shadowOffsetY = 20;
 
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
@@ -23,9 +21,11 @@ class ChimeraMob extends BaseEntity {
     this.body = this.game.add.sprite(0, 0, 'chimera').setOrigin(0.5, 0.5);
     const initialScale = this.isAngry ? this.flyingScale : this.baseScale;
     this.body.setScale(initialScale);
-    this.shadow = this.game.add.sprite(ChimeraMob.shadowOffsetX, ChimeraMob.shadowOffsetY, 'chimeraShadow').setOrigin(0.5, 0.5);
-    this.shadow.setScale(this.isAngry ? initialScale * 1.3 : initialScale);
-    this.shadow.setAlpha(this.isAngry ? 0.05 : 0.1);
+    const k = BaseEntity.shadow.scaleMul;
+    this.shadow = this.createOutlineShadow('chimera', 0.5, 0.5, { living: true });
+    this.shadow.setScale((this.isAngry ? initialScale * 1.3 : initialScale) * k);
+    this.shadow.setPosition(0, this.body.displayHeight * BaseEntity.shadow.shiftRatio);
+    this.shadow.setAlpha(this.isAngry ? BaseEntity.shadow.alpha * 0.5 : BaseEntity.shadow.alpha);
     this.healthBar = new Health(this, { offsetY: -this.shape.radius - 300 });
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);
     return this.container;
@@ -47,11 +47,12 @@ class ChimeraMob extends BaseEntity {
     });
 
     if (this.shadow) {
+      const k = BaseEntity.shadow.scaleMul;
       this.game.tweens.add({
         targets: this.shadow,
-        scaleX: this.isAngry ? this.flyingScale * 1.3 : this.baseScale,
-        scaleY: this.isAngry ? this.flyingScale * 1.3 : this.baseScale,
-        alpha: this.isAngry ? 0.1 : 0.15,
+        scaleX: (this.isAngry ? this.flyingScale * 1.3 : this.baseScale) * k,
+        scaleY: (this.isAngry ? this.flyingScale * 1.3 : this.baseScale) * k,
+        alpha: this.isAngry ? BaseEntity.shadow.alpha * 0.6 : BaseEntity.shadow.alpha,
         duration: 2500,
       });
     }

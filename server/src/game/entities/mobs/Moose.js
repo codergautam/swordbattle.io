@@ -146,6 +146,7 @@ class MooseMob extends Entity {
   createState() {
     const state = super.createState();
     state.angle = this.angle;
+    state.isAngry = !!this.target;
     return state;
   }
 

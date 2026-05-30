@@ -19,10 +19,15 @@ const rarities = [
 
 let totalWeight = rarities.reduce((acc, rarity) => acc + rarity[3], 0);
 
+const chestBaseMult = 0.67;
+const zoneTarget = { good: 1.2, great: 1.6, perfect: 2.0 };
+const barMissMult = 0.9;
+const tierFactor = { 3: 1.25, 4: 1.0, 5: 0.65, 6: 0.5, 7: 0.4 };
+
 class Chest extends Entity {
   static defaultDefinition = {
-    forbiddenBiomes: [Types.Biome.River],
-    forbiddenEntities: [Types.Entity.IceSpike, Types.Entity.Chest, Types.Entity.IcePond, Types.Entity.Pond, Types.Entity.LavaPool],
+    forbiddenBiomes: [Types.Biome.River, Types.Biome.Safezone, Types.Biome.TutorialZone],
+    forbiddenEntities: [Types.Entity.IceSpike, Types.Entity.Chest, Types.Entity.IcePond, Types.Entity.Pond, Types.Entity.LavaPool, Types.Entity.Cactus, Types.Entity.OasisLake],
     spawnBuffer: 150,
   };
 
@@ -48,10 +53,16 @@ class Chest extends Entity {
 
     this.size = rarities[this.rarity][0];
     this.coins = rarities[this.rarity][1];
-    this.health = new Health(rarities[this.rarity][2], 0);
+    this.maxHealth = rarities[this.rarity][2];
+    this.health = new Health(this.maxHealth, 0);
+
+    this.hasBar = this.rarity >= 3;
 
     this.shape = Polygon.createFromRectangle(0, 0, this.size, this.size * 0.6);
     this.targets.add(Types.Entity.Sword);
+
+    this.needsCoastClearance = true;
+    this.skipBorderCollision = true;
 
     // Despawn coin after 20 minutes
     this.despawnTime = Date.now() + (1000 * 60 * 20);
@@ -59,10 +70,13 @@ class Chest extends Entity {
     this.lastAttacker = null;
     this.lastAttackTime = 0;
 
+    this.claimer = null;
+    this.claimTime = 0;
+
     this.spawn();
   }
 
-  update() {
+  update(dt) {
     if (Date.now() > this.despawnTime) {
       if(this.respawnable) this.createInstance();
       this.remove();
@@ -75,6 +89,17 @@ class Chest extends Entity {
     sword.collidedEntities.add(this);
 
     const currentTime = Date.now();
+
+    if (!sword.player.isBot) {
+      const claimActive = this.claimer && !this.claimer.removed && (currentTime - this.claimTime) < 4000;
+      if (claimActive && this.claimer !== sword.player) {
+        sword.player.flags.set(Types.Flags.ContestedObject, true);
+        return;
+      }
+      this.claimer = sword.player;
+      this.claimTime = currentTime;
+    }
+
     const recentlyAttackedByOther = this.lastAttacker !== null && this.lastAttacker !== sword.player && (currentTime - this.lastAttackTime) < 5000;
 
     let dmg = sword.damage.value;
@@ -85,6 +110,29 @@ class Chest extends Entity {
     if (sword.player.chestDamageMultiplier) {
       dmg *= sword.player.chestDamageMultiplier;
     }
+
+    if (this.hasBar) {
+      if (sword.player.isBot) {
+        const m = typeof sword.player.chestSkillMultiplier === 'function'
+          ? sword.player.chestSkillMultiplier() : 1;
+        dmg *= m;
+      } else {
+        const tf = tierFactor[this.rarity] !== undefined ? tierFactor[this.rarity] : 1;
+        const z = sword.player.reportedChestZone || 0;
+        const combo = sword.player.reportedChestCombo || 1;
+        let mult;
+        if (z === 4) mult = chestBaseMult + (zoneTarget.perfect - chestBaseMult) * tf;
+        else if (z === 3) mult = chestBaseMult + (zoneTarget.great - chestBaseMult) * tf;
+        else if (z === 2) mult = chestBaseMult + (zoneTarget.good - chestBaseMult) * tf;
+        else if (z === 1) mult = chestBaseMult * barMissMult;
+        else mult = chestBaseMult;
+        if (z >= 2) mult *= combo;
+        dmg *= mult;
+        sword.player.reportedChestZone = 0;
+        sword.player.reportedChestCombo = 1;
+      }
+    }
+
     this.health.damaged(dmg);
 
     this.lastAttacker = sword.player;

@@ -76,7 +76,7 @@ class AncientMob extends Entity {
       this.speed.multiplier *= 1.5;
 
       this.angle = helpers.angleLerp(this.angle, targetAngle, dt * this.definition.rotationSpeed);
-      if (this.swordTimer.finished) {
+      if (this.swordTimer.finished && !this.definition.noProjectiles) {
         this.swordTimer.renew();
 
         if (Math.random() < 0.5) {
@@ -91,6 +91,7 @@ class AncientMob extends Entity {
               damage: this.damage.value * 0.7,
               duration: [this.definition.swordDuration[0], this.definition.swordDuration[1]],
               position: [this.shape.x, this.shape.y],
+              skin: this.skin || 0,
             });
           }
         } else {
@@ -102,6 +103,7 @@ class AncientMob extends Entity {
             damage: this.damage.value * 0.25,
             duration: [this.definition.boulderDuration[0], this.definition.boulderDuration[1]],
             position: [this.shape.x, this.shape.y],
+            skin: this.skin || 0,
           });
         }
       }

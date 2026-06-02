@@ -255,20 +255,18 @@ export class Controls {
 
   getChanges() {
     const difference: any = [];
-    const prevSet = new Set(this.previousDownInputs);
-    const currSet = new Set(this.downInputs);
-
     for (const input of this.downInputs) {
-      if (!prevSet.has(input)) {
+      if (!this.previousDownInputs.includes(input)) {
         difference.push({ inputType: input, inputDown: true });
       }
     }
     for (const input of this.previousDownInputs) {
-      if (!currSet.has(input)) {
+      if (!this.downInputs.includes(input)) {
         difference.push({ inputType: input, inputDown: false });
       }
     }
-    this.previousDownInputs = this.downInputs.slice();
+    this.previousDownInputs.length = 0;
+    for (let i = 0; i < this.downInputs.length; i++) this.previousDownInputs.push(this.downInputs[i]);
     return difference;
   }
 

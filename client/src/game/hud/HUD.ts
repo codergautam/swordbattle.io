@@ -10,6 +10,7 @@ import Chat from './Chat';
 import MobileControls from './MobileControls';
 import CoinCounter from './CoinCounter';
 import TutorialOverlay from './TutorialOverlay';
+import ChestTimingBar from './ChestTimingBar';
 import { Settings } from '../Settings';
 
 class HUD {
@@ -26,6 +27,7 @@ class HUD {
   mobileControls: MobileControls;
   coinCounter: CoinCounter;
   tutorialOverlay: TutorialOverlay;
+  chestTimingBar: ChestTimingBar;
   components: any[];
   scale = 0.8;
   hidden = false;
@@ -44,7 +46,8 @@ class HUD {
     this.mobileControls = new MobileControls(this);
     this.coinCounter = new CoinCounter(this);
     this.tutorialOverlay = new TutorialOverlay(this);
-    this.components = [this.minimap, this.stats, this.progressBar, this.evolutionSelect, this.cardSelect, this.cardSummary, this.upgradeButton, this.chat, this.mobileControls, this.coinCounter, this.tutorialOverlay];
+    this.chestTimingBar = new ChestTimingBar(this);
+    this.components = [this.minimap, this.stats, this.progressBar, this.evolutionSelect, this.cardSelect, this.cardSummary, this.upgradeButton, this.chat, this.mobileControls, this.coinCounter, this.tutorialOverlay, this.chestTimingBar];
   }
 
   initialize() {
@@ -95,7 +98,7 @@ class HUD {
   }
 
   update(dt: number) {
-    this.components.forEach(component => component.update(dt));
+    for (let i = 0; i < this.components.length; i++) this.components[i].update(dt);
   }
 
   setShow(show: boolean, force?: boolean) {
@@ -114,7 +117,7 @@ class HUD {
 
     const announcementText = this.scene.add.text(width / 2, yPos, text, {
       fontSize: `${Math.round(22 * this.scale)}px`,
-      fontFamily: 'Ubuntu, sans-serif',
+      fontFamily: 'Rajdhani, sans-serif',
       color,
       stroke: '#000000',
       strokeThickness: 4,

@@ -66,7 +66,7 @@ class Chat extends HudComponent {
 
     const el = document.createElement('div');
     el.innerText = 'Chat is currently disabled. Go to the main menu to enable it in settings!';
-    el.style.cssText = 'background:rgba(0,0,0,0.85);color:#ff9900;font-size:18px;font-family:Franklin Gothic Medium,Arial,sans-serif;padding:10px 20px;border-radius:8px;border:2px solid #ff9900;white-space:nowrap;pointer-events:none;';
+    el.style.cssText = 'background:rgba(0,0,0,0.85);color:#ff9900;font-size:18px;font-family:Rajdhani, sans-serif;padding:10px 20px;border-radius:8px;border:2px solid #ff9900;white-space:nowrap;pointer-events:none;';
 
     const dom = this.hud.scene.add.dom(
       this.game.scale.width / 2,

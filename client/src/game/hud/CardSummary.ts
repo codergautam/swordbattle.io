@@ -147,7 +147,7 @@ class CardSummary extends HudComponent {
       const totalPct = getMinorTotalPercent(id, stackCount);
       const text = scene.add.text(curX + iconSize + 2, y, `+${totalPct}%`, {
         fontSize: '11px',
-        fontFamily: 'Ubuntu, sans-serif',
+        fontFamily: 'Rajdhani, sans-serif',
         fontStyle: 'bold',
         color: hexColor,
         stroke: '#000000',

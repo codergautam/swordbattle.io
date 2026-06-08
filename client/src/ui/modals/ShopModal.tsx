@@ -417,7 +417,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
 
 <h1 className='shop-desc-extra'>(Skins may take a while to fully load)</h1>
 <div className="badges">
-  {/* <button onClick={scrollToTarget4} data-selected-badge="sale">Pi Day Sale</button> */}
+  {<button onClick={scrollToTarget4} data-selected-badge="sale">New Skins</button>}
 <button onClick={scrollToTarget}>Today's Skins</button>
 <button onClick={scrollToTarget2} data-selected-badge="ultimate">Ultimate Skins</button>
 <button onClick={scrollToTarget3} data-selected-badge="event">Event Skins</button>
@@ -450,6 +450,30 @@ const ShopModal: React.FC<ShopModalProps> = ({ account }) => {
       {!searchTerm && (
           <>
           <div className='scroll' ref={targetParentRef}>
+          <div ref={targetElementRef4}></div>
+            <div className='label'>
+            <span>New Skins</span><hr></hr>
+            <p>New Skins are in the game! We also readded Player skins along with a few new additions. All of these skins are availible for a week before they are removed from the sale.<br />(Regular skins will enter the Today's Skins category, Ultimate Skins will go into the Ultimate category, and Player skins will be removed until new ones are added)</p>
+            </div>
+            <SkinGrid
+              skins={skins}
+              filter={(skin) => {
+                if (skin.og && skin.ultimate) return false;
+                if (!skin.sale) return false;
+                return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
+              }}
+              sort={(a, b) => (a.price ?? 0) - (b.price ?? 0)}
+              searchTerm={searchTerm}
+              highlightSearchTerm={highlightSearchTerm}
+              skinCounts={skinCounts}
+              assignRef={assignRef}
+              showButton
+              account={account}
+              skinStatus={skinStatus}
+              onActionClick={handleActionClick}
+              showTokenPrice={false}
+            />
+          <br /><br /><br /><br /><br /><br /><br /><br />
         <div ref={targetElementRef1}></div>
         <div className='label'>
         <span>Today's Skins</span><hr></hr>

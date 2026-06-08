@@ -33,7 +33,7 @@ module.exports = class Fisherman extends Evolution {
 
     this.player.knockbackResistance.multiplier *= 1.35;
     this.player.health.max.multiplier *= 1.25;
-    this.player.sword.damage.multiplier *= 1.15;
+    this.player.sword.damage.multiplier *= 1.025;
     this.player.speed.multiplier *= 0.9;
     this.player.health.regenWait.multiplier *= 0.6;
     this.player.health.regen.multiplier *= 0.85;

@@ -170,11 +170,11 @@ class Player extends Entity {
     return Math.abs(diff) <= Player.blockFrontCone;
   }
 
-  isInParryWindow() {
-    if (!this.isBlocking) return false;
-    if (!this.blockEngagedAt) return false;
-    return (Date.now() - this.blockEngagedAt) < Player.blockParryWindow * 1000;
-  }
+  ///isInParryWindow() {
+  ///  if (!this.isBlocking) return false;
+  ///  if (!this.blockEngagedAt) return false;
+  ///  return (Date.now() - this.blockEngagedAt) < Player.blockParryWindow * 1000;
+  ///}
 
   getBlockEffect(sourceKind, attackerX, attackerY, fallbackDir = null) {
     const empty = { applies: false, dmgMult: 1, kbMult: 1, reflectRatio: 0, damageReflect: 0, stunAttacker: 0, breakBlock: false, parry: false };

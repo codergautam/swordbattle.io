@@ -234,7 +234,7 @@ class Player extends BaseEntity {
       "update testing account": '#00ff00',
       "amethyst nightveil": '#7802ab',
       oy: '#000000',
-      bobz: '#000000',
+      bobnyx: '#000000',
     };
 
     const applyNameColor = (hex: string) => {
@@ -856,13 +856,16 @@ class Player extends BaseEntity {
   }
 
   interpolate(dt: number) {
-    // Visual swing animation is intentionally symmetric (50/50). The
-    // server still uses the asymmetric raise/decrease pacing for hit
-    // detection and timing, but the client renders the sword movement
-    // with a clean even tempo so it doesn't feel abrupt.
+    const baseDuration = 0.1;
+    const overall = this.swordSwingDuration > 0 ? this.swordSwingDuration : baseDuration;
+    const ratio = overall / baseDuration;
+    const t = Math.min(1, Math.max(0, (ratio - 1) / 2));
+    const raiseRatio = 0.5 - 0.28 * t;
+    const raiseSpeed = 0.5 / raiseRatio;
+    const decreaseSpeed = 0.5 / (1 - raiseRatio);
     const swordLerpDt = dt / (this.swordSwingDuration * 1000);
     if (this.swordRaiseStarted) {
-      this.swordLerpProgress += swordLerpDt;
+      this.swordLerpProgress += swordLerpDt * raiseSpeed;
       if (this.swordLerpProgress >= 1) {
         this.swordLerpProgress = 1;
         this.swordRaiseStarted = false;
@@ -873,7 +876,7 @@ class Player extends BaseEntity {
         }
       }
     } else if (this.swordDecreaseStarted) {
-      this.swordLerpProgress -= swordLerpDt;
+      this.swordLerpProgress -= swordLerpDt * decreaseSpeed;
       if (this.swordLerpProgress <= 0) {
         this.swordLerpProgress = 0;
         if (this.isMe && this.swordDecreaseStarted) {

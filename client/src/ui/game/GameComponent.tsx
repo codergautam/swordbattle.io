@@ -84,7 +84,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
       });
 
       return () => {
-        if (gameplayDelayTimer) {
+                if (gameplayDelayTimer) {
           clearTimeout(gameplayDelayTimer);
         }
         const gameScene = game.scene.getScene('game') as any;
@@ -96,6 +96,10 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         setGame(null);
       };
     }
+  }, []);
+
+  useEffect(() => {
+    if (!game) return;
     const scene = game.scene.getScene('game');
     if (!scene) return;
 
@@ -108,7 +112,8 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
     return () => {
       scene.events.off('biomeUpdate', handler);
     };
-  }, []);
+  }, [game]);
+
 
   return (
     <div className="game">

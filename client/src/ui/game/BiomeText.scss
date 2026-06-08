@@ -1,0 +1,30 @@
+#biomeText {
+  position: absolute;
+  bottom: 140px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+
+  color: white;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+
+  z-index: 50;
+
+  &.show {
+    opacity: 1;
+  }
+
+  .biomeName {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .biomeDesc {
+    font-size: 17px;
+    opacity: 0.9;
+  }
+}

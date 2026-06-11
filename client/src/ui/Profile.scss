@@ -3,7 +3,7 @@
 
   margin-top: 10px;
 	background: darkgreen;
-	font-family: "Roboto", sans-serif;;
+	font-family: 'Rajdhani', sans-serif;;
   overflow-y: auto;
 
 .back-button {
@@ -14,7 +14,7 @@
     border-radius: 25px;
     padding: 10px;
     font-size: 20px;
-    font-weight: bold;
+    font-weight: 700;
     color: white;
     cursor: pointer;
     width: 50px;
@@ -140,7 +140,7 @@
       border: none;
       border-radius: 6px;
       padding: 6px 18px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       transition: background 0.15s;
       &.active, &:hover {
@@ -198,7 +198,7 @@
     & > span:first-child {
       margin: 0 12px;
       color: #ccc;
-      font-weight: 400;
+      font-weight: 700;
       letter-spacing: 0.5px;
       white-space: nowrap;
       font-size: 0.95rem;
@@ -241,7 +241,7 @@
 
   margin-top: 10px;
 	background: blue;
-	font-family: "Roboto", sans-serif;;
+	font-family: 'Rajdhani', sans-serif;;
   overflow-y: auto;
 
   .back-button {
@@ -252,7 +252,7 @@
     border-radius: 25px;
     padding: 10px;
     font-size: 20px;
-    font-weight: bold;
+    font-weight: 700;
     color: white;
     cursor: pointer;
     width: 50px;
@@ -359,7 +359,7 @@
 
   margin-top: 10px;
   background: #f9f9f9;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   overflow-y: auto;
   text-align: left;
   width: 100%;
@@ -371,7 +371,7 @@
     border: none;
     padding: 10px;
     font-size: 20px;
-    font-weight: bold;
+    font-weight: 700;
     background-color: #f9f9f9;
     color: black;
     cursor: pointer;

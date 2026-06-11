@@ -14,7 +14,6 @@ export default function AccountCard({account, onLogin, onSignup, onViewProfile}:
       <span id="logged-in">
         <h1>{account.username}</h1>
         <br />
-        <br />
         <div className="stats"><ValueCnt scale={0.4} value={account.gems} img={GemImg}/>
         </div>
         {/* <br />
@@ -31,11 +30,13 @@ export default function AccountCard({account, onLogin, onSignup, onViewProfile}:
     )
   } else return (
     <span id="logged-out">
-                    <div className="menuText">
-                      <a onClick={onLogin}>Login</a> or&nbsp;
-
-                      <a onClick={onSignup}>Create an Account</a> to save your progress and unlock skins!
-                    </div>
-                  </span>
+      <div className="signinPromo">
+        <div className="signinPromo-text">Sign in to save your progress and access more features!</div>
+        <div className="signinPromo-actions">
+          <button className="promo-btn promo-login" onClick={onLogin}>Login</button>
+          <button className="promo-btn promo-register" onClick={onSignup}>Register</button>
+        </div>
+      </div>
+    </span>
   )
 }

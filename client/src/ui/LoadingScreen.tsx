@@ -16,7 +16,7 @@ function LoadingScreen({ progress, instantStart }: any) {
   useEffect(() => {
     let imageLoaded = false;
     const img = new Image();
-    img.src = '/assets/LoadingScreen.png';
+    img.src = '/assets/LoadingScreen-new.png';
 
     img.onload = () => {
       imageLoaded = true;
@@ -87,8 +87,8 @@ function LoadingScreen({ progress, instantStart }: any) {
       className="loading-screen"
       style={{
         opacity,
-        backgroundColor: "#006400",
-        backgroundImage: (useBackgroundImage && backgroundLoaded) ? "url('/assets/LoadingScreen.png')" : "none",
+        backgroundColor: "#242424",
+        backgroundImage: (useBackgroundImage && backgroundLoaded) ? "url('/assets/LoadingScreen-new.png')" : "none",
         backgroundRepeat: "repeat",
         backgroundSize: "1024px 1024px",
         zIndex: 1000

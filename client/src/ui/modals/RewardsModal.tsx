@@ -129,7 +129,7 @@ function getStreakColor(streak: number): React.CSSProperties {
   } as React.CSSProperties;
 }
 
-const DAYS_PER_PAGE = 28;
+const daysPerPage = 35;
 
 const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
   const dispatch = useDispatch();
@@ -142,15 +142,15 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
   const playtimeSeconds = dl.playtime || 0;
   const playtimeMinutes = Math.floor(playtimeSeconds / 60);
 
-  const [page, setPage] = useState(() => Math.floor(Math.max(0, claimableTo - 1) / DAYS_PER_PAGE));
+  const [page, setPage] = useState(() => Math.floor(Math.max(0, claimableTo - 1) / daysPerPage));
   const [claiming, setClaiming] = useState(false);
 
-  const pageStart = page * DAYS_PER_PAGE + 1;
-  const pageEnd = pageStart + DAYS_PER_PAGE - 1;
+  const pageStart = page * daysPerPage + 1;
+  const pageEnd = pageStart + daysPerPage - 1;
 
   // Build rewards for current page
   const rewards: DayReward[] = [];
-  for (let i = 0; i < DAYS_PER_PAGE; i++) {
+  for (let i = 0; i < daysPerPage; i++) {
     const day = pageStart + i;
     const { type, label, image } = getRewardForDay(day);
     let state: RewardState;

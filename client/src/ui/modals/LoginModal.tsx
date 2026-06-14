@@ -32,8 +32,10 @@ function LoginModal({ onSuccess }: any) {
       <input type="password" placeholder="Password"
         onChange={(e) => setPassword(e.target.value)}
       />
-      <p style={{marginTop: 5, marginBottom: 0}}>Forgot your password? Email support@swordbattle.io</p>
-      <button onClick={onLogin}>Login</button>
+      <p className="forgot">
+        Forgot your password? Email <a href="mailto:support@swordbattle.io">support@swordbattle.io</a>
+      </p>
+      <button className="auth-submit" onClick={onLogin}>Login</button>
     </div>
   );
 }

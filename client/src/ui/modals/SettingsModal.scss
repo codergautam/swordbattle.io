@@ -1,48 +1,148 @@
 .settings {
-  .settings-title {
-    font-size: 30px;
-    margin: 0 0 20px;
-    letter-spacing: 2px;
+  display: flex;
+  flex-direction: column;
+  max-height: 84vh;
+
+  .settings-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #fff;
+    background: #26262a;
+    border-bottom: 2px solid #000;
+
+    .settings-header-icon {
+      color: #b9b9c0;
+      font-size: 22px;
+    }
+  }
+
+  .settings-body {
+    padding: 4px 18px 16px;
+    overflow-y: auto;
   }
 
   .section {
-    text-decoration: underline;
-    font-size: 22px;
-    margin-bottom: 5px;
-  }
-  .sectionDebug {
-    text-decoration: underline;
-    font-size: 20px;
-    margin-bottom: 10px;
-    color: #888;
-  }
-  .debug {
-    color: #888;
-  }
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #9a9aa2;
+    margin: 18px 0 6px;
 
-  label {
-    display: block;
-    margin-bottom: 10px;
+    svg { font-size: 14px; }
+
+    &:first-of-type { margin-top: 8px; }
   }
 
   .settings-line {
     display: flex;
-    flex-direction: row;
+    align-items: center;
     justify-content: space-between;
+    gap: 14px;
+    padding: 8px 0;
+    font-size: 16px;
+
+    .s-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #e7e7ec;
+      line-height: 1.2;
+
+      .s-icon {
+        color: #7f7f88;
+        width: 17px;
+        text-align: center;
+        flex: 0 0 auto;
+      }
+
+      em {
+        font-style: normal;
+        font-size: 0.78em;
+        color: #7f7f88;
+      }
+    }
   }
-  
-  select, input {
-    width: 100%;
-    margin: 0 0 10px;
-    font-size: 18px;
+
+  .s-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+
+    input[type='range'] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 120px;
+      height: 18px;
+      background: transparent;
+      cursor: pointer;
+
+      &::-webkit-slider-runnable-track {
+        height: 12px;
+        background: #2a2a2e;
+        border: 3px solid #000;
+        border-radius: 8px;
+      }
+      &::-moz-range-track {
+        height: 12px;
+        background: #2a2a2e;
+        border: 3px solid #000;
+        border-radius: 8px;
+      }
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        margin-top: -6px;
+        background: #37b24a;
+        border: 3px solid #000;
+        border-radius: 50%;
+      }
+      &::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        background: #37b24a;
+        border: 3px solid #000;
+        border-radius: 50%;
+      }
+    }
+
+    .s-val {
+      min-width: 34px;
+      text-align: right;
+      color: #c3c3ca;
+      font-weight: 700;
+    }
+  }
+
+  select {
+    background: #2a2a2e;
+    color: #fff;
+    border: 3px solid #000;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 15px;
+    cursor: pointer;
+
+    option { color: #222; background: #f3f3f3; }
   }
 }
 
 .switch {
   position: relative;
   display: inline-block;
-  width: 50px;
-  height: 21px;
+  width: 46px;
+  height: 24px;
+  flex: 0 0 auto;
 
   input {
     opacity: 0;
@@ -53,39 +153,34 @@
   .slider {
     position: absolute;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
+    inset: 0;
+    background-color: #4a4a50;
+    border: 3px solid #000;
+    box-sizing: border-box;
+    transition: 0.25s;
 
     &:before {
       position: absolute;
       content: "";
-      height: 15px;
-      width: 15px;
-      left: 6px;
-      bottom: 3px;
-      background-color: white;
-      -webkit-transition: .4s;
-      transition: .4s;
+      height: 14px;
+      width: 14px;
+      left: 2px;
+      bottom: 2px;
+      background-color: #fff;
+      transition: 0.25s;
     }
   }
 
   input:checked + .slider {
-    background-color: #2196F3;
+    background-color: #37b24a;
 
     &:before {
-      -webkit-transform: translateX(26px);
-      -ms-transform: translateX(26px);
-      transform: translateX(26px);
+      transform: translateX(22px);
     }
   }
 
   input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
+    box-shadow: 0 0 0 2px rgba(55, 178, 74, 0.5);
   }
 }
 

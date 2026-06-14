@@ -1,157 +1,207 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import api from '../../api';
+import { numberWithCommas, secondsToTime, sinceFrom, fixDate } from '../../helpers';
+import cosmetics from '../../game/cosmetics.json';
+import SkinView from '../SkinView';
 import './ProfileModal.scss';
 
-function abbrNumber(n: number | string) {
-  const num = Number(n) || 0;
-  if (num >= 1_000_000) {
-    const v = +(num / 1_000_000).toFixed(1);
-    return (v % 1 === 0 ? v.toFixed(0) : v.toString()) + 'm';
-  }
-  if (num >= 1_000) {
-    const v = +(num / 1_000).toFixed(1);
-    return (v % 1 === 0 ? v.toFixed(0) : v.toString()) + 'k';
-  }
-  return num.toString();
-}
-
-function timeSinceShort(dateLike?: string | Date | null) {
-  if (!dateLike) return 'unknown';
-  const d = new Date(dateLike).getTime();
-  if (isNaN(d)) return 'unknown';
-  const diff = Date.now() - d;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return '<1min';
-  if (mins < 60) return `${mins}min`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d`;
-  const months = Math.floor(days / 30);
-  if (months < 12) return `${months}mo`;
-  const years = Math.floor(months / 12);
-  return `${years}y`;
-}
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 interface ProfileModalProps {
   username?: string;
   isOwnProfile?: boolean;
 }
 
-const ProfileModal: React.FC<ProfileModalProps> = ({ username, isOwnProfile }) => {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+const sorts: { key: 'coins' | 'kills' | 'playtime'; label: string }[] = [
+  { key: 'coins', label: 'Coins' },
+  { key: 'kills', label: 'Kills' },
+  { key: 'playtime', label: 'Playtime' },
+];
 
-  const [profileTitle, setProfileTitle] = useState(isOwnProfile ? 'Your Profile' : 'Profile');
+function skinFiles(id?: number) {
+  const s = Object.values((cosmetics as any).skins).find((x: any) => x.id === id) as any;
+  return s ? { body: s.bodyFileName, sword: s.swordFileName } : { body: 'player.png', sword: 'sword.png' };
+}
 
-  const [usernameSearch, setUsernameSearch] = useState('');
-  const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [searching, setSearching] = useState(false);
+function gameAge(dateLike: any) {
+  const text = sinceFrom(dateLike) + ' ago';
+  let color: string | undefined;
+  let bold = false;
+  if (text.includes('days')) {
+    const days = parseInt(text.split(' ')[0], 10);
+    if (days > 300) color = '#ff00bf';
+    else if (days > 250) color = 'red';
+    else if (days > 200) color = '#df7e00';
+    else if (days > 150) color = '#ffd000';
+    else if (days > 100) color = '#00ff00';
+    else if (days > 50) color = '#18ca68';
+    if (days > 200) bold = true;
+  } else if (text.includes('2 year')) { color = '#0077ff'; bold = true; }
+  else if (text.includes('1 year')) { color = '#a323ff'; bold = true; }
+  return { text, color, bold };
+}
+
+function buildGraph(dailyStats: any[]) {
+  const stats = [...dailyStats].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const dates: Date[] = [];
+  let d = new Date(stats[0].date);
+  d.setDate(d.getDate() - 1);
+  const end = new Date(stats[stats.length - 1].date);
+  for (; d <= end; d.setDate(d.getDate() + 1)) dates.push(new Date(d));
+  let running = 0;
+  const points = dates.map((date) => {
+    const s = stats.find((x) => fixDate(new Date(x.date)).toLocaleDateString() === fixDate(date).toLocaleDateString());
+    return s ? (running += s.xp) : running;
+  });
+  return {
+    labels: dates.map((date) => fixDate(date).toLocaleDateString()),
+    datasets: [{
+      label: 'Total XP',
+      data: points,
+      borderColor: '#5bb8ff',
+      backgroundColor: 'rgba(91, 184, 255, 0.18)',
+      pointRadius: 0,
+      borderWidth: 3,
+      fill: true,
+      tension: 0.4,
+    }],
+  };
+}
+
+const chartOptions: any = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    y: { beginAtZero: true, ticks: { color: '#9a9aa2' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+    x: { ticks: { color: '#9a9aa2', maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+  },
+  plugins: { legend: { labels: { color: '#e7e7ec' } } },
+};
+
+const ProfileModal: React.FC<ProfileModalProps> = ({ username }) => {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [games, setGames] = useState<any[]>([]);
+  const [gameSort, setGameSort] = useState<'coins' | 'kills' | 'playtime'>('coins');
 
   useEffect(() => {
-    if (!usernameSearch || usernameSearch.trim().length === 0) {
-      setSearchSuggestions([]);
-      setSearching(false);
-      return;
-    }
-    const q = usernameSearch.trim();
-    setSearching(true);
-    const timeout = setTimeout(() => {
-      api.post(`${api.endpoint}/profile/search?${Date.now()}`, { q, limit: 25 }, (res: any) => {
-        if (!Array.isArray(res)) {
-          setSearchSuggestions([]);
-          setSearching(false);
-          return;
-        }
-        setSearchSuggestions(res.slice(0, 25));
-        setSearching(false);
-      });
-    }, 250);
-    return () => {
-      clearTimeout(timeout);
-      setSearching(false);
-    };
-  }, [usernameSearch]);
+    if (!username) { setData(null); setLoading(false); return; }
+    let cancelled = false;
+    setLoading(true);
+    api.post(`${api.endpoint}/profile/getPublicUserInfo/${encodeURIComponent(username)}`, {}, (res: any) => {
+      if (cancelled) return;
+      if (res?.account) setData(res);
+      else setData(null);
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [username]);
 
-  const navigateToProfile = (user: string) => {
-    setShowSuggestions(false);
-    setUsernameSearch('');
-    if (iframeRef.current) {
-      iframeRef.current.src = `#/profile?username=${encodeURIComponent(user)}&hideBack=true`;
-    }
-    if (username && user === username) {
-      setProfileTitle('Your Profile');
-    } else {
-      setProfileTitle('Profile');
-    }
-  };
+  useEffect(() => {
+    if (!data?.account) return;
+    api.post(`${api.endpoint}/games/fetch?${Date.now()}`, { sortBy: gameSort, timeRange: 'all', limit: 30, accountId: data.account.id }, (res: any) => {
+      setGames(Array.isArray(res) ? res : []);
+    });
+  }, [data, gameSort, username]);
 
-  const initialSrc = username
-    ? `#/profile?username=${encodeURIComponent(username)}&hideBack=true`
-    : '#/profile?hideBack=true';
+  const acc = data?.account;
+  const ts = data?.totalStats;
+  const skin = skinFiles(acc?.skins?.equipped);
+  const sortedGames = [...(games || [])].sort((a, b) => b[gameSort] - a[gameSort]).slice(0, 10);
+  const dailyStats = data?.dailyStats;
 
   return (
     <div className="profile-modal">
-      <div className="profile-modal-header">
-        <h1 className='shop-title'>{profileTitle}</h1>
-        <div className="profile-modal-search">
-          <input
-            type="text"
-            placeholder="Search for players..."
-            value={usernameSearch}
-            onChange={(e) => { setUsernameSearch(e.target.value); setShowSuggestions(true); }}
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-            className="search-input"
-            aria-label="Search usernames"
-          />
-          {showSuggestions && (
-            <div className="search-suggestions">
-              {usernameSearch.trim().length === 0 ? (
-                <div className="suggestion-hint">Type to search usernames</div>
-              ) : searching ? (
-                <div className="suggestion-hint">Searching...</div>
-              ) : searchSuggestions.length === 0 ? (
-                <div className="suggestion-hint">No accounts found</div>
-              ) : (
-                searchSuggestions.map((s: any) => {
-                  const u = s.username;
-                  const createdAt = s.created_at ?? s.createdAt ?? null;
-                  const lastSeen = s.last_seen ?? s.lastSeen ?? null;
-                  const xp = s.xp ?? 0;
-                  return (
-                    <div
-                      key={u}
-                      className="search-suggestion"
-                      onMouseDown={(ev) => { ev.preventDefault(); navigateToProfile(u); }}
-                    >
-                      <div className="suggestion-left">
-                        <div className="suggestion-name">{u}</div>
-                        <div className="suggestion-meta">
-                          <span>Joined {timeSinceShort(createdAt)} ago</span>
-                          {(() => {
-                            const lastSeenText = timeSinceShort(lastSeen);
-                            if (lastSeen && lastSeenText !== 'unknown') {
-                              return <span>• Online {lastSeenText} ago</span>;
-                            }
-                            return null;
-                          })()}
-                          <span>• {xp >= 1_000_000 ? <strong>{abbrNumber(xp)} XP</strong> : `${abbrNumber(xp)} XP`}</span>
-                        </div>
-                      </div>
-                      <div />
-                    </div>
-                  );
-                })
+      {loading ? (
+        <div className="profile-empty">Loading…</div>
+      ) : !acc ? (
+        <div className="profile-empty">Account not found.</div>
+      ) : (
+        <div className="profile-scroll">
+          <div
+            className="profile-banner"
+            style={{ backgroundImage: "linear-gradient(180deg, rgba(20,26,38,0.22), rgba(20,26,38,0.45)), url('assets/game/tiles/ice-new.png')" }}
+          >
+            <div className="profile-skin"><SkinView body={skin.body} sword={skin.sword} shadow /></div>
+            <div className="profile-id">
+              <div className="profile-name">
+                {data.clan?.clan && <span className="profile-clan">[{data.clan.clan.tag}]</span>}
+                {acc.username}
+              </div>
+              {acc.tags?.tags?.length > 0 && (
+                <div className="profile-tags">
+                  {acc.tags.tags.map((tag: string, i: number) => (
+                    <span key={i} className="profile-tag" style={{ color: acc.tags.colors?.[i] || '#fff' }}>{tag}</span>
+                  ))}
+                </div>
               )}
-              {!searching && searchSuggestions.length >= 25 && (
-                <div className="search-more">... more results</div>
-              )}
+              <div className="profile-meta">
+                <span>Joined {sinceFrom(acc.created_at)} ago</span>
+                <span>{numberWithCommas(acc.profile_views || 0)} profile views</span>
+                {data.rank && <span className={data.rank === 1 ? 'gold' : ''}>#{data.rank} all-time</span>}
+              </div>
             </div>
-          )}
+          </div>
+
+          <div className="profile-body">
+            <div className="profile-bio">
+              {acc.bio === '.ban' ? 'Bio removed for violating rules.' : acc.bio ? `"${acc.bio}"` : 'No bio set'}
+            </div>
+
+            <div className="profile-stats">
+              <div className="pstat"><div className="pstat-v c-games">{ts ? numberWithCommas(ts.games) : 0}</div><div className="pstat-l">Games Played</div></div>
+              <div className="pstat"><div className="pstat-v c-xp">{ts ? numberWithCommas(ts.xp) : 0}</div><div className="pstat-l">XP</div></div>
+              <div className="pstat"><div className="pstat-v c-mastery">{ts ? numberWithCommas(ts.mastery) : 0}</div><div className="pstat-l">Mastery</div></div>
+              <div className="pstat"><div className="pstat-v c-kills">{ts ? numberWithCommas(ts.kills) : 0}</div><div className="pstat-l">Stabs</div></div>
+              <div className="pstat"><div className="pstat-v c-time">{ts ? secondsToTime(ts.playtime) : 0}</div><div className="pstat-l">Total Playtime</div></div>
+              <div className="pstat"><div className="pstat-v c-skins">{acc.skins?.owned?.length ?? 0}</div><div className="pstat-l">Skins Owned</div></div>
+            </div>
+
+            <div className="profile-section">
+              <div className="profile-section-head">
+                <h3>Top 10 Games</h3>
+                <div className="profile-gsort">
+                  {sorts.map(({ key, label }) => (
+                    <button key={key} className={gameSort === key ? 'active' : ''} onClick={() => setGameSort(key)}>{label}</button>
+                  ))}
+                </div>
+              </div>
+              <table className="profile-games">
+                <thead>
+                  <tr><th>#</th><th>Coins</th><th>Kills</th><th>Playtime</th><th>Time Created</th></tr>
+                </thead>
+                <tbody>
+                  {sortedGames.length === 0 ? (
+                    <tr><td colSpan={5} className="profile-games-empty">No games found.</td></tr>
+                  ) : sortedGames.map((g, i) => {
+                    const age = gameAge(g.date);
+                    return (
+                      <tr key={i}>
+                        <td><b>{i + 1}</b></td>
+                        <td>{numberWithCommas(g.coins)}</td>
+                        <td>{numberWithCommas(g.kills)}</td>
+                        <td>{secondsToTime(g.playtime)}</td>
+                        <td style={age.color ? { color: age.color } : undefined}>{age.bold ? <b>{age.text}</b> : age.text}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {dailyStats && dailyStats.length > 1 && (
+              <div className="profile-section">
+                <div className="profile-section-head"><h3>Total XP</h3></div>
+                <div className="profile-chart">
+                  <Line data={buildGraph(dailyStats)} options={chartOptions} />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-      <iframe ref={iframeRef} title="Profile" src={initialSrc} width="100%" height="100%" style={{border: 'none'}}></iframe>
+      )}
     </div>
   );
 };

@@ -3219,8 +3219,8 @@
       "id": 319,
       "buyable": true,
       "price": 100000,
-      "swordFileName": "vipAmethystSword.png",
-      "bodyFileName": "vipAmethystPlayer.png",
+      "swordFileName": "vipAmethystSwordNew.png",
+      "bodyFileName": "vipAmethystPlayerNew.png",
       "description": "Given to Amethyst for becoming a #5 all-time player. Also available to other players for 100k gems."
     },
     "frager": {
@@ -4095,8 +4095,8 @@
       "id": 326,
       "buyable": true,
       "price": 100000,
-      "swordFileName": "vipNumberSword.png",
-      "bodyFileName": "vipNumberPlayer.png",
+      "swordFileName": "vipNumberSwordNew.png",
+      "bodyFileName": "vipNumberPlayerNew.png",
       "description": "Given to Number1 for being a former #3 all-time player!"
     },
     "marauder": {
@@ -4785,7 +4785,7 @@
       "buyable": false,
       "price": 0,
       "swordFileName": "bullseyev2Sword2.png",
-      "bodyFileName": "bullseyev2Player.png",
+      "bodyFileName": "bullseyev2Player2.png",
       "description": "Never miss your shots!"
     },
     "bubble v2": {
@@ -4913,6 +4913,36 @@
       "bodyFileName": "elitePiDiverPlayer.png",
       "description": "Dive into the trenches of pi!",
       "eventoffsale": true
+    },
+    "angelv2": {
+      "name": "angelv2",
+      "displayName": "Angel",
+      "id": 467,
+      "buyable": true,
+      "price": 100000,
+      "swordFileName": "vipAngelSword.png",
+      "bodyFileName": "vipAngelPlayer.png",
+      "description": "Given to Angel for being a former #1 all-time player!"
+    },
+    "pooky": {
+      "name": "pooky",
+      "displayName": "Pooky Pumpkin",
+      "id": 468,
+      "buyable": true,
+      "price": 100000,
+      "swordFileName": "vipPookySword.png",
+      "bodyFileName": "vipPookyPlayer.png",
+      "description": "Given to Pooky Pumpkin for becoming the #1 player of all time!"
+    },
+    "shadowblade": {
+      "name": "shadowblade",
+      "displayName": "Shadowblade",
+      "id": 469,
+      "buyable": true,
+      "price": 100000,
+      "swordFileName": "vipShadowbladeSword.png",
+      "bodyFileName": "vipShadowbladePlayer.png",
+      "description": "Given to Shadowblade for contributing to the community and Swordbattle as a whole."
     }
   }
 }

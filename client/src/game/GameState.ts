@@ -295,7 +295,7 @@ class GameState {
     crazygamesSDK.setInviteMode('disabled');
 
     if (event.code === 4503) {
-      window.alert('Swordbattle.io is currently under maintenance to test some awesome new features. Check back soon to see the update!');
+      window.alert('Swordbattle.io is currently under maintenance to test the next update. Check back later to see the new stuff!');
       return;
     }
 

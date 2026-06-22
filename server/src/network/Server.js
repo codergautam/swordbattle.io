@@ -14,7 +14,7 @@ class Server {
     this.maxConnectionsPerIP = 50;
 
     // Maintenance mode
-    this.maintenanceMode = false;
+    this.maintenanceMode = true;
     this.allowedIPs = [];
     this._refreshAllowedIPs();
     setInterval(() => this._refreshAllowedIPs(), 30000); // refresh every 30s

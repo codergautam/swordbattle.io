@@ -4,6 +4,7 @@ import config from '../../game/PhaserConfig';
 import Leaderboard from './Leaderboard';
 import GameResults from './GameResults';
 import { shouldShowTutorial } from './TutorialModal';
+import BiomeText from './BiomeText';
 import './GameComponent.scss';
 import Ad from '../Ad';
 import { crazygamesSDK } from '../../crazygames/sdk';
@@ -19,6 +20,7 @@ const managems = 0;
 function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn }: any) {
   const [gameResults, setGameResults] = useState<any>(null);
   const [playing, setPlaying] = useState(false);
+  const [biome, setBiome] = useState<string | null>(null);
   useEffect(() => {
     if (!game) {
       let gameplayStartCalled = false;
@@ -82,7 +84,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
       });
 
       return () => {
-        if (gameplayDelayTimer) {
+                if (gameplayDelayTimer) {
           clearTimeout(gameplayDelayTimer);
         }
         const gameScene = game.scene.getScene('game') as any;
@@ -96,9 +98,27 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
     }
   }, []);
 
+  useEffect(() => {
+    if (!game) return;
+    const scene = game.scene.getScene('game');
+    if (!scene) return;
+
+    const handler = (newBiome: string) => {
+      setBiome(newBiome);
+    };
+
+    scene.events.on('biomeUpdate', handler);
+
+    return () => {
+      scene.events.off('biomeUpdate', handler);
+    };
+  }, [game]);
+
+
   return (
     <div className="game">
       <div id="phaser-container" />
+      <BiomeText biome={biome} />
       { playing && <Leaderboard game={game} /> }
       {gameResults && (
       <>

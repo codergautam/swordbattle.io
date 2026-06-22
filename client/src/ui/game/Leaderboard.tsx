@@ -77,7 +77,7 @@ function LeaderboardLine({ player }: any) {
     "update testing account": '#00ff00',
     "amethyst nightveil": '#7802ab',
     oy: '#000000',
-    bobz: '#000000',
+    bobnyx: '#000000',
   };
 
   let nameStyle: React.CSSProperties = {};

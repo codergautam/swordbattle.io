@@ -32,7 +32,7 @@ module.exports = class Rook extends Evolution {
 
   applyAbilityEffects() {
     const totalDist = 450;
-    const dashDuration = 0.15;
+    const dashDuration = 0.05;
     const remaining = totalDist - this._dashDistance;
     if (remaining <= 0) return;
 
@@ -42,6 +42,7 @@ module.exports = class Rook extends Evolution {
     this.player.shape.x += frameDist * Math.cos(this._dashAngle);
     this.player.shape.y += frameDist * Math.sin(this._dashAngle);
     this._dashDistance += frameDist;
+    this.player.sword.knockback.multiplier['ability'] = 2;
   }
 
   update(dt) {
@@ -50,9 +51,9 @@ module.exports = class Rook extends Evolution {
 
     this.player.shape.setScale(1.1);
     this.player.speed.multiplier *= 0.925;
-    this.player.sword.damage.multiplier *= 1.2;
-    this.player.sword.swingDuration.multiplier['ability'] = 1.325;
-    this.player.sword.knockback.multiplier['ability'] = 0.9;
+    this.player.sword.damage.multiplier *= 1.1;
+    this.player.sword.swingDuration.multiplier['ability'] = 1.45;
+    this.player.sword.knockback.multiplier['ability'] = 1.1;
     this.player.knockbackResistance.multiplier *= 1.3;
     this.player.health.max.multiplier *= 1.25;
     this.player.health.regen.multiplier *= 1.25;

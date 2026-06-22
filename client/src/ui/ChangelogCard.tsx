@@ -6,10 +6,10 @@ export default function ChangelogCard({ onViewChangelog }: { onViewChangelog?: (
   return (
     <span>
       <h1>News and Updates</h1>
-      <h2 style={{color: 'rgb(255, 255, 0)'}}>PvP Update</h2>
-      <ul style={{color: '#33e0ff'}}>- New Blocking System!</ul>
-      <ul style={{color: '#ffffff'}}>- Tons of PvP updates!</ul>
-      <ul >-<span style={{color: '#ff6565'}}> TEMPORARILY removed</span> upgrades for fixing</ul>
+      <h2 style={{color: 'rgb(43, 255, 0)'}}>Player Skins</h2>
+      <ul style={{color: '#f1ff33'}}>- 2 NEW Player Skins</ul>
+      <ul style={{color: '#c300ff'}}>- 6 NEW Skins & 3 NEW Ultimate Skins</ul>
+      <ul style={{color: '#ff6565'}}>- Removed Parry Mechanic & Rebalanced Evolutions</ul>
 
       {/* <a className="changelogbutton" onClick={onViewChangelog} style={{ cursor: 'pointer' }}>
         <FontAwesomeIcon icon={faClipboardList} /> View Changelog

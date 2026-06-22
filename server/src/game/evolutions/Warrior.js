@@ -14,7 +14,7 @@ module.exports = class Warrior extends Evolution {
     this.player.sword.damage.multiplier *= 1.05;
     this.player.sword.swingDuration.multiplier['ability'] = 0.65;
     this.player.knockbackResistance.multiplier *= 1.4;
-    this.player.health.regen.multiplier *= 1.5;
+    this.player.health.regen.multiplier *= 1.75;
     this.player.speed.multiplier *= 1.2;
     this.player.sword.knockback.multiplier['ability'] = 1.25;
 

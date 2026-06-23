@@ -1,0 +1,152 @@
+body.sb-mobile {
+
+  .hub,
+  .modal-clans .clans-modal {
+    min-width: 0 !important;
+    width: 96vw !important;
+    max-width: 96vw !important;
+  }
+
+  .hub {
+    flex-direction: column;
+    border-radius: 0 14px 14px 0;
+
+    .hub-tabs {
+      position: static;
+      transform: none;
+      flex-direction: row;
+      width: 100%;
+      gap: 8px;
+      padding: 8px 56px 8px 8px;
+      box-sizing: border-box;
+      justify-content: flex-start;
+    }
+    .hub-tab {
+      flex: 1 1 0;
+      width: auto;
+      height: 44px;
+      border: 3px solid #000;
+      border-radius: 10px;
+      box-shadow: inset 0 0 0 3px var(--tab-color);
+    }
+    .hub-content { flex: 1 1 auto; min-height: 0; border-radius: 0; }
+  }
+
+  .hub-panel {
+    .skin-card { width: calc(50% - 4px) !important; }
+    .shop-loadnote,
+    .inv-loadnote { display: none !important; }
+  }
+
+  .rewards-modal {
+    .rewards-btn-action { display: none !important; }
+    .rewards-grid { overflow: hidden !important; }
+    .reward-cell {
+      padding: 3px 2px;
+      .reward-icon { width: 34px; height: 34px; }
+      .reward-label { font-size: 11px; }
+    }
+  }
+
+  .rankings {
+    .rk-controls { flex-wrap: wrap; padding: 10px 56px 10px 12px; }
+    .rk-select { width: auto !important; max-width: none !important; flex: 1 1 40%; }
+    .rk-search { flex: 1 1 100%; min-width: 0; }
+
+    .rk-row { max-height: none; gap: 8px; padding: 8px 10px; }
+    .rk-row .rk-skin { display: none !important; }
+    .rk-name { font-size: 15px; }
+    .rk-stats { font-size: 12.5px; gap: 2px 10px; }
+    .rk-row.top { padding: 10px; gap: 10px; }
+    .rk-row.top .rk-name { font-size: 16px; }
+    .rk-row.top .rk-stats { font-size: 13px; }
+  }
+
+  .profile-body { overflow-x: hidden; }
+  .profile-games {
+    table-layout: fixed;
+    width: 100%;
+    th, td { padding: 6px 4px; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; }
+    th:first-child, td:first-child { width: 26px; }
+  }
+}
+
+body.sb-mobile.sb-portrait {
+
+  .bottom-left-buttons {
+    transform: scale(0.62) !important;
+    transform-origin: bottom left !important;
+  }
+
+  #menuCardHolder:not(.small-iframe) .menu .menuCard {
+    width: 94vw !important;
+    max-width: 520px !important;
+  }
+
+  .profile-stats {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 7px;
+    .pstat { padding: 9px 4px; }
+    .pstat-v { font-size: 15px; }
+    .pstat-l { font-size: 10px; }
+  }
+}
+
+body.sb-mobile.sb-landscape {
+
+  .game-buttons,
+  .auth-buttons { transform: scale(0.5) !important; }
+
+  #menuCardHolder:not(.small-iframe) {
+    position: fixed !important;
+    top: 52% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) scale(0.66) !important;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    width: max-content;
+  }
+  #menuCardHolder:not(.small-iframe) .menu {
+    flex-direction: row !important;
+    justify-content: center;
+    align-items: stretch;
+    gap: 12px;
+    width: auto;
+  }
+  #menuCardHolder:not(.small-iframe) .menu .menuCard { width: 240px !important; }
+  #menuCardHolder:not(.small-iframe) .menu .joinCard { order: 0 !important; }
+
+  .title-img {
+    top: 4px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 260px !important;
+    height: auto !important;
+    z-index: 1;
+  }
+
+  .modal.modal-profile { height: calc(100vh - 18px) !important; }
+  .profile-banner {
+    gap: 12px;
+    padding: 10px 16px;
+    .profile-skin { width: 64px; }
+    .profile-name { font-size: 19px; }
+    .profile-tags { margin-top: 3px; .profile-tag { font-size: 11px; padding: 1px 6px; } }
+    .profile-meta { margin-top: 4px; font-size: 12px; gap: 2px 10px; }
+  }
+  .profile-body { padding: 12px 14px 16px; }
+  .profile-stats { gap: 8px; margin-bottom: 12px; .pstat-v { font-size: 17px; } }
+
+  .hub-content {
+    .shop-headrow { .shop-title { font-size: 22px !important; } .shop-counters { font-size: 17px !important; } }
+    .rewards-modal .rewards-title { font-size: 19px !important; }
+    .rankings .rk-controls { padding: 8px 56px 8px 12px; }
+  }
+  .modal-clans .clans-modal {
+    padding: 12px 14px !important;
+    .clans-header { margin-bottom: 8px; }
+    .clans-title { font-size: 20px; }
+    .clans-tabs button { padding: 6px 9px !important; font-size: 12px !important; }
+  }
+}

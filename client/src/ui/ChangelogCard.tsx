@@ -6,10 +6,8 @@ export default function ChangelogCard({ onViewChangelog }: { onViewChangelog?: (
   return (
     <span>
       <h1>News and Updates</h1>
-      <h2 style={{color: 'rgb(255, 255, 0)'}}>PvP Update</h2>
-      <ul style={{color: '#33e0ff'}}>- New Blocking System!</ul>
-      <ul style={{color: '#ffffff'}}>- Tons of PvP updates!</ul>
-      <ul >-<span style={{color: '#ff6565'}}> TEMPORARILY removed</span> upgrades for fixing</ul>
+      <h2 style={{color: 'rgb(255, 0, 0)'}}>Update Coming Soon</h2>
+      <ul style={{color: '#ffffff'}}>Swordbattle's next huge update will be releasing soon, <span style={{color: '#ff7a7a'}}>no later than</span> June 27th. Game may go under maintenance for testing and debugging.</ul>
 
       {/* <a className="changelogbutton" onClick={onViewChangelog} style={{ cursor: 'pointer' }}>
         <FontAwesomeIcon icon={faClipboardList} /> View Changelog

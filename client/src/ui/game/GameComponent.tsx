@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Phaser from 'phaser';
 import config from '../../game/PhaserConfig';
 import Leaderboard from './Leaderboard';
+import InGameSettings from './InGameSettings';
 import GameResults from './GameResults';
 import { shouldShowTutorial } from './TutorialModal';
 import './GameComponent.scss';
@@ -100,6 +101,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
     <div className="game">
       <div id="phaser-container" />
       { playing && <Leaderboard game={game} /> }
+      { playing && <InGameSettings /> }
       {gameResults && (
       <>
       <GameResults

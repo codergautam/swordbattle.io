@@ -146,19 +146,20 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
   };
 
   return (
+    <>
+    <div className="results-backdrop" />
     <div className="results" style={useScale(true).styles}>
       <div className='results-main'>
       <div className="results-title">
         {results.disconnectReason?.code === DisconnectTypes.Player ? 'You got stabbed' : results.disconnectReason?.code === DisconnectTypes.Mob ? 'You were destroyed' : 'You were disconnected'}
-        <br />
+      </div>
+
+      <div className="results-reason">
+        {results.disconnectReason?.code === DisconnectTypes.Player ? 'Stabbed by ' : results.disconnectReason?.code === DisconnectTypes.Mob ? 'Destroyed by ' : 'Disconnected: '}
+        <strong>{results.disconnectReason?.reason}</strong>
       </div>
 
       <div className="results-container">
-        <div className="info">
-          <div className="title">{results.disconnectReason?.code === DisconnectTypes.Player ? 'Stabbed by' : results.disconnectReason?.code === DisconnectTypes.Mob ? 'By' : 'Disconnect reason:'}</div>
-          {results.disconnectReason?.reason}
-        </div>
-
         <div className="info">
           <div className="title">Coins:</div>
           <CountUp
@@ -236,52 +237,60 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
       </div> */}
 
       <div className="results-buttons">
-        {respawnCoins > 0 ? (
-          <div className="respawn-info respawn-available">
-            <span className="respawn-icon">&#x1F4B0;</span>
-            {insuranceCoins > 0 ? (
-              <span style={{color: '#ff00f2', fontWeight: 'bold'}}>Insurance activated! Respawn with {insuranceCoins.toLocaleString()} coins!</span>
-            ) : (
-              <span>Press Play Again to respawn with <strong>{respawnCoins.toLocaleString()}</strong> coins!</span>
-            )}
-          </div>
-        ) : (
-          <div className="respawn-info">
-            <div className="respawn-progress-label">Respawn Progress</div>
-            <div className="respawn-progress-bars">
-              <div className="respawn-bar-row">
-                <span>Coins: {results.coins.toLocaleString()} / 10,000</span>
-                <div className="respawn-bar"><div className="respawn-bar-fill" style={{ width: `${Math.min(coinProgress * 100, 100)}%` }} /></div>
-              </div>
-              <div className="respawn-bar-row">
-                <span>Time: {Math.floor(results.survivalTime / 60)}:{String(Math.floor(results.survivalTime % 60)).padStart(2, '0')} / 2:00</span>
-                <div className="respawn-bar"><div className="respawn-bar-fill" style={{ width: `${Math.min(timeProgress * 100, 100)}%` }} /></div>
-              </div>
+        <div className="rb-left">
+          {respawnCoins > 0 ? (
+            <div className="respawn-info respawn-available">
+              <span className="respawn-icon">&#x1F4B0;</span>
+              {insuranceCoins > 0 ? (
+                <span style={{color: '#ff00f2', fontWeight: 'bold'}}>Insurance activated! Respawn with {insuranceCoins.toLocaleString()} coins!</span>
+              ) : (
+                <span>Press Play Again to respawn with <strong>{respawnCoins.toLocaleString()}</strong> coins!</span>
+              )}
             </div>
-            <div className="respawn-hint">Reach both to keep coins on respawn!</div>
+          ) : (
+            <div className="respawn-info">
+              <div className="respawn-progress-label">Respawn Progress</div>
+              <div className="respawn-progress-bars">
+                <div className="respawn-bar-row">
+                  <span>Coins: {results.coins.toLocaleString()} / 10,000</span>
+                  <div className="respawn-bar"><div className="respawn-bar-fill" style={{ width: `${Math.min(coinProgress * 100, 100)}%` }} /></div>
+                </div>
+                <div className="respawn-bar-row">
+                  <span>Time: {Math.floor(results.survivalTime / 60)}:{String(Math.floor(results.survivalTime % 60)).padStart(2, '0')} / 2:00</span>
+                  <div className="respawn-bar"><div className="respawn-bar-fill" style={{ width: `${Math.min(timeProgress * 100, 100)}%` }} /></div>
+                </div>
+              </div>
+              <div className="respawn-hint">Reach both to keep coins on respawn!</div>
+            </div>
+          )}
+        </div>
+
+        <div className="rb-center">
+          { results.disconnectReason?.type !== DisconnectTypes.Server && (
+          <div
+            className={`play-again ${(() => { try { return JSON.parse(sessionStorage.getItem('swordbattle:tutorialSession') || '{}').active ? 'tutorial-pulse' : ''; } catch { return ''; } })()}`}
+            role="button"
+            onClick={onRestartClick}
+            onKeyDown={event => event.key === 'Enter' && onRestartClick()}
+            tabIndex={0}
+          >
+            <img src={PlayAgainImg} alt="Play again" />
           </div>
-        )}
-        { results.disconnectReason?.type !== DisconnectTypes.Server && (
-        <div
-          className={`play-again ${(() => { try { return JSON.parse(sessionStorage.getItem('swordbattle:tutorialSession') || '{}').active ? 'tutorial-pulse' : ''; } catch { return ''; } })()}`}
-          role="button"
-          onClick={onRestartClick}
-          onKeyDown={event => event.key === 'Enter' && onRestartClick()}
-          tabIndex={0}
-        >
-          <img src={PlayAgainImg} alt="Play again" />
+          )}
         </div>
-        )}
-        <div
-          className="to-home"
-          role="button"
-          onClick={onHomeClick}
-          onKeyDown={event => event.key === 'Enter' && onHomeClick()}
-          tabIndex={0}
-        >
-          <img src={HomeImg} alt="Home" />
+
+        <div className="rb-right">
+          <div
+            className="to-home"
+            role="button"
+            onClick={onHomeClick}
+            onKeyDown={event => event.key === 'Enter' && onHomeClick()}
+            tabIndex={0}
+          >
+            <img src={HomeImg} alt="Home" />
+          </div>
         </div>
-</div>
+      </div>
 
       </div>
       { adElement ? (
@@ -290,6 +299,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
           </div>
         ) : null}
     </div>
+    </>
   )
 }
 

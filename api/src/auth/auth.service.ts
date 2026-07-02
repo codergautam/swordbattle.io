@@ -14,6 +14,15 @@ export class AuthService {
     private readonly accountsService: AccountsService,
   ) {}
 
+  async checkUsername(username: string): Promise<{ available: boolean; reason?: string }> {
+    if (!username) return { available: false };
+    const validationError = validateUsername(username);
+    if (validationError) return { available: false, reason: validationError };
+    const existing = await this.accountsService.findOneWithLowercase({ where: { username } });
+    if (existing) return { available: false, reason: 'Username is taken' };
+    return { available: true };
+  }
+
   async register(data: RegisterDTO) {
     // validate username
     if(validateUsername(data.username)) {

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, Res, Req, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Res, Req, Query, UnauthorizedException } from '@nestjs/common';
 import { Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { RegisterDTO, LoginDTO, SecretLoginDTO } from './auth.dto';
@@ -15,6 +15,12 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly clansService: ClansService,
   ) {}
+
+  @Get('username-available')
+  @Throttle({ short: { limit: 5, ttl: 1000 }, medium: { limit: 60, ttl: 60000 } })
+  async usernameAvailable(@Query('username') username: string) {
+    return this.authService.checkUsername(username || '');
+  }
 
   @Post('register')
   @UseGuards(RecaptchaGuard)

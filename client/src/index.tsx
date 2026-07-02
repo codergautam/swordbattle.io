@@ -10,8 +10,11 @@ import { load } from 'recaptcha-v3'
 import { crazygamesSDK } from './crazygames/sdk';
 import { detectAdblock } from './crazygames/adblock';
 import { initializeDataStorage } from './crazygames/dataStorage';
+import { applyHudThemeCss } from './hudTheme';
 
 import './global.scss';
+
+applyHudThemeCss();
 
 const router = createHashRouter([
   {

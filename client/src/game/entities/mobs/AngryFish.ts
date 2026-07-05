@@ -14,6 +14,7 @@ class AngryFishMob extends BaseEntity {
     this.body.setAlpha(0.5);
     this.updateSprite();
     this.shadow = this.createShadow(Math.min(this.body.displayWidth, this.body.displayHeight) * 0.6, 0.1);
+    this.markLivingShadow(this.shadow as any);
     this.healthBar = new Health(this, { offsetY: -this.shape.radius - 40 });
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);
     return this.container;

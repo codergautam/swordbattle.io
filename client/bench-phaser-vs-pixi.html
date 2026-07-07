@@ -1,0 +1,258 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Phaser vs Pixi — swordbattle scene render cost</title>
+<style>
+  body { margin:0; background:#111; color:#ddd; font:14px/1.5 system-ui, sans-serif; padding:16px; }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .sub { color:#888; margin:0 0 16px; max-width:900px; }
+  .row { display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; }
+  .panel { background:#1a1a1a; border:1px solid #333; border-radius:8px; padding:12px; }
+  canvas { display:block; background:#0a0a0a; border-radius:4px; }
+  .cap { font-size:12px; color:#9ab; margin:6px 0 0; }
+  #controls { margin:14px 0; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  label { font-size:12px; color:#aaa; }
+  input[type=number] { width:64px; background:#000; color:#dd0; border:1px solid #444; border-radius:4px; padding:3px 6px; }
+  button { background:#2a4; color:#000; border:0; border-radius:6px; padding:9px 18px; font-weight:700; cursor:pointer; font-size:14px; }
+  button:disabled { background:#444; color:#888; cursor:default; }
+  #out { white-space:pre-wrap; font:13px/1.55 ui-monospace, Consolas, monospace; background:#000; border:1px solid #333; border-radius:8px; padding:14px; margin-top:16px; min-height:120px; }
+  .big { font-size:22px; font-weight:800; }
+  .win { color:#4f8; } .lose { color:#f86; } .tie { color:#fd6; }
+</style>
+</head>
+<body>
+<h1>Phaser 3.60 vs Pixi 7 — faithful swordbattle scene, raw render cost</h1>
+<p class="sub">
+  Same scene in both engines: N players (each a real 3-deep container tree — 7 sprites, 3 graphics, 3 text,
+  nested body/sword/card containers) + M coins, all moving/rotating every frame so nothing is transform-cached.
+  We call the low-level <code>renderer.render()</code> in a tight loop (NO requestAnimationFrame, so no 60fps vsync cap)
+  and report median ms per render. Small canvases keep GPU fill negligible so this isolates <b>CPU render cost</b> —
+  the display-list walk + world-transform concat + batch build — which is the only thing a renderer swap changes.
+  <b>Turn on CPU throttle 6× in DevTools → Performance before clicking Run</b> to simulate a Chromebook.
+</p>
+
+<div class="row">
+  <div class="panel">
+    <div id="phaser-holder"></div>
+    <p class="cap">Phaser 3.60 (WebGL)</p>
+  </div>
+  <div class="panel">
+    <div id="pixi-holder"></div>
+    <p class="cap">Pixi 7 (WebGL)</p>
+  </div>
+</div>
+
+<div id="controls">
+  <label>players <input id="players" type="number" value="25"></label>
+  <label>coins <input id="coins" type="number" value="150"></label>
+  <label>renders/round <input id="iters" type="number" value="250"></label>
+  <label>rounds <input id="rounds" type="number" value="6"></label>
+  <button id="run">Run benchmark</button>
+  <span id="status" style="color:#888"></span>
+</div>
+
+<div id="out">Load status will appear here…</div>
+
+<script src="node_modules/phaser/dist/phaser.min.js"></script>
+<script src="node_modules/pixi.js/dist/pixi.min.js"></script>
+<script>
+const W = 480, H = 360;
+const out = document.getElementById('out');
+const statusEl = document.getElementById('status');
+function log(s){ out.textContent += s + "\n"; }
+function setOut(s){ out.textContent = s; }
+
+if (typeof Phaser === 'undefined') { setOut('ERROR: phaser.min.js failed to load (check relative path node_modules/phaser/dist/phaser.min.js)'); }
+else if (typeof PIXI === 'undefined') { setOut('ERROR: pixi.min.js failed to load (check node_modules/pixi.js/dist/pixi.min.js)'); }
+else { setOut('Phaser ' + Phaser.VERSION + '  +  Pixi ' + PIXI.VERSION + '  loaded. Set CPU throttle, then click Run.'); }
+
+// ---- shared textures (canvas) so no asset loading, identical pixels in both engines ----
+function makeCircle(d, color){ const c=document.createElement('canvas'); c.width=c.height=d; const x=c.getContext('2d');
+  x.fillStyle=color; x.beginPath(); x.arc(d/2,d/2,d/2-1,0,7); x.fill(); return c; }
+function makeRect(w,h,color){ const c=document.createElement('canvas'); c.width=w; c.height=h; const x=c.getContext('2d');
+  x.fillStyle=color; x.fillRect(0,0,w,h); return c; }
+const texBody   = makeCircle(48, '#c94');
+const texShadow = makeCircle(52, 'rgba(0,0,0,0.4)');
+const texSword  = makeRect(10, 44, '#ccd');
+const texEvo    = makeCircle(50, 'rgba(120,180,255,0.5)');
+const texCoin   = makeCircle(18, '#fd4');
+
+// shared motion so both engines animate identically
+let FRAME = 0;
+function px(i, base){ return W/2 + Math.cos((i*0.7)+FRAME*0.01)*(base); }
+function py(i, base){ return H/2 + Math.sin((i*0.9)+FRAME*0.013)*(base); }
+function rot(i){ return (i*0.3 + FRAME*0.02); }
+
+/* ============================ PHASER ============================ */
+let phaserGame, phaserScene, phaserPlayers=[], phaserCoins=[];
+function buildPhaser(nPlayers, nCoins){
+  return new Promise(resolve=>{
+    if (phaserGame){ phaserGame.destroy(true); phaserPlayers=[]; phaserCoins=[]; }
+    class S extends Phaser.Scene {
+      create(){
+        phaserScene = this;
+        const t = this.textures;
+        t.addCanvas('body', texBody); t.addCanvas('shadow', texShadow); t.addCanvas('sword', texSword);
+        t.addCanvas('evo', texEvo); t.addCanvas('coin', texCoin);
+        for (let i=0;i<nPlayers;i++){
+          const shadow = this.add.sprite(0,0,'shadow');
+          const evoShadow = this.add.sprite(2,2,'shadow');
+          const swordShadow = this.add.sprite(6,6,'sword');
+          const submerged = this.add.graphics(); submerged.fillStyle(0x000000,0.3); submerged.fillCircle(0,0,20);
+          const aura = this.add.graphics(); aura.lineStyle(3,0x66ccff,0.7); aura.strokeCircle(0,0,28);
+          const sword = this.add.sprite(12,12,'sword').setRotation(Math.PI/4);
+          const swordC = this.add.container(0,0,[sword]);
+          const body = this.add.sprite(0,0,'body');
+          const evo = this.add.sprite(0,0,'evo');
+          const bodyC = this.add.container(0,0,[aura, swordC, body, evo]);
+          const cardBg = this.add.graphics(); cardBg.fillStyle(0x222222,0.8); cardBg.fillRoundedRect(-40,-12,80,24,6);
+          const cardC = this.add.container(0,-60,[cardBg]);
+          const name = this.add.text(0,-50,'Player'+i,{fontSize:'16px',color:'#fff'}).setOrigin(0.5);
+          const msg  = this.add.text(0,-70,'',{fontSize:'14px',color:'#ff0'}).setOrigin(0.5);
+          const choosing = this.add.text(0,0,'',{fontSize:'14px',color:'#0ff'}).setOrigin(0.5);
+          const root = this.add.container(px(i,120), py(i,90),
+            [shadow, evoShadow, swordShadow, submerged, bodyC, cardC, name, msg, choosing]);
+          phaserPlayers.push({root, sword, body, bodyC});
+        }
+        for (let i=0;i<nCoins;i++){
+          phaserCoins.push(this.add.sprite(px(i,150), py(i,110), 'coin'));
+        }
+        resolve();
+      }
+    }
+    phaserGame = new Phaser.Game({
+      type: Phaser.WEBGL, width:W, height:H, parent:'phaser-holder', banner:false,
+      scene:S, fps:{ min:5, target:60 }, render:{ antialias:true }
+    });
+  });
+}
+function mutatePhaser(){
+  for (let i=0;i<phaserPlayers.length;i++){ const p=phaserPlayers[i];
+    p.root.x=px(i,120); p.root.y=py(i,90); p.root.rotation=Math.sin(FRAME*0.01+i)*0.15;
+    p.sword.rotation=rot(i); p.bodyC.rotation=Math.sin(FRAME*0.02+i)*0.1; }
+  for (let i=0;i<phaserCoins.length;i++){ const c=phaserCoins[i];
+    c.x=px(i,150); c.y=py(i,110); c.rotation=rot(i)*2; }
+}
+function phaserRenderOnce(){
+  // Mirror Phaser's real per-frame render path (Systems.render):
+  //   depthSort -> cameras.render(renderer, displayList)
+  // cameras.render internally does camera.preRender() + getVisibleChildren (cull)
+  // + renderer.render(scene, visibleChildrenArray, camera). Passing the DisplayList
+  // straight to renderer.render would render zero children (no .length), so we must
+  // go through cameras.render — which also fairly includes Phaser's per-frame cull cost.
+  const r = phaserGame.renderer, sc = phaserScene, dl = sc.sys.displayList;
+  r.preRender();
+  dl.depthSort();
+  sc.cameras.render(r, dl);
+  r.postRender();
+}
+
+/* ============================ PIXI ============================ */
+let pixiApp, pixiPlayers=[], pixiCoins=[];
+const PT = {};
+function buildPixi(nPlayers, nCoins){
+  if (pixiApp){ pixiApp.destroy(true,{children:true}); pixiPlayers=[]; pixiCoins=[]; }
+  pixiApp = new PIXI.Application({ width:W, height:H, antialias:true, background:0x0a0a0a, autoStart:false });
+  document.getElementById('pixi-holder').appendChild(pixiApp.view);
+  PT.body=PIXI.Texture.from(texBody); PT.shadow=PIXI.Texture.from(texShadow); PT.sword=PIXI.Texture.from(texSword);
+  PT.evo=PIXI.Texture.from(texEvo); PT.coin=PIXI.Texture.from(texCoin);
+  const stage = pixiApp.stage;
+  function spr(t,x,y){ const s=new PIXI.Sprite(t); s.anchor.set(0.5); s.x=x||0; s.y=y||0; return s; }
+  for (let i=0;i<nPlayers;i++){
+    const shadow=spr(PT.shadow), evoShadow=spr(PT.shadow,2,2), swordShadow=spr(PT.sword,6,6);
+    const submerged=new PIXI.Graphics(); submerged.beginFill(0x000000,0.3).drawCircle(0,0,20).endFill();
+    const aura=new PIXI.Graphics(); aura.lineStyle(3,0x66ccff,0.7).drawCircle(0,0,28);
+    const sword=spr(PT.sword,12,12); sword.rotation=Math.PI/4;
+    const swordC=new PIXI.Container(); swordC.addChild(sword);
+    const body=spr(PT.body), evo=spr(PT.evo);
+    const bodyC=new PIXI.Container(); bodyC.addChild(aura,swordC,body,evo);
+    const cardBg=new PIXI.Graphics(); cardBg.beginFill(0x222222,0.8).drawRoundedRect(-40,-12,80,24,6).endFill();
+    const cardC=new PIXI.Container(); cardC.y=-60; cardC.addChild(cardBg);
+    const name=new PIXI.Text('Player'+i,{fontSize:16,fill:'#ffffff'}); name.anchor.set(0.5); name.y=-50;
+    const msg=new PIXI.Text('',{fontSize:14,fill:'#ffff00'}); msg.anchor.set(0.5); msg.y=-70;
+    const choosing=new PIXI.Text('',{fontSize:14,fill:'#00ffff'}); choosing.anchor.set(0.5);
+    const root=new PIXI.Container(); root.x=px(i,120); root.y=py(i,90);
+    root.addChild(shadow, evoShadow, swordShadow, submerged, bodyC, cardC, name, msg, choosing);
+    stage.addChild(root);
+    pixiPlayers.push({root, sword, body, bodyC});
+  }
+  for (let i=0;i<nCoins;i++){ const c=spr(PT.coin, px(i,150), py(i,110)); stage.addChild(c); pixiCoins.push(c); }
+}
+function mutatePixi(){
+  for (let i=0;i<pixiPlayers.length;i++){ const p=pixiPlayers[i];
+    p.root.x=px(i,120); p.root.y=py(i,90); p.root.rotation=Math.sin(FRAME*0.01+i)*0.15;
+    p.sword.rotation=rot(i); p.bodyC.rotation=Math.sin(FRAME*0.02+i)*0.1; }
+  for (let i=0;i<pixiCoins.length;i++){ const c=pixiCoins[i];
+    c.x=px(i,150); c.y=py(i,110); c.rotation=rot(i)*2; }
+}
+function pixiRenderOnce(){ pixiApp.renderer.render(pixiApp.stage); }
+
+/* ============================ BENCH ============================ */
+function median(a){ const b=a.slice().sort((x,y)=>x-y); return b[b.length>>1]; }
+function mean(a){ return a.reduce((s,x)=>s+x,0)/a.length; }
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+async function benchEngine(name, mutate, renderOnce, iters, rounds){
+  // warmup — JIT + first-batch compile
+  for (let i=0;i<40;i++){ FRAME++; mutate(); renderOnce(); }
+  const roundMeds = [];
+  for (let r=0;r<rounds;r++){
+    const samples = new Array(iters);
+    for (let i=0;i<iters;i++){
+      FRAME++;
+      mutate();
+      const t0 = performance.now();
+      renderOnce();
+      samples[i] = performance.now() - t0;
+    }
+    roundMeds.push(median(samples));
+    statusEl.textContent = `${name}: round ${r+1}/${rounds}  (${median(samples).toFixed(3)} ms/render)`;
+    await sleep(30); // yield so the tab stays alive & GC can run between rounds
+  }
+  return { med: median(roundMeds), best: Math.min(...roundMeds), mean: mean(roundMeds), rounds: roundMeds };
+}
+
+document.getElementById('run').addEventListener('click', async ()=>{
+  const btn = document.getElementById('run'); btn.disabled = true;
+  const nPlayers = +document.getElementById('players').value;
+  const nCoins   = +document.getElementById('coins').value;
+  const iters    = +document.getElementById('iters').value;
+  const rounds   = +document.getElementById('rounds').value;
+  const totalObj = nPlayers*14 + nCoins;
+  setOut(`Building scene: ${nPlayers} players + ${nCoins} coins  ≈ ${totalObj} display objects (players nested 3 deep, 3 text each).\n`);
+
+  log('Building Phaser…'); await buildPhaser(nPlayers, nCoins); await sleep(100);
+  log('Building Pixi…');   buildPixi(nPlayers, nCoins); await sleep(100);
+  log('Running (this freezes each engine in a tight loop — expected)…\n');
+  await sleep(50);
+
+  const ph = await benchEngine('Phaser', mutatePhaser, phaserRenderOnce, iters, rounds);
+  await sleep(120);
+  const px_ = await benchEngine('Pixi',   mutatePixi,   pixiRenderOnce,   iters, rounds);
+
+  const ratio = ph.med / px_.med;
+  const cls = ratio >= 1.6 ? 'win' : (ratio <= 1.15 ? 'lose' : 'tie');
+  const verdict = ratio >= 1.6
+    ? `Pixi is ${ratio.toFixed(2)}× cheaper to render this scene → the full port is JUSTIFIED.`
+    : (ratio <= 1.15
+       ? `Pixi is only ${ratio.toFixed(2)}× — renderer is NOT the win. Do NOT rewrite; the cost is elsewhere (overdraw/logic/text).`
+       : `Pixi is ${ratio.toFixed(2)}× — modest. Marginal case; the port helps but won't "fix" it alone.`);
+
+  log('──────────────────────────────────────────────');
+  log(`Scene: ${nPlayers} players + ${nCoins} coins ≈ ${totalObj} objects · ${iters} renders/round · ${rounds} rounds`);
+  log('');
+  log(`Phaser  median ${ph.med.toFixed(3)} ms/render   (best round ${ph.best.toFixed(3)})`);
+  log(`Pixi    median ${px_.med.toFixed(3)} ms/render   (best round ${px_.best.toFixed(3)})`);
+  log(`   Phaser rounds: [${ph.rounds.map(x=>x.toFixed(2)).join(', ')}]`);
+  log(`   Pixi   rounds: [${px_.rounds.map(x=>x.toFixed(2)).join(', ')}]`);
+  log('');
+  out.insertAdjacentHTML('beforeend',
+    `<span class="big ${cls}">Pixi renders this scene ${ratio.toFixed(2)}× ${ratio>=1?'cheaper':'more expensive'} than Phaser.</span>\n`);
+  out.insertAdjacentHTML('beforeend', `<span class="${cls}">${verdict}</span>\n`);
+  statusEl.textContent = 'done.';
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>

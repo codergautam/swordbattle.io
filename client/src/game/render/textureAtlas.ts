@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import Phaser from '../engine';
 
 const atlasKey = 'gameAtlasPage0';
 let patched = false;

@@ -57,7 +57,13 @@ class Shape {
 
   applyCollision(vector) {
     if (isNaN(vector.x) || isNaN(vector.y)) {
-      console.error(`[COLLISION_NAN] applyCollision got NaN vector: (${vector.x}, ${vector.y})`);
+      Shape._nanCollisions = (Shape._nanCollisions || 0) + 1;
+      if (Shape._nanCollisions % 1000 === 1) {
+        console.error(`[COLLISION_NAN] degenerate overlap (x${Shape._nanCollisions}) — nudging apart`);
+      }
+      const a = Math.random() * Math.PI * 2;
+      this.x += Math.cos(a) * 3;
+      this.y += Math.sin(a) * 3;
       return;
     }
     this.x += vector.x;

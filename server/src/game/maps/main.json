@@ -3,7 +3,8 @@
   "worldHeight": 35000,
   "scale": 1.225,
   "coinsCount": 0,
-  "aiPlayersCount": 40,
+  "chestCount": 250,
+  "aiPlayersCount": 30,
   "biomes": [
     {
       "type": "Safezone",
@@ -11,10 +12,11 @@
         -6256,
         2944
       ],
-      "radius": 1105
+      "radius": 920
     },
     {
       "type": "Earth",
+      "variant": "central",
       "pos": [
         0,
         0
@@ -80,6 +82,7 @@
     },
     {
       "type": "Earth",
+      "variant": "safezone",
       "pos": [
         0,
         0

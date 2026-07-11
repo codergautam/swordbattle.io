@@ -11,7 +11,6 @@ class GameMap {
   staticObjects: any[] = [];
   riverBorderSprites: Phaser.GameObjects.Sprite[] = [];
   tideBorders: { sprite: Phaser.GameObjects.Sprite, width: number }[] = [];
-  shoreLayers: { sprite: Phaser.GameObjects.TileSprite, mask: Phaser.GameObjects.Graphics }[] = [];
   x = 0;
   y = 0;
   width = 0;
@@ -39,7 +38,6 @@ class GameMap {
     this.updateRiverBackdrop();
     this.updateWorldCutout();
     this.updateShoreTide();
-    this.updateBiomeShores();
     this.lastCamW = camera.width;
     this.lastCamH = camera.height;
   }
@@ -74,10 +72,8 @@ class GameMap {
     if (this.worldCutout.visible !== nearEdge) this.worldCutout.setVisible(nearEdge);
     if (!nearEdge) return;
     const tileScale = 2;
-    if (this.camResized) {
-      this.worldCutout.setSize(camera.width, camera.height);
-      this.worldCutout.setPosition(camera.width / 2, camera.height / 2);
-    }
+    this.worldCutout.setSize(camera.width, camera.height);
+    this.worldCutout.setPosition(camera.width / 2, camera.height / 2);
     this.worldCutout.setDisplaySize(camera.displayWidth, camera.displayHeight);
     this.worldCutout.setTileScale(camera.zoom * tileScale);
     this.worldCutout.setTilePosition(
@@ -112,13 +108,6 @@ class GameMap {
     this.riverBorderSprites = [];
     this.tideBorders = [];
 
-    for (const { sprite, mask } of this.shoreLayers) {
-      try { sprite.clearMask(true); } catch (e) {}
-      sprite.destroy();
-      mask.destroy();
-    }
-    this.shoreLayers = [];
-
     for (const l of [this.riverBackdrop, this.riverBackdropTop, this.riverBackdropShimmer]) {
       if (l) { l.clearMask(true); l.destroy(); }
     }
@@ -148,6 +137,12 @@ class GameMap {
     mapData.biomes.forEach((biomeData: any) => this.addBiome(biomeData));
     if (mapData.staticObjects) {
       mapData.staticObjects.forEach(((objectData: any) => this.addStaticObject(objectData)));
+    }
+    {
+      const live: any = this.scene.gameState.entities;
+      for (const obj of this.staticObjects as any[]) {
+        if (obj.id !== undefined && live[obj.id] && obj.container) obj.container.visible = false;
+      }
     }
     console.log('[map] static decorations on map:', this.staticObjects.length);
     this.sortBiomes();
@@ -242,6 +237,17 @@ class GameMap {
     this.biomes.sort((a, b) => a.zIndex - b.zIndex);
   }
 
+  getSafezoneCenter(): { x: number, y: number } | null {
+    const sz = this.biomes.find(b => b.type === BiomeTypes.Safezone);
+    if (!sz || !sz.shape) return null;
+    const shape: any = sz.shape;
+    if (shape.polygonBounds) {
+      const b = shape.polygonBounds;
+      return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+    }
+    return { x: shape.x, y: shape.y };
+  }
+
   createRiverBorders() {
     const lands = this.biomes.filter(b =>
       b.type !== BiomeTypes.River &&
@@ -250,8 +256,7 @@ class GameMap {
     );
     if (lands.length === 0) return;
     const rivers = lands;
-    const tileShore = [BiomeTypes.Rocks, BiomeTypes.Dirt, BiomeTypes.Alpine];
-    const sandLands = rivers.filter(r => !tileShore.includes(r.type));
+    const sandLands = rivers;
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     for (const river of rivers) {
@@ -298,9 +303,11 @@ class GameMap {
     const sandSources: Record<string, HTMLImageElement> = {
       sand: sandImg('sand'), sandRock: sandImg('sandRock'),
       sandMud: sandImg('sandMud'), sandAsh: sandImg('sandAsh'),
+      rocksNew: sandImg('rocksNew'),
     };
     const sandKeyForBiome = (type: BiomeTypes): string => {
-      if (type === BiomeTypes.Ice || type === BiomeTypes.Alpine || type === BiomeTypes.Rocks) return 'sandRock';
+      if (type === BiomeTypes.Rocks || type === BiomeTypes.Alpine) return 'rocksNew';
+      if (type === BiomeTypes.Ice) return 'sandRock';
       if (type === BiomeTypes.Dirt) return 'sandMud';
       if (type === BiomeTypes.Fire) return 'sandAsh';
       return 'sand';
@@ -310,6 +317,7 @@ class GameMap {
       sandRock: ctx.createPattern(sandSources.sandRock, 'repeat')!,
       sandMud: ctx.createPattern(sandSources.sandMud, 'repeat')!,
       sandAsh: ctx.createPattern(sandSources.sandAsh, 'repeat')!,
+      rocksNew: ctx.createPattern(sandSources.rocksNew, 'repeat')!,
     });
 
     const clipWorld = (ctx: CanvasRenderingContext2D) => {
@@ -382,71 +390,6 @@ class GameMap {
       sprite.setDepth(-1.5);
       this.riverBorderSprites.push(sprite);
     }
-
-    this.createBiomeShores(rivers);
-  }
-
-  createBiomeShores(lands: BiomeType[]) {
-    const camera = this.scene.cameras.main;
-    const groups: { type: BiomeTypes, tex: string }[] = [
-      { type: BiomeTypes.Rocks, tex: 'rocksTile' },
-      { type: BiomeTypes.Dirt, tex: 'dirtTile' },
-      { type: BiomeTypes.Alpine, tex: 'rockcoast' },
-    ];
-    const out = 360;
-    const over = 45;
-    for (const grp of groups) {
-      const gl = lands.filter(l => l.type === grp.type);
-      if (!gl.length || !this.scene.textures.exists(grp.tex)) continue;
-
-      const mask = this.scene.make.graphics({}, false);
-      mask.fillStyle(0xffffff, 1);
-      for (const l of gl) {
-        const s: any = l.shape;
-        // Pre-triangulate ONCE (fillTriangle) instead of fillPath, which makes
-        // Phaser re-Earcut these complex coastline polygons EVERY frame when the
-        // mask renders to the stencil — the per-frame render bottleneck. Same
-        // mask shape, but the triangulation is baked into the command buffer.
-        if (s.points && s.points.length) {
-          const flat: number[] = [];
-          for (const p of s.points) flat.push(s.x + p.x, s.y + p.y);
-          this.fillTriangulated(mask, flat);
-        } else {
-          s.fillShape(mask);
-        }
-        for (const seg of this.coastSegments(s)) {
-          if (seg.length < 2) continue;
-          const flat: number[] = [];
-          for (let i = 0; i < seg.length; i++) flat.push(seg[i].x + seg[i].nx * over, seg[i].y + seg[i].ny * over);
-          for (let i = seg.length - 1; i >= 0; i--) flat.push(seg[i].x - seg[i].nx * out, seg[i].y - seg[i].ny * out);
-          this.fillTriangulated(mask, flat);
-        }
-      }
-
-      const sprite = this.scene.add.tileSprite(camera.width / 2, camera.height / 2, camera.width, camera.height, grp.tex)
-        .setScrollFactor(0).setDepth(-3.4).setTileScale(2);
-      sprite.setMask(new Phaser.Display.Masks.GeometryMask(this.scene, mask));
-
-      this.shoreLayers.push({ sprite, mask });
-    }
-    this.updateBiomeShores();
-  }
-
-  updateBiomeShores() {
-    const camera = this.scene.cameras.main;
-    const tileScale = 2;
-    for (const { sprite } of this.shoreLayers) {
-      if (this.camResized) {
-        sprite.setSize(camera.width, camera.height);
-        sprite.setPosition(camera.width / 2, camera.height / 2);
-      }
-      sprite.setDisplaySize(camera.displayWidth, camera.displayHeight);
-      sprite.setTileScale(camera.zoom * tileScale);
-      sprite.setTilePosition(
-        (camera.scrollX - camera.displayWidth / 2) / tileScale,
-        (camera.scrollY - camera.displayHeight / 2) / tileScale,
-      );
-    }
   }
 
   updateShoreTide() {
@@ -484,6 +427,24 @@ class GameMap {
           + 0.06 * Math.sin(wx * 0.0240 - wy * 0.0220 + 0.7);
     n = Math.max(0, Math.min(1, (n + 1) / 2));
     return base + amp * n;
+  }
+
+  private fillTriangulated(g: Phaser.GameObjects.Graphics, flat: number[]) {
+    if (flat.length < 6) return;
+    let tris: number[] | null = null;
+    try { tris = (Phaser.Geom.Polygon as any).Earcut(flat); } catch (e) { tris = null; }
+    if (tris && tris.length >= 3) {
+      for (let i = 0; i < tris.length; i += 3) {
+        const a = tris[i] * 2, b = tris[i + 1] * 2, c = tris[i + 2] * 2;
+        g.fillTriangle(flat[a], flat[a + 1], flat[b], flat[b + 1], flat[c], flat[c + 1]);
+      }
+    } else {
+      g.beginPath();
+      g.moveTo(flat[0], flat[1]);
+      for (let i = 2; i < flat.length; i += 2) g.lineTo(flat[i], flat[i + 1]);
+      g.closePath();
+      g.fillPath();
+    }
   }
 
   private coastSegments(shape: any): { x: number, y: number, nx: number, ny: number }[][] {

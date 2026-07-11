@@ -87,11 +87,16 @@ class GameMap {
       this.applySpawnZones(Circle, biomeData.spawnZones);
     }
 
+    const safezoneBiome = this.biomes.find(b => b.type === Types.Biome.Safezone);
+    const safezoneIsland = safezoneBiome
+      ? this.biomes.find(b => Array.isArray(b.contains) && b.contains.includes(safezoneBiome))
+      : null;
     for (let i = 0; i < this.chestsCount; i++) {
       this.addEntity({
         type: Types.Entity.Chest,
         respawnable: true,
         spawnZone: this.shape,
+        avoidBiomes: safezoneIsland ? [safezoneIsland] : [],
       });
     }
     for (let i = 0; i < this.coinsCount; i++) {
@@ -310,6 +315,9 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
 
     const entity = new ObjectClass(this.game, objectData);
     if (entity.spawnFailed) {
+      if (objectData && objectData.respawnable) {
+        this.addEntityTimer(objectData, [10, 25]);
+      }
       return null;
     }
     if (entity.isStatic) {
@@ -350,7 +358,7 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
   }
 
   spawnPlayer(player) {
-    const isTutorial = player && player.isFirstLife && !(player.client && player.client.tutorialCompleted);
+    const isTutorial = false;
     const zone = isTutorial ? (this.tutorialSafezone || this.safezone) : this.safezone;
     if (zone && zone.shape) {
       zone.shape.randomSpawnInside(player.shape);

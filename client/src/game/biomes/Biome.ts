@@ -107,7 +107,7 @@ class Biome {
       case BiomeTypes.Savanna: texture = 'savannaTile'; break;
       case BiomeTypes.Alpine: texture = 'alpineTile'; break;
       case BiomeTypes.Dirt: texture = 'dirtTile'; break;
-      case BiomeTypes.Rocks: texture = 'rocksTile'; break;
+      case BiomeTypes.Rocks: texture = 'rocksNewTile'; break;
       case BiomeTypes.Desert: texture = 'desertTile'; break;
       case BiomeTypes.Oasis: texture = 'oasisTile'; break;
     }
@@ -165,6 +165,8 @@ class Biome {
 
     if (isInViewport) {
       const drift = this.tileDrift();
+      this.container.setSize(camera.width, camera.height);
+      this.container.setPosition(camera.width / 2, camera.height / 2);
       this.container.setDisplaySize(camera.displayWidth, camera.displayHeight);
       this.container.setTileScale(camera.zoom * this.tileScale);
       this.container.setTilePosition(

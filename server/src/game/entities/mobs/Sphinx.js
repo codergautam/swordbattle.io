@@ -38,6 +38,7 @@ class SphinxMob extends Entity {
 
     this.jumpTimer = new Timer(0, this.definition.jumpCooldown[0], this.definition.jumpCooldown[1]);
     this.attackTimer = new Timer(0, this.definition.sandBlockCooldown[0], this.definition.sandBlockCooldown[1]);
+    this.angryTimer = new Timer(0, 7, 10);
 
     this.health = new Health(this.definition.health, this.definition.regen);
     this.speed = new Property(this.definition.speed);
@@ -55,8 +56,10 @@ class SphinxMob extends Entity {
   }
 
   update(dt) {
-    if (!this.target || this.target.removed) {
+    this.angryTimer.update(dt);
+    if (this.angryTimer.finished || !this.target || this.target.removed) {
       this.target = null;
+      this.ultimate = null;
     }
 
     this.health.update(dt);
@@ -167,6 +170,7 @@ class SphinxMob extends Entity {
     this.health.damaged(damage);
     if (entity && !(entity.type === Types.Entity.Player && entity.cards && entity.cards.hasMajor && entity.cards.hasMajor(126))) {
       this.target = entity;
+      this.angryTimer.renew();
     }
     if (this.health.isDead) this.remove();
   }

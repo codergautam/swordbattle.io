@@ -1,0 +1,33 @@
+#supportButton {
+  cursor: pointer;
+  background-color: #262119 !important;
+
+  &::after {
+    box-shadow: 0 0 0 3px #c99a3e, 0 0 0 6px #000 !important;
+  }
+
+  .ui-icon {
+    color: #edb23f;
+    font-size: 27px;
+  }
+
+  .support-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    background: #e0463b;
+    border: 2px solid #111;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    z-index: 3;
+    pointer-events: none;
+  }
+}

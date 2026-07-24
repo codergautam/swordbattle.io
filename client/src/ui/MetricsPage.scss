@@ -1,0 +1,66 @@
+.metrics-page {
+  background: #fff;
+  color: #111;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  padding: 16px 20px 80px;
+  min-height: 100vh;
+  box-sizing: border-box;
+
+  h1 { font-size: 20px; margin: 0 0 12px; }
+  h2 { font-size: 15px; margin: 0 0 6px; font-weight: 600; }
+
+  .m-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    label { font-size: 13px; }
+    input { font-size: 13px; padding: 3px 5px; margin-left: 4px; }
+    input[type="number"] { width: 60px; }
+    input[type="password"] { width: 190px; }
+    button { font-size: 13px; padding: 4px 12px; cursor: pointer; }
+    .m-meta { font-size: 12px; color: #666; }
+  }
+
+  .m-error { color: #b00020; font-size: 13px; }
+  .m-empty { color: #888; font-size: 13px; margin: 2px 0; }
+
+  .m-section { margin: 0 0 22px; }
+
+  .m-table {
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-bottom: 6px;
+
+    th, td { border: 1px solid #ccc; padding: 3px 8px; text-align: left; white-space: nowrap; }
+    th { background: #f0f0f0; font-weight: 600; }
+    td { font-variant-numeric: tabular-nums; }
+  }
+
+  .m-kv {
+    th { text-align: left; }
+    td { text-align: right; }
+  }
+
+  .m-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-width: 680px;
+    margin-top: 4px;
+
+    .m-bar-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 78px;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .m-bar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .m-bar-track { background: #eee; height: 12px; }
+    .m-bar-fill { display: block; height: 100%; background: #5a7d9a; }
+    .m-bar-val { text-align: right; font-variant-numeric: tabular-nums; }
+  }
+}

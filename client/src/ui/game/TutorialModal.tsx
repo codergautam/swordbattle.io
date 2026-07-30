@@ -55,7 +55,7 @@ function buildPages(mobile: boolean, isCrazygames: boolean, fromMenu?: boolean):
           <p className="tutorial-heading">Evolutions</p>
           <p>
             Collect at least{' '}
-            <span className="hl-gold">1,000 coins</span> to choose your first{' '}
+            <span className="hl-gold">50 coins</span> to choose your first{' '}
             <span className="hl-purple">Evolution</span>! Evolutions change your
             stats to be better in certain ways, and later tiers of Evolutions
             can even give you{' '}
@@ -274,6 +274,8 @@ function TutorialModal({ game, onClose, centered }: { game?: Phaser.Game | undef
 }
 
 export function shouldShowTutorial(): boolean {
+  const tutorialEnabled = false;
+  if (!tutorialEnabled) return false;
   if (alwaysShow) return true;
   try {
     return !localStorage.getItem(storageKey);

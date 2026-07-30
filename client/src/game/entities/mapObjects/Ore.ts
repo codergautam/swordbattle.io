@@ -79,7 +79,7 @@ class Ore extends BaseEntity {
     const bodyKey = this.pickTexture();
 
     if ((this as any).isMinimap) {
-      this.body = this.game.add.sprite(0, 0, bodyKey).setOrigin(0.5, 0.5);
+      this.body = this.game.add.sprite(0, 0, bodyKey).setOrigin(0.3, 0.6);
       let cx = this.shape.x, cy = this.shape.y;
       const biomes: any[] = this.game.gameState?.gameMap?.biomes || [];
       const rocks = biomes.find((b: any) => b.type === BiomeTypes.Rocks && b.shape);

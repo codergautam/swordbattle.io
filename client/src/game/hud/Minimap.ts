@@ -40,6 +40,7 @@ class Minimap extends HudComponent {
   zoomInBtn!: Phaser.GameObjects.Text;
   zoomOutBtn!: Phaser.GameObjects.Text;
   mapLabel!: Phaser.GameObjects.Text;
+  headerHit!: any;
   crownSpeed: number = 500;
   width: number = map;
   height: number = map;
@@ -61,15 +62,15 @@ class Minimap extends HudComponent {
     this.innerFrame = this.game.add.graphics();
 
     this.header = this.hud.scene.add.text(pad + 2, pad + header / 2, 'Minimap', {
-      fontSize: 17, fontFamily: "'Rajdhani', sans-serif", fontStyle: '700',
+      fontSize: 17, fontFamily: "'Saira', sans-serif", fontStyle: '700',
       color: '#f5c842', stroke: '#000000', strokeThickness: 3,
     }).setOrigin(0, 0.5);
 
-    const arrowStyle = { fontSize: 13, fontFamily: "'Rajdhani', sans-serif", fontStyle: '700', color: '#ffffff', stroke: '#000000', strokeThickness: 3 };
+    const arrowStyle = { fontSize: 13, fontFamily: "'Saira', sans-serif", fontStyle: '700', color: '#ffffff', stroke: '#000000', strokeThickness: 3 };
     this.leftArrow = this.hud.scene.add.text(0, 0, '▼', arrowStyle).setOrigin(0.5);
     this.rightArrow = this.hud.scene.add.text(0, 0, '▼', arrowStyle).setOrigin(0.5);
 
-    const zStyle = { fontSize: 20, fontFamily: "'Rajdhani', sans-serif", fontStyle: '700', color: '#ffffff', stroke: '#000000', strokeThickness: 3 };
+    const zStyle = { fontSize: 20, fontFamily: "'Saira', sans-serif", fontStyle: '700', color: '#ffffff', stroke: '#000000', strokeThickness: 3 };
     this.zoomOutBtn = this.hud.scene.add.text(0, pad + header / 2, '−', zStyle).setOrigin(0.5)
       .setInteractive({ useHandCursor: true }).on('pointerdown', () => this.setZoom(this.zoom - 1));
     this.zoomInBtn = this.hud.scene.add.text(0, pad + header / 2, '+', zStyle).setOrigin(0.5)
@@ -85,21 +86,33 @@ class Minimap extends HudComponent {
     this.pan = this.game.add.container(0, 0, [this.mapContainer, this.dotLayer, this.crown]);
     this.viewport = this.game.add.container(pad, pad + header, [this.pan]);
 
-    this.mapLabel = this.hud.scene.add.text(pad + map - 4, pad + header + map - 4, 'Map: v3', {
-      fontSize: 11, fontFamily: "'Rajdhani', sans-serif", fontStyle: '700',
+    this.mapLabel = this.hud.scene.add.text(pad + map - 4, pad + header + map - 4, 'Map: v3m1', {
+      fontSize: 11, fontFamily: "'Saira', sans-serif", fontStyle: '700',
       color: '#ffffff', stroke: '#000000', strokeThickness: 3,
     }).setOrigin(1, 1);
 
     this.maskG = this.hud.scene.add.graphics();
     this.maskG.setVisible(false);
 
+    this.headerHit = this.game.add.zone(0, 0, pad * 2 + map, pad + header).setOrigin(0, 0)
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => this.toggleMinimize());
+
     this.container = this.game.add.container(0, 0, [
-      this.outerPanel, this.header, this.leftArrow, this.rightArrow,
+      this.outerPanel, this.headerHit, this.header, this.leftArrow, this.rightArrow,
       this.zoomInBtn, this.zoomOutBtn, this.innerFrame, this.viewport, this.mapLabel,
     ]);
     this.hud.add(this.container);
 
     this.viewport.setMask(this.maskG.createGeometryMask());
+
+    if (this.game.isMobile) {
+      this.minimized = true;
+      this.innerFrame.setVisible(false);
+      this.viewport.setVisible(false);
+      this.mapLabel.setVisible(false);
+    }
+
     this.redrawFrame();
     this.layoutHeader();
   }
@@ -138,7 +151,7 @@ class Minimap extends HudComponent {
   private redrawFrame() {
     const t = getTheme();
     const panelW = pad * 2 + map;
-    const panelH = this.minimized ? (pad * 2 + header) : (pad * 2 + header + map);
+    const panelH = this.minimized ? (pad + header) : (pad * 2 + header + map);
     this.outerPanel!.clear();
     drawPanel(this.outerPanel!, 0, 0, panelW, panelH, { radius: 10 });
 
@@ -183,12 +196,19 @@ class Minimap extends HudComponent {
   resize() {
     if (!this.container) return;
     const panelW = pad * 2 + map;
-    const panelH = this.minimized ? (pad * 2 + header) : (pad * 2 + header + map);
-    const x = this.game.scale.width - (panelW * this.scale) - 10;
-    const isPortrait = this.game.scale.height > this.game.scale.width;
-    const mobileOffset = (this.game.isMobile && isPortrait) ? 120 * this.scale : 0;
-    const y = this.game.scale.height - (panelH * this.scale) - 10 - mobileOffset;
-    this.container.setPosition(x, y);
+    const panelH = this.minimized ? (pad + header) : (pad * 2 + header + map);
+    const s = this.scale;
+    const x = this.game.scale.width - (panelW * s) - 10;
+    let y = this.game.scale.height - (panelH * s) - 10;
+
+    const controls: any = this.game.controls;
+    const aimBase: any = controls?.aimJoystick?.base;
+    if (this.game.isMobile && aimBase && aimBase.y > 0) {
+      const r = (typeof controls.stickRadius === 'function' ? controls.stickRadius() : 130 * s);
+      const clusterTop = aimBase.y - r - (128 + 55 + 12) * s;
+      y = Math.min(y, clusterTop - panelH * s);
+    }
+    this.container.setPosition(x, Math.max(10, y));
     this.updateMaskRect();
   }
 
@@ -239,6 +259,12 @@ class Minimap extends HudComponent {
       }
       biomeGraphics.fillStyle(color);
       biome.shape.fillShape(biomeGraphics);
+      if (biome.type === BiomeTypes.Safezone && (biome.shape as any).radius) {
+        const s: any = biome.shape;
+        biomeGraphics.lineStyle(200, 0x000000, 1);
+        biomeGraphics.strokeCircle(s.x, s.y, s.radius + 250);
+        biomeGraphics.lineStyle(0, 0, 0);
+      }
     }
     tempContainer.add(biomeGraphics);
 
@@ -274,6 +300,7 @@ class Minimap extends HudComponent {
 
       if (entity.id !== undefined && gameEntities[entity.id] && snap.container) {
         (snap.container as any).visible = false;
+        if ((snap.container as any).displayList) (snap.container as any).removeFromDisplayList();
       }
     }
 

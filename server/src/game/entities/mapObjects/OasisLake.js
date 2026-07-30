@@ -16,7 +16,7 @@ class OasisLake extends Entity {
     super(game, Types.Entity.OasisLake, objectData);
 
     this.isStatic = true;
-    this.shape = Circle.create(0, 0, this.size * 0.5);
+    this.shape = Circle.create(0, 0, this.size * 0.6);
     this.targets.add(Types.Entity.Player);
 
     this.spawn();

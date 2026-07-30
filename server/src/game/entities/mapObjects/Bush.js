@@ -13,6 +13,8 @@ const bushVariants = {
 
 class Bush extends Entity {
   static defaultDefinition = {
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.TutorialZone],
+    spawnBuffer: 250,
     forbiddenEntities: [
       Types.Entity.House1,
       Types.Entity.Pond, Types.Entity.LavaPool, Types.Entity.IcePond,

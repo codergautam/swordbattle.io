@@ -68,6 +68,15 @@ let intensity = 0;
 let dwell = 0;
 let lastBiome: number | undefined = -1;
 
+export function resetBiomeEffects() {
+  dwell = 0; lastBiome = undefined; displayBiome = undefined; intensity = 0;
+  const r = biomeFxRuntime;
+  r.snow = 0; r.rain = 0; r.heat = 0; r.water = 0; r.wind = 0;
+  r.tintAmount = 0; r.vignetteStrength = 0;
+  r.tint[0] = 0; r.tint[1] = 0; r.tint[2] = 0;
+  r.vignette[0] = 0; r.vignette[1] = 0; r.vignette[2] = 0;
+}
+
 export function updateBiomeEffects(biome: number | undefined, dt: number) {
   if (biome !== lastBiome) { dwell = 0; lastBiome = biome; }
   else dwell += dt;

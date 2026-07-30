@@ -1,5 +1,5 @@
 import { EntityDepth } from '.';
-import { isObject, mergeDeep } from '../../helpers';
+import { isObject, mergeDeepInto } from '../../helpers';
 import { ShapeTypes } from '../Types';
 import { Shape, ShapeType } from '../physics/Shape';
 import { Health } from '../components/Health';
@@ -9,6 +9,15 @@ import Game from '../scenes/Game';
 export class BaseEntity {
   static stateFields: string[] = ['id', 'type', 'shapeData', 'depth', 'healthPercent'];
   static removeTransition = 0;
+
+  static destroyQueue: Array<() => void> = [];
+  static drainDestroys(budget: number) {
+    const q = BaseEntity.destroyQueue;
+    for (let i = 0; i < budget && q.length; i++) {
+      const fn = q.shift();
+      if (fn) { try { fn(); } catch (e) {} }
+    }
+  }
 
   static shadow = {
     alpha: 0.17,
@@ -164,7 +173,7 @@ export class BaseEntity {
         if (this[key] instanceof BaseEntity) {
           this[key].updateState(data[key]);
         } else if (isObject(data[key]) && this[key]) {
-          mergeDeep(this[key], data[key]);
+          mergeDeepInto(this[key], data[key]);
         } else {
           this[key] = data[key];
         }
@@ -310,7 +319,7 @@ export class BaseEntity {
       }
     };
 
-    if (!duration) {
+    if (!duration || (typeof document !== 'undefined' && document.hidden)) {
       destroyNow();
       return;
     }
@@ -321,12 +330,14 @@ export class BaseEntity {
         if (this.healthBar) {
           fadeTargets.push(this.healthBar.bar);
           if (this.healthBar.cooldownBar) fadeTargets.push(this.healthBar.cooldownBar);
+          const extra = (this.healthBar as any).getFadeTargets?.();
+          if (extra) fadeTargets.push(...extra);
         }
         this.container.scene.tweens.add({
           targets: fadeTargets,
           alpha: 0,
           duration,
-          onComplete: destroyNow,
+          onComplete: () => BaseEntity.destroyQueue.push(destroyNow),
         });
         return;
       }

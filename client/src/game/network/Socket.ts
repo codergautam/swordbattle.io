@@ -5,6 +5,26 @@ window.socket = null;
 
 const enableDecodeWorker = false;
 
+const usePooledDecode = true;
+const decodeHarness = typeof window !== 'undefined' && window.location.search.includes('decodecheck');
+
+function firstSnapshotDiff(a: any, b: any, path = ''): string | null {
+  if (a === b) return null;
+  const au = a === undefined || a === null, bu = b === undefined || b === null;
+  if (au || bu) return (au && bu) ? null : `${path} (${a} vs ${b})`;
+  if (typeof a !== typeof b) return `${path} (type ${typeof a} vs ${typeof b})`;
+  if (typeof a !== 'object') return a === b ? null : `${path} (${a} vs ${b})`;
+  const aArr = Array.isArray(a), bArr = Array.isArray(b);
+  if (aArr || bArr) {
+    if (!aArr || !bArr || a.length !== b.length) return `${path} (array shape)`;
+    for (let i = 0; i < a.length; i++) { const d = firstSnapshotDiff(a[i], b[i], `${path}[${i}]`); if (d) return d; }
+    return null;
+  }
+  for (const k in a) { const d = firstSnapshotDiff(a[k], b[k], path ? `${path}.${k}` : k); if (d) return d; }
+  for (const k in b) { if (!(k in a)) { const d = firstSnapshotDiff(a[k], b[k], path ? `${path}.${k}` : k); if (d) return d; } }
+  return null;
+}
+
 class Socket {
   private socket: null | WebSocket;
   private queue: any[];
@@ -52,7 +72,25 @@ class Socket {
 
   private syncDecode(data: ArrayBuffer) {
     try {
-      const payload = Protocol.decodeServerMessage(new Uint8Array(data));
+      const bytes = new Uint8Array(data);
+      let payload: any;
+      if (usePooledDecode) {
+        try {
+          payload = Protocol.decodeServerMessagePooled(bytes);
+        } catch (e) {
+          console.warn('[Socket] pooled decode threw — falling back to generated decoder:', e);
+          payload = Protocol.decodeServerMessage(bytes);
+        }
+        if (decodeHarness) {
+          try {
+            const oracle = Protocol.decodeServerMessage(bytes);
+            const diff = firstSnapshotDiff(oracle, payload);
+            if (diff) console.error('[decode-harness] POOLED ≠ GENERATED at:', diff);
+          } catch (e) { console.error('[decode-harness] oracle threw:', e); }
+        }
+      } else {
+        payload = Protocol.decodeServerMessage(bytes);
+      }
       if (this.onMessage) this.onMessage(payload);
     } catch (err) {
       console.error('Decoding message error: ', err);
@@ -60,7 +98,10 @@ class Socket {
   }
 
   connect(address: string, onOpen: any, onMessage: any, onClose: any) {
-    const endpoint = `${protocol}${address}`;
+    let authSecret = '';
+    try { authSecret = window.localStorage.getItem('secret') || ''; } catch (e) {}
+    const sep = address.includes('?') ? '&' : '?';
+    const endpoint = `${protocol}${address}${authSecret ? `${sep}secret=${encodeURIComponent(authSecret)}` : ''}`;
     this.onMessage = onMessage;
 
     if (window.socket !== null) {
@@ -88,7 +129,7 @@ class Socket {
       if (this.usingWorker && this.decoder) {
         try {
           this.seq++;
-          this.decoder.postMessage({ seq: this.seq, buffer: message.data });
+          this.decoder.postMessage({ seq: this.seq, buffer: message.data }, [message.data]);
           return;
         } catch (e) {
           this.disableWorker();

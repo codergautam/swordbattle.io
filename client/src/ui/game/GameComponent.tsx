@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Phaser from 'phaser';
+import Phaser from '../../game/engine';
 import config from '../../game/PhaserConfig';
 import Leaderboard from './Leaderboard';
 import InGameSettings from './InGameSettings';
@@ -8,6 +8,8 @@ import { shouldShowTutorial } from './TutorialModal';
 import './GameComponent.scss';
 import Ad from '../Ad';
 import { crazygamesSDK } from '../../crazygames/sdk';
+import { trackRunStart, trackRunEnd } from '../../analytics';
+import { isAdBlockBait } from '../../helpers';
 
 declare global {
   interface Window {
@@ -17,9 +19,12 @@ declare global {
 
 const managems = 0;
 
-function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn }: any) {
+const nohud = typeof window !== 'undefined' && window.location.search.includes('nohud');
+
+function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn, moreAds }: any) {
   const [gameResults, setGameResults] = useState<any>(null);
   const [playing, setPlaying] = useState(false);
+  const [moreAdsBlocked] = useState(() => (moreAds ? isAdBlockBait() : false));
   useEffect(() => {
     if (!game) {
       let gameplayStartCalled = false;
@@ -34,6 +39,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
 
       game.events.on('gameReady', onGameReady);
       game.events.on('connectionClosed', onConnectionClosed);
+      game.events.on('connectionClosed', () => trackRunEnd('server_disconnect'));
       game.events.on('setGameResults', (results: any) => {
         setGameResults(results);
         setPlaying(false);
@@ -44,6 +50,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
       });
       game.events.on('restartGame', (name: string) => {
         setPlaying(true);
+        trackRunStart();
         if (!gameplayStartCalled && (window as any)._wasInstantStart) {
           gameplayDelayTimer = setTimeout(() => {
             crazygamesSDK.gameplayStart();
@@ -54,6 +61,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
       });
       game.events.on('startGame', (name: string) => {
         setPlaying(true);
+        trackRunStart();
         if (shouldShowTutorial()) {
           try { localStorage.setItem('swordbattle:tutorialSeen', '1'); } catch (_) {}
         }
@@ -100,8 +108,17 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
   return (
     <div className="game">
       <div id="phaser-container" />
-      { playing && <Leaderboard game={game} /> }
-      { playing && <InGameSettings /> }
+      { playing && !nohud && <Leaderboard game={game} /> }
+      { playing && !nohud && <InGameSettings /> }
+      { moreAds && playing && !gameResults && (
+        <div className="ingame-ad-overlay">
+          { moreAdsBlocked ? (
+            <div className="ingame-ad-block">Turn off your adblocker</div>
+          ) : (
+            <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90]]} placement="ingame_moreads" />
+          )}
+        </div>
+      )}
       {gameResults && (
       <>
       <GameResults
@@ -110,7 +127,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         results={gameResults}
         isLoggedIn={loggedIn}
         openLeaderboard={openLeaderboard}
-        adElement={<Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 90]]} centerOnOverflow={600} horizThresh={0.2} />}
+        adElement={<Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} horizThresh={0.3} placement="game_results" adblockPromo />}
       />
       </>
       )}

@@ -25,6 +25,8 @@ const goalDuration = {
   [Goal.Flee]: [2, 4],
 };
 
+const richCoins = 6000;
+
 const hazardTypes = new Set([Types.Entity.LavaPool, Types.Entity.Cactus]);
 const projectileTypes = new Set([
   Types.Entity.Fireball, Types.Entity.Boulder, Types.Entity.SwordProj,
@@ -71,7 +73,6 @@ class PlayerAI extends Player {
     super(game, objectData.name);
 
     this.isBot = true;
-    this.coinShield = 0;
 
     this.smartness = Math.random();
     this.aggression = helpers.clamp(0.25 + this.smartness * 0.45 + Math.random() * 0.3, 0, 1);
@@ -88,6 +89,7 @@ class PlayerAI extends Player {
 
     this.movementDirection = helpers.random(-Math.PI, Math.PI);
     this.mouse = { angle: this.movementDirection, force: 0 };
+    this.moveAngle = this.movementDirection;
     this.wanderAngle = helpers.random(-Math.PI, Math.PI);
     this.wanderTimer = new Timer(0, 2, 4);
     this.goalTimer = new Timer(0, 3, 6);
@@ -97,7 +99,14 @@ class PlayerAI extends Player {
     this.idle = false;
 
     this.aimError = 0;
+    this.aimErrorTarget = 0;
     this.aimErrorTimer = 0;
+
+    this.inRangeTime = 0;
+    this.outOfRangeTime = 0;
+    this.huntLastDist = undefined;
+    this.combatMode = 0;
+    this.combatModeTime = 0;
 
     this.resourceHp = undefined;
     this.stuckTime = 0;
@@ -121,8 +130,8 @@ class PlayerAI extends Player {
 
   computeSkill() {
     const coins = (this.levels && this.levels.coins) || 0;
-    const coinFactor = helpers.clamp(coins / 8000, 0, 1);
-    return helpers.clamp(0.18 + this.smartness * 0.5 + coinFactor * 0.4, 0, 0.97);
+    const coinFactor = helpers.clamp(coins / 10000, 0, 1);
+    return helpers.clamp(0.15 + this.smartness * 0.45 + coinFactor * 0.3, 0.15, 0.85);
   }
 
   meleeReach() {
@@ -148,10 +157,6 @@ class PlayerAI extends Player {
 
   chestSkillMultiplier() {
     return 1.0 + this.skill * 0.7;
-  }
-
-  oreFocusChance() {
-    return helpers.clamp(this.skill * 0.55, 0, 0.6);
   }
 
   isBossMobEntity(e) {
@@ -180,9 +185,10 @@ class PlayerAI extends Player {
 
     this.aimErrorTimer -= dt;
     if (this.aimErrorTimer <= 0) {
-      this.aimErrorTimer = helpers.random(0.3, 0.6);
-      this.aimError = (1 - this.skill) * helpers.random(-0.4, 0.4);
+      this.aimErrorTimer = helpers.random(0.4, 0.9);
+      this.aimErrorTarget = (1 - this.skill) * helpers.random(-0.3, 0.3);
     }
+    this.aimError += (this.aimErrorTarget - this.aimError) * helpers.clamp(dt / 0.4, 0, 1);
 
     this.inputs.inputUp(Types.Input.SwordSwing);
     this.inputs.inputUp(Types.Input.SwordThrow);
@@ -199,6 +205,13 @@ class PlayerAI extends Player {
 
     this.executeGoal(dt);
     this.checkUpgrades();
+
+    const myCoins = (this.levels && this.levels.coins) || 0;
+    this.coinMultiplier *= helpers.clamp(1 - myCoins / 6000, 0.15, 1);
+
+    this.angle = Math.atan2(Math.sin(this.angle), Math.cos(this.angle));
+    this.moveAngle = Math.atan2(Math.sin(this.moveAngle), Math.cos(this.moveAngle));
+    this.wanderAngle = Math.atan2(Math.sin(this.wanderAngle), Math.cos(this.wanderAngle));
 
     super.applyInputs(dt);
   }
@@ -251,6 +264,25 @@ class PlayerAI extends Player {
 
   decideGoal() {
     const coins = (this.levels && this.levels.coins) || 0;
+
+    let pileValue = 0;
+    for (const c of this._coins) {
+      if (c && !c.removed) pileValue += c.value || 1;
+    }
+    if (pileValue >= 2500) {
+      this.setGoal(Goal.Coins, this.nearest(this._coins));
+      return;
+    }
+
+    const rival = this.findRichRival();
+    if (rival && Math.random() < 0.85) {
+      this.setGoal(Goal.HuntBot, rival);
+      this.goalTimer.minTime = 30;
+      this.goalTimer.maxTime = 45;
+      this.goalTimer.renew();
+      return;
+    }
+
     const huntTarget = this.pickHuntTarget();
     const huntBias = this.aggression * (0.35 + Math.min(1, coins / 5000) * 0.55);
 
@@ -259,7 +291,7 @@ class PlayerAI extends Player {
       return;
     }
 
-    const farmDesire = 1 - Math.min(1, coins / 6000) * 0.5;
+    const farmDesire = helpers.clamp(1 - coins / 4000, 0.05, 1);
 
     const options = [];
     const ore = this.nearest(this.ores);
@@ -269,7 +301,7 @@ class PlayerAI extends Player {
 
     if (ore) options.push([Goal.Ore, ore, 3.0 * farmDesire]);
     if (chest) options.push([Goal.Chest, chest, 3.0 * farmDesire]);
-    if (coin) options.push([Goal.Coins, coin, 2.2 * farmDesire + 0.4]);
+    if (coin) options.push([Goal.Coins, coin, 2.6 * farmDesire]);
     if (mob) options.push([Goal.FightMob, mob, 1.6 * this.skill * farmDesire]);
     if (huntTarget) options.push([Goal.HuntBot, huntTarget, huntBias * 2]);
     options.push([Goal.Wander, null, 0.8]);
@@ -291,6 +323,7 @@ class PlayerAI extends Player {
   }
 
   setGoal(goal, target = null) {
+    const wasCombat = this.goal === Goal.HuntBot || this.goal === Goal.Spar || this.goal === Goal.FightMob;
     this.goal = goal;
     this.target = target;
     this.resourceHp = undefined;
@@ -301,6 +334,17 @@ class PlayerAI extends Player {
     this.goalTimer.renew();
     if (goal === Goal.Wander) this.idle = Math.random() < 0.22;
     if (goal === Goal.Spar) { this.sparDamageDealt = 0; this.sparTargetHp = undefined; }
+    if (goal === Goal.HuntBot || goal === Goal.Spar || goal === Goal.FightMob) {
+      this.huntLastDist = undefined;
+      if (!wasCombat) {
+        this.inRangeTime = 0;
+        this.outOfRangeTime = 0;
+        this.combatMode = 0;
+        this.combatModeTime = 0;
+        this.attackCooldown = Math.max(this.attackCooldown,
+          0.3 + (1 - this.skill) * 0.45 + Math.random() * 0.2);
+      }
+    }
   }
 
   setFlee(threat) {
@@ -317,9 +361,10 @@ class PlayerAI extends Player {
     this.decideGoal();
   }
 
-  sweepOrDecide() {
+  sweepOrDecide(fromCombat = false) {
     this.target = null;
     this.resourceHp = undefined;
+    if (!fromCombat && this.isRich()) { this.decideGoal(); return; }
     const coin = this.nearest(this._coins);
     if (coin) this.setGoal(Goal.Coins, coin);
     else this.decideGoal();
@@ -338,6 +383,29 @@ class PlayerAI extends Player {
       if (d > 2600) continue;
       const score = (bc + 200) / (d + 400);
       if (score > bestScore) { bestScore = score; best = b; }
+    }
+    return best;
+  }
+
+  isRich() {
+    return (((this.levels && this.levels.coins) || 0) >= richCoins);
+  }
+
+  isRichDuel(t) {
+    return this.isRich() && !!t && t.isBot === true && !t.removed
+      && t.levels && t.levels.coins >= richCoins;
+  }
+
+  findRichRival() {
+    if (!this.isRich()) return null;
+    let best = null;
+    let bestScore = -Infinity;
+    for (const p of this.game.players) {
+      if (p === this || p.removed || !p.isBot || !p.levels) continue;
+      if (p.levels.coins < richCoins) continue;
+      const d = this.dist(p);
+      const score = p.levels.coins / (d + 1500);
+      if (score > bestScore) { bestScore = score; best = p; }
     }
     return best;
   }
@@ -378,6 +446,21 @@ class PlayerAI extends Player {
     return Math.hypot(p.x - this.shape.x, p.y - this.shape.y);
   }
 
+  turnToward(current, target, dt, rate) {
+    const diff = helpers.angleDifference(current, target);
+    const step = rate * dt;
+    if (Math.abs(diff) <= step) return current + diff;
+    return current + Math.sign(diff) * step;
+  }
+
+  steerMove(desiredAngle, desiredForce, dt, baseRate, skipSolid) {
+    const s = this.computeSteering(desiredAngle, desiredForce, skipSolid);
+    const rate = baseRate * (1 + Math.min(1.5, s.urgency || 0));
+    this.moveAngle = this.turnToward(this.moveAngle, s.angle, dt, rate);
+    this.mouse = { angle: this.moveAngle, force: s.force };
+    return s;
+  }
+
   evaluateThreats() {
     for (const p of this.projectiles) {
       const px = p.shape.x, py = p.shape.y;
@@ -391,17 +474,24 @@ class PlayerAI extends Player {
       if (closing > 0.5) { this.setFlee(p); return true; }
     }
     let boss = null, bd = Infinity;
+    const duelFocused = this.goal === Goal.HuntBot && this.isRichDuel(this.target);
+    const avoid = this.bossAvoidRange() * (duelFocused ? 0.35 : 1);
     for (const b of this.bosses) {
       const d = this.dist(b);
-      if (d < this.bossAvoidRange() && d < bd) { bd = d; boss = b; }
+      if (d < avoid && d < bd) { bd = d; boss = b; }
     }
     if (boss) { this.setFlee(boss); return true; }
     return false;
   }
 
   handleMobAggro() {
-    const m = this.nearest(this.threatMobs);
+    let m = this.nearest(this.threatMobs);
     if (!m) return false;
+    if (this.goal === Goal.FightMob && this.target && !this.target.removed
+      && m !== this.target && this.threatMobs.includes(this.target)
+      && this.dist(m) > this.dist(this.target) * 0.75) {
+      m = this.target;
+    }
     if (this.isBossMobEntity(m) || this.health.percent < 0.32) {
       this.setFlee(m);
       return true;
@@ -432,22 +522,33 @@ class PlayerAI extends Player {
       this.wanderTimer.renew();
       this.wanderAngle += helpers.random(-Math.PI / 3, Math.PI / 3);
     }
-    const s = this.computeSteering(this.wanderAngle, this.idle ? 0 : 85);
-    this.mouse = { angle: s.angle, force: s.force };
-    this.angle = helpers.angleLerp(this.angle, s.angle, helpers.clamp(dt / 0.3, 0, 1));
-    if (s.force > 5) this.wanderAngle = helpers.angleLerp(this.wanderAngle, s.angle, 0.2);
+    const s = this.steerMove(this.wanderAngle, this.idle ? 0 : 85, dt, 3.5);
+    if (s.urgency > 0.7) {
+      this.wanderBlockedTime = (this.wanderBlockedTime || 0) + dt;
+      if (this.wanderBlockedTime > 1.5) {
+        this.wanderBlockedTime = 0;
+        this.wanderAngle = helpers.random(-Math.PI, Math.PI);
+      }
+    } else {
+      this.wanderBlockedTime = 0;
+    }
+    if (!this.idle) {
+      this.angle = this.turnToward(this.angle, this.moveAngle, dt, 4);
+    }
   }
 
   executeCoins(dt) {
     let coin = this.target;
-    if (!coin || coin.removed) coin = this.nearest(this._coins);
+    if (!coin || coin.removed) {
+      coin = this.nearest(this._coins);
+      if (coin) this.goalTimer.renew();
+    }
     if (!coin) { this.abandonGoal(); return; }
     this.target = coin;
     const p = posOf(coin);
     const a = Math.atan2(p.y - this.shape.y, p.x - this.shape.x);
-    const s = this.computeSteering(a, 130);
-    this.mouse = { angle: s.angle, force: s.force };
-    this.angle = helpers.angleLerp(this.angle, s.angle, helpers.clamp(dt / 0.25, 0, 1));
+    this.steerMove(a, 130, dt, 5);
+    this.angle = this.turnToward(this.angle, this.moveAngle, dt, 6);
   }
 
   executeOre(dt) {
@@ -472,9 +573,8 @@ class PlayerAI extends Player {
     else if (dist < standoff - 70) { moveAngle = toOre + Math.PI; force = 90; }
     else { moveAngle = toOre + this.strafeDir * (Math.PI / 2); force = 78; }
 
-    const s = this.computeSteering(moveAngle, force, ore);
-    this.mouse = { angle: s.angle, force: s.force };
-    this.angle = helpers.angleLerp(this.angle, toOre, helpers.clamp(dt / 0.15, 0, 1));
+    this.steerMove(moveAngle, force, dt, 5, ore);
+    this.angle = this.turnToward(this.angle, toOre, dt, 5);
 
     if (inRange) this.trySwing(toOre);
   }
@@ -494,25 +594,34 @@ class PlayerAI extends Player {
     if (!this.trackResourceProgress(chest, dt, inRange)) return;
 
     const force = dist > cr * 0.5 ? 105 : 12;
-    const s = this.computeSteering(toChest, force);
-    this.mouse = { angle: s.angle, force: s.force };
-    this.angle = helpers.angleLerp(this.angle, toChest, helpers.clamp(dt / 0.15, 0, 1));
+    this.steerMove(toChest, force, dt, 5);
+    this.angle = this.turnToward(this.angle, toChest, dt, 5);
 
     if (inRange) this.trySwing(toChest);
   }
 
   executeHunt(dt) {
     const t = this.target;
-    if (!t || t.removed) { this.sweepOrDecide(); return; }
-    if (this.dist(t) > 3600) { this.abandonGoal(); return; }
-    const foeSkill = (typeof t.skill === 'number') ? t.skill : 0.5;
-    if (this.health.percent < 0.25 && foeSkill >= this.skill) { this.setFlee(t); return; }
+    if (!t || t.removed) { this.sweepOrDecide(true); return; }
+    const d = this.dist(t);
+    const duel = this.isRichDuel(t);
+
+    if (duel) {
+      if (this.huntLastDist === undefined || d < this.huntLastDist - 1 || d < 900) {
+        this.goalTimer.renew();
+      }
+      this.huntLastDist = this.huntLastDist === undefined ? d : Math.min(this.huntLastDist, d);
+    } else {
+      if (d > 3600) { this.abandonGoal(); return; }
+      const foeSkill = (typeof t.skill === 'number') ? t.skill : 0.5;
+      if (this.health.percent < 0.25 && foeSkill >= this.skill) { this.setFlee(t); return; }
+    }
     this.combatMove(t, dt, {});
   }
 
   executeFightMob(dt) {
     const m = this.target;
-    if (!m || m.removed) { this.sweepOrDecide(); return; }
+    if (!m || m.removed) { this.sweepOrDecide(true); return; }
     if (this.health.percent < 0.3) { this.setFlee(m); return; }
     if (this.dist(m) > 2600) { this.abandonGoal(); return; }
     this.combatMove(m, dt, { mob: true });
@@ -543,14 +652,16 @@ class PlayerAI extends Player {
     this.weavePhase += dt * 4;
     let away = Math.atan2(dy, dx) + Math.sin(this.weavePhase) * 0.35;
 
-    const s = this.computeSteering(away, 145);
-    this.mouse = { angle: s.angle, force: s.force };
-    this.angle = helpers.angleLerp(this.angle, s.angle, helpers.clamp(dt / 0.18, 0, 1));
+    this.steerMove(away, 145, dt, 8);
 
-    if (threat.type === Types.Entity.Player && d < this.meleeReach() * 1.15 && this.skill > 0.45) {
+    const pursuerClose = threat.type === Types.Entity.Player
+      && d < this.meleeReach() * 1.15 && this.skill > 0.45;
+    if (pursuerClose) {
       const back = Math.atan2(tp.y - this.shape.y, tp.x - this.shape.x);
-      this.angle = helpers.angleLerp(this.angle, back, helpers.clamp(dt / 0.15, 0, 1));
-      this.trySwing(back);
+      this.angle = this.turnToward(this.angle, back, dt, 9);
+      this.trySwing(back, true);
+    } else {
+      this.angle = this.turnToward(this.angle, this.moveAngle, dt, 8);
     }
 
     const safeDist = mobTypes.has(threat.type) ? 2200 : 1400;
@@ -585,23 +696,39 @@ class PlayerAI extends Player {
     const reach = this.meleeReach();
 
     const aim = this.aimAngle(target, false);
-    const resp = Math.max(0.08, 0.22 - this.skill * 0.12);
-    this.angle = helpers.angleLerp(this.angle, aim, helpers.clamp(dt / resp, 0, 1));
+    this.angle = this.turnToward(this.angle, aim, dt, 5.5 + this.skill * 2.8);
 
     let closing = 0;
     if (target.velocity) {
       closing = -((target.velocity.x * dx + target.velocity.y * dy) / dist);
     }
 
-    const desired = reach * (opts.spar ? 0.85 : 0.8);
-    const margin = reach * 0.18;
+    const desired = reach * 0.62;
+    const margin = reach * 0.2;
     this.updateStrafe(dt);
 
+    this.combatModeTime += dt;
+    if (this.combatModeTime >= 0.35) {
+      let next = this.combatMode;
+      if (this.combatMode === 0) {
+        if (dist < desired + margin * 0.6) next = 2;
+      } else if (this.combatMode === 1) {
+        if (dist > desired - margin * 0.4 && closing < 40) next = 2;
+      } else {
+        if (dist > desired + margin * 1.7) next = 0;
+        else if (dist < desired - margin * 1.7 || closing > 90) next = 1;
+      }
+      if (next !== this.combatMode) {
+        this.combatMode = next;
+        this.combatModeTime = 0;
+      }
+    }
+
     let moveAngle, force;
-    if (dist > desired + margin) {
+    if (this.combatMode === 0) {
       moveAngle = toTarget;
       force = 130;
-    } else if (dist < desired - margin || closing > 40) {
+    } else if (this.combatMode === 1) {
       moveAngle = toTarget + Math.PI + this.strafeDir * 0.6;
       force = 110;
     } else {
@@ -609,34 +736,47 @@ class PlayerAI extends Player {
       force = 95;
     }
 
-    const s = this.computeSteering(moveAngle, force);
-    this.mouse = { angle: s.angle, force: s.force };
+    this.steerMove(moveAngle, force, dt, 6.5);
 
-    this.tryCombatAttack(target, dist, toTarget, opts);
+    this.tryCombatAttack(target, dist, toTarget, opts, dt);
   }
 
   aimAngle(target, forThrow) {
     const p = posOf(target);
     let tx = p.x, ty = p.y;
     const md = target.movedDistance;
-    if (md) {
+    if (md && forThrow) {
       const dist = Math.hypot(p.x - this.shape.x, p.y - this.shape.y);
-      const projPerSec = forThrow ? 1900 : 650;
-      const t = Math.min(0.8, dist / projPerSec);
+      const t = Math.min(0.8, dist / 1900);
       tx += md.x * t * this.skill;
       ty += md.y * t * this.skill;
     }
     return Math.atan2(ty - this.shape.y, tx - this.shape.x) + this.aimError;
   }
 
-  tryCombatAttack(target, dist, toTarget, opts) {
+  tryCombatAttack(target, dist, toTarget, opts, dt) {
     const reach = this.meleeReach();
     const swordReady = this.sword.isAnimationFinished && !this.sword.isFlying;
     const diff = Math.abs(helpers.angleDifference(this.angle, toTarget));
+    const inRange = dist <= reach * 1.12;
 
-    if (swordReady && this.attackCooldown <= 0 && dist <= reach * 1.12 && diff < 0.6) {
+    const reaction = 0.45 + (1 - this.skill) * 0.3;
+    const grace = 0.5;
+    if (inRange && diff < 1.0) {
+      this.inRangeTime += dt;
+      this.outOfRangeTime = 0;
+    } else {
+      this.outOfRangeTime += dt;
+      if (this.outOfRangeTime > grace) this.inRangeTime = 0;
+    }
+
+    if (swordReady && this.attackCooldown <= 0 && inRange
+      && this.inRangeTime >= reaction && diff < 0.6) {
       this.inputs.inputDown(Types.Input.SwordSwing);
-      this.attackCooldown = 0.1 + (1 - this.skill) * 0.4 + Math.random() * 0.05;
+      this.attackCooldown = 0.6 + (1 - this.skill) * 0.55 + Math.random() * 0.3;
+      if (Math.random() < 0.35 + (1 - this.skill) * 0.35) {
+        this.attackCooldown += helpers.random(0.3, 0.85);
+      }
       return;
     }
 
@@ -645,9 +785,9 @@ class PlayerAI extends Player {
       const tdiff = Math.abs(helpers.angleDifference(this.angle, throwAim));
       const inBand = dist > reach * 1.3 && dist < this.throwRange();
       const aligned = tdiff < 0.26 + (1 - this.skill) * 0.12;
-      if (inBand && aligned && Math.random() < 0.15 + this.skill * 0.5) {
+      if (inBand && aligned && Math.random() < (0.25 + this.skill * 0.9) * dt) {
         this.inputs.inputDown(Types.Input.SwordThrow);
-        this.throwCooldown = 1.2;
+        this.throwCooldown = 2.2;
         return;
       }
     }
@@ -658,13 +798,15 @@ class PlayerAI extends Player {
     }
   }
 
-  trySwing(aimAngle) {
+  trySwing(aimAngle, fight = false) {
     if (this.attackCooldown > 0) return;
     if (!this.sword.isAnimationFinished || this.sword.isFlying) return;
     const diff = Math.abs(helpers.angleDifference(this.angle, aimAngle));
     if (diff > 0.75) return;
     this.inputs.inputDown(Types.Input.SwordSwing);
-    this.attackCooldown = 0.12 + (1 - this.skill) * 0.35 + Math.random() * 0.05;
+    this.attackCooldown = fight
+      ? 0.55 + (1 - this.skill) * 0.5 + Math.random() * 0.2
+      : 0.14 + (1 - this.skill) * 0.3 + Math.random() * 0.06;
   }
 
   updateStrafe(dt) {
@@ -744,23 +886,23 @@ class PlayerAI extends Player {
     const map = this.game.map;
     if (map && map.width && map.height) {
       const halfW = map.width / 2, halfH = map.height / 2;
-      const edge = 800 + myR;
+      const edge = 1200 + myR;
       const dL = px + halfW, dR = halfW - px, dT = py + halfH, dB = halfH - py;
-      if (dL < edge) { const w = (edge - Math.max(0, dL)) / edge; rx += w * w * 3.0; }
-      if (dR < edge) { const w = (edge - Math.max(0, dR)) / edge; rx -= w * w * 3.0; }
-      if (dT < edge) { const w = (edge - Math.max(0, dT)) / edge; ry += w * w * 3.0; }
-      if (dB < edge) { const w = (edge - Math.max(0, dB)) / edge; ry -= w * w * 3.0; }
+      if (dL < edge) { const w = (edge - Math.max(0, dL)) / edge; rx += w * w * 6.0; }
+      if (dR < edge) { const w = (edge - Math.max(0, dR)) / edge; rx -= w * w * 6.0; }
+      if (dT < edge) { const w = (edge - Math.max(0, dT)) / edge; ry += w * w * 6.0; }
+      if (dB < edge) { const w = (edge - Math.max(0, dB)) / edge; ry -= w * w * 6.0; }
     }
 
     const ax = sx + rx, ay = sy + ry;
     const mag = Math.hypot(ax, ay);
-    if (mag < 0.0001) return { angle: desiredAngle, force: desiredForce };
+    const repMag = Math.hypot(rx, ry);
+    if (mag < 0.0001) return { angle: desiredAngle, force: desiredForce, urgency: repMag };
 
     let force = desiredForce;
-    const repMag = Math.hypot(rx, ry);
     if (repMag > 0.9) force = Math.max(force, helpers.clamp(repMag * 70, 70, 150));
 
-    return { angle: Math.atan2(ay, ax), force };
+    return { angle: Math.atan2(ay, ax), force, urgency: repMag };
   }
 
   checkUpgrades() {
@@ -781,6 +923,11 @@ class PlayerAI extends Player {
 
   damaged(damage, entity) {
     if (entity && !entity.removed && entity.shape) {
+      if (entity.type === Types.Entity.Player && Math.random() < 0.5) {
+        this.attackCooldown = Math.max(this.attackCooldown,
+          0.15 + (1 - this.skill) * 0.25);
+      }
+
       if (entity.type === Types.Entity.Player && !entity.isBot) {
         if (this.goal === Goal.Flee) {
         } else if (this.health.percent < 0.3) {
@@ -792,7 +939,11 @@ class PlayerAI extends Player {
       } else if (entity.type === Types.Entity.Player && entity.isBot) {
         const myC = (this.levels && this.levels.coins) || 0;
         const oc = (entity.levels && entity.levels.coins) || 0;
-        if (this.health.percent < 0.3 || (oc > myC * 2.2 && this.aggression < 0.6)) {
+        if (this.isRichDuel(entity)) {
+          if (this.goal !== Goal.HuntBot || this.target !== entity) {
+            this.setGoal(Goal.HuntBot, entity);
+          }
+        } else if (this.health.percent < 0.3 || (oc > myC * 2.2 && this.aggression < 0.6)) {
           this.setFlee(entity);
         } else if (this.goal !== Goal.HuntBot || this.target !== entity) {
           this.setGoal(Goal.HuntBot, entity);

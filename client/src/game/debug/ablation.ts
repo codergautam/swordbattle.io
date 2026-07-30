@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import Phaser from '../engine';
 
 const noop = function (this: any) { return this; };
 const has = (f: string) => { try { return new URLSearchParams(window.location.search).has(f); } catch (e) { return false; } };

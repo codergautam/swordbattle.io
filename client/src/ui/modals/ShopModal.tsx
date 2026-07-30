@@ -7,6 +7,7 @@ import * as cosmetics from '../../game/cosmetics.json'
 
 import './ShopModal.scss'
 import SkinView from '../SkinView';
+import ModalAd from '../ModalAd';
 import { getSkinScale } from '../../game/skinScales';
 import { buyFormats, numberWithCommas, sinceFrom } from '../../helpers';
 import { Id } from '@reduxjs/toolkit/dist/tsHelpers';
@@ -373,26 +374,27 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
             <span>{numberWithCommas(account.mastery)}<img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={28} height={28} /></span>
           </div>
         ) : (
-          <div className='shop-counters shop-counters-login'><b>Login or Signup</b> to buy skins &amp; earn gems!</div>
+          <div className='shop-counters shop-counters-login'><b>Log in or Signup</b> to buy skins &amp; earn gems!</div>
         )}
       </div>
 
 <div className='search-bar'>
 <input
         type="text"
-        placeholder="Search skins..."
+        placeholder="Search..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 </div>
 
 <div className="badges">
-<button onClick={scrollToTarget}>Today's Skins</button>
-<button onClick={scrollToTarget2} data-selected-badge="ultimate">Ultimate Skins</button>
-<button onClick={scrollToTarget3} data-selected-badge="event">Event Skins</button>
+<button onClick={scrollToTarget}>Today's<span className="badge-long"> Skins</span></button>
+<button onClick={scrollToTarget2} data-selected-badge="ultimate">Ultimate<span className="badge-long"> Skins</span></button>
+<button onClick={scrollToTarget3} data-selected-badge="event">Event<span className="badge-long"> Skins</span></button>
 <span className="shop-loadnote">(Skins may take a while to fully load)</span>
       </div>
       </div>
+      <ModalAd placement="shop" />
       {searchTerm && (
         <>
         <div className='scroll' ref={targetParentRef}>
@@ -441,6 +443,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
           filter={(skin) => {
             if (skin.og) return false;
             if (skin.sale) return false;
+            if (!todaysGlobalSkinList || !todaysGlobalSkinList.includes(skin.id)) return false;
             return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
           }}
           sort={(a, b) => (a.price ?? 0) - (b.price ?? 0)}
@@ -458,7 +461,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
         <div ref={targetElementRef2}></div>
         <div className='label'>
         <span>Ultimate Skins</span><hr></hr>
-        <p>Ultimate skins are remakes of normal skins and are obtained by earning mastery instead of spending gems.<br /><span style={{color: 'red'}}>Unlocking ultimate skins DOES NOT take away any mastery. The original skin must be owned before unlocking the ultimate version.</span><br />(The original version of an Ultimate is based on it's Tag. For example, the "Ultimate Blueberry" Tag means the original skin is Blueberry)</p>
+        <p>Ultimate skins are remakes of normal skins and are obtained by earning mastery instead of spending gems.<br /><span style={{color: 'red'}}>Unlocking ultimate skins DOES NOT take away any mastery. The original skin must be owned before unlocking the ultimate version.</span></p>
         </div>
         <SkinGrid
           skins={skins}

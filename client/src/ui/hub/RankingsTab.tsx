@@ -4,6 +4,7 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import api from '../../api';
 import { numberWithCommas, secondsToTime, sinceFrom } from '../../helpers';
 import cosmetics from '../../game/cosmetics.json';
+import ModalAd from '../ModalAd';
 import './RankingsTab.scss';
 
 const types: Record<string, string> = {
@@ -204,6 +205,8 @@ export default function RankingsTab({ onViewProfile }: { onViewProfile?: (userna
           )}
         </div>
       </div>
+
+      <ModalAd placement="rankings" />
 
       <div className="rk-title">{types[type]} Leaderboard</div>
 

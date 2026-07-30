@@ -1,14 +1,18 @@
-import { useEffect, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useEffect, useMemo, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import CountUp from 'react-countup';
 import { useScale } from '../Scale';
 
 import PlayAgainImg from '../../assets/img/play-again.png';
 import HomeImg from '../../assets/img/home.png';
+import gemRewardImg from '../../assets/img/gem-reward.png';
 import './GameResults.scss';
 import { DisconnectTypes } from '../../game/Types';
-import { calculateGemsXP, playVideoAd } from '../../helpers';
+import { calculateGemsXP, playVideoAd, isAdBlockActive } from '../../helpers';
 import { crazygamesSDK } from '../../crazygames/sdk';
+import api from '../../api';
+import { updateAccountAsync } from '../../redux/account/slice';
+import { getVariant, trackRunEnd, trackAd } from '../../analytics';
 import { updatePB, getEncouragingMessage, formatTime } from '../../game/PersonalBest';
 
 // Smarter video ad logic to prevent spammed ads
@@ -17,10 +21,8 @@ const MIN_TIME_BETWEEN_ADS_MS = 1000 * 60 * 1;
 
 function shouldShowVideoAd(): boolean {
   const windowAny = window as any;
-  const adProvider = windowAny?.adProvider || 'adinplay';
 
-  // Only show video ads for CrazyGames
-  if (adProvider !== 'crazygames') {
+  if (windowAny?._isCrazyGamesBasicLaunch) {
     return false;
   }
 
@@ -50,8 +52,31 @@ function shouldShowVideoAd(): boolean {
 }
 
 function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
+  const dispatch = useDispatch();
   const xpBonusExpiry = useSelector((state: any) => state.account?.dailyLogin?.xpBonus);
   const xpBonusActive = xpBonusExpiry && xpBonusExpiry > Date.now();
+
+  const baseGems = useMemo(() => calculateGemsXP(results.coins || 0, results.kills || 0, 0).gems, [results]);
+  const [adblockActive] = useState(() => isAdBlockActive());
+  const [gemBonus, setGemBonus] = useState<'idle' | 'loading' | 'done'>('idle');
+
+  const onDoubleGems = () => {
+    if (gemBonus !== 'idle' || adblockActive) return;
+    setGemBonus('loading');
+    trackAd('video_request', { ad_format: 'rewarded', placement: 'reward_2x' });
+    playVideoAd(true).then(() => {
+      trackAd('rewarded_complete', { ad_format: 'rewarded', placement: 'reward_2x' });
+      api.post(`${api.endpoint}/auth/claim-gem-bonus`, {}, (data: any) => {
+        if (data && data.success) {
+          trackAd('rewarded_claimed', { ad_format: 'rewarded', placement: 'reward_2x' });
+          setGemBonus('done');
+          dispatch(updateAccountAsync() as any);
+        } else {
+          setGemBonus('idle');
+        }
+      });
+    }).catch(() => setGemBonus('idle'));
+  };
 
   const pbResult = useMemo(() => updatePB({
     coins: results.coins || 0,
@@ -60,14 +85,31 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
   }), [results]);
 
   useEffect(() => {
-    if (shouldShowVideoAd()) {
-      console.log('[GameResults] Showing video ad after death');
+    const code = results?.disconnectReason?.code;
+    const reason = code === DisconnectTypes.Player ? 'player_kill'
+      : code === DisconnectTypes.Mob ? 'mob_kill'
+      : code === DisconnectTypes.Server ? 'server_disconnect'
+      : 'unknown';
+
+    const variant = getVariant('death_preroll');
+    const showPreroll = variant === 'on' && shouldShowVideoAd();
+
+    if (showPreroll) {
+      console.log('[GameResults] Showing death interstitial (A/B: on)');
+      trackAd('video_request', { ad_format: 'preroll', placement: 'death_interstitial' });
       playVideoAd().then(() => {
-        console.log('[GameResults] Video ad completed or skipped');
+        trackAd('video_complete', { ad_format: 'preroll', placement: 'death_interstitial' });
       });
-    } else {
-      console.log('[GameResults] Skipping video ad this time');
     }
+
+    trackRunEnd(reason, {
+      coins: results?.coins || 0,
+      kills: results?.kills || 0,
+      killerName: results?.disconnectReason?.reason,
+      playtimeMs: (results?.survivalTime || 0) * 1000,
+      prerollShown: showPreroll,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Trigger happy time for good games
@@ -210,6 +252,36 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
         </>
         )}
       </div>
+
+      { isLoggedIn && baseGems > 0 && (
+        <div className="double-gems">
+          {adblockActive ? (
+            <button
+              type="button"
+              className="double-gems-btn double-gems-adblock"
+              onClick={() => window.alert('Turn off your ad blocker on swordbattle.io to claim this offer!\n\nAds are how we pay for the servers and support is greatly appreciated. Thanks for playing!')}
+            >
+              <img className="dg-icon" src={gemRewardImg} alt="" />
+              <span>Disable adblocker for 2&#215; Gems</span>
+            </button>
+          ) : gemBonus === 'done' ? (
+            <div className="double-gems-done">
+              <img className="dg-icon" src={gemRewardImg} alt="" />
+              <span>Gems doubled! +{baseGems.toLocaleString()}</span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="double-gems-btn"
+              disabled={gemBonus === 'loading'}
+              onClick={onDoubleGems}
+            >
+              <img className="dg-icon" src={gemRewardImg} alt="" />
+              <span>{gemBonus === 'loading' ? 'Loading ad…' : 'Watch ad for 2× Gems'}</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* <div className="personal-best-section">
         {pbResult.anyRecord && <div className="pb-header new-record">NEW RECORD!</div>}

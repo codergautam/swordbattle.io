@@ -24,6 +24,9 @@ export interface ClientMessage {
   captchaP11?: string;
   firstLife?: boolean;
   selectedCard?: number;
+  selectedUpgrade?: number;
+  openUpgradeSelect?: boolean;
+  closeUpgradeSelect?: boolean;
   openCardSelect?: boolean;
   rerollCard?: boolean;
   skipMajorCard?: boolean;
@@ -272,6 +275,27 @@ function _encodeClientMessage(message: ClientMessage, bb: ByteBuffer): void {
     writeVarint32(bb, 480);
     writeVarint64(bb, intToLong($chestHitZone));
   }
+
+  // optional int32 selectedUpgrade = 61;
+  let $selectedUpgrade = message.selectedUpgrade;
+  if ($selectedUpgrade !== undefined) {
+    writeVarint32(bb, 488);
+    writeVarint64(bb, intToLong($selectedUpgrade));
+  }
+
+  // optional bool openUpgradeSelect = 62;
+  let $openUpgradeSelect = message.openUpgradeSelect;
+  if ($openUpgradeSelect !== undefined) {
+    writeVarint32(bb, 496);
+    writeByte(bb, $openUpgradeSelect ? 1 : 0);
+  }
+
+  // optional bool closeUpgradeSelect = 63;
+  let $closeUpgradeSelect = message.closeUpgradeSelect;
+  if ($closeUpgradeSelect !== undefined) {
+    writeVarint32(bb, 504);
+    writeByte(bb, $closeUpgradeSelect ? 1 : 0);
+  }
 }
 
 export function decodeClientMessage(binary: Uint8Array): ClientMessage {
@@ -476,6 +500,24 @@ function _decodeClientMessage(bb: ByteBuffer): ClientMessage {
       // optional bool closeCardSelect = 59;
       case 59: {
         message.closeCardSelect = !!readByte(bb);
+        break;
+      }
+
+      // optional int32 selectedUpgrade = 61;
+      case 61: {
+        message.selectedUpgrade = readVarint32(bb);
+        break;
+      }
+
+      // optional bool openUpgradeSelect = 62;
+      case 62: {
+        message.openUpgradeSelect = !!readByte(bb);
+        break;
+      }
+
+      // optional bool closeUpgradeSelect = 63;
+      case 63: {
+        message.closeUpgradeSelect = !!readByte(bb);
         break;
       }
 
@@ -730,6 +772,28 @@ function _encodeServerMessage(message: ServerMessage, bb: ByteBuffer): void {
 
 export function decodeServerMessage(binary: Uint8Array): ServerMessage {
   return _decodeServerMessage(wrapByteBuffer(binary));
+}
+
+let _poolEnabled = false;
+const _entityArena: Entity[] = [];
+let _entityArenaIdx = 0;
+
+function _nextPooledEntity(): Entity {
+  let e = _entityArena[_entityArenaIdx];
+  if (e === undefined) { e = {} as Entity; _entityArena[_entityArenaIdx] = e; }
+  _entityArenaIdx++;
+  for (const k in e) (e as any)[k] = undefined;
+  return e;
+}
+
+export function decodeServerMessagePooled(binary: Uint8Array): ServerMessage {
+  _entityArenaIdx = 0;
+  _poolEnabled = true;
+  try {
+    return _decodeServerMessage(wrapByteBuffer(binary));
+  } finally {
+    _poolEnabled = false;
+  }
 }
 
 function _decodeServerMessage(bb: ByteBuffer): ServerMessage {
@@ -1399,6 +1463,8 @@ export interface Entity {
   buffs?: { [key: number]: Buff };
   evolution?: number;
   possibleEvolutions?: { [key: number]: boolean };
+  possibleUpgrades?: { [key: number]: boolean };
+  currentUpgrades?: number[];
   isAbilityAvailable?: boolean;
   abilityActive?: boolean;
   abilityDuration?: number;
@@ -1419,7 +1485,7 @@ export interface Entity {
   disconnectReasonType?: number;
   skin?: number;
   wideSwing?: boolean;
-  coinShield?: number;
+  coinShield?: number; // RESERVED (tag 44): no longer sent by the server; keep so tag 44 is never reused with a different wire type
   swordSwingArc?: number;
   swordBoomerangReturning?: boolean;
   availableUpgrades?: number;
@@ -1428,6 +1494,10 @@ export interface Entity {
   isTutorial?: boolean;
   swordRaising?: boolean;
   swordDecreasing?: boolean;
+  offhandRaising?: boolean;
+  offhandDecreasing?: boolean;
+  activeSelection?: number;
+  abilityCharges?: number;
   cardOffers?: number[];
   chosenCards?: number[];
   choosingCard?: boolean;
@@ -1642,6 +1712,32 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
       writeVarint32(bb, nested.offset);
       writeByteBuffer(bb, nested);
       pushByteBuffer(nested);
+    }
+  }
+
+  // optional map<int32, bool> possibleUpgrades = 64;
+  let map$possibleUpgrades = message.possibleUpgrades;
+  if (map$possibleUpgrades !== undefined) {
+    for (let key in map$possibleUpgrades) {
+      let nested = popByteBuffer();
+      let value = map$possibleUpgrades[key];
+      writeVarint32(nested, 8);
+      writeVarint64(nested, intToLong(+key));
+      writeVarint32(nested, 16);
+      writeByte(nested, value ? 1 : 0);
+      writeVarint32(bb, 514);
+      writeVarint32(bb, nested.offset);
+      writeByteBuffer(bb, nested);
+      pushByteBuffer(nested);
+    }
+  }
+
+  // repeated int32 currentUpgrades = 65;
+  let array$currentUpgrades = message.currentUpgrades;
+  if (array$currentUpgrades !== undefined) {
+    for (let value of array$currentUpgrades) {
+      writeVarint32(bb, 520);
+      writeVarint64(bb, intToLong(value));
     }
   }
 
@@ -1895,6 +1991,35 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
     writeVarint32(bb, 464);
     writeByte(bb, $swordDecreasing ? 1 : 0);
   }
+
+  // optional bool offhandRaising = 66;
+  let $offhandRaising = message.offhandRaising;
+  if ($offhandRaising !== undefined) {
+    writeVarint32(bb, 528);
+    writeByte(bb, $offhandRaising ? 1 : 0);
+  }
+
+  // optional bool offhandDecreasing = 67;
+  let $offhandDecreasing = message.offhandDecreasing;
+  if ($offhandDecreasing !== undefined) {
+    writeVarint32(bb, 536);
+    writeByte(bb, $offhandDecreasing ? 1 : 0);
+  }
+
+  // optional int32 activeSelection = 68;
+  let $activeSelection = message.activeSelection;
+  if ($activeSelection !== undefined) {
+    writeVarint32(bb, 544);
+    writeVarint64(bb, intToLong($activeSelection));
+  }
+
+  // optional int32 abilityCharges = 69;
+  let $abilityCharges = message.abilityCharges;
+  if ($abilityCharges !== undefined) {
+    writeVarint32(bb, 552);
+    writeVarint64(bb, intToLong($abilityCharges));
+  }
+
 }
 
 export function decodeEntity(binary: Uint8Array): Entity {
@@ -1902,7 +2027,7 @@ export function decodeEntity(binary: Uint8Array): Entity {
 }
 
 function _decodeEntity(bb: ByteBuffer): Entity {
-  let message: Entity = {} as any;
+  let message: Entity = _poolEnabled ? _nextPooledEntity() : ({} as any);
 
   end_of_message: while (!isAtEnd(bb)) {
     let tag = readVarint32(bb);
@@ -2124,6 +2249,52 @@ function _decodeEntity(bb: ByteBuffer): Entity {
           throw new Error("Invalid data for map: possibleEvolutions");
         values[key] = value;
         bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<int32, bool> possibleUpgrades = 64;
+      case 64: {
+        let values = message.possibleUpgrades || (message.possibleUpgrades = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: number | undefined;
+        let value: boolean | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1: {
+              key = readVarint32(bb);
+              break;
+            }
+            case 2: {
+              value = !!readByte(bb);
+              break;
+            }
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error("Invalid data for map: possibleUpgrades");
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // repeated int32 currentUpgrades = 65;
+      case 65: {
+        let values = message.currentUpgrades || (message.currentUpgrades = []);
+        if ((tag & 7) === 2) {
+          // Packed encoding
+          let limit = pushTemporaryLength(bb);
+          while (!isAtEnd(bb)) {
+            values.push(readVarint32(bb));
+          }
+          bb.limit = limit;
+        } else {
+          values.push(readVarint32(bb));
+        }
         break;
       }
 
@@ -2361,6 +2532,30 @@ function _decodeEntity(bb: ByteBuffer): Entity {
       // optional bool swordDecreasing = 58;
       case 58: {
         message.swordDecreasing = !!readByte(bb);
+        break;
+      }
+
+      // optional bool offhandRaising = 66;
+      case 66: {
+        message.offhandRaising = !!readByte(bb);
+        break;
+      }
+
+      // optional bool offhandDecreasing = 67;
+      case 67: {
+        message.offhandDecreasing = !!readByte(bb);
+        break;
+      }
+
+      // optional int32 activeSelection = 68;
+      case 68: {
+        message.activeSelection = readVarint32(bb);
+        break;
+      }
+
+      // optional int32 abilityCharges = 69;
+      case 69: {
+        message.abilityCharges = readVarint32(bb);
         break;
       }
 

@@ -17,9 +17,10 @@ import LoginModal from './modals/LoginModal';
 import SignupModal from './modals/SignupModal';
 import ConnectionError from './modals/ConnectionError';
 
-import { clearAccount, setAccount, setDailyLogin, logoutAsync, changeNameAsync, changeBioAsync } from '../redux/account/slice';
+import { clearAccount, setAccount, setDailyLogin, logoutAsync, changeNameAsync, changeBioAsync, updateAccountAsync } from '../redux/account/slice';
 import { selectAccount } from '../redux/account/selector';
 import api from '../api';
+import { trackPlayClick, setAnalyticsAccount } from '../analytics';
 
 import SettingsImg from '../assets/img/settings.png';
 import DiscordLogo from '../assets/img/discordLogo.png';
@@ -51,7 +52,6 @@ import { crazygamesSDK } from '../crazygames/sdk';
 import { initializeDataStorage } from '../crazygames/dataStorage';
 
 import * as cosmetics from '../game/cosmetics.json'
-import LeaderboardModal from './modals/LeaderboardModal';
 import RewardsModal from './modals/RewardsModal';
 import ProfileModal from './modals/ProfileModal';
 import SkinPreviewModal from './modals/SkinPreviewModal';
@@ -59,16 +59,18 @@ import FullChangelogModal from './modals/FullChangelogModal';
 import ClansModal from './modals/ClansModal';
 import TutorialModal from './game/TutorialModal';
 import HubModal, { HubTab } from './hub/HubModal';
+import SupportButton from './support/SupportButton';
+import SupportModal from './support/SupportModal';
 
 let debugMode = false;
 try {
   debugMode = window.location.search.includes("debugAlertMode");
   } catch(e) {}
 
-const fullscreenModals = ['ShopModal', 'RewardsModal', 'LeaderboardModal', 'InventoryModal', 'ProfileModal', 'FullChangelogModal'];
+const fullscreenModals = ['ShopModal', 'RewardsModal', 'InventoryModal', 'ProfileModal', 'FullChangelogModal'];
 const modalCloseMs = 200;
 
-function App() {
+function App({ moreAds = false }: { moreAds?: boolean }) {
   let { skins } = cosmetics;
   const RESET_HOUR = 23; // 0-23 utc
 
@@ -949,8 +951,13 @@ function App() {
     return () => clearInterval(interval);
   }, [account?.dailyLogin?.xpBonus]);
 
+  useEffect(() => {
+    setAnalyticsAccount(account?.isLoggedIn ? (account?.id ?? null) : null, account?.username ?? null, !!account?.isLoggedIn);
+  }, [account?.isLoggedIn, account?.id, account?.username]);
+
   const onStart = () => {
     console.log('Starting game');
+    trackPlayClick();
     localStorage.setItem('swordbattle:hasVisited', '1');
     if(!isConnected) {
       alert('Not connected yet');
@@ -974,6 +981,7 @@ function App() {
 
 
   const openSettings = () => setModal(<SettingsModal />);
+  const openSupport = () => setModal(<SupportModal account={account} />);
   const closeModal = () => setModal(null);
 
   useEffect(() => {
@@ -997,14 +1005,17 @@ function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modal]);
-  const onHome = () => setGameStarted(false);
+  const onHome = () => {
+    setGameStarted(false);
+    if (account?.isLoggedIn) dispatch(updateAccountAsync() as any);
+  };
   const onConnectionClosed = (reason: string) => {
     console.log('Connection closed', reason);
     setConnectionError(reason);
   }
 
   const onSucessAuth = () => setModal(null);
-  const onLogin = () => setModal(<LoginModal onSuccess={onSucessAuth} />);
+  const onLogin = () => setModal(<LoginModal onSuccess={onSucessAuth} onSupport={openSupport} />);
   const onSignup = () => setModal(<SignupModal onSuccess={onSucessAuth} />);
   const onLogout = () => dispatch(logoutAsync() as any);
   const onChangeName = () => {
@@ -1149,6 +1160,7 @@ function App() {
         setGame={setGame}
         openLeaderboard={openLeaderboard}
         onPendingRespawn={(info: any) => setPendingRespawn(info)}
+        moreAds={moreAds}
       />
       {connectionError && (
         <Modal
@@ -1323,7 +1335,7 @@ function App() {
               <br />
               <div className='fullWidth'>
                 <div id="adBelow">
-                 <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 90]]} />
+                 <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} placement="main_menu" adblockPromo />
                 </div>
               </div>
             </div>
@@ -1336,6 +1348,7 @@ function App() {
           <div id="settingsButton" className="altLink imgPanel" style={{ pointerEvents: 'auto' }} onClick={openSettings}>
             <FontAwesomeIcon icon={faGear} className='ui-icon'/>
           </div>
+          <SupportButton account={account} onOpen={openSupport} />
           <a id="githubButton" className="altLink imgPanel" href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
             <img src={GithubLogo} width={60} alt="GitHub" />
           </a>
@@ -1343,7 +1356,7 @@ function App() {
             <img src={DiscordLogo} width={60} alt="Discord" />
           </a>
           </div>
-          {shownModal && (() => { const n = shownModal.type.displayName || shownModal.type.name; const isFullscreen = fullscreenModals.includes(n); const isSettings = n === 'SettingsModal'; const isAuth = n === 'LoginModal' || n === 'SignupModal'; const isHub = n === 'HubModal'; const isClans = n === 'ClansModal'; const cls = isFullscreen ? 'modal-fullscreen' : (isSettings ? 'modal-settings' : (isAuth ? 'modal-auth' : (isHub ? 'modal-hub' : (isClans ? 'modal-clans' : '')))); return <Modal key={n} child={shownModal} requestClose={closeModal} scaleDisabled={isFullscreen || isSettings || isHub || isClans} className={cls} backdrop={isAuth || isSettings || isHub || isClans} backdropClass={isSettings ? 'modal-backdrop-clear' : ''} closing={modalClosing} />; })()}
+          {shownModal && (() => { const n = shownModal.type.displayName || shownModal.type.name; const isFullscreen = fullscreenModals.includes(n); const isSettings = n === 'SettingsModal'; const isAuth = n === 'LoginModal' || n === 'SignupModal'; const isHub = n === 'HubModal'; const isClans = n === 'ClansModal'; const isSupport = n === 'SupportModal'; const cls = isFullscreen ? 'modal-fullscreen' : (isSettings ? 'modal-settings' : (isAuth ? 'modal-auth' : (isHub ? 'modal-hub' : (isClans ? 'modal-clans' : (isSupport ? 'modal-support' : ''))))); return <Modal key={n} child={shownModal} requestClose={closeModal} scaleDisabled={isFullscreen || isSettings || isHub || isClans || isSupport || isAuth} className={cls} backdrop={isAuth || isSettings || isHub || isClans || isSupport} backdropClass={isSettings ? 'modal-backdrop-clear' : ''} closing={modalClosing} />; })()}
           {profileUser && (
             <Modal
               key="profile-overlay"

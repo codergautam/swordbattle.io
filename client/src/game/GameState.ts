@@ -1,11 +1,12 @@
 import Game from './scenes/Game';
 import Socket from './network/Socket';
-import { EntityTypes, InputTypes } from './Types';
+import { EntityTypes } from './Types';
 import { movers } from './effects/TreeShake';
 import { Settings } from './Settings';
 import GameMap from './GameMap';
 import Player from './entities/Player';
 import GlobalEntity from './entities/GlobalEntity';
+import { BaseEntity } from './entities/BaseEntity';
 import { GetEntityClass } from './entities';
 import { Spectator } from './Spectator';
 import { getServer } from '../ServerList';
@@ -14,7 +15,7 @@ import exportCaptcha from './components/captchaEncoder';
 import { findCoinCollector } from '../helpers';
 import { crazygamesSDK } from '../crazygames/sdk';
 import * as cosmetics from './cosmetics.json';
-import { perfMark } from './debug/perfStats';
+import { perfMark, perfEnabled, perfWsProcess, perfEntityAdd } from './debug/perfStats';
 const { skins } = cosmetics as any;
 
 class GameState {
@@ -34,7 +35,7 @@ class GameState {
   isReady = false;
   tickAccumulator = 0;
   private _returningFromHidden = false;
-  private _pendingMessage: any = null;
+  private _pendingMessages: any[] = [];
   disconnectReason = {
     code: 0,
     reason: '',
@@ -47,6 +48,9 @@ class GameState {
   debugMode = false;
 
   selectedEvolution: string | null = null;
+  selectedUpgrade: number | null = null;
+  openUpgradeSelect: boolean = false;
+  closeUpgradeSelect: boolean = false;
   selectedBuff: any;
   selectedCard: number | null = null;
   majorOfferPositions: Record<number, number> = {};
@@ -60,6 +64,7 @@ class GameState {
   chestBarActive = false;
   chestBarZone = 0;
   chestCombo = 1;
+  lastSentChestZone = -1;
   frameLerpRate = 0.5;
   frameRotLerpRate = 0.2;
   interpolationEnabled = false;
@@ -69,6 +74,7 @@ class GameState {
   renderClock = 0;
   renderClockInit = false;
   moverList: any[] = [];
+  private _playersCache: any[] | null = null;
   captchaVerified = false;
   failedSkinLoads: Record<number, boolean> = {};
   recentDeadPlayers: Record<number, { name: string, time: number }> = {};
@@ -311,12 +317,13 @@ class GameState {
     this.failedSkinLoads = {};
     this.recentDeadPlayers = {};
     this.payloadsQueue = [];
+    this._pendingMessages = [];
 
     // Disable CrazyGames invite button when game ends
     crazygamesSDK.setInviteMode('disabled');
 
     if (event.code === 4503) {
-      window.alert('Swordbattle.io is currently under maintenance to test some awesome new features. Check back soon to see the update!');
+      window.alert('Swordbattle.io is currently under maintenance to test the next update. Check back later to see the new stuff!');
       return;
     }
 
@@ -333,9 +340,18 @@ class GameState {
     console.log('connection closed');
   }
 
+  private detachSnapshot(data: any): any {
+    if (!data) return data;
+    try {
+      return (typeof structuredClone === 'function') ? structuredClone(data) : JSON.parse(JSON.stringify(data));
+    } catch (e) {
+      try { return JSON.parse(JSON.stringify(data)); } catch (e2) { return data; }
+    }
+  }
+
   onServerMessage(data: any) {
     if (!this.game.isReady) {
-      this.payloadsQueue.push(data);
+      this.payloadsQueue.push(this.detachSnapshot(data));
     } else {
       if (this.payloadsQueue.length !== 0) {
         this.payloadsQueue.forEach(msg => this.processServerMessage(msg));
@@ -343,10 +359,16 @@ class GameState {
         this.payloadsQueue = [];
       }
       if (this._returningFromHidden) {
-        this._pendingMessage = data;
+        this._pendingMessages.push(this.detachSnapshot(data));
         return;
       }
+      const __t = perfEnabled() ? performance.now() : 0;
       this.processServerMessage(data);
+      if (__t) {
+        const dt = performance.now() - __t;
+        perfWsProcess(dt);
+        if (dt > 30) console.warn(`[perfStats] 🧊 processServerMessage ${dt.toFixed(0)}ms${data.fullSync ? ' (FULL-SYNC rebuild of all entities)' : ''} — snapshot handling stalled the main thread`);
+      }
     }
   }
 
@@ -375,8 +397,14 @@ class GameState {
     }
 
     if (data.fullSync) {
-      Object.values(this.entities).forEach(entity => entity.remove());
-      this.entities = {};
+      const next = data.entities || {};
+      for (const id in this.entities) {
+        const nd = next[id];
+        if (!nd || nd.removed || nd.type !== this.entities[id].type) {
+          this.entities[id].remove();
+          delete this.entities[id];
+        }
+      }
       for (const entity of this.removedEntities) {
         entity.remove();
       }
@@ -385,6 +413,7 @@ class GameState {
       this.failedSkinLoads = {};
       this.recentDeadPlayers = {};
       this.self.id = data.selfId;
+      this._playersCache = null;
     }
 
     for (let stringId in data.entities) {
@@ -394,10 +423,11 @@ class GameState {
 
       const globalEnt = this.globalEntities[id];
       if (globalEnt && globalEnt.gameWorldEntity) {
-        if (!entityData.removed && entityData.shapeData) {
+        if (!entityData.removed) {
           globalEnt.gameWorldEntity.updateState(entityData);
         }
         if (this.entities[id]) {
+          if (this.entities[id].type === EntityTypes.Player) this._playersCache = null;
           this.entities[id].remove();
           delete this.entities[id];
         }
@@ -439,14 +469,14 @@ class GameState {
       }
     }
 
+    if (data.mapData) {
+      this.gameMap.updateMapData(this.detachSnapshot(data.mapData));
+    }
     if (data.spectator) {
       if (!this.spectator.active) {
         this.spectator.enable();
       }
       this.spectator.follow(data.spectator);
-    }
-    if (data.mapData) {
-      this.gameMap.updateMapData(data.mapData);
     }
 
     if (data.fullSync) {
@@ -477,11 +507,12 @@ class GameState {
             `| gameMap.staticObjects = ${this.gameMap.staticObjects.length}`);
         } catch (e) {}
 
-        const serverSaysTutorial = selfEntity && (selfEntity as any).isTutorial;
+        const tutorialEnabled = false;
+        const serverSaysTutorial = tutorialEnabled && selfEntity && (selfEntity as any).isTutorial;
         let isFirstEverPlay = false;
-        try { isFirstEverPlay = !localStorage.getItem('swordbattle:tutorialComplete'); } catch (e) {}
+        try { isFirstEverPlay = tutorialEnabled && !localStorage.getItem('swordbattle:tutorialComplete'); } catch (e) {}
         let justStartedFirstLife = false;
-        try { justStartedFirstLife = !localStorage.getItem('swordbattle:tutorialComplete') && !!localStorage.getItem('swordbattle:hasPlayed'); } catch (e) {}
+        try { justStartedFirstLife = tutorialEnabled && !localStorage.getItem('swordbattle:tutorialComplete') && !!localStorage.getItem('swordbattle:hasPlayed'); } catch (e) {}
 
         if (serverSaysTutorial || (isFirstEverPlay && justStartedFirstLife)) {
           try {
@@ -509,6 +540,11 @@ class GameState {
   tick() {
     if (!this.self.entity) return;
     this.updateLeaderboard();
+    this.sendInputs();
+  }
+
+  flushCombatInputs() {
+    if (!this.self.entity) return;
     this.sendInputs();
   }
 
@@ -559,9 +595,9 @@ class GameState {
   updateGraphics(dt: number) {
     if (this._returningFromHidden) {
       this._returningFromHidden = false;
-      if (this._pendingMessage) {
-        this.processServerMessage(this._pendingMessage);
-        this._pendingMessage = null;
+      if (this._pendingMessages.length) {
+        for (const msg of this._pendingMessages) this.processServerMessage(msg);
+        this._pendingMessages = [];
       }
       for (const id in this.entities) {
         const entity = this.entities[id];
@@ -570,7 +606,9 @@ class GameState {
           entity.container.y = entity.shape.y;
           if (entity.posBuffer) entity.posBuffer.length = 0;
         }
+        (entity as any).healthBar?.resyncAfterHidden?.();
       }
+      BaseEntity.drainDestroys(Infinity);
     }
 
     const tps = this.tps || 20;
@@ -591,9 +629,12 @@ class GameState {
     }
 
     let pt = perfMark();
+    const entityList = Object.values(this.entities) as any[];
+    const n = entityList.length;
+
     this.moverList.length = 0;
-    for (const id in this.entities) {
-      const e = this.entities[id] as any;
+    for (let i = 0; i < n; i++) {
+      const e = entityList[i];
       if (e && movers.has(e.type)) this.moverList.push(e);
     }
     pt = perfMark('moverList', pt);
@@ -601,14 +642,12 @@ class GameState {
     for (const entity of this.removedEntities) {
       entity.update(dt);
     }
+    BaseEntity.drainDestroys(Math.max(3, Math.ceil(BaseEntity.destroyQueue.length / 60)));
     pt = perfMark('removedUpd', pt);
-    for (const id in this.entities) {
-      this.entities[id].update(dt);
-    }
+    for (let i = 0; i < n; i++) entityList[i].update(dt);
     pt = perfMark('entitiesUpd', pt);
-    for (const id in this.globalEntities) {
-      this.globalEntities[id].update(dt);
-    }
+    const globalList = Object.values(this.globalEntities) as any[];
+    for (let i = 0; i < globalList.length; i++) globalList[i].update(dt);
     pt = perfMark('globalUpd', pt);
     this.gameMap.update();
     pt = perfMark('gameMapUpd', pt);
@@ -623,8 +662,8 @@ class GameState {
       const vy = view.y - boost;
       const vxMax = view.x + view.width + boost;
       const vyMax = view.y + view.height + boost;
-      for (const id in this.entities) {
-        this.cullContainer(this.entities[id], vx, vy, vxMax, vyMax);
+      for (let i = 0; i < n; i++) {
+        this.cullContainer(entityList[i], vx, vy, vxMax, vyMax);
       }
     }
     pt = perfMark('cullLoop', pt);
@@ -729,6 +768,18 @@ class GameState {
       data.selectedEvolution = this.selectedEvolution;
       this.selectedEvolution = null;
     }
+    if (this.selectedUpgrade !== null) {
+      data.selectedUpgrade = this.selectedUpgrade;
+      this.selectedUpgrade = null;
+    }
+    if (this.openUpgradeSelect) {
+      data.openUpgradeSelect = true;
+      this.openUpgradeSelect = false;
+    }
+    if (this.closeUpgradeSelect) {
+      data.closeUpgradeSelect = true;
+      this.closeUpgradeSelect = false;
+    }
     if (this.selectedBuff) {
       data.selectedBuff = this.selectedBuff;
       this.selectedBuff = null;
@@ -765,14 +816,6 @@ class GameState {
       data.chatMessage = this.chatMessage;
       this.chatMessage = null;
     }
-    if (data.inputs && data.inputs.some((i: any) => i.inputType === InputTypes.SwordSwing && i.inputDown)) {
-      if (this.chestBarActive) {
-        const comboX100 = Math.max(100, Math.min(200, Math.round((this.chestCombo || 1) * 100)));
-        data.chestHitZone = (this.chestBarZone + 1) | (comboX100 << 3);
-      } else {
-        data.chestHitZone = 0;
-      }
-    }
     if (Object.keys(data).length !== 0) {
       Socket.emit(data);
     }
@@ -788,6 +831,8 @@ class GameState {
       entity.createSprite();
       entity.setDepth();
       this.entities[id] = entity;
+      perfEntityAdd();
+      if (entity.type === EntityTypes.Player) this._playersCache = null;
       return entity;
     } catch (e) {
       console.warn('[GameState] Failed to create entity:', data.type, e);
@@ -800,15 +845,19 @@ class GameState {
     if (!entity) return;
 
     delete this.entities[id];
+    if (entity.type === EntityTypes.Player) this._playersCache = null;
 
     if (entity.type === EntityTypes.Coin) {
       entity.removed = true;
-      // entity.hunter = this.entities[data.hunterId];
-      const players: any[] = [];
-      for (const eid in this.entities) {
-        if (this.entities[eid].type === EntityTypes.Player) players.push(this.entities[eid]);
+      if (!this._playersCache) {
+        const cache: any[] = [];
+        for (const eid in this.entities) {
+          const e = this.entities[eid];
+          if (e.type === EntityTypes.Player) cache.push(e);
+        }
+        this._playersCache = cache;
       }
-      entity.hunter = findCoinCollector(entity, players);
+      entity.hunter = findCoinCollector(entity, this._playersCache);
       this.removedEntities.add(entity);
     } else {
       if(entity.type === EntityTypes.Player) {
@@ -838,6 +887,7 @@ class GameState {
     globalEntity.createGameWorldVisual();
 
     if (globalEntity.gameWorldEntity && this.entities[id]) {
+      if (this.entities[id].type === EntityTypes.Player) this._playersCache = null;
       this.entities[id].remove();
       delete this.entities[id];
     }

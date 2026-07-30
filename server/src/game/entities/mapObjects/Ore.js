@@ -5,8 +5,10 @@ const Health = require('../../components/Health');
 const Types = require('../../Types');
 const helpers = require('../../../helpers');
 
-const focusMinRarity = 3;
-const oreFocusMult = 0.6;
+const barMinRarity = 3;
+const oreBaseMult = 0.67;
+const oreZoneTarget = { good: 1.2, great: 1.6, perfect: 2.0 };
+const oreBarMissMult = 0.9;
 
 function perimeterPoint(points, t) {
   const segs = [];
@@ -30,15 +32,15 @@ function perimeterPoint(points, t) {
 }
 
 const tiers = [
-  [180,  100,   15,    55],
-  [220,  300,   45,    42],
-  [280,  700,   110,   30],
-  [340,  1400,  320,   20],
-  [420,  2800,  520,   13],
-  [520,  5500,  800,   8],
-  [620,  10000, 1150,  5],
-  [720,  16000, 1500,  3],
-  [820,  25000, 1900,  2],
+  [180,  100,   15,   550],
+  [220,  300,   45,   420],
+  [280,  700,   110,  300],
+  [340,  1400,  180,  160],
+  [420,  3200,  250,  90],
+  [520,  7000,  320,  45],
+  [620,  14000, 400,  22],
+  [720,  24000, 500,  11],
+  [820,  40000, 600,  5],
 ];
 
 const oreHitboxBase = [
@@ -117,8 +119,9 @@ class Ore extends Entity {
     this.needsCoastClearance = true;
     this.skipBorderCollision = true;
 
-    this.hasFocus = this.rarity >= focusMinRarity;
-    this.focusT = this.hasFocus ? Math.random() : -1;
+    this.hasFocus = false;
+    this.focusT = -1;
+    this.hasBar = false;
 
     this.coinsPaid = 0;
     this.dripFraction = 0.6;
@@ -181,21 +184,9 @@ class Ore extends Entity {
         dmg *= player.chestDamageMultiplier;
       }
 
-      if (this.hasFocus) {
-        let focusHit = this.swordSweepsFocus(proj);
-        if (!focusHit && player.isBot && typeof player.oreFocusChance === 'function'
-          && Math.random() < player.oreFocusChance()) {
-          focusHit = true;
-        }
-        if (focusHit) {
-          dmg *= 1 + oreFocusMult;
-          this.focusT = (this.focusT + 0.25 + Math.random() * 0.5) % 1;
-        }
-      }
-
       this.lastAttacker = player;
       this.lastAttackTime = currentTime;
-      this.applyMiningDamage(player, dmg);
+      this.applyMiningDamage(player, dmg, 1, false);
       return;
     }
 
@@ -228,22 +219,30 @@ class Ore extends Entity {
         dmg *= sword.player.chestDamageMultiplier;
       }
 
-      if (this.hasFocus) {
-        let focusHit = this.swordSweepsFocus(sword);
-        if (!focusHit && sword.player.isBot
-          && typeof sword.player.oreFocusChance === 'function'
-          && Math.random() < sword.player.oreFocusChance()) {
-          focusHit = true;
-        }
-        if (focusHit) {
-          dmg *= 1 + oreFocusMult;
-          this.focusT = (this.focusT + 0.25 + Math.random() * 0.5) % 1;
+      let comboUsed = 1;
+      if (this.hasBar) {
+        if (sword.player.isBot) {
+          const m = typeof sword.player.chestSkillMultiplier === 'function'
+            ? sword.player.chestSkillMultiplier() : 1;
+          dmg *= m;
+        } else {
+          const fresh = (currentTime - (sword.player.reportedChestAt || 0)) < 700;
+          const z = fresh ? (sword.player.reportedChestZone || 0) : 0;
+          const combo = fresh ? (sword.player.reportedChestCombo || 1) : 1;
+          let mult;
+          if (z === 4) mult = oreBaseMult + (oreZoneTarget.perfect - oreBaseMult);
+          else if (z === 3) mult = oreBaseMult + (oreZoneTarget.great - oreBaseMult);
+          else if (z === 2) mult = oreBaseMult + (oreZoneTarget.good - oreBaseMult);
+          else if (z === 1) mult = oreBaseMult * oreBarMissMult;
+          else mult = oreBaseMult;
+          if (fresh) comboUsed = combo;
+          dmg *= mult;
         }
       }
 
       this.lastAttacker = sword.player;
       this.lastAttackTime = currentTime;
-      this.applyMiningDamage(sword.player, dmg);
+      this.applyMiningDamage(sword.player, dmg, comboUsed, true);
       return;
     }
 
@@ -266,11 +265,15 @@ class Ore extends Entity {
     }
   }
 
-  applyMiningDamage(player, dmg) {
+  applyMiningDamage(player, dmg, comboMult = 1, fromMelee = false) {
     const pctBefore = this.health.percent;
     this.health.damaged(dmg);
     const pctAfter = Math.max(0, this.health.percent);
     const dealt = Math.max(0, (pctBefore - pctAfter) * this.maxHealth);
+
+    if (fromMelee && player.flags) {
+      player.flags.set(this.health.isDead ? Types.Flags.OreDestroy : Types.Flags.OreHit, true);
+    }
 
     const dripPool = this.totalCoins * this.dripFraction;
     let dripPayout = (dealt / this.maxHealth) * dripPool;
@@ -284,7 +287,7 @@ class Ore extends Entity {
 
     const totalPayout = dripPayout + breakPayout;
     if (totalPayout > 0) {
-      let coins = totalPayout;
+      let coins = Math.round(totalPayout * Math.max(1, comboMult));
       if (player.cards && player.cards.hasMajor(121)) coins = Math.round(coins * 0.70);
       if (player.cards && player.cards.hasMajor(120)) coins = Math.round(coins * 0.50);
       if (coins > 0) this.spawnCoinsAround(coins, this.health.isDead);

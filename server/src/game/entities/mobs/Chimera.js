@@ -215,12 +215,15 @@ class Chimera extends Entity {
   applyVelocityKnockback(entity, mult = 1) {
     const vx = this.velocity.x, vy = this.velocity.y;
     const speed = Math.sqrt(vx * vx + vy * vy);
-    if (speed <= 0.001) return;
+    if (speed <= 0.001) return { x: 0, y: 0 };
 
     const force = (2 + speed) * 0.2 * mult;
-
-    entity.velocity.x += (vx / speed) * force / (entity.knockbackResistance.value || 1);
-    entity.velocity.y += (vy / speed) * force / (entity.knockbackResistance.value || 1);
+    const resist = (entity.knockbackResistance.value || 1);
+    const kbX = (vx / speed) * force / resist;
+    const kbY = (vy / speed) * force / resist;
+    entity.velocity.x += kbX;
+    entity.velocity.y += kbY;
+    return { x: kbX, y: kbY };
   }
 
   processTargetsCollision(entity) {

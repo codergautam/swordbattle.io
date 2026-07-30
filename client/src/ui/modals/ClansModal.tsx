@@ -18,6 +18,7 @@ import EditClanTab from './clans/tabs/EditClanTab';
 import SearchTab from './clans/tabs/SearchTab';
 import ProfileModal from './ProfileModal';
 import Modal from './Modal';
+import ModalAd from '../ModalAd';
 
 interface ClansModalProps {
   account: AccountState;
@@ -171,6 +172,8 @@ function ClansModal({ account, onViewProfile }: ClansModalProps) {
           )}
         </div>
       </div>
+
+      <ModalAd placement="clans" />
 
       {showCooldownBanner && (
         <div className="clans-cooldown-banner">

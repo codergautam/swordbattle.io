@@ -33,7 +33,7 @@ export default function AccountCard({account, onLogin, onSignup, onViewProfile}:
       <div className="signinPromo">
         <div className="signinPromo-text">Sign in to save your progress and access more features!</div>
         <div className="signinPromo-actions">
-          <button className="promo-btn promo-login" onClick={onLogin}>Login</button>
+          <button className="promo-btn promo-login" onClick={onLogin}>Log in</button>
           <button className="promo-btn promo-register" onClick={onSignup}>Register</button>
         </div>
       </div>

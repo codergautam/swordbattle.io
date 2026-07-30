@@ -40,7 +40,7 @@ class GlobalEntities {
       this.getChangesCache = {};
       this.entities.forEach((entity, id) => {
         const fields = entity.state.get(); // update state
-        if (this.game.newEntities.has(entity.id)) {
+        if (this.game.newEntities.has(entity)) {
           this.filterAndWrite(this.getChangesCache, id, fields);
         } else {
           this.filterAndWrite(this.getChangesCache, id, entity.state.getChanges());

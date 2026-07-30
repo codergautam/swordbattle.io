@@ -36,12 +36,24 @@ class AngryFishMob extends Entity {
 
     this.knockbackResistance = new Property(500);
 
+    this._spawnImmuneUntil = 0;
+    this._sardineOwner = null;
+    this._isSardine = false;
+
     this.spawn();
   }
 
   update(dt) {
     this.angryTimer.update(dt);
     this.attackTimer.update(dt);
+    if (this._sardineOwner) {
+      if (this._sardineOwner.removed || (this._despawnAt && Date.now() > this._despawnAt)) {
+        this.remove();
+        return;
+      }
+      this.target = this._sardineOwner;
+      this.angryTimer.renew();
+    }
     if (this.angryTimer.finished || !this.target || this.target.removed) {
       this.target = null;
     }
@@ -114,14 +126,15 @@ class AngryFishMob extends Entity {
 
     const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
     if (this.target && entity.id === this.target.id) {
-      if (this.attackTimer.finished) {
-        entity.damaged(this.damage.value, this);
-        this.attackTimer.renew();
-      }
+      const willAttack = this.attackTimer.finished;
+      if (willAttack) this.attackTimer.renew();
 
       this.velocity.scale(-0.5);
-      entity.velocity.x += 75 * Math.cos(angle);
-      entity.velocity.y += 75 * Math.sin(angle);
+      const kbX = 75 * Math.cos(angle);
+      const kbY = 75 * Math.sin(angle);
+      entity.velocity.x += kbX;
+      entity.velocity.y += kbY;
+      if (willAttack) entity.damaged(this.damage.value, this);
 
       this.shape.applyCollision(mtv);
       entity.shape.applyCollision(mtv.clone().scale(-1));
@@ -133,16 +146,17 @@ class AngryFishMob extends Entity {
 
   damaged(damage, entity) {
     if (this.removed) return;
+    if (this._spawnImmuneUntil && Date.now() < this._spawnImmuneUntil) return;
     if (entity.modifiers?.mobPower) {
       this.health.damaged(damage * entity.modifiers.mobPower);
     } else {
       this.health.damaged(damage);
     }
-    if(this.tamedBy !== entity.id) {
-    // Butcherer card: mobs don't aggro
-    if (!(entity.type === 1 && entity.cards && entity.cards.hasMajor(126))) {
-      this.target = entity;
-    }
+    if (!this._sardineOwner && this.tamedBy !== entity.id) {
+      // Butcherer card: mobs don't aggro
+      if (!(entity.type === 1 && entity.cards && entity.cards.hasMajor(126))) {
+        this.target = entity;
+      }
     }
     this.angryTimer.renew();
 
@@ -161,6 +175,7 @@ class AngryFishMob extends Entity {
   remove() {
     if (this.removed) return;
     super.remove();
+    if (this._isSardine) return;
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
     if(this.tamedBy) {
       const tamer = this.game.entities.get(this.tamedBy);

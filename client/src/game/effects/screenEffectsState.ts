@@ -33,7 +33,7 @@ export const defaultEffects: ScreenEffectsState = {
 
 export const screenEffectsState: ScreenEffectsState = { ...defaultEffects };
 
-export const screenEffectsRuntime = { scrollX: 0, scrollY: 0 };
+export const screenEffectsRuntime = { scrollX: 0, scrollY: 0, blind: 0 };
 
 type Listener = (s: ScreenEffectsState) => void;
 const listeners = new Set<Listener>();

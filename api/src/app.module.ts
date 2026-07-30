@@ -11,6 +11,8 @@ import { CosmeticsModule } from './cosmetics/cosmetics.module';
 import { ModerationModule } from './moderation/moderation.module';
 import { ClansModule } from './clans/clans.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { SupportModule } from './support/support.module';
 import { AuthService } from './auth/auth.service';
 
 @Module({
@@ -49,6 +51,8 @@ import { AuthService } from './auth/auth.service';
     ModerationModule,
     ClansModule,
     MaintenanceModule,
+    AnalyticsModule,
+    SupportModule,
   ],
   providers: [
     AuthService,

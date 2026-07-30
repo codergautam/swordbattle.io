@@ -1,61 +1,64 @@
 import HudComponent from './HudComponent';
-import ChatInput from '../../ui/game/ChatInput';
+import { createChatOverlay, ChatOverlay } from '../../ui/game/ChatInput';
 import { InputTypes } from '../Types';
 
 class Chat extends HudComponent {
-  input!: Phaser.GameObjects.DOMElement;
+  ui!: ChatOverlay;
   isOpen = false;
-  sendButton: Phaser.GameObjects.DOMElement;
   isDisabled = false;
   isPlatformDisabled = false;
-  disabledNotice: Phaser.GameObjects.DOMElement | null = null;
   lastNoticeTime = 0;
 
-  initialize() {
-    this.input = this.hud.scene.add.dom(0, 0, ChatInput.input)
-      .setOrigin(0.5, 1)
-      .setAlpha(0);
-    this.sendButton = this.hud.scene.add.dom(0, 0, ChatInput.sendButton).setAlpha(0);
-    this.sendButton.y = -this.input.height-10;
+  private onKey: ((e: KeyboardEvent) => void) | null = null;
 
-    this.sendButton.addListener('click');
-    this.sendButton.on('click', () => {
-      this.toggle();
-    });
+  initialize() {
+    this.ui = createChatOverlay();
+    document.querySelectorAll('.sb-chat').forEach((el) => el.remove());
+    document.body.appendChild(this.ui.root);
+
+    this.onKey = (e: KeyboardEvent) => {
+      if (!this.isOpen) return;
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        this.close(true);
+      } else if (e.key === 'Escape' || e.key === 'Delete') {
+        e.preventDefault();
+        e.stopPropagation();
+        this.close(false);
+      } else {
+        e.stopPropagation();
+      }
+    };
+    this.ui.input.addEventListener('keydown', this.onKey);
+
+    this.ui.sendBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); this.close(true); });
+    this.ui.cancelBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); this.close(false); });
 
     this.game.input.keyboard?.on('keydown-ENTER', () => {
-      if(this.game.gameState.self.entity?.following) this.toggle();
+      if (this.isOpen) return;
+      if (this.game.gameState.self.entity?.following) this.open();
     });
     this.game.input.keyboard?.on('keydown-ESC', () => {
-      if (this.isOpen) this.toggle(false);
+      if (this.isOpen) this.close(false);
     });
 
-    this.container = this.hud.scene.add.container(0, 0, [this.input, this.sendButton]);
+    this.container = this.hud.scene.add.container(0, 0, []);
     this.hud.add(this.container);
   }
 
   disable(platformForced = false) {
     this.isDisabled = true;
     this.isPlatformDisabled = platformForced;
-    if (this.isOpen) {
-      this.toggle(false);
-    }
-    // Hide chat UI
-    this.container.setVisible(false);
-    this.container.setAlpha(0);
-    (this.input.node as HTMLElement).style.display = 'none';
-    (this.sendButton.node as HTMLElement).style.display = 'none';
+    if (this.isOpen) this.close(false);
+    this.ui.root.style.display = 'none';
     console.log('[Chat] Chat has been disabled', platformForced ? '(by platform)' : '(by user setting)');
   }
 
-  /* Enable chat */
   enable() {
     this.isDisabled = false;
     this.isPlatformDisabled = false;
-    this.container.setVisible(true);
-    this.container.setAlpha(1);
-    (this.input.node as HTMLElement).style.display = '';
-    (this.sendButton.node as HTMLElement).style.display = '';
+    this.ui.root.style.display = '';
     console.log('[Chat] Chat has been enabled');
   }
 
@@ -63,79 +66,55 @@ class Chat extends HudComponent {
     const now = Date.now();
     if (now - this.lastNoticeTime < 3000) return;
     this.lastNoticeTime = now;
-
-    const el = document.createElement('div');
-    el.innerText = 'Chat is currently disabled. Go to the main menu to enable it in settings!';
-    el.style.cssText = 'background:rgba(0,0,0,0.85);color:#ff9900;font-size:18px;font-family:Rajdhani, sans-serif;padding:10px 20px;border-radius:8px;border:2px solid #ff9900;white-space:nowrap;pointer-events:none;';
-
-    const dom = this.hud.scene.add.dom(
-      this.game.scale.width / 2,
-      this.game.scale.height / 2.75,
-      el
-    ).setOrigin(0.5, 0.5).setAlpha(0);
-    this.hud.add(dom);
-
-    this.game.tweens.add({
-      targets: dom,
-      alpha: 1,
-      duration: 200,
-      onComplete: () => {
-        this.game.tweens.add({
-          targets: dom,
-          alpha: 0,
-          delay: 2000,
-          duration: 500,
-          onComplete: () => dom.destroy(),
-        });
-      },
-    });
+    this.hud?.showAnnouncement?.(
+      'Chat is disabled. Enable it in settings from the main menu!', '#ff9900', 2000, 0.36, true,
+    );
   }
 
   setShow(show: boolean, force?: boolean) {
     if (this.isDisabled && show) return;
     super.setShow(show, force);
+    if (!show && this.isOpen) this.close(false);
   }
 
-  toggle(send = true) {
-    // Don't allow toggling if chat is disabled
+  open() {
     if (this.isDisabled) {
       if (!this.isPlatformDisabled) this.showDisabledNotice();
       return;
     }
-
-    const input = this.input.node as HTMLInputElement;
-    if (this.isOpen) {
-      const message = input.value;
-      if (message.length !== 0 && send) {
-        this.game.gameState.chatMessage = message;
-      }
-      input.value = '';
-      this.game.controls.enableAllKeys();
-    } else {
-      this.game.controls.disableKeys([InputTypes.SwordSwing, InputTypes.SwordThrow, InputTypes.Ability]);
-    }
-
-    this.isOpen = !this.isOpen;
-
-    this.game.tweens.add({
-      targets: [this.input, this.sendButton],
-      alpha: this.isOpen ? 1 : 0,
-      duration: 100,
-      onUpdate: (tween: Phaser.Tweens.Tween) => {
-        if (tween.progress > 0) {
-          if (this.isOpen) input.focus();
-          else input.blur();
-        }
-      }
-    });
+    if (this.isOpen) return;
+    this.isOpen = true;
+    this.ui.root.classList.add('open');
+    this.game.controls.disableKeys([InputTypes.SwordSwing, InputTypes.SwordThrow, InputTypes.Ability]);
+    this.game.controls.setThrowArmed?.(false);
+    this.ui.input.focus();
+    try { this.ui.input.setSelectionRange(this.ui.input.value.length, this.ui.input.value.length); } catch (e) { }
   }
 
-  resize() {
-    this.container.setPosition(
-      this.game.scale.width / 2,
-      this.game.scale.height / 2 - 105 * this.scale,
-    );
+  close(send: boolean) {
+    if (!this.isOpen) return;
+    this.isOpen = false;
+    const input = this.ui.input;
+    const message = input.value.trim();
+    if (send && message.length !== 0) this.game.gameState.chatMessage = message;
+    input.value = '';
+    input.blur();
+    this.ui.root.classList.remove('open');
+    this.game.controls.enableAllKeys();
   }
+
+  toggle(send = true) {
+    if (this.isOpen) this.close(send);
+    else this.open();
+  }
+
+  destroy() {
+    if (this.onKey) this.ui?.input.removeEventListener('keydown', this.onKey);
+    this.onKey = null;
+    try { this.ui?.root.remove(); } catch (e) { }
+  }
+
+  resize() { }
 }
 
 export default Chat;

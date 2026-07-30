@@ -28,6 +28,9 @@ message ClientMessage {
   int32 selectedCard = 53;
   bool openCardSelect = 54;
   bool rerollCard = 55;
+  int32 selectedUpgrade = 61;
+  bool openUpgradeSelect = 62;
+  bool closeUpgradeSelect = 63;
   bool skipMajorCard = 56;
   bool tutorialComplete = 57;
   int32 tutorialPanel = 58;
@@ -118,6 +121,8 @@ message Entity {
   map<int32, Buff> buffs = 21;
   int32 evolution = 22;
   map<int32, bool> possibleEvolutions = 23;
+  map<int32, bool> possibleUpgrades = 64;
+  repeated int32 currentUpgrades = 65;
   bool isAbilityAvailable = 24;
   bool abilityActive = 25;
   float abilityDuration = 26;
@@ -143,7 +148,7 @@ message Entity {
   int32 skin = 42;
 
   bool wideSwing = 43;
-  int32 coinShield = 44;
+  int32 coinShield = 44; // RESERVED: no longer sent (coin-shield mechanic removed); keep so tag 44 is never reused
 
   // Swing arc for Cleave card
   float swordSwingArc = 51;
@@ -161,4 +166,10 @@ message Entity {
   bool isTutorial = 56;
   bool swordRaising = 57;
   bool swordDecreasing = 58;
+  bool offhandRaising = 66;
+  bool offhandDecreasing = 67;
+  int32 activeSelection = 68;
+  int32 abilityCharges = 69;
+
+  // Sword block
 }

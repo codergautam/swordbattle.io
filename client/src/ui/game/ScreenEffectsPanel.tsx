@@ -32,7 +32,7 @@ const panelStyle: React.CSSProperties = {
   position: 'fixed', top: 70, right: 12, zIndex: 4,
   width: 230, padding: '10px 12px',
   background: 'rgba(15,17,22,0.92)', color: '#e7e7e7',
-  fontFamily: "'Rajdhani', sans-serif", fontSize: '12px', borderRadius: 8,
+  fontFamily: "'Saira', sans-serif", fontSize: '12px', borderRadius: 8,
   border: '1px solid rgba(255,255,255,0.12)', pointerEvents: 'auto',
   boxShadow: '0 4px 18px rgba(0,0,0,0.5)',
 };

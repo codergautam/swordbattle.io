@@ -139,8 +139,11 @@ class YetiMob extends Entity {
     if (entity === this.target) {
       const force = this.damage.value * this.movementTimer.progress;
       const knockback = force * 7;
-      entity.velocity.x -= knockback * Math.cos(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
-      entity.velocity.y -= knockback * Math.sin(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
+      const resist = (entity.knockbackResistance.value || 1);
+      const kbX = -knockback * Math.cos(this.angle - Math.PI) / resist;
+      const kbY = -knockback * Math.sin(this.angle - Math.PI) / resist;
+      entity.velocity.x += kbX;
+      entity.velocity.y += kbY;
       entity.damaged(force, this);
       this.velocity.scale(0);
     }
@@ -157,9 +160,7 @@ class YetiMob extends Entity {
 
     // Bots and shielded players always deal full damage
     if (this.definition.isBoss) {
-      const isBot = entity.isBot;
-      const isShielded = entity.coins < 500;
-      const bypassesMarkSystem = isBot || isShielded;
+      const bypassesMarkSystem = entity.isBot;
 
       if (!bypassesMarkSystem) {
         const currentTime = Date.now();

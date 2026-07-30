@@ -10,7 +10,6 @@ import Chat from './Chat';
 import MobileControls from './MobileControls';
 import CoinCounter from './CoinCounter';
 import TutorialOverlay from './TutorialOverlay';
-import ChestTimingBar from './ChestTimingBar';
 import { Settings } from '../Settings';
 
 class HUD {
@@ -27,7 +26,6 @@ class HUD {
   mobileControls: MobileControls;
   coinCounter: CoinCounter;
   tutorialOverlay: TutorialOverlay;
-  chestTimingBar: ChestTimingBar;
   components: any[];
   scale = 0.8;
   hidden = false;
@@ -46,12 +44,14 @@ class HUD {
     this.mobileControls = new MobileControls(this);
     this.coinCounter = new CoinCounter(this);
     this.tutorialOverlay = new TutorialOverlay(this);
-    this.chestTimingBar = new ChestTimingBar(this);
-    this.components = [this.minimap, this.stats, this.progressBar, this.evolutionSelect, this.cardSelect, this.cardSummary, this.upgradeButton, this.chat, this.mobileControls, this.coinCounter, this.tutorialOverlay, this.chestTimingBar];
+    this.components = [this.minimap, this.stats, this.progressBar, this.evolutionSelect, this.cardSelect, this.cardSummary, this.upgradeButton, this.chat, this.mobileControls, this.coinCounter, this.tutorialOverlay];
   }
 
   initialize() {
     this.scene = this.game.scene.add('HUD', {}, true) as Phaser.Scene;
+    if (this.game.isMobile) {
+      this.components = this.components.filter(c => c !== this.minimap);
+    }
     this.components.forEach(component => component.initialize());
 
     this.applyCrazyGamesSettings();
@@ -117,7 +117,7 @@ class HUD {
 
     const announcementText = this.scene.add.text(width / 2, yPos, text, {
       fontSize: `${Math.round(22 * this.scale)}px`,
-      fontFamily: 'Rajdhani, sans-serif',
+      fontFamily: 'Saira, sans-serif',
       color,
       stroke: '#000000',
       strokeThickness: 4,

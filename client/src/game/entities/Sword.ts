@@ -6,6 +6,7 @@ const {skins} = cosmetics;
 
 class Sword extends BaseEntity {
   static stateFields = [...BaseEntity.stateFields, 'size', 'isFlying', 'abilityActive', 'skin', 'skinName', 'pullbackParticles', 'swordBoomerangReturning']
+  private wasFlying = false;
 
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
@@ -21,8 +22,8 @@ class Sword extends BaseEntity {
     } else {
       this.skinName = 'playerSword';
     }
-    this.body = this.game.add.sprite(0, 0, this.skinName).setOrigin(-0.2, 0.5);
-    this.shadow = this.createOutlineShadow(this.skinName, -0.2, 0.5, { living: true });
+    this.body = this.game.add.sprite(0, 0, this.skinName).setOrigin(0.5, 0.5);
+    this.shadow = this.createOutlineShadow(this.skinName, 0.5, 0.5, { living: true });
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);
     (this.container as any).__ownVisibility = true;
     return this.container;
@@ -111,14 +112,25 @@ class Sword extends BaseEntity {
   }
 
   update(dt: number) {
+    const startedFlying = this.isFlying && !this.wasFlying;
     super.update(dt);
+    if (startedFlying) {
+      if ((this as any).posBuffer) (this as any).posBuffer.length = 0;
+      this.container.setPosition(this.shape.x, this.shape.y);
+    }
     this.container.setRotation(0);
 
     const scale = (this.size * 3) / this.body.width;
     this.body.setScale(scale);
     this.container.setVisible(this.isFlying);
-    let rotation = this.shape.angle - Math.PI / 4;
-    this.body.setRotation(rotation);
+    const target = this.shape.angle - Math.PI / 4;
+    if (!this.wasFlying) {
+      this.body.setRotation(target);
+    } else {
+      const cur = this.body.rotation;
+      this.body.setRotation(cur + Phaser.Math.Angle.Wrap(target - cur) * this.game.gameState.frameRotLerpRate);
+    }
+    this.wasFlying = this.isFlying;
     this.syncOutlineShadow(this.shadow, this.body);
 
     if (this.isFlying && this.abilityActive) {

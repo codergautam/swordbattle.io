@@ -27,6 +27,7 @@ class IceSpike extends Entity {
   }
 
   processTargetsCollision(player, response) {
+    if (player.modifiers?.dashNoclip) return;
     const mtv = this.shape.getCollisionOverlap(response);
     if (!player.modifiers?.ramThrow) {
       player.shape.applyCollision(mtv);

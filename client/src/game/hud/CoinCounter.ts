@@ -27,14 +27,14 @@ class CoinCounter extends HudComponent {
   private coinTween?: Phaser.Tweens.Tween;
 
   private makeRow(key: string, iconKey: string): Row {
-    const panel = new Phaser.GameObjects.Graphics(this.game);
-    const icon = new Phaser.GameObjects.Image(this.game, 0, 0, iconKey).setOrigin(0, 0.5);
+    const panel = this.game.add.graphics();
+    const icon = this.game.add.image(0, 0, iconKey).setOrigin(0, 0.5);
     icon.setDisplaySize(ICON, ICON);
-    const text = new Phaser.GameObjects.Text(this.game, 0, 0, '0', {
-      fontFamily: "'Rajdhani', sans-serif", fontStyle: '700',
+    const text = this.game.add.text(0, 0, '0', {
+      fontFamily: "'Saira', sans-serif", fontStyle: '700',
       fontSize: '34px', color: '#ffffff', stroke: '#000000', strokeThickness: 4,
     }).setOrigin(0, 0.5);
-    const container = new Phaser.GameObjects.Container(this.game, 0, 0, [panel, icon, text]);
+    const container = this.game.add.container(0, 0, [panel, icon, text]);
     return { key, container, panel, icon, text, visible: true, last: 0, shownW: -1 };
   }
 
@@ -44,8 +44,9 @@ class CoinCounter extends HudComponent {
       this.makeRow('kills', 'kill'),
       this.makeRow('ultimacy', 'mastery'),
     ];
-    this.container = new Phaser.GameObjects.Container(this.game, 0, 0, this.rows.map((r) => r.container));
+    this.container = this.game.add.container(0, 0, this.rows.map((r) => r.container));
     this.hud.add(this.container);
+    this.layout();
   }
 
   resize() {

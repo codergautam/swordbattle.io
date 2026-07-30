@@ -141,11 +141,12 @@ class AncientMob extends Entity {
 
     const angle = helpers.angle(this.shape.x, this.shape.y, entity.shape.x, entity.shape.y);
     if (this.target && entity.id === this.target.id) {
-      entity.damaged(this.damage.value, this);
-
       this.velocity.scale(-0.5);
-      entity.velocity.x += 75 * Math.cos(angle);
-      entity.velocity.y += 75 * Math.sin(angle);
+      const kbX = 75 * Math.cos(angle);
+      const kbY = 75 * Math.sin(angle);
+      entity.velocity.x += kbX;
+      entity.velocity.y += kbY;
+      entity.damaged(this.damage.value, this);
 
       this.shape.applyCollision(mtv);
       entity.shape.applyCollision(mtv.clone().scale(-1));
@@ -164,10 +165,8 @@ class AncientMob extends Entity {
       finalDamage *= entity.modifiers.mobPower;
     }
 
-    // Bots and shielded players always deal full damage
-    const isBot = entity.isBot;
-    const isShielded = entity.coins < 500;
-    const bypassesMarkSystem = isBot || isShielded;
+    // Bots always deal full damage
+    const bypassesMarkSystem = entity.isBot;
 
     if (!bypassesMarkSystem) {
       const currentTime = Date.now();

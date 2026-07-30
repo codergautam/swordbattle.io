@@ -312,6 +312,7 @@ class Game {
       const raw = data.chestHitZone;
       player.reportedChestZone = raw & 7;
       player.reportedChestCombo = raw >= 8 ? Math.max(1, Math.min(2, (raw >> 3) / 100)) : 1;
+      player.reportedChestAt = Date.now();
     }
     if (data.angle && !isNaN(data.angle)) {
       player.angle = Number(data.angle);
@@ -329,6 +330,15 @@ class Game {
         player.evolutions.upgrade(data.selectedEvolution);
       } catch (err) {
         console.error('Failed to process selectedEvolution:', data.selectedEvolution, err);
+      }
+    }
+    if (data.selectedUpgrade) {
+      try {
+        if (player.upgrades.select(data.selectedUpgrade)) {
+          player.evolutions.skipForUpgrade();
+        }
+      } catch (err) {
+        console.error('Failed to process selectedUpgrade:', data.selectedUpgrade, err);
       }
     }
     if (data.selectedCard) {
@@ -350,12 +360,10 @@ class Game {
       player.cards.isTutorial = false;
       player.cards.instantSelect = false;
       player.cards.rerollsAvailable = 1;
-      player.coinShield = 500;
       client.tutorialCompleted = true;
     }
     if (data.tutorialPanel !== undefined && data.tutorialPanel !== null) {
       if (data.tutorialPanel === 4 && player.cards.isTutorial) {
-        player.coinShield = 500;
         player.cards.isTutorial = false;
         player.respawnShieldFadeActive = true;
         player.respawnShieldFadeTimer = 8;
@@ -562,12 +570,11 @@ class Game {
     }
     this.players.add(player);
 
-    const isTutorial = player.isFirstLife && !client.tutorialCompleted;
+    const isTutorial = false;
     if (isTutorial) {
       player.cards.isTutorial = true;
       player.cards.instantSelect = true;
       player.cards.rerollsAvailable = 0;
-      player.coinShield = 999999; // during tutorial
       this.map.spawnPlayer(player);
       player.inSafezone = true;
       client.pendingRespawn = null;
@@ -651,6 +658,7 @@ class Game {
     if (!this.entities.has(entity?.id)) return;
 
     if (entity.sword) this.removeEntity(entity.sword);
+    if (entity.offhandSword) this.removeEntity(entity.offhandSword);
     this.entities.delete(entity?.id);
     this.players.delete(entity);
     this.newEntities.delete(entity);

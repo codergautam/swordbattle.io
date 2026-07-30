@@ -56,7 +56,7 @@ class Stats extends HudComponent {
   private mkRow(iconKey: string, y: number): StatRow {
     const icon = this.game.add.image(0, y + row / 2, iconKey).setOrigin(0, 0.5).setDisplaySize(ICON, ICON);
     const text = this.game.add.text(ICON + 7, y + row / 2, '', {
-      fontSize: 15, fontFamily: "'Rajdhani', sans-serif", fontStyle: '700',
+      fontSize: 15, fontFamily: "'Saira', sans-serif", fontStyle: '700',
       color: '#ffffff', stroke: '#000000', strokeThickness: 3,
     }).setOrigin(0, 0.5);
     return { icon, text };
@@ -67,7 +67,7 @@ class Stats extends HudComponent {
     ensureIconTextures(this.hud.scene);
 
     this.gear = this.hud.scene.add.text(0, 0, '⚙', {
-      fontSize: 20, fontFamily: "'Rajdhani', sans-serif", color: getTheme().accent, stroke: '#000000', strokeThickness: 3,
+      fontSize: 20, fontFamily: "'Saira', sans-serif", color: getTheme().accent, stroke: '#000000', strokeThickness: 3,
     }).setOrigin(0, 0).setInteractive({ useHandCursor: true });
     this.gear.on('pointerover', () => this.gear.setColor('#ffffff'));
     this.gear.on('pointerout', () => this.gear.setColor(getTheme().accent));
@@ -89,7 +89,7 @@ class Stats extends HudComponent {
 
     if (perfStats.enabled) {
       this.perfText = this.game.add.text(0, top + row * 4 + 2, '', {
-        fontSize: 13, fontFamily: "'Rajdhani', sans-serif", fontStyle: '700',
+        fontSize: 13, fontFamily: "'Saira', sans-serif", fontStyle: '700',
         color: '#7fd6ff', stroke: '#000000', strokeThickness: 3,
       }).setOrigin(0, 0.5);
       this.container.add(this.perfText);

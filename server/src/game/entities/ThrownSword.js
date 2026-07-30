@@ -31,8 +31,8 @@ class ThrownSword extends Entity {
 
   _updateCollisionPoly() {
     const s = this.size;
-    const cx = -0.35 * s;
-    const cy = 1.25 * s;
+    const cx = 0.35 * s;
+    const cy = -1.25 * s;
     const newPoints = [
       new SAT.Vector(0 - cx, 0 - cy),
       new SAT.Vector(-0.14615384615384616 * s - cx, -1.7769230769230768 * s - cy),
@@ -67,6 +67,7 @@ class ThrownSword extends Entity {
     const angle = Math.atan2(entity.shape.y - this.shape.y, entity.shape.x - this.shape.x);
     let power = this.knockbackPower / (entity.knockbackResistance?.value || 1);
     power = Math.max(Math.min(power, 300), 50);
+
     entity.velocity.x += power * Math.cos(angle);
     entity.velocity.y += power * Math.sin(angle);
 
@@ -91,6 +92,7 @@ class ThrownSword extends Entity {
     if (this.owner && this.owner.flags) {
       this.owner.flags.set(Types.Flags.EnemyHit, entity.id);
     }
+
   }
 
   createState() {

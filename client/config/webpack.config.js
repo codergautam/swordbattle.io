@@ -198,10 +198,7 @@ module.exports = function (webpackEnv) {
         ? 'source-map'
         : false
       : isEnvDevelopment && 'cheap-module-source-map',
-    // externals: phaser and chart.js (they are available in the global scope and do not need to be bundled)
-    externals: {
-      phaser: 'Phaser',
-    },
+    externals: {},
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
     entry: paths.appIndexJs,

@@ -10,12 +10,15 @@ const BurningEffect = require('../effects/BurningEffect');
 const SlidingKnockbackEffect = require('../effects/SlidingKnockbackEffect');
 const StunEffect = require('../effects/StunEffect');
 const SlowEffect = require('../effects/SlowEffect');
+const SilenceEffect = require('../effects/SilenceEffect');
+const RadarSlowEffect = require('../effects/RadarSlowEffect');
 const LevelSystem = require('../components/LevelSystem');
 const Property = require('../components/Property');
 const Viewport = require('../components/Viewport');
 const Health = require('../components/Health');
 const Timer = require('../components/Timer');
 const EvolutionSystem = require('../evolutions');
+const UpgradeSystem = require('../upgrades');
 const CardSystem = require('../components/CardSystem');
 const Types = require('../Types');
 const config = require('../../config');
@@ -71,7 +74,6 @@ class Player extends Entity {
     this.mouse = null;
     this.targets.add(Types.Entity.Player);
     this.skin = skins.player.id;
-    this.coinShield = 500;
 
     const { speed, radius, maxHealth, regeneration, viewport } = config.player;
     this.shape = Circle.create(0, 0, radius);
@@ -96,8 +98,11 @@ class Player extends Entity {
     this.flags = new Map();
     this.sword = new Sword(this);
     this.game.addEntity(this.sword);
+    this.offhandSword = null;
+    this.mainWasRaising = false;
     this.levels = new LevelSystem(this);
     this.evolutions = new EvolutionSystem(this);
+    this.upgrades = new UpgradeSystem(this);
     this.tamedEntities = new Set();
 
     this.cards = new CardSystem(this);
@@ -123,7 +128,6 @@ class Player extends Entity {
     this.chatMessageTimer = new Timer(0, 3);
 
     this.combatLog = new Map();
-    this.teamDisadvantage = null;
 
     this.hypnotizedBy = null;
   }
@@ -169,10 +173,20 @@ class Player extends Entity {
     state.possibleEvolutions = {};
     this.evolutions.possibleEvols.forEach(evol => state.possibleEvolutions[evol] = true);
 
+    state.possibleUpgrades = {};
+    this.upgrades.possibleUpgrades.forEach(up => state.possibleUpgrades[up] = true);
+    state.currentUpgrades = [...this.upgrades.acquiredIds];
+
     state.isAbilityAvailable = this.evolutions.evolutionEffect.isAbilityAvailable;
     state.abilityActive = this.evolutions.evolutionEffect.isAbilityActive;
     state.abilityDuration = this.evolutions.evolutionEffect.durationTime;
     state.abilityCooldown = this.evolutions.evolutionEffect.cooldownTime;
+    {
+      const ee = this.evolutions.evolutionEffect;
+      if (ee && ee._castleCharges != null && ee._castleCharges < 2 && !ee.isAbilityActive) {
+        state.abilityCooldown = Math.max(0, 8 - (ee._castleRecharge || 0));
+      }
+    }
 
     state.viewportZoom = this.viewport.zoom.value;
     state.chatMessage = this.chatMessage;
@@ -183,11 +197,15 @@ class Player extends Entity {
     state.swordSwingDuration = this.sword.swingDuration.value;
     state.swordRaising = this.sword.raiseAnimation;
     state.swordDecreasing = this.sword.decreaseAnimation;
+    state.offhandRaising = this.offhandSword ? this.offhandSword.raiseAnimation : false;
+    state.offhandDecreasing = this.offhandSword ? this.offhandSword.decreaseAnimation : false;
+    state.activeSelection = this.evolutions.activeSelectionLevel() || 0;
+    const ee = this.evolutions.evolutionEffect;
+    state.abilityCharges = (ee && ee._castleCharges != null) ? ee._castleCharges : -1;
     state.swordFlying = this.sword.isFlying;
     state.swordFlyingCooldown = this.sword.flyCooldownTime;
     state.swordBoomerangReturning = this.sword.boomerangReturning;
     state.wideSwing = this.wideSwing;
-    state.coinShield = this.coinShield;
     if (this.removed && this.client) {
       state.disconnectReasonMessage = this.client.disconnectReason.message;
       state.disconnectReasonType = this.client.disconnectReason.type;
@@ -231,55 +249,51 @@ class Player extends Entity {
       }
     }
 
-    const now = Date.now();
-    if (this.teamDisadvantage && now < this.teamDisadvantage.expiry && !this.isBot) {
-      const encoded = this.teamDisadvantage.enemyTeam * 10 + this.teamDisadvantage.myTeam;
-      this.flags.set(Types.Flags.AntiTeamActive, encoded);
-    }
-
     this.levels.applyBuffs();
     this.cards.update(dt);
     this.cards.applyCardEffects();
 
-    if (this.teamDisadvantage && now < this.teamDisadvantage.expiry && !this.isBot) {
-      const ratio = this.teamDisadvantage.myTeam / this.teamDisadvantage.enemyTeam;
-      this.health.regenWait.multiplier *= Math.max(0.15, ratio);
-      this.speed.multiplier *= 1 + 0.15 * (1 - ratio);
-      this.sword.knockback.multiplier['antiteam_victim'] = 1 + 0.5 * (1 - ratio);
-    }
-
-    if (!this.isBot) {
-      for (const [targetId, log] of this.combatLog) {
-        const totalCombat = log.damageDealt + log.damageReceived;
-        if (totalCombat < 5) continue;
-        const target = this.game.entities.get(targetId);
-        if (!target || target.removed || target.type !== Types.Entity.Player) continue;
-        const dx = target.shape.x - this.shape.x;
-        const dy = target.shape.y - this.shape.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > 2000) continue;
-        const mx = this.movedDistance.x;
-        const my = this.movedDistance.y;
-        if (mx === 0 && my === 0) continue;
-        const dot = mx * dx + my * dy;
-        if (dot > 0 && dot * dot > 0.25 * (mx * mx + my * my) * (dx * dx + dy * dy)) {
-          this.speed.multiplier *= 1.08;
-          break;
-        }
-      }
-    }
-
     this.effects.forEach(effect => effect.update(dt));
+    this.upgrades.update(dt);
+    if (this._blindUntil && Date.now() < this._blindUntil) {
+      this.flags.set(Types.Flags.Blinded, 1);
+    }
     if (!this.cards.choosingCard || !this.cards.instantSelect) {
       this.health.update(dt);
     }
+
     this.applyInputs(dt);
     this.sword.flySpeed.value = clamp(this.speed.value / 10, 100, 200);
     this.sword.update(dt);
 
+    if (this.offhandSword) {
+      this.offhandSword.swingDuration.baseValue = this.sword.swingDuration.value;
+      this.offhandSword.swingDuration.multiplier = { default: 1 };
+      this.offhandSword.swingDuration.boost = 0;
+      this.offhandSword.damage.baseValue = this.sword.damage.value;
+      this.offhandSword.damage.multiplier = 1;
+      this.offhandSword.flySpeed.value = this.sword.flySpeed.value;
+      this.offhandSword.swingArc = this.sword.swingArc;
+      this.offhandSword.knockback.baseValue = this.sword.knockback.value;
+      this.offhandSword.knockback.multiplier = { default: 1 };
+      this.offhandSword.knockback.boost = 0;
+
+      const holding = this.inputs.isInputDown(Types.Input.SwordSwing)
+        && Date.now() >= (this._bsThrowUntil || 0);
+      const bothIdle = this.sword.isAnimationFinished && this.offhandSword.isAnimationFinished;
+      if (holding && bothIdle) {
+        if ((this.bsTurn || 0) === 0) { this.sword.swingRequested = true; this.bsTurn = 1; }
+        else { this.offhandSword.swingRequested = true; this.bsTurn = 0; }
+      }
+
+      this.offhandSword.update(dt);
+    }
+
     if (this.inputs.isInputDown(Types.Input.Ability) && this.evolutions.evolutionEffect.canActivateAbility && !this.modifiers.stunned) {
       this.evolutions.evolutionEffect.activateAbility();
     }
+
+    this.evolutions.update();
 
     this.viewport.zoom.multiplier /= this.shape.scaleRadius.multiplier;
 
@@ -351,10 +365,12 @@ class Player extends Entity {
   processTargetsCollision(entity, response) {
     if (this.cards.choosingCard && this.cards.instantSelect) return;
 
+    if (this.modifiers.dashNoclip) return;
+
     if (this.modifiers.ramThrow && this.sword.isFlying) {
       return
     } else {
-      const selfWeight = this.weight;
+      const selfWeight = this.modifiers.immovable ? 1e9 : this.weight;
       const targetWeight = entity.weight;
       const totalWeight = selfWeight + targetWeight;
 
@@ -364,6 +380,14 @@ class Player extends Entity {
 
       this.shape.applyCollision(selfMtv);
       entity.shape.applyCollision(targetMtv);
+
+      if (this.modifiers.overrun && entity.type === Types.Entity.Player && entity.velocity) {
+        const dx = entity.shape.x - this.shape.x, dy = entity.shape.y - this.shape.y;
+        const d = Math.hypot(dx, dy) || 1;
+        const push = 320;
+        entity.velocity.x += (dx / d) * push;
+        entity.velocity.y += (dy / d) * push;
+      }
     }
   }
 
@@ -524,6 +548,8 @@ class Player extends Entity {
     const origDamage = damage;
     damage *= this.damageReduction;
 
+    if (isThrown && this.modifiers.blockThrown) damage = 0;
+
     const cardDmgMult = this.cards.onDamaged(damage, entity);
     damage *= cardDmgMult;
 
@@ -536,25 +562,25 @@ class Player extends Entity {
 
 
     if (entity && entity.type === Types.Entity.Player && !this.isBot && !entity.isBot) {
-      const attackerCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
-      const defenderCoins = (this.levels && typeof this.levels.coins === 'number') ? this.levels.coins : 0;
-      const shieldThreshold = this.coinShield || 500;
-
-      if (attackerCoins >= shieldThreshold && defenderCoins >= shieldThreshold) {
-        if (!this.combatLog.has(entity.id)) {
-          this.combatLog.set(entity.id, { damageDealt: 0, damageReceived: 0 });
-        }
-        this.combatLog.get(entity.id).damageReceived += damage;
-
-        if (!entity.combatLog.has(this.id)) {
-          entity.combatLog.set(this.id, { damageDealt: 0, damageReceived: 0 });
-        }
-        entity.combatLog.get(this.id).damageDealt += damage;
+      if (!this.combatLog.has(entity.id)) {
+        this.combatLog.set(entity.id, { damageDealt: 0, damageReceived: 0 });
       }
+      this.combatLog.get(entity.id).damageReceived += damage;
+
+      if (!entity.combatLog.has(this.id)) {
+        entity.combatLog.set(this.id, { damageDealt: 0, damageReceived: 0 });
+      }
+      entity.combatLog.get(this.id).damageDealt += damage;
     }
 
     if (this.name !== "Update Testing Account") {
-      this.health.damaged(damage);
+      let source = 'map';
+      if (entity && entity.type === Types.Entity.Player) {
+        source = isThrown ? 'throw' : 'melee';
+      } else if (entity && Types.Groups.Mobs.includes(entity.type)) {
+        source = 'mob';
+      }
+      this.health.damaged(damage, { source });
     }
 
     if (this.cards.isTutorial && this.health.isDead) {
@@ -571,6 +597,7 @@ class Player extends Entity {
         //
       }
     }
+    if (this.upgrades) this.upgrades.hook('onDamaged', entity, damage, isThrown);
 
 
     if (this.health.isDead) {
@@ -630,6 +657,8 @@ class Player extends Entity {
       case Types.Effect.SlidingKnockback: EffectClass = SlidingKnockbackEffect; break;
       case Types.Effect.Stun: EffectClass = StunEffect; break;
       case Types.Effect.Slow: EffectClass = SlowEffect; break;
+      case Types.Effect.Silenced: EffectClass = SilenceEffect; break;
+      case Types.Effect.RadarSlow: EffectClass = RadarSlowEffect; break;
     }
 
     if (!id) id = Math.random();
@@ -644,7 +673,7 @@ class Player extends Entity {
   addChatMessage(message) {
     if (message.length === '') return;
 
-    const originalMessage = message.slice(0, 35);
+    const originalMessage = message.slice(0, 60);
     const result = filterChatMessage(originalMessage, filter);
     this.chatMessage = result.filtered;
     this.chatMessageTimer.renew();
@@ -767,9 +796,21 @@ class Player extends Entity {
   }
 
 
+  createOffhandSword() {
+    if (this.offhandSword) return this.offhandSword;
+    const s = new Sword(this);
+    s.handSign = -1;
+    s.autoOnly = true;
+    s.skin = this.skin;
+    this.offhandSword = s;
+    this.game.addEntity(s);
+    return s;
+  }
+
   cleanup() {
     super.cleanup();
     this.sword.cleanup();
+    if (this.offhandSword) this.offhandSword.cleanup();
     this.flags.clear();
     this.modifiers = {};
 

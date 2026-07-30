@@ -108,8 +108,11 @@ class MooseMob extends Entity {
       if (this.attackTimer.finished) {
         const force = this.damage.value * this.movementTimer.progress;
         const knockback = force * 20;
-        entity.velocity.x -= knockback * Math.cos(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
-        entity.velocity.y -= knockback * Math.sin(this.angle - Math.PI) / (entity.knockbackResistance.value || 1);
+        const resist = (entity.knockbackResistance.value || 1);
+        const kbX = -knockback * Math.cos(this.angle - Math.PI) / resist;
+        const kbY = -knockback * Math.sin(this.angle - Math.PI) / resist;
+        entity.velocity.x += kbX;
+        entity.velocity.y += kbY;
         entity.damaged(force, this);
         this.attackTimer.renew();
       }

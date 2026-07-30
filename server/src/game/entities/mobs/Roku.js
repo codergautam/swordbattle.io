@@ -125,10 +125,7 @@ class RokuMob extends Entity {
       finalDamage *= entity.modifiers.mobPower;
     }
 
-    // Bots and shielded players always deal full damage
-    const isBot = entity.isBot;
-    const isShielded = entity.coins < 500;
-    const bypassesMarkSystem = isBot || isShielded;
+    const bypassesMarkSystem = entity.isBot;
 
     if (!bypassesMarkSystem) {
       const currentTime = Date.now();

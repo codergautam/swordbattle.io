@@ -100,6 +100,9 @@ class Entity {
 
   overlapsSpacing() {
     const rThis = this.approxRadius(this.shape);
+    const bT = this.shape.boundary;
+    const cxT = bT ? bT.x + bT.width / 2 : this.shape.x;
+    const cyT = bT ? bT.y + bT.height / 2 : this.shape.y;
     for (const [, e] of this.game.entities) {
       if (e === this || !e.shape) continue;
       let avoid = e.spacingGroup;
@@ -107,8 +110,11 @@ class Entity {
       if (!avoid && this.avoidPickups
         && (e.type === Types.Entity.Coin || e.type === Types.Entity.Token)) avoid = true;
       if (!avoid) continue;
-      const dx = e.shape.x - this.shape.x;
-      const dy = e.shape.y - this.shape.y;
+      const be = e.shape.boundary;
+      const cxe = be ? be.x + be.width / 2 : e.shape.x;
+      const cye = be ? be.y + be.height / 2 : e.shape.y;
+      const dx = cxe - cxT;
+      const dy = cye - cyT;
       const minD = rThis + this.approxRadius(e.shape) + this.spawnGap + (e.spawnGap || 0);
       if (dx * dx + dy * dy < minD * minD) return true;
     }
@@ -132,7 +138,7 @@ class Entity {
         || (this.needsCoastClearance && this.tooCloseToCoast())
       )) {
         tries += 1;
-        if (this.needsCoastClearance && this.sampleLandSpawn()) continue;
+        if (this.needsCoastClearance && this.sampleLandSpawn() && this.fullyInsideSpawnZone()) continue;
         this.spawnZone.randomSpawnInside(this.shape);
       }
       if (this.crossesWorldBorder() || !this.fullyInsideSpawnZone()) {
@@ -142,6 +148,9 @@ class Entity {
         this.spawnFailed = true;
       }
       if (this.discardIfBlocked && doSpacing && this.overlapsSpacing()) {
+        this.spawnFailed = true;
+      }
+      if (this.inNoBuildZone() || this.collidesWithForbidden(1, false)) {
         this.spawnFailed = true;
       }
     } else if (Array.isArray(this.definition.position)) {

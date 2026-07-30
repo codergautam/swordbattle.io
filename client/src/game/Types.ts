@@ -63,7 +63,6 @@ export enum FlagTypes {
   GetToken = 13,
   ShockwaveHit = 14,
   RespawnShield = 15,
-  AntiTeamActive = 16,
   Hypnotized = 17,
   DiscoFieldActive = 18,
   FirstLife = 19,
@@ -76,6 +75,15 @@ export enum FlagTypes {
   FootstepStone = 26,
   FootstepWater = 27,
   ContestedObject = 28,
+  RadarPulse = 29,
+  Silenced = 30,
+  EliteCombo = 31,
+  OreHit = 32,
+  OreDestroy = 33,
+  Upgraded = 34,
+  Blinded = 35,
+  FighterBoost = 36,
+  ArcherCombo = 37,
 }
 
 export enum EvolutionTypes {
@@ -114,6 +122,38 @@ export enum EvolutionTypes {
   Medic = 32,
   Disco = 33,
   Butcher = 34,
+  Assassin = 35,
+  Elite = 36,
+  Tracker = 37,
+}
+
+export enum UpgradeTypes {
+  None = 0,
+  Toughened = 1, Footwork = 2,
+  ClasslessAbility = 3, Handling = 4,
+  Lavacopy = 5, Pacifist = 6,
+  Collector = 7, Battleswords = 8,
+  Momentum = 10, Gale = 11,
+  Lunge = 12, Riposte = 13,
+  Striketwice = 14, Twothrow = 15,
+  Overrun = 20, Charging = 21,
+  Recovery = 22, Blocker = 23,
+  Spikes = 24, Kinesis = 25,
+  Adapting = 30, Normalize = 31,
+  Transfer = 32, Haste = 33,
+  Sanguine = 40, Lifetaker = 41,
+  Deathsender = 42, Vitality = 43,
+  Ramming = 50, Teleport = 51,
+  KingRook = 52, Castle = 53,
+  Iaido = 60, Meditation = 61,
+  Katana = 62, Kunais = 63,
+  ArcherCombo = 70, Homing = 71,
+  Deflect = 72, Pacing = 73,
+  TwoBoost = 74, Flighter = 75,
+  Slam = 76, Fortress = 77,
+  Blindness = 78, Vision = 79,
+  Sardines = 80, Brace = 81,
+  Hunter = 82, Offense = 83,
 }
 
 export enum BuffTypes {

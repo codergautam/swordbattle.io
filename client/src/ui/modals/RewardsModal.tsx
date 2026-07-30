@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { AccountState, claimDailyLoginAsync } from '../../redux/account/slice';
 
@@ -129,7 +129,11 @@ function getStreakColor(streak: number): React.CSSProperties {
   } as React.CSSProperties;
 }
 
-const daysPerPage = 35;
+function calcDaysPerPage(): number {
+  const b = typeof document !== 'undefined' ? document.body.classList : null;
+  if (b && b.contains('sb-mobile')) return b.contains('sb-landscape') ? 28 : 20;
+  return 35;
+}
 
 const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
   const dispatch = useDispatch();
@@ -142,8 +146,22 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
   const playtimeSeconds = dl.playtime || 0;
   const playtimeMinutes = Math.floor(playtimeSeconds / 60);
 
-  const [page, setPage] = useState(() => Math.floor(Math.max(0, claimableTo - 1) / daysPerPage));
+  const [daysPerPage, setDaysPerPage] = useState(calcDaysPerPage);
+  const [page, setPage] = useState(() => Math.floor(Math.max(0, claimableTo - 1) / calcDaysPerPage()));
   const [claiming, setClaiming] = useState(false);
+
+  useEffect(() => {
+    const on = () => {
+      const n = calcDaysPerPage();
+      setDaysPerPage((prev) => {
+        if (prev !== n) setPage(Math.floor(Math.max(0, claimableTo - 1) / n));
+        return n;
+      });
+    };
+    window.addEventListener('resize', on);
+    window.addEventListener('orientationchange', on);
+    return () => { window.removeEventListener('resize', on); window.removeEventListener('orientationchange', on); };
+  }, [claimableTo]);
 
   const pageStart = page * daysPerPage + 1;
   const pageEnd = pageStart + daysPerPage - 1;

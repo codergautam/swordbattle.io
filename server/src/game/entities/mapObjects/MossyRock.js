@@ -4,7 +4,8 @@ const Types = require('../../Types');
 
 class MossyRock extends Entity {
   static defaultDefinition = {
-    forbiddenBiomes: [Types.Biome.Safezone],
+    forbiddenBiomes: [Types.Biome.Safezone, Types.Biome.TutorialZone],
+    spawnBuffer: 250,
     forbiddenEntities: [Types.Entity.House1],
   };
 
@@ -24,6 +25,7 @@ class MossyRock extends Entity {
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.modifiers?.dashNoclip) return;
     if (entity.type === Types.Entity.Sword && !entity.canCollide(entity)) return;
 
     const selfWeight = this.weight;

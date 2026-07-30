@@ -1,7 +1,7 @@
 import './ConnectionError.scss';
 
 export default function ConnectionError({ reason = 'Connection failed' }: any) {
-  const reload = () => window.location.reload();
+  const reload = () => { window.onbeforeunload = null; window.location.reload(); };
   return (
     <div className="panel content" style={{ zIndex: 100000 }}>
       <h2>Oops!</h2>

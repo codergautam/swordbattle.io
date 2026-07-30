@@ -1,12 +1,10 @@
 import { BaseEntity } from '../BaseEntity';
-import { TreeShake, shake } from '../../effects/TreeShake';
 
 class Cactus extends BaseEntity {
   static stateFields = [...BaseEntity.stateFields, 'size'];
 
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
-  private shake?: TreeShake;
 
   createSprite() {
     this.body = this.game.add.sprite(0, 0, 'cactus').setOrigin(0.5, 0.5);
@@ -15,7 +13,6 @@ class Cactus extends BaseEntity {
     this.shadow = this.createOutlineShadow('cactus', 0.5, 0.5);
     this.syncOutlineShadow(this.shadow, this.body);
     this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.body]);
-    this.shake = new TreeShake(this, this.body, this.shadow, shake.none);
     return this.container;
   }
 
@@ -23,7 +20,6 @@ class Cactus extends BaseEntity {
 
   update(dt: number) {
     super.update(dt);
-    this.shake?.update(dt);
   }
 }
 

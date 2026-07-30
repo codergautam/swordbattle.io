@@ -22,7 +22,7 @@ export const skinBodyScales: { [id: number]: number } = {
   400: 1.4,
   200: 1.1,
   446: 1.1666,
-  194: 1.1
+  194: 1.1,
 };
 
 export function getSkinScale(id: number): number {

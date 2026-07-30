@@ -47,6 +47,7 @@
     "mini-css-extract-plugin": "^2.4.5",
     "phaser": "^3.60.0",
     "phaser3-rex-plugins": "^1.60.2",
+    "pixi.js": "7",
     "postcss": "^8.4.4",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^6.2.1",

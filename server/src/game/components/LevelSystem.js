@@ -137,9 +137,6 @@ class LevelSystem {
     let sizeBuffsNeeded = levels[this.level].scale - levels[this.level-1].scale;
     if(!sizeBuffsNeeded) sizeBuffsNeeded = 0;
     this.addSizeBuff(sizeBuffsNeeded);
-
-    // Queue a card pick instead of granting upgrade points
-    this.player.cards.queueCardPick();
   }
 }
 

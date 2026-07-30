@@ -24,7 +24,7 @@ class ProgressBar extends HudComponent {
   killStreak = 0;
   lastKillTime = 0;
   lastEntityStabId = 0;
-  currentProtectionMessage: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'respawnShieldFading' | 'captureZone' | 'tutorial' | 'contested' = 'none';
+  currentProtectionMessage: 'none' | 'safezone' | 'respawnShield' | 'respawnShieldFading' | 'captureZone' | 'tutorial' | 'contested' = 'none';
   isBurning = false;
   isHypnotized = false;
 
@@ -39,7 +39,7 @@ class ProgressBar extends HudComponent {
 
     this.levelText = this.game.add.text(this.width / 2, this.height / 2, '', {
       fontSize: 19,
-      fontFamily: "'Rajdhani', sans-serif",
+      fontFamily: "'Saira', sans-serif",
       fontStyle: '700',
       color: '#ffffff',
       stroke: '#000000',
@@ -48,7 +48,7 @@ class ProgressBar extends HudComponent {
 
     this.inSafezoneMessage = this.game.add.text(this.width / 2, -22, 'You are protected: you are in the safezone', {
       fontSize: 22,
-      fontFamily: "'Rajdhani', sans-serif",
+      fontFamily: "'Saira', sans-serif",
       fontStyle: '700',
       stroke: '#000000',
       strokeThickness: 6,
@@ -56,7 +56,7 @@ class ProgressBar extends HudComponent {
 
     this.levelUpText = this.game.add.text(this.width / 2, -this.game.scale.height / 5, '', {
       fontSize: 50,
-      fontFamily: "'Rajdhani', sans-serif",
+      fontFamily: "'Saira', sans-serif",
       fontStyle: '700',
       stroke: '#000000',
       strokeThickness: 6,
@@ -64,7 +64,7 @@ class ProgressBar extends HudComponent {
 
     this.stabbedText = this.game.add.text(this.width / 2, this.game.scale.height, '', {
       fontSize: 50,
-      fontFamily: "'Rajdhani', sans-serif",
+      fontFamily: "'Saira', sans-serif",
       fontStyle: '700',
       color: '#f23838',
       stroke: '#000000',
@@ -73,7 +73,7 @@ class ProgressBar extends HudComponent {
 
     this.burningText = this.game.add.text(this.width / 2, -56, 'Burning!', {
       fontSize: 24,
-      fontFamily: "'Rajdhani', sans-serif",
+      fontFamily: "'Saira', sans-serif",
       fontStyle: '700',
       color: '#ff4444',
       stroke: '#000000',
@@ -325,7 +325,7 @@ class ProgressBar extends HudComponent {
       }
     }
 
-    let desiredProtectionState: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'respawnShieldFading' | 'captureZone' | 'tutorial' | 'contested' = 'none';
+    let desiredProtectionState: 'none' | 'safezone' | 'respawnShield' | 'respawnShieldFading' | 'captureZone' | 'tutorial' | 'contested' = 'none';
     if (player.flags[FlagTypes.ContestedObject]) {
       desiredProtectionState = 'contested';
     } else if ((player as any).isTutorial) {
@@ -336,8 +336,6 @@ class ProgressBar extends HudComponent {
       desiredProtectionState = 'respawnShield';
     } else if (player.biome === BiomeTypes.Safezone) {
       desiredProtectionState = 'safezone';
-    } else if (player.coins < 500) {
-      desiredProtectionState = 'collect';
     } else if (inCaptureZone) {
       desiredProtectionState = 'captureZone';
     }
@@ -385,14 +383,6 @@ class ProgressBar extends HudComponent {
           alpha: 1,
           duration: 200,
         });
-      } else if (desiredProtectionState === 'collect' && !isMobile) {
-        this.inSafezoneMessage.setColor('#66ff66');
-        this.inSafezoneMessage.setText(`You are fully protected — collect ${Math.max(0, 500 - player.coins)} more coins to start fighting`);
-        this.game.tweens.add({
-          targets: [this.inSafezoneMessage],
-          alpha: 1,
-          duration: 200,
-        });
       } else if (desiredProtectionState === 'captureZone' && !isMobile) {
         this.inSafezoneMessage.setColor('#ffd700');
         this.inSafezoneMessage.setText('You are capturing coins: taking slight damage over time');
@@ -423,8 +413,6 @@ class ProgressBar extends HudComponent {
           onComplete: switchProtectionMessage,
         });
       }
-    } else if (desiredProtectionState === 'collect' && !this.game.isMobile) {
-      this.inSafezoneMessage.setText(`You are protected: collect ${Math.max(0, 500 - player.coins)} more coins to start fighting`);
     }
 
     const isCurrentlyBurning = !!player.flags[FlagTypes.LavaDamaged];

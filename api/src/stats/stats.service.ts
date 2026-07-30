@@ -37,6 +37,12 @@ export class StatsService {
     let mastery = data.mastery;
     let tokens = data.tokens;
     await this.accountsService.addGems(account, gems, "game");
+
+    if (gems > 0) {
+      account.dailyLogin = { ...account.dailyLogin, pendingGemBonus: { amount: gems, at: Date.now() } };
+      await this.accountsService.saveAccount(account);
+    }
+
     await this.accountsService.addMastery(account, mastery, "game");
 
     await this.accountsService.addXp(account, data.xp);

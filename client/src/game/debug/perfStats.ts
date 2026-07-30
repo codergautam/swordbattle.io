@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import Phaser from '../engine';
 
 type Phase = 'batch' | 'mask' | 'blend' | 'postfx' | 'shadowRT';
 let phase: Phase = 'batch';
@@ -87,8 +87,27 @@ export function initPerfStats(scene?: any) {
   wrap(rt, 'endDraw', 'shadowRT');
 
   installPhaseTimers(scene);
+  installLongTaskObserver();
 
   console.log('[perfStats] enabled — draws + FBO/f bottom-left; per-cause split logs once/sec. INVARIANT: sum(flush split) === draws.');
+}
+
+function installLongTaskObserver() {
+  if (!enabled || typeof PerformanceObserver === 'undefined') return;
+  const supported = (PerformanceObserver as any).supportedEntryTypes;
+  if (Array.isArray(supported) && supported.indexOf('longtask') === -1) return;
+  try {
+    const obs = new PerformanceObserver((list) => {
+      for (const e of list.getEntries() as any[]) {
+        if (e.duration < 50) continue;
+        const attr = (e.attribution || []).map((a: any) =>
+          `${a.name || '?'}${a.containerType ? ` [${a.containerType} ${a.containerSrc || a.containerId || a.containerName || ''}]` : ''}`
+        ).join(', ');
+        console.warn(`[perfStats] 🧊 LONGTASK ${e.duration.toFixed(0)}ms froze the main thread — source: ${attr || "self (this page's own JS: game loop / GC / snapshot processing)"}`);
+      }
+    });
+    obs.observe({ entryTypes: ['longtask'] });
+  } catch (e) {}
 }
 
 // ── Frame-phase timing: split the WALL-CLOCK frame into update / RENDER / idle ─
@@ -105,6 +124,14 @@ let phaseUpdateMs = 0;
 let phaseRenderMs = 0;
 let phaseFrameMs = 0;
 let phaseFrames = 0;
+let lastUpdMs = 0;
+let lastRenMs = 0;
+let frameWsMs = 0;
+let frameAdds = 0;
+const spikeMs = 24;
+
+export function perfWsProcess(ms: number) { if (enabled) frameWsMs += ms; }
+export function perfEntityAdd() { if (enabled) frameAdds++; }
 
 function installPhaseTimers(scene: any) {
   if (phaseInstalled || !enabled) return;
@@ -119,17 +146,28 @@ function installPhaseTimers(scene: any) {
   const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
   events.on(PRE_STEP, () => {
     const t = now();
-    if (lastPrestep) { phaseFrameMs += t - lastPrestep; phaseFrames++; }
+    if (lastPrestep) {
+      const frame = t - lastPrestep;
+      phaseFrameMs += frame; phaseFrames++;
+      if (frame > spikeMs) {
+        const idle = Math.max(0, frame - lastUpdMs - lastRenMs);
+        const unexplained = Math.max(0, idle - frameWsMs);
+        console.warn(`[perfStats] ⚡ SPIKE ${frame.toFixed(0)}ms = update ${lastUpdMs.toFixed(1)} + render ${lastRenMs.toFixed(1)} + idle ${idle.toFixed(1)}  ·  idle breakdown: ws-process ${frameWsMs.toFixed(0)}ms, +${frameAdds} new entities, unexplained(GC/browser) ${unexplained.toFixed(0)}ms`);
+      }
+    }
     lastPrestep = t;
     updateStart = t;
+    frameWsMs = 0; frameAdds = 0;
   });
   events.on(PRE_RENDER, () => {
     const t = now();
-    phaseUpdateMs += t - updateStart;
+    const u = t - updateStart;
+    phaseUpdateMs += u; lastUpdMs = u;
     renderStart = t;
   });
   events.on(POST_RENDER, () => {
-    phaseRenderMs += now() - renderStart;
+    const r = now() - renderStart;
+    phaseRenderMs += r; lastRenMs = r;
   });
 }
 

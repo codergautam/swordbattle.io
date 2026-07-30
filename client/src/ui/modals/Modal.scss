@@ -343,10 +343,73 @@
 
 .modal.modal-auth {
   z-index: 9999;
+  box-sizing: border-box;
   background-color: #1b1b1e !important;
   border: 3px solid #9a9a9e;
   border-radius: 14px;
   padding: 24px 28px;
+  box-shadow:
+    0 0 0 3px #000,
+    0 16px 40px rgba(0, 0, 0, 0.55);
+
+  input, textarea, select { box-sizing: border-box; }
+
+  .modal-close {
+    top: 12px;
+    right: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal.modal-auth {
+    min-width: 0;
+    width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px);
+    padding: 20px 18px;
+
+    .login-modal, .signup-modal { width: 100%; max-width: 100%; }
+  }
+}
+
+@media (max-height: 560px) {
+  .modal.modal-auth {
+    max-height: calc(100vh - 12px);
+    max-height: calc(100svh - 12px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-top: 14px;
+    padding-bottom: 14px;
+
+    h1 { font-size: 22px; margin-bottom: 6px; }
+    .subtitle { margin: 0 0 8px; font-size: 13px; }
+
+    input[type=text], input[type=email], input[type=password] {
+      padding: 7px 10px;
+      font-size: 16px;
+      margin: 4px 0;
+    }
+    .username-field { margin: 4px 0; }
+    .field-msg { margin: 0 0 2px; }
+    .add-email { margin: 4px 0 0; }
+    .forgot { margin: 6px 0 0; font-size: 12px; }
+    .auth-submit { margin-top: 10px; padding: 8px; font-size: 18px; }
+  }
+}
+
+.modal.modal-support {
+  z-index: 9999;
+  min-width: 0;
+  width: 470px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  padding: 22px 24px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  background-color: #1b1b1e !important;
+  border: 3px solid #9a9a9e;
+  border-radius: 14px;
   box-shadow:
     0 0 0 3px #000,
     0 16px 40px rgba(0, 0, 0, 0.55);

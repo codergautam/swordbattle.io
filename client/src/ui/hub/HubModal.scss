@@ -67,6 +67,28 @@
       transition: color 0.2s ease;
     }
 
+    .hub-tab-icon {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hub-tab-label {
+      display: none;
+      position: relative;
+      z-index: 1;
+      font-family: 'Saira', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      white-space: nowrap;
+      color: var(--tab-color);
+    }
+    &:hover .hub-tab-label,
+    &.active .hub-tab-label {
+      color: #111;
+    }
+
     .hub-tab-img {
       position: relative;
       z-index: 1;

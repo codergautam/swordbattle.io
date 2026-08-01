@@ -25,12 +25,22 @@ const tabs: { key: HubTab; label: string; icon: React.ReactNode; color: string }
   { key: 'shop', label: 'Shop', icon: <FontAwesomeIcon icon={faStore} />, color: '#3aa83a' },
   { key: 'inventory', label: 'Inventory', icon: <BackpackIcon />, color: '#a8743c' },
   { key: 'rankings', label: 'Leaderboard', icon: <FontAwesomeIcon icon={faTrophy} />, color: '#f5c542' },
-  { key: 'rewards', label: 'Rewards', icon: <FontAwesomeIcon icon={faGift} />, color: '#4f8fd6' },
+  { key: 'rewards', label: 'Daily Rewards', icon: <FontAwesomeIcon icon={faGift} />, color: '#4f8fd6' },
 ];
 
+const loggedInOnly: HubTab[] = ['inventory', 'rewards'];
+
 function HubModal({ account, initialTab = 'shop', onViewProfile, onPreviewSkin }: { account: any; initialTab?: HubTab; onViewProfile?: (u: string) => void; onPreviewSkin?: (id: number) => void }) {
-  const [active, setActive] = useState<HubTab>(initialTab);
-  const [visited, setVisited] = useState<Set<HubTab>>(new Set([initialTab]));
+  const loggedIn = !!account?.isLoggedIn;
+  const visibleTabs = tabs.filter((t) => loggedIn || !loggedInOnly.includes(t.key));
+
+  const firstVisible = visibleTabs[0]?.key ?? 'shop';
+  const safeInitial = visibleTabs.some((t) => t.key === initialTab) ? initialTab : firstVisible;
+
+  const [active, setActive] = useState<HubTab>(safeInitial);
+  const [visited, setVisited] = useState<Set<HubTab>>(new Set([safeInitial]));
+
+  const activeTab = visibleTabs.some((t) => t.key === active) ? active : firstVisible;
 
   const switchTab = (key: HubTab) => {
     setActive(key);
@@ -47,24 +57,25 @@ function HubModal({ account, initialTab = 'shop', onViewProfile, onPreviewSkin }
   };
 
   return (
-    <div className={`hub tab-${active}`}>
+    <div className={`hub tab-${activeTab}`}>
       <div className="hub-tabs">
-        {tabs.map((t) => (
+        {visibleTabs.map((t) => (
           <button
             key={t.key}
-            className={`hub-tab ${active === t.key ? 'active' : ''}`}
+            className={`hub-tab ${activeTab === t.key ? 'active' : ''}`}
             style={{ ['--tab-color' as any]: t.color }}
             title={t.label}
             onClick={() => switchTab(t.key)}
           >
-            {t.icon}
+            <span className="hub-tab-icon">{t.icon}</span>
+            <span className="hub-tab-label">{t.label}</span>
           </button>
         ))}
       </div>
 
       <div className="hub-content">
-        {tabs.map((t) => visited.has(t.key) && (
-          <div key={t.key} className={`hub-panel ${active === t.key ? 'active' : ''}`}>
+        {visibleTabs.map((t) => (visited.has(t.key) || t.key === activeTab) && (
+          <div key={t.key} className={`hub-panel ${activeTab === t.key ? 'active' : ''}`}>
             {renderTab(t.key)}
           </div>
         ))}

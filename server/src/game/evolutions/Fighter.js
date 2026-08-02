@@ -41,17 +41,20 @@ module.exports = class Fighter extends Evolution {
     this.boostTimer.update(dt);
     const boostActive = !this.boostTimer.finished;
     this.player.modifiers.BoostOnDamage = boostActive;
+    if (boostActive) this.player.flags.set(Types.Flags.FighterBoost, 1);
 
     this.player.shape.setScale(0.97);
     this.player.sword.swingDuration.multiplier['default'] = 0.9;
+    this.player.sword.damage.multiplier *= 1.18;
 
     if (boostActive) {
       this.player.speed.multiplier *= 1.3;
       this.player.sword.damage.multiplier *= 1.3;
     }
 
-    this.player.health.max.multiplier *= 0.95;
+    this.player.health.max.multiplier *= 1.0;
     this.player.health.regenWait.multiplier *= 0.55;
     this.player.health.regen.multiplier *= 0.8;
+  
   }
 }

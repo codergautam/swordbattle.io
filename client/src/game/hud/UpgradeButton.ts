@@ -19,7 +19,7 @@ class UpgradeButton extends HudComponent {
     this.buttonBg = scene.add.graphics();
     this.buttonText = scene.add.text(20, 6, 'Upgrades', {
       fontSize: '16px',
-      fontFamily: 'Rajdhani, sans-serif',
+      fontFamily: 'Saira, sans-serif',
       fontStyle: 'bold',
       color: '#e7e7e7',
     });
@@ -27,7 +27,7 @@ class UpgradeButton extends HudComponent {
     this.badge = scene.add.graphics();
     this.badgeText = scene.add.text(0, 0, '', {
       fontSize: '12px',
-      fontFamily: 'Rajdhani, sans-serif',
+      fontFamily: 'Saira, sans-serif',
       fontStyle: 'bold',
       color: '#ffffff',
     }).setOrigin(0.5);
@@ -59,7 +59,7 @@ class UpgradeButton extends HudComponent {
 
     this.hintArrow = scene.add.text(0, 0, '\u2190', {
       fontSize: '28px',
-      fontFamily: 'Rajdhani, sans-serif',
+      fontFamily: 'Saira, sans-serif',
       fontStyle: 'bold',
       color: '#ffdd44',
       stroke: '#000000',
@@ -68,7 +68,7 @@ class UpgradeButton extends HudComponent {
 
     this.hintText = scene.add.text(0, 0, 'Click this button to\nselect upgrades!', {
       fontSize: '14px',
-      fontFamily: 'Rajdhani, sans-serif',
+      fontFamily: 'Saira, sans-serif',
       fontStyle: 'bold',
       color: '#ffdd44',
       stroke: '#000000',

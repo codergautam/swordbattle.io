@@ -18,10 +18,18 @@ class BasicEvolution extends Effect {
     this.abilityDurationTimer = new Timer(duration, duration, duration);
     this.abilityDurationTimer.finished = true;
     this.isAbilityActive = false;
+    this.grantedAbility = null;
+  }
+
+  grantAbility(config) {
+    this.grantedAbility = config;
+    this.abilityDurationTimer = new Timer(config.duration, config.duration, config.duration);
+    this.abilityDurationTimer.finished = true;
+    this.abilityCooldownTimer = new Timer(Math.max(0, config.cooldown - 2), config.cooldown, config.cooldown);
   }
 
   get isAbilityAvailable() {
-    return this.abilityDurationTimer.duration !== 0;
+    return this.abilityDurationTimer.duration !== 0 || !!this.grantedAbility;
   }
 
   get canActivateAbility() {
@@ -44,8 +52,8 @@ class BasicEvolution extends Effect {
   }
 
   deactivateAbility() {
-    if (this.abilityCooldownTimer.maxTime === 5.1) {
-      const cooldown = this.constructor.abilityCooldown;
+    const cooldown = this.grantedAbility ? this.grantedAbility.cooldown : this.constructor.abilityCooldown;
+    if (this.abilityCooldownTimer.maxTime === 5.1 || this.grantedAbility) {
       this.abilityCooldownTimer = new Timer(cooldown, cooldown, cooldown);
     }
     this.abilityCooldownTimer.renew();
@@ -53,6 +61,9 @@ class BasicEvolution extends Effect {
   }
 
   applyAbilityEffects() {
+    if (this.grantedAbility && this.grantedAbility.apply) {
+      this.grantedAbility.apply(this.player);
+    }
   }
 
   update(dt) {

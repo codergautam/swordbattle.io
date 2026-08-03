@@ -14,16 +14,27 @@ class Server {
     this.maxConnectionsPerIP = 50;
 
     // Maintenance mode
-    this.maintenanceMode = false;
+    this.maintenanceMode = true;
     this.allowedIPs = [];
+    this.allowedSecrets = [];
     this._refreshAllowedIPs();
+    this._refreshAllowedSecrets();
     setInterval(() => this._refreshAllowedIPs(), 30000); // refresh every 30s
+    setInterval(() => this._refreshAllowedSecrets(), 30000);
   }
 
   _refreshAllowedIPs() {
     api.get('/maintenance/allowed-ips', (data) => {
       if (data && !data.error && Array.isArray(data)) {
         this.allowedIPs = data;
+      }
+    });
+  }
+
+  _refreshAllowedSecrets() {
+    api.get('/maintenance/allowed-secrets', (data) => {
+      if (data && !data.error && Array.isArray(data)) {
+        this.allowedSecrets = data.filter((s) => typeof s === 'string' && s.length > 0);
       }
     });
   }
@@ -37,13 +48,19 @@ class Server {
       compression: uws.SHARED_COMPRESSOR,
       idleTimeout: 60,
       maxPayloadLength: 4096,
+      maxBackpressure: 1024 * 1024,
       upgrade: (res, req, context) => {
         const forwardedFor = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
         const ips = forwardedFor.split(',').map(i => i.trim());
         const ip = ips[0];
-        if (this.maintenanceMode && !this.allowedIPs.includes(ip)) {
-          res.upgrade({ maintenance: true }, req.getHeader('sec-websocket-key'), req.getHeader('sec-websocket-protocol'), req.getHeader('sec-websocket-extensions'), context);
-          return;
+        if (this.maintenanceMode) {
+          let secret = '';
+          try { secret = new URLSearchParams(req.getQuery() || '').get('secret') || ''; } catch (e) { secret = ''; }
+          const bypass = this.allowedIPs.includes(ip) || (secret.length > 0 && this.allowedSecrets.includes(secret));
+          if (!bypass) {
+            res.upgrade({ maintenance: true }, req.getHeader('sec-websocket-key'), req.getHeader('sec-websocket-protocol'), req.getHeader('sec-websocket-extensions'), context);
+            return;
+          }
         }
 
         for (const checkIp of ips) {

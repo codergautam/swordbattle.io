@@ -347,6 +347,31 @@ export class AuthService {
     };
   }
 
+  async claimGemBonus(account: Account) {
+    const dl = { ...account.dailyLogin };
+    const pending = dl.pendingGemBonus;
+
+    if (!pending || !pending.amount || pending.amount <= 0) {
+      return { error: 'No gem bonus available' };
+    }
+
+    if (Date.now() - pending.at > 5 * 60 * 1000) {
+      dl.pendingGemBonus = null;
+      account.dailyLogin = dl;
+      await this.accountsService.update(account.id, { dailyLogin: dl });
+      return { error: 'Gem bonus expired' };
+    }
+
+    const amount = Math.floor(pending.amount);
+
+    dl.pendingGemBonus = null;
+    account.dailyLogin = dl;
+    account = await this.accountsService.addGems(account, amount, 'reward-2x-ad');
+    await this.accountsService.update(account.id, { dailyLogin: dl });
+
+    return { success: true, gems: account.gems, bonus: amount };
+  }
+
   async getToken(account: Account) {
     throw new Error('DEPRECATED, USE SECRET');
   }

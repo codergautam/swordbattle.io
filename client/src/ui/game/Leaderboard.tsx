@@ -1,121 +1,127 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { useScale } from '../Scale';
+import StyledName from '../StyledName';
+import { resolveNameStyle, CLAN_COLOR } from '../../game/nameStyles';
 import './Leaderboard.scss';
 
 function Leaderboard({ game }: any) {
   const [show, setShow] = useState(true);
-  const [players, setPlayers] = useState<any>([]);
-  const [selfPlayer, setSelfPlayer] = useState<any>(null);
+  const [players, setPlayers] = useState<any[]>([]);
+  const [selfId, setSelfId] = useState<number>(-1);
   const [hidden, setHidden] = useState(false);
+  const [selfVisible, setSelfVisible] = useState(true);
 
-  const processPlayers = (players: any[], selfId: number) => {
-    const sortedPlayers = players.sort((a, b) => b.coins - a.coins);
-    sortedPlayers.forEach((player, i) => player.place = i + 1);
-    const selfPlayer = sortedPlayers.find(player => player.id === selfId);
-    sortedPlayers.splice(10, sortedPlayers.length - 10);
+  const listRef = useRef<HTMLDivElement>(null);
+  const selfRowRef = useRef<HTMLDivElement>(null);
+  const lastSigRef = useRef('');
 
-    setSelfPlayer(sortedPlayers.includes(selfPlayer) ? null : selfPlayer);
-    return sortedPlayers;
+  const processPlayers = (list: any[]) => {
+    const sorted = [...list].sort((a, b) => b.coins - a.coins);
+    sorted.forEach((p, i) => (p.place = i + 1));
+    return sorted.slice(0, 100);
   };
 
   useEffect(() => {
-    if (game) {
-      game.events.on('playersUpdate', (players: any, selfId: number) => {
-        setPlayers(processPlayers(players, selfId));
-      });
-      game.events.on('evolutionsVisible', (visible: boolean) => {
-        setHidden(visible);
-      });
-    }
+    if (!game) return;
+    const onPlayersUpdate = (list: any[], sid: number) => {
+      const sorted = processPlayers(list);
+      let sig = sid + '|';
+      for (let i = 0; i < sorted.length; i++) {
+        const p = sorted[i];
+        sig += p.id + ':' + p.coins + ':' + p.place + ':' + p.name + ';';
+      }
+      if (sig === lastSigRef.current) return;
+      lastSigRef.current = sig;
+      setSelfId(sid);
+      setPlayers(sorted);
+    };
+    const onEvolutionsVisible = (visible: boolean) => setHidden(visible);
+    game.events.on('playersUpdate', onPlayersUpdate);
+    game.events.on('evolutionsVisible', onEvolutionsVisible);
+    return () => {
+      game.events.off('playersUpdate', onPlayersUpdate);
+      game.events.off('evolutionsVisible', onEvolutionsVisible);
+    };
   }, [game]);
 
-  const scaleStyles = useScale(false).styles;
-  const toggleVisibility = () => setShow(!show);
+  useEffect(() => {
+    const list = listRef.current, row = selfRowRef.current;
+    if (!list || !row) { setSelfVisible(false); return; }
+    const io = new IntersectionObserver(
+      (entries) => setSelfVisible(entries[0].isIntersecting),
+      { root: list, rootMargin: '-2px 0px -2px 0px', threshold: 0 },
+    );
+    io.observe(row);
+    return () => io.disconnect();
+  }, [players, show, selfId]); // eslint-disable-line
 
+  const scaleStyles = useScale(false).styles;
   if (hidden) return null;
+
+  const selfPlayer = players.find((p) => p.id === selfId);
 
   return (
     <div className="leaderboard" style={scaleStyles}>
-      <div className={`leaderboard-title ${show ? 'open' : 'closed'}`} role="button" onClick={toggleVisibility}>
-        <span className="lb-arrow">{show ? '\u25BC' : '\u25B2'}</span>
-        {' Leaderboard '}
-        <span className="lb-arrow">{show ? '\u25BC' : '\u25B2'}</span>
+      <div className={`lb-header ${show ? 'open' : 'closed'}`} role="button" onClick={() => setShow(!show)}>
+        <span className="lb-arrow">{show ? '▼' : '▲'}</span>
+        <span className="lb-title">Leaderboard</span>
+        <span className="lb-arrow">{show ? '▼' : '▲'}</span>
       </div>
 
-      <div className={`leaderboard-content ${show ? '' : 'hidden'}`}>
-        {players.map((player: any) => <LeaderboardLine key={player.id} player={player} />)}
-        {selfPlayer && (<div>...</div>)}
-        {selfPlayer && <LeaderboardLine player={selfPlayer} />}
-      </div>
+      {show && (
+        <>
+          <div className="lb-list" ref={listRef}>
+            {players.map((p) => (
+              <LeaderboardLine
+                key={p.id}
+                place={p.place}
+                coins={p.coins}
+                name={p.name}
+                account={p.account}
+                isSelf={p.id === selfId}
+                innerRef={p.id === selfId ? selfRowRef : undefined}
+              />
+            ))}
+          </div>
+          {selfPlayer && !selfVisible && (
+            <div className="lb-pinned">
+              <div className="lb-sep">···</div>
+              <LeaderboardLine
+                place={selfPlayer.place}
+                coins={selfPlayer.coins}
+                name={selfPlayer.name}
+                account={selfPlayer.account}
+                isSelf
+              />
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
 
-function getRankColor(rank: number) {
-  // #1 gold, #2 silver, #3 bronze, #4-10 green, #11-50 purple, #51-100 gray
-  if (rank === 1) return '#ffff00';
-  if (rank === 2) return '#ccccdc';
-  if (rank === 3) return '#222222';
-  if (rank >= 4 && rank <= 5) return '#00ffff';
-  if (rank >= 6 && rank <= 10) return '#00ff00';
-  if (rank >= 11 && rank <= 25) return '#ff0000';
-  if (rank >= 26 && rank <= 50) return '#ee00ff';
-  if (rank >= 51 && rank <= 75) return '#800080';
-  if (rank >= 76 && rank <= 100) return '#707070';
-  if (rank >= 101 && rank <= 200) return '#575454ff';
-  return 'white';
-}
+const LeaderboardLine = memo(function LeaderboardLine({ place, coins, name, account, isSelf, innerRef }: any) {
+  const balance = coins >= 1000 ? `${(coins / 1000).toFixed(1)}k` : coins;
 
-function LeaderboardLine({ player }: any) {
-  const balance = player.coins >= 1000 ? `${(player.coins / 1000).toFixed(1)}k` : player.coins;
-  const specialColors: {
-    [key: string]: string | { gradient: [string, string] };
-  } = {
-    codergautam: '#ff0000',
-    angel: '#acfffc',
-    "cool guy 53": '#0099ff',
-    "update testing account": '#00ff00',
-    "amethyst nightveil": '#7802ab',
-    oy: '#000000',
-    bobz: '#000000',
-  };
+  const nameStyle = resolveNameStyle(name, !!account, 'leaderboard');
 
-  let nameStyle: React.CSSProperties = {};
-  if (player.account) {
-    const special = specialColors[player.name.toLowerCase() as any];
-    if (special && typeof special === 'string') {
-      nameStyle.color = special;
-    } else {
-      nameStyle.color = '#3333ff';
-    }
-  }
+  const clan = account?.clan;
+  const tag = clan && typeof clan === 'object' ? clan.tag : (typeof clan === 'string' ? clan : null);
+
+  const len = (tag ? tag.length + 3 : 0) + (name?.length || 0);
+  const nameSize = len > 16 ? 13 : 17;
 
   return (
-    <div className="leaderboard-line">
-      <span className="leaderboard-place">#{player.place}: </span>
-      {(() => {
-        const c = player.account?.clan;
-        const tag = c && typeof c === 'object' ? c.tag : (typeof c === 'string' ? c : null);
-        if (!tag) return null;
-        return (
-          <span className="leaderboard-clan" style={{ color: 'yellow' }}>
-            [{tag}]{' '}
-          </span>
-        );
-      })()}
-      <span className="leaderboard-name" style={nameStyle}>
-        {player.name}
-        {player.account?.rank && (
-          <span style={{ color: getRankColor(player.account.rank) }}>
-            {' '}
-            (#{player.account.rank})
-          </span>
-        )}
-        <span style={{ color: 'white' }}>- </span>
+    <div className={`lb-row ${isSelf ? 'self' : ''}`} ref={innerRef}>
+      <span className="lb-place">{place}</span>
+      <span className="lb-name" style={{ fontSize: nameSize }}>
+        {tag && <span className="lb-clan" style={{ color: CLAN_COLOR }}>[{tag}] </span>}
+        <StyledName name={name} style={nameStyle} fontSize={nameSize} />
       </span>
-      <span className="leaderboard-score">{balance}</span>
+      <span className="lb-score">{balance}</span>
     </div>
   );
-}
+});
 
 export default Leaderboard;

@@ -180,8 +180,8 @@ export default function Profile() {
         <div className='statsContent'>
       {!hideBack && (
         <button className="back-button" onClick={() =>{
-          // ../index.html
-          window.location.href = '../#/leaderboard';
+          if (window.history.length > 1) window.history.back();
+          else window.location.href = '../';
         }}>X</button>
       )}
           <center>
@@ -411,6 +411,7 @@ export default function Profile() {
             screenH={dimensions.height}
             types={[[728, 90]]}
             horizThresh={0.15}
+            placement="profile"
           />
         </div>
       </div>

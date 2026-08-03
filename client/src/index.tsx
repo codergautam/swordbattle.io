@@ -2,16 +2,23 @@ import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { RouterProvider, createHashRouter } from 'react-router-dom';
 import App from './ui/App';
-import { GlobalLeaderboard } from './ui/GlobalLeaderboard';
 import Profile from './ui/Profile';
+import MetricsPage from './ui/MetricsPage';
+import SupportPage from './ui/SupportPage';
+import NameMaker from './ui/namemaker/NameMaker';
 import { store } from './redux/store';
 import { config } from './config';
 import { load } from 'recaptcha-v3'
 import { crazygamesSDK } from './crazygames/sdk';
 import { detectAdblock } from './crazygames/adblock';
 import { initializeDataStorage } from './crazygames/dataStorage';
+import { applyHudThemeCss } from './hudTheme';
+import { initAnalytics } from './analytics';
 
 import './global.scss';
+
+applyHudThemeCss();
+initAnalytics();
 
 const router = createHashRouter([
   {
@@ -19,12 +26,24 @@ const router = createHashRouter([
     element: <App />,
   },
   {
-    path: 'leaderboard',
-    element: <GlobalLeaderboard />,
+    path: 'moreads',
+    element: <App moreAds />,
   },
   {
     path: 'profile',
     element: <Profile />,
+  },
+  {
+    path: 'namemaker',
+    element: <NameMaker />,
+  },
+  {
+    path: ':secret/metrics',
+    element: <MetricsPage />,
+  },
+  {
+    path: ':secret/support',
+    element: <SupportPage />,
   },
 ], {
   basename: config.basename,

@@ -1,63 +1,65 @@
 import { BaseEntity } from '../BaseEntity';
-import { BiomeTypes } from '../../Types';
+import { TreeShake, shake, ShakeConfig } from '../../effects/TreeShake';
+
+const variantTextures: Record<number, string> = {
+  1: 'bush',
+  2: 'bushPine',
+  3: 'bushPalm',
+  4: 'bushMeadow',
+  5: 'bushCactus',
+  6: 'bushSavannaPalm',
+};
+
+const rotatingVariants = new Set<number>([3, 6]);
+
+function shakePreset(skin: number): ShakeConfig {
+  switch (skin) {
+    case 2: return shake.pine;
+    case 3: return shake.palm;
+    case 5: return shake.stick;
+    case 6: return shake.sav;
+    default: return shake.leaf;
+  }
+}
 
 class Bush extends BaseEntity {
-  static stateFields = [...BaseEntity.stateFields];
-  private isFaded = false;
+  static stateFields = [...BaseEntity.stateFields, 'skin', 'angle'];
+  private shake?: TreeShake;
+
+  private variantKey(): string {
+    const idx = (this.skin as number) || 1;
+    const wanted = variantTextures[idx] || variantTextures[1];
+    return this.game.textures.exists(wanted) ? wanted : 'bush';
+  }
 
   createSprite() {
-    // If sprite already exists, don't create a duplicate
     if (this.container) {
       return this.container;
     }
 
-    this.container = this.game.add.sprite(this.shape.x, this.shape.y, 'bush');
-    this.container.scale = (this.shape.radius * 2 * 1.5) / this.container.width;
+    const key = this.variantKey();
+    const skin = (this.skin as number) || 1;
+    const isRotating = rotatingVariants.has(skin);
+
+    const body = this.game.add.sprite(0, 0, key).setOrigin(0.5, 0.5);
+    body.setScale((this.shape.radius * 2 * 1.5) / body.width);
+    if (isRotating && typeof this.angle === 'number') body.setRotation(this.angle);
+
+    const shadow = this.createOutlineShadow(key, 0.5, 0.5);
+    this.syncOutlineShadow(shadow, body);
+
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [shadow, body]);
+    this.shake = new TreeShake(this, body, shadow, shakePreset(skin));
     return this.container;
   }
 
-  // Override to prevent alpha tweens from interfering with texture transparency
-  updateWorldDepth() {
-    // Bushes are always visible (depth 0), no alpha modification needed
-  }
+  updateWorldDepth() {}
+
+  updateRotation() {}
 
   update(dt: number) {
-    if (!this.container) return;
-
     super.update(dt);
-
-    // Get the local player
-    const localPlayer = this.game.gameState.self.entity;
-    if (!localPlayer || !localPlayer.shape) return;
-
-    // Don't fade bushes in safezone
-    if (localPlayer.biome === BiomeTypes.Safezone) {
-      // Reset to normal texture if currently faded
-      if (this.isFaded) {
-        this.container.setTexture('bush');
-        this.isFaded = false;
-      }
-      return;
-    }
-
-    // Calculate distance between bush and player
-    const dx = this.shape.x - localPlayer.shape.x;
-    const dy = this.shape.y - localPlayer.shape.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    // Check if player is colliding with bush (under it)
-    const playerRadius = localPlayer.shape.radius || 0;
-    const bushRadius = this.shape.radius || 0;
-    const isColliding = distance < (bushRadius + playerRadius);
-
-    // Switch texture based on collision state
-    if (isColliding && !this.isFaded) {
-      this.container.setTexture('bushFaded');
-      this.isFaded = true;
-    } else if (!isColliding && this.isFaded) {
-      this.container.setTexture('bush');
-      this.isFaded = false;
-    }
+    this.shake?.update(dt);
   }
 }
 

@@ -87,6 +87,14 @@ export default function ChatTab({ onOpenUserProfile }: ChatTabProps) {
   }, [initialLoadDone, messages.length]);
 
   useEffect(() => {
+    if (!initialLoadDone) return;
+    requestAnimationFrame(() => {
+      const el = messagesRef.current;
+      if (el) { el.scrollTop = el.scrollHeight; stickToBottomRef.current = true; }
+    });
+  }, [initialLoadDone]);
+
+  useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 30000);
     return () => clearInterval(t);
   }, []);

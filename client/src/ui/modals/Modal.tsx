@@ -1,26 +1,40 @@
-import { useEffect } from 'react';
+import { useEffect, cloneElement, isValidElement } from 'react';
 import './Modal.scss';
 import { useScale } from '../Scale';
 
-function Modal({ child, close, className = '', scaleDisabled = false }: any) {
+function Modal({ child, requestClose, className = '', scaleDisabled = false, backdrop = false, backdropClass = '', closing = false }: any) {
   const keyPress = (e: KeyboardEvent) => {
-    if (close && e.key === 'Escape') close();
+    if (requestClose && e.key === 'Escape') requestClose();
   }
 
   useEffect(() => {
-    if(close) {
-    document.addEventListener('keydown', keyPress);
-    return () => document.removeEventListener('keydown', keyPress);
+    if (requestClose) {
+      document.addEventListener('keydown', keyPress);
+      return () => document.removeEventListener('keydown', keyPress);
     }
   });
 
   const scale = useScale(true);
 
+  const renderedChild = (isValidElement(child) && (child as any).props?.onSuccess && requestClose)
+    ? cloneElement(child as any, { onSuccess: requestClose })
+    : child;
+
   return (
-    <div className={`modal ${className}`} style={scaleDisabled ? {} : scale.styles}>
-      {child}
-      {close && <button className="modal-close" onClick={close} />}
-    </div>
+    <>
+      {backdrop && (
+        <div
+          className={`modal-backdrop ${backdropClass} ${closing ? 'modal-backdrop-closing' : ''}`}
+          onClick={requestClose}
+        />
+      )}
+      <div className={`modal ${className} ${closing ? 'modal-closing' : ''}`} style={scaleDisabled ? {} : scale.styles}>
+        {renderedChild}
+        {requestClose && <button className="modal-close" aria-label="Close" onClick={requestClose}>
+          <span className="modal-close-x" />
+        </button>}
+      </div>
+    </>
   )
 }
 

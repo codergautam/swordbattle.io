@@ -1,0 +1,108 @@
+.namemaker {
+  background: #ffffff;
+  color: #111;
+  min-height: 100vh;
+  padding: 20px 24px 60px;
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+
+  h1 { margin: 0 0 4px; }
+  .nm-sub { color: #555; margin: 0 0 20px; font-size: 14px; }
+
+  .nm-columns {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .nm-controls {
+    width: 340px;
+    flex: 0 0 auto;
+  }
+
+  .nm-section {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+  }
+  .nm-section > .nm-legend {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .nm-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+    flex-wrap: wrap;
+  }
+  .nm-row label { font-size: 14px; }
+  .nm-row input[type='text'] { padding: 4px 6px; }
+  .nm-row input[type='color'] { width: 42px; height: 28px; padding: 0; }
+  .nm-row input[type='range'] { vertical-align: middle; }
+
+  .nm-preset-btns button { margin-right: 8px; }
+
+  .nm-shared { max-width: 620px; }
+
+  .nm-style-controls {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    max-width: 360px;
+  }
+  .nm-subsection { padding: 6px 0; border-top: 1px solid #eee; }
+  .nm-subsection:first-child { border-top: 0; }
+  .nm-sublabel { display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 14px; }
+
+  .nm-codegen { max-width: 760px; margin-top: 24px; }
+  .nm-code {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'Consolas', 'Menlo', monospace;
+    font-size: 12px;
+    white-space: pre;
+    padding: 8px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    background: #f6f6f6;
+    resize: vertical;
+  }
+  code { background: #eee; padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+
+  .nm-previews {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    flex: 1 1 480px;
+  }
+  .nm-preview-block h3 { margin: 0 0 10px; }
+
+  .nm-lb-backdrop {
+    display: inline-block;
+    padding: 24px;
+    background: #6b6b6b;
+    border-radius: 8px;
+  }
+  .nm-lb-backdrop .leaderboard {
+    position: static;
+    top: auto;
+    right: auto;
+    transform: none;
+  }
+
+  .nm-pixi-host {
+    border: 1px solid #999;
+    border-radius: 8px;
+    overflow: hidden;
+    line-height: 0;
+  }
+  .nm-hint { color: #666; font-size: 12px; margin-top: 6px; max-width: 540px; }
+}

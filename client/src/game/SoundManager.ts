@@ -20,6 +20,9 @@ class SoundManager {
       [FlagTypes.LavaDamaged]: new Sound(FlagTypes.LavaDamaged, [
         'TakeDamage/LavaDamage.mp3',
       ], 500),
+      [FlagTypes.CactusHit]: new Sound(FlagTypes.CactusHit, [
+        'TakeDamage/LavaDamage.mp3',
+      ], 500),
       [FlagTypes.GetCoin]: new Sound(FlagTypes.GetCoin, [
         'GetCoin/GetCoin1.wav', 'GetCoin/GetCoin2.wav', 'GetCoin/GetCoin3.wav',
       ], 50),
@@ -53,7 +56,27 @@ class SoundManager {
       [FlagTypes.SelectUpgrade]: new Sound(FlagTypes.SelectUpgrade, [
         'selectUpgrade.wav',
       ]),
+      [FlagTypes.FootstepGrass]: new Sound(FlagTypes.FootstepGrass, [
+        'FootstepGrass/FootstepGrass1.mp3', 'FootstepGrass/FootstepGrass2.mp3',
+        'FootstepGrass/FootstepGrass3.mp3', 'FootstepGrass/FootstepGrass4.mp3',
+      ], 140, 0.75),
+      [FlagTypes.FootstepSnow]: new Sound(FlagTypes.FootstepSnow, [
+        'FootstepSnow/FootstepSnow1.mp3', 'FootstepSnow/FootstepSnow2.mp3',
+        'FootstepSnow/FootstepSnow3.mp3', 'FootstepSnow/FootstepSnow4.mp3',
+        'FootstepSnow/FootstepSnow5.mp3', 'FootstepSnow/FootstepSnow6.mp3',
+      ], 140, 0.5),
+      [FlagTypes.FootstepStone]: new Sound(FlagTypes.FootstepStone, [
+        'FootstepStone/FootstepStone1.mp3', 'FootstepStone/FootstepStone2.mp3',
+        'FootstepStone/FootstepStone3.mp3', 'FootstepStone/FootstepStone4.mp3',
+        'FootstepStone/FootstepStone5.mp3', 'FootstepStone/FootstepStone6.mp3',
+      ], 140, 0.5),
+      [FlagTypes.FootstepWater]: new Sound(FlagTypes.FootstepWater, [
+        'FootstepWater/FootstepWater1.mp3', 'FootstepWater/FootstepWater2.mp3',
+        'FootstepWater/FootstepWater3.mp3',
+      ], 140, 0.45),
     };
+
+    (this.manager as any).treeShake = new Sound('treeShake' as any, ['TreeShake/TreeShake1.mp3'], 0, 0.6, true);
   }
 
   load(publicPath: string) {

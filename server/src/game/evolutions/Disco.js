@@ -3,10 +3,10 @@ const Types = require('../Types');
 
 module.exports = class Disco extends Evolution {
   static type = Types.Evolution.Disco;
-  static level = 24;
+  static level = 9999;
   static previousEvol = [Types.Evolution.Lumberjack, Types.Evolution.Fisherman, Types.Evolution.Warrior, Types.Evolution.Fighter, Types.Evolution.Stalker, Types.Evolution.Defender];
   static abilityDuration = 8;
-  static abilityCooldown = 120;
+  static abilityCooldown = 80;
   static discoFieldRadius = 1250;
   static discoFieldDuration = 0.2;
   static hypnotizeRadius = 2000;

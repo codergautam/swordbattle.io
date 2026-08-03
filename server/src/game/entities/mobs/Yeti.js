@@ -99,7 +99,7 @@ class YetiMob extends Entity {
       }
     }
 
-    if (this.definition.isBoss) {
+    if (this.definition.isBoss && this.target) {
       this.snowballTimer.update(dt);
       if (this.snowballTimer.finished) {
         this.snowballTimer.renew();
@@ -142,13 +142,9 @@ class YetiMob extends Entity {
       const resist = (entity.knockbackResistance.value || 1);
       const kbX = -knockback * Math.cos(this.angle - Math.PI) / resist;
       const kbY = -knockback * Math.sin(this.angle - Math.PI) / resist;
-      if (typeof entity.applyMobHit === 'function') {
-        entity.applyMobHit(force, kbX, kbY, this.shape.x, this.shape.y, this);
-      } else {
-        entity.velocity.x += kbX;
-        entity.velocity.y += kbY;
-        entity.damaged(force, this);
-      }
+      entity.velocity.x += kbX;
+      entity.velocity.y += kbY;
+      entity.damaged(force, this);
       this.velocity.scale(0);
     }
   }
@@ -164,9 +160,7 @@ class YetiMob extends Entity {
 
     // Bots and shielded players always deal full damage
     if (this.definition.isBoss) {
-      const isBot = entity.isBot;
-      const isShielded = entity.coins < 500;
-      const bypassesMarkSystem = isBot || isShielded;
+      const bypassesMarkSystem = entity.isBot;
 
       if (!bypassesMarkSystem) {
         const currentTime = Date.now();

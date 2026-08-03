@@ -57,10 +57,20 @@ class Coin extends BaseEntity {
   }
 
   remove() {
-    super.remove();
-
     this.eatingTween?.destroy();
     this.game.gameState.removedEntities.delete(this);
+    if (this.removed && !this.container) return;
+    this.removed = true;
+    const c = this.container;
+    this.container = null;
+    this.shape = (null as any);
+    if (c) {
+      try { (c as any).visible = false; } catch (e) {}
+      BaseEntity.destroyQueue.push(() => {
+        try { c.scene?.tweens?.killTweensOf(c); } catch (e) {}
+        try { c.destroy(true); } catch (e) {}
+      });
+    }
   }
 }
 

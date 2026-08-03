@@ -1,64 +1,80 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
-
 .connectionErrorModal {
-  animation: fadeIn 1s ease both;
-  background: none;
-  width: 100%;
-  height: 100%;
+  position: fixed !important;
+  inset: 0 !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 3;
+  z-index: 100;
+  backdrop-filter: blur(2px);
+  animation: ceFade 0.25s ease both;
 
   .content {
-    width: 400px;
-    padding: 1rem 3rem;
-    padding-top: 2rem;
-    border-radius: 10px;
-    font-family: Poppins, sans-serif;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    padding: 26px 30px 24px !important;
+    border-radius: 14px;
+    background-color: #1e1e1b !important;
+    border: 3px solid #c9bc0d;
+    box-shadow:
+      0 0 0 3px #000000,
+      0 16px 40px rgba(0, 0, 0, 0.6) !important;
+    text-align: center;
+    font-family: 'Saira', sans-serif;
+    animation: ceSlideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
 
     h2 {
-      text-align: left;
-      font-weight: 600;
+      text-align: center;
+      font-weight: 700;
       font-size: 2rem;
+      margin: 0 0 12px;
+      color: #c9bc0d;
     }
 
     p {
       font-size: 1rem;
-      line-height: 1rem;
-      padding: 0.5rem 0;
-    }
-
-    button {
-      margin: 5px;
+      line-height: 1.4;
+      padding: 0;
+      margin: 4px 0;
+      color: #d6d6da;
     }
   }
 
   .reload-btn {
-    background: green;
-    color: black;
-    border: 1px solid black;
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
+    margin: 18px 0 0;
+    padding: 12px 28px;
+    background: #2ec84a;
+    color: #fff;
+    border: 3px solid #000;
+    border-radius: 12px;
+    font-size: 1.15rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
+    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.35);
+    transition: filter 0.12s ease, transform 0.08s ease;
 
     &:hover {
-      background: black;
-      color: white;
+      filter: brightness(1.08);
     }
-  }
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      backdrop-filter: blur(0px);
-    }
-    to {
-      opacity: 1;
-      backdrop-filter: blur(2px);
+    &:active {
+      transform: scale(0.97);
     }
   }
+}
+
+@keyframes ceFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes ceSlideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
 }

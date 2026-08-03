@@ -49,6 +49,9 @@ class HUD {
 
   initialize() {
     this.scene = this.game.scene.add('HUD', {}, true) as Phaser.Scene;
+    if (this.game.isMobile) {
+      this.components = this.components.filter(c => c !== this.minimap);
+    }
     this.components.forEach(component => component.initialize());
 
     this.applyCrazyGamesSettings();
@@ -95,7 +98,7 @@ class HUD {
   }
 
   update(dt: number) {
-    this.components.forEach(component => component.update(dt));
+    for (let i = 0; i < this.components.length; i++) this.components[i].update(dt);
   }
 
   setShow(show: boolean, force?: boolean) {
@@ -114,7 +117,7 @@ class HUD {
 
     const announcementText = this.scene.add.text(width / 2, yPos, text, {
       fontSize: `${Math.round(22 * this.scale)}px`,
-      fontFamily: 'Ubuntu, sans-serif',
+      fontFamily: 'Saira, sans-serif',
       color,
       stroke: '#000000',
       strokeThickness: 4,

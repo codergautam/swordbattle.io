@@ -2,7 +2,7 @@ const Types = require('../Types');
 
 module.exports = {
   coinsCount: 0,
-  aiPlayersCount: 20,
+  aiPlayersCount: 40,
   biomes: [
     {
       type: Types.Biome.Safezone,
@@ -224,7 +224,7 @@ module.exports = {
         },
         {
           type: Types.Entity.Bush,
-          amount: 160,
+          amount: 100,
           position: 'random',
           size: [100, 400],
         },

@@ -23,7 +23,8 @@ export class Spectator {
       if (this.initialized) {
         camera.pan(x, y, 10000, Phaser.Math.Easing.Linear, true);
       } else {
-        camera.centerOn(0, 0);
+        const start = this.game.gameState?.gameMap?.getSafezoneCenter() || { x: 0, y: 0 };
+        camera.centerOn(start.x, start.y);
         camera.pan(x, y, 4000, Phaser.Math.Easing.Linear, true);
       }
       this.initialized = true;

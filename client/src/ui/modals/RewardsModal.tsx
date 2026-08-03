@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { AccountState, claimDailyLoginAsync } from '../../redux/account/slice';
 
@@ -129,7 +129,11 @@ function getStreakColor(streak: number): React.CSSProperties {
   } as React.CSSProperties;
 }
 
-const DAYS_PER_PAGE = 28;
+function calcDaysPerPage(): number {
+  const b = typeof document !== 'undefined' ? document.body.classList : null;
+  if (b && b.contains('sb-mobile')) return b.contains('sb-landscape') ? 28 : 20;
+  return 35;
+}
 
 const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
   const dispatch = useDispatch();
@@ -142,15 +146,29 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
   const playtimeSeconds = dl.playtime || 0;
   const playtimeMinutes = Math.floor(playtimeSeconds / 60);
 
-  const [page, setPage] = useState(() => Math.floor(Math.max(0, claimableTo - 1) / DAYS_PER_PAGE));
+  const [daysPerPage, setDaysPerPage] = useState(calcDaysPerPage);
+  const [page, setPage] = useState(() => Math.floor(Math.max(0, claimableTo - 1) / calcDaysPerPage()));
   const [claiming, setClaiming] = useState(false);
 
-  const pageStart = page * DAYS_PER_PAGE + 1;
-  const pageEnd = pageStart + DAYS_PER_PAGE - 1;
+  useEffect(() => {
+    const on = () => {
+      const n = calcDaysPerPage();
+      setDaysPerPage((prev) => {
+        if (prev !== n) setPage(Math.floor(Math.max(0, claimableTo - 1) / n));
+        return n;
+      });
+    };
+    window.addEventListener('resize', on);
+    window.addEventListener('orientationchange', on);
+    return () => { window.removeEventListener('resize', on); window.removeEventListener('orientationchange', on); };
+  }, [claimableTo]);
+
+  const pageStart = page * daysPerPage + 1;
+  const pageEnd = pageStart + daysPerPage - 1;
 
   // Build rewards for current page
   const rewards: DayReward[] = [];
-  for (let i = 0; i < DAYS_PER_PAGE; i++) {
+  for (let i = 0; i < daysPerPage; i++) {
     const day = pageStart + i;
     const { type, label, image } = getRewardForDay(day);
     let state: RewardState;

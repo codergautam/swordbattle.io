@@ -6,6 +6,8 @@ import api from '../../api';
 import * as cosmetics from '../../game/cosmetics.json'
 
 import './InventoryModal.scss'
+import SkinView from '../SkinView';
+import { getSkinScale } from '../../game/skinScales';
 import { buyFormats, numberWithCommas, sinceFrom } from '../../helpers';
 import { Id } from '@reduxjs/toolkit/dist/tsHelpers';
 let { skins } = cosmetics;
@@ -14,6 +16,7 @@ const basePath = 'assets/game/player/';
 
 interface InventoryModalProps {
   account: AccountState;
+  onPreviewSkin?: (id: number) => void;
 }
 
 interface Skin {
@@ -79,84 +82,36 @@ const SkinGrid: React.FC<SkinGridProps> = ({
             {skin.event && <p className='skin-eventtag'>{skin.eventtag}</p>}
             {skin.eventoffsale && <p className='skin-eventtag'>{skin.eventtag}</p>}
 
-            <div style={skin.id === 459 ? { transform: 'scale(1.25)' } : undefined}>
-              <img
-                src={basePath + skin.bodyFileName}
-                alt={skin.name}
-                ref={(el) => {
-                  assignRef(el as HTMLImageElement, index);
-                  if (el) {
-                    const tempImg = new window.Image();
-                    tempImg.src = basePath + skin.bodyFileName;
-                    tempImg.onload = () => {
-                      if (tempImg.naturalWidth === 300) el.className = 'skin-img-large';
-                      else if (tempImg.naturalWidth === 274) el.className = 'skin-img';
-                      else el.className = 'skin-img-small';
-                    };
-                  }
-                }}
-                data-selected='skin'
-              />
-              <img
-                src={basePath + skin.swordFileName}
-                alt={skin.name}
-                ref={(el) => {
-                  assignRef(el as HTMLImageElement, index);
-                  if (el) {
-                    const tempImg = new window.Image();
-                    tempImg.src = basePath + skin.bodyFileName;
-                    tempImg.onload = () => {
-                      if (tempImg.naturalWidth === 300) el.className = 'skin-sword-large';
-                      else if (tempImg.naturalWidth === 274) el.className = 'skin-sword';
-                      else el.className = 'skin-sword-small';
-                    };
-                  }
-                }}
-                data-selected='skin'
-              />
+            <SkinView body={skin.bodyFileName} sword={skin.swordFileName} scale={getSkinScale(skin.id)} />
+            <div className='skin-meta'>
+              <span className='skin-price'>
+                {(skin?.price ?? 0) > 0 ? (
+                  <>
+                    {skin?.sale && <span className="sale">{skin?.ogprice}</span>}
+                    {skin?.price}
+                    <img className={'gem'} src={skin?.ultimate ? 'assets/game/ultimacy.png' : 'assets/game/gem.png'} alt='' width={18} height={18} />
+                  </>
+                ) : (
+                  skin?.ultimate
+                    ? <>{skin.buyable ? '0' : ''}<img className={'gem'} src='assets/game/ultimacy.png' alt='' width={18} height={18} /></>
+                    : (skin?.buyable ? 'Free' : '')
+                )}
+              </span>
+              <span className='skin-buys'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys</span>
             </div>
-            <h4 className='skin-count'>
-              {Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys
-              <br/>
-              <p className='skin-desc'>{skin.description}</p>
-              {(skin?.price ?? 0) > 0 ? (
-                <>
-                  {skin?.sale && <> <span className="sale">{skin?.ogprice}</span><span>‎ ‎ ‎</span> </>}
-                  {skin?.price}
-                  {skin?.ultimate
-                    ? <img className={'gem'} src='assets/game/ultimacy.png' alt='Mastery' width={20} height={20} />
-                    : <img className={'gem'} src='assets/game/gem.png' alt='Gems' width={20} height={20} />
-                  }
-                </>
-              ) : (
-                <>
-                  <p style={{ marginLeft: 0, marginRight: 0, marginBottom: 0, marginTop: 7 }}>
-                    {skin?.sale && <> <span className="sale">{skin?.ogprice}</span><span>‎ ‎ ‎</span> </>}
-                    {skin?.ultimate ? (
-                      <>
-                        {skin.buyable ? '0' : ''}
-                        <img className="gem" src="assets/game/ultimacy.png" alt="Mastery" width={30} height={30} />
-                      </>
-                    ) : (
-                      skin?.buyable ? 'Free' : ''
-                    )}
-                  </p>
-                </>
-              )}
-            </h4>
-            {account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (
-              <button className="buy-button" onClick={() => onActionClick(skin.id)}>
-                {skinStatus[skin.id]
-                  ? skinStatus[skin.id]
-                  : equippedSkinId === skin.id
-                    ? 'Equipped'
-                    : account.skins.owned.includes(skin.id)
-                      ? 'Equip'
-                      : skin.ultimate
-                        ? 'Unlock'
-                        : 'Buy'}
-              </button>
-            )}
+            {account?.isLoggedIn && (skin.buyable || account.skins.owned.includes(skin.id)) && (() => {
+              const owned = account.skins.owned.includes(skin.id);
+              const equipped = equippedSkinId === skin.id;
+              const price = skin.price ?? 0;
+              const currency = skin.ultimate ? account.mastery : account.gems;
+              const afford = price <= 0 || currency >= price;
+              const state = equipped ? 'equipped' : owned ? 'owned' : afford ? 'afford' : 'cantafford';
+              return (
+                <button className={`buy-button buy-${state}`} onClick={() => onActionClick(skin.id)}>
+                  {skinStatus[skin.id] ? skinStatus[skin.id] : equipped ? 'Equipped' : owned ? 'Equip' : skin.ultimate ? 'Unlock' : 'Buy'}
+                </button>
+              );
+            })()}
           </div>
         );
       })}
@@ -164,7 +119,7 @@ const SkinGrid: React.FC<SkinGridProps> = ({
   );
 };
 
-const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
+const InventoryModal: React.FC<InventoryModalProps> = ({ account, onPreviewSkin }) => {
   const dispatch = useDispatch();
   const [skinStatus, setSkinStatus] = useState<{ [id: number]: string }>({});
   const [searchTerm, setSearchTerm] = useState('');
@@ -234,6 +189,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
   }
 
   function handleActionClick(id: number) {
+    if (onPreviewSkin) { onPreviewSkin(id); return; }
     if (skinStatus[id]) return;
 
     if (accountHasBan() && equippedSkinId !== id && account.skins.owned.includes(id)) {
@@ -244,6 +200,17 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
     if (equippedSkinId === id) return; // Already equipped
 
     const isOwned = account.skins.owned.includes(id);
+    const skinObj: any = Object.values(skins).find((s: any) => s.id === id);
+
+    if (!isOwned) {
+      if (skinObj?.ultimate && skinObj?.original && !account.skins.owned.includes(skinObj.original)) {
+        const orig: any = Object.values(skins).find((s: any) => s.id === skinObj.original);
+        alert(`You need to own the "${orig?.displayName ?? 'original'}" skin before you can unlock the "${skinObj?.displayName ?? 'this'}" skin!`);
+        return;
+      }
+      if (!window.confirm(`Do you want to ${skinObj?.ultimate ? 'unlock' : 'buy'} the "${skinObj?.displayName ?? 'this'}" skin?`)) return;
+    }
+
     const actionText = isOwned ? 'Equipping...' : 'Getting...';
 
     setEquippedSkinId(id);
@@ -381,8 +348,10 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
   return account?.isLoggedIn ? (
     <div className="inventory-modal">
       <div className="shop-extra">
-      <h1 className='shop-title'>Inventory</h1>
-      <h1 className='shop-desc'>Owned Skins: {numberWithCommas(account.skins.owned.length)}</h1>
+      <div className="shop-headrow">
+        <h1 className='shop-title'>Inventory</h1>
+        <div className='shop-counters shop-counters-login'>Owned Skins: {numberWithCommas(account.skins.owned.length)}</div>
+      </div>
 
 <div className='search-bar'>
 <input
@@ -393,57 +362,46 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
       />
 </div>
 
-<h1 className='shop-desc-extra'>(Skins may take a while to fully load)</h1>
-<div className="badges">
-  <div className="settings-line">
-        <label htmlFor="showUltimate">Show ultimate skins {' '} </label>
-        <label className="switch">
-          <input type="checkbox" name="showUltimate" id="showUltimate"
-            checked={showUltimate}
-            onChange={(e) => updateUltimate(e.target.checked)}
-          />
-          <span className="slider round"></span>
-        </label>
-      </div>
-      <br />
+<div className="inv-filters">
+  <div className="inv-toggles">
+    <div className="settings-line">
+      <label htmlFor="showUltimate">Show Ultimate Skins</label>
+      <label className="switch">
+        <input type="checkbox" name="showUltimate" id="showUltimate"
+          checked={showUltimate} onChange={(e) => updateUltimate(e.target.checked)} />
+        <span className="slider round"></span>
+      </label>
+    </div>
+    <div className="settings-line">
+      <label htmlFor="showEvent">Show Event Skins</label>
+      <label className="switch">
+        <input type="checkbox" name="showEvent" id="showEvent"
+          checked={showEvent} onChange={(e) => updateEvent(e.target.checked)} />
+        <span className="slider round"></span>
+      </label>
+    </div>
+    {Object.values(skins).filter((skinData: any) => skinData.og && account?.skins.owned.includes(skinData.id)).length > 0 && (
       <div className="settings-line">
-        <label htmlFor="showEvent">Show event skins {' '} </label>
-        <label className="switch">
-          <input type="checkbox" name="showEvent" id="showEvent"
-            checked={showEvent}
-            onChange={(e) => updateEvent(e.target.checked)}
-          />
-          <span className="slider round"></span>
-        </label>
-      </div>
-      <br />
-      { Object.values(skins).filter((skinData: any) =>  skinData.og && account?.skins.owned.includes(skinData.id)).length > 0 && (
-        <>
-        <div className="settings-line">
-        <label htmlFor="showOG">Show OG skins {' '} </label>
+        <label htmlFor="showOG">Show OG Skins</label>
         <label className="switch">
           <input type="checkbox" name="showOG" id="showOG"
-            checked={showOG}
-            onChange={(e) => updateOG(e.target.checked)}
-          />
+            checked={showOG} onChange={(e) => updateOG(e.target.checked)} />
           <span className="slider round"></span>
         </label>
       </div>
-      </>
-      )}
-      <br /><br /><br /><br />
-      <div className="settings-line">
+    )}
+  </div>
+  <div className="inv-sortrow">
+    <div className="settings-line">
       <label htmlFor="skinSort">Sort skins using:</label>
-      <select name="skinSort" id="skinSort"
-        value={skinSort}
-        onChange={(e) => updateSkinSort(e.target.value)}
-      >
+      <select name="skinSort" id="skinSort" value={skinSort} onChange={(e) => updateSkinSort(e.target.value)}>
         <option value="low">Price (Low to High)</option>
         <option value="high">Price (High to Low)</option>
         <option value="name">Name</option>
       </select>
-      </div>
-      
+    </div>
+    <span className="inv-loadnote">(Skins may take a while to fully load)</span>
+  </div>
       </div>
       </div>
       {searchTerm && (
@@ -481,7 +439,6 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account }) => {
         <div className='label'>
         <div ref={targetElementRef1}></div>
         <span>Owned Skins</span><hr></hr>
-        <p style={{color: '#999999'}}>Use settings at the left to filter skins</p>
         </div>
         <SkinGrid
           skins={skins}

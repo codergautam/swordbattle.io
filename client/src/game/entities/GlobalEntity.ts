@@ -9,7 +9,7 @@ const bossTypes = new Set([
 ]);
 
 class GlobalEntity extends BaseEntity {
-  static stateFields = [...BaseEntity.stateFields, 'name', 'coins', 'angle', 'account'];
+  static stateFields = [...BaseEntity.stateFields, 'name', 'coins', 'angle', 'account', 'skin', 'size', 'rarity'];
   minimapEntity?: BaseEntity;
   gameWorldEntity?: BaseEntity;
   private minimapGraphics?: Phaser.GameObjects.Graphics;
@@ -21,6 +21,7 @@ class GlobalEntity extends BaseEntity {
 
     const EntityClass = GetEntityClass(this.type);
     this.minimapEntity = new EntityClass(this.game);
+    (this.minimapEntity as any).isMinimap = true;
     this.minimapEntity.updateState(this);
     this.minimapEntity.createSprite();
     this.minimapEntity.setDepth();

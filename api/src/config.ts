@@ -7,6 +7,13 @@ interface ConfigProps {
   useSSL: boolean;
   appSecret: string;
   serverSecret: string;
+  moderationSecret: string;
+
+  openaiApiKey: string;
+  mod: {
+    restrictedThreshold: number;
+    severeThreshold: number;
+  };
 
   usernameWaitTime: number;
   usernameLength: [number, number];
@@ -24,6 +31,13 @@ export const config: ConfigProps = {
   useSSL: (process.env.USE_SSL || '').toLowerCase() === 'true',
   appSecret: process.env.APP_SECRET || 'app-secret',
   serverSecret: process.env.SERVER_SECRET || 'server-secret',
+  moderationSecret: process.env.MODERATION_SECRET || 'moderation-secret',
+
+  openaiApiKey: process.env.OPENAI_API_KEY || '',
+  mod: {
+    restrictedThreshold: parseFloat(process.env.MOD_RESTRICTED_THRESHOLD || '0.85'),
+    severeThreshold: parseFloat(process.env.MOD_SEVERE_THRESHOLD || '0.3'),
+  },
 
   usernameWaitTime: 7 * 24 * 60 * 60 * 1000, // 7 days
   usernameLength: [1, 20],

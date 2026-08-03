@@ -35,7 +35,7 @@ module.exports = {
 
   // Player settings
   player: {
-    speed: 800,
+    speed: 1000,
     radius: 100,
     maxHealth: 90,
     regeneration: 3,
@@ -54,7 +54,7 @@ module.exports = {
     initialSwingDuration: 0.1,
     swingDurationIncrease: 1.15,
     maxSwingDuration: 3,
-    damage: 12,
+    damage: 9,
     knockback: 200,
   },
 

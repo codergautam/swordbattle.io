@@ -76,7 +76,7 @@ class AncientMob extends Entity {
       this.speed.multiplier *= 1.5;
 
       this.angle = helpers.angleLerp(this.angle, targetAngle, dt * this.definition.rotationSpeed);
-      if (this.swordTimer.finished) {
+      if (this.swordTimer.finished && !this.definition.noProjectiles) {
         this.swordTimer.renew();
 
         if (Math.random() < 0.5) {
@@ -91,6 +91,7 @@ class AncientMob extends Entity {
               damage: this.damage.value * 0.7,
               duration: [this.definition.swordDuration[0], this.definition.swordDuration[1]],
               position: [this.shape.x, this.shape.y],
+              skin: this.skin || 0,
             });
           }
         } else {
@@ -102,6 +103,7 @@ class AncientMob extends Entity {
             damage: this.damage.value * 0.25,
             duration: [this.definition.boulderDuration[0], this.definition.boulderDuration[1]],
             position: [this.shape.x, this.shape.y],
+            skin: this.skin || 0,
           });
         }
       }
@@ -142,13 +144,9 @@ class AncientMob extends Entity {
       this.velocity.scale(-0.5);
       const kbX = 75 * Math.cos(angle);
       const kbY = 75 * Math.sin(angle);
-      if (typeof entity.applyMobHit === 'function') {
-        entity.applyMobHit(this.damage.value, kbX, kbY, this.shape.x, this.shape.y, this);
-      } else {
-        entity.velocity.x += kbX;
-        entity.velocity.y += kbY;
-        entity.damaged(this.damage.value, this);
-      }
+      entity.velocity.x += kbX;
+      entity.velocity.y += kbY;
+      entity.damaged(this.damage.value, this);
 
       this.shape.applyCollision(mtv);
       entity.shape.applyCollision(mtv.clone().scale(-1));
@@ -167,10 +165,8 @@ class AncientMob extends Entity {
       finalDamage *= entity.modifiers.mobPower;
     }
 
-    // Bots and shielded players always deal full damage
-    const isBot = entity.isBot;
-    const isShielded = entity.coins < 500;
-    const bypassesMarkSystem = isBot || isShielded;
+    // Bots always deal full damage
+    const bypassesMarkSystem = entity.isBot;
 
     if (!bypassesMarkSystem) {
       const currentTime = Date.now();

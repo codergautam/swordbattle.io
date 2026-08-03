@@ -157,7 +157,7 @@ class BuffsSelect extends HudComponent {
 
         // text
         const text = scene.add.text(20, 0, config[0], {
-          fontFamily: 'Ubuntu, sans-serif',
+          fontFamily: 'Saira, sans-serif',
           fontStyle: 'bold',
           stroke: '#000000',
           strokeThickness: 4,

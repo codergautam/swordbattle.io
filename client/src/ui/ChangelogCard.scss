@@ -20,6 +20,53 @@ ul {
   text-align: center;
 }
 
+.newsCard {
+  display: block;
+
+  .news-title {
+    text-align: center;
+    font-size: 23px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.55);
+    margin: 0 0 6px;
+  }
+
+  .news-sub {
+    text-align: center;
+    font-size: 17px;
+    font-weight: 700;
+    color: #2aff35;
+    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.5);
+    margin: 0 0 10px;
+  }
+
+  .news-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+
+    li {
+      padding: 3px 0;
+      line-height: 1.3;
+
+      &::before {
+        content: '•';
+        margin-right: 8px;
+      }
+
+      &.hot {
+        color: #ffd02e;
+      }
+    }
+  }
+}
+
 .changelogbutton {
   top: 0;
   display: flex;

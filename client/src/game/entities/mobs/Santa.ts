@@ -5,8 +5,6 @@ class SantaMob extends BaseEntity {
   static stateFields = [...BaseEntity.stateFields, 'angle', 'isAngry'];
   static basicAngle = -Math.PI / 2;
   static removeTransition = 500;
-  static shadowOffsetX = 20;
-  static shadowOffsetY = 20;
 
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
@@ -18,9 +16,8 @@ class SantaMob extends BaseEntity {
   createSprite() {
     this.body = this.game.add.sprite(0, 0, 'santa').setOrigin(0.5, 0.3);
     this.body.setScale(this.baseScale);
-    this.shadow = this.game.add.sprite(SantaMob.shadowOffsetX, SantaMob.shadowOffsetY, 'santaShadow').setOrigin(0.5, 0.3);
-    this.shadow.setAlpha(0.13);
-    this.shadow.setScale(this.baseScale);
+    this.shadow = this.createOutlineShadow('santa', 0.5, 0.3, { living: true });
+    this.syncOutlineShadow(this.shadow, this.body);
     this.healthBar = new Health(this, {
       offsetY: this.shape.radius * 1.3,
       width: this.shape.radius * 3,
@@ -33,9 +30,7 @@ class SantaMob extends BaseEntity {
   updateRotation() {
     if (!this.body) return;
     super.updateRotation();
-    if (this.shadow) {
-      this.shadow.setRotation(this.body.rotation);
-    }
+    this.syncOutlineShadow(this.shadow, this.body);
   }
 }
 

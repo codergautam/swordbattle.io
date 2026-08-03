@@ -156,13 +156,9 @@ class SantaMob extends Entity {
       const resist = (entity.knockbackResistance.value || 1);
       const kbX = -knockback * Math.cos(this.angle - Math.PI) / resist;
       const kbY = -knockback * Math.sin(this.angle - Math.PI) / resist;
-      if (typeof entity.applyMobHit === 'function') {
-        entity.applyMobHit(force, kbX, kbY, this.shape.x, this.shape.y, this);
-      } else {
-        entity.velocity.x += kbX;
-        entity.velocity.y += kbY;
-        entity.damaged(force, this);
-      }
+      entity.velocity.x += kbX;
+      entity.velocity.y += kbY;
+      entity.damaged(force, this);
       this.velocity.scale(0);
     }
   }

@@ -1,12 +1,15 @@
 import { BaseEntity } from '../BaseEntity';
 import { Health } from '../../components/Health';
 
+const ancientSkins: Record<number, { body: string, shadow: string }> = {
+  0: { body: 'ancient',     shadow: 'ancientShadow' },
+  2: { body: 'ancientDirt', shadow: 'ancientShadow' },
+};
+
 class AncientMob extends BaseEntity {
-  static stateFields = [...BaseEntity.stateFields, 'angle'];
+  static stateFields = [...BaseEntity.stateFields, 'angle', 'skin'];
   static basicAngle = -Math.PI / 2;
   static removeTransition = 500;
-  static shadowOffsetX = 20;
-  static shadowOffsetY = 20;
 
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
@@ -15,10 +18,20 @@ class AncientMob extends BaseEntity {
     return (this.shape.radius * 3) / this.body.width * 1.25;
   }
 
+  private pickTextures(): { body: string, shadow: string } {
+    const idx = (this.skin as number) || 0;
+    const t = ancientSkins[idx] || ancientSkins[0];
+    return {
+      body: this.game.textures.exists(t.body) ? t.body : 'ancient',
+      shadow: this.game.textures.exists(t.shadow) ? t.shadow : 'ancientShadow',
+    };
+  }
+
   createSprite() {
-    this.body = this.game.add.sprite(0, 0, 'ancient').setOrigin(0.5, 0.5);
-    this.shadow = this.game.add.sprite(AncientMob.shadowOffsetX, AncientMob.shadowOffsetY, 'ancientShadow').setOrigin(0.5, 0.5);
-    this.shadow.setAlpha(0.175);
+    const tex = this.pickTextures();
+    this.body = this.game.add.sprite(0, 0, tex.body).setOrigin(0.5, 0.5);
+    this.shadow = this.createOutlineShadow(tex.body, 0.5, 0.5, { living: true });
+    this.syncOutlineShadow(this.shadow, this.body);
     this.healthBar = new Health(this, {
       offsetY: -this.shape.radius * 1.25,
       width: this.shape.radius * 1.5,
@@ -31,9 +44,7 @@ class AncientMob extends BaseEntity {
   updateRotation() {
     if (!this.body) return;
     super.updateRotation();
-    if (this.shadow) {
-      this.shadow.setRotation(this.body.rotation);
-    }
+    this.syncOutlineShadow(this.shadow, this.body);
   }
 }
 

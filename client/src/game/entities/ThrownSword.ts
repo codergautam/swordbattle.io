@@ -9,9 +9,6 @@ class ThrownSword extends BaseEntity {
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
 
-  static shadowOffsetX = 10;
-  static shadowOffsetY = 10;
-
   createSprite() {
     let skinName = 'playerSword';
     if (this.skin && !Settings.unloadSkins) {
@@ -22,10 +19,8 @@ class ThrownSword extends BaseEntity {
       }
     }
 
-    this.body = this.game.add.sprite(0, 0, skinName).setOrigin(-0.2, 0.5);
-    const shadowKey = this.createShadowTexture(skinName);
-    this.shadow = this.game.add.sprite(ThrownSword.shadowOffsetX, ThrownSword.shadowOffsetY, shadowKey).setOrigin(-0.2, 0.5);
-    this.shadow.setAlpha(0.075);
+    this.body = this.game.add.sprite(0, 0, skinName).setOrigin(0.5, 0.5);
+    this.shadow = this.createOutlineShadow(skinName, 0.5, 0.5);
 
     const x = this.shape ? this.shape.x : 0;
     const y = this.shape ? this.shape.y : 0;
@@ -43,11 +38,12 @@ class ThrownSword extends BaseEntity {
 
     const scale = ((this.size || 50) * 3) / this.body.width;
     this.body.setScale(scale);
-    this.shadow.setScale(scale);
 
     const rotation = (this.angle || 0) + Math.PI / 4;
     this.body.setRotation(rotation);
-    this.shadow.setRotation(rotation);
+    this.syncOutlineShadow(this.shadow, this.body);
+    this.shadow.y += 12;
+    this.shadow.setScale(this.body.scaleX * 1.14, this.body.scaleY * 1.14);
   }
 }
 

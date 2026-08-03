@@ -55,7 +55,15 @@ class Loop {
         console.log(`Server lagging severely... tick took ${this.tickTimeElapsed} ms. Expecting <${this.interval}, ms.\nReal player count: ${realPlayersCnt}; Entities: ${this.entityCnt}; Memory usage: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`);
       }
     this.ticksThisSecond++;
-    const delay = this.interval - this.tickTimeElapsed;
+
+    if (this.nextTickAt === undefined) this.nextTickAt = now;
+    this.nextTickAt += this.interval;
+    let delay = this.nextTickAt - Date.now();
+    if (delay < -this.interval) {
+      this.nextTickAt = Date.now() + this.interval;
+      delay = this.interval;
+    }
+    if (delay < 0) delay = 0;
     setTimeout(() => this.runLoop(), delay);
   }
 

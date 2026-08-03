@@ -7,6 +7,7 @@ import {
 } from '../../redux/clans/slice';
 import api from '../../api';
 import './ClansModal.scss';
+import './clans/clansHud.scss';
 
 import JoinClanTab from './clans/tabs/JoinClanTab';
 import CreateClanTab from './clans/tabs/CreateClanTab';
@@ -17,9 +18,11 @@ import EditClanTab from './clans/tabs/EditClanTab';
 import SearchTab from './clans/tabs/SearchTab';
 import ProfileModal from './ProfileModal';
 import Modal from './Modal';
+import ModalAd from '../ModalAd';
 
 interface ClansModalProps {
   account: AccountState;
+  onViewProfile?: (username: string) => void;
 }
 
 type OutsideTab = 'join' | 'create' | 'leaderboard';
@@ -41,7 +44,7 @@ function formatCooldown(ms: number): string {
   return `${total}s`;
 }
 
-function ClansModal({ account }: ClansModalProps) {
+function ClansModal({ account, onViewProfile }: ClansModalProps) {
   const dispatch = useDispatch();
   const clan = useSelector((s: RootState) => s.account.clan);
   const clanCooldownUntil = useSelector((s: RootState) => s.account.clanCooldownUntil);
@@ -66,6 +69,7 @@ function ClansModal({ account }: ClansModalProps) {
     if (clanId) {
       dispatch(hydrateLastSeenChatId(clanId));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, account.isLoggedIn]);
 
   useEffect(() => {
@@ -123,7 +127,10 @@ function ClansModal({ account }: ClansModalProps) {
   const unreadChatCount = chat.filter((m) => m.id > lastSeenChatId).length;
   const hasUnread = inClan && insideTab !== 'chat' && newestChatId > lastSeenChatId && unreadChatCount > 0;
 
-  const openUserProfile = (username: string) => setUserProfileOverlay(username);
+  const openUserProfile = (username: string) => {
+    if (onViewProfile) onViewProfile(username);
+    else setUserProfileOverlay(username);
+  };
   const closeUserProfile = () => setUserProfileOverlay(null);
 
   const switchOutsideTab = (tab: OutsideTab) => {
@@ -166,9 +173,11 @@ function ClansModal({ account }: ClansModalProps) {
         </div>
       </div>
 
+      <ModalAd placement="clans" />
+
       {showCooldownBanner && (
         <div className="clans-cooldown-banner">
-          You can't join or create another clan for <strong>{formatCooldown(cooldownRemaining)}</strong> — you recently left one.
+          You can't join or create another clan for <strong>{formatCooldown(cooldownRemaining)}</strong> because you recently left one.
         </div>
       )}
 

@@ -7,7 +7,7 @@ module.exports = class Tree extends Evolution {
   static level = 9999; // No winter evols now
   static previousEvol = Types.Evolution.CandyWalker;
   static abilityDuration = 10;
-  static abilityCooldown = 75;
+  static abilityCooldown = 50;
 
   constructor(player) {
     super(player);

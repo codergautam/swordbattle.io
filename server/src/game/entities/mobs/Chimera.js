@@ -229,26 +229,10 @@ class Chimera extends Entity {
   processTargetsCollision(entity) {
     if (entity.type === Types.Entity.Player) {
       if (this.aiState === 'charge' && this.canBeHitByPlayer && !this.hasDealtChargeDamage) {
-        const dmg = this.damage.value * 4;
+        entity.damaged(this.damage.value * 4, this);
+
         if (this.altitude <= this.lowAltitude) {
-          const vx = this.velocity.x, vy = this.velocity.y;
-          const speed = Math.sqrt(vx * vx + vy * vy);
-          if (speed > 0.001 && typeof entity.applyMobHit === 'function') {
-            const force = (2 + speed) * 0.2 * (5 * 4);
-            const resist = (entity.knockbackResistance.value || 1);
-            const kbX = (vx / speed) * force / resist;
-            const kbY = (vy / speed) * force / resist;
-            entity.applyMobHit(dmg, kbX, kbY, this.shape.x, this.shape.y, this);
-          } else {
-            entity.damaged(dmg, this);
-            this.applyVelocityKnockback(entity, 5 * 4);
-          }
-        } else {
-          if (typeof entity.applyMobHit === 'function') {
-            entity.applyMobHit(dmg, 0, 0, this.shape.x, this.shape.y, this);
-          } else {
-            entity.damaged(dmg, this);
-          }
+          this.applyVelocityKnockback(entity, 5 * 4);
         }
 
         this.hasDealtChargeDamage = true;

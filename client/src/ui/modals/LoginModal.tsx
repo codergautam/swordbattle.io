@@ -5,7 +5,7 @@ import api from '../../api';
 
 import './LoginModal.scss';
 
-function LoginModal({ onSuccess }: any) {
+function LoginModal({ onSuccess, onSupport }: any) {
   const dispatch = useDispatch();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -32,8 +32,13 @@ function LoginModal({ onSuccess }: any) {
       <input type="password" placeholder="Password"
         onChange={(e) => setPassword(e.target.value)}
       />
-      <p style={{marginTop: 5, marginBottom: 0}}>Forgot your password? Email support@swordbattle.io</p>
-      <button onClick={onLogin}>Login</button>
+      <p className="forgot">
+        Forgot your password?{' '}
+        {onSupport
+          ? <button type="button" className="forgot-link" onClick={onSupport}>Visit the support page</button>
+          : <span>Open Support (the headset button) and pick Reset a password.</span>}
+      </p>
+      <button className="auth-submit" onClick={onLogin}>Login</button>
     </div>
   );
 }

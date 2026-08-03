@@ -19,7 +19,7 @@ class UpgradeButton extends HudComponent {
     this.buttonBg = scene.add.graphics();
     this.buttonText = scene.add.text(20, 6, 'Upgrades', {
       fontSize: '16px',
-      fontFamily: 'Ubuntu, sans-serif',
+      fontFamily: 'Saira, sans-serif',
       fontStyle: 'bold',
       color: '#e7e7e7',
     });
@@ -27,14 +27,14 @@ class UpgradeButton extends HudComponent {
     this.badge = scene.add.graphics();
     this.badgeText = scene.add.text(0, 0, '', {
       fontSize: '12px',
-      fontFamily: 'Ubuntu, sans-serif',
+      fontFamily: 'Saira, sans-serif',
       fontStyle: 'bold',
       color: '#ffffff',
     }).setOrigin(0.5);
 
     this.button = scene.add.container(0, 0, [this.buttonBg, this.buttonText, this.badge, this.badgeText]);
 
-    const hitZone = scene.add.zone(60, 15, 120, 30).setInteractive({ useHandCursor: true });
+    const hitZone = scene.add.zone(60, 15, 120, 30);
     this.button.add(hitZone);
 
     hitZone.on('pointerover', () => {
@@ -59,7 +59,7 @@ class UpgradeButton extends HudComponent {
 
     this.hintArrow = scene.add.text(0, 0, '\u2190', {
       fontSize: '28px',
-      fontFamily: 'monospace',
+      fontFamily: 'Saira, sans-serif',
       fontStyle: 'bold',
       color: '#ffdd44',
       stroke: '#000000',
@@ -68,7 +68,7 @@ class UpgradeButton extends HudComponent {
 
     this.hintText = scene.add.text(0, 0, 'Click this button to\nselect upgrades!', {
       fontSize: '14px',
-      fontFamily: 'Ubuntu, sans-serif',
+      fontFamily: 'Saira, sans-serif',
       fontStyle: 'bold',
       color: '#ffdd44',
       stroke: '#000000',
@@ -146,40 +146,7 @@ class UpgradeButton extends HudComponent {
   }
 
   update() {
-    if (!this.container) return;
-    this.container.setVisible(false);
-  }
-
-  updateLegacy() {
-    const player = this.game.gameState.self.entity;
-    if (!player || !this.container) return;
-
-    this._updatePosition();
-
-    const available: number = (player as any).availableUpgrades || 0;
-    const choosingCard = (player as any).choosingCard;
-
-    const shouldShow = available > 0 && !choosingCard;
-
-    if (shouldShow) {
-      this.container.setVisible(true);
-      if (available !== this.lastCount) {
-        this.lastCount = available;
-        this._drawBg();
-        this._drawBadge(available);
-        if (!this.hintShown) {
-          const isTutorial = (player as any).isTutorial;
-          if (isTutorial) {
-            this.showHint();
-          } else {
-            this.hintShown = true; // Skip hint for non-tutorial players
-          }
-        }
-      }
-    } else {
-      this.container.setVisible(false);
-      this.lastCount = 0;
-    }
+    if (this.container) this.container.setVisible(false);
   }
 }
 

@@ -17,15 +17,29 @@ export function mergeDeep(target: any, ...sources: any): any {
   if (isObject(target) && isObject(source)) {
     for (const key in source) {
       if (isObject(source[key])) {
-        if (!target[key]) Object.assign(target, { [key]: {} });
+        if (!target[key]) target[key] = {};
         mergeDeep(target[key], source[key]);
       } else {
-        Object.assign(target, { [key]: source[key] });
+        target[key] = source[key];
       }
     }
   }
 
   return mergeDeep(target, ...sources);
+}
+
+export function mergeDeepInto(target: any, source: any): any {
+  if (isObject(target) && isObject(source)) {
+    for (const key in source) {
+      if (isObject(source[key])) {
+        if (!target[key]) target[key] = {};
+        mergeDeepInto(target[key], source[key]);
+      } else {
+        target[key] = source[key];
+      }
+    }
+  }
+  return target;
 }
 
 export function numberWithCommas(x: number) {
@@ -188,12 +202,40 @@ export function findCoinCollector(coin: Coin, players: Player[]) {
 }
 
 
-export const playVideoAd = () => {
+export function isAdBlockBait(): boolean {
+  if ((window as any)._isCrazyGamesBasicLaunch) return false;
+  try {
+    const bait = document.createElement('div');
+    bait.className = 'adsbox ad-banner ads ad pub_300x250 text-ad textAd';
+    bait.style.cssText = 'position:absolute;left:-9999px;top:-9999px;height:2px;width:2px;';
+    document.body.appendChild(bait);
+    const blocked = bait.offsetParent === null || bait.offsetHeight === 0
+      || window.getComputedStyle(bait).display === 'none';
+    document.body.removeChild(bait);
+    return blocked;
+  } catch (e) {
+    return false;
+  }
+}
+
+export function isAdBlockActive(): boolean {
+  const w = window as any;
+  if (w._isCrazyGamesBasicLaunch) return false;
+  if (isAdBlockBait()) return true;
+  const provider = w.adProvider || 'adinplay';
+  if (provider === 'adinplay' && w.aiptag
+      && typeof w.aipDisplayTag === 'undefined' && typeof w.aipPlayer === 'undefined') {
+    return true;
+  }
+  return false;
+}
+
+export const playVideoAd = (force = false) => {
   const windowAny = window as any;
   return new Promise<void>((resolve, reject) => {
   // basic launch
   if(crazygamesSDK.shouldUseSDK()) { resolve(); return; }
-  if(Date.now() - windowAny?.lastVidAdTime > windowAny?.vidAdDelay) {
+  if(force || Date.now() - windowAny?.lastVidAdTime > windowAny?.vidAdDelay) {
     // CrazyGames SDK
     if(windowAny?.adProvider === 'crazygames') {
       console.log('Playing video ad from CrazyGames');
@@ -239,7 +281,7 @@ export const playVideoAd = () => {
       onComplete();
     });
     // adinplay
-  } else if(windowAny?.adProvider === 'adinplay' && typeof windowAny?.aiptag?.adplayer !== 'undefined') {
+  } else if(windowAny?.adProvider === 'adinplay' && typeof windowAny?.aipPlayer !== 'undefined') {
     console.log('Playing video ad from adinplay');
 
     /* if (typeof aiptag.adplayer !== "undefined") {

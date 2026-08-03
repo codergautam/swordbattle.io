@@ -6,7 +6,7 @@ module.exports = class Lumberjack extends Evolution {
   static level = 18;
   static previousEvol = [Types.Evolution.Samurai, Types.Evolution.Rook];
   static abilityDuration = 4;
-  static abilityCooldown = 54;
+  static abilityCooldown = 36;
 
   applyAbilityEffects() {
     this.player.modifiers.chestPower = 3.5;
@@ -25,13 +25,14 @@ module.exports = class Lumberjack extends Evolution {
     this.player.modifiers.mobPower = 0.9; // If too op for grinding then nerf
     this.player.shape.setScale(1.1);
     this.player.sword.knockback.multiplier['ability'] = 1.5;
-    this.player.knockbackResistance.multiplier *= 0.5;
+    this.player.knockbackResistance.multiplier *= 0.65;
     this.player.sword.damage.multiplier *= 1.05;
     this.player.sword.swingDuration.multiplier['base'] = 1.175;
     this.player.speed.multiplier *= 0.95;
     this.player.health.regenWait.multiplier *= 0.75;
     this.player.health.regen.multiplier *= 0.9;
-    this.player.health.max.multiplier *= 0.9;
+    this.player.health.max.multiplier *= 0.92;
     super.update(dt);
+  
   }
 }

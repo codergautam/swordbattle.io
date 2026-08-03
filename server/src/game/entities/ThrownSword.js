@@ -31,8 +31,8 @@ class ThrownSword extends Entity {
 
   _updateCollisionPoly() {
     const s = this.size;
-    const cx = -0.35 * s;
-    const cy = 1.25 * s;
+    const cx = 0.35 * s;
+    const cy = -1.25 * s;
     const newPoints = [
       new SAT.Vector(0 - cx, 0 - cy),
       new SAT.Vector(-0.14615384615384616 * s - cx, -1.7769230769230768 * s - cy),
@@ -68,13 +68,6 @@ class ThrownSword extends Entity {
     let power = this.knockbackPower / (entity.knockbackResistance?.value || 1);
     power = Math.max(Math.min(power, 300), 50);
 
-    if (entity.type === Types.Entity.Player && typeof entity.getBlockEffect === 'function') {
-      const eff = entity.getBlockEffect('playerThrown', this.shape.x, this.shape.y, this.angle + Math.PI);
-      if (eff.applies && eff.breakBlock && typeof entity.cancelBlock === 'function') {
-        entity.cancelBlock(true);
-      }
-    }
-
     entity.velocity.x += power * Math.cos(angle);
     entity.velocity.y += power * Math.sin(angle);
 
@@ -100,24 +93,6 @@ class ThrownSword extends Entity {
       this.owner.flags.set(Types.Flags.EnemyHit, entity.id);
     }
 
-    const owner = this.owner;
-    const evol = owner && owner.evolutions && owner.evolutions.evolutionEffect;
-    if (evol && typeof evol.refundCooldownByKind === 'function') {
-      const isHumanPlayer = entity.type === Types.Entity.Player && !entity.isBot && !owner.isBot;
-      const isBotOrMob = (entity.type === Types.Entity.Player && entity.isBot)
-        || (Types.Groups.Mobs && Types.Groups.Mobs.includes(entity.type));
-      if (isHumanPlayer) {
-        evol.refundCooldownByKind('playerThrown');
-      } else if (isBotOrMob) {
-        if (!owner.isInPvpCombat || !owner.isInPvpCombat()) {
-          evol.refundCooldownByKind('mob');
-        }
-      } else if (entity.type === Types.Entity.Chest) {
-        if (!owner.isInPvpCombat || !owner.isInPvpCombat()) {
-          evol.refundCooldownByKind('chest');
-        }
-      }
-    }
   }
 
   createState() {

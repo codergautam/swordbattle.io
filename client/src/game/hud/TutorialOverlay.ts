@@ -31,24 +31,24 @@ class TutorialOverlay extends HudComponent {
 
     this.bgGraphics = scene.add.graphics();
     this.headerText = scene.add.text(0, 12, 'Tutorial', {
-      fontSize: '18px', fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
+      fontSize: '18px', fontFamily: 'Saira, sans-serif', fontStyle: 'bold',
       color: '#ffd700', stroke: '#000000', strokeThickness: 3,
     }).setOrigin(0.5, 0);
 
     this.bodyText = scene.add.text(0, 38, '', {
-      fontSize: '13px', fontFamily: 'Ubuntu, sans-serif',
+      fontSize: '13px', fontFamily: 'Saira, sans-serif',
       color: '#ffffff', stroke: '#000000', strokeThickness: 2,
       wordWrap: { width: 420 }, lineSpacing: 6,
     }).setOrigin(0.5, 0);
 
     this.progressText = scene.add.text(0, 0, '', {
-      fontSize: '14px', fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
+      fontSize: '14px', fontFamily: 'Saira, sans-serif', fontStyle: 'bold',
       color: '#ffdd44', stroke: '#000000', strokeThickness: 3,
     }).setOrigin(0.5, 0);
 
     this.nextButtonBg = scene.add.graphics();
     this.nextButtonText = scene.add.text(0, 0, 'Next \u2192', {
-      fontSize: '14px', fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold', color: '#ffffff',
+      fontSize: '14px', fontFamily: 'Saira, sans-serif', fontStyle: 'bold', color: '#ffffff',
     }).setOrigin(0.5);
     const nextHit = scene.add.zone(0, 0, 120, 32).setInteractive({ useHandCursor: true });
     nextHit.on('pointerdown', () => this.advancePanel());
@@ -57,7 +57,7 @@ class TutorialOverlay extends HudComponent {
     this.nextButton = scene.add.container(0, 0, [this.nextButtonBg, this.nextButtonText, nextHit]);
 
     this.arrowText = scene.add.text(0, 0, '\u2190', {
-      fontSize: '64px', fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
+      fontSize: '64px', fontFamily: 'Saira, sans-serif', fontStyle: 'bold',
       color: '#ffd700', stroke: '#000000', strokeThickness: 5,
     }).setOrigin(0.5).setVisible(false).setDepth(106);
 
@@ -183,7 +183,7 @@ class TutorialOverlay extends HudComponent {
         break;
       }
       case 1: {
-        body = 'You\'ve spawned in the Safezone. Move left, past the water, to reach the Grass biome!\n\nCollect coins to get stronger! Coins spawn on the ground, but you can break nearby chests or hunt down mobs for WAY more!\n\nAt 1,000 coins you\'ll be able to choose an Evolution!';
+        body = 'You\'ve spawned in the Safezone. Move left, past the water, to reach the Grass biome!\n\nCollect coins to get stronger! Coins spawn on the ground, but you can break nearby chests or hunt down mobs for WAY more!\n\nAt 50 coins you\'ll be able to choose an Evolution!';
         break;
       }
       case 2: {

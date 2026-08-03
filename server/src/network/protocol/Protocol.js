@@ -4,17 +4,33 @@ const root = protobuf.loadSync(__dirname + '/schema.proto');
 const ServerMessage = root.lookupType('ServerMessage');
 const ClientMessage = root.lookupType('ClientMessage');
 const makeSendable = (data, depth = 0) => {
-  if(depth > 3) return data;
-  for (const key in data) {
+  if (depth > 3 || !data || typeof data !== 'object') return data;
+  const out = Array.isArray(data) ? [] : {};
+  for (const key of Object.keys(data)) {
     const val = data[key];
     if (typeof val === 'number') {
-      data[key] = Math.round(val * 100) / 100;
-    } else if(val && typeof val === 'object') {
-      makeSendable(val, depth + 1);
+      out[key] = Math.round(val * 10000) / 10000;
+    } else if (val && typeof val === 'object') {
+      out[key] = makeSendable(val, depth + 1);
+    } else {
+      out[key] = val;
+    }
+  }
+  return out;
+}
+const roundOwnInPlace = (data, depth = 0) => {
+  if (depth > 3 || !data || typeof data !== 'object') return data;
+  for (const key of Object.keys(data)) {
+    const val = data[key];
+    if (typeof val === 'number') {
+      data[key] = Math.round(val * 10000) / 10000;
+    } else if (val && typeof val === 'object') {
+      roundOwnInPlace(val, depth + 1);
     }
   }
   return data;
 }
+const beginBroadcast = () => {};
 const encode = (data) => {
   data = makeSendable(data);
   const message = ServerMessage.create(data);
@@ -38,7 +54,7 @@ const decode = (msg) => {
   let decoded;
   try {
     decoded = ClientMessage.decode(payload);
-    decoded = makeSendable(decoded);
+    decoded = roundOwnInPlace(decoded);
   } catch (e) {
     throw new Error(`Decode failed: ${e.message}`);
   }
@@ -48,6 +64,7 @@ const decode = (msg) => {
 module.exports = {
   encode,
   decode,
+  beginBroadcast,
   ServerMessage,
   ClientMessage,
 };

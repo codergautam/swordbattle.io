@@ -1,186 +1,150 @@
 import HudComponent from './HudComponent';
+import { drawPanel } from './panel';
+
+interface Row {
+  key: string;
+  container: Phaser.GameObjects.Container;
+  panel: Phaser.GameObjects.Graphics;
+  icon: Phaser.GameObjects.Image;
+  text: Phaser.GameObjects.Text;
+  visible: boolean;
+  last: number;
+  shownW: number;
+  pulse?: Phaser.Tweens.Tween;
+}
+
+const ICON = 38;
+const pad = 14;
+const gap = 11;
+const rowH = 54;
+const rowGap = 16;
 
 class CoinCounter extends HudComponent {
-  indent = 20;
   lastUpdate = 0;
   updateInterval = 200;
-  lastCoins = 0;
-  lastTokens = 0;
-  lastUltimacy = 0;
-  hasEverHadSnowWalker = false; // Toggle: true after SnowWalker evolution, false after player dies
-  showTokens = false; // Toggle: set to true to show tokens for seasonal events
-  style: Phaser.Types.GameObjects.Text.TextStyle = {
-    fontStyle: 'bold',
-    stroke: '#000000',
-    fontFamily:'Courier',
-    shadow: {
-      offsetX: 3,
-      offsetY: 3,
-      color: '#00000052',
-      stroke: true,
-      fill: true,
-    },
-    strokeThickness: 8,
-    color: '#ffffff',
-    fontSize: '40px',
-  };
-  textObj: Phaser.GameObjects.Text;
-  tokenTextObj: Phaser.GameObjects.Text;
-  tokenMultiplierLabel: Phaser.GameObjects.Text;
-  coinImg: Phaser.GameObjects.Image;
-  tokenImg: Phaser.GameObjects.Image;
-  stabImg: Phaser.GameObjects.Image;
-  ultimacyImg: Phaser.GameObjects.Image;
+  displayCoins = 0;
+  rows: Row[] = [];
+  private coinTween?: Phaser.Tweens.Tween;
+
+  private makeRow(key: string, iconKey: string): Row {
+    const panel = this.game.add.graphics();
+    const icon = this.game.add.image(0, 0, iconKey).setOrigin(0, 0.5);
+    icon.setDisplaySize(ICON, ICON);
+    const text = this.game.add.text(0, 0, '0', {
+      fontFamily: "'Saira', sans-serif", fontStyle: '700',
+      fontSize: '34px', color: '#ffffff', stroke: '#000000', strokeThickness: 4,
+    }).setOrigin(0, 0.5);
+    const container = this.game.add.container(0, 0, [panel, icon, text]);
+    return { key, container, panel, icon, text, visible: true, last: 0, shownW: -1 };
+  }
 
   initialize() {
-    const { indent } = this;
-
-
-    this.coinImg = new Phaser.GameObjects.Image(this.game, 0, indent * 0, 'coin').setOrigin(0, 0);
-    this.coinImg.setScale(0.28);
-    this.tokenImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + this.coinImg.displayHeight + 3, 'token').setOrigin(0, 0);
-    this.tokenImg.displayHeight = this.coinImg.displayHeight;
-    this.tokenImg.displayWidth = this.coinImg.displayWidth;
-    this.tokenImg.setVisible(this.showTokens);
-
-    // Position kills and ultimacy based on whether tokens are shown
-    const killsYOffset = this.showTokens ? this.coinImg.displayHeight * 2 + 6 : this.coinImg.displayHeight + 3;
-    const ultimacyYOffset = this.showTokens ? this.coinImg.displayHeight * 3 + 9 : this.coinImg.displayHeight * 2 + 6;
-
-    this.stabImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + killsYOffset, 'kill').setOrigin(0, 0);
-    this.stabImg.displayHeight = this.coinImg.displayHeight;
-    this.stabImg.displayWidth = this.coinImg.displayWidth;
-    this.ultimacyImg = new Phaser.GameObjects.Image(this.game, 0, (indent * 0) + ultimacyYOffset, 'mastery').setOrigin(0, 0);
-    this.ultimacyImg.displayHeight = this.coinImg.displayHeight;
-    this.ultimacyImg.displayWidth = this.coinImg.displayWidth;
-    this.textObj = new Phaser.GameObjects.Text(this.game, this.coinImg.displayWidth + 5, indent * 0, '', this.style);
-
-    // Create separate token text object for cyan color overlay
-    const tokenStyle = { ...this.style };
-    this.tokenTextObj = new Phaser.GameObjects.Text(this.game, this.coinImg.displayWidth + 5, (indent * 0) + this.coinImg.displayHeight + 3, '', tokenStyle);
-    this.tokenTextObj.setVisible(false);
-
-    // Create "2x" multiplier label (initially hidden)
-    const multiplierStyle = { ...this.style, fontSize: '30px', color: '#00ffff' };
-    this.tokenMultiplierLabel = new Phaser.GameObjects.Text(this.game, 0, 0, '2x', multiplierStyle);
-    this.tokenMultiplierLabel.setVisible(false);
-
-    this.container = new Phaser.GameObjects.Container(this.game, 0, 0, [this.textObj, this.tokenTextObj, this.tokenMultiplierLabel, this.coinImg, this.tokenImg, this.stabImg, this.ultimacyImg]);
-
-
+    this.rows = [
+      this.makeRow('coins', 'coin'),
+      this.makeRow('kills', 'kill'),
+      this.makeRow('ultimacy', 'mastery'),
+    ];
+    this.container = this.game.add.container(0, 0, this.rows.map((r) => r.container));
     this.hud.add(this.container);
+    this.layout();
   }
 
   resize() {
     if (!this.container) return;
-    this.container.x = 10;
+    this.container.x = 14;
+    this.container.y = 16;
+  }
+
+  private layout() {
+    let y = 0;
+    for (const r of this.rows) {
+      r.container.setVisible(r.visible);
+      if (!r.visible) continue;
+      const w = pad + ICON + gap + Math.ceil(r.text.width) + pad;
+      r.panel.clear();
+      drawPanel(r.panel, -w / 2, -rowH / 2, w, rowH, { radius: 11 });
+      r.icon.setPosition(-w / 2 + pad, 0);
+      r.text.setPosition(-w / 2 + pad + ICON + gap, 0);
+      r.container.setPosition(w / 2, y + rowH / 2);
+      y += rowH + rowGap;
+    }
+  }
+
+  private pulse(r: Row) {
+    r.pulse?.stop();
+    r.text.setTint(0xffe14d);
+    r.pulse = this.game.tweens.addCounter({
+      from: 0, to: 1, duration: 380, ease: 'Quad.easeOut',
+      onUpdate: (tw) => {
+        const v = tw.getValue();
+        const g = Math.round(225 + (255 - 225) * v);
+        const b = Math.round(77 + (255 - 77) * v);
+        r.text.setTint(Phaser.Display.Color.GetColor(255, g, b));
+      },
+      onComplete: () => r.text.clearTint(),
+    });
+  }
+
+  private setRowText(r: Row, str: string) {
+    if (r.text.text === str) return;
+    r.text.setText(str);
+    const w = Math.ceil(r.text.width);
+    if (w !== r.shownW) { r.shownW = w; this.layout(); }
   }
 
   update() {
-  if (!this.container) return;
-  this.container.y = 40;
+    if (!this.container) return;
+    const self = this.game.gameState.self.entity;
+    if (!self) return;
 
-  const now = Date.now();
-  if (this.lastUpdate + this.updateInterval > now) return;
-  if (!this.game.gameState.self.entity) return;
+    const now = Date.now();
+    if (this.lastUpdate + this.updateInterval > now) return;
+    this.lastUpdate = now;
 
-  const coins = this.game.gameState.self.entity.coins;
-  const tokens = this.game.gameState.self.entity.tokens || 0;
-  const evolution = this.game.gameState.self.entity.evolution;
-  
-  if (coins === 0 && this.lastCoins > 0) {
-    this.hasEverHadSnowWalker = false;
-  }
-  
-  if (evolution === 21) {
-    this.hasEverHadSnowWalker = true;
-  } else if (!this.hasEverHadSnowWalker && evolution !== 0) {
-    this.hasEverHadSnowWalker = false;
-  }
-  
-  const hasBonusTokens = this.hasEverHadSnowWalker;
-  let newUltimacy = 0;
+    const coins = self.coins || 0;
+    const kills = self.kills || 0;
+    const isLoggedIn = !!self.account;
+    const ultimacy = coins >= 1250000
+      ? Math.floor((coins / 794) ** 1.5)
+      : Math.floor((coins / 5000) ** 2);
 
-  if (coins >= 1250000) {
-    newUltimacy = Math.floor((coins / 794) ** 1.5);
-  } else {
-    newUltimacy = Math.floor((coins / 5000) ** 2);
-  }
+    const [coinRow, killRow, ultRow] = this.rows;
 
-  this.lastUpdate = now;
-
-  const kills = this.game.gameState.self.entity.kills;
-  const isLoggedIn = !!this.game.gameState.self.entity.account;
-  this.ultimacyImg.setVisible(isLoggedIn);
-
-  if (this.lastCoins !== coins || this.lastTokens !== tokens || this.lastUltimacy !== newUltimacy) {
-    const fromCoins = this.lastCoins;
-    const toCoins = coins;
-    const fromTokens = this.lastTokens;
-    const toTokens = tokens;
-    const fromUltimacy = this.lastUltimacy;
-    const toUltimacy = newUltimacy;
-
-    this.game.tweens.add({
-      targets: { progress: 0 },
-      progress: 1,
-      duration: 200,
-      ease: Phaser.Math.Easing.Sine.InOut,
-      onUpdate: (tween: Phaser.Tweens.Tween, target: any) => {
-        const progress = target.progress;
-        const currentCoins = Math.floor(Phaser.Math.Interpolation.Linear([fromCoins, toCoins], progress));
-        const currentTokens = Math.floor(Phaser.Math.Interpolation.Linear([fromTokens, toTokens], progress));
-        const currentUltimacy = Math.floor(Phaser.Math.Interpolation.Linear([fromUltimacy, toUltimacy], progress));
-        if (this.showTokens) {
-          this.textObj.text = isLoggedIn
-            ? `${currentCoins}\n${currentTokens}\n${kills}\n${currentUltimacy}`
-            : `${currentCoins}\n${currentTokens}\n${kills}`;
-        } else {
-          this.textObj.text = isLoggedIn
-            ? `${currentCoins}\n${kills}\n${currentUltimacy}`
-            : `${currentCoins}\n${kills}`;
-        }
-
-        if (hasBonusTokens && this.showTokens) {
-          this.tokenTextObj.text = `${currentTokens}`;
-        }
-      },
-    });
-
-    this.lastCoins = coins;
-    this.lastTokens = tokens;
-    this.lastUltimacy = newUltimacy;
-  } else {
-    if (this.showTokens) {
-      this.textObj.text = isLoggedIn
-        ? `${coins}\n${tokens}\n${kills}\n${newUltimacy}`
-        : `${coins}\n${tokens}\n${kills}`;
-    } else {
-      this.textObj.text = isLoggedIn
-        ? `${coins}\n${kills}\n${newUltimacy}`
-        : `${coins}\n${kills}`;
+    if (coins !== coinRow.last) {
+      if (coins > coinRow.last) this.pulse(coinRow);
+      const from = this.displayCoins, to = coins;
+      this.coinTween?.stop();
+      this.coinTween = this.game.tweens.add({
+        targets: { p: 0 }, p: 1, duration: 200, ease: Phaser.Math.Easing.Sine.InOut,
+        onUpdate: (t, o: any) => {
+          const v = Math.floor(Phaser.Math.Interpolation.Linear([from, to], o.p));
+          if (v === this.displayCoins) return;
+          this.displayCoins = v;
+          this.setRowText(coinRow, `${v}`);
+        },
+      });
+      coinRow.last = coins;
+    } else if (this.displayCoins !== coins) {
+      this.displayCoins = coins;
+      this.setRowText(coinRow, `${coins}`);
     }
 
-    if (hasBonusTokens && this.showTokens) {
-      this.tokenTextObj.text = `${tokens}`;
+    if (kills !== killRow.last) {
+      if (kills > killRow.last) this.pulse(killRow);
+      this.setRowText(killRow, `${kills}`);
+      killRow.last = kills;
+    }
+
+    if (ultimacy !== ultRow.last) {
+      if (ultimacy > ultRow.last) this.pulse(ultRow);
+      this.setRowText(ultRow, `${ultimacy}`);
+      ultRow.last = ultimacy;
+    }
+    if (ultRow.visible !== isLoggedIn) {
+      ultRow.visible = isLoggedIn;
+      this.layout();
     }
   }
-
-  if (hasBonusTokens && this.showTokens) {
-    this.tokenTextObj.setVisible(true);
-    this.tokenTextObj.setColor('#00ffff');
-    this.tokenMultiplierLabel.setVisible(true);
-
-    const tokenTextWidth = this.tokenTextObj.width;
-    this.tokenMultiplierLabel.setPosition(
-      this.tokenTextObj.x + tokenTextWidth + 10,
-      this.tokenTextObj.y
-    );
-  } else {
-    this.tokenTextObj.setVisible(false);
-    this.tokenMultiplierLabel.setVisible(false);
-  }
-}
 }
 
 export default CoinCounter;

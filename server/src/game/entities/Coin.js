@@ -20,6 +20,11 @@ class Coin extends Entity {
     this.targets.add(Types.Entity.Player);
     this.droppedBy = objectData.droppedBy;
 
+    if (Array.isArray(objectData.velocity)) {
+      this.velocity.x = objectData.velocity[0];
+      this.velocity.y = objectData.velocity[1];
+    }
+
     // Despawn coin after 2 minutes
     this.despawnTime = Date.now() + (1000 * 60 * 2);
 

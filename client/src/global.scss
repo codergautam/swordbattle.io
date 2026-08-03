@@ -1,7 +1,27 @@
+:root {
+  --ui-panel-bg: rgba(24, 24, 24, 0.7);
+  --ui-panel-border: #53e08a;
+  --ui-panel-border-w: 2px;
+  --ui-panel-outer: #000000;
+  --ui-panel-outer-w: 2px;
+  --ui-panel-radius: 10px;
+  --ui-accent: #6dffa0;
+}
+
+* {
+  font-family: 'Saira', sans-serif;
+}
+
+button, input, textarea, select, optgroup {
+  font-family: 'Saira', sans-serif;
+  font-weight: 700;
+}
+
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Franklin Gothic Medium', 'Ubuntu', Arial, sans-serif;
+  font-family: 'Saira', sans-serif;
+  font-weight: 700;
   -webkit-font-smoothing: antialiased;
   // -moz-osx-font-smoothing: grayscale;
   cursor: url(assets/img/cursor.cur) 20 20, crosshair;

@@ -2,11 +2,16 @@ import { BaseEntity } from './BaseEntity';
 import { Shape } from '../physics/Shape';
 import { Evolutions } from '../Evolutions';
 import { Health } from '../components/Health';
-import { BiomeTypes, EntityTypes, FlagTypes, InputTypes, EvolutionTypes, ShapeTypes } from '../Types';
+import { BiomeTypes, EntityTypes, FlagTypes, InputTypes, EvolutionTypes, ShapeTypes, UpgradeTypes } from '../Types';
 import { random } from '../../helpers';
 import { Settings } from '../Settings';
 import { MinorCardData, isMajorCard, isMinorCard, getMinorTotalPercent, countStacks } from '../CardData';
 import * as cosmetics from '../cosmetics.json';
+import { FootstepTrail } from '../effects/Footsteps';
+import { screenEffectsRuntime } from '../effects/screenEffectsState';
+import { skinBodyScales } from '../skinScales';
+import { resolveNameStyle, CLAN_COLOR } from '../nameStyles';
+import { buildNameTag } from '../pixiNameTag';
 const {skins} = cosmetics;
 
 const particlePool: Phaser.GameObjects.Sprite[] = [];
@@ -60,55 +65,26 @@ class Player extends BaseEntity {
     ...BaseEntity.stateFields, 'name', 'angle',
     'kills', 'flags', 'biome', 'level', 'upgradePoints',
     'coins', 'tokens', 'nextLevelCoins', 'previousLevelCoins',
-    'buffs', 'evolution', 'possibleEvolutions',
+    'buffs', 'evolution', 'possibleEvolutions', 'possibleUpgrades', 'currentUpgrades',
     'isAbilityAvailable', 'abilityActive', 'abilityDuration', 'abilityCooldown',
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordSwingArc', 'swordFlying', 'swordFlyingCooldown', 'swordBoomerangReturning',
-    'swordRaising', 'swordDecreasing',
-    'isBlocking', 'blockEnergy', 'parriedRemaining',
-    'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing', 'coinShield',
+    'swordRaising', 'swordDecreasing', 'offhandRaising', 'offhandDecreasing',
+    'activeSelection', 'abilityCharges',
+    'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing',
     'cardOffers', 'chosenCards', 'choosingCard', 'cardTimer', 'cardPickNumber', 'availableUpgrades',
     'rerollsAvailable', 'pendingPicks', 'skipResults', 'isTutorial',
   ];
   static removeTransition = 500;
-  static shadowOffsetX = 10;
-  static shadowOffsetY = 10;
+  static shadowOffsetX = 0;
+  static shadowOffsetY = 12;
 
-  static computeSwordReduction(r: number): number {
-    if (r <= 260) return 0;
-    if (r <= 300) return (r - 260) / 40 * 0.14;
-    if (r <= 340) return 0.14 + (r - 300) / 40 * 0.11;
-    if (r <= 416) return 0.25 + (r - 340) / 76 * 0.05;
-    return Math.min(0.35, 0.30 + (r - 416) * 0.0005);
-  }
-  static computeSwordPullback(r: number): number {
-    if (r <= 260) return 0;
-    return Math.min((r - 260) * 0.08, 20) * (r / 100);
-  }
-  static abilitySwordScales: { [key: number]: number } = {
-    1: 1.5,
-    8: 1.4,
-    10: 1.7,
-  };
+  static bodyScales: { [key: number]: number } = skinBodyScales;
 
   body!: Phaser.GameObjects.Sprite;
   sword!: Phaser.GameObjects.Sprite;
   swordShadow!: Phaser.GameObjects.Sprite;
   bodyContainer!: Phaser.GameObjects.Container;
   swordContainer!: Phaser.GameObjects.Container;
-  blockBodyOutlines: Phaser.GameObjects.Sprite[] = [];
-  blockSwordOutlines: Phaser.GameObjects.Sprite[] = [];
-  private blockVisualPhase = 0;
-  private blockEngagedAtLocal = 0;
-  private currentOutlineTint = 0x33e0ff;
-  static outlineOffsets: ReadonlyArray<readonly [number, number]> = [
-    [-6, 0], [6, 0], [0, -6], [0, 6],
-    [-5, -5], [5, -5], [-5, 5], [5, 5],
-  ];
-  static outlineTintParry = 0x33e0ff;
-  static outlineTintBlock = 0x4070ff;
-  static blockParryWindowMs = 750;
-  static outlineTint = 0x33e0ff;
-  private blockTintLerp = 0;
   evolutionOverlay!: Phaser.GameObjects.Sprite;
   evolutionOverlayShadow!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
@@ -116,11 +92,15 @@ class Player extends BaseEntity {
   choosingText!: Phaser.GameObjects.Text;
   submergedShadow!: Phaser.GameObjects.Graphics;
   private _submergedProgress: number = 0;
+  private footsteps?: FootstepTrail;
+  shadowRT?: Phaser.GameObjects.RenderTexture;
+  private evoShadowActive = false;
 
   protectionAura!: Phaser.GameObjects.Graphics;
   sparkleInterval?: number;
 
   isMe: boolean = false;
+  bodyScale: number = 1;
   swordLerpProgress = 0;
   angleLerp = 0;
   previousAngle = 0;
@@ -129,6 +109,9 @@ class Player extends BaseEntity {
   survivalStarted: number = 0;
   swordRaiseStarted: boolean = false;
   swordDecreaseStarted: boolean = false;
+  offhandLerpProgress = 0;
+  offhandRaiseStarted: boolean = false;
+  offhandDecreaseStarted: boolean = false;
 
   wideSwing: boolean = false;
   poisonParticlesLast: number = 0;
@@ -136,7 +119,7 @@ class Player extends BaseEntity {
   private _lastContainerScale: number = -1;
   private _lastSwordScale: number = -1;
   private _lastSwordLocalPullback: number = -1;
-  private _submergedAccum: number = 0;
+  private submergedAccum: number = 0;
 
   cardSummaryContainer: Phaser.GameObjects.Container | null = null;
   cardSummaryBg: Phaser.GameObjects.Graphics | null = null;
@@ -149,9 +132,19 @@ class Player extends BaseEntity {
   private _lastDiscoFieldActive: boolean = false;
   private _lastHypnotizeActive: boolean = false;
 
+  static trackerZoneRadius = 1600;
+  trackerZoneGraphic?: Phaser.GameObjects.Graphics;
+  radarPulseGraphic?: Phaser.GameObjects.Graphics;
+  private radarPulseElapsed: number = -1;
+  private radarSweepAngle: number = 0;
+  private _lastSilenced: boolean = false;
+
   get survivalTime() {
     return (Date.now() - this.survivalStarted) / 1000;
   }
+
+  get effectiveBodyWidth() { return this.body.width / this.bodyScale; }
+  get effectiveBodyHeight() { return this.body.height / this.bodyScale; }
 
   createSprite() {
     this.isMe = this.id === this.game.gameState.self.id;
@@ -166,47 +159,28 @@ class Player extends BaseEntity {
     this.skinName = Object.values(skins).find(skin => skin.id === this.skin)?.name;
     const ogex = this.skinName?.includes("ogex") || false;
     this.body = this.game.add.sprite(0, 0, 'playerBody').setRotation(-Math.PI / 2);
+    this.bodyScale = Player.bodyScales[this.skin] ?? 1;
     if (this.skin === 459) {
       this.body.setScale(1.25);
     }
-    const bodyShadowKey = this.createShadowTexture('playerBody');
-    this.shadow = this.game.add.sprite(Player.shadowOffsetX, Player.shadowOffsetY, bodyShadowKey).setRotation(-Math.PI / 2);
-    this.shadow.setAlpha(0.085);
-    if (this.skin === 459) {
-      this.shadow.setScale(1.25);
-    }
+    const bodyShadowScale = (this.skin === 459 ? 1.25 : 1) * BaseEntity.shadow.scaleMul;
+    this.shadow = this.createBakedOutlineShadow('playerBody', 0.5, 0.5).setRotation(-Math.PI / 2);
+    this.shadow.setPosition(Player.shadowOffsetX, Player.shadowOffsetY);
+    this.shadow.setScale(bodyShadowScale);
+    this.shadow.setAlpha(1).setVisible(false);
     this.evolutionOverlay = this.game.add.sprite(0, 0, '').setRotation(-Math.PI / 2);
     this.evolutionOverlayShadow = this.game.add.sprite(Player.shadowOffsetX, Player.shadowOffsetY, '').setRotation(-Math.PI / 2);
-    this.evolutionOverlayShadow.setAlpha(0.085);
-    this.evolutionOverlayShadow.setVisible(false);
+    this.evolutionOverlayShadow.setAlpha(1).setVisible(false);
     this.updateEvolution();
 
-    this.sword = this.game.add.sprite(this.body.width / 2, this.body.height / 2, 'playerSword').setRotation(Math.PI / 4);
-    const swordShadowKey = this.createShadowTexture('playerSword');
-    this.swordShadow = this.game.add.sprite(0, 0, swordShadowKey).setRotation(Math.PI / 4);
-    this.swordShadow.setAlpha(0.085);
-
-    this.blockBodyOutlines = Player.outlineOffsets.map(([ox, oy]) => {
-      const s = this.game.add.sprite(ox, oy, 'playerBody').setRotation(-Math.PI / 2);
-      s.setTintFill(Player.outlineTint);
-      s.setAlpha(0);
-      return s;
-    });
-    if (this.skin === 459) this.blockBodyOutlines.forEach(s => s.setScale(1.25));
-
-    const swordX = this.body.width / 2;
-    const swordY = this.body.height / 2;
-    this.blockSwordOutlines = Player.outlineOffsets.map(([ox, oy]) => {
-      const s = this.game.add.sprite(swordX + ox, swordY + oy, 'playerSword').setRotation(Math.PI / 4);
-      s.setTintFill(Player.outlineTint);
-      s.setAlpha(0);
-      return s;
-    });
-
-    this.swordContainer = this.game.add.container(0, 0, [...this.blockSwordOutlines, this.sword]);
+    this.sword = this.game.add.sprite(this.effectiveBodyWidth / 2, this.effectiveBodyHeight / 2, 'playerSword').setRotation(Math.PI / 4);
+    this.swordShadow = this.createBakedOutlineShadow('playerSword', 0.5, 0.5).setRotation(Math.PI / 4);
+    this.swordShadow.setScale(BaseEntity.shadow.scaleMul);
+    this.swordShadow.setAlpha(1).setVisible(false);
+    this.swordContainer = this.game.add.container(0, 0, [this.sword]);
 
     this.protectionAura = this.game.add.graphics();
-    const auraRadius = Math.max(this.body.width, this.body.height) * 0.75;
+    const auraRadius = Math.max(this.effectiveBodyWidth, this.effectiveBodyHeight) * 0.75;
     this.protectionAura.fillStyle(0x33bbff, 0.12);
     this.protectionAura.fillCircle(0, 0, auraRadius);
     this.protectionAura.setBlendMode(Phaser.BlendModes.ADD);
@@ -217,47 +191,44 @@ class Player extends BaseEntity {
     this.healthBar = new Health(this, {
       hideWhenFull: false,
       line: 0,
-      offsetY: -this.body.height / 2 - 40,
+      offsetY: -this.effectiveBodyHeight / 2 - 40,
       isPlayer: true,
     });
-    const displayName = this.clan ? `[${this.clan}] ${this.name}`.replace(/\s+/, ' ') : this.name;
-    const name = this.game.add.text(0, -this.body.height / 2 - 50, displayName);
-    name.setFontFamily('Arial');
-    name.setFontSize(50);
-    name.setOrigin(0.5, 1);
-    const specialColors: {
-      [key: string]: string
-    } = {
-      codergautam: '#ff0000',
-      angel: '#acfffc',
-      "cool guy 53": '#0055ff',
-      "update testing account": '#00ff00',
-      "amethyst nightveil": '#7802ab',
-      oy: '#000000',
-      bobz: '#000000',
-    };
+    const nameY = -this.effectiveBodyHeight / 2 - 50;
+    const ns = resolveNameStyle(this.name, !!this.account, 'game')!;
+    const nameTag = buildNameTag(this.name, ns, 42);
+    const nameW = (nameTag as any).textWidth || 0;
 
-    const applyNameColor = (hex: string) => {
-      name.setFill(hex);
-    };
-
-    const special = specialColors[this.name?.toLowerCase() as keyof typeof specialColors];
-    if (special) {
-      applyNameColor(special);
-    } else if (this.account) {
-      applyNameColor('#0000ff');
+    let clanText: Phaser.GameObjects.Text | null = null;
+    if (this.clan) {
+      clanText = this.game.add.text(0, nameY, `[${this.clan}] `);
+      clanText.setFontFamily("'Saira', sans-serif");
+      clanText.setFontSize(42);
+      clanText.setFontStyle('700');
+      clanText.setFill(CLAN_COLOR);
+      clanText.setStroke('#000000', 5);
+      clanText.setShadow(0, 0, '#000000', 0, false, false);
+      clanText.setOrigin(0, 1);
+      const total = clanText.width + nameW;
+      clanText.x = -total / 2;
+      clanText.y = nameY;
+      nameTag.position.set(-total / 2 + clanText.width + nameW / 2, nameY);
     } else {
-      applyNameColor('#000000');
+      nameTag.position.set(0, nameY);
     }
 
-    this.messageText = this.game.add.text(0, -this.body.height / 2 - 100, '')
-      .setFontFamily('Arial')
-      .setFontSize(75)
+    this.messageText = this.game.add.text(0, -this.effectiveBodyHeight / 2 - 100, '', {
+      fontFamily: "'Saira', sans-serif",
+      fontStyle: '600',
+      wordWrap: { width: 560, useAdvancedWrap: true },
+      align: 'center',
+    })
+      .setFontSize(46)
       .setOrigin(0.5, 1)
       .setFill('#ffffff');
 
     this.choosingText = this.game.add.text(0, 0, 'Choosing an upgrade...', {
-      fontFamily: 'monospace',
+      fontFamily: 'Saira, sans-serif',
       fontSize: '60px',
       fontStyle: 'bold',
       color: '#ffffff',
@@ -267,31 +238,39 @@ class Player extends BaseEntity {
     }).setOrigin(0.5, 0.5).setAlpha(0);
 
     this.cardSummaryBg = this.game.add.graphics();
-    this.cardSummaryContainer = this.game.add.container(0, -this.body.height / 2 - 130, [this.cardSummaryBg]);
+    this.cardSummaryContainer = this.game.add.container(0, -this.effectiveBodyHeight / 2 - 130, [this.cardSummaryBg]);
     this.cardSummaryContainer.setAlpha(0);
 
-    this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, ...this.blockBodyOutlines, this.swordContainer, this.body, this.evolutionOverlay]);
+    this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.swordContainer, this.body, this.evolutionOverlay]);
 
-    const submergedRadius = this.body.width * 0.6;
+    const submergedRadius = this.effectiveBodyWidth * 0.6;
     this.submergedShadow = this.game.add.graphics();
     this.submergedShadow.fillStyle(0x000000, 1);
     this.submergedShadow.fillCircle(0, 0, submergedRadius);
     this.submergedShadow.setAlpha(0);
 
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.evolutionOverlayShadow, this.swordShadow, this.submergedShadow, this.bodyContainer, this.cardSummaryContainer, name, this.messageText, this.choosingText]);
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.evolutionOverlayShadow, this.swordShadow, this.submergedShadow, this.bodyContainer, this.cardSummaryContainer, this.messageText, this.choosingText]);
+    this.container.addChildAt(nameTag, 6);
+    if (clanText) this.container.add(clanText);
 
     if (ogex) {
       try {
+        const clearSparkle = () => {
+          if (this.sparkleInterval) { clearInterval(this.sparkleInterval); this.sparkleInterval = undefined; }
+        };
+        this.game.events.once(Phaser.Scenes.Events.SHUTDOWN, clearSparkle);
+        this.game.events.once(Phaser.Scenes.Events.DESTROY, clearSparkle);
         this.sparkleInterval = window.setInterval(() => {
+          if (!this.game || !this.game.sys || !this.game.sys.events || !this.container) return;
           const fps = this.game.game.loop?.actualFps ?? 60;
-          if (fps < 15 || !this.container) return;
+          if (fps < 15) return;
 
           const sprite = getParticle(this.game, 'sparkleParticle');
-          const rx = Phaser.Math.FloatBetween(-this.body.width * 0.3, this.body.width * 0.3);
-          const ry = Phaser.Math.FloatBetween(-this.body.height * 0.3, this.body.height * 0.3);
+          const rx = Phaser.Math.FloatBetween(-this.effectiveBodyWidth * 0.3, this.effectiveBodyWidth * 0.3);
+          const ry = Phaser.Math.FloatBetween(-this.effectiveBodyHeight * 0.3, this.effectiveBodyHeight * 0.3);
           sprite.x = Math.round(this.container.x + rx + Phaser.Math.FloatBetween(-5, 5));
           sprite.y = Math.round(this.container.y + ry + Phaser.Math.FloatBetween(-5, 5));
-          sprite.setScale(Phaser.Math.FloatBetween(0.06, 0.09))
+          sprite.setScale(Phaser.Math.FloatBetween(0.4, 0.6))
             .setAlpha(1)
             .setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
           sprite.setDepth(50);
@@ -321,7 +300,6 @@ class Player extends BaseEntity {
           this.shadow.setTexture(this.createShadowTexture(skinBase+'Body'));
           this.sword.setTexture(skinBase+'Sword');
           this.swordShadow.setTexture(this.createShadowTexture(skinBase+'Sword'));
-          this.applyOutlineSkin(skinBase+'Body', skinBase+'Sword');
         }).catch(() => {
           console.log('failed to load skin', this.skin);
         });
@@ -331,7 +309,6 @@ class Player extends BaseEntity {
           this.shadow.setTexture(this.createShadowTexture(this.skinName+'Body'));
           this.sword.setTexture(this.skinName+'Sword');
           this.swordShadow.setTexture(this.createShadowTexture(this.skinName+'Sword'));
-          this.applyOutlineSkin(this.skinName+'Body', this.skinName+'Sword');
         }).catch(() => {
           console.log('failed to load skin', this.skin);
         });
@@ -348,17 +325,6 @@ class Player extends BaseEntity {
     this.hypnotizeSwirlSprite.setAlpha(0);
 
     return this.container;
-  }
-
-  applyOutlineSkin(bodyTextureKey: string, swordTextureKey: string) {
-    for (const s of this.blockBodyOutlines) {
-      s.setTexture(bodyTextureKey);
-      s.setTintFill(Player.outlineTint);
-    }
-    for (const s of this.blockSwordOutlines) {
-      s.setTexture(swordTextureKey);
-      s.setTintFill(Player.outlineTint);
-    }
   }
 
   skinLoaded(id: number) {
@@ -462,7 +428,8 @@ class Player extends BaseEntity {
     this.wideSwing = data.wideSwing;
     }
 
-    if (!this.isMe) {
+    const bsSequenced = ((this as any).currentUpgrades || []).includes(UpgradeTypes.Battleswords);
+    if (!this.isMe || bsSequenced) {
       if (data.swordRaising !== undefined) {
         if (data.swordRaising && !this.swordRaiseStarted) {
           this.swordRaiseStarted = true;
@@ -475,6 +442,14 @@ class Player extends BaseEntity {
           this.swordRaiseStarted = false;
         }
       }
+    }
+    if (data.offhandRaising !== undefined && data.offhandRaising && !this.offhandRaiseStarted) {
+      this.offhandRaiseStarted = true;
+      this.offhandDecreaseStarted = false;
+    }
+    if (data.offhandDecreasing !== undefined && data.offhandDecreasing && !this.offhandDecreaseStarted) {
+      this.offhandDecreaseStarted = true;
+      this.offhandRaiseStarted = false;
     }
     if (data.angle !== undefined) {
       this.previousAngle = this.angle;
@@ -491,22 +466,24 @@ class Player extends BaseEntity {
     if (this.isMe && data.viewportZoom !== undefined) {
       this.game.updateZoom(data.viewportZoom);
     }
-    if (data.possibleEvolutions !== undefined) {
+    if (this.isMe && data.possibleEvolutions !== undefined) {
+      this.game.hud.evolutionSelect.updateList = true;
+    }
+    if (this.isMe && (data.possibleUpgrades !== undefined || data.currentUpgrades !== undefined)) {
       this.game.hud.evolutionSelect.updateList = true;
     }
     if (data.chatMessage !== undefined) {
       this.updateChatMessage();
     }
     if (data.biome !== undefined) {
-      const isTextBlack = data.biome !== BiomeTypes.Fire;
-      this.messageText?.setFill(isTextBlack ? '#000000' : '#ffffff');
+      const isTextWhite = data.biome === BiomeTypes.Fire || data.biome === BiomeTypes.Dirt;
+      this.messageText?.setFill(isTextWhite ? '#ffffff' : '#000000');
     }
 
-    if (data.biome !== undefined || data.coins !== undefined || (data.flags && data.flags[FlagTypes.RespawnShield] !== undefined)) {
-      const coins = data.coins !== undefined ? data.coins : (this as any).coins;
+    if (data.biome !== undefined || (data.flags && data.flags[FlagTypes.RespawnShield] !== undefined)) {
       const biome = data.biome !== undefined ? data.biome : (this as any).biome;
       const hasRespawnShield = (data.flags && data.flags[FlagTypes.RespawnShield]) || ((this as any).flags && (this as any).flags[FlagTypes.RespawnShield]);
-      const isProtected = (biome === BiomeTypes.Safezone) || (coins !== undefined && coins < this.coinShield) || !!hasRespawnShield;
+      const isProtected = (biome === BiomeTypes.Safezone) || !!hasRespawnShield;
       this.updateProtectionAura(isProtected);
     }
 
@@ -537,6 +514,10 @@ class Player extends BaseEntity {
 
       if (data.flags[FlagTypes.ShockwaveHit]) {
         this.addShockwaveParticles();
+      }
+
+      if (data.flags[FlagTypes.RadarPulse]) {
+        this.radarPulseElapsed = 0;
       }
 
       if (data.flags[FlagTypes.TutorialHitBlocked] && this.isMe) {
@@ -577,12 +558,13 @@ class Player extends BaseEntity {
 
     const particles = this.game.add.particles(entity.container.x, entity.container.y, 'starParticle', {
       maxParticles: 5,
-      scale: 0.1,
+      scale: 0.667,
       speed: 200,
     });
     particles.setDepth(45);
     particles.setBlendMode(Phaser.BlendModes.ADD);
     particles.once('complete', () => particles.destroy());
+    this.game.time.delayedCall(2000, () => { try { if ((particles as any).scene) particles.destroy(); } catch (e) {} });
   }
 
   addDamagedParticles() {
@@ -590,12 +572,13 @@ class Player extends BaseEntity {
     try {
     const particles = this.game.add.particles(this.container.x, this.container.y, 'hitParticle', {
       maxParticles: 5,
-      scale: 0.01,
+      scale: 0.5,
       speed: 200,
     });
     particles.setDepth(45);
     particles.setBlendMode(Phaser.BlendModes.ADD);
     particles.once('complete', () => particles.destroy());
+    this.game.time.delayedCall(2000, () => { try { if ((particles as any).scene) particles.destroy(); } catch (e) {} });
   } catch (e) {
     console.log(e);
   }
@@ -607,7 +590,7 @@ class Player extends BaseEntity {
       // Create burst of red particles emanating from player
       const particles = this.game.add.particles(this.container.x, this.container.y, 'hitParticle', {
         maxParticles: 30,
-        scale: { start: 0.015, end: 0.005 },
+        scale: { start: 0.75, end: 0.25 },
         speed: { min: 300, max: 600 },
         lifespan: 800,
         angle: { min: 0, max: 360 },
@@ -616,6 +599,7 @@ class Player extends BaseEntity {
       particles.setDepth(45);
       particles.setBlendMode(Phaser.BlendModes.ADD);
       particles.once('complete', () => particles.destroy());
+    this.game.time.delayedCall(2000, () => { try { if ((particles as any).scene) particles.destroy(); } catch (e) {} });
     } catch (e) {
       console.log(e);
     }
@@ -624,6 +608,9 @@ class Player extends BaseEntity {
   addLightningParticles() {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
+    const now = Date.now();
+    if (now - (this.lastLightningT || 0) < 130) return;
+    this.lastLightningT = now;
     try {
       const entitiesMap = this.game.gameState.entities;
       const allEntities: BaseEntity[] = [];
@@ -679,13 +666,13 @@ class Player extends BaseEntity {
           const sprite = getParticle(this.game, 'lightningParticle');
           sprite.x = px;
           sprite.y = py;
-          sprite.setScale(Phaser.Math.FloatBetween(0.12, 0.28)).setAlpha(1);
+          sprite.setScale(Phaser.Math.FloatBetween(0.8, 1.868)).setAlpha(1);
 
           const delay = Phaser.Math.Between(0, 80);
           this.game.tweens.add({
             targets: sprite,
             alpha: 0,
-            scale: 0.01,
+            scale: 0.0667,
             duration: 500,
             delay,
             ease: 'Linear',
@@ -735,7 +722,7 @@ class Player extends BaseEntity {
           const s = getParticle(this.game, 'lightningParticle');
           s.x = px;
           s.y = py;
-          s.setScale(Phaser.Math.FloatBetween(0.12, 0.36))
+          s.setScale(Phaser.Math.FloatBetween(0.8, 2.401))
             .setRotation(baseAngle + Phaser.Math.FloatBetween(-0.2, 0.2))
             .setAlpha(1);
 
@@ -743,7 +730,7 @@ class Player extends BaseEntity {
           this.game.tweens.add({
             targets: s,
             alpha: 0,
-            scale: 0.02,
+            scale: 0.1334,
             duration: 500,
             delay,
             ease: 'Cubic.easeOut',
@@ -770,20 +757,27 @@ class Player extends BaseEntity {
     const fps = this.game.game.loop.actualFps;
     if (fps < 5) return;
     const now = Date.now();
-    if (now - this.abilityParticlesLast < 150) return;
+    if (now - this.abilityParticlesLast < 90) return;
     this.abilityParticlesLast = now;
     try {
-      const s = getParticle(this.game, 'starParticle');
-      s.x = this.container.x + random(-this.body.displayWidth, this.body.displayWidth) * 0.5;
-      s.y = this.container.y + random(-this.body.displayHeight, this.body.displayHeight) * 0.5;
-      s.setScale(0.05).setAlpha(1).setDepth(45);
-      this.game.tweens.add({
-        targets: s,
-        alpha: 0,
-        scale: 0.01,
-        duration: 400,
-        onComplete: () => releaseParticle(s),
-      });
+      const count = fps < 30 ? 3 : 6;
+      const R = (this.shape?.radius || this.body.displayWidth) * 1.0;
+      for (let i = 0; i < count; i++) {
+        const a = random(0, Math.PI * 2);
+        const rad = R * random(0.7, 1.1);
+        const s = getParticle(this.game, 'starParticle');
+        s.setTexture('starParticle');
+        s.x = this.container.x + Math.cos(a) * rad;
+        s.y = this.container.y + Math.sin(a) * rad;
+        s.setScale(Phaser.Math.FloatBetween(0.28, 0.45)).setAlpha(1).setDepth(45);
+        this.game.tweens.add({
+          targets: s,
+          alpha: 0,
+          scale: 0.0667,
+          duration: Phaser.Math.Between(350, 520),
+          onComplete: () => releaseParticle(s),
+        });
+      }
     if (this.evolution === EvolutionTypes.Plaguebearer && this.abilityActive) {
       this.addPoisonFieldParticles();
     }
@@ -811,7 +805,7 @@ class Player extends BaseEntity {
         const s = getParticle(this.game, 'poisonParticle');
         s.x = px;
         s.y = py;
-        s.setScale(Phaser.Math.FloatBetween(0.04, 0.09))
+        s.setScale(Phaser.Math.FloatBetween(0.267, 0.6))
           .setAlpha(0.9)
           .setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
 
@@ -832,44 +826,154 @@ class Player extends BaseEntity {
     }
   }
 
+  upgradeParticlesLast: number = 0;
+
+  addUpgradeParticles() {
+    const fps = this.game.game.loop.actualFps;
+    if (fps < 15) return;
+    const now = Date.now();
+    if (now - this.upgradeParticlesLast < 200) return;
+    this.upgradeParticlesLast = now;
+    try {
+      const count = fps < 30 ? 1 : 2;
+      const R = (this.shape?.radius || this.effectiveBodyWidth) * 0.95;
+      for (let i = 0; i < count; i++) {
+        const a = random(0, Math.PI * 2);
+        const rad = R * Math.sqrt(random(0, 1));
+        const r = Phaser.Math.Between(11, 19);
+        const g = getGraphics(this.game);
+        g.setScale(1);
+        g.fillStyle(0x6dff88, 0.8);
+        g.fillCircle(0, 0, r);
+        g.setDepth(41);
+        g.setBlendMode(Phaser.BlendModes.ADD);
+        g.x = this.container.x + Math.cos(a) * rad;
+        g.y = this.container.y + Math.sin(a) * rad;
+        g.setAlpha(0.8);
+        this.game.tweens.add({
+          targets: g,
+          y: g.y - random(18, 34),
+          x: g.x + random(-10, 10),
+          alpha: 0,
+          scale: 0.7,
+          duration: Phaser.Math.Between(1400, 2100),
+          ease: 'Sine.easeInOut',
+          onComplete: () => releaseGraphics(g),
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  private isDoubleHitSwing(): boolean {
+    const c = (this as any).chosenCards || [];
+    const u = (this as any).currentUpgrades || [];
+    return c.includes(102) || u.includes(UpgradeTypes.Striketwice);
+  }
+
+  private sword2?: Phaser.GameObjects.Sprite;
+  private swordContainer2?: Phaser.GameObjects.Container;
+  private sword2Shadow?: Phaser.GameObjects.Sprite;
+  private _swordVisibleForShadow = true;
+  private _bsHideUntil = 0;
+  updateOffhandSword(bodyAngle: number) {
+    const has = ((this as any).currentUpgrades || []).includes(UpgradeTypes.Battleswords);
+    if (!has) {
+      if (this.swordContainer2) this.swordContainer2.setVisible(false);
+      if (this.sword2Shadow) this.sword2Shadow.setVisible(false);
+      return;
+    }
+    if (!this.sword2) {
+      const tex = this.sword.texture.key;
+      this.sword2 = this.game.add.sprite(this.effectiveBodyWidth / 2, -this.effectiveBodyHeight / 2, tex)
+        .setRotation(-Math.PI / 4);
+      this.sword2.setScale(this.sword.scaleX, -Math.abs(this.sword.scaleY));
+      this.swordContainer2 = this.game.add.container(0, 0, [this.sword2]);
+      this.bodyContainer.addAt(this.swordContainer2, 1);
+      this.sword2Shadow = this.createBakedOutlineShadow(tex, 0.5, 0.5).setRotation(-Math.PI / 4);
+      this.sword2Shadow.setScale(BaseEntity.shadow.scaleMul, -BaseEntity.shadow.scaleMul).setAlpha(1).setVisible(false);
+      this.container.addAt(this.sword2Shadow, this.container.getIndex(this.swordShadow));
+    }
+    const swingAngle = (this as any).swordSwingArc || this.swordSwingAngle;
+    let rot2 = -swingAngle * this.offhandLerpProgress;
+    if (this.wideSwing) rot2 -= Math.PI / 4;
+    this.swordContainer2!.setVisible(this.sword.visible);
+    this.swordContainer2!.setRotation(rot2);
+    if (this.sword2Shadow) {
+      const sx = this.effectiveBodyWidth / 2;
+      const sy = -this.effectiveBodyHeight / 2;
+      const cos1 = Math.cos(rot2), sin1 = Math.sin(rot2);
+      const rx = sx * cos1 - sy * sin1, ry = sx * sin1 + sy * cos1;
+      const cos2 = Math.cos(bodyAngle), sin2 = Math.sin(bodyAngle);
+      this.sword2Shadow.setPosition(
+        rx * cos2 - ry * sin2 + Player.shadowOffsetX,
+        rx * sin2 + ry * cos2 + Player.shadowOffsetY
+      );
+      this.sword2Shadow.setRotation(bodyAngle + rot2 - Math.PI / 4);
+      this.sword2Shadow.setVisible(false);
+    }
+  }
+
+  private fieldAura?: Phaser.GameObjects.Graphics;
+  updateUpgradeFields() {
+    const ups: number[] = (this as any).currentUpgrades || [];
+    const lava = ups.includes(UpgradeTypes.Lavacopy);
+    const pacifist = ups.includes(UpgradeTypes.Pacifist);
+    if (!lava && !pacifist) { if (this.fieldAura) this.fieldAura.setVisible(false); return; }
+    if (!this.fieldAura) {
+      this.fieldAura = this.game.add.graphics();
+      try { this.bodyContainer.addAt(this.fieldAura, 0); } catch (e) { this.bodyContainer.add(this.fieldAura); }
+    }
+    const r = Math.max(this.effectiveBodyWidth, this.effectiveBodyHeight) * 0.85;
+    const color = lava ? 0xff5522 : 0x33dd66;
+    this.fieldAura.setVisible(true).clear();
+    this.fieldAura.fillStyle(color, 0.32);
+    this.fieldAura.fillCircle(0, 0, r);
+  }
+
+  private blindStart = 0;
+  updateBlindnessVignette() {
+    const blinded = !!(this.flags && this.flags[FlagTypes.Blinded]);
+    if (blinded) this.blindStart = Date.now();
+    if (this.blindStart === 0) { screenEffectsRuntime.blind = 0; return; }
+    const t = Math.max(0, 1 - (Date.now() - this.blindStart) / 2000);
+    if (t <= 0) { this.blindStart = 0; screenEffectsRuntime.blind = 0; return; }
+    screenEffectsRuntime.blind = t;
+  }
+
   updateEvolution() {
     if (!this.evolutionOverlay) return;
 
     const evolutionClass = Evolutions[this.evolution];
     if (!evolutionClass) {
       this.evolutionOverlay.setVisible(false);
-      if (this.evolutionOverlayShadow) this.evolutionOverlayShadow.setVisible(false);
+      this.evoShadowActive = false;
     } else {
       this.evolutionOverlay.setVisible(true);
       this.evolutionOverlay.setTexture(evolutionClass[1]);
       this.evolutionOverlay.setOrigin(evolutionClass[3][0], evolutionClass[3][1]);
-      this.evolutionOverlay.setScale(this.body.width / this.evolutionOverlay.width * evolutionClass[2]);
+      this.evolutionOverlay.setScale(this.effectiveBodyWidth / this.evolutionOverlay.width * evolutionClass[2]);
 
       if (this.evolutionOverlayShadow) {
         const shadowKey = this.createShadowTexture(evolutionClass[1]);
         this.evolutionOverlayShadow.setTexture(shadowKey);
         this.evolutionOverlayShadow.setOrigin(evolutionClass[3][0], evolutionClass[3][1]);
-        this.evolutionOverlayShadow.setScale(this.body.width / this.evolutionOverlayShadow.width * evolutionClass[2]);
-        this.evolutionOverlayShadow.setVisible(true);
+        this.evolutionOverlayShadow.setScale(this.effectiveBodyWidth / this.evolutionOverlayShadow.width * evolutionClass[2] * BaseEntity.shadow.scaleMul);
+        this.evoShadowActive = true;
       }
     }
   }
 
   interpolate(dt: number) {
-    // Visual swing animation is intentionally symmetric (50/50). The
-    // server still uses the asymmetric raise/decrease pacing for hit
-    // detection and timing, but the client renders the sword movement
-    // with a clean even tempo so it doesn't feel abrupt.
     const swordLerpDt = dt / (this.swordSwingDuration * 1000);
     if (this.swordRaiseStarted) {
       this.swordLerpProgress += swordLerpDt;
       if (this.swordLerpProgress >= 1) {
         this.swordLerpProgress = 1;
         this.swordRaiseStarted = false;
-        if (this.isMe) {
-          if (this.game.controls.isInputUp(InputTypes.SwordSwing)) {
-            this.swordDecreaseStarted = true;
-          }
+        if (this.isMe && this.game.controls.isInputUp(InputTypes.SwordSwing)) {
+          this.swordDecreaseStarted = true;
         }
       }
     } else if (this.swordDecreaseStarted) {
@@ -882,6 +986,20 @@ class Player extends BaseEntity {
         this.swordDecreaseStarted = false;
       }
     }
+    const offhandLerpDt = dt / (this.swordSwingDuration * 1000);
+    if (this.offhandRaiseStarted) {
+      this.offhandLerpProgress += offhandLerpDt;
+      if (this.offhandLerpProgress >= 1) { this.offhandLerpProgress = 1; this.offhandRaiseStarted = false; }
+    } else if (this.offhandDecreaseStarted) {
+      this.offhandLerpProgress -= offhandLerpDt;
+      if (this.offhandLerpProgress <= 0) { this.offhandLerpProgress = 0; this.offhandDecreaseStarted = false; }
+    }
+    if (this.isMe && this.swordFlying) {
+      this.swordRaiseStarted = false;
+      this.swordDecreaseStarted = false;
+      this.swordLerpProgress = 0;
+    }
+
     if (!this.isMe) {
       this.angleLerp = Math.min(this.angleLerp + dt / 120, 1);
       this.rotateBody(Phaser.Math.Angle.RotateTo(this.previousAngle, this.angle, this.angleLerp));
@@ -891,7 +1009,14 @@ class Player extends BaseEntity {
   rotateBody(angle: number) {
     const evolutionClass = Evolutions[this.evolution];
     const swingAngle = (this as any).swordSwingArc || this.swordSwingAngle;
-    let swordRotation = swingAngle * this.swordLerpProgress;
+    let swingProg = this.swordLerpProgress;
+    if (this.swordDecreaseStarted && this.isDoubleHitSwing()) {
+      const q = 1 - this.swordLerpProgress;
+      if (q < 0.30) swingProg = 1 - (q / 0.30) * 0.85;
+      else if (q < 0.62) swingProg = 0.15 + ((q - 0.30) / 0.32) * 0.85;
+      else swingProg = 1 - (q - 0.62) / 0.38;
+    }
+    let swordRotation = swingAngle * swingProg;
     if (this.wideSwing) {
       swordRotation += Math.PI / 4;
     }
@@ -899,16 +1024,17 @@ class Player extends BaseEntity {
       return;
     }
     this.swordContainer.setRotation(swordRotation);
+    this.updateOffhandSword(angle);
     this.bodyContainer.setRotation(angle);
     if (this.shadow) {
       this.shadow.setRotation(angle - Math.PI / 2);
     }
-    if (this.evolutionOverlayShadow && this.evolutionOverlayShadow.visible) {
+    if (this.evolutionOverlayShadow && this.evoShadowActive) {
       this.evolutionOverlayShadow.setRotation(angle - Math.PI / 2);
     }
     if (this.swordShadow) {
-      const sx = this.body.width / 2;
-      const sy = this.body.height / 2;
+      const sx = this.effectiveBodyWidth / 2;
+      const sy = this.effectiveBodyHeight / 2;
       const cos1 = Math.cos(swordRotation);
       const sin1 = Math.sin(swordRotation);
       const rx = sx * cos1 - sy * sin1;
@@ -923,24 +1049,20 @@ class Player extends BaseEntity {
     }
   }
 
+  predictSwingStart() {
+    if (((this as any).currentUpgrades || []).includes(UpgradeTypes.Battleswords)) return;
+    if (this.game.controls.isInputDown(InputTypes.SwordSwing)) {
+      if (!(this.swordFlying || this.swordRaiseStarted || this.swordDecreaseStarted)) {
+        this.swordRaiseStarted = true;
+        this.game.controls.disableKeys([InputTypes.SwordThrow], true);
+      }
+    }
+  }
+
   updatePrediction() {
     const isHypnotized = !!(this.flags && this.flags[FlagTypes.Hypnotized]);
 
-    let pointer = this.game.input.activePointer;
-    if (this.game.isMobile) {
-      pointer = this.game.controls.joystickPointer === this.game.input.pointer1
-        ? this.game.input.pointer2
-        : this.game.input.pointer1;
-    }
-
-    if (this.game.controls.isInputDown(InputTypes.SwordSwing)) {
-      if (!(this.swordFlying || this.swordRaiseStarted || this.swordDecreaseStarted)) {
-        if(!this.swordRaiseStarted) {
-        this.swordRaiseStarted = true;
-        this.game.controls.disableKeys([InputTypes.SwordThrow], true);
-        }
-      }
-    }
+    this.predictSwingStart();
 
     if (isHypnotized) {
       this.game.gameState.playerAngle = this.angle;
@@ -949,12 +1071,15 @@ class Player extends BaseEntity {
     }
 
     let angle: number;
-    if ((this.game as any)._isZooming) {
+    if (this.game.isMobile) {
+      const a = this.game.controls.aim;
+      angle = (a && a.force > 0) ? a.angle : (typeof this.angle === 'number' ? this.angle : 0);
+    } else if ((this.game as any)._isZooming) {
+      const pointer = this.game.input.activePointer;
       const camera = this.game.cameras.main;
-      const cx = camera.width / 2;
-      const cy = camera.height / 2;
-      angle = Math.atan2(pointer.y - cy, pointer.x - cx);
+      angle = Math.atan2(pointer.y - camera.height / 2, pointer.x - camera.width / 2);
     } else {
+      const pointer = this.game.input.activePointer;
       pointer.updateWorldPoint(this.game.cameras.main);
       angle = Math.atan2(pointer.worldY - this.container.y, pointer.worldX - this.container.x);
     }
@@ -976,27 +1101,38 @@ class Player extends BaseEntity {
     const biomes = this.game.gameState.gameMap.biomes;
     for (let i = 0; i < biomes.length; i++) {
       const biome = biomes[i];
-      if (biome.type !== BiomeTypes.River) continue;
-      const shape = biome.shape as any;
-      if (shape.type === ShapeTypes.Circle) {
-        const dx = wx - shape.x;
-        const dy = wy - shape.y;
-        if (dx * dx + dy * dy <= shape.radius * shape.radius) return true;
-      } else if (shape.type === ShapeTypes.Polygon) {
-        if (shape.polygonBounds && !Phaser.Geom.Rectangle.Contains(shape.polygonBounds, wx, wy)) continue;
-        const points = shape.points;
-        const ox = shape.x;
-        const oy = shape.y;
-        let inside = false;
-        for (let j = 0, k = points.length - 1; j < points.length; k = j++) {
-          const xi = ox + points[j].x, yi = oy + points[j].y;
-          const xk = ox + points[k].x, yk = oy + points[k].y;
-          if ((yi > wy) !== (yk > wy) && wx < (xk - xi) * (wy - yi) / (yk - yi) + xi) {
-            inside = !inside;
-          }
-        }
-        if (inside) return true;
+      if (biome.type === BiomeTypes.River) {
+        if (this.biomeContains(biome, wx, wy)) return true;
+        continue;
       }
+      if (biome.type === BiomeTypes.Safezone || biome.type === BiomeTypes.TutorialZone) continue;
+      if (this.biomeContains(biome, wx, wy)) return false;
+    }
+    return true;
+  }
+
+  private biomeContains(biome: any, wx: number, wy: number): boolean {
+    const shape = biome.shape;
+    if (!shape) return false;
+    if (shape.type === ShapeTypes.Circle) {
+      const dx = wx - shape.x;
+      const dy = wy - shape.y;
+      return dx * dx + dy * dy <= shape.radius * shape.radius;
+    }
+    if (shape.type === ShapeTypes.Polygon) {
+      if (shape.polygonBounds && !Phaser.Geom.Rectangle.Contains(shape.polygonBounds, wx, wy)) return false;
+      const points = shape.points;
+      const ox = shape.x;
+      const oy = shape.y;
+      let inside = false;
+      for (let j = 0, k = points.length - 1; j < points.length; k = j++) {
+        const xi = ox + points[j].x, yi = oy + points[j].y;
+        const xk = ox + points[k].x, yk = oy + points[k].y;
+        if ((yi > wy) !== (yk > wy) && wx < (xk - xi) * (wy - yi) / (yk - yi) + xi) {
+          inside = !inside;
+        }
+      }
+      return inside;
     }
     return false;
   }
@@ -1031,32 +1167,32 @@ class Player extends BaseEntity {
   }
 
   private isPointInDeepRiver(wx: number, wy: number): boolean {
+    if (!this.isPointInRiver(wx, wy)) return false;
+
     const borderWidth = 240;
+    const borderWidthSq = borderWidth * borderWidth;
     const biomes = this.game.gameState.gameMap.biomes;
     for (let i = 0; i < biomes.length; i++) {
       const biome = biomes[i];
-      if (biome.type !== BiomeTypes.River) continue;
+      if (biome.type === BiomeTypes.River
+        || biome.type === BiomeTypes.Safezone
+        || biome.type === BiomeTypes.TutorialZone) continue;
       const shape = biome.shape as any;
       if (shape.type === ShapeTypes.Circle) {
         const dx = wx - shape.x;
         const dy = wy - shape.y;
-        const innerR = shape.radius - borderWidth;
-        if (innerR > 0 && dx * dx + dy * dy <= innerR * innerR) return true;
+        const d = Math.sqrt(dx * dx + dy * dy) - shape.radius;
+        if (d < borderWidth) return false;
       } else if (shape.type === ShapeTypes.Polygon) {
-        if (shape.polygonBounds && !Phaser.Geom.Rectangle.Contains(shape.polygonBounds, wx, wy)) continue;
+        if (shape.polygonBounds) {
+          const b = shape.polygonBounds as Phaser.Geom.Rectangle;
+          const bdx = wx < b.x ? b.x - wx : wx > b.right ? wx - b.right : 0;
+          const bdy = wy < b.y ? b.y - wy : wy > b.bottom ? wy - b.bottom : 0;
+          if (bdx * bdx + bdy * bdy > borderWidthSq) continue;
+        }
         const points = shape.points;
         const ox = shape.x;
         const oy = shape.y;
-        let inside = false;
-        for (let j = 0, k = points.length - 1; j < points.length; k = j++) {
-          const xi = ox + points[j].x, yi = oy + points[j].y;
-          const xk = ox + points[k].x, yk = oy + points[k].y;
-          if ((yi > wy) !== (yk > wy) && wx < (xk - xi) * (wy - yi) / (yk - yi) + xi) {
-            inside = !inside;
-          }
-        }
-        if (!inside) continue;
-        let minDist = Infinity;
         for (let j = 0; j < points.length; j++) {
           const k = (j + 1) % points.length;
           const ax = ox + points[j].x, ay = oy + points[j].y;
@@ -1065,13 +1201,12 @@ class Player extends BaseEntity {
           const lenSq = edx * edx + edy * edy;
           const t = lenSq === 0 ? 0 : Math.max(0, Math.min(1, ((wx - ax) * edx + (wy - ay) * edy) / lenSq));
           const px = ax + t * edx, py = ay + t * edy;
-          const d = Math.sqrt((wx - px) * (wx - px) + (wy - py) * (wy - py));
-          if (d < minDist) minDist = d;
+          const ddx = wx - px, ddy = wy - py;
+          if (ddx * ddx + ddy * ddy < borderWidthSq) return false;
         }
-        if (minDist >= borderWidth) return true;
       }
     }
-    return false;
+    return true;
   }
 
   private updateSubmergedEffect(dt: number) {
@@ -1119,10 +1254,9 @@ class Player extends BaseEntity {
     this.submergedShadow.setScale(this._submergedProgress);
     this.submergedShadow.setAlpha(this._submergedProgress * 0.15);
 
-    const shadowAlpha = 0.085 * (1 - this._submergedProgress * 0.5);
-    this.shadow.setAlpha(shadowAlpha);
-    if (this.swordShadow) this.swordShadow.setAlpha(shadowAlpha);
-    if (this.evolutionOverlayShadow) this.evolutionOverlayShadow.setAlpha(shadowAlpha);
+    if (this.shadowRT) {
+      this.shadowRT.setAlpha(BaseEntity.shadow.alpha * (1 - this._submergedProgress));
+    }
   }
 
   updateCardSummary() {
@@ -1244,7 +1378,7 @@ class Player extends BaseEntity {
       const pct = getMinorTotalPercent(id, sc);
       const text = this.game.add.text(curX + iconSz + 4, 0, `+${pct}%`, {
         fontSize: `${fontSize}px`,
-        fontFamily: 'Ubuntu, sans-serif',
+        fontFamily: 'Saira, sans-serif',
         fontStyle: 'bold',
         color: hexColor,
         stroke: '#000000',
@@ -1272,47 +1406,35 @@ class Player extends BaseEntity {
 
     this.updateCardSummary();
 
-    const swordVisible = !this.swordFlying;
+    const ups = ((this as any).currentUpgrades || []);
+    const throwHidesSword = ups.includes(UpgradeTypes.Battleswords) || ups.includes(UpgradeTypes.Kunais);
+    if (throwHidesSword && this.flags?.[FlagTypes.SwordThrow]) this._bsHideUntil = Date.now() + 900;
+    const bsThrowing = throwHidesSword && Date.now() < (this._bsHideUntil || 0);
+    const swordVisible = !this.swordFlying && !bsThrowing;
+    this._swordVisibleForShadow = swordVisible;
     if (this._lastSwordVisible !== swordVisible) {
       this.sword.setVisible(swordVisible);
-      if (this.swordShadow) this.swordShadow.setVisible(swordVisible);
       this._lastSwordVisible = swordVisible;
     }
-    const newScale = (this.shape.radius * 2) / this.body.width;
+    const newScale = (this.shape.radius * 2) / this.effectiveBodyWidth;
     if (this._lastContainerScale !== newScale) {
       this.container.scale = newScale;
       this._lastContainerScale = newScale;
     }
-    const r = this.shape.radius;
-    const baseX = this.body.width / 2;
-    const baseY = this.body.height / 2;
-    const abilityScale = (this.abilityActive && this.evolution != null)
-      ? (Player.abilitySwordScales[this.evolution] ?? 1) : 1;
-    const swordR = r / abilityScale;
-    const swordReduction = Player.computeSwordReduction(swordR);
-    const targetSwordScale = swordReduction > 0 ? 1 - swordReduction : 1;
-    const targetLocalPullback = swordReduction > 0
-      ? (newScale > 0 ? Player.computeSwordPullback(swordR) / newScale : 0)
-      : 0;
-    if (targetSwordScale !== this._lastSwordScale) {
-      this.sword.setScale(targetSwordScale);
-      if (this.swordShadow) this.swordShadow.setScale(targetSwordScale);
-      for (const s of this.blockSwordOutlines) s.setScale(targetSwordScale);
-      this._lastSwordScale = targetSwordScale;
+    const baseX = this.effectiveBodyWidth / 2;
+    const baseY = this.effectiveBodyHeight / 2;
+    if (this._lastSwordScale !== 1) {
+      this.sword.setScale(1);
+      if (this.swordShadow) this.swordShadow.setScale(BaseEntity.shadow.scaleMul);
+      this._lastSwordScale = 1;
     }
-    if (targetLocalPullback !== this._lastSwordLocalPullback) {
-      this.sword.setPosition(baseX - targetLocalPullback, baseY - targetLocalPullback);
-      const swordPosX = baseX - targetLocalPullback;
-      const swordPosY = baseY - targetLocalPullback;
-      for (let i = 0; i < this.blockSwordOutlines.length; i++) {
-        const [ox, oy] = Player.outlineOffsets[i];
-        this.blockSwordOutlines[i].setPosition(swordPosX + ox, swordPosY + oy);
-      }
-      this._lastSwordLocalPullback = targetLocalPullback;
+    if (this._lastSwordLocalPullback !== 0) {
+      this.sword.setPosition(baseX, baseY);
+      this._lastSwordLocalPullback = 0;
     }
 
+    if (this.isMe) this.predictSwingStart();
     this.interpolate(dt);
-    this.updateBlockGlow(dt);
 
     if (this.abilityActive) {
       if (this.evolution) {
@@ -1320,87 +1442,96 @@ class Player extends BaseEntity {
         if (evolutionClass[0] !== 'Stalker' && evolutionClass[0] !== 'Juggernaut') {
           this.addAbilityParticles();
         }
+      } else {
+        this.addAbilityParticles();
       }
      }
-    if (this.isMe) {
-      this.updateSubmergedEffect(dt);
-    } else {
-      this._submergedAccum += dt;
-      if (this._submergedAccum >= 200) {
-        this.updateSubmergedEffect(this._submergedAccum);
-        this._submergedAccum = 0;
-      }
+    if (this.flags && this.flags[FlagTypes.Upgraded]) {
+      this.addUpgradeParticles();
+    }
+    this.updateUpgradeFields();
+    if (this.isMe) this.updateBlindnessVignette();
+    this.submergedAccum += dt;
+    const submergeInterval = this.isMe ? 100 : 200;
+    if (this.submergedAccum >= submergeInterval) {
+      this.updateSubmergedEffect(this.submergedAccum);
+      this.submergedAccum = 0;
     }
     this.updateDiscoEffects(dt);
+    this.updateTrackerEffects(dt);
+    this.updateSilencedEffect();
     if (this.following) {
-      this.game.cameras.main.centerOn(this.container.x, this.container.y);
+      const cam: any = this.game.cameras.main;
+      this.game.cameras.main.centerOn(
+        this.container.x + (cam.mouseOffsetX || 0),
+        this.container.y + (cam.mouseOffsetY || 0),
+      );
     }
     if (this.isMe) {
       this.updatePrediction();
     }
+
+    if (this.container) {
+      if (!this.footsteps) this.footsteps = new FootstepTrail(this);
+      this.footsteps.update(dt);
+    }
+
+    this.updateShadowRT();
   }
 
-  updateBlockGlow(dt: number) {
-    const isBlocking = !!(this as any).isBlocking;
-    const energy = Math.max(0, Math.min(1, (this as any).blockEnergy ?? 0));
+  private updateShadowRT() {
+    if (!this.container) return;
+    const on = BaseEntity.livingShadowsEnabled;
 
-    // Detect the false -> true transition locally so we know when this
-    // player's parry window started. Server sends parriedRemaining for the
-    // PARRIED status (which lives on the attacker), but every blocker
-    // needs their own parry-window timer for the outline color.
-    const now = Date.now();
-    if (isBlocking && this.blockEngagedAtLocal === 0) {
-      this.blockEngagedAtLocal = now;
-    } else if (!isBlocking && this.blockEngagedAtLocal !== 0) {
-      this.blockEngagedAtLocal = 0;
-    }
+    const v = this.game.cameras.main.worldView;
+    const cx = this.container.x, cy = this.container.y;
+    const m = 600;
+    const offCamera = cx < v.x - m || cx > v.right + m || cy < v.y - m || cy > v.bottom + m;
 
-    const target = isBlocking ? 1 : 0;
-    const ramp = dt / 250;
-    if (this.blockVisualPhase < target) {
-      this.blockVisualPhase = Math.min(target, this.blockVisualPhase + ramp);
-    } else if (this.blockVisualPhase > target) {
-      this.blockVisualPhase = Math.max(target, this.blockVisualPhase - ramp);
+    let rt = this.shadowRT;
+    if (!rt) {
+      if (!on || offCamera) return;
+      const rtSize = Math.ceil(Math.max(this.body.width, this.body.height) * 3.2);
+      rt = this.shadowRT = this.game.add.renderTexture(0, 0, rtSize, rtSize).setOrigin(0.5, 0.5);
+      rt.setAlpha(BaseEntity.shadow.alpha * (1 - this._submergedProgress));
+      this.container.addAt(rt, 0);
     }
 
-    const alpha = this.blockVisualPhase <= 0.001
-      ? 0
-      : (0.25 + 0.75 * energy) * this.blockVisualPhase;
+    if (rt.visible !== on) rt.setVisible(on);
+    if (!on) return;
+    if (offCamera) return;
 
-    // Smoothly lerp the outline color from cyan (parry window) to a normal
-    // lighter blue (post-parry). Transition takes ~250ms so the moment the
-    // parry window expires you see the color drift, not a hard cut.
-    const inParryWindow = isBlocking
-      && this.blockEngagedAtLocal !== 0
-      && (now - this.blockEngagedAtLocal) < Player.blockParryWindowMs;
-    const targetLerp = inParryWindow ? 0 : 1;
-    const lerpStep = dt / 250;
-    if (this.blockTintLerp < targetLerp) {
-      this.blockTintLerp = Math.min(targetLerp, this.blockTintLerp + lerpStep);
-    } else if (this.blockTintLerp > targetLerp) {
-      this.blockTintLerp = Math.max(targetLerp, this.blockTintLerp - lerpStep);
-    }
-    const cP = Player.outlineTintParry;
-    const cB = Player.outlineTintBlock;
-    const r = Math.round(((cP >> 16) & 0xff) + (((cB >> 16) & 0xff) - ((cP >> 16) & 0xff)) * this.blockTintLerp);
-    const g = Math.round(((cP >> 8) & 0xff) + (((cB >> 8) & 0xff) - ((cP >> 8) & 0xff)) * this.blockTintLerp);
-    const b = Math.round((cP & 0xff) + ((cB & 0xff) - (cP & 0xff)) * this.blockTintLerp);
-    const desiredTint = (r << 16) | (g << 8) | b;
-    if (desiredTint !== this.currentOutlineTint) {
-      this.currentOutlineTint = desiredTint;
-      for (const s of this.blockBodyOutlines) s.setTintFill(desiredTint);
-      for (const s of this.blockSwordOutlines) s.setTintFill(desiredTint);
-    }
+    const evr = this.evoShadowActive ? Math.round(this.evolutionOverlayShadow.rotation * 100) : 0;
+    const sig = Math.round(this.shadow.rotation * 100)
+      + (this.shadow.x | 0) * 7 + (this.shadow.y | 0) * 13
+      + Math.round(this.swordShadow.rotation * 100) * 17
+      + (this.swordShadow.x | 0) * 23 + (this.swordShadow.y | 0) * 29
+      + Math.round(this.swordShadow.scaleX * 100) * 37
+      + (this.evoShadowActive ? 1 : 0) * 1000003
+      + (this.swordFlying ? 1 : 0) * 1000033
+      + (this._swordVisibleForShadow ? 0 : 900007)
+      + (this.sword2Shadow && this.swordContainer2?.visible
+          ? Math.round((this.sword2Shadow.rotation || 0) * 100) * 43 + ((this.sword2Shadow.x | 0)) * 47 : 0)
+      + evr * 41;
+    if (sig === this.shadowSig) return;
+    this.shadowSig = sig;
 
-    for (const s of this.blockBodyOutlines) {
-      if (s.alpha !== alpha) s.setAlpha(alpha);
+    const ox = rt.width / 2, oy = rt.height / 2;
+    rt.clear();
+    rt.beginDraw();
+    rt.batchDraw(this.shadow, ox + this.shadow.x, oy + this.shadow.y);
+    if (this.evoShadowActive) {
+      rt.batchDraw(this.evolutionOverlayShadow, ox + this.evolutionOverlayShadow.x, oy + this.evolutionOverlayShadow.y);
     }
-    const swordVisible = !this.swordFlying;
-    for (const s of this.blockSwordOutlines) {
-      if (s.alpha !== alpha) s.setAlpha(alpha);
-      if (s.visible !== swordVisible) s.setVisible(swordVisible);
+    if (this.sword2Shadow && this.swordContainer2?.visible && this._swordVisibleForShadow) {
+      rt.batchDraw(this.sword2Shadow, ox + this.sword2Shadow.x, oy + this.sword2Shadow.y);
     }
+    if (this._swordVisibleForShadow) {
+      rt.batchDraw(this.swordShadow, ox + this.swordShadow.x, oy + this.swordShadow.y);
+    }
+    rt.endDraw();
   }
+  private shadowSig = NaN;
 
   updateDiscoEffects(dt: number) {
     const discoFieldActive = this.evolution === EvolutionTypes.Disco && !!(this.flags && this.flags[FlagTypes.DiscoFieldActive]);
@@ -1456,6 +1587,78 @@ class Player extends BaseEntity {
     }
   }
 
+  updateTrackerEffects(dt: number) {
+    const zoneActive = this.isMe && this.evolution === EvolutionTypes.Tracker && !!this.container;
+    if (zoneActive) {
+      if (!this.trackerZoneGraphic) {
+        const g = this.game.add.graphics();
+        g.setDepth(2);
+        g.lineStyle(10, 0xff2222, 0.55);
+        const R = Player.trackerZoneRadius;
+        const dashes = 48;
+        for (let i = 0; i < dashes; i++) {
+          const a0 = (i / dashes) * Math.PI * 2;
+          g.beginPath();
+          g.moveTo(Math.cos(a0) * R, Math.sin(a0) * R);
+          g.arc(0, 0, R, a0, a0 + (Math.PI * 2 / dashes) * 0.55);
+          g.strokePath();
+        }
+        this.trackerZoneGraphic = g;
+      }
+      this.trackerZoneGraphic.rotation += dt * 0.00005;
+      this.trackerZoneGraphic.setPosition(this.container.x, this.container.y);
+      this.trackerZoneGraphic.setVisible(true);
+    } else if (this.trackerZoneGraphic) {
+      this.trackerZoneGraphic.setVisible(false);
+    }
+
+    if (this.radarPulseElapsed >= 0 && this.container) {
+      const duration = 2000;
+      if (this.radarPulseElapsed === 0) this.radarSweepAngle = -Math.PI / 2;
+      this.radarPulseElapsed += dt;
+      const t = this.radarPulseElapsed / duration;
+      if (!this.radarPulseGraphic) {
+        this.radarPulseGraphic = this.game.add.graphics();
+        this.radarPulseGraphic.setDepth(3);
+      }
+      const g = this.radarPulseGraphic;
+      g.clear();
+      if (t >= 1) {
+        g.setVisible(false);
+        this.radarPulseElapsed = -1;
+      } else {
+        const R = Player.trackerZoneRadius;
+        const fade = 1 - t * 0.5;
+
+        const pulseR = Math.max(30, R * t);
+        g.fillStyle(0xff2222, 0.3 * (1 - t) * fade);
+        g.fillCircle(0, 0, pulseR);
+
+        this.radarSweepAngle += dt * (Math.PI * 2 / duration);
+        g.lineStyle(5, 0xff3333, 0.6 * fade);
+        g.lineBetween(0, 0, Math.cos(this.radarSweepAngle) * R, Math.sin(this.radarSweepAngle) * R);
+
+        g.setPosition(this.container.x, this.container.y);
+        g.setVisible(true);
+      }
+    }
+  }
+
+  updateSilencedEffect() {
+    const silenced = !!(this.flags && this.flags[FlagTypes.Silenced]);
+    if (silenced === this._lastSilenced) return;
+    this._lastSilenced = silenced;
+    if (!this.sword) return;
+    if (silenced) {
+      this.sword.setTint(0x555555);
+      if (this.isMe) {
+        this.game.hud.showAnnouncement("Silenced! You can't attack", '#cc66ff', 1500, 0.5, true);
+      }
+    } else {
+      this.sword.clearTint();
+    }
+  }
+
   remove() {
     super.remove();
     this.flags = {}; // clear flags to stop all sounds
@@ -1468,6 +1671,8 @@ class Player extends BaseEntity {
     try {
       if (this.discoFieldGraphic) this.discoFieldGraphic.destroy();
       if (this.hypnotizeSwirlSprite) this.hypnotizeSwirlSprite.destroy();
+      if (this.trackerZoneGraphic) this.trackerZoneGraphic.destroy();
+      if (this.radarPulseGraphic) this.radarPulseGraphic.destroy();
     } catch (e) {}
   }
 }

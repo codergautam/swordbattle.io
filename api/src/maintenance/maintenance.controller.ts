@@ -11,4 +11,10 @@ export class MaintenanceController {
   getAllowedIps() {
     return this.maintenanceService.getAllowedIps();
   }
+
+  @Get('allowed-secrets')
+  @UseGuards(ServerGuard)
+  getAllowedSecrets() {
+    return this.maintenanceService.getAllowedSecrets();
+  }
 }

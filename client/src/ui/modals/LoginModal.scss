@@ -1,29 +1,71 @@
 .login-modal {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+  width: 300px;
+  max-width: 80vw;
 
-  input {
-    margin: 5px;
-    font-size: 20px;
-    font-weight: bold;
+  h1 {
+    text-align: center;
+    font-weight: 700;
+    margin: 0 0 14px;
+    color: #fff;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
   }
 
-  button {
-    width: 120px;
-    color: white;
-    background-color: #4caf50;
-    transition: all 0.2s ease-in;
-    border: none;
+  input[type=text],
+  input[type=password] {
+    background: #2a2a2e;
+    color: #fff;
+    border: 3px solid #000;
     border-radius: 10px;
-    font-size: 22px;
-    padding: 5px;
-    margin-top: 10px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 10px;
+    margin: 6px 0;
 
-    &:hover {
-      color: #4caf50;
-      background-color: white;
+    &::placeholder { color: #8b8b93; }
+    &:focus { outline: none; }
+  }
+
+  .forgot {
+    margin: 10px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #b6b6bd;
+    text-align: center;
+
+    a {
+      color: #6dffa0;
+      text-decoration: underline;
+    }
+
+    .forgot-link {
+      padding: 0;
+      border: none;
+      background: none;
+      font: inherit;
+      color: #6dffa0;
+      text-decoration: underline;
       cursor: pointer;
     }
+  }
+
+  .auth-submit {
+    margin-top: 16px;
+    padding: 11px;
+    background: #2ec84a;
+    color: #fff;
+    border: 3px solid #000;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.35);
+    transition: filter 0.12s ease, transform 0.08s ease;
+
+    &:hover { filter: brightness(1.07); }
+    &:active { transform: scale(0.98); }
   }
 }

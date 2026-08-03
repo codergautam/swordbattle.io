@@ -9,6 +9,8 @@ class Sword extends Entity {
   constructor(player) {
     super(player.game, Types.Entity.Sword);
     this.player = player;
+    this.handSign = 1;
+    this.autoOnly = false;
     this.swingAngle = -Math.PI / 3;
     this.swingArc = -Math.PI / 3;
     this.raiseAnimation = false;
@@ -45,6 +47,8 @@ class Sword extends Entity {
 
     this.swingTime = 0;
     this.swingProgress = 0;
+    this.prevSwingProgress = 0;
+    this.hitLandedThisSwing = false;
     this.isFlying = false;
     this.restrictFly = false;
     this.isAnimationFinished = true;
@@ -55,13 +59,8 @@ class Sword extends Entity {
 
     this.inputHeldTime = 0;
     this.swingBufferPenalty = 0;
-
     this.lastSwingPressed = false;
     this.swingRequested = false;
-
-    this.swingLockedUntilRelease = false;
-
-    this.fastDecrease = false;
 
     this.focusTime = 350;
     this.focusDamageMultiplier = 1;
@@ -77,39 +76,18 @@ class Sword extends Entity {
     return this.swingArc * this.swingProgress;
   }
 
-  swingPhaseSpeeds() {
-    const baseDuration = 0.1;
-    const ratio = (this.swingDuration && this.swingDuration.value > 0)
-      ? this.swingDuration.value / baseDuration
-      : 1;
-    const t = Math.min(1, Math.max(0, (ratio - 1) / 2));
-    const raiseRatio = 0.5 - 0.28 * t;
-    return {
-      raiseSpeed: 0.5 / raiseRatio,
-      decreaseSpeed: 0.5 / (1 - raiseRatio),
-    };
-  }
-
-  _swordReduction(r) {
-    if (r <= 260) return 0;
-    if (r <= 300) return (r - 260) / 40 * 0.14;
-    if (r <= 340) return 0.14 + (r - 300) / 40 * 0.11;
-    if (r <= 416) return 0.25 + (r - 340) / 76 * 0.05;
-    return Math.min(0.35, 0.30 + (r - 416) * 0.0005);
-  }
-
-  _swordPullback(r) {
-    if (r <= 260) return 0;
-    return Math.min((r - 260) * 0.08, 20) * (r / 100);
-  }
-
   _baseRadius() {
-    return this.player.shape.radius;
+    const r = this.player.shape.radius;
+    const evo = this.player.evolutions && this.player.evolutions.evolutionEffect;
+    if (evo && evo.isAbilityActive && evo.constructor.abilityScale) {
+      return r / evo.constructor.abilityScale;
+    }
+    return r;
   }
 
   get size() {
     const r = this._baseRadius();
-    return r * this.proportion * (1 - this._swordReduction(r));
+    return r * this.proportion;
   }
 
   canCollide(entity) {
@@ -120,22 +98,27 @@ class Sword extends Entity {
   }
 
   canSwing() {
-    if (this.swingLockedUntilRelease) return false;
-    const wantsSwing = this.player.inputs.isInputDown(Types.Input.SwordSwing) || this.swingRequested;
+    const sequenced = this.autoOnly || this.player.modifiers.battleswords;
+    const wantsSwing = sequenced
+      ? this.swingRequested
+      : (this.player.inputs.isInputDown(Types.Input.SwordSwing) || this.swingRequested);
     return !this.isFlying
       && wantsSwing
       && this.isAnimationFinished
       && this.player.modifiers.invisible == false
       && !this.player.modifiers.stunned
+      && !this.player.modifiers.silenced
+      && Date.now() >= (this.player._bsThrowUntil || 0)
       && !(this.player.cards.choosingCard && this.player.cards.instantSelect);
   }
 
   canFly() {
-    return !this.isFlying && !this.restrictFly
+    return !this.autoOnly && !this.isFlying && !this.restrictFly
       && this.player.inputs.isInputDown(Types.Input.SwordThrow)
       && this.flyCooldownTime <= 0
       && this.player.modifiers.invisible == false
       && !this.player.modifiers.stunned
+      && !this.player.modifiers.silenced
       && !(this.player.cards.choosingCard && this.player.cards.instantSelect);
   }
 
@@ -218,6 +201,22 @@ class Sword extends Entity {
           this.shape.x += this.flySpeed.value * Math.cos(this.boomerangOrigAngle);
           this.shape.y += this.flySpeed.value * Math.sin(this.boomerangOrigAngle);
         } else {
+          if (this.player.modifiers.homingThrow && this.game && this.game.entities) {
+            let best = null, bestD2 = 2200 * 2200;
+            for (const e of this.game.entities.values()) {
+              if (!e || e.removed || e === this.player || e.type !== Types.Entity.Player || !e.shape) continue;
+              const dx = e.shape.x - this.shape.x, dy = e.shape.y - this.shape.y;
+              const d2 = dx * dx + dy * dy;
+              if (d2 < bestD2) { bestD2 = d2; best = e; }
+            }
+            if (best) {
+              const desired = Math.atan2(best.shape.y - this.shape.y, best.shape.x - this.shape.x) + Math.PI / 2;
+              let d = desired - this.shape.angle;
+              while (d > Math.PI) d -= 2 * Math.PI;
+              while (d < -Math.PI) d += 2 * Math.PI;
+              this.shape.angle += Math.max(-0.055, Math.min(0.055, d));
+            }
+          }
           this.shape.x += this.flySpeed.value * Math.cos(this.shape.angle - Math.PI / 2);
           this.shape.y += this.flySpeed.value * Math.sin(this.shape.angle - Math.PI / 2);
         }
@@ -239,16 +238,24 @@ class Sword extends Entity {
       this._positionMeleeCollision(player);
     }
 
-    // Twin Throw (104)
     if (this.twinThrowPending) {
       this.twinThrowDelay -= dt;
       if (this.twinThrowDelay <= 0) {
         this.twinThrowPending = false;
-        this._spawnThrownSwordAt(this.twinThrowSavedAngle, this.twinThrowSavedX, this.twinThrowSavedY);
-
+        const a = this.player.angle;
+        const r = this.player.shape.radius || 100;
+        const px = this.player.shape.x + Math.cos(a) * r + Math.cos(a + Math.PI / 2) * r;
+        const py = this.player.shape.y + Math.sin(a) * r + Math.sin(a + Math.PI / 2) * r;
+        this._spawnThrownSwordAt(a, px, py);
+        if (this.player.modifiers.lungeOnThrow && this.player.velocity) {
+          const dash = 320;
+          this.player.velocity.x += Math.cos(this.player.angle) * dash;
+          this.player.velocity.y += Math.sin(this.player.angle) * dash;
+        }
       }
     }
 
+    this.shape.setScale(player.shape.scale);
   }
 
   _instantHitCheck() {
@@ -285,29 +292,49 @@ class Sword extends Entity {
     this._positionMeleeCollision(player);
     for (const { entity } of candidates) tryCollide(entity);
 
-    const steps = 5;
-    for (let i = 0; i <= steps; i++) {
-      this.swingProgress = i / steps;
-      this._positionMeleeCollision(player);
-      for (const { entity } of candidates) {
-        if (!entity || entity.type === Types.Entity.Player) continue;
-        tryCollide(entity);
-      }
-    }
+    this.swingProgress = savedProgress;
+    this._positionMeleeCollision(player);
+  }
 
+  _sweptHitCheck(fromP, toP) {
+    const player = this.player, game = player.game;
+    if (!game || !game.entitiesQuadtree) return;
+    const savedProgress = this.swingProgress;
+    const reach = (this._baseRadius() || 200) + this.size * 3 + (player.shape.radius || 100);
+    const boundary = { x: player.shape.x - reach, y: player.shape.y - reach, width: reach * 2, height: reach * 2 };
+    const candidates = game.entitiesQuadtree.get(boundary);
+    const response = new SAT.Response();
+    const tryCollide = (entity) => {
+      if (!entity || entity === player || entity === this || entity.removed) return;
+      if (this.collidedEntities.has(entity)) return;
+      if (!entity.shape || typeof entity.shape.collides !== 'function') return;
+      response.clear();
+      if (entity.shape.collides(this.shape, response)) {
+        if (this.targets.has(entity.type)) this.processTargetsCollision(entity);
+        else if (entity.targets && entity.targets.has && entity.targets.has(this.type)) {
+          try { entity.processTargetsCollision(this, response); } catch (e) {}
+        }
+      }
+    };
+    const arc = Math.abs(this.swingArc) * Math.abs(toP - fromP);
+    const steps = Math.max(1, Math.ceil(arc / 0.12));
+    for (let i = 0; i <= steps; i++) {
+      this.swingProgress = fromP + (toP - fromP) * (i / steps);
+      this._positionMeleeCollision(player);
+      for (const { entity } of candidates) tryCollide(entity);
+    }
     this.swingProgress = savedProgress;
     this._positionMeleeCollision(player);
   }
 
   _positionMeleeCollision(player) {
-    let angle = player.angle + this.angle + Math.PI / 2;
+    let angle = player.angle + this.handSign * (this.angle + Math.PI / 2);
     if (this.player.modifiers.swingWide) {
-      angle += Math.PI / 4;
+      angle += this.handSign * Math.PI / 4;
     }
     const baseR = this._baseRadius();
-    const effectiveR = baseR - this._swordPullback(baseR);
-    const offsetX = effectiveR - this.size / 2.5;
-    const offsetY = -effectiveR + this.size / 1.7;
+    const offsetX = baseR - this.size / 2.5;
+    const offsetY = (-baseR + this.size / 1.7) * this.handSign;
     if (!this._offsetVec) this._offsetVec = new SAT.Vector(0, 0);
     this._offsetVec.x = offsetX;
     this._offsetVec.y = offsetY;
@@ -319,29 +346,28 @@ class Sword extends Entity {
 
   updateCollisionPoly() {
     const s = this.size;
+    const h = this.handSign;
+    const base = [
+      [0, 0],
+      [-0.14615384615384616 * s, -1.7769230769230768 * s],
+      [0.34615384615384615 * s, -2.4923076923076923 * s],
+      [0.8538461538461538 * s, -1.7769230769230768 * s],
+      [0.7153846153846154 * s, -0.015384615384615385 * s],
+    ];
+    const verts = (h === 1)
+      ? base
+      : [base[0], base[4], base[3], base[2], base[1]].map(([x, y]) => [x, -y]);
+
     const poly = this.shape.collisionPoly;
     const points = poly.points;
-
-    // Reuse existing polygon points if already the right count, otherwise create new
     if (points.length === 5) {
-      points[0].x = 0; points[0].y = 0;
-      points[1].x = -0.14615384615384616 * s; points[1].y = -1.7769230769230768 * s;
-      points[2].x = 0.34615384615384615 * s; points[2].y = -2.4923076923076923 * s;
-      points[3].x = 0.8538461538461538 * s; points[3].y = -1.7769230769230768 * s;
-      points[4].x = 0.7153846153846154 * s; points[4].y = -0.015384615384615385 * s;
+      for (let i = 0; i < 5; i++) { points[i].x = verts[i][0]; points[i].y = verts[i][1]; }
       poly.pos.x = this.player.shape.x;
       poly.pos.y = this.player.shape.y;
       poly._recalc();
     } else {
-      const newPoints = [
-        new SAT.Vector(0, 0),
-        new SAT.Vector(-0.14615384615384616 * s, -1.7769230769230768 * s),
-        new SAT.Vector(0.34615384615384615 * s, -2.4923076923076923 * s),
-        new SAT.Vector(0.8538461538461538 * s, -1.7769230769230768 * s),
-        new SAT.Vector(0.7153846153846154 * s, -0.015384615384615385 * s),
-      ];
       const pos = new SAT.Vector(this.player.shape.x, this.player.shape.y);
-      this.shape.collisionPoly = new SAT.Polygon(pos, newPoints);
+      this.shape.collisionPoly = new SAT.Polygon(pos, verts.map(([x, y]) => new SAT.Vector(x, y)));
     }
   }
 
@@ -355,64 +381,111 @@ class Sword extends Entity {
       }
     }
 
-    const swingPressed = this.player.inputs.isInputDown(Types.Input.SwordSwing);
+    if (!this.autoOnly && !this.player.modifiers.battleswords) {
+      const swingPressed = this.player.inputs.isInputDown(Types.Input.SwordSwing);
 
-    if (swingPressed && !this.lastSwingPressed && !this.isAnimationFinished) {
-      this.swingRequested = true;
-    }
-    this.lastSwingPressed = swingPressed;
+      if (swingPressed && !this.lastSwingPressed && !this.isAnimationFinished) {
+        this.swingRequested = true;
+      }
+      this.lastSwingPressed = swingPressed;
 
-    if (this.swingLockedUntilRelease && !swingPressed) {
-      this.swingLockedUntilRelease = false;
-    }
-
-    if (swingPressed && (!this.isAnimationFinished || this.isFlying)) {
-      this.inputHeldTime += dt;
-    } else if (!swingPressed) {
-      this.inputHeldTime = 0;
+      if (swingPressed && (!this.isAnimationFinished || this.isFlying)) {
+        this.inputHeldTime += dt;
+      } else if (!swingPressed) {
+        this.inputHeldTime = 0;
+      }
     }
 
     if (this.canSwing()) {
       this.isFlying = false;
       this.flyTime = 0;
+      this.decreaseAnimation = false;
+      this.swingTime = 0;
+      this.swingProgress = 0;
+      this.prevSwingProgress = 0;
+      this.collidedEntities.clear();
+      this.hitLandedThisSwing = false;
       this.raiseAnimation = true;
       this.isAnimationFinished = false;
       this.swingBufferPenalty = this.inputHeldTime;
       this.inputHeldTime = 0;
       this.swingRequested = false;
-      this.player.flags.set(Types.Flags.SwordSwing, true);
+      if (!this.autoOnly) {
+        this.player.flags.set(Types.Flags.SwordSwing, true);
+
+        if (this.player.evolutions && this.player.evolutions.evolutionEffect && typeof this.player.evolutions.evolutionEffect.onSwordSwing === 'function') {
+          try {
+            this.player.evolutions.evolutionEffect.onSwordSwing();
+          } catch (e) {
+            //
+          }
+        }
+        if (this.player.upgrades) this.player.upgrades.hook('onSwordSwing');
+      }
 
       this._instantHitCheck();
 
-      // Double Hit (102)
-      const hasDoubleHit = this.player.cards && this.player.cards.hasMajor(102);
+      const hasDoubleHit = (this.player.cards && this.player.cards.hasMajor(102))
+        || this.player.modifiers.strikeTwice;
       this.doubleHitActive = !!hasDoubleHit;
       this.doubleHitCleared = false;
 
       const elapsed = Date.now() - this.lastSwordSwing;
       const multiplier = elapsed / this.focusTime;
       this.focusDamageMultiplier = Math.max(0.4, Math.min(1.35, multiplier));
-
-      if (this.player.evolutions && this.player.evolutions.evolutionEffect && typeof this.player.evolutions.evolutionEffect.onSwordSwing === 'function') {
-        try {
-          this.player.evolutions.evolutionEffect.onSwordSwing();
-        } catch (e) {
-          //
-        }
-      }
     }
     if (this.canFly()) {
       const hasSpareSword = this.player.cards && this.player.cards.hasMajor(106);
 
-      if (hasSpareSword) {
+      if (this.player.modifiers.kunais) {
+        const a = this.player.angle;
+        const r = this.player.shape.radius || 100;
+        const hx = this.player.shape.x + Math.cos(a) * r + Math.cos(a + Math.PI / 2) * r;
+        const hy = this.player.shape.y + Math.sin(a) * r + Math.sin(a + Math.PI / 2) * r;
+        for (const off of [-0.1, 0, 0.1]) {
+          this._spawnThrownSwordAt(a + off, hx, hy, { sizeScale: 0.55, damageScale: 0.5, speedScale: 0.65, durationScale: 0.7 });
+        }
+        this.flyCooldownTime = this.flyCooldown.value;
+        this.player.flags.set(Types.Flags.SwordThrow, true);
+        this.player.inputs.inputUp(Types.Input.SwordThrow);
+        this.player._bsThrowUntil = Date.now() + 900;
+      } else if (hasSpareSword) {
         // Spare Sword (106)
 
         this._spawnThrownSword(0);
         this.flyCooldownTime = this.flyCooldown.value;
         this.player.flags.set(Types.Flags.SwordThrow, true);
         this.player.inputs.inputUp(Types.Input.SwordThrow);
+      } else if (this.player.modifiers.battleswords) {
+        const a = this.player.angle;
+        const perp = a + Math.PI / 2;
+        const off = (this.player.shape.radius || 100) * 0.9;
+        const spd = this.flySpeed.value;
+        for (const s of [-1, 1]) {
+          const sx = this.player.shape.x + Math.cos(perp) * off * s;
+          const sy = this.player.shape.y + Math.sin(perp) * off * s;
+          const proj = this._spawnThrownSwordAt(a, sx, sy);
+          if (proj && proj.shape) { proj.shape.x += spd * Math.cos(a); proj.shape.y += spd * Math.sin(a); }
+        }
+        this.flyCooldownTime = this.flyCooldown.value;
+        this.player.flags.set(Types.Flags.SwordThrow, true);
+        this.player.inputs.inputUp(Types.Input.SwordThrow);
+        this.player._bsThrowUntil = Date.now() + 1400;
       } else {
         this.isFlying = true;
+        this.shape.angle = this.player.angle + Math.PI / 2;
+        {
+          const s = this.size;
+          this.updateCollisionPoly();
+          this.shape.collisionPoly.setOffset(new SAT.Vector(-0.35 * s, 1.25 * s));
+          this.shape.collisionPoly.setAngle(this.player.angle + Math.PI / 2);
+        }
+        {
+          const a = this.player.angle;
+          const r = this.player.shape.radius || 100;
+          this.shape.x = this.player.shape.x + Math.cos(a) * r + Math.cos(a + Math.PI / 2) * r;
+          this.shape.y = this.player.shape.y + Math.sin(a) * r + Math.sin(a + Math.PI / 2) * r;
+        }
         this.boomerangReturning = false;
         this.boomerangReturnTime = 0;
         this.boomerangOrigAngle = this.player.angle;
@@ -428,8 +501,21 @@ class Sword extends Entity {
         this.player.flags.set(Types.Flags.SwordThrow, true);
         this.player.inputs.inputUp(Types.Input.SwordThrow);
 
-        // Twin Throw (104)
-        if (this.player.cards && this.player.cards.hasMajor(104)) {
+        if (this.player.modifiers.battleswords) {
+          const a = this.player.angle;
+          const perp = a - Math.PI / 2;
+          const off = (this.player.shape.radius || 100) * 0.5;
+          this._spawnThrownSwordAt(a, this.player.shape.x + Math.cos(perp) * off, this.player.shape.y + Math.sin(perp) * off);
+        }
+
+        if (this.player.modifiers.lungeOnThrow) {
+          const a = this.player.angle;
+          const dash = 320;
+          this.player.velocity.x += Math.cos(a) * dash;
+          this.player.velocity.y += Math.sin(a) * dash;
+        }
+
+        if ((this.player.cards && this.player.cards.hasMajor(104)) || this.player.modifiers.twinThrowUp) {
           this.twinThrowPending = true;
           this.twinThrowDelay = 0.3;
           this.twinThrowSavedAngle = this.player.angle;
@@ -440,7 +526,8 @@ class Sword extends Entity {
       }
     }
 
-    if (!this.isAnimationFinished && !this.raiseAnimation && !this.player.inputs.isInputDown(Types.Input.SwordSwing)) {
+    if (!this.isAnimationFinished && !this.raiseAnimation
+        && (!this.player.inputs.isInputDown(Types.Input.SwordSwing) || this.player.modifiers.battleswords)) {
       this.decreaseAnimation = true;
       this.focusDamageMultiplier = 1;
       this.lastSwordSwing = Date.now();
@@ -452,27 +539,41 @@ class Sword extends Entity {
       this.flyCooldownTime = 0;
     }
 
-    const { raiseSpeed, decreaseSpeed } = this.swingPhaseSpeeds();
-
     if (this.raiseAnimation) {
       this.isFlying = false;
       this.flyTime = 0;
-      this.swingTime += dt * raiseSpeed;
+      const fromP = this.prevSwingProgress;
+      this.swingTime += dt;
+      let ended = false;
       if (this.swingTime >= this.swingDuration.value) {
         this.swingTime = this.swingDuration.value;
-        this.raiseAnimation = false;
+        ended = true;
       }
+      const toP = this.swingDuration.value > 0 ? this.swingTime / this.swingDuration.value : 1;
+      this._sweptHitCheck(fromP, toP);
+      this.prevSwingProgress = toP;
+      if (ended) this.raiseAnimation = false;
     }
     if (this.decreaseAnimation) {
-      const effectiveDecreaseSpeed = this.fastDecrease ? 1 : decreaseSpeed;
-      this.swingTime -= dt * effectiveDecreaseSpeed;
+      this.swingTime -= dt;
       if (this.swingTime <= 0) {
         this.swingTime = 0;
         this.decreaseAnimation = false;
         this.collidedEntities.clear();
         this.isAnimationFinished = true;
         this.doubleHitActive = false;
-        this.fastDecrease = false;
+
+        if (!this.autoOnly) {
+          if (this.player.evolutions && this.player.evolutions.evolutionEffect && typeof this.player.evolutions.evolutionEffect.onSwingEnd === 'function') {
+            try {
+              this.player.evolutions.evolutionEffect.onSwingEnd(!this.hitLandedThisSwing);
+            } catch (e) {
+              //
+            }
+          }
+          if (this.player.upgrades) this.player.upgrades.hook('onSwingEnd', !this.hitLandedThisSwing);
+        }
+        this.hitLandedThisSwing = false;
       }
     }
 
@@ -495,8 +596,6 @@ processTargetsCollision(entity) {
     if (this.player.modifiers.safe && entity.type === Types.Entity.Player && !this.player.isBot) return;
     if (entity.type === Types.Entity.Player && entity.modifiers.safe && !entity.isBot) return;
 
-    const attackerCoins = (this.player.levels && typeof this.player.levels.coins === 'number') ? this.player.levels.coins : 0;
-    const targetCoins = (entity.levels && typeof entity.levels.coins === 'number') ? entity.levels.coins : 0;
     const attackerRespawnShield = this.player.respawnShieldActive;
     const targetRespawnShield = entity.respawnShieldActive === true;
     const attackerFading = this.player.respawnShieldFadeActive === true;
@@ -509,104 +608,11 @@ processTargetsCollision(entity) {
       targetFading ? entity.respawnShieldFadeMult : 1
     ) : 1;
 
-    let coinShieldMult = 1;
-    let coinShieldFullBlock = false;
-    if (isHumanVsHuman && !respawnShielded) {
-      const lowerCoins = Math.min(attackerCoins, targetCoins);
-      if (lowerCoins < 500) {
-        coinShieldFullBlock = true;
-        coinShieldMult = 0;
-      } else if (lowerCoins < 2000) {
-        coinShieldMult = 0.5;
-      } else if (lowerCoins < 5000) {
-        coinShieldMult = 0.75;
-      }
-    }
-    const shielded = isHumanVsHuman && (coinShieldMult < 1 || attackerRespawnShield || targetRespawnShield);
-
-    let antiTeamMult = 1;
-    if (isHumanVsHuman) {
-      const attacker = this.player;
-      const defender = entity;
-      const ALLIANCE_RATIO = 0.3;
-      const MIN_DAMAGE_THRESHOLD = 10;
-
-      const fighterIds = new Set();
-      for (const id of attacker.combatLog.keys()) fighterIds.add(id);
-      for (const id of defender.combatLog.keys()) fighterIds.add(id);
-      fighterIds.delete(attacker.id);
-      fighterIds.delete(defender.id);
-
-      let attackerAllies = 0;
-      let defenderAllies = 0;
-
-      for (const fighterId of fighterIds) {
-        const fighter = this.game.entities.get(fighterId);
-        if (!fighter || fighter.removed || fighter.type !== Types.Entity.Player || fighter.isBot) continue;
-        if (!fighter.combatLog) continue;
-
-        const fDmgToDefender = fighter.combatLog.get(defender.id)?.damageDealt || 0;
-        const fDmgToAttacker = fighter.combatLog.get(attacker.id)?.damageDealt || 0;
-
-        if (fDmgToDefender > MIN_DAMAGE_THRESHOLD && fDmgToAttacker < fDmgToDefender * ALLIANCE_RATIO) {
-          attackerAllies++;
-        }
-        if (fDmgToAttacker > MIN_DAMAGE_THRESHOLD && fDmgToDefender < fDmgToAttacker * ALLIANCE_RATIO) {
-          defenderAllies++;
-        }
-      }
-
-      const attackerTeam = 1 + attackerAllies;
-      const defenderTeam = 1 + defenderAllies;
-
-      antiTeamMult = Math.min(1.0, defenderTeam / attackerTeam);
-
-      if (attackerTeam > defenderTeam) {
-        const now = Date.now();
-        const newRatio = attackerTeam / defenderTeam;
-        const oldRatio = defender.teamDisadvantage ? defender.teamDisadvantage.enemyTeam / defender.teamDisadvantage.myTeam : 0;
-        if (!defender.teamDisadvantage || now > defender.teamDisadvantage.expiry || newRatio >= oldRatio) {
-          defender.teamDisadvantage = { enemyTeam: attackerTeam, myTeam: defenderTeam, expiry: now + 8000 };
-        }
-      }
-    }
-
-    let coinDisparityMult = 1;
-    if (isHumanVsHuman && !shielded) {
-      const bigger = Math.max(attackerCoins, targetCoins);
-      const smaller = Math.max(Math.min(attackerCoins, targetCoins), 1);
-      const coinRatio = bigger / smaller;
-
-      if (coinRatio > 1.5) {
-        let boost = Math.min(Math.log2(coinRatio) * 0.03, 0.25);
-
-        const smallerPlayer = attackerCoins <= targetCoins ? this.player : entity;
-        const biggerPlayer = attackerCoins <= targetCoins ? entity : this.player;
-        const smallerLog = smallerPlayer.combatLog.get(biggerPlayer.id);
-        const smallerDealt = smallerLog?.damageDealt || 0;
-        const smallerReceived = smallerLog?.damageReceived || 0;
-        const totalDmg = smallerDealt + smallerReceived;
-        if (totalDmg > 0) {
-          boost *= 1 - (smallerDealt / totalDmg);
-        }
-
-        if (attackerCoins > targetCoins) {
-          coinDisparityMult = 1 - boost;
-        } else {
-          coinDisparityMult = 1 + boost * 0.5;
-        }
-      }
-    }
-
     const angle = Math.atan2(this.player.shape.y - entity.shape.y, this.player.shape.x - entity.shape.x);
 
     let power;
     if (isHumanVsHuman && targetRespawnShield) {
       power = this.knockback.value * 2;
-    } else if (isHumanVsHuman && coinShieldFullBlock) {
-      power = this.knockback.value * 0.1;
-    } else if (isHumanVsHuman && coinShieldMult < 1) {
-      power = this.knockback.value * coinShieldMult;
     } else {
       power = (this.knockback.value / (entity.knockbackResistance?.value || 1));
     }
@@ -637,7 +643,6 @@ processTargetsCollision(entity) {
       } else {
       power = Math.max(Math.min(power, 400), 100);
       }
-    power *= (antiTeamMult * antiTeamMult) * coinDisparityMult;
 
     if (this.player.cards) {
       power *= this.player.cards.getKnockbackMultiplier(entity);
@@ -647,16 +652,8 @@ processTargetsCollision(entity) {
       power *= 0.75;
     }
 
-    let blockEffect = { applies: false, dmgMult: 1, kbMult: 1, reflectRatio: 0, breakBlock: false };
-    const isThrownAttack = this.isFlying;
-    if (entity.type === Types.Entity.Player && typeof entity.getBlockEffect === 'function') {
-      const fallbackDir = isThrownAttack ? (this.shape.angle - Math.PI / 2 + Math.PI) : null;
-      blockEffect = entity.getBlockEffect(
-        isThrownAttack ? 'playerThrown' : 'playerMelee',
-        this.player.shape.x,
-        this.player.shape.y,
-        fallbackDir,
-      );
+    if (entity.type === Types.Entity.Player && entity.modifiers && entity.modifiers.noKnockback) {
+      power = 0;
     }
 
     const xComp = power * Math.cos(angle);
@@ -666,40 +663,10 @@ processTargetsCollision(entity) {
     entity.velocity.x = knockbackDir * xComp;
     entity.velocity.y = knockbackDir * yComp;
 
-    if (blockEffect.applies && blockEffect.reflectRatio > 0 && this.player.velocity) {
-      this.player.velocity.x -= knockbackDir * xComp * blockEffect.reflectRatio;
-      this.player.velocity.y -= knockbackDir * yComp * blockEffect.reflectRatio;
-    }
-
-    if (blockEffect.applies && blockEffect.parry) {
-      const parryDuration = blockEffect.stunAttacker || 0.5;
-      try {
-        if (typeof this.player.addEffect === 'function') {
-          this.player.addEffect(Types.Effect.Stun, `parry_${Date.now()}_${Math.random()}`, { duration: parryDuration });
-        }
-      } catch (e) {}
-      this.player.parriedUntil = Date.now() + parryDuration * 1000;
-
-      let reflectedDamage = this.damage.value;
-      if (this.player.cards) {
-        reflectedDamage *= this.player.cards.getDamageDealtMultiplier(entity);
-      }
-      reflectedDamage *= (blockEffect.damageReflect || 1);
-      try { this.player.damaged(reflectedDamage, entity, false); } catch (e) {}
-
-      if (typeof entity.consumeBlockOnParry === 'function') {
-        entity.consumeBlockOnParry();
-      } else {
-        entity.cancelBlock(true);
-      }
-
-      this.collidedEntities.add(entity);
-      this.player.flags.set(Types.Flags.EnemyHit, entity.id);
-      return;
-    }
-
-    if (!respawnShielded && !coinShieldFullBlock && ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) ||
+    let damageApplied = false;
+    if (!respawnShielded && ((this.isFlying && !this.raiseAnimation && !this.decreaseAnimation) ||
       (!this.isFlying && (this.raiseAnimation || this.decreaseAnimation)))) {
+        damageApplied = true;
 
         const base = this.damage.value;
         const throwMult = this.player.modifiers.throwDamage || 1;
@@ -729,27 +696,17 @@ processTargetsCollision(entity) {
           finalDamage *= bonus;
         }
 
+        if (this.player.modifiers.pacifist && entity.type === Types.Entity.Player) {
+          finalDamage *= 0.5;
+        }
+
         if (this.player.cards) {
           finalDamage *= this.player.cards.onHitEntity(entity, finalDamage, isThrown);
           finalDamage *= this.player.cards.getDamageDealtMultiplier(entity);
         }
 
-
-        finalDamage *= antiTeamMult * coinDisparityMult;
-
-        if (coinShieldMult < 1) {
-          finalDamage *= coinShieldMult;
-        }
-
         if (respawnFadeMult < 1) {
           finalDamage *= respawnFadeMult;
-        }
-
-        if (blockEffect.applies && blockEffect.dmgMult !== 1) {
-          finalDamage *= blockEffect.dmgMult;
-        }
-        if (blockEffect.applies && blockEffect.breakBlock && typeof entity.cancelBlock === 'function') {
-          entity.cancelBlock(true);
         }
 
         if (this.player.modifiers.poisonDamage) {
@@ -774,20 +731,6 @@ processTargetsCollision(entity) {
         } else {
           entity.damaged(finalDamage, this.player, isThrown);
         }
-
-        const evol = this.player.evolutions && this.player.evolutions.evolutionEffect;
-        if (evol && typeof evol.refundCooldownByKind === 'function') {
-          const isHumanPlayer = entity.type === Types.Entity.Player && !entity.isBot && !this.player.isBot;
-          const isBotOrMob = (entity.type === Types.Entity.Player && entity.isBot)
-            || Types.Groups.Mobs.includes(entity.type);
-          if (isHumanPlayer) {
-            evol.refundCooldownByKind(isThrown ? 'playerThrown' : 'playerMelee');
-          } else if (isBotOrMob) {
-            if (!this.player.isInPvpCombat || !this.player.isInPvpCombat()) {
-              evol.refundCooldownByKind('mob');
-            }
-          }
-        }
     }
 
     if(!respawnShielded && this.player.modifiers.leech && entity.type === Types.Entity.Player) {
@@ -795,7 +738,22 @@ processTargetsCollision(entity) {
     }
 
     this.collidedEntities.add(entity);
+    if (!this.isFlying) {
+      this.hitLandedThisSwing = true;
+    }
     this.player.flags.set(Types.Flags.EnemyHit, entity.id);
+
+    if (damageApplied && this.player.evolutions && this.player.evolutions.evolutionEffect && typeof this.player.evolutions.evolutionEffect.onHit === 'function') {
+      try {
+        const fairnessMult = respawnFadeMult;
+        this.player.evolutions.evolutionEffect.onHit(entity, this.isFlying, fairnessMult);
+      } catch (e) {
+        //
+      }
+    }
+    if (damageApplied && this.player.upgrades) {
+      this.player.upgrades.hook('onHit', entity, this.isFlying, respawnFadeMult);
+    }
 
     if (entity.type === Types.Entity.Player && !entity.isBot) {
       if (this.player.evolutions && this.player.evolutions.evolutionEffect && typeof this.player.evolutions.evolutionEffect.onDamage === 'function') {
@@ -805,6 +763,7 @@ processTargetsCollision(entity) {
           //
         }
       }
+      if (this.player.upgrades) this.player.upgrades.hook('onDamage', entity, this.isFlying);
     }
 
     if (entity.type === Types.Entity.Player && this.player.modifiers.chainDamage && !entity.isBot) {
@@ -893,25 +852,31 @@ processTargetsCollision(entity) {
     this._spawnThrownSwordAt(this.player.angle + angleOffset, this.player.shape.x, this.player.shape.y);
   }
 
-  _spawnThrownSwordAt(angle, x, y) {
+  _spawnThrownSwordAt(angle, x, y, opts = {}) {
     try {
       const ThrownSword = require('./ThrownSword');
+      const sizeScale = opts.sizeScale || 1;
+      const damageScale = opts.damageScale != null ? opts.damageScale : 0.7;
+      const speedScale = opts.speedScale || 1;
+      const durationScale = opts.durationScale || 1;
       const proj = new ThrownSword(this.game, {
         owner: this.player,
-        size: this.size,
+        size: this.size * sizeScale,
         angle: angle,
-        speed: this.flySpeed.value,
-        damage: this.damage.value * 0.7,
+        speed: this.flySpeed.value * speedScale,
+        damage: this.damage.value * damageScale,
         knockback: this.knockback.value * 0.45, // 0.6 * 0.75 — throws are 25% weaker on knockback
-        duration: this.flyDuration.value,
+        duration: this.flyDuration.value * durationScale,
         skin: this.skin,
         x: x,
         y: y,
       });
       this.game.addEntity(proj);
       this.twinThrowProj = proj;
+      return proj;
     } catch (e) {
       console.error('Failed to spawn ThrownSword:', e);
+      return null;
     }
   }
 

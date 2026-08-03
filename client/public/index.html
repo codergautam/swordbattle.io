@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@300;400;500;600;700&display=swap">
   <!-- Swordbattle.io -->
   <script>
     console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/codergautam", "color: orange; font-size: 30px;", "color: red; font-size: 30px;", "color: green; font-size: 20px;", "color: cyan; font-size: 20px", "color: grey; font-size: 10px");
@@ -8,10 +11,8 @@
 
 
 
-  <!-- Phaser -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"
-    integrity="sha512-YQL0GVx/Too3vZjBl9plePRIYsRnd1s8N6QOvXPdZ+JMH2mtRTLQXGUDGjNW6zr1HUgcOIury67IvWe91oeEwQ=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Phaser removed: the game renders with Pixi (bundled) and no longer needs the ~1.17MB Phaser
+       runtime. Its pure math/geometry helpers are reimplemented locally in game/pixi/phaserlite. -->
 
   <!-- Google tag (gtag.js) -->
   <link rel="stylesheet" href="https://sdk.playlight.dev/playlight-sdk.css">
@@ -48,17 +49,13 @@
   <!-- CrazyGames SDK -->
   <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 
-    <!-- Ads (disabled rn) -->
+    <!-- Ads -->
 
   <script>
+    // CrazyGames is no longer used, so we always run our own web ads (AdinPlay + AdSense),
+    // including inside portal iframes. This flag stays defined (false) only so the older
+    // `_isCrazyGamesBasicLaunch` checks scattered through the code keep resolving to "show ads".
     window._isCrazyGamesBasicLaunch = false;
-    try {
-      if (window.self !== window.top) {
-        window._isCrazyGamesBasicLaunch = true;
-      }
-    } catch(e) {
-      window._isCrazyGamesBasicLaunch = true;
-    }
   </script>
 
   <script>

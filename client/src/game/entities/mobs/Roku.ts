@@ -5,8 +5,6 @@ class RokuMob extends BaseEntity {
   static stateFields = [...BaseEntity.stateFields, 'angle'];
   static basicAngle = -Math.PI / 2;
   static removeTransition = 500;
-  static shadowOffsetX = 20;
-  static shadowOffsetY = 20;
 
   body!: Phaser.GameObjects.Sprite;
   shadow!: Phaser.GameObjects.Sprite;
@@ -17,8 +15,8 @@ class RokuMob extends BaseEntity {
 
   createSprite() {
     this.body = this.game.add.sprite(0, 0, 'roku').setOrigin(0.5, 0.5);
-    this.shadow = this.game.add.sprite(RokuMob.shadowOffsetX, RokuMob.shadowOffsetY, 'rokuShadow').setOrigin(0.5, 0.5);
-    this.shadow.setAlpha(0.175);
+    this.shadow = this.createOutlineShadow('roku', 0.5, 0.5, { living: true });
+    this.syncOutlineShadow(this.shadow, this.body);
     this.healthBar = new Health(this, {
       offsetY: -this.shape.radius,
       width: this.shape.radius,
@@ -31,9 +29,7 @@ class RokuMob extends BaseEntity {
   updateRotation() {
     if (!this.body) return;
     super.updateRotation();
-    if (this.shadow) {
-      this.shadow.setRotation(this.body.rotation);
-    }
+    this.syncOutlineShadow(this.shadow, this.body);
   }
 }
 

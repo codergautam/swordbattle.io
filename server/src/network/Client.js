@@ -108,7 +108,10 @@ class Client {
     const packet = Protocol.encode(data);
     if(data.fullSync) console.log('sending fullsync to', this.player?.name ?? 'spectator', Date.now(), `(${packet.byteLength} bytes, ${Object.keys(data.entities || {}).length} entities, ${Object.keys(data.globalEntities || {}).length} globals)`);
     if (!this.isSocketClosed) {
-      this.socket.send(packet, { binary: true, compress: true });
+      const result = this.socket.send(packet, true, true);
+      if (result === 2) {
+        this.fullSync = true;
+      }
     }
   }
 

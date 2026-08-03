@@ -1,0 +1,109 @@
+.modal-clans .clans-modal {
+  width: 46vw !important;
+  min-width: 460px;
+  max-width: calc(100vw - 90px) !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 16px 18px !important;
+  background: #181818 !important;
+  border: 3px solid #4f8fd6;
+  border-right: none;
+  border-radius: 16px 0 0 16px !important;
+  box-shadow:
+    0 0 0 3px #000,
+    -16px 0 44px rgba(0, 0, 0, 0.6) !important;
+
+  .clans-header {
+    margin-bottom: 12px;
+    padding-right: 44px;
+  }
+
+  .clans-title {
+    font-size: 26px;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  .clans-tabs button {
+    background: #2a2a2e !important;
+    border: 3px solid #000 !important;
+    color: #d8d8dc !important;
+    border-radius: 9px !important;
+    padding: 7px 11px !important;
+    font-size: 13px !important;
+    transition: filter 0.12s ease;
+
+    &:hover { filter: brightness(1.14); background: #2a2a2e !important; }
+    &.active {
+      background: #4f8fd6 !important;
+      border-color: #000 !important;
+      color: #fff !important;
+    }
+  }
+
+  .clans-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .clan-profile__member { border: none !important; }
+  .clan-profile__columns button {
+    background: #2a2a2e !important;
+    border: none !important;
+    &.active { background: #4f8fd6 !important; color: #fff !important; border-color: #4f8fd6 !important; }
+  }
+  .col-actions button { border: none !important; }
+
+  .clans-xp-gate {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+
+    &__inner {
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+  }
+
+  .clans-search-bar button,
+  .clan-profile__actions button,
+  .clans-form select {
+    background: #2a2a2e !important;
+    border: 3px solid #000 !important;
+    color: #e2e2e6 !important;
+    border-radius: 9px !important;
+    padding: 7px 12px !important;
+    font-weight: 700;
+    transition: filter 0.12s ease;
+    cursor: pointer;
+    &:hover { filter: brightness(1.14); }
+  }
+  .clans-search-bar button.active { background: #4f8fd6 !important; color: #fff !important; }
+  .clan-profile__actions button.primary { background: #4f8fd6 !important; color: #fff !important; }
+  .clan-profile__actions button.danger { background: #c0392b !important; color: #fff !important; }
+  .clans-form select { cursor: pointer; }
+
+  .clans-gate-notice {
+    min-height: 66vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+
+    &__box {
+      max-width: 440px;
+      text-align: center;
+      padding: 22px 26px;
+      background: rgba(20, 20, 22, 0.85);
+      border: 3px solid #e6b800;
+      border-radius: 14px;
+      box-shadow: 0 0 0 3px #000;
+
+      h2 { margin: 0; color: #ffcf33; font-size: 21px; line-height: 1.4; }
+    }
+  }
+}

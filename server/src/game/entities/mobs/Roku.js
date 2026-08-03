@@ -60,39 +60,12 @@ class RokuMob extends Entity {
       this.target = null;
     }
 
-    if (!this.target) {
-      const searchRadius = this.definition.attackRadius;
-      const searchZone = this.shape.boundary;
-      searchZone.x -= searchRadius;
-      searchZone.y -= searchRadius;
-      searchZone.width += searchRadius;
-      searchZone.height += searchRadius;
-
-      const targets = this.game.entitiesQuadtree.get(searchZone);
-      for (const { entity: target } of targets) {
-        if (target === this) continue;
-        if (target.type !== Types.Entity.Player) continue;
-
-        const distance = helpers.distance(this.shape.x, this.shape.y, target.shape.x, target.shape.y);
-        if (distance < searchRadius) {
-          this.target = target;
-          break;
-        }
-      }
-    }
-
     this.fireballTimer.update(dt);
     this.health.update(dt);
     this.jumpTimer.update(dt);
 
     if (this.target) {
       const targetAngle = helpers.angle(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
-      const distance = helpers.distance(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
-
-      if (distance > this.definition.attackRadius) {
-        this.target = null;
-      }
-
       this.angle = helpers.angleLerp(this.angle, targetAngle, dt * this.definition.rotationSpeed);
       if (this.fireballTimer.finished) {
         this.fireballTimer.renew();
@@ -152,10 +125,7 @@ class RokuMob extends Entity {
       finalDamage *= entity.modifiers.mobPower;
     }
 
-    // Bots and shielded players always deal full damage
-    const isBot = entity.isBot;
-    const isShielded = entity.coins < 500;
-    const bypassesMarkSystem = isBot || isShielded;
+    const bypassesMarkSystem = entity.isBot;
 
     if (!bypassesMarkSystem) {
       const currentTime = Date.now();

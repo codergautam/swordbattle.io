@@ -19,7 +19,7 @@
       color: #ffffff;
       font-size: 45px;
       margin-bottom: 10px;
-      text-shadow: 
+      text-shadow:
         -2.75px -2.75px 0 #000,
         2.75px -2.75px 0 #000,
         -2.75px 2.75px 0 #000,
@@ -32,19 +32,18 @@
 
     .progress-bar {
       width: 100%;
-      height: 20px;
-      background-color: #eee;
-      outline: 5px solid #000000;
+      height: 28px;
+      box-sizing: border-box;
+      padding: 5px;
+      background-color: #403f3f;
+      border-radius: 14px;
+      box-shadow: 0 0 0 3px #53e08a, 0 0 0 6px #000;
 
       .progress {
         height: 100%;
-        background-color: lime;
-        transition: width 0.5s ease-in-out;
-        outline: 5px solid #000000;
-
-        &.no-outline {
-          outline: none;
-        }
+        border-radius: 999px;
+        background: linear-gradient(180deg, #59ff59 0%, #59ff7d 45%, #10ff30 45%, #10ff1c 100%);
+        transition: width 0.15s linear;
       }
     }
 

@@ -14,6 +14,15 @@ export class AuthService {
     private readonly accountsService: AccountsService,
   ) {}
 
+  async checkUsername(username: string): Promise<{ available: boolean; reason?: string }> {
+    if (!username) return { available: false };
+    const validationError = validateUsername(username);
+    if (validationError) return { available: false, reason: validationError };
+    const existing = await this.accountsService.findOneWithLowercase({ where: { username } });
+    if (existing) return { available: false, reason: 'Username is taken' };
+    return { available: true };
+  }
+
   async register(data: RegisterDTO) {
     // validate username
     if(validateUsername(data.username)) {
@@ -336,6 +345,31 @@ export class AuthService {
       mastery: account.mastery,
       skins: account.skins,
     };
+  }
+
+  async claimGemBonus(account: Account) {
+    const dl = { ...account.dailyLogin };
+    const pending = dl.pendingGemBonus;
+
+    if (!pending || !pending.amount || pending.amount <= 0) {
+      return { error: 'No gem bonus available' };
+    }
+
+    if (Date.now() - pending.at > 5 * 60 * 1000) {
+      dl.pendingGemBonus = null;
+      account.dailyLogin = dl;
+      await this.accountsService.update(account.id, { dailyLogin: dl });
+      return { error: 'Gem bonus expired' };
+    }
+
+    const amount = Math.floor(pending.amount);
+
+    dl.pendingGemBonus = null;
+    account.dailyLogin = dl;
+    account = await this.accountsService.addGems(account, amount, 'reward-2x-ad');
+    await this.accountsService.update(account.id, { dailyLogin: dl });
+
+    return { success: true, gems: account.gems, bonus: amount };
   }
 
   async getToken(account: Account) {

@@ -1,0 +1,25 @@
+.skin-view {
+  position: relative;
+  width: 100%;
+  max-width: 150px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  user-select: none;
+
+  .sv-body,
+  .sv-sword,
+  .sv-shadow {
+    position: absolute;
+    object-fit: contain;
+    pointer-events: none;
+    -webkit-user-drag: none;
+  }
+
+  .sv-shadow {
+    z-index: 0;
+    filter: brightness(0);
+  }
+
+  .sv-sword { z-index: 1; }
+  .sv-body { z-index: 2; }
+}

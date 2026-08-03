@@ -1,20 +1,19 @@
 import HudComponent from './HudComponent';
 import { BiomeTypes, EntityTypes, FlagTypes } from '../Types';
+import { drawPanel } from './panel';
 
 class ProgressBar extends HudComponent {
-  barBackground: any;
-  progressBar!: Phaser.GameObjects.Graphics;
+  panelG!: Phaser.GameObjects.Graphics;
+  fillG!: Phaser.GameObjects.Graphics;
   progressBarContainer!: Phaser.GameObjects.Container;
   levelText!: Phaser.GameObjects.Text;
   levelTextTween!: Phaser.Tweens.Tween;
   levelUpText!: Phaser.GameObjects.Text;
   stabbedText!: Phaser.GameObjects.Text;
   burningText!: Phaser.GameObjects.Text;
-  parriedText!: Phaser.GameObjects.Text;
-  statusSeparator!: Phaser.GameObjects.Text;
   inSafezoneMessage!: Phaser.GameObjects.Text;
-  width = 500;
-  height = 15;
+  width = 540;
+  height = 34;
 
   // Variables for smooth interpolation and level change tracking
   currentProgress: number = 0;
@@ -25,83 +24,86 @@ class ProgressBar extends HudComponent {
   killStreak = 0;
   lastKillTime = 0;
   lastEntityStabId = 0;
-  currentProtectionMessage: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'respawnShieldFading' | 'captureZone' | 'tutorial' = 'none';
+  currentProtectionMessage: 'none' | 'safezone' | 'respawnShield' | 'respawnShieldFading' | 'captureZone' | 'tutorial' | 'contested' = 'none';
   isBurning = false;
   isHypnotized = false;
-  isParried = false;
 
 
   initialize() {
-    // Create the background bar
-    this.barBackground = this.game.add.graphics();
-    this.barBackground.lineStyle(6, 0x000000);
-    this.barBackground.strokeRect(0, 0, this.width, this.height);
-    this.barBackground.fillStyle(0xffffff);
-    this.barBackground.fillRect(0, 0, this.width, this.height);
+    this.panelG = this.game.add.graphics();
+    drawPanel(this.panelG, 0, 0, this.width, this.height, {
+      radius: this.height / 2, bg: 0x403f3f, bgAlpha: 1,
+    });
 
-    // Create the progress bar itself
-    this.progressBar = this.game.add.graphics();
-    this.progressBar.fillStyle(0x00FFFF);
-    this.progressBar.fillRect(0, 0, this.width, this.height);
+    this.fillG = this.game.add.graphics();
 
-    // Add level text, centering it above the progress bar
-    this.levelText = this.game.add.text(this.width / 2, -this.height - 10, '', {
-      fontSize: 30,
-      fontStyle: 'bold',
+    this.levelText = this.game.add.text(this.width / 2, this.height / 2, '', {
+      fontSize: 19,
+      fontFamily: "'Saira', sans-serif",
+      fontStyle: '700',
+      color: '#ffffff',
       stroke: '#000000',
-      strokeThickness: 6,
+      strokeThickness: 4,
     }).setOrigin(0.5);
 
-    // "You are in the safe zone" text
-    this.inSafezoneMessage = this.game.add.text(this.width / 2, -this.height - 45, 'You are protected: you are in the safezone', {
+    this.inSafezoneMessage = this.game.add.text(this.width / 2, -22, 'You are protected: you are in the safezone', {
       fontSize: 22,
-      fontStyle: 'bold',
+      fontFamily: "'Saira', sans-serif",
+      fontStyle: '700',
       stroke: '#000000',
       strokeThickness: 6,
     }).setOrigin(0.5).setAlpha(0);
 
     this.levelUpText = this.game.add.text(this.width / 2, -this.game.scale.height / 5, '', {
       fontSize: 50,
-      fontStyle: 'bold',
+      fontFamily: "'Saira', sans-serif",
+      fontStyle: '700',
       stroke: '#000000',
       strokeThickness: 6,
     }).setOrigin(0.5);
 
     this.stabbedText = this.game.add.text(this.width / 2, this.game.scale.height, '', {
       fontSize: 50,
-      fontStyle: 'bold',
+      fontFamily: "'Saira', sans-serif",
+      fontStyle: '700',
       color: '#f23838',
       stroke: '#000000',
       strokeThickness: 6,
     }).setOrigin(0.5).setAlpha(0);
 
-    this.burningText = this.game.add.text(this.width / 2, -this.height - 90, 'Burning!', {
+    this.burningText = this.game.add.text(this.width / 2, -56, 'Burning!', {
       fontSize: 24,
-      fontStyle: 'bold',
+      fontFamily: "'Saira', sans-serif",
+      fontStyle: '700',
       color: '#ff4444',
       stroke: '#000000',
       strokeThickness: 5,
     }).setOrigin(0.5).setAlpha(0);
 
-    this.statusSeparator = this.game.add.text(this.width / 2, -this.height - 90, ' + ', {
-      fontSize: 24,
-      fontStyle: 'bold',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 5,
-    }).setOrigin(0.5).setAlpha(0);
-
-    this.parriedText = this.game.add.text(this.width / 2, -this.height - 90, 'Parried!', {
-      fontSize: 24,
-      fontStyle: 'bold',
-      color: '#33e0ff',
-      stroke: '#000000',
-      strokeThickness: 5,
-    }).setOrigin(0.5).setAlpha(0);
-
-    this.progressBarContainer = this.hud.scene.add.container(0, 0, [this.barBackground, this.progressBar, this.levelText, this.inSafezoneMessage, this.burningText, this.statusSeparator, this.parriedText]);
+    this.progressBarContainer = this.hud.scene.add.container(0, 0, [this.panelG, this.fillG, this.levelText, this.inSafezoneMessage, this.burningText]);
     this.container = this.game.add.container(0, 0, [this.progressBarContainer, this.levelUpText, this.stabbedText]);
     this.hud.add(this.container);
+  }
+
+  private lastFillPx = -1;
+  private lastPct = -1;
+  private lastLevelText = -1;
+  private drawFill(progress: number) {
+    const inset = 5;
+    const trackW = this.width - inset * 2;
+    const h = this.height - inset * 2;
+    const fw = Math.max(0, Math.min(trackW, trackW * progress));
+    const px = Math.round(fw);
+    if (px === this.lastFillPx) return;
+    this.lastFillPx = px;
+    this.fillG.clear();
+    if (fw <= 0) return;
+    const r = Math.min(h / 2, fw / 2);
+    this.fillG.fillStyle(0x10c8ff, 1);
+    this.fillG.fillRoundedRect(inset, inset, fw, h, r);
+    const hh = h * 0.45;
+    this.fillG.fillStyle(0x8af3ff, 0.6);
+    this.fillG.fillRoundedRect(inset + 1, inset + 1, fw - 2, hh, Math.min(r, hh / 2));
   }
 
   // Adjust the progress bar's position on window resize
@@ -281,68 +283,6 @@ class ProgressBar extends HudComponent {
     }
   }
 
-  updateParriedText(isParried: boolean, hasProtectionMessage: boolean) {
-    const targetY = hasProtectionMessage ? -this.height - 110 : -this.height - 90;
-
-    if (isParried && !this.isParried) {
-      this.isParried = true;
-      this.game.tweens.killTweensOf(this.parriedText);
-      this.parriedText.y = targetY;
-      this.game.tweens.add({
-        targets: this.parriedText,
-        alpha: 1,
-        scaleX: 1.2,
-        scaleY: 1.2,
-        duration: 200,
-        ease: 'Back.easeOut',
-        yoyo: true,
-        repeat: -1,
-        repeatDelay: 300,
-      });
-    } else if (!isParried && this.isParried) {
-      this.isParried = false;
-      this.game.tweens.killTweensOf(this.parriedText);
-      this.game.tweens.add({
-        targets: this.parriedText,
-        alpha: 0,
-        scaleX: 1,
-        scaleY: 1,
-        duration: 200,
-        ease: 'Power2',
-      });
-    } else if (isParried && this.isParried) {
-      if (Math.abs(this.parriedText.y - targetY) > 5) {
-        this.game.tweens.add({
-          targets: this.parriedText,
-          y: targetY,
-          duration: 200,
-          ease: 'Power2',
-        });
-      }
-    }
-  }
-
-  layoutStatusRow() {
-    const burningOn = this.burningText.alpha > 0.01;
-    const parriedOn = this.parriedText.alpha > 0.01;
-    const cx = this.width / 2;
-
-    if (burningOn && parriedOn) {
-      const sepW = this.statusSeparator.width;
-      const total = this.burningText.width + sepW + this.parriedText.width;
-      const startX = cx - total / 2;
-      this.burningText.x = startX + this.burningText.width / 2;
-      this.statusSeparator.x = startX + this.burningText.width + sepW / 2;
-      this.parriedText.x = startX + this.burningText.width + sepW + this.parriedText.width / 2;
-      this.statusSeparator.y = this.burningText.y;
-      this.statusSeparator.setAlpha(Math.min(this.burningText.alpha, this.parriedText.alpha));
-    } else {
-      this.burningText.x = cx;
-      this.parriedText.x = cx;
-      this.statusSeparator.setAlpha(0);
-    }
-  }
-
   update() {
     const player = this.game.gameState.self.entity;
     if (!this.container || !player) return;
@@ -356,10 +296,17 @@ class ProgressBar extends HudComponent {
     }
     this.lastKnownLevel = player.level;
 
-    // Interpolation for smoother progress bar movement
     this.currentProgress += (this.targetProgress - this.currentProgress) * 0.1;
-    this.levelText!.text = `Level: ${player.level} (${Math.round(this.currentProgress * 100)}%)`;
-    this.progressBar.scaleX = this.currentProgress;
+    if (Math.abs(this.targetProgress - this.currentProgress) < 0.0005) {
+      this.currentProgress = this.targetProgress;
+    }
+    const pct = Math.round(this.currentProgress * 100);
+    if (pct !== this.lastPct || player.level !== this.lastLevelText) {
+      this.levelText!.text = `Level ${player.level} (${pct}%)`;
+      this.lastPct = pct;
+      this.lastLevelText = player.level;
+    }
+    this.drawFill(this.currentProgress);
 
     let inCaptureZone = false;
     if (player.shape) {
@@ -378,8 +325,10 @@ class ProgressBar extends HudComponent {
       }
     }
 
-    let desiredProtectionState: 'none' | 'safezone' | 'collect' | 'respawnShield' | 'respawnShieldFading' | 'captureZone' | 'tutorial' = 'none';
-    if ((player as any).isTutorial) {
+    let desiredProtectionState: 'none' | 'safezone' | 'respawnShield' | 'respawnShieldFading' | 'captureZone' | 'tutorial' | 'contested' = 'none';
+    if (player.flags[FlagTypes.ContestedObject]) {
+      desiredProtectionState = 'contested';
+    } else if ((player as any).isTutorial) {
       desiredProtectionState = 'tutorial';
     } else if (player.flags[FlagTypes.RespawnShield] === 2) {
       desiredProtectionState = 'respawnShieldFading';
@@ -387,8 +336,6 @@ class ProgressBar extends HudComponent {
       desiredProtectionState = 'respawnShield';
     } else if (player.biome === BiomeTypes.Safezone) {
       desiredProtectionState = 'safezone';
-    } else if (player.coins < 500) {
-      desiredProtectionState = 'collect';
     } else if (inCaptureZone) {
       desiredProtectionState = 'captureZone';
     }
@@ -396,7 +343,15 @@ class ProgressBar extends HudComponent {
     const switchProtectionMessage = () => {
       const isMobile = this.game.isMobile;
 
-      if (desiredProtectionState === 'tutorial') {
+      if (desiredProtectionState === 'contested') {
+        this.inSafezoneMessage.setColor('#ff9a3c');
+        this.inSafezoneMessage.setText('Only one person can break this at a time!');
+        this.game.tweens.add({
+          targets: this.inSafezoneMessage,
+          alpha: 1,
+          duration: 200,
+        });
+      } else if (desiredProtectionState === 'tutorial') {
         this.inSafezoneMessage.setColor('#44ff88');
         this.inSafezoneMessage.setText('You are protected: currently in tutorial');
         this.game.tweens.add({
@@ -425,14 +380,6 @@ class ProgressBar extends HudComponent {
         this.inSafezoneMessage.setText(isMobile ? 'You are in the safezone' : 'You are protected: you are in the safezone');
         this.game.tweens.add({
           targets: this.inSafezoneMessage,
-          alpha: 1,
-          duration: 200,
-        });
-      } else if (desiredProtectionState === 'collect' && !isMobile) {
-        this.inSafezoneMessage.setColor('#66ff66');
-        this.inSafezoneMessage.setText(`You are fully protected — collect ${Math.max(0, 500 - player.coins)} more coins to start fighting`);
-        this.game.tweens.add({
-          targets: [this.inSafezoneMessage],
           alpha: 1,
           duration: 200,
         });
@@ -466,17 +413,12 @@ class ProgressBar extends HudComponent {
           onComplete: switchProtectionMessage,
         });
       }
-    } else if (desiredProtectionState === 'collect' && !this.game.isMobile) {
-      this.inSafezoneMessage.setText(`You are protected: collect ${Math.max(0, 500 - player.coins)} more coins to start fighting`);
     }
 
     const isCurrentlyBurning = !!player.flags[FlagTypes.LavaDamaged];
     const isCurrentlyHypnotized = !!player.flags[FlagTypes.Hypnotized];
-    const isCurrentlyParried = ((player as any).parriedRemaining || 0) > 0;
     const hasProtectionMessage = desiredProtectionState !== 'none';
     this.updateBurningText(isCurrentlyBurning, hasProtectionMessage, isCurrentlyHypnotized);
-    this.updateParriedText(isCurrentlyParried, hasProtectionMessage);
-    this.layoutStatusRow();
 
     const stabbedId = player.flags[FlagTypes.PlayerKill];
     if(!stabbedId) return;

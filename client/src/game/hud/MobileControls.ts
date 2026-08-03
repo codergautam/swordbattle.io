@@ -1,15 +1,14 @@
 import HudComponent from './HudComponent';
-import { InputTypes, FlagTypes } from '../Types';
+import { InputTypes } from '../Types';
+import { Controls } from '../Controls';
 
 export default class MobileControls extends HudComponent {
   chatButton?: Phaser.GameObjects.Sprite;
   abilityButton!: Phaser.GameObjects.Sprite;
   abilityCooldown!: Phaser.GameObjects.Text;
+  abilityCharges!: Phaser.GameObjects.Text;
   abilityButtonContainer!: Phaser.GameObjects.Container;
   swordThrowButton?: Phaser.GameObjects.Sprite;
-
-  private hadRefundLastTick = false;
-  private refundFloaters: Phaser.GameObjects.Text[] = [];
 
   initialize() {
     this.container = this.game.add.container(0, 0);
@@ -25,7 +24,15 @@ export default class MobileControls extends HudComponent {
       .on('pointerdown', () => this.game.controls.inputDown(InputTypes.Ability))
       .on('pointerup', () => this.game.controls.inputUp(InputTypes.Ability));
 
-    this.abilityButtonContainer = this.hud.scene.add.container(0, 0, [this.abilityButton, this.abilityCooldown]);
+    this.abilityCharges = this.hud.scene.add.text(0, 0, '', {
+      fontSize: 26,
+      fontStyle: 'bold',
+      color: '#ffe38a',
+      stroke: '#000000',
+      strokeThickness: 4,
+    }).setOrigin(0.5).setPosition(42, -42);
+
+    this.abilityButtonContainer = this.hud.scene.add.container(0, 0, [this.abilityButton, this.abilityCooldown, this.abilityCharges]);
 
     this.container.add(this.abilityButtonContainer);
 
@@ -36,8 +43,7 @@ export default class MobileControls extends HudComponent {
 
       this.swordThrowButton = this.hud.scene.add.sprite(0, 0, 'swordThrowButton')
         .setInteractive()
-        .on('pointerdown', () => this.game.controls.inputDown(InputTypes.SwordThrow))
-        .on('pointerup', () => this.game.controls.inputUp(InputTypes.SwordThrow));
+        .on('pointerdown', () => this.game.controls.armThrow());
 
       this.container.add([this.chatButton, this.swordThrowButton]);
     }
@@ -53,78 +59,53 @@ export default class MobileControls extends HudComponent {
 
     const isCooldown = self.abilityCooldown !== 0;
     const isActivated = self.abilityActive;
-    this.abilityButton.setAlpha((isActivated || isCooldown) ? 0.5 : 1);
+
+    const charges = (self as any).abilityCharges;
+    const hasCharges = typeof charges === 'number' && charges >= 0;
+    const noCastleDash = hasCharges && charges === 0;
+    this.abilityButton.setAlpha((isActivated || isCooldown || noCastleDash) ? 0.5 : 1);
 
     const text = isCooldown ? self.abilityCooldown.toFixed(1)
       : (isActivated ? self.abilityDuration.toFixed(1) : '');
     this.abilityCooldown.text = text;
 
-    const flags = (self as any).flags;
-    const refundCs = (flags && flags[FlagTypes.CooldownRefund]) || 0;
-    if (refundCs > 0 && !this.hadRefundLastTick) {
-      this.spawnRefundFloater(refundCs / 100);
+    if (hasCharges) {
+      this.abilityCharges.setText(String(charges)).setVisible(true);
+    } else {
+      this.abilityCharges.setVisible(false);
     }
-    this.hadRefundLastTick = refundCs > 0;
-  }
-
-  private spawnRefundFloater(seconds: number) {
-    const scene = this.hud.scene;
-    if (!scene || !this.abilityButtonContainer) return;
-    const label = `-${seconds < 1 ? seconds.toFixed(1) : seconds.toFixed(1)}s`;
-    const floater = scene.add.text(0, 0, label, {
-      fontSize: '22px',
-      fontFamily: 'Ubuntu, sans-serif',
-      fontStyle: 'bold',
-      color: '#7cf07c',
-      stroke: '#000000',
-      strokeThickness: 4,
-    }).setOrigin(0.5);
-
-    const btn = this.abilityButtonContainer;
-    const btnScale = btn.scaleX || 1;
-    const btnHalfH = (this.abilityButton.height * btnScale) / 2;
-    floater.setPosition(btn.x, btn.y + btnHalfH + 14);
-    floater.setDepth((btn.depth || 0) + 5);
-
-    (this.container as Phaser.GameObjects.Container)?.add(floater);
-    this.refundFloaters.push(floater);
-
-    scene.tweens.add({
-      targets: floater,
-      y: floater.y - 60,
-      alpha: { from: 1, to: 0 },
-      duration: 900,
-      ease: 'Sine.easeOut',
-      onComplete: () => {
-        const idx = this.refundFloaters.indexOf(floater);
-        if (idx >= 0) this.refundFloaters.splice(idx, 1);
-        floater.destroy();
-      },
-    });
   }
 
   setShow(show: boolean, force?: boolean): void {
     super.setShow(show, force);
     this.game.controls.joystick?.setVisible(show);
+    this.game.controls.aimJoystick?.setVisible(show);
+    this.game.controls.aimIcon?.setVisible(show);
+    if (!show) this.game.controls.setThrowArmed(false);
   }
 
   setScale(scale: number): void {
     this.scale = scale;
 
     if (this.game.isMobile) {
+      const mul = Controls.stickMul(this.game.scale.height > this.game.scale.width);
       const joystick = this.game.controls.joystick;
-      joystick?.thumb?.setScale(this.scale);
-      joystick?.base?.setScale(this.scale);
+      joystick?.thumb?.setScale(this.scale * mul);
+      joystick?.base?.setScale(this.scale * mul);
+      const aimJoystick = this.game.controls.aimJoystick;
+      aimJoystick?.thumb?.setScale(this.scale * mul);
+      aimJoystick?.base?.setScale(this.scale * mul);
+      this.game.controls.refreshAimIcon();
 
       const targetPx = 100 * scale;
       if (this.chatButton) {
-        this.chatButton.setScale(targetPx / this.chatButton.texture.getSourceImage().width);
+        this.chatButton.setScale(targetPx / ((this.chatButton.texture as any).width || 100));
       }
       if (this.abilityButton) {
-        this.abilityButtonContainer.setScale(targetPx / this.abilityButton.texture.getSourceImage().width);
+        this.abilityButtonContainer.setScale(targetPx / ((this.abilityButton.texture as any).width || 100));
       }
       if (this.swordThrowButton) {
-        this.swordThrowButton.setScale(targetPx / this.swordThrowButton.texture.getSourceImage().width);
+        this.swordThrowButton.setScale(targetPx / ((this.swordThrowButton.texture as any).width || 100));
       }
     } else {
       this.abilityButtonContainer?.setScale(scale);
@@ -144,23 +125,24 @@ export default class MobileControls extends HudComponent {
     }
 
     const joystick = this.game.controls.joystick;
+    const aimJoystick = this.game.controls.aimJoystick;
     const isPortrait = h > w;
 
-    joystick?.setPosition(150 * s, h / 1.5);
-
-    const spacing = 135 * s;
-    const startX = 80 * s;
-
+    let stickX: number, stickY: number;
     if (isPortrait) {
-      const btnY = h - 160 * s;
-      this.chatButton?.setPosition(startX, btnY);
-      this.abilityButtonContainer?.setPosition(startX + spacing, btnY);
-      this.swordThrowButton?.setPosition(startX + spacing * 2, btnY);
+      stickX = 165 * s;
+      stickY = h - 290 * s;
     } else {
-      const btnY = h - 60 * s;
-      this.chatButton?.setPosition(startX, btnY);
-      this.abilityButtonContainer?.setPosition(startX + spacing, btnY);
-      this.swordThrowButton?.setPosition(startX + spacing * 2, btnY);
+      stickX = 210 * s;
+      stickY = h - 200 * s;
     }
+    this.game.controls.setMoveRest?.(stickX, stickY);
+    aimJoystick?.setPosition(w - stickX, stickY);
+    this.game.controls.aimIcon?.setPosition(w - stickX, stickY);
+
+    const off = (isPortrait ? 116 : 128) * s;
+    this.swordThrowButton?.setPosition(w - stickX - off, stickY - off);
+    this.abilityButtonContainer?.setPosition(w - stickX - off, stickY + off);
+    this.chatButton?.setPosition(80 * s, isPortrait ? h - 160 * s : h - 60 * s);
   }
 }

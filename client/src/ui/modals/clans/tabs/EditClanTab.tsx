@@ -51,6 +51,15 @@ export default function EditClanTab() {
 
   if (!clanId) return <p>You are not in a clan.</p>;
   if (!profile) return <p style={{ color: '#aaa' }}>Loading...</p>;
+  if (!canEdit) {
+    return (
+      <div className="clans-gate-notice">
+        <div className="clans-gate-notice__box">
+          <h2>You must be co-leader or leader to edit.</h2>
+        </div>
+      </div>
+    );
+  }
 
   const onSave = async () => {
     setSaving(true);
@@ -75,14 +84,6 @@ export default function EditClanTab() {
 
   return (
     <div style={{ position: 'relative' }}>
-      {!canEdit && (
-        <div className="clans-xp-gate">
-          <div className="clans-xp-gate__inner">
-            <h2>You must be co-leader or leader to edit</h2>
-          </div>
-        </div>
-      )}
-
       <div className="clans-form">
         <div className="clans-form__left">
           <div className="clans-form__field">

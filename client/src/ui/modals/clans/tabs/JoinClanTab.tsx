@@ -44,6 +44,13 @@ export default function JoinClanTab({ account, selectedClanId, setSelectedClanId
     dispatch(searchClans(searchTerm.trim(), searchBy) as any);
   };
 
+  useEffect(() => {
+    const term = searchTerm.trim();
+    if (!term) return;
+    const t = setTimeout(() => dispatch(searchClans(term, searchBy) as any), 300);
+    return () => clearTimeout(t);
+  }, [searchTerm, searchBy, dispatch]);
+
   const openProfile = async (clanId: number) => {
     setSelectedClanId(clanId);
     dispatch(fetchClanProfile(clanId) as any);
@@ -78,10 +85,9 @@ export default function JoinClanTab({ account, selectedClanId, setSelectedClanId
           placeholder="Search clans..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && onSearch()}
         />
-        <button className={searchBy === 'tag' ? 'active' : ''} onClick={() => { setSearchBy('tag'); onSearch(); }}>By Tag</button>
-        <button className={searchBy === 'name' ? 'active' : ''} onClick={() => { setSearchBy('name'); onSearch(); }}>By Name</button>
+        <button className={searchBy === 'tag' ? 'active' : ''} onClick={() => setSearchBy('tag')}>By Tag</button>
+        <button className={searchBy === 'name' ? 'active' : ''} onClick={() => setSearchBy('name')}>By Name</button>
       </div>
 
       {showFilters && (

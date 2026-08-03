@@ -1,29 +1,117 @@
 .signup-modal {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+  width: 320px;
+  max-width: 82vw;
 
-  input {
-    margin: 5px;
-    font-size: 20px;
-    font-weight: bold;
+  h1 {
+    text-align: center;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #fff;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
   }
 
-  button {
-    width: 120px;
-    color: white;
-    background-color: #4caf50;
-    transition: all 0.2s ease-in;
-    border: none;
-    border-radius: 10px;
-    font-size: 22px;
-    padding: 5px;
-    margin-top: 10px;
+  .subtitle {
+    text-align: center;
+    margin: 0 0 14px;
+    font-size: 14px;
+    color: #b6b6bd;
+  }
 
-    &:hover {
-      color: #4caf50;
-      background-color: white;
-      cursor: pointer;
+  input[type=text],
+  input[type=email],
+  input[type=password] {
+    width: 100%;
+    background: #2a2a2e;
+    color: #fff;
+    border: 3px solid #000;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 10px;
+    margin: 6px 0;
+
+    &::placeholder { color: #8b8b93; }
+    &:focus { outline: none; }
+  }
+
+  .username-field {
+    position: relative;
+    margin: 6px 0;
+    display: flex;
+
+    input[type=text] {
+      margin: 0;
+      padding-right: 42px;
+    }
+
+    .username-status {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      pointer-events: none;
+    }
+
+    &.status-available {
+      input[type=text] { border-color: #2ec84a; }
+      .username-status { color: #2ec84a; }
+    }
+    &.status-taken {
+      input[type=text] { border-color: #d9483b; }
+      .username-status { color: #ff5e52; }
+    }
+    &.status-checking .username-status { color: #9a9aa2; }
+  }
+
+  .field-msg {
+    margin: -2px 0 2px;
+    font-size: 12.5px;
+    color: #ff8a80;
+    text-align: center;
+  }
+
+  .add-email {
+    align-self: center;
+    margin: 8px 0 2px;
+    padding: 6px 8px;
+    background: none;
+    border: none;
+    color: #9a9aa2;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.12s ease;
+
+    &:hover { color: #6dffa0; }
+
+    svg { font-size: 12px; margin-right: 4px; }
+  }
+
+  .auth-submit {
+    margin-top: 16px;
+    padding: 11px;
+    background: #2ec84a;
+    color: #fff;
+    border: 3px solid #000;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.35);
+    transition: filter 0.12s ease, transform 0.08s ease;
+
+    &:hover { filter: brightness(1.07); }
+    &:active { transform: scale(0.98); }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
     }
   }
 }

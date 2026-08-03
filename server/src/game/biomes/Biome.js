@@ -20,7 +20,7 @@ class Biome {
     if (definition.radius !== undefined) {
       shape = Circle.create(x, y, definition.radius);
     } else if (definition.points !== undefined) {
-      shape = Polygon.createFromPoints(x, y, definition.points);
+      shape = Polygon.createFromPoints(x, y, definition.points, definition.renderPoints);
     } else if (definition.width !== undefined && definition.height !== undefined) {
       shape = Polygon.createFromRectangle(x, y, definition.width, definition.height);
     } else {
@@ -35,6 +35,7 @@ class Biome {
     return {
       type: this.type,
       shapeData: this.shape.getData(),
+      nestingDepth: this.nestingDepth || 0,
     };
   }
 
@@ -44,7 +45,17 @@ class Biome {
 
     for (const entityData of definition.objects) {
       const data = { ...entityData };
-      if (data.position === 'random') data.spawnZone = this.shape;
+      if (data.position === 'random') {
+        data.spawnZone = this.shape;
+        if (this.contains && this.contains.length) {
+          data.avoidBiomes = this.contains;
+        }
+      } else if (data.position === 'center') {
+        const c = this.shape.center;
+        const ox = (data.offset && data.offset[0]) || 0;
+        const oy = (data.offset && data.offset[1]) || 0;
+        data.position = [c.x + ox, c.y + oy];
+      }
 
       for (let i = 0; i < entityData.amount; i++) {
         this.game.map.addEntity(data);

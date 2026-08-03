@@ -28,6 +28,7 @@ class LavaRock extends Entity {
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.modifiers?.dashNoclip) return;
     if (entity.type === Types.Entity.Sword && !entity.canCollide(entity)) return;
 
     const selfWeight = this.weight;

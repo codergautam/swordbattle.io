@@ -16,19 +16,26 @@ class Polygon extends Shape {
     this._cachedArea = null;
   }
 
-  static createFromPoints(x, y, points) {
+  static createFromPoints(x, y, points, renderPoints) {
+    decomp.removeDuplicatePoints(points, 1e-6);
+    decomp.removeCollinearPoints(points, 1e-3);
     decomp.makeCCW(points);
 
-    const convexPolygons = decomp.decomp(points);
+    const convexPolygons = decomp.quickDecomp(points);
+    const visual = renderPoints || points;
     if (convexPolygons.length === 1) {
-      return new Polygon(x, y, convexPolygons[0]);
+      const poly = new Polygon(x, y, convexPolygons[0]);
+      if (renderPoints) {
+        poly.renderPoints = renderPoints.map(([px, py]) => ({ x: px, y: py }));
+      }
+      return poly;
     }
 
     const shapes = [];
     for (const convexPolygon of convexPolygons) {
       shapes.push(new Polygon(x, y, convexPolygon));
     }
-    return new ComplexPolygon(shapes, points);
+    return new ComplexPolygon(shapes, visual);
   }
 
   static createFromRectangle(x, y, width, height, withPosition = false) {
@@ -128,7 +135,7 @@ class Polygon extends Shape {
       angle: this.angle,
     };
     if (this.sendPoints) {
-      data.points = this.collisionPoly.calcPoints;
+      data.points = this.renderPoints || this.collisionPoly.calcPoints;
     }
     return data;
   }

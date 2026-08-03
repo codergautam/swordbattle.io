@@ -8,7 +8,7 @@ class River extends Biome {
   }
 
   applyEffects(player) {
-    player.speed.multiplier *= 1.25;
+    player.speed.multiplier *= 1.45;
     player.viewport.zoom.multiplier *= 0.8
   }
 }

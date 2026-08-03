@@ -70,7 +70,8 @@ export class Account {
   tags: { tags: string[]; colors: string[] };
 
   @Column({ type: 'jsonb', default: '{"streak": 0, "bestStreak": 0, "claimedTo": 0, "claimableTo": 0, "checkedIn": 0, "xpBonus": null, "playtime": 0}' })
-  dailyLogin: { streak: number; bestStreak: number; claimedTo: number; claimableTo: number; checkedIn: number; xpBonus: number | null; playtime: number };
+  dailyLogin: { streak: number; bestStreak: number; claimedTo: number; claimableTo: number; checkedIn: number; xpBonus: number | null; playtime: number;
+    pendingGemBonus?: { amount: number; at: number } | null };
 
   @Column({ default: 0 }) tokens: number;
 

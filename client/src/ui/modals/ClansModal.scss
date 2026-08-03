@@ -16,7 +16,7 @@
   padding: 24px 32px;
   border-radius: 10px;
   color: #ffffff;
-  font-family: Arial, sans-serif;
+  font-family: 'Saira', sans-serif;
   overflow: hidden;
 
   .clans-header {
@@ -44,7 +44,7 @@
       background: rgba(255, 255, 255, 0.1);
       border: 2px solid rgba(255, 255, 255, 0.25);
       color: white;
-      font-weight: bold;
+      font-weight: 700;
       padding: 8px 16px;
       border-radius: 8px;
       cursor: pointer;
@@ -65,7 +65,7 @@
         background: #ee3344;
         color: white;
         font-size: 11px;
-        font-weight: bold;
+        font-weight: 700;
         border-radius: 999px;
         min-width: 18px;
         height: 18px;
@@ -130,7 +130,7 @@
       .label {
         color: #ddd;
         font-size: 16px;
-        font-weight: bold;
+        font-weight: 700;
       }
     }
   }
@@ -169,7 +169,7 @@
   }
 
   &__name { color: white; }
-  &__tag { color: #ffd700; font-weight: bold; }
+  &__tag { color: #ffd700; font-weight: 700; }
   &__stats { color: #d0d0d0; font-size: 15px; white-space: nowrap; }
   &__rank { color: #ffd700; }
 
@@ -190,7 +190,7 @@
     border: 2px solid rgba(255,255,255,0.25);
     border-radius: 8px;
     padding: 10px 20px;
-    font-weight: bold;
+    font-weight: 700;
     cursor: pointer;
     font-size: 15px;
 
@@ -287,7 +287,7 @@
       align-items: center;
       gap: 4px;
       color: #ffd700;
-      font-weight: bold;
+      font-weight: 700;
       font-size: 14px;
 
       &--unaffordable {
@@ -300,7 +300,7 @@
       }
 
       &__have {
-        font-weight: normal;
+        font-weight: 700;
         font-size: 13px;
       }
     }
@@ -317,7 +317,7 @@
       border: none;
       padding: 12px 28px;
       border-radius: 8px;
-      font-weight: bold;
+      font-weight: 700;
       cursor: pointer;
       font-size: 16px;
       &:disabled { background: #555; cursor: not-allowed; opacity: 0.6; }
@@ -330,7 +330,7 @@
     gap: 6px;
     margin-bottom: 12px;
 
-    label { font-weight: bold; color: #ddd; font-size: 14px; }
+    label { font-weight: 700; color: #ddd; font-size: 14px; }
     input, textarea, select {
       background: rgba(0, 0, 0, 0.4);
       border: 2px solid rgba(255, 255, 255, 0.2);
@@ -339,7 +339,7 @@
       border-radius: 6px;
       font-size: 14px;
     }
-    textarea { min-height: 80px; resize: vertical; font-family: inherit; }
+    textarea { min-height: 80px; resize: vertical; font-family: 'Saira', sans-serif; }
     .err { color: #ff6666; font-size: 13px; }
     .hint { color: #888; font-size: 12px; }
   }
@@ -383,7 +383,7 @@
     border: 2px solid rgba(255,255,255,0.15);
 
     .preview-name { font-size: 24px; }
-    .preview-tag { color: #ffd700; font-weight: bold; }
+    .preview-tag { color: #ffd700; font-weight: 700; }
   }
 
   .clans-form__submit {
@@ -398,7 +398,7 @@
       border: none;
       padding: 12px 28px;
       border-radius: 8px;
-      font-weight: bold;
+      font-weight: 700;
       cursor: pointer;
       font-size: 16px;
       &:disabled { background: #555; cursor: not-allowed; opacity: 0.6; }
@@ -427,7 +427,7 @@
     flex: 1;
     text-align: left;
     h2 { margin: 0; font-size: 28px; text-align: left; }
-    .tag { color: #ffd700; font-weight: bold; }
+    .tag { color: #ffd700; font-weight: 700; }
     .description { color: #ccc; font-style: italic; margin-top: 8px; }
     .meta {
       color: #999;
@@ -447,7 +447,7 @@
       }
       .rank-badge {
         color: #ffd700;
-        font-weight: bold;
+        font-weight: 700;
         margin-left: 4px;
       }
     }
@@ -466,7 +466,7 @@
       padding: 10px 18px;
       border-radius: 6px;
       cursor: pointer;
-      font-weight: bold;
+      font-weight: 700;
       font-size: 14px;
       white-space: nowrap;
 
@@ -508,7 +508,7 @@
     padding: 0 14px;
     color: #888;
     font-size: 12px;
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 0.5px;
 
     button {
@@ -519,8 +519,8 @@
       border-radius: 4px;
       cursor: pointer;
       font-size: 12px;
-      font-weight: bold;
-      text-transform: uppercase;
+      font-weight: 700;
+      text-transform: none;
       letter-spacing: 0.5px;
 
       &:hover { background: rgba(255,255,255,0.1); }
@@ -549,7 +549,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .col-name { font-weight: bold; }
+    .col-name { font-weight: 700; }
     .col-role { color: #ffd700; }
     .col-stat { color: #aaa; font-size: 13px; }
     .col-actions {
@@ -622,7 +622,7 @@
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 700;
   font-size: 14px;
   margin-bottom: 14px;
 
@@ -664,7 +664,7 @@
     margin: 8px 0;
     color: #777;
     font-size: 11px;
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 1px;
 
     span {
@@ -695,8 +695,6 @@
     .skin {
       width: 40px;
       height: 40px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.1);
       flex-shrink: 0;
       object-fit: contain;
     }
@@ -709,7 +707,7 @@
     .top {
       display: flex;
       justify-content: space-between;
-      .username { font-weight: bold; color: #cce0ff; }
+      .username { font-weight: 700; color: #cce0ff; }
       .time { color: #777; font-size: 12px; }
     }
 
@@ -737,7 +735,7 @@
       border: none;
       padding: 10px 24px;
       border-radius: 6px;
-      font-weight: bold;
+      font-weight: 700;
       cursor: pointer;
       &:disabled { background: #555; cursor: not-allowed; }
     }
@@ -764,7 +762,7 @@
     padding: 6px 14px;
     border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 700;
     &.active { background: #ffaa00; color: black; border-color: #ffd700; }
   }
 }

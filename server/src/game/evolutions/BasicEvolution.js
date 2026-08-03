@@ -7,20 +7,7 @@ class BasicEvolution extends Effect {
   static biomes = [];
   static level = 0;
   static abilityDuration = 0;
-  static abilityCooldown = 90;
-
-  static refundPct = {
-    playerMelee: 0.05,
-    playerThrown: 0.03,
-    mob: 0.005,
-    chest: 0.0035,
-  };
-  static refundCapS = {
-    playerMelee: 3,
-    playerThrown: 1.8,
-    mob: 0.4,
-    chest: 0.3,
-  };
+  static abilityCooldown = 60;
 
   constructor(player) {
     super(player, 'evolution');
@@ -31,10 +18,18 @@ class BasicEvolution extends Effect {
     this.abilityDurationTimer = new Timer(duration, duration, duration);
     this.abilityDurationTimer.finished = true;
     this.isAbilityActive = false;
+    this.grantedAbility = null;
+  }
+
+  grantAbility(config) {
+    this.grantedAbility = config;
+    this.abilityDurationTimer = new Timer(config.duration, config.duration, config.duration);
+    this.abilityDurationTimer.finished = true;
+    this.abilityCooldownTimer = new Timer(Math.max(0, config.cooldown - 2), config.cooldown, config.cooldown);
   }
 
   get isAbilityAvailable() {
-    return this.abilityDurationTimer.duration !== 0;
+    return this.abilityDurationTimer.duration !== 0 || !!this.grantedAbility;
   }
 
   get canActivateAbility() {
@@ -57,8 +52,8 @@ class BasicEvolution extends Effect {
   }
 
   deactivateAbility() {
-    if (this.abilityCooldownTimer.maxTime === 5.1) {
-      const cooldown = this.constructor.abilityCooldown;
+    const cooldown = this.grantedAbility ? this.grantedAbility.cooldown : this.constructor.abilityCooldown;
+    if (this.abilityCooldownTimer.maxTime === 5.1 || this.grantedAbility) {
       this.abilityCooldownTimer = new Timer(cooldown, cooldown, cooldown);
     }
     this.abilityCooldownTimer.renew();
@@ -66,39 +61,9 @@ class BasicEvolution extends Effect {
   }
 
   applyAbilityEffects() {
-  }
-
-  refundCooldown(seconds) {
-    if (this.isAbilityActive) return 0;
-    if (!this.abilityCooldownTimer || this.abilityCooldownTimer.finished) return 0;
-    if (!seconds || seconds <= 0) return 0;
-    const remaining = this.abilityCooldownTimer.duration - this.abilityCooldownTimer.time;
-    const applied = Math.min(seconds, remaining);
-    this.abilityCooldownTimer.time += applied;
-    if (this.abilityCooldownTimer.time >= this.abilityCooldownTimer.duration) {
-      this.abilityCooldownTimer.time = this.abilityCooldownTimer.duration;
-      this.abilityCooldownTimer.finished = true;
+    if (this.grantedAbility && this.grantedAbility.apply) {
+      this.grantedAbility.apply(this.player);
     }
-    return applied;
-  }
-
-  refundCooldownByKind(kind) {
-    if (this.isAbilityActive) return 0;
-    if (!this.abilityCooldownTimer || this.abilityCooldownTimer.finished) return 0;
-    const pct = this.constructor.refundPct && this.constructor.refundPct[kind];
-    if (!pct) return 0;
-    const base = this.constructor.abilityCooldown;
-    if (!base || base <= 0) return 0;
-    const cap = (this.constructor.refundCapS && this.constructor.refundCapS[kind]) || Infinity;
-    const seconds = Math.min(base * pct, cap);
-    const applied = this.refundCooldown(seconds);
-    if (applied > 0 && this.player && this.player.flags && Types.Flags.CooldownRefund) {
-      const prev = this.player.flags.has(Types.Flags.CooldownRefund)
-        ? this.player.flags.get(Types.Flags.CooldownRefund)
-        : 0;
-      this.player.flags.set(Types.Flags.CooldownRefund, prev + Math.round(applied * 100));
-    }
-    return applied;
   }
 
   update(dt) {

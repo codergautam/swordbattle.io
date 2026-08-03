@@ -1,7 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Settings, settingsList } from '../../game/Settings';
-import { getServerList } from '../../ServerList';
 import './SettingsModal.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faGear, faImage, faCoins,
+  faVectorSquare, faExpand, faComment, faArrowsUpDownLeftRight, faVolumeHigh, faVideo,
+} from '@fortawesome/free-solid-svg-icons';
 
 function isChatForceDisabled(): boolean {
   try {
@@ -11,146 +15,121 @@ function isChatForceDisabled(): boolean {
   return false;
 }
 
+function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+  return (
+    <label className="switch">
+      <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
+      <span className="slider round" style={disabled ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}></span>
+    </label>
+  );
+}
+
 function SettingsModal() {
-  const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
   const [coins, setCoins] = useState(Settings.coins);
-  const [loadskins, setLoadskins] = useState(Settings.loadskins);
+  const [screenEffects, setScreenEffects] = useState(Settings.screenEffects);
   const [antialiasing, setAntialiasing] = useState(Settings.antialiasing);
   const [resolution, setResolution] = useState(Settings.resolution);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
+  const [cameraFollowsMouse, setCameraFollowsMouse] = useState(Settings.cameraFollowsMouse);
+  const [cameraFollowIntensity, setCameraFollowIntensity] = useState(Settings.cameraFollowIntensity);
   const [sound, setSound] = useState(Settings.sound);
   const chatForceDisabled = isChatForceDisabled();
   const [enableChat, setEnableChat] = useState(chatForceDisabled ? false : Settings.enableChat);
-  // const [server, setServer] = useState(Settings.server);
-  // const [servers, setServers] = useState<any[]>([]);
 
-  // useEffect(() => {
-  //   getServerList().then(setServers);
-  // }, []);
-
-  const updateUseWebGL = (value: any) => {
-    setUseWebGL(value);
-    Settings.useWebGL = value;
-  }
-  const updateCoins = (value: any) => {
-    setCoins(value);
-    Settings.coins = value;
-  }
-  const updateLoadskins = (value: any) => {
-    setLoadskins(value);
-    Settings.loadskins = value;
-  }
-  const updateAntialiasing = (value: any) => {
-    setAntialiasing(value);
-    Settings.antialiasing = value;
-  }
-  const updateResolution = (value: any) => {
-    setResolution(value);
-    Settings.resolution = Number(value);
-  }
-  const updateMovementMode = (value: any) => {
-    setMovementMode(value);
-    Settings.movementMode = value;
-  }
-  const updateSound = (value: any) => {
-    setSound(value);
-    Settings.sound = value;
-  }
-  const updateEnableChat = (value: any) => {
+  const updateCoins = (v: boolean) => { setCoins(v); Settings.coins = v; };
+  const updateScreenEffects = (v: boolean) => { setScreenEffects(v); Settings.screenEffects = v; };
+  const updateAntialiasing = (v: boolean) => { setAntialiasing(v); Settings.antialiasing = v; };
+  const updateResolution = (v: any) => { setResolution(v); Settings.resolution = Number(v); };
+  const updateMovementMode = (v: any) => { setMovementMode(v); Settings.movementMode = v; };
+  const updateCameraFollowsMouse = (v: boolean) => { setCameraFollowsMouse(v); Settings.cameraFollowsMouse = v; };
+  const updateCameraFollowIntensity = (v: any) => { setCameraFollowIntensity(Number(v)); Settings.cameraFollowIntensity = Number(v); };
+  const updateSound = (v: any) => { setSound(v); Settings.sound = v; };
+  const updateEnableChat = (v: boolean) => {
     if (chatForceDisabled) return;
-    setEnableChat(value);
-    Settings.enableChat = value;
-  }
-  // const updateServer = (value: any) => {
-  //   setServer(value);
-  //   Settings.server = value;
-  // }
+    setEnableChat(v); Settings.enableChat = v;
+  };
 
   return (
     <div className="settings">
-      <div className="settings-title">Settings</div>
-
-      <h3 className="section">Visual</h3>
-      <div className="settings-line">
-        <label htmlFor="coins">Use legacy coin images (requires reload): </label>
-        <label className="switch">
-          <input type="checkbox" name="coins" id="coins"
-            checked={coins}
-            onChange={(e) => updateCoins(e.target.checked)}
-          />
-          <span className="slider round"></span>
-        </label>
-      </div>
-    <br /><h3 className="section">Performance</h3>
-      <div className="settings-line">
-        <label htmlFor="useWebGL">Use WebGL (requires reload):</label>
-        <label className="switch">
-          <input type="checkbox" name="useWebGL" id="useWebGL"
-            checked={useWebGL}
-            onChange={(e) => updateUseWebGL(e.target.checked)}
-          />
-          <span className="slider round"></span>
-        </label>
+      <div className="settings-header">
+        <FontAwesomeIcon icon={faGear} className="settings-header-icon" />
+        <span>Settings</span>
       </div>
 
-      <div className="settings-line">
-        <label htmlFor="antialiasing">Use Antialiasing:</label>
-        <label className="switch">
-          <input type="checkbox" name="antialiasing" id="antialiasing"
-            checked={antialiasing}
-            onChange={(e) => updateAntialiasing(e.target.checked)}
-          />
-          <span className="slider round"></span>
-        </label>
+      <div className="settings-body">
+        <h3 className="section"> Visual</h3>
+        <div className="settings-line">
+          <span className="s-label"><FontAwesomeIcon icon={faCoins} className="s-icon" /> Legacy coin images <em>(reloads)</em></span>
+          <Toggle checked={coins} onChange={updateCoins} />
+        </div>
+        <div className="settings-line">
+          <span className="s-label"><FontAwesomeIcon icon={faImage} className="s-icon" /> Screen effects (snow, heat) <em>(off = more FPS)</em></span>
+          <Toggle checked={screenEffects} onChange={updateScreenEffects} />
+        </div>
+
+        <h3 className="section"> Performance</h3>
+        <div className="settings-line">
+          <span className="s-label"><FontAwesomeIcon icon={faVectorSquare} className="s-icon" /> Antialiasing</span>
+          <Toggle checked={antialiasing} onChange={updateAntialiasing} />
+        </div>
+        <div className="settings-line">
+          <span className="s-label"><FontAwesomeIcon icon={faExpand} className="s-icon" /> Resolution</span>
+          <div className="s-range">
+            <input type="range" name="resolution" id="resolution"
+              min={settingsList.resolution.min} max={settingsList.resolution.max} step={0.05}
+              value={resolution}
+              onChange={(e) => updateResolution(e.target.value)}
+            />
+            <span className="s-val">{Number(resolution).toFixed(2)}</span>
+          </div>
+        </div>
+
+        <h3 className="section"> Gameplay</h3>
+        <div className="settings-line">
+          <span className="s-label">
+            <FontAwesomeIcon icon={faComment} className="s-icon" /> Enable chat
+            {chatForceDisabled && <em>(disabled by platform)</em>}
+          </span>
+          <Toggle checked={enableChat} onChange={updateEnableChat} disabled={chatForceDisabled} />
+        </div>
+        <div className="settings-line">
+          <span className="s-label"><FontAwesomeIcon icon={faArrowsUpDownLeftRight} className="s-icon" /> Movement mode</span>
+          <select name="movement" id="movement" value={movementMode} onChange={(e) => updateMovementMode(e.target.value)}>
+            <option value="mouse">Mouse Only</option>
+            <option value="keys">Mouse + Keys</option>
+          </select>
+        </div>
+        <div className="settings-line">
+          <span className="s-label"><FontAwesomeIcon icon={faVideo} className="s-icon" /> Camera follows cursor</span>
+          <Toggle checked={cameraFollowsMouse} onChange={updateCameraFollowsMouse} />
+        </div>
+        {cameraFollowsMouse && (
+          <div className="settings-line">
+            <span className="s-label"><FontAwesomeIcon icon={faVideo} className="s-icon" /> Camera follow intensity</span>
+            <div className="s-range">
+              <input type="range" name="cameraFollowIntensity" id="cameraFollowIntensity"
+                min={0} max={10} step={1}
+                value={cameraFollowIntensity}
+                onChange={(e) => updateCameraFollowIntensity(e.target.value)}
+              />
+              <span className="s-val">{cameraFollowIntensity}</span>
+            </div>
+          </div>
+        )}
+        <div className="settings-line">
+          <span className="s-label"><FontAwesomeIcon icon={faVolumeHigh} className="s-icon" /> Sound</span>
+          <div className="s-range">
+            <input type="range" name="sound" id="sound"
+              min={0} max={10}
+              value={sound}
+              onChange={(e) => updateSound(e.target.value)}
+            />
+            <span className="s-val">{sound}</span>
+          </div>
+        </div>
       </div>
-
-      <label htmlFor="resolution">Resolution (Beta):</label>
-      <input type="range" name="resolution" id="resolution"
-        min={settingsList.resolution.min} max={settingsList.resolution.max}
-        value={resolution}
-        onChange={(e) => updateResolution(e.target.value)}
-      />
-
-
-    <br /><h3 className="section">Gameplay</h3>
-      <div className="settings-line">
-        <label htmlFor="enableChat">Enable chat: {chatForceDisabled && <span style={{color: '#888', fontSize: '0.85em'}}>(disabled by platform)</span>}</label>
-        <label className="switch">
-          <input type="checkbox" name="enableChat" id="enableChat"
-            checked={enableChat}
-            disabled={chatForceDisabled}
-            onChange={(e) => updateEnableChat(e.target.checked)}
-          />
-          <span className="slider round" style={chatForceDisabled ? {opacity: 0.5, cursor: 'not-allowed'} : undefined}></span>
-        </label>
-      </div>
-      <label htmlFor="movement">Movement mode:</label>
-      <select name="movement" id="movement"
-        value={movementMode}
-        onChange={(e) => updateMovementMode(e.target.value)}
-      >
-        <option value="mouse">Mouse Only</option>
-        <option value="keys">Mouse + Keys</option>
-      </select>
-
-      <label htmlFor="sound">Sound:</label>
-      <input type="range" name="sound" id="sound"
-        min={0} max={10}
-        value={sound}
-        onChange={(e) => updateSound(e.target.value)}
-      />
-      {/* <label htmlFor="server">Server:</label> */}
-      {/* <select name="server" id="server"
-        value={servers.length === 0 ? 'loading' : server}
-        onChange={(e) => updateServer(e.target.value)}
-      >
-        {servers.length === 0 && <option value="loading" disabled>Loading...</option>}
-        {servers.map((server) => <option key={server.value} value={server.value} disabled={server.offline}>
-          {server.name} ({server.offline ? 'OFFLINE' : server.ping + 'ms' })
-        </option>)}
-      </select> */}
     </div>
-  )
+  );
 }
 
 export default SettingsModal;

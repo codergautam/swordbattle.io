@@ -21,12 +21,10 @@ export class Shape {
 
   update(shapeData: any) {
     let changed = false;
-    ['x', 'y', 'radius', 'angle'].forEach((property) => {
-      if (shapeData[property] !== undefined) {
-        this[property] = shapeData[property];
-        changed = true;
-      }
-    });
+    if (shapeData.x !== undefined) { this.x = shapeData.x; changed = true; }
+    if (shapeData.y !== undefined) { this.y = shapeData.y; changed = true; }
+    if (shapeData.radius !== undefined) { this.radius = shapeData.radius; changed = true; }
+    if (shapeData.angle !== undefined) { this.angle = shapeData.angle; changed = true; }
     if (shapeData.points) {
       for (let i in shapeData.points) {
         this.points[i] = shapeData.points[i];

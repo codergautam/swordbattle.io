@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,9 +17,10 @@ import LoginModal from './modals/LoginModal';
 import SignupModal from './modals/SignupModal';
 import ConnectionError from './modals/ConnectionError';
 
-import { clearAccount, setAccount, setDailyLogin, logoutAsync, changeNameAsync, changeBioAsync } from '../redux/account/slice';
+import { clearAccount, setAccount, setDailyLogin, logoutAsync, changeNameAsync, changeBioAsync, updateAccountAsync } from '../redux/account/slice';
 import { selectAccount } from '../redux/account/selector';
 import api from '../api';
+import { trackPlayClick, setAnalyticsAccount } from '../analytics';
 
 import SettingsImg from '../assets/img/settings.png';
 import DiscordLogo from '../assets/img/discordLogo.png';
@@ -27,6 +29,7 @@ import SignupImg from '../assets/img/signup.png';
 import LoginImg from '../assets/img/login.png';
 import ClanImg from '../assets/img/clan.png';
 import './App.scss';
+import './mobile.scss';
 import GemCount from './ValueCnt';
 import ShopButton from './ShopButton';
 import InventoryButton from './InventoryButton';
@@ -49,19 +52,25 @@ import { crazygamesSDK } from '../crazygames/sdk';
 import { initializeDataStorage } from '../crazygames/dataStorage';
 
 import * as cosmetics from '../game/cosmetics.json'
-import LeaderboardModal from './modals/LeaderboardModal';
 import RewardsModal from './modals/RewardsModal';
 import ProfileModal from './modals/ProfileModal';
+import SkinPreviewModal from './modals/SkinPreviewModal';
 import FullChangelogModal from './modals/FullChangelogModal';
 import ClansModal from './modals/ClansModal';
 import TutorialModal from './game/TutorialModal';
+import HubModal, { HubTab } from './hub/HubModal';
+import SupportButton from './support/SupportButton';
+import SupportModal from './support/SupportModal';
 
 let debugMode = false;
 try {
   debugMode = window.location.search.includes("debugAlertMode");
   } catch(e) {}
 
-function App() {
+const fullscreenModals = ['ShopModal', 'RewardsModal', 'InventoryModal', 'ProfileModal', 'FullChangelogModal'];
+const modalCloseMs = 200;
+
+function App({ moreAds = false }: { moreAds?: boolean }) {
   let { skins } = cosmetics;
   const RESET_HOUR = 23; // 0-23 utc
 
@@ -73,6 +82,15 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [modal, setModal] = useState<any>(null);
+  const [shownModal, setShownModal] = useState<any>(null);
+  const [modalClosing, setModalClosing] = useState(false);
+  const modalCloseTimer = useRef<any>(null);
+  const [profileUser, setProfileUser] = useState<string | null>(null);
+  const [profileClosing, setProfileClosing] = useState(false);
+  const profileTimer = useRef<any>(null);
+  const [previewSkinId, setPreviewSkinId] = useState<number | null>(null);
+  const [previewClosing, setPreviewClosing] = useState(false);
+  const previewTimer = useRef<any>(null);
   const [connectionError, setConnectionError] = useState<string>('');
   const [firstGame, setFirstGame] = useState(true);
   const [pendingRespawn, setPendingRespawn] = useState<{coins: number, expiresAt: number} | null>(null);
@@ -87,6 +105,9 @@ function App() {
   const [isFirstVisit] = useState(() => !localStorage.getItem('swordbattle:hasVisited'));
   const [instantStart, setInstantStart] = useState<boolean>((window as any).instantStart || false);
   const [isFullscreen, setIsFullscreen] = useState(!!document.fullscreenElement);
+  const [isMobileDevice] = useState(() =>
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    || (navigator.maxTouchPoints > 1 && /Macintosh|Mac OS/i.test(navigator.userAgent)));
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
@@ -219,6 +240,43 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (!isMobileDevice) return;
+
+    const applyOrientation = () => {
+      const portrait = window.matchMedia('(orientation: portrait)').matches
+        || window.innerHeight >= window.innerWidth;
+      document.body.classList.add('sb-mobile');
+      document.body.classList.toggle('sb-portrait', portrait);
+      document.body.classList.toggle('sb-landscape', !portrait);
+    };
+    applyOrientation();
+    window.addEventListener('resize', applyOrientation);
+    window.addEventListener('orientationchange', applyOrientation);
+
+    const onFirstInput = () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.().catch(() => {});
+      }
+      cleanupInput();
+    };
+    const cleanupInput = () => {
+      window.removeEventListener('touchend', onFirstInput);
+      window.removeEventListener('pointerup', onFirstInput);
+      window.removeEventListener('click', onFirstInput);
+    };
+    window.addEventListener('touchend', onFirstInput, { passive: true });
+    window.addEventListener('pointerup', onFirstInput, { passive: true });
+    window.addEventListener('click', onFirstInput, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', applyOrientation);
+      window.removeEventListener('orientationchange', applyOrientation);
+      cleanupInput();
+      document.body.classList.remove('sb-mobile', 'sb-portrait', 'sb-landscape');
+    };
+  }, [isMobileDevice]);
+
+  useEffect(() => {
     if (gameStarted) return;
     let count = 0;
     let timer: any;
@@ -321,7 +379,7 @@ function App() {
           dispatch(setAccount(data.account));
           const dl = data.account.dailyLogin;
           if (firstGame && dl && dl.claimedTo < dl.claimableTo) {
-            setModal(<RewardsModal account={{ ...data.account, isLoggedIn: true }} />);
+            setModal(<HubModal account={{ ...data.account, isLoggedIn: true }} initialTab="rewards" onViewProfile={(u: string) => openProfileOverlay(u)} onPreviewSkin={(id: number) => openSkinPreview(id)} />);
           }
         } else {
           dispatch(clearAccount());
@@ -893,8 +951,13 @@ function App() {
     return () => clearInterval(interval);
   }, [account?.dailyLogin?.xpBonus]);
 
+  useEffect(() => {
+    setAnalyticsAccount(account?.isLoggedIn ? (account?.id ?? null) : null, account?.username ?? null, !!account?.isLoggedIn);
+  }, [account?.isLoggedIn, account?.id, account?.username]);
+
   const onStart = () => {
     console.log('Starting game');
+    trackPlayClick();
     localStorage.setItem('swordbattle:hasVisited', '1');
     if(!isConnected) {
       alert('Not connected yet');
@@ -918,15 +981,41 @@ function App() {
 
 
   const openSettings = () => setModal(<SettingsModal />);
+  const openSupport = () => setModal(<SupportModal account={account} />);
   const closeModal = () => setModal(null);
-  const onHome = () => setGameStarted(false);
+
+  useEffect(() => {
+    if (modal === shownModal) return;
+    if (shownModal) {
+      const n = shownModal.type?.displayName || shownModal.type?.name;
+      if (fullscreenModals.includes(n)) {
+        setShownModal(modal);
+        setModalClosing(false);
+        return;
+      }
+      setModalClosing(true);
+      clearTimeout(modalCloseTimer.current);
+      modalCloseTimer.current = setTimeout(() => {
+        setShownModal(modal);
+        setModalClosing(false);
+      }, modalCloseMs);
+    } else {
+      setShownModal(modal);
+      setModalClosing(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modal]);
+  const onHome = () => {
+    setGameStarted(false);
+    if (account?.isLoggedIn) dispatch(updateAccountAsync() as any);
+  };
   const onConnectionClosed = (reason: string) => {
     console.log('Connection closed', reason);
     setConnectionError(reason);
   }
 
   const onSucessAuth = () => setModal(null);
-  const onLogin = () => setModal(<LoginModal onSuccess={onSucessAuth} />);
+  const onLogin = () => setModal(<LoginModal onSuccess={onSucessAuth} onSupport={openSupport} />);
   const onSignup = () => setModal(<SignupModal onSuccess={onSucessAuth} />);
   const onLogout = () => dispatch(logoutAsync() as any);
   const onChangeName = () => {
@@ -941,18 +1030,45 @@ function App() {
 
     dispatch(changeBioAsync(newBio) as any);
   }
-  const openShop = () => {
-    setModal(<ShopModal account={account} />);
-  }
-
-  
-  const openInventory = () => {
-    setModal(<InventoryModal account={account} />);
-  }
-
-  const openLeaderboard = () => {
-    setModal(<LeaderboardModal account={account} />);
+  const openProfileOverlay = (u: string) => {
+    if (!u) return;
+    clearTimeout(profileTimer.current);
+    setProfileUser(u);
+    setProfileClosing(false);
   };
+  const closeProfileOverlay = () => {
+    clearTimeout(profileTimer.current);
+    setProfileClosing(true);
+    profileTimer.current = setTimeout(() => { setProfileUser(null); setProfileClosing(false); }, 220);
+  };
+
+  const openSkinPreview = (id: number) => {
+    clearTimeout(previewTimer.current);
+    setPreviewSkinId(id);
+    setPreviewClosing(false);
+  };
+  const closeSkinPreview = () => {
+    clearTimeout(previewTimer.current);
+    setPreviewClosing(true);
+    previewTimer.current = setTimeout(() => { setPreviewSkinId(null); setPreviewClosing(false); }, 220);
+  };
+
+  const openHub = (tab: HubTab) => {
+    setModal(
+      <HubModal
+        account={account}
+        initialTab={tab}
+        onViewProfile={(u: string) => openProfileOverlay(u)}
+        onPreviewSkin={openSkinPreview}
+      />
+    );
+  };
+
+  const openShop = () => openHub('shop');
+
+  const openInventory = () => openHub('inventory');
+
+  const openLeaderboard = () => openHub('rankings');
 
   const openRewards = () => {
     if (account?.isLoggedIn) {
@@ -962,15 +1078,15 @@ function App() {
         }
       });
     }
-    setModal(<RewardsModal account={account} />);
+    openHub('rewards');
   };
 
   const openProfile = () => {
-    setModal(<ProfileModal username={account.isLoggedIn ? account.username : undefined} isOwnProfile={account.isLoggedIn} />);
+    if (account.isLoggedIn) openProfileOverlay(account.username);
   };
 
   const openClans = () => {
-    setModal(<ClansModal account={account} />);
+    setModal(<ClansModal account={account} onViewProfile={openProfileOverlay} />);
   };
 
   const [authDropdownOpen, setAuthDropdownOpen] = useState(false);
@@ -1044,11 +1160,13 @@ function App() {
         setGame={setGame}
         openLeaderboard={openLeaderboard}
         onPendingRespawn={(info: any) => setPendingRespawn(info)}
+        moreAds={moreAds}
       />
       {connectionError && (
         <Modal
           child={<ConnectionError reason={connectionError}/>}
           className="connectionErrorModal"
+          scaleDisabled
         />
       )}
 
@@ -1163,7 +1281,7 @@ function App() {
                     <input
                       type="text"
                       id="nameInput"
-                      placeholder="Enter Name"
+                      placeholder="Enter Name..."
                       maxLength={20}
                       value={account.isLoggedIn ? account.username : name}
                       onChange={(e) => setName(e.target.value)}
@@ -1217,7 +1335,7 @@ function App() {
               <br />
               <div className='fullWidth'>
                 <div id="adBelow">
-                 <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 90]]} />
+                 <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} placement="main_menu" adblockPromo />
                 </div>
               </div>
             </div>
@@ -1230,31 +1348,40 @@ function App() {
           <div id="settingsButton" className="altLink imgPanel" style={{ pointerEvents: 'auto' }} onClick={openSettings}>
             <FontAwesomeIcon icon={faGear} className='ui-icon'/>
           </div>
+          <SupportButton account={account} onOpen={openSupport} />
           <a id="githubButton" className="altLink imgPanel" href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
             <img src={GithubLogo} width={60} alt="GitHub" />
           </a>
           <a id="discordButton" className="altLink imgPanel" href="https://discord.com/invite/9A9dNTGWb9" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
             <img src={DiscordLogo} width={60} alt="Discord" />
           </a>
-          <div id="tutorialButton" className="imgPanel" style={{ pointerEvents: 'auto' }} onClick={openTutorial}>
-            <FontAwesomeIcon icon={faQuestion} className='ui-icon'/>
           </div>
-          <div id="fullscreenButton" className="imgPanel" style={{ pointerEvents: 'auto' }} onClick={toggleFullscreen}>
-            <FontAwesomeIcon icon={isFullscreen ? faCompress : faExpand} className='ui-icon'/>
-          </div>
-          {!crazygamesSDK.shouldUseSDK() && (
-            <div id="playlightButton" className="imgPanel" style={{ pointerEvents: 'auto' }} onClick={() => {
-                try {
-                  (window as any)?.showPlaylight();
-                } catch (e) {
-                  console.log('Error showing playlight', e);
-                }
-              }}>
-              More Games
-            </div>
+          {shownModal && (() => { const n = shownModal.type.displayName || shownModal.type.name; const isFullscreen = fullscreenModals.includes(n); const isSettings = n === 'SettingsModal'; const isAuth = n === 'LoginModal' || n === 'SignupModal'; const isHub = n === 'HubModal'; const isClans = n === 'ClansModal'; const isSupport = n === 'SupportModal'; const cls = isFullscreen ? 'modal-fullscreen' : (isSettings ? 'modal-settings' : (isAuth ? 'modal-auth' : (isHub ? 'modal-hub' : (isClans ? 'modal-clans' : (isSupport ? 'modal-support' : ''))))); return <Modal key={n} child={shownModal} requestClose={closeModal} scaleDisabled={isFullscreen || isSettings || isHub || isClans || isSupport || isAuth} className={cls} backdrop={isAuth || isSettings || isHub || isClans || isSupport} backdropClass={isSettings ? 'modal-backdrop-clear' : ''} closing={modalClosing} />; })()}
+          {profileUser && (
+            <Modal
+              key="profile-overlay"
+              child={<ProfileModal username={profileUser} isOwnProfile={account.isLoggedIn && profileUser === account.username} />}
+              requestClose={closeProfileOverlay}
+              className="modal-profile"
+              backdropClass="modal-backdrop-top"
+              scaleDisabled
+              backdrop
+              closing={profileClosing}
+            />
           )}
-          </div>
-          {modal && (() => { const n = modal.type.displayName || modal.type.name; const isFullscreen = ['ShopModal', 'RewardsModal', 'LeaderboardModal', 'InventoryModal', 'ProfileModal', 'FullChangelogModal', 'ClansModal'].includes(n); return <Modal child={modal} close={closeModal} scaleDisabled={isFullscreen} className={isFullscreen ? 'modal-fullscreen' : ''} />; })()}
+          {previewSkinId !== null && createPortal(
+            <Modal
+              key="skinpreview-overlay"
+              child={<SkinPreviewModal skinId={previewSkinId} />}
+              requestClose={closeSkinPreview}
+              className="modal-skinpreview"
+              backdropClass="modal-backdrop-top"
+              scaleDisabled
+              backdrop
+              closing={previewClosing}
+            />,
+            document.body,
+          )}
           {showMenuTutorial && <TutorialModal onClose={() => setShowMenuTutorial(false)} centered />}
 
 <div className="auth-buttons" style={{ ...scale.styles, transform: `scale(${gameButtonsScale})` }}>

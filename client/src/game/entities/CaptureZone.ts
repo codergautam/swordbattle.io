@@ -42,7 +42,7 @@ class CaptureZone extends BaseEntity {
 
     this.labelText = this.game.add.text(0, -radius - 40, 'CAPTURE ZONE', {
       fontSize: `${Math.max(28, Math.round(radius / 20))}px`,
-      fontFamily: 'Arial Black, Arial',
+      fontFamily: 'Saira, sans-serif',
       color: '#FFD700',
       stroke: '#000000',
       strokeThickness: 4,

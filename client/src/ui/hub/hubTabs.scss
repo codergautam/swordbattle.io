@@ -1,0 +1,311 @@
+.hub-panel {
+  .shop-modal,
+  .inventory-modal,
+  .rewards-modal {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    background: #181818 !important;
+    box-shadow: none !important;
+    padding: 14px !important;
+    color: #e7e7ec;
+  }
+
+  .shop-modal,
+  .inventory-modal {
+    display: flex;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+
+    .shop-extra {
+      width: 100% !important;
+      max-width: none !important;
+      min-width: 0 !important;
+      margin: 0 0 10px !important;
+      flex: 0 0 auto;
+    }
+
+    .shop-headrow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      padding-right: 46px;
+
+      .shop-title { font-size: 30px; margin: 0; text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5); }
+
+      .shop-counters {
+        display: flex;
+        gap: 18px;
+        font-size: 22px;
+        font-weight: 700;
+
+        span { display: inline-flex; align-items: center; gap: 5px; }
+        .gem { transform: none; }
+      }
+      .shop-counters-login { font-size: 14px; color: #cfcfd4; text-align: right; }
+    }
+
+    .shop-title { font-size: 24px; text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5); }
+    .shop-desc { font-size: 14px; margin-bottom: 6px; }
+    .shop-desc-extra { font-size: 12px; color: #9a9aa2; }
+
+    .shop-loadnote {
+      font-size: 11px;
+      color: #8a8a92;
+      align-self: center;
+      margin-left: auto;
+    }
+
+    .label {
+      font-size: 20px;
+      margin-left: 2px;
+      hr { border-color: #000; }
+    }
+
+    .search-bar {
+      margin: 0 0 10px !important;
+      justify-content: stretch;
+
+      input {
+        width: 100% !important;
+        background: #2a2a2e;
+        color: #fff;
+        border: 3px solid #000 !important;
+        border-radius: 10px;
+        box-shadow: none !important;
+        padding: 9px 12px;
+        font-size: 15px;
+        font-weight: 700;
+
+        &::placeholder { color: #8b8b93; }
+        &:focus { outline: none; box-shadow: none !important; }
+      }
+    }
+
+    .badges {
+      flex-direction: row !important;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: stretch;
+      gap: 7px;
+
+      button {
+        margin: 0 !important;
+        padding: 7px 12px !important;
+        border: 3px solid #000 !important;
+        border-radius: 9px;
+        background: #3a8f3a !important;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+        transition: filter 0.12s ease;
+
+        &:hover { filter: brightness(1.12); }
+        &[data-selected-badge="ultimate"] { background: #b13bd6 !important; }
+        &[data-selected-badge="event"] { background: #2ba3bd !important; }
+        &[data-selected-badge="sale"] { background: #d8a82b !important; color: #161616; }
+        &.active { filter: brightness(1.15); box-shadow: 0 0 0 2px #fff inset; }
+      }
+    }
+
+    .inv-filters {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .inv-toggles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+
+      .settings-line {
+        width: auto;
+        gap: 8px;
+        margin: 0;
+        font-size: 14px;
+        align-items: center;
+        label { margin: 0 !important; }
+      }
+    }
+    .inv-sortrow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+
+      .settings-line {
+        width: auto;
+        margin: 0;
+        gap: 8px;
+        align-items: center;
+        font-size: 14px;
+        label { margin: 0 !important; white-space: nowrap; }
+      }
+
+      .inv-loadnote {
+        font-size: 11px;
+        color: #8a8a92;
+        text-align: right;
+      }
+    }
+
+    select {
+      background: #2a2a2e;
+      color: #fff;
+      border: 3px solid #000;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      option { background: #222; color: #fff; }
+    }
+
+    .scroll {
+      width: 100% !important;
+      height: auto !important;
+      flex: 1 1 auto;
+      min-height: 0;
+      margin: 0 !important;
+      padding: 10px !important;
+      background: #141414 !important;
+      border: 3px solid #000;
+      border-radius: 12px;
+    }
+
+    .skins {
+      justify-content: flex-start;
+      gap: 8px;
+    }
+
+    .skin-card {
+      width: calc(33.333% - 6px) !important;
+      min-width: 0 !important;
+      margin: 0 !important;
+      padding: 9px 8px !important;
+      background: #202024 !important;
+      border: 3px solid #000;
+      border-radius: 10px;
+      content-visibility: auto;
+      contain-intrinsic-size: auto 240px;
+
+      .skin-name { font-size: 15px; padding: 2px 2px 6px !important; }
+
+      .skin-img,
+      .skin-img-large,
+      .skin-img-small {
+        width: 92px !important;
+        height: 92px !important;
+        transform: translateX(8px) !important;
+      }
+      .skin-sword,
+      .skin-sword-large,
+      .skin-sword-small {
+        width: 84px !important;
+        height: 90px !important;
+        transform: translate(-38px, -53px) rotate(135deg) !important;
+      }
+
+      .skin-tag, .skin-eventtag { font-size: 12px; }
+      .skin-saletag { font-size: 15px; }
+      .skin-desc { display: none !important; }
+
+      .skin-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 6px;
+        margin-top: 4px;
+        font-size: 14px;
+        font-weight: 700;
+
+        .skin-price {
+          color: #ffe14d;
+          display: inline-flex;
+          align-items: center;
+          gap: 3px;
+          .sale { color: #c98; text-decoration: line-through; margin-right: 3px; }
+          .gem { transform: none; vertical-align: middle; }
+        }
+        .skin-buys { color: #9a9aa2; font-size: 12.5px; white-space: nowrap; }
+      }
+
+      .buy-button {
+        border: 3px solid #000 !important;
+        background: #2a2a2e;
+        color: #fff;
+        border-radius: 8px;
+        font-size: 12px;
+        padding: 8px !important;
+        margin-top: 6px;
+        font-weight: 700;
+        transition: filter 0.12s ease;
+
+        &:hover { filter: brightness(1.1); }
+
+        &.buy-afford { background: #2ec84a; color: #fff; }
+        &.buy-cantafford { background: #4a4a50; color: #c9c9cf; }
+        &.buy-owned, &.buy-equipped { background: #3b82c4; color: #fff; }
+      }
+    }
+  }
+
+  .rewards-modal {
+    align-items: stretch !important;
+
+    .rewards-title { font-size: 24px; }
+    .rewards-streak { font-size: 16px; justify-content: center; }
+
+    .rewards-grid {
+      grid-template-columns: repeat(7, 1fr) !important;
+      grid-template-rows: repeat(5, 1fr) !important;
+      gap: 7px;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .reward-cell {
+      padding: 6px 4px;
+      .reward-label { font-size: 14px; }
+      .reward-icon { width: 42px; height: 42px; }
+
+      &.locked {
+        background: #2c2c30 !important;
+        border-color: #3a3a40 !important;
+      }
+    }
+
+    .rewards-controls {
+      flex-wrap: wrap;
+
+      .rewards-btn-action {
+        background: #2ec84a;
+        color: #fff;
+        border: 3px solid #000;
+        border-radius: 10px;
+        font-weight: 700;
+        &:hover:not(:disabled) { filter: brightness(1.08); background: #2ec84a; }
+      }
+      .rewards-btn-nav {
+        background: #2a2a2e;
+        color: #fff;
+        border: 3px solid #000;
+        border-radius: 10px;
+        &:hover:not(:disabled) { background: #34343a; }
+      }
+      .rewards-page-label { font-size: 16px; min-width: 90px; }
+    }
+
+    .rewards-progress .progress-bar-container {
+      border: 3px solid #000;
+      background: #2a2a2e;
+    }
+  }
+}

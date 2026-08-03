@@ -133,13 +133,9 @@ class IceSpiritMob extends Entity {
       this.velocity.scale(-0.5);
       const kbX = 75 * Math.cos(angle);
       const kbY = 75 * Math.sin(angle);
-      if (typeof entity.applyMobHit === 'function') {
-        entity.applyMobHit(willAttack ? this.damage.value : 0, kbX, kbY, this.shape.x, this.shape.y, this);
-      } else {
-        entity.velocity.x += kbX;
-        entity.velocity.y += kbY;
-        if (willAttack) entity.damaged(this.damage.value, this);
-      }
+      entity.velocity.x += kbX;
+      entity.velocity.y += kbY;
+      if (willAttack) entity.damaged(this.damage.value, this);
 
       this.shape.applyCollision(mtv);
       entity.shape.applyCollision(mtv.clone().scale(-1));
@@ -160,9 +156,7 @@ class IceSpiritMob extends Entity {
 
     // Bots and shielded players always deal full damage
     if (this.definition.isBoss) {
-      const isBot = entity.isBot;
-      const isShielded = entity.coins < 500;
-      const bypassesMarkSystem = isBot || isShielded;
+      const bypassesMarkSystem = entity.isBot;
 
       if (!bypassesMarkSystem) {
         const currentTime = Date.now();

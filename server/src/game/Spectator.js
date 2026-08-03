@@ -32,7 +32,13 @@ class Spectator {
   }
 
   initialize() {
-    this.game.map.shape.randomSpawnInside(this.shape);
+    const safezone = this.game.map.safezone;
+    if (safezone && safezone.shape) {
+      this.shape.x = safezone.shape.x;
+      this.shape.y = safezone.shape.y;
+    } else {
+      this.game.map.shape.randomSpawnInside(this.shape);
+    }
     this.toX = this.shape.x;
     this.toY = this.shape.y;
     this.updatePoint();

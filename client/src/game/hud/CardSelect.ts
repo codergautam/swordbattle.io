@@ -49,16 +49,16 @@ class CardSelect extends HudComponent {
     this.panelGradient = scene.add.graphics().setDepth(100);
 
     this.headerText = scene.add.text(0, 0, 'SELECT AN\nUPGRADE', {
-      fontSize: '18px', fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
+      fontSize: '18px', fontFamily: 'Saira, sans-serif', fontStyle: 'bold',
       color: textColor, align: 'center',
     }).setOrigin(0.5).setDepth(101);
 
     this.timerText = scene.add.text(0, 0, '', {
-      fontSize: '22px', fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold', color: textColor,
+      fontSize: '22px', fontFamily: 'Saira, sans-serif', fontStyle: 'bold', color: textColor,
     }).setOrigin(0.5).setDepth(101);
 
     this.remainingText = scene.add.text(0, 0, '', {
-      fontSize: '12px', fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold', color: '#888888',
+      fontSize: '12px', fontFamily: 'Saira, sans-serif', fontStyle: 'bold', color: '#888888',
     }).setOrigin(0.5).setDepth(101);
 
     this.container = scene.add.container(0, 0, [
@@ -240,13 +240,13 @@ class CardSelect extends HudComponent {
 
       const titleSz = Math.round(Math.max(9, Math.min(18, z * 0.3 * tScale)));
       elements.push(scene.add.text(0, contentTop + z * 1.2, starterInfo.name, {
-        fontSize: `${titleSz}px`, fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
+        fontSize: `${titleSz}px`, fontFamily: 'Saira, sans-serif', fontStyle: 'bold',
         color: '#ffd700', align: 'center', wordWrap: { width: cw - 12 },
       }).setOrigin(0.5));
 
       const boostSz = Math.round(Math.max(8, Math.min(15, z * 0.28 * tScale)));
       elements.push(scene.add.text(0, contentTop + z * 1.95, starterInfo.boostText, {
-        fontSize: `${boostSz}px`, fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
+        fontSize: `${boostSz}px`, fontFamily: 'Saira, sans-serif', fontStyle: 'bold',
         color: '#66ff66', align: 'center', wordWrap: { width: cw - 12 },
       }).setOrigin(0.5));
     } else if (isMinorCard(cardId)) {
@@ -270,21 +270,21 @@ class CardSelect extends HudComponent {
 
       const titleSz = Math.round(Math.max(9, Math.min(22, z * 0.4 * tScale)));
       elements.push(scene.add.text(0, contentTop + z * 1.5, minorInfo.description, {
-        fontSize: `${titleSz}px`, fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
+        fontSize: `${titleSz}px`, fontFamily: 'Saira, sans-serif', fontStyle: 'bold',
         color: textColor, align: 'center', wordWrap: { width: cw - 12 },
       }).setOrigin(0.5));
 
       const boostSz = Math.round(Math.max(9, Math.min(20, z * 0.38 * tScale)));
       const valText = nextVal !== null ? minorInfo.plainBoost : 'MAXED';
       elements.push(scene.add.text(0, contentTop + z * 2.5, valText, {
-        fontSize: `${boostSz}px`, fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
+        fontSize: `${boostSz}px`, fontFamily: 'Saira, sans-serif', fontStyle: 'bold',
         color: nextVal !== null ? '#66ff66' : '#ff6666', align: 'center',
       }).setOrigin(0.5));
 
       const stackSz = Math.round(Math.max(7, Math.min(16, z * 0.28 * tScale)));
       const stackLine = totalPct > 0 ? `${currentStacks}/${minorInfo.max}  ·  Total: +${totalPct}%` : `${currentStacks}/${minorInfo.max} stacks`;
       elements.push(scene.add.text(0, contentTop + z * 3.2, stackLine, {
-        fontSize: `${stackSz}px`, fontFamily: 'Ubuntu, sans-serif', color: '#888888',
+        fontSize: `${stackSz}px`, fontFamily: 'Saira, sans-serif', color: '#888888',
       }).setOrigin(0.5));
 
       const barW = cw * 0.75;
@@ -315,13 +315,13 @@ class CardSelect extends HudComponent {
 
       const titleSz = Math.round(Math.max(9, Math.min(20, z * 0.45 * tScale)));
       elements.push(scene.add.text(0, contentTop + z * 1.5, cardInfo.name, {
-        fontSize: `${titleSz}px`, fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold',
+        fontSize: `${titleSz}px`, fontFamily: 'Saira, sans-serif', fontStyle: 'bold',
         color: textColor, align: 'center', wordWrap: { width: cw - 12 },
       }).setOrigin(0.5));
 
       const descSz = Math.round(Math.max(7, Math.min(15, z * 0.35 * tScale)));
       elements.push(scene.add.text(0, contentTop + z * 2.5, majorInfo.positiveText, {
-        fontSize: `${descSz}px`, fontFamily: 'Ubuntu, sans-serif', color: '#66ff66',
+        fontSize: `${descSz}px`, fontFamily: 'Saira, sans-serif', color: '#66ff66',
         align: 'center', wordWrap: { width: cw - 12 },
       }).setOrigin(0.5));
 
@@ -332,7 +332,7 @@ class CardSelect extends HudComponent {
       elements.push(div);
 
       elements.push(scene.add.text(0, contentTop + z * 4.1, majorInfo.negativeText, {
-        fontSize: `${descSz}px`, fontFamily: 'Ubuntu, sans-serif', color: '#ff6666',
+        fontSize: `${descSz}px`, fontFamily: 'Saira, sans-serif', color: '#ff6666',
         align: 'center', wordWrap: { width: cw - 12 },
       }).setOrigin(0.5));
     }
@@ -389,7 +389,7 @@ class CardSelect extends HudComponent {
     const label = isMajor ? 'Skip (3 random)' : (this.actionButtonUsed ? 'Reroll Used' : `Reroll (${rerollsAvailable})`);
     const btnTextColor = disabled ? '#555555' : (isMajor ? '#d4a017' : '#4488ff');
     const text = scene.add.text(0, 0, label, {
-      fontSize: `${layout.actionFontSize}px`, fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold', color: btnTextColor,
+      fontSize: `${layout.actionFontSize}px`, fontFamily: 'Saira, sans-serif', fontStyle: 'bold', color: btnTextColor,
     }).setOrigin(0.5);
     elements.push(text);
 
@@ -450,7 +450,7 @@ class CardSelect extends HudComponent {
     elements.push(bg);
 
     const xText = scene.add.text(0, 0, '\u2715', {
-      fontSize: closeFontSize, fontFamily: 'Ubuntu, sans-serif', fontStyle: 'bold', color: '#aaaaaa',
+      fontSize: closeFontSize, fontFamily: 'Saira, sans-serif', fontStyle: 'bold', color: '#aaaaaa',
     }).setOrigin(0.5);
     elements.push(xText);
 

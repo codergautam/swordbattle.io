@@ -4,6 +4,15 @@
 process.env.BABEL_ENV = 'production';
 process.env.NODE_ENV = 'production';
 
+if (!process.env.REACT_APP_ASSET_VER) {
+  try {
+    process.env.REACT_APP_ASSET_VER = require('child_process')
+      .execSync('git rev-parse --short HEAD').toString().trim();
+  } catch (e) {
+    process.env.REACT_APP_ASSET_VER = String(Date.now());
+  }
+}
+
 console.log("Swordbattle Client Builder")
 
 // Makes the script crash on unhandled rejections instead of silently

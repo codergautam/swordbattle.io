@@ -274,7 +274,7 @@ function SupportModal({ account }: any) {
     <div className="sp-sent">
       <div className="sp-sent-ico"><FontAwesomeIcon icon={faCircleCheck} /></div>
       <h3>Got it, thank you</h3>
-      <p>Your message is in and we read every one. When we reply it shows up under My messages, and a badge appears on the support button so you know to look.</p>
+      <p>Your message is in and we read every one. When we reply it shows up under My messages.</p>
       <div className="sp-sent-btns">
         <button className="sp-btn ghost" onClick={() => { setView('list'); refreshTickets(); }}>Go to My messages</button>
         <button className="sp-btn" onClick={() => setView('home')}>Done</button>

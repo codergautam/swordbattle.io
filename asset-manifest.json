@@ -1,11 +1,11 @@
 {
   "files": {
-    "main.css": "./static/css/main.5e70d87b.css",
-    "main.js": "./static/js/main.45f3b5d8.js",
+    "main.css": "./static/css/main.1313558a.css",
+    "main.js": "./static/js/main.98b32b23.js",
+    "static/js/936.9c7c21d6.chunk.js": "./static/js/936.9c7c21d6.chunk.js",
     "static/media/final.png": "./static/media/final.67c8267a4b9ff73d40cd.png",
     "static/media/home.png": "./static/media/home.b9785e898424fee950c1.png",
     "static/media/play-again.png": "./static/media/play-again.38923238033620c8ab00.png",
-    "static/media/leaderboardBackground.png": "./static/media/leaderboardBackground.9ef4487b3afa29b4fa3b.png",
     "static/media/discordLogo.png": "./static/media/discordLogo.e187da819ae43e19bf0e.png",
     "static/media/gem-reward.png": "./static/media/gem-reward.97388b4364ba0cf027ae.png",
     "static/media/gem.png": "./static/media/gem.b19d06f98a5cf6c31cbd.png",
@@ -13,13 +13,13 @@
     "static/media/profileBackground.png": "./static/media/profileBackground.779bb0294480d730c360.png",
     "static/media/ultimacy.png": "./static/media/ultimacy.d73de02ea897c290bb9a.png",
     "static/media/ultimacy-reward.png": "./static/media/ultimacy-reward.4723858696171971ce45.png",
-    "static/media/signup.png": "./static/media/signup.537c428cc3a73a9ede96.png",
-    "static/media/leaderboard.png": "./static/media/leaderboard.39165e4ee99d368c467f.png",
-    "static/media/inventory.png": "./static/media/inventory.d5d076110e54523313fe.png",
-    "static/media/shop.png": "./static/media/shop.9eb8e19a557cb2899264.png",
-    "static/media/login.png": "./static/media/login.4064ec0fba5f1a4f7681.png",
-    "static/media/rewards.png": "./static/media/rewards.361b68d796d121374466.png",
-    "static/media/clan.png": "./static/media/clan.cf1e4edbecf0eb9102a3.png",
+    "static/media/leaderboard.png": "./static/media/leaderboard.67fbae599cdf4ed8e47c.png",
+    "static/media/signup.png": "./static/media/signup.6cd4ae8dec9d01f7b0f3.png",
+    "static/media/rewards.png": "./static/media/rewards.bbf79fe16dff656cd517.png",
+    "static/media/shop.png": "./static/media/shop.5a17c5e1fed455356649.png",
+    "static/media/inventory.png": "./static/media/inventory.f91ae50212e0df5f5133.png",
+    "static/media/clan.png": "./static/media/clan.c224eedd343f8e328d50.png",
+    "static/media/login.png": "./static/media/login.06ac65af13778bf6f2d3.png",
     "static/media/2xp-reward.png": "./static/media/2xp-reward.7ac7b4e98b5fe66734b5.png",
     "static/media/cursor.cur": "./static/media/cursor.138cb2f1fcf8183aaa1b.cur",
     "index.html": "./index.html",
@@ -28,11 +28,12 @@
     "static/media/frame_4.svg": "./static/media/frame_4.5b733589248512faefdeee901d02d696.svg",
     "static/media/frame_1.svg": "./static/media/frame_1.6ea187d23f7d31b08dfdd00187eb3264.svg",
     "static/media/frame_3.svg": "./static/media/frame_3.1e58516d65b618e35af7500a216ab52b.svg",
-    "main.5e70d87b.css.map": "./static/css/main.5e70d87b.css.map",
-    "main.45f3b5d8.js.map": "./static/js/main.45f3b5d8.js.map"
+    "main.1313558a.css.map": "./static/css/main.1313558a.css.map",
+    "main.98b32b23.js.map": "./static/js/main.98b32b23.js.map",
+    "936.9c7c21d6.chunk.js.map": "./static/js/936.9c7c21d6.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.5e70d87b.css",
-    "static/js/main.45f3b5d8.js"
+    "static/css/main.1313558a.css",
+    "static/js/main.98b32b23.js"
   ]
 }

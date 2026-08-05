@@ -14,7 +14,7 @@ class Server {
     this.maxConnectionsPerIP = 50;
 
     // Maintenance mode
-    this.maintenanceMode = true;
+    this.maintenanceMode = false;
     this.allowedIPs = [];
     this.allowedSecrets = [];
     this._refreshAllowedIPs();

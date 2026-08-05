@@ -129,13 +129,6 @@ export const settingsList: Record<string, SettingType> = {
     type: 'toggle',
     default: true,
   },
-  cameraFollowIntensity: {
-    name: 'Camera follow intensity',
-    type: 'range',
-    min: 0,
-    max: 10,
-    default: 4,
-  },
   sound: {
     name: 'Sound',
     type: 'range',

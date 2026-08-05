@@ -25,6 +25,7 @@ import ModalAd from '../ModalAd';
 interface ClansModalProps {
   account: AccountState;
   onViewProfile?: (username: string) => void;
+  initialClanId?: number;
 }
 
 type OutsideTab = 'join' | 'create' | 'leaderboard';
@@ -46,7 +47,7 @@ function formatCooldown(ms: number): string {
   return `${total}s`;
 }
 
-function ClansModal({ account, onViewProfile }: ClansModalProps) {
+function ClansModal({ account, onViewProfile, initialClanId }: ClansModalProps) {
   const dispatch = useDispatch();
   const clan = useSelector((s: RootState) => s.account.clan);
   const clanCooldownUntil = useSelector((s: RootState) => s.account.clanCooldownUntil);
@@ -56,8 +57,8 @@ function ClansModal({ account, onViewProfile }: ClansModalProps) {
   const clanId = clan?.clan?.id ?? null;
 
   const [outsideTab, setOutsideTab] = useState<OutsideTab>('join');
-  const [insideTab, setInsideTab] = useState<InsideTab>('your');
-  const [selectedClanId, setSelectedClanId] = useState<number | null>(null);
+  const [insideTab, setInsideTab] = useState<InsideTab>(initialClanId ? 'search' : 'your');
+  const [selectedClanId, setSelectedClanId] = useState<number | null>(initialClanId ?? null);
   const [userProfileOverlay, setUserProfileOverlay] = useState<string | null>(null);
   const [loadingLabel, setLoadingLabel] = useState<string | null>(null);
   const [nowTick, setNowTick] = useState(() => Date.now());

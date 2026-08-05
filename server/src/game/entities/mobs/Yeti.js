@@ -60,7 +60,7 @@ class YetiMob extends Entity {
   }
 
   update(dt) {
-    if (!this.target || this.target.removed) {
+    if (!this.target || this.target.removed || this.targetInForbiddenBiome(this.target)) {
       this.target = null;
     }
 

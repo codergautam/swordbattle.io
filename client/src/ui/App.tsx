@@ -84,6 +84,7 @@ const instantSwapModals = new Set<any>([ShopModal, RewardsModal, InventoryModal,
 const modalCloseMs = 200;
 
 function App({ moreAds = false }: { moreAds?: boolean }) {
+  useEffect(() => { if (moreAds) document.title = 'Swordbattle.io (more ads)'; }, [moreAds]);
   let { skins } = cosmetics;
   const RESET_HOUR = 23; // 0-23 utc
 
@@ -1375,7 +1376,7 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
           {profileUser && (
             <Modal
               key="profile-overlay"
-              child={<ProfileModal username={profileUser} isOwnProfile={account.isLoggedIn && profileUser === account.username} />}
+              child={<ProfileModal username={profileUser} isOwnProfile={account.isLoggedIn && profileUser === account.username} onOpenClan={(clanId: number) => { closeProfileOverlay(); setModal(<ClansModal account={account} onViewProfile={openProfileOverlay} initialClanId={clanId} />); }} />}
               requestClose={closeProfileOverlay}
               className="modal-profile"
               backdropClass="modal-backdrop-top"

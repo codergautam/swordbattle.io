@@ -42,6 +42,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       .profile-clan { color: #f5c542; margin-right: 6px; }
+      .profile-clan.clickable { cursor: pointer; &:hover { text-decoration: underline; } }
     }
 
     .profile-tags {
@@ -69,13 +70,28 @@
   }
 
   .profile-bio {
-    text-align: center;
+    text-align: left;
     color: #d6d6da;
     background: #202024;
     border: 3px solid #000;
     border-radius: 10px;
     padding: 12px 14px;
     margin-bottom: 16px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    .profile-lastseen {
+      float: right;
+      margin: -4px -6px 6px 12px;
+      padding: 4px 10px;
+      background: #17171a;
+      border: 2px solid #000;
+      border-radius: 8px;
+      color: #9a9aa2;
+      font-size: 14px;
+      white-space: nowrap;
+    }
   }
 
   .profile-stats {

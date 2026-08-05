@@ -12,7 +12,7 @@ class SwordProj extends Entity {
     damage: 7,
     duration: [5, 10],
     position: [0, 0],
-    forbiddenBiomes: [Types.Biome.River],
+    forbiddenBiomes: [],
     knockbackMultiplier: 5
   };
 

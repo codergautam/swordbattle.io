@@ -57,7 +57,7 @@ class SphinxMob extends Entity {
 
   update(dt) {
     this.angryTimer.update(dt);
-    if (this.angryTimer.finished || !this.target || this.target.removed) {
+    if (this.angryTimer.finished || !this.target || this.target.removed || this.targetInForbiddenBiome(this.target)) {
       this.target = null;
       this.ultimate = null;
     }

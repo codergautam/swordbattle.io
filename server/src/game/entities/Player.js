@@ -624,7 +624,7 @@ class Player extends Entity {
           case Types.Entity.Moose: reason = 'A Moose'; break;
           case Types.Entity.AngryFish: reason = 'A Fish'; break;
           case Types.Entity.Yeti: reason = 'A Yeti'; break;
-          case Types.Entity.IceSpirit: reason = 'An Ice Spirit'; break;
+          case Types.Entity.IceSpirit: reason = entity.skin === 1 ? 'A Fire Spirit' : 'An Ice Spirit'; break;
           case Types.Entity.Chimera: reason = 'A Chimera'; break;
           case Types.Entity.Roku: reason = 'Roku'; break;
           case Types.Entity.Snowball: reason = 'Big Yeti'; break; // the yeti boss throws snowballs

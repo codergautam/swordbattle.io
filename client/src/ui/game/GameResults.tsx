@@ -90,9 +90,8 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
   }, []);
 
   const gemMultiplier = (gemBonus === 'done' ? 2 : 1) * (noAdblockClaimed ? 2 : 1);
-  const gemMultState = gemBonus === 'done'
-    ? (noAdblockClaimed ? 'both' : 'ad')
-    : (noAdblockClaimed ? 'noadblock' : 'none');
+  const adDoubled = gemBonus === 'done';
+  const adDelta = baseGems * (noAdblockClaimed ? 2 : 1);
 
   const onDoubleGems = () => {
     if (gemBonus !== 'idle' || adblockActive) return;
@@ -130,12 +129,15 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
     const variant = getVariant('death_preroll');
     const showPreroll = variant === 'on' && shouldShowVideoAd();
 
+    let prerollTimer: any = null;
     if (showPreroll) {
-      console.log('[GameResults] Showing death interstitial (A/B: on)');
-      trackAd('video_request', { ad_format: 'preroll', placement: 'death_interstitial' });
-      playVideoAd().then(() => {
-        trackAd('video_complete', { ad_format: 'preroll', placement: 'death_interstitial' });
-      });
+      prerollTimer = setTimeout(() => {
+        console.log('[GameResults] Showing death interstitial (A/B: on)');
+        trackAd('video_request', { ad_format: 'preroll', placement: 'death_interstitial' });
+        playVideoAd().then(() => {
+          trackAd('video_complete', { ad_format: 'preroll', placement: 'death_interstitial' });
+        });
+      }, 1200);
     }
 
     trackRunEnd(reason, {
@@ -145,6 +147,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
       playtimeMs: (results?.survivalTime || 0) * 1000,
       prerollShown: showPreroll,
     });
+    return () => { if (prerollTimer) clearTimeout(prerollTimer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -264,8 +267,8 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
         </div>
         { isLoggedIn && (
           <>
-        <div className={`info gem-info gem-mult-${gemMultState}`}>
-          <div className="title">Gems Gained{gemMultiplier > 1 ? ` (${gemMultiplier}x)` : ''}</div>
+        <div className={`info gem-info${adDoubled ? ' gem-mult-ad' : ''}`}>
+          <div className="title">Gems Gained{adDoubled ? ' (2x)' : ''}</div>
           <CountUp
             end={baseGems * gemMultiplier}
             duration={3}
@@ -304,7 +307,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
           ) : gemBonus === 'done' ? (
             <div className="double-gems-done">
               <img className="dg-icon" src={gemRewardImg} alt="" />
-              <span>Gems {gemMultiplier}&#215;! +{(baseGems * (gemMultiplier - (noAdblockClaimed ? 2 : 1))).toLocaleString()}</span>
+              <span>Gems doubled! +{adDelta.toLocaleString()}</span>
             </div>
           ) : (
             <button
@@ -314,7 +317,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
               onClick={onDoubleGems}
             >
               <img className="dg-icon" src={gemRewardImg} alt="" />
-              <span>{gemBonus === 'loading' ? 'Loading ad…' : `Watch ad for ${noAdblockClaimed ? '4' : '2'}× Gems`}</span>
+              <span>{gemBonus === 'loading' ? 'Loading ad…' : 'Watch ad for 2× Gems'}</span>
             </button>
           )}
         </div>

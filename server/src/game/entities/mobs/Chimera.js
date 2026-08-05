@@ -182,7 +182,7 @@ class Chimera extends Entity {
       this.aiState = 'retreat';
     }
 
-    if (this.angryTimer.finished) {
+    if (this.angryTimer.finished || this.targetInForbiddenBiome(this.target)) {
       this.target = null;
       this.aiState = this.isFlying ? 'landing' : 'idle';
     }

@@ -253,6 +253,7 @@ function LeaderboardPreview({
 }
 
 export default function NameMaker() {
+  useEffect(() => { document.title = 'SB Name Maker'; }, []);
   const dispatch = useDispatch();
   const account: any = useSelector(selectAccount);
 

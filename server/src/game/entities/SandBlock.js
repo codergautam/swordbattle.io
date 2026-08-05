@@ -12,7 +12,7 @@ class SandBlock extends Entity {
     damage: 5,
     duration: [4, 8],
     position: [0, 0],
-    forbiddenBiomes: [Types.Biome.River],
+    forbiddenBiomes: [],
     knockbackMultiplier: 11,
   };
 

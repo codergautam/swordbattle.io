@@ -31,7 +31,6 @@ function SettingsModal() {
   const [resolution, setResolution] = useState(Settings.resolution);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
   const [cameraFollowsMouse, setCameraFollowsMouse] = useState(Settings.cameraFollowsMouse);
-  const [cameraFollowIntensity, setCameraFollowIntensity] = useState(Settings.cameraFollowIntensity);
   const [sound, setSound] = useState(Settings.sound);
   const chatForceDisabled = isChatForceDisabled();
   const [enableChat, setEnableChat] = useState(chatForceDisabled ? false : Settings.enableChat);
@@ -42,7 +41,6 @@ function SettingsModal() {
   const updateResolution = (v: any) => { setResolution(v); Settings.resolution = Number(v); };
   const updateMovementMode = (v: any) => { setMovementMode(v); Settings.movementMode = v; };
   const updateCameraFollowsMouse = (v: boolean) => { setCameraFollowsMouse(v); Settings.cameraFollowsMouse = v; };
-  const updateCameraFollowIntensity = (v: any) => { setCameraFollowIntensity(Number(v)); Settings.cameraFollowIntensity = Number(v); };
   const updateSound = (v: any) => { setSound(v); Settings.sound = v; };
   const updateEnableChat = (v: boolean) => {
     if (chatForceDisabled) return;
@@ -103,19 +101,6 @@ function SettingsModal() {
           <span className="s-label"><FontAwesomeIcon icon={faVideo} className="s-icon" /> Camera follows cursor</span>
           <Toggle checked={cameraFollowsMouse} onChange={updateCameraFollowsMouse} />
         </div>
-        {cameraFollowsMouse && (
-          <div className="settings-line">
-            <span className="s-label"><FontAwesomeIcon icon={faVideo} className="s-icon" /> Camera follow intensity</span>
-            <div className="s-range">
-              <input type="range" name="cameraFollowIntensity" id="cameraFollowIntensity"
-                min={0} max={10} step={1}
-                value={cameraFollowIntensity}
-                onChange={(e) => updateCameraFollowIntensity(e.target.value)}
-              />
-              <span className="s-val">{cameraFollowIntensity}</span>
-            </div>
-          </div>
-        )}
         <div className="settings-line">
           <span className="s-label"><FontAwesomeIcon icon={faVolumeHigh} className="s-icon" /> Sound</span>
           <div className="s-range">

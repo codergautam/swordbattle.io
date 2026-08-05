@@ -312,7 +312,7 @@ export class Controls {
       stick.thumb.y = origin.y + Math.sin(angle) * clamped;
     }
     if (dist <= 12) return 0;
-    out.angle = angle;
+    if (dist > radius * 0.25) out.angle = angle;
     return clamped / radius;
   }
 

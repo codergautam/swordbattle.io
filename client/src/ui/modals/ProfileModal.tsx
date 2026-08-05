@@ -2,7 +2,7 @@ import { memo, useEffect, useMemo, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import api from '../../api';
-import { numberWithCommas, secondsToTime, sinceFrom, fixDate } from '../../helpers';
+import { numberWithCommas, secondsToTime, sinceFrom, fixDate, lastSeen } from '../../helpers';
 import cosmetics from '../../game/cosmetics.json';
 import SkinView from '../SkinView';
 import { getSkinScale } from '../../game/skinScales';
@@ -14,6 +14,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 interface ProfileModalProps {
   username?: string;
   isOwnProfile?: boolean;
+  onOpenClan?: (clanId: number) => void;
 }
 
 const sorts: { key: 'coins' | 'kills' | 'playtime'; label: string }[] = [
@@ -27,6 +28,16 @@ function skinFiles(id?: number) {
   return s
     ? { body: s.bodyFileName, sword: s.swordFileName, scale: getSkinScale(s.id) }
     : { body: 'player.png', sword: 'sword.png', scale: 1 };
+}
+
+function getRankColor(rank: number) {
+  if (rank === 1) return '#ffd700';
+  if (rank === 2) return '#c0c0c0';
+  if (rank === 3) return '#cd7f32';
+  if (rank <= 10) return '#00ff00';
+  if (rank <= 50) return '#ffa500';
+  if (rank <= 100) return '#ffff00';
+  return undefined;
 }
 
 function gameAge(dateLike: any) {
@@ -93,6 +104,7 @@ function buildGraph(dailyStats: any[]) {
 const chartOptions: any = {
   responsive: true,
   maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
   scales: {
     y: { beginAtZero: true, ticks: { color: '#9a9aa2' }, grid: { color: 'rgba(255,255,255,0.08)' } },
     x: { ticks: { color: '#9a9aa2', maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,0.06)' } },
@@ -100,7 +112,7 @@ const chartOptions: any = {
   plugins: { legend: { labels: { color: '#e7e7ec' } } },
 };
 
-const ProfileModal: React.FC<ProfileModalProps> = ({ username }) => {
+const ProfileModal: React.FC<ProfileModalProps> = ({ username, onOpenClan }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [games, setGames] = useState<any[]>([]);
@@ -138,6 +150,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ username }) => {
     () => (dailyStats && dailyStats.length > 1 ? buildGraph(dailyStats) : null),
     [dailyStats],
   );
+  const lastOnlineText = useMemo(() => {
+    if (!dailyStats || !dailyStats.length) return null;
+    const latest = dailyStats.reduce(
+      (l: any, s2: any) => (new Date(s2.date).getTime() > new Date(l).getTime() ? s2.date : l),
+      dailyStats[0].date,
+    );
+    return `last online ${lastSeen(latest)}`;
+  }, [dailyStats]);
 
   return (
     <div className="profile-modal">
@@ -154,7 +174,12 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ username }) => {
             <div className="profile-skin"><SkinView body={skin.body} sword={skin.sword} scale={skin.scale} shadow /></div>
             <div className="profile-id">
               <div className="profile-name">
-                {data.clan?.clan && <span className="profile-clan">[{data.clan.clan.tag}]</span>}
+                {data.clan?.clan && (
+                  <span
+                    className={`profile-clan${data.clan.clan.id && onOpenClan ? ' clickable' : ''}`}
+                    onClick={() => { if (data.clan.clan.id && onOpenClan) onOpenClan(data.clan.clan.id); }}
+                  >[{data.clan.clan.tag}]</span>
+                )}
                 {acc.username}
               </div>
               {acc.tags?.tags?.length > 0 && (
@@ -167,13 +192,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ username }) => {
               <div className="profile-meta">
                 <span>Joined {sinceFrom(acc.created_at)} ago</span>
                 <span>{numberWithCommas(acc.profile_views || 0)} profile views</span>
-                {data.rank && <span className={data.rank === 1 ? 'gold' : ''}>#{data.rank} all-time</span>}
+                {data.rank && <span style={getRankColor(data.rank) ? { color: getRankColor(data.rank) } : undefined}>#{data.rank} all-time</span>}
               </div>
             </div>
           </div>
 
           <div className="profile-body">
             <div className="profile-bio">
+              {lastOnlineText && <span className="profile-lastseen">{lastOnlineText}</span>}
               {acc.bio === '.ban' ? 'Bio removed for violating rules.' : acc.bio ? `"${acc.bio}"` : 'No bio set'}
             </div>
 

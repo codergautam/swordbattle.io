@@ -68,34 +68,14 @@
 		}
 
 		.info.gem-info {
-			transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+			transition: border-color 0.25s ease, color 0.25s ease;
 
 			&.gem-mult-ad {
-				background: rgba(34, 182, 214, 0.30);
 				border-color: #22b6d6;
-				box-shadow: 0 0 10px rgba(34, 182, 214, 0.45);
+				color: #22b6d6;
 				.title { color: #9fe8f7; }
 			}
-
-			&.gem-mult-noadblock {
-				background: rgba(47, 199, 154, 0.30);
-				border-color: #2fc79a;
-				box-shadow: 0 0 10px rgba(47, 199, 154, 0.45);
-				.title { color: #a8f0d8; }
-			}
-
-			&.gem-mult-both {
-				background: rgba(255, 190, 40, 0.32);
-				border-color: #ffbe28;
-				animation: gemMultPulse 1.4s ease-in-out infinite;
-				.title { color: #ffe9a8; }
-			}
 		}
-	}
-
-	@keyframes gemMultPulse {
-		0%, 100% { box-shadow: 0 0 10px rgba(255, 190, 40, 0.45); }
-		50%      { box-shadow: 0 0 20px rgba(255, 190, 40, 0.85); }
 	}
 
 	.results-buttons {

@@ -54,7 +54,7 @@ class AngryFishMob extends Entity {
       this.target = this._sardineOwner;
       this.angryTimer.renew();
     }
-    if (this.angryTimer.finished || !this.target || this.target.removed) {
+    if (this.angryTimer.finished || !this.target || this.target.removed || this.targetInForbiddenBiome(this.target)) {
       this.target = null;
     }
 

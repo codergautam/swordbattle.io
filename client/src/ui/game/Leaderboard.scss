@@ -2,7 +2,8 @@
   position: fixed;
   top: 12px;
   right: 12px;
-  width: 270px;
+  width: 345px;
+  max-width: 42vw;
   color: #fff;
   font-family: 'Saira', sans-serif;
   font-weight: 700;
@@ -77,13 +78,24 @@
     }
 
     .lb-name {
-      flex: 1 1 auto;
+      flex: 0 1 auto;
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       font-weight: 700;
 
       .lb-clan { color: var(--ui-accent); }
+      .lb-rank { font-weight: 700; }
+    }
+
+    .lb-line {
+      flex: 1 1 8px;
+      min-width: 8px;
+      height: 1px;
+      background: var(--ui-accent);
+      opacity: 0.35;
+      margin: 0 2px;
+      align-self: center;
     }
 
     .lb-score {

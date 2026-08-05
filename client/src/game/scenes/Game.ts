@@ -671,8 +671,7 @@ export default class Game extends Phaser.Scene {
     if (enabled) {
       const hw = cam.width * 0.5;
       const hh = cam.height * 0.5;
-      const intensity = (typeof Settings.cameraFollowIntensity === 'number'
-        ? Settings.cameraFollowIntensity : 4) * 0.04;
+      const intensity = 4 * 0.04;
 
       const displayHalfW = hw / cam.zoom;
       const displayHalfH = hh / cam.zoom;

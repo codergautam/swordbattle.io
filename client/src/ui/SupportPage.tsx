@@ -34,6 +34,7 @@ function when(v: any): string {
 }
 
 export default function SupportPage() {
+  useEffect(() => { document.title = 'SB Support'; }, []);
   const secret = useParams().secret || '';
   const [status, setStatus] = useState('open');
   const [category, setCategory] = useState('all');

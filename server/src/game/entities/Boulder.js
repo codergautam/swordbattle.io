@@ -12,7 +12,7 @@ class Boulder extends Entity {
     damage: 4,
     duration: [5, 10],
     position: [0, 0],
-    forbiddenBiomes: [Types.Biome.River],
+    forbiddenBiomes: [],
     knockbackMultiplier: 16
   };
 

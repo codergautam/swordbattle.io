@@ -60,6 +60,7 @@ function Section({ title, children }: { title: string; children: any }) {
 }
 
 export default function MetricsPage() {
+  useEffect(() => { document.title = 'SB Metrics'; }, []);
   const secret = useParams().secret || '';
   const [days, setDays] = useState<number>(() => Number(localStorage.getItem('sb:metricsDays')) || 30);
   const [data, setData] = useState<any>(null);

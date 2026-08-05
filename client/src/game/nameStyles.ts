@@ -111,13 +111,18 @@ export interface RegistryEntry {
 }
 
 export const NAME_REGISTRY: Record<string, RegistryEntry> = {
-  // codergautam: { leaderboard: { fill: '#ff0000', shadow: '#ff000077' }, game: { fill: '#ff0000' } },
-  // angel: { leaderboard: { fill: '#acfffc', shadow: '#00ccffaa' }, game: { fill: '#acfffc' } },
-  // 'cool guy 53': { leaderboard: { fill: '#00bbff', shadow: '#0088ff77' }, game: { fill: '#00bbff' } },
-  // 'update testing account': { leaderboard: { fill: '#00ff00', shadow: '#00ff0077' }, game: { fill: '#00ff00' } },
-  // 'amethyst nightveil': { leaderboard: { fill: '#b066ff' }, game: { fill: '#7802ab' } },
-  // oy: { leaderboard: { fill: '#000000', shadow: '#ffffff' }, game: { fill: '#000000', shadow: '#ffffff' } },
-  // bobz: { leaderboard: { fill: '#000000', shadow: '#ffffff' }, game: { fill: '#000000', shadow: '#ffffff', outline: '#ff0000' } },
+  'amethyst nightveil': {
+    leaderboard: { fill: '#6800c2', outline: '#000000', shadow: '#9f00ff' },
+    game: { fill: { type: 'linear', angle: 180, stops: [{ color: '#9f00e4', pos: 0 }, { color: '#310064', pos: 1 }] }, outline: '#000000', shadow: '#ff00ff' },
+  },
+  'skillz': {
+    leaderboard: { fill: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#0000ff', pos: 1 }] }, shadow: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#0000ff', pos: 1 }] } },
+    game: { fill: '#000000', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#0000ff', pos: 1 }] }, shadow: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#0000ff', pos: 1 }] } },
+  },
+  'wasdblade': {
+    leaderboard: { fill: { type: 'linear', angle: 90, stops: [{ color: '#ff0000', pos: 0 }, { color: '#ff8002', pos: 1 }] }, outline: { type: 'linear', angle: 180, stops: [{ color: '#6e0009', pos: 0 }, { color: '#ee3700', pos: 1 }] }, outlineWidth: 'medium', shadow: { type: 'linear', angle: 180, stops: [{ color: '#ff6a00', pos: 0 }, { color: '#ffab00', pos: 1 }] } },
+    game: { fill: { type: 'linear', angle: 90, stops: [{ color: '#ff0000', pos: 0 }, { color: '#ff8c00', pos: 1 }] }, outline: '#00090c', outlineWidth: 'medium', shadow: { type: 'linear', angle: 180, stops: [{ color: '#ffa500', pos: 0 }, { color: '#ff0000', pos: 1 }] } },
+  },
 };
 
 export function resolveNameStyle(

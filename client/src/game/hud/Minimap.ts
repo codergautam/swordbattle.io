@@ -86,7 +86,7 @@ class Minimap extends HudComponent {
     this.pan = this.game.add.container(0, 0, [this.mapContainer, this.dotLayer, this.crown]);
     this.viewport = this.game.add.container(pad, pad + header, [this.pan]);
 
-    this.mapLabel = this.hud.scene.add.text(pad + map - 4, pad + header + map - 4, 'Map: v3m1', {
+    this.mapLabel = this.hud.scene.add.text(pad + map - 4, pad + header + map - 4, 'Map: v3', {
       fontSize: 11, fontFamily: "'Saira', sans-serif", fontStyle: '700',
       color: '#ffffff', stroke: '#000000', strokeThickness: 3,
     }).setOrigin(1, 1);

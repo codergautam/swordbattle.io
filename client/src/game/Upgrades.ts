@@ -3,24 +3,24 @@ import { UpgradeTypes, EvolutionTypes } from './Types';
 const icon = '\u{1F527}';
 
 export const Upgrades: Record<number, [string, string, string]> = {
-  [UpgradeTypes.Toughened]: ['Toughened', 'Gain more health and resistance while evolutionless.', icon],
-  [UpgradeTypes.Footwork]: ['Footwork', 'Hitting players gives a small speed boost while evolutionless.', icon],
+  [UpgradeTypes.Toughened]: ['Defense', 'Skip selecting an evolution, and instead gain more health and resistance.', icon],
+  [UpgradeTypes.Footwork]: ['Offense', 'Skip selecting an evolution, and instead gain a speed boost after hitting players.', icon],
   [UpgradeTypes.ClasslessAbility]: ['Ability', 'Grants a short ability that speeds your swing and boosts regen.', icon],
   [UpgradeTypes.Handling]: ['Handling', 'Increase your move speed and health while your sword is being thrown.', icon],
-  [UpgradeTypes.Lavacopy]: ['Lavacopy', 'Surround yourself with a small lava field that burns nearby enemies.', icon],
+  [UpgradeTypes.Lavacopy]: ['Burner', 'Surround yourself with a small lava field that burns nearby enemies.', icon],
   [UpgradeTypes.Pacifist]: ['Pacifist', 'Deal and take half damage against other players.', icon],
   [UpgradeTypes.Collector]: ['Collector', '+50% coins from all sources.', icon],
-  [UpgradeTypes.Battleswords]: ['Battleswords', 'Wield two swords at once! Hold to auto-attack. Throws both swords at once.', icon],
+  [UpgradeTypes.Battleswords]: ['Daggers', 'Wield two swords at once! Hold to auto-attack. Throws both swords at once.', icon],
 
   [UpgradeTypes.Momentum]: ['Momentum', 'Hitting players gives a small damage boost for 2s.', icon],
   [UpgradeTypes.Gale]: ['Gale', 'Gain a burst of movement speed after 2s without being hit.', icon],
   [UpgradeTypes.Lunge]: ['Lance', 'Throwing your sword does a small dash forward.', icon],
   [UpgradeTypes.Riposte]: ['Riposte', 'Hitting back soon after being hit deals bonus damage and knockback.', icon],
-  [UpgradeTypes.Striketwice]: ['Striketwice', 'Every swing quickly strikes twice.', icon],
-  [UpgradeTypes.Twothrow]: ['Throwduo', 'Throw an extra sword with each throw.', icon],
+  [UpgradeTypes.Striketwice]: ['Reprise', 'Every swing quickly strikes twice.', icon],
+  [UpgradeTypes.Twothrow]: ['Javelins', 'Throw an extra sword with each throw.', icon],
 
-  [UpgradeTypes.Overrun]: ['Overrun', 'Walking into an enemy shoves them away.', icon],
-  [UpgradeTypes.Charging]: ['Charging', 'Moving in one direction builds up a speed boost.', icon],
+  [UpgradeTypes.Overrun]: ['Force', 'Walking into an enemy shoves them away.', icon],
+  [UpgradeTypes.Charging]: ['Charging', 'Moving in one direction builds up a gradual speed boost.', icon],
   [UpgradeTypes.Recovery]: ['Recovery', 'Standing still greatly boosts your regeneration.', icon],
   [UpgradeTypes.Blocker]: ['Blocker', 'Blocks thrown swords and their damage.', icon],
   [UpgradeTypes.Spikes]: ['Spikes', 'Reflect half the damage attackers deal back at them. Doesn\'t cancel enemy regen', icon],
@@ -33,7 +33,7 @@ export const Upgrades: Record<number, [string, string, string]> = {
 
   [UpgradeTypes.Sanguine]: ['Sanguine', 'Hitting mobs gives lifesteal while out of player combat.', icon],
   [UpgradeTypes.Lifetaker]: ['Lifetaker', 'Hitting players under half HP grants increased lifesteal.', icon],
-  [UpgradeTypes.Deathsender]: ['Deathsender', 'Replace lifesteal with bleeding (enemies that hit you take damage too). Does not cancel enemy regen', icon],
+  [UpgradeTypes.Deathsender]: ['Deathsend', 'Replace lifesteal with bleeding (enemies that hit you take damage too). Does not cancel enemy regen', icon],
   [UpgradeTypes.Vitality]: ['Vitality', 'Landing hits instantly starts your regeneration.', icon],
 
   [UpgradeTypes.Ramming]: ['Ramming', 'Dashing into an enemy deals knockback and damage.', icon],
@@ -62,7 +62,7 @@ export const Upgrades: Record<number, [string, string, string]> = {
   [UpgradeTypes.Vision]: ['Vision', 'See much farther while your ability is active.', icon],
 
   [UpgradeTypes.Sardines]: ['Sardines', 'Getting attacked spawns angry fish to hunt enemies down.', icon],
-  [UpgradeTypes.Brace]: ['Brace', 'Deal 75% less damage for a second after reeling in an enemy.', icon],
+  [UpgradeTypes.Brace]: ['Brace', 'Take 75% less damage for 2s after reeling in an enemy.', icon],
 
   [UpgradeTypes.Hunter]: ['Hunter', 'Deal double damage to mobs.', icon],
   [UpgradeTypes.Offense]: ['Offense', 'After being attacked, gain stats to help fight back.', icon],

@@ -1,0 +1,22 @@
+export const emojis = {
+  update: '<:sb_trophy:1534687057744761013>',
+  crown: '<:sb_crown:1534684446559834297>',
+  enter: '<:sb_new:1534686928853799075>',
+  up: '<:sb_above:1534686959337996390>',
+  down: '<:sb_below:1534686984411287754>',
+  gold: '<:rank_one:1534686821009592430>',
+  silver: '<:rank_two:1534686845428957397>',
+  bronze: '<:rank_three:1534686871567859752>',
+  error: '<:sb_error:1534689641079509053>',
+  deltaUp: '▲',
+  deltaDown: '▼',
+  boards: {
+    coins: '<:sb_coin:1534687343280259093>',
+    kills: '<:sb_swords:1534687564932317185>',
+    survived: '<:sb_time:1534688126260351186>',
+    xp: '<:sb_xp:1534688515923906682>',
+    mastery: '<:sb_mastery:1534688655862665347>',
+    totalKills: '<:devilsword:1534689421855686817>',
+    totalPlaytime: '<:playtime:1534689165109755904>',
+  },
+};

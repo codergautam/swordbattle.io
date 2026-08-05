@@ -223,7 +223,8 @@ export class SupportService {
 
   async adminList(status?: string, category?: string, limit = 200) {
     const qb = this.tickets.createQueryBuilder('t').orderBy('t.updated_at', 'DESC').take(Math.min(500, limit));
-    if (status && status !== 'all') qb.andWhere('t.status = :status', { status });
+    if (status === 'active') qb.andWhere('t.status IN (:...activeStatuses)', { activeStatuses: ['open', 'answered'] });
+    else if (status && status !== 'all') qb.andWhere('t.status = :status', { status });
     if (category && category !== 'all') qb.andWhere('t.category = :category', { category });
     const rows = await qb.getMany();
 
@@ -240,6 +241,37 @@ export class SupportService {
       tickets: rows.map((t) => ({ ...t, screenshotBanned: isBanned(t) })),
       openCount: await this.tickets.count({ where: { status: 'open' } }),
       unreadCount: await this.tickets.count({ where: { unread_for_admin: true } }),
+    };
+  }
+
+  async adminUpdates(sinceMs: number) {
+    const since = new Date(Number.isFinite(sinceMs) && sinceMs > 0 ? sinceMs : 0);
+    const rows = await this.tickets
+      .createQueryBuilder('t')
+      .where('t.updated_at > :since', { since })
+      .orderBy('t.updated_at', 'ASC')
+      .take(100)
+      .getMany();
+    return {
+      serverTime: Date.now(),
+      tickets: rows.map((t) => ({
+        id: t.id,
+        created_at: t.created_at,
+        updated_at: t.updated_at,
+        category: t.category,
+        subject: t.subject,
+        status: t.status,
+        username: t.username || null,
+        account_id: t.account_id ?? null,
+        client_id: t.client_id || null,
+        unread_for_admin: !!t.unread_for_admin,
+        messages: (t.messages || []).slice(-50).map((m) => ({
+          from: m.from,
+          at: m.at,
+          text: String(m.text || '').slice(0, 500),
+          imageCount: Array.isArray(m.images) ? m.images.length : 0,
+        })),
+      })),
     };
   }
 

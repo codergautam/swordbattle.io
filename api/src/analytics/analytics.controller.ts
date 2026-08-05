@@ -45,4 +45,10 @@ export class AnalyticsController {
   async metrics(@Query('days') days: string) {
     return this.analyticsService.getDashboard(parseInt(days, 10) || 30);
   }
+
+  @Get('daily-digest')
+  @UseGuards(ModerationGuard)
+  async dailyDigest(@Query('date') date: string) {
+    return this.analyticsService.getDailyDigest(date);
+  }
 }

@@ -25,6 +25,18 @@ function isAdsDisabled(): boolean {
   return !!(window as any)._isCrazyGamesBasicLaunch || crazygamesSDK.shouldUseSDK();
 }
 
+const activeSlotCounts = new Map<string, number>();
+const displayedSlots = new Set<string>();
+
+function destroyAdSlot(slotId: string) {
+  const tag = (window as any).aipDisplayTag;
+  displayedSlots.delete(slotId);
+  try {
+    if (tag && tag.destroySlot) tag.destroySlot(slotId);
+    else if (tag && tag.clear) tag.clear(slotId);
+  } catch (e) {}
+}
+
 export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThresh = 0.3, placement, adblockPromo }: { screenW: number, screenH: number, types: [number, number][]; centerOnOverflow?: number; horizThresh?: number; placement?: string; adblockPromo?: boolean }) {
   const [type, setType] = useState(findAdType(screenW, screenH, types, horizThresh));
   const [adProvider, setAdProvider] = useState<string>((window as any).adProvider || 'adinplay');
@@ -81,9 +93,7 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
 
     const runCycle = () => {
       if (cycleCleanup) { cycleCleanup(); cycleCleanup = null; }
-      try {
-        if (windowAny.aipDisplayTag && windowAny.aipDisplayTag.clear) windowAny.aipDisplayTag.clear(slotId);
-      } catch (e) { console.warn('error clearing ad', e); }
+      const canRefresh = displayedSlots.has(slotId) && !!(windowAny.aipDisplayTag && windowAny.aipDisplayTag.refresh);
       if (!(windowAny.aiptag && windowAny.aiptag.cmd && windowAny.aiptag.cmd.display)) return;
 
       let settled = false;
@@ -154,7 +164,20 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
       }, 8000);
 
       trackAd('display_request', { ad_format: 'banner', ad_size: size, placement });
-      windowAny.aiptag.cmd.display.push(function () { windowAny.aipDisplayTag.display(slotId); });
+      let refreshed = false;
+      if (canRefresh) {
+        try {
+          windowAny.aipDisplayTag.refresh(slotId);
+          refreshed = true;
+        } catch (e) {}
+      }
+      if (!refreshed) {
+        try {
+          if (windowAny.aipDisplayTag && windowAny.aipDisplayTag.clear) windowAny.aipDisplayTag.clear(slotId);
+        } catch (e) { console.warn('error clearing ad', e); }
+        windowAny.aiptag.cmd.display.push(function () { windowAny.aipDisplayTag.display(slotId); });
+        displayedSlots.add(slotId);
+      }
 
       cycleCleanup = () => {
         if (dwell) clearTimeout(dwell);
@@ -167,9 +190,23 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
       };
     };
 
+    const prevCount = activeSlotCounts.get(slotId) || 0;
+    activeSlotCounts.set(slotId, prevCount + 1);
+    if (prevCount > 0) {
+      return () => {
+        activeSlotCounts.set(slotId, (activeSlotCounts.get(slotId) || 1) - 1);
+      };
+    }
+
     const timerId = setInterval(() => { if (document.visibilityState === 'visible') runCycle(); }, AD_REFRESH_MS);
     runCycle();
-    return () => { clearInterval(timerId); if (cycleCleanup) cycleCleanup(); };
+    return () => {
+      clearInterval(timerId);
+      if (cycleCleanup) cycleCleanup();
+      const remaining = (activeSlotCounts.get(slotId) || 1) - 1;
+      activeSlotCounts.set(slotId, remaining);
+      if (remaining <= 0) destroyAdSlot(slotId);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, adProvider, placement, typesKey]);
 

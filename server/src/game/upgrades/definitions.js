@@ -138,8 +138,8 @@ def(class Collector extends Upgrade {
 def(class Battleswords extends Upgrade {
   static type = U.Battleswords; static owner = E.Basic; static tier = 3;
   update(dt) {
-    this.player.sword.swingDuration.multiplier['bsword'] = 0.4;
-    this.player.sword.damage.multiplier *= 0.66;
+    this.player.sword.swingDuration.multiplier['bsword'] = 0.5;
+    this.player.sword.damage.multiplier *= 0.5;
     this.player.sword.swingArc = -Math.PI / 3.6;
     this.player.sword.knockback.multiplier['bsword'] = 0.5;
     this.player.modifiers.battleswords = true;

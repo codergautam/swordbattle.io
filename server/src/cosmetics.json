@@ -4675,7 +4675,7 @@
       "buyable": false,
       "price": 0,
       "swordFileName": "leaderSword.png",
-      "bodyFileName": "leaderPlayer.png",
+      "bodyFileName": "leaderPlayerNew.png",
       "description": "Show them who rules the battlefield!"
     },
     "flaming": {

@@ -405,7 +405,7 @@ function SupportModal({ account }: any) {
       </div>
 
       {activeTicket.status === 'closed' ? (
-        <p className="sp-muted sp-closed">This one is marked closed. Start a new message if something else comes up.</p>
+        <p className="sp-muted sp-closed">This conversation is marked closed. Start a new message if something else comes up.</p>
       ) : (
         <div className="sp-reply">
           <textarea

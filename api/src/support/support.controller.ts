@@ -50,6 +50,12 @@ export class SupportController {
     return this.support.adminList(status, category, parseInt(limit, 10) || 200);
   }
 
+  @Get('admin/updates')
+  @UseGuards(ModerationGuard)
+  adminUpdates(@Query('since') since: string) {
+    return this.support.adminUpdates(parseInt(since, 10) || 0);
+  }
+
   @Post('admin/reply')
   @UseGuards(ModerationGuard)
   adminReply(@Body() dto: AdminReplyDTO) {

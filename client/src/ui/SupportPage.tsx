@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import api from '../api';
 import { categoryTitle } from './support/categories';
 import './SupportPage.scss';
@@ -24,7 +24,7 @@ type AdminTicket = {
   screenshotBanned?: boolean;
 };
 
-const statuses = ['all', 'open', 'answered', 'closed'];
+const statuses = ['active', 'all', 'open', 'answered', 'closed'];
 const categories = ['all', 'password', 'lag', 'bug', 'other'];
 
 function when(v: any): string {
@@ -36,12 +36,18 @@ function when(v: any): string {
 export default function SupportPage() {
   useEffect(() => { document.title = 'SB Support'; }, []);
   const secret = useParams().secret || '';
-  const [status, setStatus] = useState('open');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [linkedTicketId] = useState<number | null>(() => {
+    const v = searchParams.get('ticket');
+    return v && /^\d+$/.test(v) ? parseInt(v, 10) : null;
+  });
+  const [status, setStatus] = useState(linkedTicketId !== null ? 'all' : 'active');
   const [category, setCategory] = useState('all');
   const [data, setData] = useState<{ tickets: AdminTicket[]; openCount: number; unreadCount: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [openId, setOpenId] = useState<number | null>(null);
+  const [pendingOpen, setPendingOpen] = useState<number | null>(linkedTicketId);
   const [drafts, setDrafts] = useState<Record<number, string>>({});
   const [busy, setBusy] = useState(false);
   const [lightbox, setLightbox] = useState<string | null>(null);
@@ -62,15 +68,35 @@ export default function SupportPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, [status, category]);
 
+  useEffect(() => {
+    if (!searchParams.has('ticket')) return;
+    const next = new URLSearchParams(searchParams);
+    next.delete('ticket');
+    setSearchParams(next, { replace: true });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const markRead = (t: AdminTicket) => {
+    fetch(`${api.endpoint}/support/admin/read`, { method: 'POST', headers: authHeaders, body: JSON.stringify({ ticketId: t.id }) })
+      .then(() => setData((d) => d ? { ...d, tickets: d.tickets.map((x) => x.id === t.id ? { ...x, unread_for_admin: false } : x), unreadCount: Math.max(0, d.unreadCount - 1) } : d))
+      .catch(() => {});
+  };
+
   const expand = (t: AdminTicket) => {
     const next = openId === t.id ? null : t.id;
     setOpenId(next);
-    if (next !== null && t.unread_for_admin) {
-      fetch(`${api.endpoint}/support/admin/read`, { method: 'POST', headers: authHeaders, body: JSON.stringify({ ticketId: t.id }) })
-        .then(() => setData((d) => d ? { ...d, tickets: d.tickets.map((x) => x.id === t.id ? { ...x, unread_for_admin: false } : x), unreadCount: Math.max(0, d.unreadCount - 1) } : d))
-        .catch(() => {});
-    }
+    if (next !== null && t.unread_for_admin) markRead(t);
   };
+
+  useEffect(() => {
+    if (pendingOpen === null || !data) return;
+    const t = data.tickets.find((x) => x.id === pendingOpen);
+    setPendingOpen(null);
+    if (!t) { setError(`Ticket #${pendingOpen} was not found (it may be older than the list limit).`); return; }
+    setOpenId(t.id);
+    if (t.unread_for_admin) markRead(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   const applyTicket = (t: AdminTicket) => {
     setData((d) => d ? { ...d, tickets: d.tickets.map((x) => x.id === t.id ? { ...t } : x) } : d);

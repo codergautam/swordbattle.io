@@ -9,7 +9,7 @@ const helpers = require('../../../helpers');
 
 class AngryFishMob extends Entity {
   static defaultDefinition = {
-    forbiddenBiomes: [Types.Biome.Fire, Types.Biome.Earth, Types.Biome.Ice, Types.Biome.Safezone],
+    forbiddenBiomes: [Types.Biome.Fire, Types.Biome.Earth, Types.Biome.Ice, Types.Biome.Desert, Types.Biome.Dirt, Types.Biome.Rocks, Types.Biome.Savanna, Types.Biome.Meadow, Types.Biome.Tundra, Types.Biome.Oasis],
     attackRadius: 1000,
     riverInset: 270,
   };

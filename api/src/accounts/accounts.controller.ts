@@ -12,6 +12,15 @@ import { AccountGuard, AccountRequest } from 'src/auth/guards/account.guard';
 @Controller('profile')
 export class AccountsController {
   private recentProfileViews = new Map<number, Set<string>>();
+  private lastViewsSweep = Date.now();
+
+  private sweepProfileViews() {
+    const now = Date.now();
+    if (now - this.lastViewsSweep > 30 * 60 * 1000) {
+      this.recentProfileViews.clear();
+      this.lastViewsSweep = now;
+    }
+  }
 
   constructor(
     private readonly statsService: StatsService,
@@ -96,6 +105,7 @@ export class AccountsController {
     const rank = await this.statsService.getAccountRankByXp(account);
 
     const ip = request.ip;
+    this.sweepProfileViews();
     let viewedIps = this.recentProfileViews.get(account.id);
     if (!viewedIps) {
       viewedIps = new Set();
@@ -119,6 +129,7 @@ export class AccountsController {
     const rank = await this.statsService.getAccountRankByXp(account);
 
     const ip = request.ip;
+    this.sweepProfileViews();
     let viewedIps = this.recentProfileViews.get(account.id);
     if (!viewedIps) {
       viewedIps = new Set();

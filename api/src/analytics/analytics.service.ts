@@ -334,6 +334,77 @@ export class AnalyticsService {
     };
   }
 
+  async getDailyDigest(dateStr?: string) {
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(dateStr || '')
+      ? dateStr
+      : new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const run = (sql: string): Promise<any[]> =>
+      this.sessionRepo.query(sql, [date]).catch((e) => { console.error('[analytics/daily-digest]', e?.message); return []; });
+
+    const [core, players, games, retention, newPlayer, ads] = await Promise.all([
+      run(`SELECT COUNT(*)::int AS visits, COUNT(DISTINCT visitor_id)::int AS dau,
+            COUNT(*) FILTER (WHERE play_count>0)::int AS played_sessions,
+            ROUND(100.0*COUNT(*) FILTER (WHERE play_count>0)/NULLIF(COUNT(*),0),1)::float AS conversion_pct,
+            ROUND(AVG(total_playtime_ms) FILTER (WHERE play_count>0)/60000.0,2)::float AS avg_playtime_min,
+            ROUND((percentile_cont(0.5) WITHIN GROUP (ORDER BY total_playtime_ms) FILTER (WHERE play_count>0))::numeric/60000.0,2)::float AS median_playtime_min,
+            ROUND(100.0*AVG((adblock)::int) FILTER (WHERE adblock IS NOT NULL),1)::float AS adblock_pct
+           FROM analytics_sessions WHERE is_bot = false AND created_at::date = $1::date`),
+      run(`WITH firsts AS (SELECT visitor_id, MIN(created_at::date) AS first_day FROM analytics_sessions WHERE is_bot = false AND visitor_id IS NOT NULL GROUP BY visitor_id),
+            today AS (SELECT DISTINCT visitor_id FROM analytics_sessions WHERE is_bot = false AND visitor_id IS NOT NULL AND created_at::date = $1::date)
+            SELECT COUNT(*) FILTER (WHERE f.first_day = $1::date)::int AS new_players,
+              COUNT(*) FILTER (WHERE f.first_day < $1::date)::int AS returning_players
+            FROM today t JOIN firsts f ON f.visitor_id = t.visitor_id`),
+      run(`SELECT COUNT(*)::int AS games_played
+           FROM analytics_runs r JOIN analytics_sessions s ON s.session_id = r.session_id
+           WHERE s.is_bot = false AND r.created_at::date = $1::date`),
+      run(`WITH firsts AS (SELECT visitor_id, MIN(created_at::date) AS first_day FROM analytics_sessions WHERE is_bot = false AND visitor_id IS NOT NULL GROUP BY visitor_id HAVING MIN(created_at::date) IN ($1::date - 1, $1::date - 7)),
+            act AS (SELECT DISTINCT visitor_id FROM analytics_sessions WHERE is_bot = false AND created_at::date = $1::date)
+            SELECT COUNT(f.visitor_id) FILTER (WHERE f.first_day = $1::date - 1)::int AS d1_cohort,
+              ROUND(100.0*COUNT(a.visitor_id) FILTER (WHERE f.first_day = $1::date - 1)/NULLIF(COUNT(f.visitor_id) FILTER (WHERE f.first_day = $1::date - 1),0),1)::float AS d1_pct,
+              COUNT(f.visitor_id) FILTER (WHERE f.first_day = $1::date - 7)::int AS d7_cohort,
+              ROUND(100.0*COUNT(a.visitor_id) FILTER (WHERE f.first_day = $1::date - 7)/NULLIF(COUNT(f.visitor_id) FILTER (WHERE f.first_day = $1::date - 7),0),1)::float AS d7_pct
+            FROM firsts f LEFT JOIN act a ON a.visitor_id = f.visitor_id`),
+      run(`WITH firsts AS (SELECT visitor_id, MIN(created_at::date) AS first_day FROM analytics_sessions WHERE is_bot = false AND visitor_id IS NOT NULL GROUP BY visitor_id)
+            SELECT ROUND(AVG(s.total_playtime_ms) FILTER (WHERE s.play_count>0)/60000.0,2)::float AS new_player_avg_playtime_min
+            FROM analytics_sessions s JOIN firsts f ON f.visitor_id = s.visitor_id
+            WHERE s.is_bot = false AND s.created_at::date = $1::date AND f.first_day >= $1::date - 6`),
+      run(`SELECT COALESCE(SUM(a.estimated_revenue_usd),0)::float AS ad_revenue_usd,
+            COUNT(*) FILTER (WHERE a.event_type='display_viewable')::int AS ad_impressions,
+            COUNT(*) FILTER (WHERE a.event_type IN ('video_complete','rewarded_complete'))::int AS video_ads
+           FROM analytics_ad_events a JOIN analytics_sessions s ON s.session_id = a.session_id
+           WHERE s.is_bot = false AND a.created_at::date = $1::date`),
+    ]);
+
+    const c = core[0] || {};
+    const p = players[0] || {};
+    const g = games[0] || {};
+    const r = retention[0] || {};
+    const np = newPlayer[0] || {};
+    const a = ads[0] || {};
+    return {
+      date,
+      generatedAt: new Date().toISOString(),
+      visits: c.visits ?? 0,
+      dau: c.dau ?? 0,
+      newPlayers: p.new_players ?? 0,
+      returningPlayers: p.returning_players ?? 0,
+      gamesPlayed: g.games_played ?? 0,
+      playedSessions: c.played_sessions ?? 0,
+      conversionPct: c.conversion_pct ?? null,
+      avgPlaytimeMin: c.avg_playtime_min ?? null,
+      medianPlaytimeMin: c.median_playtime_min ?? null,
+      d1Cohort: r.d1_cohort ?? 0,
+      d1Pct: r.d1_pct ?? null,
+      d7Cohort: r.d7_cohort ?? 0,
+      d7Pct: r.d7_pct ?? null,
+      newPlayerAvgPlaytimeMin: np.new_player_avg_playtime_min ?? null,
+      adRevenueUsd: a.ad_revenue_usd != null ? Math.round(Number(a.ad_revenue_usd) * 100) / 100 : 0,
+      adImpressions: a.ad_impressions ?? 0,
+      videoAds: a.video_ads ?? 0,
+      adblockPct: c.adblock_pct ?? null,
+    };
+  }
+
   private computeReadiness(playCtr: any, playtime: any, mobileSplit: any, engagement: any, d1: any) {
     const ctr = (playCtr?.pct_played ?? 0) / 100;
     const avgMin = playtime?.avg_playing_min ?? 0;

@@ -106,8 +106,24 @@ function start() {
   const frameTime = 1000 / config.tickRate;
   const dt = frameTime / 1000;
   const loop = new Loop(frameTime, game);
+  let consecutiveTickErrors = 0;
+  let lastTickErrorLog = 0;
   loop.setEventHandler(() => {
-    server.tick(dt);
+    try {
+      server.tick(dt);
+      consecutiveTickErrors = 0;
+    } catch (err) {
+      consecutiveTickErrors++;
+      const now = Date.now();
+      if (now - lastTickErrorLog > 1000) {
+        lastTickErrorLog = now;
+        console.error(`[TICK_ERROR] (${consecutiveTickErrors} consecutive)`, err);
+      }
+      if (consecutiveTickErrors >= 300) {
+        console.error('[TICK_ERROR] game loop is permanently broken, shutting down');
+        stop('brokenTickLoop');
+      }
+    }
   });
   loop.onTpsUpdate = (tps) => {
     game.tps = tps;
@@ -137,7 +153,7 @@ function start() {
     }
 
     console.log('All games saved. Exiting...');
-    process.exit(0);
+    process.exit(reason === 'SIGTERM' || reason === 'SIGINT' ? 0 : 1);
   } catch (err) {
     console.error(err);
     process.exit(1);
@@ -157,8 +173,7 @@ function start() {
     stop('uncaughtException');
   });
 
-  process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled rejection', reason, promise);
-    stop('unhandledRejection');
+  process.on('unhandledRejection', (reason) => {
+    console.error('Unhandled rejection (continuing)', reason);
   });
 }

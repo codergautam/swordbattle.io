@@ -5,6 +5,7 @@ import { postChat, fetchChatHistory } from '../../../../redux/clans/slice';
 import { clanChatMaxLength } from '../constants';
 import cosmetics from '../../../../game/cosmetics.json';
 import { getSkinScale } from '../../../../game/skinScales';
+import { withAssetVersion } from '../../../../assetVersion';
 
 const skinBase = 'assets/game/player/';
 const sendCooldownMs = 1500;
@@ -32,7 +33,7 @@ function skinImage(skinId: number | null): string | null {
   if (skinUrlCache[skinId]) return skinUrlCache[skinId];
   const skin = Object.values((cosmetics as any).skins).find((s: any) => s.id === skinId) as any;
   if (!skin) return null;
-  const url = `${skinBase}${skin.bodyFileName}`;
+  const url = withAssetVersion(`${skinBase}${skin.bodyFileName}`);
   skinUrlCache[skinId] = url;
   return url;
 }

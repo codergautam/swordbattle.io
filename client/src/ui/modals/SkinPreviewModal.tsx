@@ -4,6 +4,7 @@ import * as cosmetics from '../../game/cosmetics.json';
 import { updateAccountAsync } from '../../redux/account/slice';
 import api from '../../api';
 import { getSkinScale } from '../../game/skinScales';
+import { withAssetVersion } from '../../assetVersion';
 import './SkinPreviewModal.scss';
 
 const { skins } = cosmetics as any;
@@ -160,24 +161,24 @@ function SkinPreviewStage({ body, sword, scale, bg, evo }: { body: string; sword
 
   return (
     <div className="sps-stage" ref={stageRef}>
-      <div className="sps-bg" style={{ backgroundImage: `url(${tileBase}${bg})` }} />
+      <div className="sps-bg" style={{ backgroundImage: `url(${withAssetVersion(tileBase + bg)})` }} />
 
       <div className="sps-shadowlayer" style={{ transform: `translateY(${shadowShiftPct}%)` }}>
         <div className="sps-player" ref={shadowPlayerRef}>
           <div className="sps-swordwrap" ref={shadowSwordWrapRef}>
-            <img className="sps-sword-sh" src={playerBase + sword} alt="" draggable={false} style={{ transform: swordShTf }} />
+            <img className="sps-sword-sh" src={withAssetVersion(playerBase + sword)} alt="" draggable={false} style={{ transform: swordShTf }} />
           </div>
-          <img className="sps-body-sh" src={playerBase + body} alt="" draggable={false} style={{ transform: bodyShTf }} />
-          {evo && <img className="sps-overlay-sh" src={evoBase + evo.img} alt="" draggable={false} style={overlayStyle(evo, true)} />}
+          <img className="sps-body-sh" src={withAssetVersion(playerBase + body)} alt="" draggable={false} style={{ transform: bodyShTf }} />
+          {evo && <img className="sps-overlay-sh" src={withAssetVersion(evoBase + evo.img)} alt="" draggable={false} style={overlayStyle(evo, true)} />}
         </div>
       </div>
 
       <div className="sps-player sps-player-main" ref={playerRef}>
         <div className="sps-swordwrap" ref={swordWrapRef}>
-          <img className="sps-sword" src={playerBase + sword} alt="" draggable={false} style={{ transform: swordTf }} />
+          <img className="sps-sword" src={withAssetVersion(playerBase + sword)} alt="" draggable={false} style={{ transform: swordTf }} />
         </div>
-        <img className="sps-body" src={playerBase + body} alt="" draggable={false} style={{ transform: bodyTf }} />
-        {evo && <img className="sps-overlay" src={evoBase + evo.img} alt="" draggable={false} style={overlayStyle(evo, false)} />}
+        <img className="sps-body" src={withAssetVersion(playerBase + body)} alt="" draggable={false} style={{ transform: bodyTf }} />
+        {evo && <img className="sps-overlay" src={withAssetVersion(evoBase + evo.img)} alt="" draggable={false} style={overlayStyle(evo, false)} />}
       </div>
     </div>
   );
@@ -262,7 +263,7 @@ export default function SkinPreviewModal({ skinId }: { skinId: number }) {
                 <button
                   key={b.key}
                   className={`sp-biome ${bg === b.img ? 'active' : ''}`}
-                  style={{ backgroundImage: `url(${tileBase}${b.img})` }}
+                  style={{ backgroundImage: `url(${withAssetVersion(tileBase + b.img)})` }}
                   title={b.label}
                   onClick={() => setBg(b.img)}
                 />
@@ -281,7 +282,7 @@ export default function SkinPreviewModal({ skinId }: { skinId: number }) {
                   title={e.name}
                   onClick={() => setEvo(e)}
                 >
-                  <img src={evoBase + e.img} alt={e.name} draggable={false} />
+                  <img src={withAssetVersion(evoBase + e.img)} alt={e.name} draggable={false} />
                 </button>
               ))}
             </div>

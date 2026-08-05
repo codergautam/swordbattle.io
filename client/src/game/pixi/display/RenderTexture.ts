@@ -1,8 +1,12 @@
-import { RenderTexture as PixiRT } from 'pixi.js';
+import { Container as PixiContainer, RenderTexture as PixiRT } from 'pixi.js';
 import { Sprite } from './Sprite';
+
+type BatchEntry = { child: any; x: number; y: number; px: number; py: number; visible: boolean; renderable: boolean; parent: any };
 
 export class RenderTexture extends Sprite {
   rt: PixiRT;
+  private static scratch: PixiContainer | null = null;
+  private batchList: BatchEntry[] | null = null;
 
   constructor(x = 0, y = 0, width = 32, height = 32) {
     const rt = PixiRT.create({ width: Math.max(1, Math.ceil(width)), height: Math.max(1, Math.ceil(height)), resolution: 1 });
@@ -28,10 +32,51 @@ export class RenderTexture extends Sprite {
     return this;
   }
 
-  beginDraw(): this { return this; }
-  endDraw(): this { return this; }
+  beginDraw(): this { this.batchList = []; return this; }
+
+  batchDraw(child: any, x?: number, y?: number): this {
+    if (!this.batchList) return this.draw(child, x, y);
+    if (!child) return this;
+    const moved = x !== undefined;
+    this.batchList.push({
+      child,
+      x: moved ? (x as number) : child.x,
+      y: moved ? (y === undefined ? (x as number) : y) : child.y,
+      px: child.x, py: child.y,
+      visible: child.visible, renderable: child.renderable,
+      parent: child.parent,
+    });
+    return this;
+  }
+
+  endDraw(): this {
+    const list = this.batchList;
+    this.batchList = null;
+    if (!list || !list.length) return this;
+    const r = this._renderer();
+    if (!r) return this;
+    let scratch = RenderTexture.scratch;
+    if (!scratch) scratch = RenderTexture.scratch = new PixiContainer();
+    for (const e of list) {
+      e.child.visible = true;
+      e.child.renderable = true;
+      e.child.position.set(e.x, e.y);
+      scratch.addChild(e.child);
+    }
+    try {
+      r.render(scratch, { renderTexture: this.rt, clear: false, skipUpdateTransform: false });
+    } catch (e) { /* noop */ }
+    for (const e of list) {
+      scratch.removeChild(e.child);
+      if (e.parent) e.parent.addChild(e.child);
+      e.child.visible = e.visible;
+      e.child.renderable = e.renderable;
+      e.child.position.set(e.px, e.py);
+    }
+    return this;
+  }
+
   batchDrawFrame(): this { return this; }
-  batchDraw(child: any, x?: number, y?: number): this { return this.draw(child, x, y); }
 
   draw(child: any, x?: number, y?: number): this {
     const r = this._renderer();

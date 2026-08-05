@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import api from '../../api';
@@ -6,6 +6,7 @@ import { numberWithCommas, secondsToTime, sinceFrom, fixDate } from '../../helpe
 import cosmetics from '../../game/cosmetics.json';
 import SkinView from '../SkinView';
 import { getSkinScale } from '../../game/skinScales';
+import { withAssetVersion } from '../../assetVersion';
 import './ProfileModal.scss';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -46,20 +47,36 @@ function gameAge(dateLike: any) {
   return { text, color, bold };
 }
 
+const dayMs = 86400000;
+const maxGraphPoints = 400;
+
 function buildGraph(dailyStats: any[]) {
-  const stats = [...dailyStats].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  const dates: Date[] = [];
-  let d = new Date(stats[0].date);
-  d.setDate(d.getDate() - 1);
-  const end = new Date(stats[stats.length - 1].date);
-  for (; d <= end; d.setDate(d.getDate() + 1)) dates.push(new Date(d));
+  const xpByDay = new Map<number, number>();
+  let minDay = Infinity;
+  let maxDay = -Infinity;
+  for (const s of dailyStats) {
+    const t = new Date(s.date).getTime();
+    if (Number.isNaN(t)) continue;
+    const day = Math.floor(t / dayMs);
+    xpByDay.set(day, (xpByDay.get(day) || 0) + (s.xp || 0));
+    if (day < minDay) minDay = day;
+    if (day > maxDay) maxDay = day;
+  }
+  if (!Number.isFinite(minDay)) return null;
+  const totalDays = maxDay - minDay + 2;
+  const step = Math.max(1, Math.ceil(totalDays / maxGraphPoints));
+  const labels: string[] = [];
+  const points: number[] = [];
   let running = 0;
-  const points = dates.map((date) => {
-    const s = stats.find((x) => fixDate(new Date(x.date)).toLocaleDateString() === fixDate(date).toLocaleDateString());
-    return s ? (running += s.xp) : running;
-  });
+  for (let day = minDay - 1, i = 0; day <= maxDay; day++, i++) {
+    running += xpByDay.get(day) || 0;
+    if (i % step === 0 || day === maxDay) {
+      labels.push(fixDate(new Date(day * dayMs)).toLocaleDateString());
+      points.push(running);
+    }
+  }
   return {
-    labels: dates.map((date) => fixDate(date).toLocaleDateString()),
+    labels,
     datasets: [{
       label: 'Total XP',
       data: points,
@@ -112,8 +129,15 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ username }) => {
   const acc = data?.account;
   const ts = data?.totalStats;
   const skin = skinFiles(acc?.skins?.equipped);
-  const sortedGames = [...(games || [])].sort((a, b) => b[gameSort] - a[gameSort]).slice(0, 10);
+  const sortedGames = useMemo(
+    () => [...(games || [])].sort((a, b) => b[gameSort] - a[gameSort]).slice(0, 10),
+    [games, gameSort],
+  );
   const dailyStats = data?.dailyStats;
+  const graphData = useMemo(
+    () => (dailyStats && dailyStats.length > 1 ? buildGraph(dailyStats) : null),
+    [dailyStats],
+  );
 
   return (
     <div className="profile-modal">
@@ -125,7 +149,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ username }) => {
         <div className="profile-scroll">
           <div
             className="profile-banner"
-            style={{ backgroundImage: "linear-gradient(180deg, rgba(20,26,38,0.22), rgba(20,26,38,0.45)), url('assets/game/tiles/ice-new.png')" }}
+            style={{ backgroundImage: "linear-gradient(180deg, rgba(20,26,38,0.22), rgba(20,26,38,0.45)), url('" + withAssetVersion('assets/game/tiles/ice-new.png') + "')" }}
           >
             <div className="profile-skin"><SkinView body={skin.body} sword={skin.sword} scale={skin.scale} shadow /></div>
             <div className="profile-id">
@@ -194,11 +218,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ username }) => {
               </table>
             </div>
 
-            {dailyStats && dailyStats.length > 1 && (
+            {graphData && (
               <div className="profile-section">
                 <div className="profile-section-head"><h3>Total XP</h3></div>
                 <div className="profile-chart">
-                  <Line data={buildGraph(dailyStats)} options={chartOptions} />
+                  <Line data={graphData} options={chartOptions} />
                 </div>
               </div>
             )}
@@ -209,5 +233,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ username }) => {
   );
 };
 
-ProfileModal.displayName = 'ProfileModal';
-export default ProfileModal;
+const MemoProfileModal = memo(ProfileModal);
+MemoProfileModal.displayName = 'ProfileModal';
+export default MemoProfileModal;

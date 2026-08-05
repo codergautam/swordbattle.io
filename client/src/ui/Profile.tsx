@@ -8,6 +8,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import './Profile.scss';
 import cosmetics from '../game/cosmetics.json';
 import { getSkinScale } from '../game/skinScales';
+import { withAssetVersion } from '../assetVersion';
 import clsx from 'clsx';
 import Ad from './Ad';
 import { crazygamesSDK } from '../crazygames/sdk';
@@ -189,10 +190,10 @@ export default function Profile() {
         <h1>
           <img
             src={
-              'assets/game/player/' +
+              withAssetVersion('assets/game/player/' +
               Object.values(cosmetics.skins).find(
                 (skin: any) => skin.id === data.account.skins.equipped
-              )?.bodyFileName
+              )?.bodyFileName)
             }
             alt="Equipped skin"
             className="equipped-skin"

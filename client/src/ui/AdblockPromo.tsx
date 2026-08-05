@@ -1,4 +1,5 @@
 import gemRewardImg from '../assets/img/gem-reward.png';
+import { withAssetVersion } from '../assetVersion';
 
 const textOutline = '-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 3px 0 #000';
 
@@ -27,7 +28,7 @@ export default function AdblockPromo({ w, h, centerOnOverflow }: { w: number; h:
         cursor: 'pointer',
         userSelect: 'none',
         backgroundColor: '#4c8f34',
-        backgroundImage: "url('assets/game/tiles/alpine.jpg')",
+        backgroundImage: `url('${withAssetVersion('assets/game/tiles/alpine.jpg')}')`,
         backgroundSize: '350px',
         backgroundRepeat: 'repeat',
         fontFamily: "'Saira', sans-serif",

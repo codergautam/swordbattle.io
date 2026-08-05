@@ -5,6 +5,7 @@ import api from '../../api';
 import { numberWithCommas, secondsToTime, sinceFrom } from '../../helpers';
 import cosmetics from '../../game/cosmetics.json';
 import { getSkinScale } from '../../game/skinScales';
+import { withAssetVersion } from '../../assetVersion';
 import ModalAd from '../ModalAd';
 import './RankingsTab.scss';
 
@@ -28,7 +29,7 @@ const ranges: Record<string, string> = {
 const skinBody: Record<number, string> = {};
 Object.values((cosmetics as any).skins).forEach((s: any) => { skinBody[s.id] = s.bodyFileName; });
 function skinSrc(skinId?: number) {
-  return `assets/game/player/${skinBody[skinId ?? 1] || 'player.png'}`;
+  return withAssetVersion(`assets/game/player/${skinBody[skinId ?? 1] || 'player.png'}`);
 }
 
 function gameAge(dateLike: any): { text: string; color?: string; bold: boolean } {

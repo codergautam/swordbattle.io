@@ -1,10 +1,5 @@
 import { TextureManager } from './TextureManager';
-
-const assetVer: string = (process.env.REACT_APP_ASSET_VER as string) || '';
-function withAssetVersion(url: string): string {
-  if (!assetVer || typeof url !== 'string' || url.indexOf('/assets/') === -1 || /[?&]v=/.test(url)) return url;
-  return url + (url.indexOf('?') === -1 ? '?' : '&') + 'v=' + assetVer;
-}
+import { withAssetVersion } from '../../../assetVersion';
 
 type ProgressCb = (value: number) => void;
 type CompleteCb = () => void;

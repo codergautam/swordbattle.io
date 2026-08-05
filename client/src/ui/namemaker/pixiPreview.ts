@@ -11,6 +11,7 @@ import {
   SCALE_MODES,
 } from 'pixi.js';
 import * as cosmetics from '../../game/cosmetics.json';
+import { withAssetVersion } from '../../assetVersion';
 import { NameStyle, CLAN_COLOR } from '../../game/nameStyles';
 import { buildNameTag } from '../../game/pixiNameTag';
 
@@ -235,7 +236,7 @@ export class PixiNamePreview {
   }
 
   private async loadTexture(url: string): Promise<Texture> {
-    const tex: Texture = await Assets.load(url);
+    const tex: Texture = await Assets.load(withAssetVersion(url));
     tex.baseTexture.scaleMode = SCALE_MODES.LINEAR;
     return tex;
   }

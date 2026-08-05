@@ -1,4 +1,5 @@
 import './SkinView.scss';
+import { withAssetVersion } from '../assetVersion';
 
 const base = 'assets/game/player/';
 
@@ -48,7 +49,7 @@ export default function SkinView({
         <>
           <img
             className="sv-shadow"
-            src={base + sword}
+            src={withAssetVersion(base + sword)}
             alt=""
             draggable={false}
             loading="lazy"
@@ -57,7 +58,7 @@ export default function SkinView({
           />
           <img
             className="sv-shadow"
-            src={base + body}
+            src={withAssetVersion(base + body)}
             alt=""
             draggable={false}
             loading="lazy"
@@ -68,7 +69,7 @@ export default function SkinView({
       )}
       <img
         className="sv-sword"
-        src={base + sword}
+        src={withAssetVersion(base + sword)}
         alt=""
         draggable={false}
         loading="lazy"
@@ -77,7 +78,7 @@ export default function SkinView({
       />
       <img
         className="sv-body"
-        src={base + body}
+        src={withAssetVersion(base + body)}
         alt=""
         draggable={false}
         loading="lazy"

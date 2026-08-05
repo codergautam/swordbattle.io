@@ -82,6 +82,7 @@ export class SoundSystem {
           if (playConfig && playConfig.detune) { try { (src as any).detune.value = playConfig.detune; } catch (e) { /* noop */ } }
           if (playConfig && playConfig.loop) src.loop = true;
           src.connect(g); g.connect(sys._master);
+          src.onended = () => { try { src.disconnect(); g.disconnect(); } catch (e) { /* noop */ } };
           src.start(0);
         } catch (e) { return false; }
         return true;

@@ -46,6 +46,7 @@ test('rename with identical value is detected as a rename, not exit+entry', () =
   const newTop = rows('A', 'B', 'Cx');
   const d = diffTop(oldTop, newTop);
   assert.deepEqual(d.renames, [{ from: 'C', to: 'Cx', rank: 3, value: 980 }]);
+  assert.equal(d.newEntries.length, 0);
   assert.equal(d.exits.length, 0);
   assert.equal(d.rankUps.length, 0);
   assert.equal(d.rankDowns.length, 0);

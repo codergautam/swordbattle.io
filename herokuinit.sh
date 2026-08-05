@@ -18,5 +18,8 @@ ls
 cd ../server
 yarn install
 
+cd ../discord-bots
+npm ci
+
 cd ..
 chmod +x herokustart.sh

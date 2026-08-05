@@ -20,6 +20,13 @@ export SERVER_PORT=8080
   pm2 start yarn --name server --max-memory-restart 200M -- start
 )
 
+if [ -n "$SUPPORT_BOT_TOKEN" ] || [ -n "$METRICS_BOT_TOKEN" ] || [ -n "$LEADERBOARD_BOT_TOKEN" ]; then
+  (
+    cd discord-bots
+    pm2 start npm --name bots --max-memory-restart 150M -- start
+  )
+fi
+
 echo "Deployment complete"
 echo "Starting proxy server..."
 

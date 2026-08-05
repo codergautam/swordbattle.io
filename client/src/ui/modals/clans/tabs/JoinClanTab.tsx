@@ -6,7 +6,6 @@ import {
   fetchRecommended, searchClans, fetchClanProfile,
 } from '../../../../redux/clans/slice';
 import ClanListEntry from '../ClanListEntry';
-import XpGateOverlay from '../XpGateOverlay';
 import { clanXpRequirement } from '../constants';
 import ClanProfile from '../ClanProfile';
 
@@ -74,8 +73,7 @@ export default function JoinClanTab({ account, selectedClanId, setSelectedClanId
   const list = searchResults.length > 0 ? searchResults : recommended;
 
   return (
-    <div style={{ position: 'relative' }}>
-      {!eligible && <XpGateOverlay currentXp={account.xp ?? 0} />}
+    <div>
 
       <div className="clans-search-bar">
         <button onClick={() => setShowFilters((v) => !v)} title="Filters">⚙</button>

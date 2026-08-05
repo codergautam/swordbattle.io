@@ -42,3 +42,7 @@ html, body {
 #imaContainer_new {
  cursor: default;
 }
+
+body.sb-rewarded-ad #adinplay-progress-text + a {
+  display: none !important;
+}

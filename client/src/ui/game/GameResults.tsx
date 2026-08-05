@@ -8,7 +8,7 @@ import HomeImg from '../../assets/img/home.png';
 import gemRewardImg from '../../assets/img/gem-reward.png';
 import './GameResults.scss';
 import { DisconnectTypes } from '../../game/Types';
-import { calculateGemsXP, playVideoAd, isAdBlockActive } from '../../helpers';
+import { calculateGemsXP, playVideoAd, playRewardedAd, isAdBlockActive } from '../../helpers';
 import { crazygamesSDK } from '../../crazygames/sdk';
 import api from '../../api';
 import { updateAccountAsync } from '../../redux/account/slice';
@@ -57,21 +57,57 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
   const xpBonusActive = xpBonusExpiry && xpBonusExpiry > Date.now();
 
   const baseGems = useMemo(() => calculateGemsXP(results.coins || 0, results.kills || 0, 0).gems, [results]);
-  const [adblockActive] = useState(() => isAdBlockActive());
+  const [adblockActive, setAdblockActive] = useState(() => isAdBlockActive());
   const [gemBonus, setGemBonus] = useState<'idle' | 'loading' | 'done'>('idle');
+  const [noAdblockClaimed, setNoAdblockClaimed] = useState(false);
+
+  useEffect(() => {
+    const h = () => setAdblockActive(isAdBlockActive());
+    window.addEventListener('adblockStatusChanged', h);
+    return () => window.removeEventListener('adblockStatusChanged', h);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn || adblockActive || baseGems <= 0) return;
+    let cancelled = false;
+    let attempt = 0;
+    const tryClaim = () => {
+      if (cancelled) return;
+      attempt++;
+      api.post(`${api.endpoint}/auth/claim-gem-bonus`, { sources: ['noadblock'] }, (data: any) => {
+        if (cancelled) return;
+        if (data && (data.success || (data.claimed || []).includes('noadblock'))) {
+          setNoAdblockClaimed(true);
+          dispatch(updateAccountAsync() as any);
+        } else if (attempt < 4) {
+          setTimeout(tryClaim, 1200 * attempt);
+        }
+      });
+    };
+    tryClaim();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const gemMultiplier = (gemBonus === 'done' ? 2 : 1) * (noAdblockClaimed ? 2 : 1);
+  const gemMultState = gemBonus === 'done'
+    ? (noAdblockClaimed ? 'both' : 'ad')
+    : (noAdblockClaimed ? 'noadblock' : 'none');
 
   const onDoubleGems = () => {
     if (gemBonus !== 'idle' || adblockActive) return;
     setGemBonus('loading');
     trackAd('video_request', { ad_format: 'rewarded', placement: 'reward_2x' });
-    playVideoAd(true).then(() => {
+    playRewardedAd().then(({ success }) => {
+      if (!success) { setGemBonus('idle'); return; }
       trackAd('rewarded_complete', { ad_format: 'rewarded', placement: 'reward_2x' });
-      api.post(`${api.endpoint}/auth/claim-gem-bonus`, {}, (data: any) => {
+      api.post(`${api.endpoint}/auth/claim-gem-bonus`, { sources: ['ad'] }, (data: any) => {
         if (data && data.success) {
           trackAd('rewarded_claimed', { ad_format: 'rewarded', placement: 'reward_2x' });
           setGemBonus('done');
           dispatch(updateAccountAsync() as any);
         } else {
+          console.warn('[2xGems] claim failed', data);
           setGemBonus('idle');
         }
       });
@@ -228,11 +264,12 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
         </div>
         { isLoggedIn && (
           <>
-        <div className="info">
-          <div className="title">Gems Gained</div>
+        <div className={`info gem-info gem-mult-${gemMultState}`}>
+          <div className="title">Gems Gained{gemMultiplier > 1 ? ` (${gemMultiplier}x)` : ''}</div>
           <CountUp
-            end={calculateGemsXP(results.coins, results.kills, 0).gems}
+            end={baseGems * gemMultiplier}
             duration={3}
+            preserveValue
           />
         </div>
         <div className="info">
@@ -267,7 +304,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
           ) : gemBonus === 'done' ? (
             <div className="double-gems-done">
               <img className="dg-icon" src={gemRewardImg} alt="" />
-              <span>Gems doubled! +{baseGems.toLocaleString()}</span>
+              <span>Gems {gemMultiplier}&#215;! +{(baseGems * (gemMultiplier - (noAdblockClaimed ? 2 : 1))).toLocaleString()}</span>
             </div>
           ) : (
             <button
@@ -277,7 +314,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
               onClick={onDoubleGems}
             >
               <img className="dg-icon" src={gemRewardImg} alt="" />
-              <span>{gemBonus === 'loading' ? 'Loading ad…' : 'Watch ad for 2× Gems'}</span>
+              <span>{gemBonus === 'loading' ? 'Loading ad…' : `Watch ad for ${noAdblockClaimed ? '4' : '2'}× Gems`}</span>
             </button>
           )}
         </div>

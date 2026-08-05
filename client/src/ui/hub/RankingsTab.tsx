@@ -4,6 +4,7 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import api from '../../api';
 import { numberWithCommas, secondsToTime, sinceFrom } from '../../helpers';
 import cosmetics from '../../game/cosmetics.json';
+import { getSkinScale } from '../../game/skinScales';
 import ModalAd from '../ModalAd';
 import './RankingsTab.scss';
 
@@ -143,7 +144,7 @@ export default function RankingsTab({ onViewProfile }: { onViewProfile?: (userna
       >
         <span className="rk-rank">{i + 1}</span>
         <div className="rk-skin">
-          <img src={skinSrc(row.skinId)} alt="" draggable={false} />
+          <img src={skinSrc(row.skinId)} alt="" draggable={false} style={{ transform: `scale(${getSkinScale(row.skinId ?? 1)})` }} />
         </div>
         <div className="rk-main">
           <div className="rk-name">

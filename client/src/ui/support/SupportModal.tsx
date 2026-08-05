@@ -474,4 +474,6 @@ function SupportModal({ account }: any) {
   );
 }
 
+SupportModal.displayName = 'SupportModal';
+
 export default SupportModal;

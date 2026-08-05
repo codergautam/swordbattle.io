@@ -7,6 +7,7 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import './Profile.scss';
 import cosmetics from '../game/cosmetics.json';
+import { getSkinScale } from '../game/skinScales';
 import clsx from 'clsx';
 import Ad from './Ad';
 import { crazygamesSDK } from '../crazygames/sdk';
@@ -195,6 +196,7 @@ export default function Profile() {
             }
             alt="Equipped skin"
             className="equipped-skin"
+            style={{ transform: `scale(${getSkinScale(data.account.skins.equipped)})` }}
           />
           {data.clan?.clan && (
             <span style={{ color: 'yellow' }}>[{data.clan.clan.tag}]</span>

@@ -132,4 +132,6 @@ function SettingsModal() {
   );
 }
 
+SettingsModal.displayName = 'SettingsModal';
+
 export default SettingsModal;

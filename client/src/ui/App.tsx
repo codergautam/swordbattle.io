@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { cloneElement, useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -67,7 +67,20 @@ try {
   debugMode = window.location.search.includes("debugAlertMode");
   } catch(e) {}
 
-const fullscreenModals = ['ShopModal', 'RewardsModal', 'InventoryModal', 'ProfileModal', 'FullChangelogModal'];
+const modalClasses = new Map<any, string>([
+  [ShopModal, 'modal-fullscreen'],
+  [RewardsModal, 'modal-fullscreen'],
+  [InventoryModal, 'modal-fullscreen'],
+  [ProfileModal, 'modal-fullscreen'],
+  [FullChangelogModal, 'modal-fullscreen'],
+  [SettingsModal, 'modal-settings'],
+  [LoginModal, 'modal-auth'],
+  [SignupModal, 'modal-auth'],
+  [HubModal, 'modal-hub'],
+  [ClansModal, 'modal-clans'],
+  [SupportModal, 'modal-support'],
+]);
+const instantSwapModals = new Set<any>([ShopModal, RewardsModal, InventoryModal, ProfileModal, FullChangelogModal]);
 const modalCloseMs = 200;
 
 function App({ moreAds = false }: { moreAds?: boolean }) {
@@ -987,8 +1000,13 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
   useEffect(() => {
     if (modal === shownModal) return;
     if (shownModal) {
-      const n = shownModal.type?.displayName || shownModal.type?.name;
-      if (fullscreenModals.includes(n)) {
+      if (modal && shownModal.type === modal.type) {
+        clearTimeout(modalCloseTimer.current);
+        setShownModal(modal);
+        setModalClosing(false);
+        return;
+      }
+      if (instantSwapModals.has(shownModal.type)) {
         setShownModal(modal);
         setModalClosing(false);
         return;
@@ -1115,11 +1133,8 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
   };
 
   useEffect(() => {
-    if (modal?.type?.displayName === 'ShopModal') {
-      setModal(<ShopModal account={account} />);
-    }
-    if (modal?.type?.displayName === 'RewardsModal') {
-      setModal(<RewardsModal account={account} />);
+    if (modal && modal.type === HubModal) {
+      setModal(cloneElement(modal, { account }));
     }
     if(account.is_v1) {
       setModal(<MigrationModal account={account} />);
@@ -1356,7 +1371,7 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
             <img src={DiscordLogo} width={60} alt="Discord" />
           </a>
           </div>
-          {shownModal && (() => { const n = shownModal.type.displayName || shownModal.type.name; const isFullscreen = fullscreenModals.includes(n); const isSettings = n === 'SettingsModal'; const isAuth = n === 'LoginModal' || n === 'SignupModal'; const isHub = n === 'HubModal'; const isClans = n === 'ClansModal'; const isSupport = n === 'SupportModal'; const cls = isFullscreen ? 'modal-fullscreen' : (isSettings ? 'modal-settings' : (isAuth ? 'modal-auth' : (isHub ? 'modal-hub' : (isClans ? 'modal-clans' : (isSupport ? 'modal-support' : ''))))); return <Modal key={n} child={shownModal} requestClose={closeModal} scaleDisabled={isFullscreen || isSettings || isHub || isClans || isSupport || isAuth} className={cls} backdrop={isAuth || isSettings || isHub || isClans || isSupport} backdropClass={isSettings ? 'modal-backdrop-clear' : ''} closing={modalClosing} />; })()}
+          {shownModal && (() => { const cls = modalClasses.get(shownModal.type) ?? ''; const isFullscreen = cls === 'modal-fullscreen'; const isSettings = cls === 'modal-settings'; return <Modal key={shownModal.type.displayName || shownModal.type.name} child={shownModal} requestClose={closeModal} scaleDisabled={!!cls} className={cls} backdrop={!!cls && !isFullscreen} backdropClass={isSettings ? 'modal-backdrop-clear' : ''} closing={modalClosing} />; })()}
           {profileUser && (
             <Modal
               key="profile-overlay"

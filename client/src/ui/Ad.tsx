@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { config } from "../config";
 import { crazygamesSDK } from "../crazygames/sdk";
 import { trackAd } from "../analytics";
-import { isAdBlockBait } from "../helpers";
+import { getAdblockStatus } from "../crazygames/adblock";
 import AdblockPromo from "./AdblockPromo";
 
 const AD_REFRESH_MS = 30000; // refresh ad every 30 seconds
@@ -28,13 +28,21 @@ function isAdsDisabled(): boolean {
 export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThresh = 0.3, placement, adblockPromo }: { screenW: number, screenH: number, types: [number, number][]; centerOnOverflow?: number; horizThresh?: number; placement?: string; adblockPromo?: boolean }) {
   const [type, setType] = useState(findAdType(screenW, screenH, types, horizThresh));
   const [adProvider, setAdProvider] = useState<string>((window as any).adProvider || 'adinplay');
-  const [adblock] = useState(() => (adblockPromo ? isAdBlockBait() : false));
+  const [adblock, setAdblock] = useState(() => (adblockPromo ? getAdblockStatus() : false));
   const showMock = debug;
   const typesKey = types.map((t) => `${t[0]}x${t[1]}`).join('|');
 
   useEffect(() => {
     setType(findAdType(screenW, screenH, types, horizThresh));
   }, [screenW, screenH, types, horizThresh]);
+
+  useEffect(() => {
+    if (!adblockPromo) return;
+    const h = (e: Event) => setAdblock(!!(e as CustomEvent).detail);
+    window.addEventListener('adblockStatusChanged', h);
+    setAdblock(getAdblockStatus());
+    return () => window.removeEventListener('adblockStatusChanged', h);
+  }, [adblockPromo]);
 
   useEffect(() => {
     if (isAdsDisabled() || type === -1 || showMock || (adblockPromo && adblock)) return;
@@ -71,7 +79,7 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
       }
     }
   } catch(e) {
-    alert("error clearing ad");
+    console.warn('error clearing ad', e);
   }
   if(type === -1) return;
     if(windowAny.aiptag && windowAny.aiptag.cmd && windowAny.aiptag.cmd.display) {
@@ -91,11 +99,13 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
   }, [type, adProvider, placement, typesKey]);
 
   if (isAdsDisabled()) return null;
-  if(type === -1) return null;
 
   if (adblockPromo && adblock) {
-    return <AdblockPromo w={types[type][0]} h={types[type][1]} centerOnOverflow={centerOnOverflow} />;
+    const t = type === -1 ? 0 : type;
+    return <AdblockPromo w={Math.min(types[t][0], screenW)} h={types[t][1]} centerOnOverflow={centerOnOverflow} />;
   }
+
+  if(type === -1) return null;
 
   const w = types[type][0];
   const h = types[type][1];

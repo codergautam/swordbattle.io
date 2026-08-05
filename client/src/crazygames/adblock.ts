@@ -3,34 +3,52 @@
  Certain features can be disabled (but most likely wont)
 */
 
-import { crazygamesSDK } from './sdk';
-
 let hasAdblock = false;
 let adblockChecked = false;
 
-/* check if the user has an adblocker */
+export function isAdScriptBlocked(): boolean {
+  const w = window as any;
+  if (w._isCrazyGamesBasicLaunch) return false;
+  const provider = w.adProvider || 'adinplay';
+  return provider === 'adinplay' && !!w.aiptag
+    && typeof w.aipDisplayTag === 'undefined'
+    && typeof w.aipPlayer === 'undefined';
+}
+
+function baitBlocked(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if ((window as any)._isCrazyGamesBasicLaunch) return resolve(false);
+    let bait: HTMLDivElement;
+    try {
+      bait = document.createElement('div');
+      bait.className = 'adsbox ad-banner ads ad pub_300x250 text-ad textAd';
+      bait.style.cssText = 'position:absolute;left:-9999px;top:-9999px;height:2px;width:2px;';
+      document.body.appendChild(bait);
+    } catch (e) { return resolve(false); }
+    setTimeout(() => {
+      let blocked = false;
+      try {
+        blocked = bait.offsetParent === null || bait.offsetHeight === 0
+          || window.getComputedStyle(bait).display === 'none';
+      } catch (e) {}
+      try { bait.remove(); } catch (e) {}
+      resolve(blocked);
+    }, 300);
+  });
+}
+
+async function runCheck() {
+  const blocked = (await baitBlocked()) || isAdScriptBlocked();
+  adblockChecked = true;
+  if (blocked === hasAdblock) return;
+  hasAdblock = blocked;
+  window.dispatchEvent(new CustomEvent('adblockStatusChanged', { detail: blocked }));
+}
+
 export async function detectAdblock(): Promise<boolean> {
-  if (adblockChecked) {
-    return hasAdblock;
-  }
-
-  try {
-    hasAdblock = await crazygamesSDK.hasAdblock();
-    adblockChecked = true;
-
-    if (hasAdblock) {
-      console.warn('[CrazyGames] Adblock detected');
-    } else {
-      console.log('[CrazyGames] No adblock detected');
-    }
-
-    return hasAdblock;
-  } catch (error) {
-    console.error('[CrazyGames] Error detecting adblock:', error);
-    adblockChecked = true;
-    hasAdblock = false;
-    return false;
-  }
+  await runCheck();
+  for (const delay of [3500, 8000, 15000]) setTimeout(runCheck, delay);
+  return hasAdblock;
 }
 
 export function getAdblockStatus(): boolean {

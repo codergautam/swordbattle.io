@@ -38,11 +38,6 @@ export class StatsService {
     let tokens = data.tokens;
     await this.accountsService.addGems(account, gems, "game");
 
-    if (gems > 0) {
-      account.dailyLogin = { ...account.dailyLogin, pendingGemBonus: { amount: gems, at: Date.now() } };
-      await this.accountsService.saveAccount(account);
-    }
-
     await this.accountsService.addMastery(account, mastery, "game");
 
     await this.accountsService.addXp(account, data.xp);
@@ -57,6 +52,11 @@ export class StatsService {
       if (dl.playtime >= 900) {
         await this.accountsService.applyPlayBonus(account);
       }
+    }
+
+    if (gems > 0) {
+      account.dailyLogin = { ...account.dailyLogin, pendingGemBonus: { amount: gems, at: Date.now() } };
+      await this.accountsService.saveAccount(account);
     }
 
     return true;
@@ -190,13 +190,14 @@ export class StatsService {
     }
 
     if (timeRange === TimeRange.AllTime) {
-      return this.totalStatsRepository
+      const rows = await this.totalStatsRepository
         .createQueryBuilder('total_stats')
         .leftJoinAndSelect('total_stats.account', 'account', 'account.id = total_stats.id')
         .leftJoin('clan_members', 'cm', 'cm.accountId = account.id')
         .leftJoin('clans', 'clan', 'clan.id = cm.clanId')
         .select([
           'account.username as username',
+          'account.skins as skins',
           'clan.tag as clan_tag',
           'clan.name as clan_name',
           'clan.frameId as clan_frameId',
@@ -211,14 +212,17 @@ export class StatsService {
         .limit(limit)
         .orderBy('total_stats.' + sortBy, 'DESC')
         .getRawMany();
+
+      return rows.map(({ skins, ...row }) => ({ ...row, skinId: skins?.equipped ?? 1 }));
     } else {
-      return this.dailyStatsRepository
+      const rows = await this.dailyStatsRepository
         .createQueryBuilder('daily_stats')
         .leftJoinAndSelect('daily_stats.account', 'account', 'account.id = daily_stats.account_id')
         .leftJoin('clan_members', 'cm', 'cm.accountId = account.id')
         .leftJoin('clans', 'clan', 'clan.id = cm.clanId')
         .select([
           'account.username as username',
+          'account.skins as skins',
           'clan.tag as clan_tag',
           'clan.name as clan_name',
           'clan.frameId as clan_frameId',
@@ -234,6 +238,7 @@ export class StatsService {
         .limit(limit)
         .groupBy('daily_stats.account_id')
         .addGroupBy('account.username')
+        .addGroupBy('account.skins')
         .addGroupBy('clan.tag')
         .addGroupBy('clan.name')
         .addGroupBy('clan.frameId')
@@ -241,6 +246,8 @@ export class StatsService {
         .addGroupBy('clan.iconId')
         .orderBy('SUM(daily_stats.' + sortBy + ')', 'DESC')
         .getRawMany();
+
+      return rows.map(({ skins, ...row }) => ({ ...row, skinId: skins?.equipped ?? 1 }));
     }
   }
 

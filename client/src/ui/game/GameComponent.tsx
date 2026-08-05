@@ -9,7 +9,7 @@ import './GameComponent.scss';
 import Ad from '../Ad';
 import { crazygamesSDK } from '../../crazygames/sdk';
 import { trackRunStart, trackRunEnd } from '../../analytics';
-import { isAdBlockBait } from '../../helpers';
+import { getAdblockStatus } from '../../crazygames/adblock';
 
 declare global {
   interface Window {
@@ -24,7 +24,15 @@ const nohud = typeof window !== 'undefined' && window.location.search.includes('
 function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn, moreAds }: any) {
   const [gameResults, setGameResults] = useState<any>(null);
   const [playing, setPlaying] = useState(false);
-  const [moreAdsBlocked] = useState(() => (moreAds ? isAdBlockBait() : false));
+  const [moreAdsBlocked, setMoreAdsBlocked] = useState(() => (moreAds ? getAdblockStatus() : false));
+
+  useEffect(() => {
+    if (!moreAds) return;
+    const h = (e: Event) => setMoreAdsBlocked(!!(e as CustomEvent).detail);
+    window.addEventListener('adblockStatusChanged', h);
+    setMoreAdsBlocked(getAdblockStatus());
+    return () => window.removeEventListener('adblockStatusChanged', h);
+  }, [moreAds]);
   useEffect(() => {
     if (!game) {
       let gameplayStartCalled = false;

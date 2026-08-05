@@ -45,11 +45,15 @@ export class GamesService {
       where = { ...where, account: { id: fetchData.accountId } };
     }
 
-    return await this.gamesRepository
+    const rows = await this.gamesRepository
       .createQueryBuilder('game')
       .leftJoinAndSelect('game.account', 'account', 'account.id = game.account_id')
+      .leftJoin('clan_members', 'cm', 'cm.accountId = account.id')
+      .leftJoin('clans', 'clan', 'clan.id = cm.clanId')
       .select([
         'account.username as username',
+        'account.skins as skins',
+        'clan.tag as clan_tag',
         'game.created_at as date',
         'game.playtime as playtime',
         'game.coins as coins',
@@ -59,5 +63,7 @@ export class GamesService {
       .orderBy('game.' + sortBy, 'DESC')
       .limit(limit)
       .getRawMany();
+
+    return rows.map(({ skins, ...row }) => ({ ...row, skinId: skins?.equipped ?? 1 }));
   }
 }

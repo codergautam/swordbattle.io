@@ -78,8 +78,17 @@
     }
   }
 
+  .clans-body-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
   .clans-body {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     position: relative;
     padding-right: 8px;
@@ -239,6 +248,7 @@
   background: rgba(0, 0, 0, 0.7);
   z-index: 5;
   border-radius: 10px;
+  pointer-events: auto;
 
   &__inner {
     text-align: center;

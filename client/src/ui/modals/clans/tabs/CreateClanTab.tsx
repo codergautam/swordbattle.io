@@ -4,7 +4,6 @@ import { AccountState } from '../../../../redux/account/slice';
 import { createClan } from '../../../../redux/clans/slice';
 import { numberWithCommas } from '../../../../helpers';
 import ClanEmblem from '../ClanEmblem';
-import XpGateOverlay from '../XpGateOverlay';
 import GemImg from '../../../../assets/img/gem.png';
 import {
   allowedFrameIds, allowedIconIds, allowedFrameColors, allowedIconColors,
@@ -104,8 +103,7 @@ export default function CreateClanTab({ account, setLoadingLabel }: CreateClanTa
   };
 
   return (
-    <div style={{ position: 'relative' }}>
-      {!eligible && <XpGateOverlay currentXp={account.xp ?? 0} />}
+    <div>
       <div className="clans-form">
         <div className="clans-form__left">
           <div className="clans-form__field">

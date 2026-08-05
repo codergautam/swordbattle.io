@@ -25,6 +25,10 @@ export const skinBodyScales: { [id: number]: number } = {
   194: 1.1,
 };
 
+const previewOnlyScales: { [id: number]: number } = {
+  459: 1.25,
+};
+
 export function getSkinScale(id: number): number {
-  return skinBodyScales[id] ?? 1;
+  return skinBodyScales[id] ?? previewOnlyScales[id] ?? 1;
 }

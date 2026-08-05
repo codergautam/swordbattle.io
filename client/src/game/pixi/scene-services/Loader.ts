@@ -8,12 +8,17 @@ function withAssetVersion(url: string): string {
 
 type ProgressCb = (value: number) => void;
 type CompleteCb = () => void;
+type ErrorCb = (file?: any) => void;
 
 export class Loader {
   private queue: Array<{ key: string; url: string }> = [];
   private audioQueue: Array<{ key: string; url: string }> = [];
   private progressCbs: ProgressCb[] = [];
   private completeCbs: CompleteCb[] = [];
+  private errorCbs: ErrorCb[] = [];
+  private onceCompleteCbs: CompleteCb[] = [];
+  private onceErrorCbs: ErrorCb[] = [];
+  private inflight = new Map<string, Promise<boolean>>();
   private _textures: TextureManager;
   private _sound: any;
 
@@ -27,38 +32,80 @@ export class Loader {
   on(event: string, cb: any): this {
     if (event === 'progress') this.progressCbs.push(cb);
     else if (event === 'complete') this.completeCbs.push(cb);
+    else if (event === 'loaderror') this.errorCbs.push(cb);
+    return this;
+  }
+
+  once(event: string, cb: any): this {
+    if (event === 'complete') this.onceCompleteCbs.push(cb);
+    else if (event === 'loaderror') this.onceErrorCbs.push(cb);
+    else if (event === 'progress') {
+      const wrap = (v: number) => { this.off('progress', wrap); cb(v); };
+      this.progressCbs.push(wrap);
+    }
+    return this;
+  }
+
+  off(event: string, cb: any): this {
+    const drop = (arr: any[]) => { const i = arr.indexOf(cb); if (i >= 0) arr.splice(i, 1); };
+    if (event === 'progress') drop(this.progressCbs);
+    else if (event === 'complete') { drop(this.completeCbs); drop(this.onceCompleteCbs); }
+    else if (event === 'loaderror') { drop(this.errorCbs); drop(this.onceErrorCbs); }
     return this;
   }
 
   async start(): Promise<void> {
-    const total = this.queue.length + this.audioQueue.length;
-    if (total === 0) { this.emitProgress(1); this.emitComplete(); return; }
+    const imgQueue = this.queue.splice(0, this.queue.length);
+    const audQueue = this.audioQueue.splice(0, this.audioQueue.length);
+    const onceC = this.onceCompleteCbs.splice(0, this.onceCompleteCbs.length);
+    const onceE = this.onceErrorCbs.splice(0, this.onceErrorCbs.length);
+
+    const total = imgQueue.length + audQueue.length;
+    if (total === 0) { this.emitProgress(1); this.fireComplete(onceC); return; }
     let done = 0;
     const tick = () => { done++; this.emitProgress(done / total); };
-    const imgs = this.queue.map(({ key, url }) => this.loadImage(key, url).then(tick));
-    const auds = this.audioQueue.map(({ key, url }) =>
-      (this._sound ? this._sound.decode(key, Array.isArray(url) ? url[0] : url) : Promise.resolve()).then(tick),
+    const imgs = imgQueue.map(({ key, url }) => this.loadImage(key, url).then((ok) => { tick(); return ok ? null : { key, url, type: 'image' }; }));
+    const auds = audQueue.map(({ key, url }) =>
+      (this._sound ? this._sound.decode(key, Array.isArray(url) ? url[0] : url) : Promise.resolve()).then(() => { tick(); return null; }),
     );
-    await Promise.all([...imgs, ...auds]);
-    this.queue.length = 0;
-    this.audioQueue.length = 0;
-    this.emitComplete();
+    const results = await Promise.all([...imgs, ...auds]);
+
+    const failed = results.find((r) => r);
+    if (failed) this.fireError(failed, onceE);
+    this.fireComplete(onceC);
   }
 
-  private loadImage(key: string, url: string): Promise<void> {
-    return new Promise((resolve) => {
-      if (this._textures.exists(key)) { resolve(); return; }
+  private loadImage(key: string, url: string): Promise<boolean> {
+    if (this._textures.exists(key)) return Promise.resolve(true);
+    const pending = this.inflight.get(key);
+    if (pending) return pending;
+    const p = new Promise<boolean>((resolve) => {
       const img = new Image();
       let settled = false;
-      const finish = () => { if (settled) return; settled = true; clearTimeout(timer); resolve(); };
-      const timer = setTimeout(finish, 12000);
+      const finish = (ok: boolean) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        this.inflight.delete(key);
+        resolve(ok);
+      };
+      const timer = setTimeout(() => finish(false), 12000);
       img.crossOrigin = 'anonymous';
-      img.onload = () => { try { this._textures.addImage(key, img); } catch (e) {} finish(); };
-      img.onerror = () => { console.warn('[pixi-loader] failed to load', key, url); finish(); };
+      img.onload = () => { let ok = true; try { this._textures.addImage(key, img); } catch (e) { ok = false; } finish(ok); };
+      img.onerror = () => { console.warn('[pixi-loader] failed to load', key, url); finish(false); };
       img.src = withAssetVersion(url);
     });
+    this.inflight.set(key, p);
+    return p;
   }
 
-  private emitProgress(v: number): void { for (const cb of this.progressCbs) { try { cb(v); } catch (e) {} } }
-  private emitComplete(): void { for (const cb of this.completeCbs) { try { cb(); } catch (e) {} } }
+  private emitProgress(v: number): void { for (const cb of this.progressCbs.slice()) { try { cb(v); } catch (e) {} } }
+
+  private fireError(file: any, onceE: ErrorCb[]): void {
+    for (const cb of this.errorCbs.slice().concat(onceE)) { try { cb(file); } catch (e) {} }
+  }
+
+  private fireComplete(onceC: CompleteCb[]): void {
+    for (const cb of this.completeCbs.slice().concat(onceC)) { try { cb(); } catch (e) {} }
+  }
 }

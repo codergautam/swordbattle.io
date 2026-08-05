@@ -111,7 +111,8 @@ export class AuthController {
   @Throttle({ short: { limit: 2, ttl: 1000 }, medium: { limit: 10, ttl: 60000 } })
   @Post('claim-gem-bonus')
   async claimGemBonus(@Req() request) {
-    return this.authService.claimGemBonus(request.account);
+    const sources = Array.isArray(request.body?.sources) ? request.body.sources : ['ad'];
+    return this.authService.claimGemBonus(request.account, sources);
   }
 
   @UseGuards(AccountGuard)

@@ -5,6 +5,7 @@ import api from '../../api';
 import { numberWithCommas, secondsToTime, sinceFrom, fixDate } from '../../helpers';
 import cosmetics from '../../game/cosmetics.json';
 import SkinView from '../SkinView';
+import { getSkinScale } from '../../game/skinScales';
 import './ProfileModal.scss';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -22,7 +23,9 @@ const sorts: { key: 'coins' | 'kills' | 'playtime'; label: string }[] = [
 
 function skinFiles(id?: number) {
   const s = Object.values((cosmetics as any).skins).find((x: any) => x.id === id) as any;
-  return s ? { body: s.bodyFileName, sword: s.swordFileName } : { body: 'player.png', sword: 'sword.png' };
+  return s
+    ? { body: s.bodyFileName, sword: s.swordFileName, scale: getSkinScale(s.id) }
+    : { body: 'player.png', sword: 'sword.png', scale: 1 };
 }
 
 function gameAge(dateLike: any) {
@@ -124,7 +127,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ username }) => {
             className="profile-banner"
             style={{ backgroundImage: "linear-gradient(180deg, rgba(20,26,38,0.22), rgba(20,26,38,0.45)), url('assets/game/tiles/ice-new.png')" }}
           >
-            <div className="profile-skin"><SkinView body={skin.body} sword={skin.sword} shadow /></div>
+            <div className="profile-skin"><SkinView body={skin.body} sword={skin.sword} scale={skin.scale} shadow /></div>
             <div className="profile-id">
               <div className="profile-name">
                 {data.clan?.clan && <span className="profile-clan">[{data.clan.clan.tag}]</span>}

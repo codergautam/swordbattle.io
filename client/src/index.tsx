@@ -19,6 +19,7 @@ import './global.scss';
 
 applyHudThemeCss();
 initAnalytics();
+detectAdblock();
 
 const router = createHashRouter([
   {
@@ -80,8 +81,6 @@ crazygamesSDK.init().then(async () => {
     window.dispatchEvent(new CustomEvent('crazygamesSDKReady'));
     window.dispatchEvent(new CustomEvent('adProviderChanged', { detail: 'crazygames' }));
   }
-
-  await detectAdblock();
 
   await initializeDataStorage();
   console.log('CrazyGames data storage initialized');

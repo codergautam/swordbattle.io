@@ -305,10 +305,17 @@ class Player extends BaseEntity {
         });
       } else {
           this.loadSkin(this.skin).then(() => {
-          this.body.setTexture(this.skinName+'Body');
-          this.shadow.setTexture(this.createShadowTexture(this.skinName+'Body'));
-          this.sword.setTexture(this.skinName+'Sword');
-          this.swordShadow.setTexture(this.createShadowTexture(this.skinName+'Sword'));
+          const bodyKey = this.skinName + 'Body';
+          const swordKey = this.skinName + 'Sword';
+          if (this.game.textures.exists(bodyKey)) {
+            this.body.setTexture(bodyKey);
+            this.shadow.setTexture(this.createShadowTexture(bodyKey));
+          }
+          if (this.game.textures.exists(swordKey)) {
+            this.sword.setTexture(swordKey);
+            this.swordShadow.setTexture(this.createShadowTexture(swordKey));
+          }
+          this.updateEvolution();
         }).catch(() => {
           console.log('failed to load skin', this.skin);
         });

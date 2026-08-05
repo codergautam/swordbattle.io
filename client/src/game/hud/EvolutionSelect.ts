@@ -417,14 +417,17 @@ class EvolutionSelect extends HudComponent {
     const panel = scene.add.graphics();
     card.add(panel);
 
-    const skinName = player.skinName;
-    const body = scene.add.sprite(0, 0, skinName + 'Body').setOrigin(0.5, 0.5);
-    if (player.skin === 459) body.setScale(1.25);
-    const previewScale = (player as any).bodyScale ?? 1;
+    const usingSkin = scene.textures.exists(player.skinName + 'Body');
+    const skinKey = usingSkin ? player.skinName + 'Body' : 'playerBody';
+    const body = scene.add.sprite(0, 0, skinKey).setOrigin(0.5, 0.5);
+    if (usingSkin && player.skin === 459) body.setScale(1.25);
+    const previewScale = usingSkin ? ((player as any).bodyScale ?? 1) : 1;
     const overlay = scene.add.sprite(0, 0, evolution[1]).setOrigin(evolution[3][0], evolution[3][1]);
-    overlay.setScale((body.width / previewScale) / overlay.width * evolution[2]);
+    const bw = body.width || 1;
+    const bh = body.height || 1;
+    overlay.setScale((bw / previewScale) / (overlay.width || 1) * evolution[2]);
     const preview = scene.add.container(0, -14, [body, overlay]);
-    preview.setScale(PREVIEW / (body.height / previewScale));
+    preview.setScale(PREVIEW / (bh / previewScale));
     card.add(preview);
 
     const nameY = removesUpgrades ? cardH / 2 - 27 : cardH / 2 - 16;

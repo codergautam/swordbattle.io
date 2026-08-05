@@ -43,4 +43,6 @@ function LoginModal({ onSuccess, onSupport }: any) {
   );
 }
 
+LoginModal.displayName = 'LoginModal';
+
 export default LoginModal;

@@ -103,4 +103,6 @@ function SignupModal({ onSuccess }: any) {
   );
 }
 
+SignupModal.displayName = 'SignupModal';
+
 export default SignupModal;

@@ -10,6 +10,8 @@ import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
+  static readonly gemBonusSources = ['ad', 'noadblock'];
+
   constructor(
     private readonly accountsService: AccountsService,
   ) {}
@@ -347,7 +349,7 @@ export class AuthService {
     };
   }
 
-  async claimGemBonus(account: Account) {
+  async claimGemBonus(account: Account, sources: string[] = ['ad']) {
     const dl = { ...account.dailyLogin };
     const pending = dl.pendingGemBonus;
 
@@ -362,14 +364,31 @@ export class AuthService {
       return { error: 'Gem bonus expired' };
     }
 
-    const amount = Math.floor(pending.amount);
+    const claimed = pending.claimed || [];
+    const toClaim = Array.from(new Set(sources))
+      .filter((s) => AuthService.gemBonusSources.includes(s) && !claimed.includes(s));
 
-    dl.pendingGemBonus = null;
+    if (toClaim.length === 0) {
+      return { error: 'Gem bonus already claimed', claimed };
+    }
+
+    const nowClaimed = [...claimed, ...toClaim];
+    const before = Math.pow(2, claimed.length);
+    const after = Math.pow(2, nowClaimed.length);
+    const amount = Math.floor(pending.amount * (after - before));
+
+    if (amount <= 0) {
+      return { error: 'No gem bonus available' };
+    }
+
+    dl.pendingGemBonus = nowClaimed.length >= AuthService.gemBonusSources.length
+      ? null
+      : { ...pending, claimed: nowClaimed };
     account.dailyLogin = dl;
-    account = await this.accountsService.addGems(account, amount, 'reward-2x-ad');
+    account = await this.accountsService.addGems(account, amount, 'reward-2x-' + toClaim.join('+'));
     await this.accountsService.update(account.id, { dailyLogin: dl });
 
-    return { success: true, gems: account.gems, bonus: amount };
+    return { success: true, gems: account.gems, bonus: amount, multiplier: after, claimed: nowClaimed };
   }
 
   async getToken(account: Account) {

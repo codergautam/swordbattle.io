@@ -16,6 +16,8 @@ import YourClanTab from './clans/tabs/YourClanTab';
 import ChatTab from './clans/tabs/ChatTab';
 import EditClanTab from './clans/tabs/EditClanTab';
 import SearchTab from './clans/tabs/SearchTab';
+import XpGateOverlay from './clans/XpGateOverlay';
+import { clanXpRequirement } from './clans/constants';
 import ProfileModal from './ProfileModal';
 import Modal from './Modal';
 import ModalAd from '../ModalAd';
@@ -146,6 +148,10 @@ function ClansModal({ account, onViewProfile }: ClansModalProps) {
     ? new Date(clanCooldownUntil).getTime() - nowTick
     : 0;
   const showCooldownBanner = !inClan && cooldownRemaining > 0;
+  const showXpGate = !inClan
+    && (outsideTab === 'join' || outsideTab === 'create')
+    && selectedClanId === null
+    && (account.xp ?? 0) < clanXpRequirement;
 
   return (
     <div className="clans-modal">
@@ -181,6 +187,7 @@ function ClansModal({ account, onViewProfile }: ClansModalProps) {
         </div>
       )}
 
+      <div className="clans-body-wrap">
       <div className="clans-body">
         {!inClan && outsideTab === 'join' && (
           <JoinClanTab
@@ -223,6 +230,8 @@ function ClansModal({ account, onViewProfile }: ClansModalProps) {
             onOpenUserProfile={openUserProfile}
           />
         )}
+      </div>
+        {showXpGate && <XpGateOverlay currentXp={account.xp ?? 0} />}
       </div>
 
       {loadingLabel && (

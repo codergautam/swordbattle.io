@@ -1508,23 +1508,20 @@ class Player extends BaseEntity {
     if (!on) return;
     if (offCamera) return;
 
-    const evr = this.evoShadowActive ? Math.round(this.evolutionOverlayShadow.rotation * 25) : 0;
-    const sig = Math.round(this.shadow.rotation * 25)
-      + ((this.shadow.x / 2) | 0) * 7 + ((this.shadow.y / 2) | 0) * 13
-      + Math.round(this.swordShadow.rotation * 25) * 17
-      + ((this.swordShadow.x / 2) | 0) * 23 + ((this.swordShadow.y / 2) | 0) * 29
+    const evr = this.evoShadowActive ? Math.round(this.evolutionOverlayShadow.rotation * 100) : 0;
+    const sig = Math.round(this.shadow.rotation * 100)
+      + (this.shadow.x | 0) * 7 + (this.shadow.y | 0) * 13
+      + Math.round(this.swordShadow.rotation * 100) * 17
+      + (this.swordShadow.x | 0) * 23 + (this.swordShadow.y | 0) * 29
       + Math.round(this.swordShadow.scaleX * 100) * 37
       + (this.evoShadowActive ? 1 : 0) * 1000003
       + (this.swordFlying ? 1 : 0) * 1000033
       + (this._swordVisibleForShadow ? 0 : 900007)
       + (this.sword2Shadow && this.swordContainer2?.visible
-          ? Math.round((this.sword2Shadow.rotation || 0) * 25) * 43 + (((this.sword2Shadow.x / 2) | 0)) * 47 : 0)
+          ? Math.round((this.sword2Shadow.rotation || 0) * 100) * 43 + ((this.sword2Shadow.x | 0)) * 47 : 0)
       + evr * 41;
     if (sig === this.shadowSig) return;
-    const now = performance.now();
-    if (now < this.shadowRTNextAt) return;
     this.shadowSig = sig;
-    this.shadowRTNextAt = now + 33;
 
     const ox = rt.width / 2, oy = rt.height / 2;
     rt.clear();
@@ -1542,7 +1539,6 @@ class Player extends BaseEntity {
     rt.endDraw();
   }
   private shadowSig = NaN;
-  private shadowRTNextAt = 0;
 
   updateDiscoEffects(dt: number) {
     const discoFieldActive = this.evolution === EvolutionTypes.Disco && !!(this.flags && this.flags[FlagTypes.DiscoFieldActive]);

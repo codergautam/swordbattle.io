@@ -1,9 +1,10 @@
+import { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { RouterProvider, createHashRouter } from 'react-router-dom';
 import App from './ui/App';
 import Profile from './ui/Profile';
-import MetricsPage from './ui/MetricsPage';
+const MetricsPage = lazy(() => import('./ui/MetricsPage'));
 import SupportPage from './ui/SupportPage';
 import NameMaker from './ui/namemaker/NameMaker';
 import AnnouncementsAdminPage from './ui/announcements/AnnouncementsAdminPage';
@@ -41,7 +42,7 @@ const router = createHashRouter([
   },
   {
     path: ':secret/metrics',
-    element: <MetricsPage />,
+    element: <Suspense fallback={null}><MetricsPage /></Suspense>,
   },
   {
     path: ':secret/support',

@@ -102,7 +102,7 @@ function AnnouncementsModal({ initialId = null }: { initialId?: number | null })
                 <span className="an-row-main">
                   <span className="an-row-title">
                     <span className="an-row-title-text">{a.title}</span>
-                    {a.isUpdate && <span className="an-chip">UPDATE</span>}
+                    {a.isUpdate && <span className="an-chip">Update</span>}
                   </span>
                   <span className="an-row-date">{formatAnnouncementDate(a.createdAt)}</span>
                 </span>
@@ -120,7 +120,7 @@ function AnnouncementsModal({ initialId = null }: { initialId?: number | null })
                 <div className="an-article-meta">
                   <h1>
                     <span className="an-article-title">{shown.title}</span>
-                    {shown.isUpdate && <span className="an-chip">UPDATE</span>}
+                    {shown.isUpdate && <span className="an-chip">Update</span>}
                   </h1>
                   <span className="an-row-date">{formatAnnouncementDate(shown.createdAt)}</span>
                 </div>

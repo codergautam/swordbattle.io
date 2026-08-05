@@ -258,13 +258,6 @@ export default function AnnouncementsAdminPage() {
             </div>
           )}
 
-          <p className="aa-hint">
-            Body uses Discourse-style markdown: **bold**, # headings, lists, --- dividers, and raw
-            {' '}&lt;details&gt;&lt;summary&gt;More info&lt;/summary&gt;...&lt;/details&gt; blocks (leave a blank line after the summary line).
-            Single line breaks are kept, just like Discourse.
-            To link another announcement, use its Copy link URL (?announcement=id) — in-game those open inside the modal.
-          </p>
-
           <div className="aa-body-row">
             <textarea
               className="aa-body"

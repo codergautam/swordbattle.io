@@ -20,15 +20,14 @@ export default function ChangelogCard({ onViewChangelog }: { onViewChangelog?: (
       <h1 className="news-title">News and Updates</h1>
       <h2 className="news-sub">MAP UPDATE!</h2>
       <ul className="news-list">
-        <li className="hot">New revamped map!</li>
-        <li>Tons of new biomes!</li>
-        <li>Better UI!</li>
-        <li>Improved graphics</li>
+        <li className="hot">New revamped map! New UI!</li>
+        <li>Evolution upgrades!</li>
+        And so much more!
       </ul>
 
       {updateId !== null && (
         <a className="changelogbutton" onClick={() => onViewChangelog && onViewChangelog(updateId)} style={{ cursor: 'pointer' }}>
-          <FontAwesomeIcon icon={faClipboardList} /> View Changelog
+          <FontAwesomeIcon icon={faClipboardList} /> See Full Release Notes
         </a>
       )}
     </span>

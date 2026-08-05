@@ -14,10 +14,15 @@ export class AnalyticsController {
     return String(c).toUpperCase().slice(0, 2);
   }
 
+  private userAgent(req: any): string | null {
+    const ua = req?.headers?.['user-agent'];
+    return ua ? String(ua).slice(0, 500) : null;
+  }
+
   @Post('session')
   @Throttle({ short: { limit: 30, ttl: 1000 }, medium: { limit: 400, ttl: 60000 } })
   async session(@Body() dto: SessionDTO, @Req() req) {
-    await this.analyticsService.upsertSession(dto, this.country(req));
+    await this.analyticsService.upsertSession(dto, this.country(req), this.userAgent(req));
     return { ok: true };
   }
 

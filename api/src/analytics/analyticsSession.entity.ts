@@ -36,6 +36,9 @@ export class AnalyticsSession {
   @Column({ default: false }) reached_1min: boolean;
   @Column({ default: false }) reached_5min: boolean;
 
+  @Index()
+  @Column({ default: false }) is_bot: boolean;
+
   @Column({ default: false }) is_first_visit: boolean;
   @Column({ default: false }) is_returning: boolean;
   @Column({ default: false }) is_logged_in: boolean;

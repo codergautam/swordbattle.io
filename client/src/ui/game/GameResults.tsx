@@ -97,8 +97,12 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
     if (gemBonus !== 'idle' || adblockActive) return;
     setGemBonus('loading');
     trackAd('video_request', { ad_format: 'rewarded', placement: 'reward_2x' });
-    playRewardedAd().then(({ success }) => {
-      if (!success) { setGemBonus('idle'); return; }
+    playRewardedAd().then(({ success, evt }) => {
+      if (!success) {
+        if (evt === 'video-ad-skipped') trackAd('rewarded_skipped', { ad_format: 'rewarded', placement: 'reward_2x' });
+        setGemBonus('idle');
+        return;
+      }
       trackAd('rewarded_complete', { ad_format: 'rewarded', placement: 'reward_2x' });
       api.post(`${api.endpoint}/auth/claim-gem-bonus`, { sources: ['ad'] }, (data: any) => {
         if (data && data.success) {
@@ -134,8 +138,9 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
       prerollTimer = setTimeout(() => {
         console.log('[GameResults] Showing death interstitial (A/B: on)');
         trackAd('video_request', { ad_format: 'preroll', placement: 'death_interstitial' });
-        playVideoAd().then(() => {
-          trackAd('video_complete', { ad_format: 'preroll', placement: 'death_interstitial' });
+        playVideoAd().then(({ played, evt }) => {
+          if (played) trackAd('video_complete', { ad_format: 'preroll', placement: 'death_interstitial' });
+          else trackAd('video_no_fill', { ad_format: 'preroll', placement: 'death_interstitial', ad_size: evt });
         });
       }, 1200);
     }

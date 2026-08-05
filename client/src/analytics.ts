@@ -14,7 +14,36 @@ function uuid(): string {
 function ls(key: string): string | null { try { return localStorage.getItem(key); } catch { return null; } }
 function lsSet(key: string, val: string) { try { localStorage.setItem(key, val); } catch {} }
 
-function dayKey(ms: number): string { return new Date(ms).toISOString().slice(0, 10); }
+function ckey(key: string): string { return key.replace(/:/g, '_'); }
+function cookieGet(key: string): string | null {
+  try {
+    const m = document.cookie.match(new RegExp('(?:^|; )' + key.replace(/[.$?*|{}()[\]\\/+^]/g, '\\$&') + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  } catch { return null; }
+}
+function cookieSet(key: string, val: string) {
+  try { document.cookie = `${key}=${encodeURIComponent(val)}; max-age=34560000; path=/; SameSite=Lax`; } catch {}
+}
+function getId(key: string): string | null { return ls(key) || cookieGet(ckey(key)); }
+function setId(key: string, val: string) { lsSet(key, val); cookieSet(ckey(key), val); }
+
+function isLikelyBot(): boolean {
+  try {
+    const ua = navigator.userAgent || '';
+    if ((navigator as any).webdriver === true) return true;
+    if (ua === '') return true;
+    return /bot|crawl|spider|slurp|headless|phantom|lighthouse|inspectiontool|googlebot|bingbot|bingpreview|adsbot|mediapartners|facebookexternalhit|twitterbot|slackbot|discordbot|telegrambot|whatsapp|prerender|preview|monitor|pingdom|uptimerobot|gtmetrix|python-requests|axios|node-fetch|okhttp|java\/|curl|wget|go-http/i.test(ua);
+  } catch { return false; }
+}
+
+function isPrerendering(): boolean {
+  try { return (document as any).prerendering === true || (document.visibilityState as string) === 'prerender'; } catch { return false; }
+}
+
+function dayKey(ms: number): string {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
 const experiments: Record<string, string[]> = {
   death_preroll: ['off', 'on'],
@@ -90,6 +119,7 @@ interface SessionState {
 let session: SessionState | null = null;
 let currentRun: { run_id: string; started_at: number; run_index: number } | null = null;
 let finalized = false;
+let pendingDisconnect: any = null;
 
 function post(path: string, body: any) {
   try {
@@ -128,14 +158,19 @@ export function getAnalyticsContext() {
 export function initAnalytics() {
   if (session) return;
   try { if (/\/metrics\/?(\?|$)/.test((window.location.hash || '').replace('#', ''))) return; } catch (_) {}
+  if (isPrerendering()) {
+    try { document.addEventListener('prerenderingchange', () => initAnalytics(), { once: true }); } catch (_) {}
+    return;
+  }
+  if (isLikelyBot()) return;
   try {
-    let visitorId = ls('sb:visitorId');
+    let visitorId = getId('sb:visitorId');
     const isFirstVisit = !visitorId;
-    if (!visitorId) { visitorId = uuid(); lsSet('sb:visitorId', visitorId); }
+    if (!visitorId) { visitorId = uuid(); setId('sb:visitorId', visitorId); }
 
     const now = Date.now();
-    const firstSeen = ls('sb:firstSeen');
-    if (!firstSeen) lsSet('sb:firstSeen', String(now));
+    const firstSeen = getId('sb:firstSeen');
+    if (!firstSeen) setId('sb:firstSeen', String(now));
     const isReturning = !!firstSeen && dayKey(parseInt(firstSeen, 10)) < dayKey(now);
 
     const dev = detectDevice();
@@ -217,7 +252,14 @@ export function trackRunStart() {
   currentRun = { run_id: uuid(), started_at: Date.now(), run_index: session.play_count };
 }
 
+export function trackRunEndDeferred(reason: string) {
+  if (!session || !currentRun) return;
+  if (pendingDisconnect) clearTimeout(pendingDisconnect);
+  pendingDisconnect = setTimeout(() => { pendingDisconnect = null; trackRunEnd(reason); }, 1500);
+}
+
 export function trackRunEnd(reason: string, opts: { coins?: number; kills?: number; killerName?: string; playtimeMs?: number; prerollShown?: boolean } = {}) {
+  if (pendingDisconnect) { clearTimeout(pendingDisconnect); pendingDisconnect = null; }
   if (!session) return;
   if (!currentRun) return;
   const run = currentRun;
@@ -258,7 +300,7 @@ export function trackRunEnd(reason: string, opts: { coins?: number; kills?: numb
 
 export function trackAd(eventType: string, opts: { ad_format?: string; ad_size?: string; placement?: string; visible_ms?: number; viewability?: number } = {}) {
   if (!session) return;
-  if (eventType === 'display_impression') session.ad_impressions += 1;
+  if (eventType === 'display_viewable') session.ad_impressions += 1;
   if (eventType === 'video_complete') session.video_ads_watched += 1;
   if (eventType === 'rewarded_complete') session.rewarded_ads_watched += 1;
 

@@ -974,13 +974,13 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
 
   const onStart = () => {
     console.log('Starting game');
-    trackPlayClick();
     localStorage.setItem('swordbattle:hasVisited', '1');
     if(!isConnected) {
       alert('Not connected yet');
       return;
     }
     else  {
+      trackPlayClick();
       const go = () => {
         setPendingRespawn(null);
         setGameStarted(true);

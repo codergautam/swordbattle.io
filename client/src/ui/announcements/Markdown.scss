@@ -84,25 +84,28 @@
   }
 
   details {
-    margin: 0.7em 0;
-    padding: 0.55em 0.9em;
-    border: 1px solid rgba(128, 128, 128, 0.35);
-    border-radius: 9px;
-    background: rgba(128, 128, 128, 0.09);
+    margin: 0.8em 0;
+    padding: 0.6em 1em;
+    border: 3px solid #000;
+    border-radius: 12px;
+    background: #26262b;
+    color: #ececf0;
 
     summary {
       cursor: pointer;
       font-weight: 700;
       user-select: none;
-      margin: -0.55em -0.9em;
-      padding: 0.55em 0.9em;
+      margin: -0.6em -1em;
+      padding: 0.6em 1em;
+      border-radius: 9px;
 
-      &:hover { opacity: 0.85; }
+      &:hover { background: #303038; }
     }
 
     &[open] > summary {
-      margin-bottom: 0.55em;
-      border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+      margin-bottom: 0.6em;
+      border-bottom: 3px solid #000;
+      border-radius: 9px 9px 0 0;
     }
 
     > :nth-child(2) { margin-top: 0; }

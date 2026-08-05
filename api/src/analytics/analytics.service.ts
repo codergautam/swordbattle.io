@@ -28,8 +28,15 @@ export class AnalyticsService {
   };
   private static readonly geoDefault = 0.3;
 
+  private static readonly botRe = /bot|crawl|spider|slurp|headless|phantom|lighthouse|inspectiontool|googlebot|bingbot|bingpreview|adsbot|mediapartners|facebookexternalhit|twitterbot|slackbot|discordbot|telegrambot|whatsapp|prerender|preview|monitor|pingdom|uptimerobot|gtmetrix|python-requests|axios|node-fetch|okhttp|java\/|curl|wget|go-http/i;
+
+  private isBotUa(ua: string | null): boolean {
+    if (!ua) return false;
+    return AnalyticsService.botRe.test(ua);
+  }
+
   private estimateRevenue(eventType: string, adFormat: string | null, country: string | null): { revenue: number; ecpm: number | null } {
-    const billable = eventType === 'display_impression' || eventType === 'video_complete' || eventType === 'rewarded_complete';
+    const billable = eventType === 'display_viewable' || eventType === 'video_complete' || eventType === 'rewarded_complete';
     if (!billable) return { revenue: 0, ecpm: null };
 
     const base = adFormat === 'rewarded' || eventType === 'rewarded_complete'
@@ -43,7 +50,7 @@ export class AnalyticsService {
     return { revenue: ecpm / 1000, ecpm };
   }
 
-  async upsertSession(dto: SessionDTO, country: string | null): Promise<void> {
+  async upsertSession(dto: SessionDTO, country: string | null, ua: string | null): Promise<void> {
     if (!dto.session_id) return;
 
     const existing = await this.sessionRepo.findOne({ where: { session_id: dto.session_id } });
@@ -95,6 +102,7 @@ export class AnalyticsService {
     set('app_version', dto.app_version);
 
     if (country && !row.country) row.country = country;
+    if (!existing) row.is_bot = this.isBotUa(ua);
 
     await this.sessionRepo.save(row);
   }
@@ -155,6 +163,7 @@ export class AnalyticsService {
   async getDashboard(days: number) {
     const d = Math.max(1, Math.min(365, Math.floor(Number(days) || 30)));
     const iv = `interval '${d} days'`;
+    const human = `is_bot = false`;
     const run = (sql: string): Promise<any[]> =>
       this.sessionRepo.query(sql).catch((e) => { console.error('[analytics/metrics]', e?.message); return []; });
 
@@ -162,22 +171,24 @@ export class AnalyticsService {
       kpi, daily, funnel, whyRunsEnd, timeToPlay, retention, newPlayerConversion,
       newPlayerLifetime, deSkew, concentration, abTest, adDaily, adByPlacement,
       rewardedFunnel, adblockDaily, topCountries, deviceSplit,
+      playCtr, playtime, engagement, mobileSplit, stickiness, sessionDepth,
+      firstRun, adPerDau, d1Overall,
     ] = await Promise.all([
       run(`SELECT COUNT(*)::int AS sessions, COUNT(DISTINCT visitor_id)::int AS unique_visitors,
             COUNT(*) FILTER (WHERE clicked_play)::int AS play_clicks,
-            ROUND(AVG(total_playtime_ms)/60000.0,2)::float AS avg_session_min,
-            ROUND(100.0*COUNT(*) FILTER (WHERE reached_1min)/NULLIF(COUNT(*) FILTER (WHERE clicked_play),0),1)::float AS conversion_1min_pct,
+            ROUND(AVG(total_playtime_ms) FILTER (WHERE play_count>0)/60000.0,2)::float AS avg_playing_min,
+            ROUND(100.0*COUNT(*) FILTER (WHERE reached_1min AND clicked_play)/NULLIF(COUNT(*) FILTER (WHERE clicked_play),0),1)::float AS conversion_1min_pct,
             ROUND(100.0*AVG((adblock)::int) FILTER (WHERE adblock IS NOT NULL),1)::float AS adblock_pct
-           FROM analytics_sessions WHERE created_at >= now() - ${iv}`),
+           FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv}`),
       run(`SELECT created_at::date::text AS day, COUNT(*)::int AS visits, COUNT(DISTINCT visitor_id)::int AS uniques,
-            ROUND(100.0*COUNT(*) FILTER (WHERE reached_1min)/NULLIF(COUNT(*) FILTER (WHERE clicked_play),0),1)::float AS conversion_pct,
-            ROUND(AVG(total_playtime_ms)/60000.0,2)::float AS avg_min
-           FROM analytics_sessions WHERE created_at >= now() - ${iv} GROUP BY 1 ORDER BY 1`),
+            ROUND(100.0*COUNT(*) FILTER (WHERE reached_1min AND clicked_play)/NULLIF(COUNT(*) FILTER (WHERE clicked_play),0),1)::float AS conversion_pct,
+            ROUND(AVG(total_playtime_ms) FILTER (WHERE play_count>0)/60000.0,2)::float AS avg_min
+           FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv} GROUP BY 1 ORDER BY 1`),
       run(`SELECT COUNT(*)::int AS visits, COUNT(*) FILTER (WHERE clicked_play)::int AS clicked_play,
             COUNT(*) FILTER (WHERE play_count>=1)::int AS started_run,
             COUNT(*) FILTER (WHERE reached_1min)::int AS reached_1min,
             COUNT(*) FILTER (WHERE reached_5min)::int AS reached_5min
-           FROM analytics_sessions WHERE created_at >= now() - ${iv}`),
+           FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv}`),
       run(`SELECT COALESCE(end_reason,'unknown') AS end_reason, COUNT(*)::int AS runs,
             ROUND(100.0*COUNT(*)/NULLIF(SUM(COUNT(*)) OVER (),0),1)::float AS pct,
             ROUND(AVG(playtime_ms)/1000.0,1)::float AS avg_run_s
@@ -185,57 +196,111 @@ export class AnalyticsService {
       run(`SELECT ROUND(AVG(time_to_first_play_ms)/1000.0,1)::float AS avg_s,
             ROUND(percentile_cont(0.5) WITHIN GROUP (ORDER BY time_to_first_play_ms)/1000.0,1)::float AS median_s,
             ROUND(percentile_cont(0.9) WITHIN GROUP (ORDER BY time_to_first_play_ms)/1000.0,1)::float AS p90_s
-           FROM analytics_sessions WHERE clicked_play AND time_to_first_play_ms IS NOT NULL AND created_at >= now() - ${iv}`),
-      run(`WITH firsts AS (SELECT visitor_id, MIN(created_at::date) AS first_day FROM analytics_sessions WHERE visitor_id IS NOT NULL GROUP BY visitor_id),
-            activity AS (SELECT DISTINCT visitor_id, created_at::date AS day FROM analytics_sessions)
+           FROM analytics_sessions WHERE ${human} AND clicked_play AND time_to_first_play_ms IS NOT NULL AND created_at >= now() - ${iv}`),
+      run(`WITH firsts AS (SELECT visitor_id, MIN(created_at::date) AS first_day FROM analytics_sessions WHERE ${human} AND visitor_id IS NOT NULL GROUP BY visitor_id),
+            activity AS (SELECT DISTINCT visitor_id, created_at::date AS day FROM analytics_sessions WHERE ${human})
             SELECT f.first_day::text AS joined, COUNT(DISTINCT f.visitor_id)::int AS new_players,
-              ROUND(100.0*COUNT(DISTINCT a1.visitor_id)/NULLIF(COUNT(DISTINCT f.visitor_id),0),1)::float AS d1_pct,
-              ROUND(100.0*COUNT(DISTINCT a7.visitor_id)/NULLIF(COUNT(DISTINCT f.visitor_id),0),1)::float AS d7_pct
+              CASE WHEN f.first_day <= now()::date - 1
+                   THEN ROUND(100.0*COUNT(DISTINCT a1.visitor_id)/NULLIF(COUNT(DISTINCT f.visitor_id),0),1) END::float AS d1_pct,
+              CASE WHEN f.first_day <= now()::date - 7
+                   THEN ROUND(100.0*COUNT(DISTINCT a7.visitor_id)/NULLIF(COUNT(DISTINCT f.visitor_id),0),1) END::float AS d7_pct
             FROM firsts f
             LEFT JOIN activity a1 ON a1.visitor_id=f.visitor_id AND a1.day=f.first_day+1
             LEFT JOIN activity a7 ON a7.visitor_id=f.visitor_id AND a7.day=f.first_day+7
-            WHERE f.first_day >= now()::date - ${d} GROUP BY 1 ORDER BY 1 DESC`),
+            WHERE f.first_day >= now()::date - ${d} GROUP BY f.first_day ORDER BY 1 DESC`),
       run(`SELECT created_at::date::text AS joined, COUNT(*)::int AS new_players,
             ROUND(100.0*COUNT(*) FILTER (WHERE clicked_play)/NULLIF(COUNT(*),0),1)::float AS pct_clicked,
-            ROUND(100.0*COUNT(*) FILTER (WHERE reached_1min)/NULLIF(COUNT(*) FILTER (WHERE clicked_play),0),1)::float AS conv_1min_pct
-           FROM analytics_sessions WHERE is_first_visit=true AND created_at >= now() - ${iv} GROUP BY 1 ORDER BY 1 DESC`),
-      run(`WITH new_visitors AS (SELECT visitor_id FROM analytics_sessions WHERE visitor_id IS NOT NULL GROUP BY visitor_id HAVING MIN(created_at::date) >= now()::date - ${d}),
-            per AS (SELECT s.visitor_id, COUNT(*) AS sessions, SUM(s.total_playtime_ms)/60000.0 AS total_min, bool_or(s.reached_1min) AS ever_1min, COUNT(DISTINCT s.created_at::date)>1 AS returned FROM analytics_sessions s JOIN new_visitors nv ON nv.visitor_id=s.visitor_id GROUP BY s.visitor_id)
+            ROUND(100.0*COUNT(*) FILTER (WHERE reached_1min AND clicked_play)/NULLIF(COUNT(*) FILTER (WHERE clicked_play),0),1)::float AS conv_1min_pct
+           FROM analytics_sessions WHERE ${human} AND is_first_visit=true AND created_at >= now() - ${iv} GROUP BY 1 ORDER BY 1 DESC`),
+      run(`WITH new_visitors AS (SELECT visitor_id FROM analytics_sessions WHERE ${human} AND visitor_id IS NOT NULL GROUP BY visitor_id HAVING MIN(created_at::date) >= now()::date - ${d}),
+            per AS (SELECT s.visitor_id, COUNT(*) AS sessions, SUM(s.total_playtime_ms)/60000.0 AS total_min, bool_or(s.reached_1min) AS ever_1min, COUNT(DISTINCT s.created_at::date)>1 AS returned FROM analytics_sessions s JOIN new_visitors nv ON nv.visitor_id=s.visitor_id WHERE s.${human} GROUP BY s.visitor_id)
             SELECT COUNT(*)::int AS new_players, ROUND(AVG(sessions),2)::float AS avg_sessions, ROUND(AVG(total_min),2)::float AS avg_total_min,
               ROUND(100.0*AVG((ever_1min)::int),1)::float AS pct_ever_1min, ROUND(100.0*AVG((returned)::int),1)::float AS pct_returned FROM per`),
-      run(`SELECT (SELECT ROUND(AVG(total_playtime_ms)/60000.0,2)::float FROM analytics_sessions WHERE play_count>0 AND created_at >= now() - ${iv}) AS per_session_avg_min,
-            (SELECT ROUND(AVG(v.min),2)::float FROM (SELECT visitor_id, SUM(total_playtime_ms)/60000.0 AS min FROM analytics_sessions WHERE play_count>0 AND created_at >= now() - ${iv} AND visitor_id IS NOT NULL GROUP BY visitor_id) v) AS per_visitor_avg_min`),
-      run(`WITH per AS (SELECT visitor_id, SUM(total_playtime_ms) AS ms FROM analytics_sessions WHERE created_at >= now() - ${iv} AND visitor_id IS NOT NULL GROUP BY visitor_id),
+      run(`SELECT (SELECT ROUND(AVG(total_playtime_ms)/60000.0,2)::float FROM analytics_sessions WHERE ${human} AND play_count>0 AND created_at >= now() - ${iv}) AS per_session_avg_min,
+            (SELECT ROUND(AVG(v.min),2)::float FROM (SELECT visitor_id, SUM(total_playtime_ms)/60000.0 AS min FROM analytics_sessions WHERE ${human} AND play_count>0 AND created_at >= now() - ${iv} AND visitor_id IS NOT NULL GROUP BY visitor_id) v) AS per_visitor_avg_min`),
+      run(`WITH per AS (SELECT visitor_id, SUM(total_playtime_ms) AS ms FROM analytics_sessions WHERE ${human} AND play_count>0 AND created_at >= now() - ${iv} AND visitor_id IS NOT NULL GROUP BY visitor_id),
             ranked AS (SELECT ms, ntile(100) OVER (ORDER BY ms DESC) AS pct FROM per)
-            SELECT ROUND(100.0*SUM(ms) FILTER (WHERE pct=1)/NULLIF(SUM(ms),0),1)::float AS top_1pct_share,
-              ROUND(100.0*SUM(ms) FILTER (WHERE pct<=10)/NULLIF(SUM(ms),0),1)::float AS top_10pct_share FROM ranked`),
+            SELECT CASE WHEN (SELECT COUNT(*) FROM per) >= 100 THEN ROUND(100.0*SUM(ms) FILTER (WHERE pct=1)/NULLIF(SUM(ms),0),1) END::float AS top_1pct_share,
+              CASE WHEN (SELECT COUNT(*) FROM per) >= 30 THEN ROUND(100.0*SUM(ms) FILTER (WHERE pct<=10)/NULLIF(SUM(ms),0),1) END::float AS top_10pct_share FROM ranked`),
       run(`SELECT COALESCE(ab_variants->>'death_preroll','(none)') AS variant, COUNT(*)::int AS sessions,
             ROUND(AVG(total_playtime_ms)/60000.0,2)::float AS avg_session_min, ROUND(AVG(play_count),2)::float AS avg_runs,
             ROUND(100.0*AVG((reached_1min)::int),1)::float AS pct_1min
-           FROM analytics_sessions WHERE ab_variants->>'death_preroll' IS NOT NULL AND created_at >= now() - ${iv} GROUP BY 1 ORDER BY 1`),
-      run(`SELECT created_at::date::text AS day, ROUND(SUM(estimated_revenue_usd)::numeric,4)::float AS est_usd,
-            COUNT(*) FILTER (WHERE event_type='display_impression')::int AS banner_impr,
-            COUNT(*) FILTER (WHERE event_type='video_complete')::int AS video_views,
-            COUNT(*) FILTER (WHERE event_type='rewarded_complete')::int AS rewarded_views
-           FROM analytics_ad_events WHERE created_at >= now() - ${iv} GROUP BY 1 ORDER BY 1`),
-      run(`SELECT COALESCE(placement,'(none)') AS placement, COALESCE(ad_format,'(other)') AS format, COUNT(*)::int AS events,
-            ROUND(SUM(estimated_revenue_usd)::numeric,4)::float AS est_usd
-           FROM analytics_ad_events WHERE created_at >= now() - ${iv} GROUP BY 1,2 ORDER BY est_usd DESC NULLS LAST`),
-      run(`SELECT created_at::date::text AS day,
-            COUNT(*) FILTER (WHERE event_type='video_request' AND placement='reward_2x')::int AS started,
-            COUNT(*) FILTER (WHERE event_type='rewarded_complete')::int AS watched,
-            COUNT(*) FILTER (WHERE event_type='rewarded_claimed')::int AS claimed
-           FROM analytics_ad_events WHERE created_at >= now() - ${iv} GROUP BY 1 ORDER BY 1 DESC`),
+           FROM analytics_sessions WHERE ab_variants->>'death_preroll' IS NOT NULL AND adblock = false AND ${human} AND created_at >= now() - ${iv} GROUP BY 1 ORDER BY 1`),
+      run(`SELECT a.created_at::date::text AS day, SUM(a.estimated_revenue_usd)::float AS est_usd,
+            COUNT(*) FILTER (WHERE a.event_type='display_request')::int AS banner_requests,
+            COUNT(*) FILTER (WHERE a.event_type='display_filled')::int AS banner_fills,
+            COUNT(*) FILTER (WHERE a.event_type='display_viewable')::int AS banner_impr,
+            COUNT(*) FILTER (WHERE a.event_type='video_complete')::int AS video_views,
+            COUNT(*) FILTER (WHERE a.event_type='rewarded_complete')::int AS rewarded_views
+           FROM analytics_ad_events a JOIN analytics_sessions s ON s.session_id=a.session_id
+           WHERE s.${human} AND a.created_at >= now() - ${iv} GROUP BY 1 ORDER BY 1`),
+      run(`SELECT COALESCE(a.placement,'(none)') AS placement, COALESCE(a.ad_format,'(other)') AS format, COUNT(*)::int AS events,
+            SUM(a.estimated_revenue_usd)::float AS est_usd
+           FROM analytics_ad_events a JOIN analytics_sessions s ON s.session_id=a.session_id
+           WHERE s.${human} AND a.created_at >= now() - ${iv} GROUP BY 1,2 ORDER BY est_usd DESC NULLS LAST`),
+      run(`SELECT a.created_at::date::text AS day,
+            COUNT(*) FILTER (WHERE a.event_type='video_request' AND a.placement='reward_2x')::int AS started,
+            COUNT(*) FILTER (WHERE a.event_type='rewarded_complete' AND a.placement='reward_2x')::int AS watched,
+            COUNT(*) FILTER (WHERE a.event_type='rewarded_claimed' AND a.placement='reward_2x')::int AS claimed
+           FROM analytics_ad_events a JOIN analytics_sessions s ON s.session_id=a.session_id
+           WHERE s.${human} AND a.created_at >= now() - ${iv} GROUP BY 1 ORDER BY 1 DESC`),
       run(`SELECT created_at::date::text AS day, COUNT(*) FILTER (WHERE adblock IS NOT NULL)::int AS measured,
             ROUND(100.0*AVG((adblock)::int) FILTER (WHERE adblock IS NOT NULL),1)::float AS adblock_pct
-           FROM analytics_sessions WHERE created_at >= now() - ${iv} GROUP BY 1 ORDER BY 1 DESC`),
-      run(`SELECT COALESCE(country,'??') AS country, COUNT(*)::int AS sessions, ROUND(AVG(total_playtime_ms)/60000.0,2)::float AS avg_min
-           FROM analytics_sessions WHERE created_at >= now() - ${iv} GROUP BY 1 ORDER BY sessions DESC LIMIT 20`),
+           FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv} GROUP BY 1 ORDER BY 1 DESC`),
+      run(`SELECT COALESCE(country,'??') AS country, COUNT(*)::int AS sessions, ROUND(AVG(total_playtime_ms) FILTER (WHERE play_count>0)/60000.0,2)::float AS avg_min
+           FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv} GROUP BY 1 ORDER BY sessions DESC LIMIT 20`),
       run(`SELECT COALESCE(device_type,'unknown') AS device, COUNT(*)::int AS sessions,
-            ROUND(100.0*COUNT(*) FILTER (WHERE reached_1min)/NULLIF(COUNT(*) FILTER (WHERE clicked_play),0),1)::float AS conversion_pct,
-            ROUND(AVG(total_playtime_ms)/60000.0,2)::float AS avg_min
-           FROM analytics_sessions WHERE created_at >= now() - ${iv} GROUP BY 1 ORDER BY sessions DESC`),
+            ROUND(100.0*COUNT(*) FILTER (WHERE reached_1min AND clicked_play)/NULLIF(COUNT(*) FILTER (WHERE clicked_play),0),1)::float AS conversion_pct,
+            ROUND(AVG(total_playtime_ms) FILTER (WHERE play_count>0)/60000.0,2)::float AS avg_min
+           FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv} GROUP BY 1 ORDER BY sessions DESC`),
+      run(`SELECT ROUND(100.0*AVG((clicked_play)::int),1)::float AS pct_clicked,
+            ROUND(100.0*AVG((play_count>0)::int),1)::float AS pct_played,
+            ROUND(100.0*AVG((play_count>0)::int) FILTER (WHERE is_mobile),1)::float AS pct_played_mobile,
+            ROUND(100.0*AVG((play_count>0)::int) FILTER (WHERE NOT is_mobile),1)::float AS pct_played_desktop
+           FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv}`),
+      run(`SELECT ROUND(AVG(total_playtime_ms) FILTER (WHERE play_count>0)/60000.0,2)::float AS avg_playing_min,
+            ROUND(percentile_cont(0.5) WITHIN GROUP (ORDER BY total_playtime_ms) FILTER (WHERE play_count>0)/60000.0,2)::float AS median_playing_min,
+            ROUND(percentile_cont(0.5) WITHIN GROUP (ORDER BY max_run_playtime_ms) FILTER (WHERE play_count>0)/60000.0,2)::float AS median_best_life_min
+           FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv}`),
+      run(`SELECT ROUND(100.0*AVG((reached_1min)::int) FILTER (WHERE play_count>0),1)::float AS pct_reached_1min,
+            ROUND(100.0*AVG((clicked_play AND NOT reached_1min)::int),1)::float AS bounce_pct,
+            ROUND(100.0*AVG((reached_5min)::int) FILTER (WHERE play_count>0),1)::float AS pct_reached_5min,
+            ROUND(100.0*SUM((reached_5min)::int)/NULLIF(SUM((reached_1min)::int),0),1)::float AS survival_1to5_pct
+           FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv}`),
+      run(`SELECT ROUND(100.0*AVG((is_mobile)::int),1)::float AS mobile_share_pct,
+            ROUND(AVG(total_playtime_ms) FILTER (WHERE play_count>0 AND is_mobile)/60000.0,2)::float AS mobile_avg_min,
+            ROUND(AVG(total_playtime_ms) FILTER (WHERE play_count>0 AND NOT is_mobile)/60000.0,2)::float AS desktop_avg_min
+           FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv}`),
+      run(`WITH daily AS (SELECT created_at::date AS day, COUNT(DISTINCT visitor_id) AS dau FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv} GROUP BY 1)
+            SELECT ROUND(AVG(dau)::numeric,1)::float AS avg_dau,
+              (SELECT COUNT(DISTINCT visitor_id)::int FROM analytics_sessions WHERE ${human} AND created_at >= now() - interval '30 days') AS mau,
+              ROUND(100.0*AVG(dau)/NULLIF((SELECT COUNT(DISTINCT visitor_id) FROM analytics_sessions WHERE ${human} AND created_at >= now() - interval '30 days'),0),1)::float AS stickiness_pct
+            FROM daily`),
+      run(`SELECT ROUND(AVG(play_count) FILTER (WHERE play_count>0),2)::float AS avg_runs_per_playing,
+            ROUND(AVG(death_count),2)::float AS avg_deaths,
+            ROUND(100.0*AVG((play_count=1)::int) FILTER (WHERE play_count>0),1)::float AS one_and_done_pct
+           FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv}`),
+      run(`SELECT CASE WHEN is_first_run THEN 'first run' ELSE 'later runs' END AS run_type,
+            ROUND(AVG(playtime_ms)/1000.0,1)::float AS avg_s, ROUND(AVG(kills),2)::float AS avg_kills,
+            ROUND(AVG(coins),0)::float AS avg_coins,
+            ROUND(100.0*AVG((playtime_ms<20000 AND kills=0)::int),1)::float AS quick_deathless_pct
+           FROM analytics_runs WHERE created_at >= now() - ${iv} GROUP BY is_first_run ORDER BY is_first_run DESC`),
+      run(`SELECT ROUND(v.imp::numeric/NULLIF(v.person_days,0),2)::float AS impr_per_dau,
+            ROUND(v.vid::numeric/NULLIF(v.person_days,0),2)::float AS video_per_dau
+           FROM (SELECT
+             (SELECT COUNT(*) FROM analytics_ad_events a JOIN analytics_sessions s ON s.session_id=a.session_id WHERE s.${human} AND a.event_type='display_viewable' AND a.created_at >= now() - ${iv}) AS imp,
+             (SELECT COUNT(*) FROM analytics_ad_events a JOIN analytics_sessions s ON s.session_id=a.session_id WHERE s.${human} AND a.event_type IN ('video_complete','rewarded_complete') AND a.created_at >= now() - ${iv}) AS vid,
+             (SELECT COALESCE(SUM(dd),0) FROM (SELECT COUNT(DISTINCT visitor_id) AS dd FROM analytics_sessions WHERE ${human} AND created_at >= now() - ${iv} GROUP BY created_at::date) t) AS person_days) v`),
+      run(`WITH firsts AS (SELECT visitor_id, MIN(created_at::date) AS fd FROM analytics_sessions WHERE ${human} AND visitor_id IS NOT NULL GROUP BY 1
+              HAVING MIN(created_at::date) <= now()::date - 1 AND MIN(created_at::date) >= now()::date - ${d}),
+            act AS (SELECT DISTINCT visitor_id, created_at::date AS day FROM analytics_sessions WHERE ${human})
+            SELECT ROUND(100.0*COUNT(DISTINCT a.visitor_id)/NULLIF(COUNT(DISTINCT f.visitor_id),0),1)::float AS d1_pct
+            FROM firsts f LEFT JOIN act a ON a.visitor_id=f.visitor_id AND a.day=f.fd+1`),
     ]);
+
+    const round2 = (rows: any[]) => rows.map((r) => ({ ...r, est_usd: r.est_usd == null ? 0 : Math.round(Number(r.est_usd) * 100) / 100 }));
+
+    const readiness = this.computeReadiness(playCtr[0], playtime[0], mobileSplit[0], engagement[0], d1Overall[0]);
 
     return {
       days: d,
@@ -251,12 +316,50 @@ export class AnalyticsService {
       deSkew: deSkew[0] || {},
       concentration: concentration[0] || {},
       abTest,
-      adDaily,
-      adByPlacement,
+      adDaily: round2(adDaily),
+      adByPlacement: round2(adByPlacement),
       rewardedFunnel,
       adblockDaily,
       topCountries,
       deviceSplit,
+      playCtr: playCtr[0] || {},
+      playtime: playtime[0] || {},
+      engagement: engagement[0] || {},
+      mobileSplit: mobileSplit[0] || {},
+      stickiness: stickiness[0] || {},
+      sessionDepth: sessionDepth[0] || {},
+      firstRun,
+      adPerDau: adPerDau[0] || {},
+      readiness,
+    };
+  }
+
+  private computeReadiness(playCtr: any, playtime: any, mobileSplit: any, engagement: any, d1: any) {
+    const ctr = (playCtr?.pct_played ?? 0) / 100;
+    const avgMin = playtime?.avg_playing_min ?? 0;
+    const d1Rate = (d1?.d1_pct ?? 0) / 100;
+    const desktopMin = mobileSplit?.desktop_avg_min ?? 0;
+    const mobileMin = mobileSplit?.mobile_avg_min ?? 0;
+    const mobileRatio = desktopMin > 0 ? Math.min(mobileMin / desktopMin, 1) : (mobileMin > 0 ? 1 : 0);
+    const depth5 = (engagement?.pct_reached_5min ?? 0) / 100;
+
+    const clamp = (n: number) => Math.max(0, Math.min(n, 1));
+    const ctrTerm = clamp(ctr / 0.8);
+    const playtimeTerm = clamp(avgMin / 10);
+    const d1Term = clamp(d1Rate / 0.12);
+    const depthTerm = clamp(depth5 / 0.4);
+
+    const score = 25 * ctrTerm + 25 * playtimeTerm + 25 * d1Term + 15 * mobileRatio + 10 * depthTerm;
+    const band = score < 40 ? 'not ready' : score <= 70 ? 'borderline' : 'strong';
+
+    return {
+      score: Math.round(score * 10) / 10,
+      band,
+      play_ctr_pct: Math.round(ctr * 1000) / 10,
+      avg_playing_min: avgMin,
+      d1_pct: Math.round(d1Rate * 1000) / 10,
+      mobile_quality_pct: Math.round(mobileRatio * 1000) / 10,
+      depth_5min_pct: Math.round(depth5 * 1000) / 10,
     };
   }
 }

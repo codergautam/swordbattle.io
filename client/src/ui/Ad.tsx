@@ -69,32 +69,107 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
     if (adProvider === 'crazygames') return;
     if (adblockPromo && adblock) return;
     if (showMock) return;
+    if (type === -1) return;
 
     const windowAny = window as any;
-    const displayNewAd = () => {
-    try {
-    if(windowAny.aipDisplayTag && windowAny.aipDisplayTag.clear) {
-      for(const type of types) {
-        windowAny.aipDisplayTag.clear(`swordbattle-io_${type[0]}x${type[1]}`);
-      }
-    }
-  } catch(e) {
-    console.warn('error clearing ad', e);
-  }
-  if(type === -1) return;
-    if(windowAny.aiptag && windowAny.aiptag.cmd && windowAny.aiptag.cmd.display) {
-      console.log(`requesting swordbattle-io_${types[type][0]}x${types[type][1]}`);
-      windowAny.aiptag.cmd.display.push(function() { windowAny.aipDisplayTag.display(`swordbattle-io_${types[type][0]}x${types[type][1]}`); });
-      trackAd('display_impression', { ad_format: 'banner', ad_size: `${types[type][0]}x${types[type][1]}`, placement });
-    } else {
-    }
-    }
+    const w = types[type][0];
+    const h = types[type][1];
+    const slotId = `swordbattle-io_${w}x${h}`;
+    const size = `${w}x${h}`;
 
-    let timerId = setInterval(()=> {
-      displayNewAd();
-    }, AD_REFRESH_MS);
-    displayNewAd();
-    return () => clearInterval(timerId);
+    let cycleCleanup: (() => void) | null = null;
+
+    const runCycle = () => {
+      if (cycleCleanup) { cycleCleanup(); cycleCleanup = null; }
+      try {
+        if (windowAny.aipDisplayTag && windowAny.aipDisplayTag.clear) windowAny.aipDisplayTag.clear(slotId);
+      } catch (e) { console.warn('error clearing ad', e); }
+      if (!(windowAny.aiptag && windowAny.aiptag.cmd && windowAny.aiptag.cmd.display)) return;
+
+      let settled = false;
+      let noFillReported = false;
+      let viewed = false;
+      let dwell: any = null;
+      let noFillTimer: any = null;
+      let io: IntersectionObserver | null = null;
+      let mo: MutationObserver | null = null;
+
+      const startViewability = () => {
+        try {
+          const el = document.getElementById(slotId);
+          if (!el || typeof IntersectionObserver === 'undefined') return;
+          io = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            const on = entry.isIntersecting && entry.intersectionRatio >= 0.5 && document.visibilityState === 'visible';
+            if (on && !viewed && !dwell) {
+              dwell = setTimeout(() => {
+                viewed = true;
+                trackAd('display_viewable', { ad_format: 'banner', ad_size: size, placement, visible_ms: 1000, viewability: entry.intersectionRatio });
+              }, 1000);
+            } else if (!on && dwell) { clearTimeout(dwell); dwell = null; }
+          }, { threshold: [0, 0.5, 1] });
+          io.observe(el);
+        } catch (e) {}
+      };
+
+      const settle = (empty: boolean) => {
+        if (settled) return;
+        settled = true;
+        if (noFillTimer) { clearTimeout(noFillTimer); noFillTimer = null; }
+        if (mo) { mo.disconnect(); mo = null; }
+        if (empty) {
+          if (!noFillReported) { noFillReported = true; trackAd('display_no_fill', { ad_format: 'banner', ad_size: size, placement }); }
+        } else {
+          trackAd('display_filled', { ad_format: 'banner', ad_size: size, placement });
+          startViewability();
+        }
+      };
+
+      const onRenderEnded = (e: any) => {
+        const det = e?.detail;
+        if (!det || settled) return;
+        if (det.adType && det.adType !== 'display') return;
+        if ((det.slotId ?? det.slotElementId) !== slotId) return;
+        settle(det.isEmpty === true);
+      };
+      const onVis = () => { if (document.visibilityState === 'hidden' && dwell) { clearTimeout(dwell); dwell = null; } };
+
+      const events = windowAny.aiptag.events;
+      if (events && events.addEventListener) events.addEventListener('slotRenderEnded', onRenderEnded);
+      window.addEventListener('aip_slotRenderEnded', onRenderEnded as any);
+      document.addEventListener('visibilitychange', onVis);
+
+      const el = document.getElementById(slotId);
+      if (el && typeof MutationObserver !== 'undefined') {
+        mo = new MutationObserver(() => {
+          const inner = el.querySelector('iframe, ins') as HTMLElement | null;
+          if (inner && el.offsetHeight > 10 && inner.offsetWidth > 1) settle(false);
+        });
+        mo.observe(el, { childList: true, subtree: true });
+      }
+      noFillTimer = setTimeout(() => {
+        if (settled || noFillReported) return;
+        noFillReported = true;
+        trackAd('display_no_fill', { ad_format: 'banner', ad_size: size, placement });
+      }, 8000);
+
+      trackAd('display_request', { ad_format: 'banner', ad_size: size, placement });
+      windowAny.aiptag.cmd.display.push(function () { windowAny.aipDisplayTag.display(slotId); });
+
+      cycleCleanup = () => {
+        if (dwell) clearTimeout(dwell);
+        if (noFillTimer) clearTimeout(noFillTimer);
+        if (io) io.disconnect();
+        if (mo) mo.disconnect();
+        if (events && events.removeEventListener) events.removeEventListener('slotRenderEnded', onRenderEnded);
+        window.removeEventListener('aip_slotRenderEnded', onRenderEnded as any);
+        document.removeEventListener('visibilitychange', onVis);
+      };
+    };
+
+    const timerId = setInterval(() => { if (document.visibilityState === 'visible') runCycle(); }, AD_REFRESH_MS);
+    runCycle();
+    return () => { clearInterval(timerId); if (cycleCleanup) cycleCleanup(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, adProvider, placement, typesKey]);
 

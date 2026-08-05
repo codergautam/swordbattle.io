@@ -279,9 +279,9 @@ function runAdinplayAd(w: any, rewarded: boolean, done: (evt: string) => void) {
 
 export const playVideoAd = (force = false) => {
   const windowAny = window as any;
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<{ played: boolean; evt: string }>((resolve, reject) => {
   // basic launch
-  if(crazygamesSDK.shouldUseSDK()) { resolve(); return; }
+  if(crazygamesSDK.shouldUseSDK()) { resolve({ played: false, evt: 'cg-basic' }); return; }
   if(force || Date.now() - windowAny?.lastVidAdTime > windowAny?.vidAdDelay) {
     // CrazyGames SDK
     if(windowAny?.adProvider === 'crazygames') {
@@ -297,13 +297,13 @@ export const playVideoAd = (force = false) => {
           console.log('[CrazyGames] Video ad finished');
           const event = new CustomEvent('crazyGamesAdFinished');
           window.dispatchEvent(event);
-          resolve();
+          resolve({ played: true, evt: 'video-ad-completed' });
         },
         adError: (error) => {
           console.log('[CrazyGames] Video ad error:', error);
           const event = new CustomEvent('crazyGamesAdFinished');
           window.dispatchEvent(event);
-          resolve();
+          resolve({ played: false, evt: 'video-ad-error' });
         }
       });
     } else if (windowAny?.adProvider === 'gamemonetize' && typeof windowAny.sdk !== 'undefined' && windowAny.sdk.showBanner !== 'undefined') {
@@ -312,7 +312,7 @@ export const playVideoAd = (force = false) => {
     sdk?.showBanner();
     const onComplete = () => {
       console.log('Ad complete');
-      resolve();
+      resolve({ played: true, evt: 'gamemonetize-complete' });
       window.removeEventListener('gamemonetize_event_SDK_BANNER_COMPLETE', onComplete);
     };
     // const onImpression = () => {
@@ -393,7 +393,7 @@ export const playVideoAd = (force = false) => {
 
     runAdinplayAd(windowAny, false, (evt) => {
       console.log('[ads] preroll finished:', evt);
-      resolve();
+      resolve({ played: evt === 'video-ad-completed', evt });
     });
 
 
@@ -409,24 +409,24 @@ export const playVideoAd = (force = false) => {
   } else if(windowAny?.adProvider === 'gamepix' && windowAny?.GamePix) {
     windowAny?.GamePix.interstitialAd().then(function (res: any) {
       console.log('Ad closed', res);
-      resolve();
+      resolve({ played: true, evt: 'gamepix-closed' });
     });
   } else {
     console.log('Adprovider is', windowAny?.adProvider, 'not playing video ad');
-    resolve();
+    resolve({ played: false, evt: 'no-provider' });
   }
 } else {
   console.log('Not playing video ad, last ad was', ((Date.now() - windowAny?.lastVidAdTime)/1000).toFixed(2), 's ago');
-  resolve();
+  resolve({ played: false, evt: 'throttled' });
 }
 });
 }
 
 export const playRewardedAd = () => {
   const windowAny = window as any;
-  return new Promise<{ success: boolean }>((resolve, reject) => {
+  return new Promise<{ success: boolean; evt: string }>((resolve, reject) => {
     // basic launch
-    if(crazygamesSDK.shouldUseSDK()) { resolve({ success: true }); return; }
+    if(crazygamesSDK.shouldUseSDK()) { resolve({ success: true, evt: 'cg-basic' }); return; }
     if(windowAny?.adProvider === 'crazygames') {
       console.log('Playing rewarded ad from CrazyGames');
 
@@ -440,7 +440,7 @@ export const playRewardedAd = () => {
           console.log('[CrazyGames] Rewarded ad finished - user should receive reward');
           const event = new CustomEvent('crazyGamesAdFinished');
           window.dispatchEvent(event);
-          resolve({ success: true });
+          resolve({ success: true, evt: 'rewarded-granted' });
         },
         adError: (error) => {
           console.log('[CrazyGames] Rewarded ad error:', error);
@@ -448,19 +448,19 @@ export const playRewardedAd = () => {
           window.dispatchEvent(event);
 
           // Don't give reward if ad failed
-          resolve({ success: false });
+          resolve({ success: false, evt: 'video-ad-error' });
         }
       });
     } else if (windowAny?.adProvider === 'adinplay' && typeof windowAny?.aipPlayer !== 'undefined') {
       console.log('Playing rewarded ad from adinplay');
       runAdinplayAd(windowAny, true, (evt) => {
-        const success = evt === 'video-ad-completed' || evt === 'rewarded-granted' || evt === 'video-ad-skipped';
+        const success = evt === 'video-ad-completed' || evt === 'rewarded-granted';
         console.log('[ads] rewarded result:', evt, '-> success:', success);
-        resolve({ success });
+        resolve({ success, evt });
       });
     } else {
       console.log('Rewarded ads not supported for provider:', windowAny?.adProvider);
-      resolve({ success: false });
+      resolve({ success: false, evt: 'no-provider' });
     }
   });
 }

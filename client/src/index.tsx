@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import { RouterProvider, createHashRouter } from 'react-router-dom';
 import App from './ui/App';
 import Profile from './ui/Profile';
-const MetricsPage = lazy(() => import('./ui/MetricsPage'));
 import SupportPage from './ui/SupportPage';
 import NameMaker from './ui/namemaker/NameMaker';
 import AnnouncementsAdminPage from './ui/announcements/AnnouncementsAdminPage';
@@ -18,6 +17,8 @@ import { applyHudThemeCss } from './hudTheme';
 import { initAnalytics } from './analytics';
 
 import './global.scss';
+
+const MetricsPage = lazy(() => import('./ui/MetricsPage'));
 
 applyHudThemeCss();
 initAnalytics();

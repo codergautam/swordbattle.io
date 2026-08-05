@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "./static/css/main.ebbf4a2f.css",
-    "main.js": "./static/js/main.338f327a.js",
+    "main.css": "./static/css/main.bd058e0f.css",
+    "main.js": "./static/js/main.0ff1002c.js",
     "static/js/936.9c7c21d6.chunk.js": "./static/js/936.9c7c21d6.chunk.js",
     "static/media/final.png": "./static/media/final.67c8267a4b9ff73d40cd.png",
     "static/media/home.png": "./static/media/home.b9785e898424fee950c1.png",
@@ -9,7 +9,6 @@
     "static/media/discordLogo.png": "./static/media/discordLogo.e187da819ae43e19bf0e.png",
     "static/media/gem-reward.png": "./static/media/gem-reward.97388b4364ba0cf027ae.png",
     "static/media/gem.png": "./static/media/gem.b19d06f98a5cf6c31cbd.png",
-    "static/media/githubLogo.png": "./static/media/githubLogo.57df8209eb6fce911a08.png",
     "static/media/profileBackground.png": "./static/media/profileBackground.779bb0294480d730c360.png",
     "static/media/ultimacy.png": "./static/media/ultimacy.d73de02ea897c290bb9a.png",
     "static/media/ultimacy-reward.png": "./static/media/ultimacy-reward.4723858696171971ce45.png",
@@ -28,12 +27,12 @@
     "static/media/frame_4.svg": "./static/media/frame_4.5b733589248512faefdeee901d02d696.svg",
     "static/media/frame_1.svg": "./static/media/frame_1.6ea187d23f7d31b08dfdd00187eb3264.svg",
     "static/media/frame_3.svg": "./static/media/frame_3.1e58516d65b618e35af7500a216ab52b.svg",
-    "main.ebbf4a2f.css.map": "./static/css/main.ebbf4a2f.css.map",
-    "main.338f327a.js.map": "./static/js/main.338f327a.js.map",
+    "main.bd058e0f.css.map": "./static/css/main.bd058e0f.css.map",
+    "main.0ff1002c.js.map": "./static/js/main.0ff1002c.js.map",
     "936.9c7c21d6.chunk.js.map": "./static/js/936.9c7c21d6.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.ebbf4a2f.css",
-    "static/js/main.338f327a.js"
+    "static/css/main.bd058e0f.css",
+    "static/js/main.0ff1002c.js"
   ]
 }

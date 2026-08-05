@@ -61,6 +61,8 @@ import TutorialModal from './game/TutorialModal';
 import HubModal, { HubTab } from './hub/HubModal';
 import SupportButton from './support/SupportButton';
 import SupportModal from './support/SupportModal';
+import AnnouncementsButton from './announcements/AnnouncementsButton';
+import AnnouncementsModal from './announcements/AnnouncementsModal';
 
 let debugMode = false;
 try {
@@ -79,6 +81,7 @@ const modalClasses = new Map<any, string>([
   [HubModal, 'modal-hub'],
   [ClansModal, 'modal-clans'],
   [SupportModal, 'modal-support'],
+  [AnnouncementsModal, 'modal-announcements'],
 ]);
 const instantSwapModals = new Set<any>([ShopModal, RewardsModal, InventoryModal, ProfileModal, FullChangelogModal]);
 const modalCloseMs = 200;
@@ -996,6 +999,26 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
 
   const openSettings = () => setModal(<SettingsModal />);
   const openSupport = () => setModal(<SupportModal account={account} />);
+  const openAnnouncements = (id?: number) => setModal(<AnnouncementsModal initialId={typeof id === 'number' ? id : null} />);
+
+  const announcementLinkHandled = useRef(false);
+  useEffect(() => {
+    if (loadingProgress !== 100 || announcementLinkHandled.current) return;
+    announcementLinkHandled.current = true;
+    let linkedId: number | null = null;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const v = params.get('announcement');
+      if (v && /^\d+$/.test(v)) linkedId = parseInt(v, 10);
+      if (params.has('announcement')) {
+        params.delete('announcement');
+        const qs = params.toString();
+        window.history.replaceState(null, '', window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash);
+      }
+    } catch {}
+    if (linkedId !== null && !gameStarted && !instantStart) openAnnouncements(linkedId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadingProgress]);
   const closeModal = () => setModal(null);
 
   useEffect(() => {
@@ -1124,10 +1147,6 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
   useEffect(() => () => {
     if (authDropdownTimeoutRef.current) clearTimeout(authDropdownTimeoutRef.current);
   }, []);
-
-  const openFullChangelog = () => {
-    setModal(<FullChangelogModal />);
-  };
 
   const openTutorial = () => {
     setShowMenuTutorial(true);
@@ -1325,7 +1344,7 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
                   </div>
                 </div>
                 <div className="accountCard menuCard panel">
-                  <ChangelogCard onViewChangelog={openFullChangelog}/>
+                  <ChangelogCard onViewChangelog={(id: number) => openAnnouncements(id)}/>
                 </div>
               </div>
               <div
@@ -1365,6 +1384,7 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
             <FontAwesomeIcon icon={faGear} className='ui-icon'/>
           </div>
           <SupportButton account={account} onOpen={openSupport} />
+          <AnnouncementsButton onOpen={() => openAnnouncements()} />
           {/* <a id="githubButton" className="altLink imgPanel" href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
             <img src={GithubLogo} width={60} alt="GitHub" />
           </a> */}

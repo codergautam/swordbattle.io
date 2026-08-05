@@ -6,6 +6,7 @@ import Profile from './ui/Profile';
 import MetricsPage from './ui/MetricsPage';
 import SupportPage from './ui/SupportPage';
 import NameMaker from './ui/namemaker/NameMaker';
+import AnnouncementsAdminPage from './ui/announcements/AnnouncementsAdminPage';
 import { store } from './redux/store';
 import { config } from './config';
 import { load } from 'recaptcha-v3'
@@ -45,6 +46,10 @@ const router = createHashRouter([
   {
     path: ':secret/support',
     element: <SupportPage />,
+  },
+  {
+    path: ':secret/announcements',
+    element: <AnnouncementsAdminPage />,
   },
 ], {
   basename: config.basename,

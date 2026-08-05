@@ -46,21 +46,3 @@ html, body {
 body.sb-rewarded-ad #adinplay-progress-text + a {
   display: none !important;
 }
-
-#sbAdSkip {
-  position: fixed;
-  top: 14px;
-  right: 14px;
-  z-index: 2147483647;
-  padding: 8px 16px;
-  font-family: 'Saira', sans-serif;
-  font-weight: 700;
-  font-size: 16px;
-  color: #fff;
-  background: rgba(20, 20, 20, 0.9);
-  border: 2px solid #fff;
-  border-radius: 8px;
-  cursor: pointer;
-
-  &:hover { background: rgba(60, 60, 60, 0.95); }
-}

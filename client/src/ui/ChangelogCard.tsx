@@ -1,8 +1,20 @@
+import { useEffect, useState } from 'react';
 import './ChangelogCard.scss';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClipboardList } from "@fortawesome/free-solid-svg-icons";
+import { fetchAnnouncements } from './announcements/announcementsClient';
 
-export default function ChangelogCard({ onViewChangelog }: { onViewChangelog?: () => void }) {
+export default function ChangelogCard({ onViewChangelog }: { onViewChangelog?: (id: number) => void }) {
+  const [updateId, setUpdateId] = useState<number | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    fetchAnnouncements()
+      .then((d) => { if (alive) setUpdateId(d.updateId); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
   return (
     <span className="newsCard">
       <h1 className="news-title">News and Updates</h1>
@@ -14,9 +26,11 @@ export default function ChangelogCard({ onViewChangelog }: { onViewChangelog?: (
         <li>Improved graphics</li>
       </ul>
 
-      {/* <a className="changelogbutton" onClick={onViewChangelog} style={{ cursor: 'pointer' }}>
-        <FontAwesomeIcon icon={faClipboardList} /> View Changelog
-      </a> */} {/* actual changelog page won't be updated for a while */}
+      {updateId !== null && (
+        <a className="changelogbutton" onClick={() => onViewChangelog && onViewChangelog(updateId)} style={{ cursor: 'pointer' }}>
+          <FontAwesomeIcon icon={faClipboardList} /> View Changelog
+        </a>
+      )}
     </span>
   )
 }

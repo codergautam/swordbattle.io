@@ -241,56 +241,25 @@ function ensureAipPlayer(w: any): boolean {
   return typeof w.aiptag.adplayer?.startPreRoll === 'function';
 }
 
-function hidePrerollNow() {
-  try {
-    const pre = document.getElementById('preroll');
-    if (pre) {
-      pre.querySelectorAll('iframe').forEach((f) => { try { (f as HTMLIFrameElement).src = 'about:blank'; } catch (e) { /* noop */ } });
-      pre.style.display = 'none';
-    }
-  } catch (e) { /* noop */ }
-}
-
 function runAdinplayAd(w: any, rewarded: boolean, done: (evt: string) => void) {
   if (aipPending) { console.warn('[ads] an ad is already running'); done('video-ad-error'); return; }
 
-  let skipBtn: HTMLElement | null = null;
   let settled = false;
   const finish = (evt: string) => {
     if (settled) return;
     settled = true;
     clearTimeout(failsafe);
-    clearTimeout(skipTimer);
-    if (skipBtn) { try { skipBtn.remove(); } catch (e) { /* noop */ } skipBtn = null; }
     if (rewarded) document.body.classList.remove('sb-rewarded-ad');
     done(evt);
   };
   const failsafe = setTimeout(() => {
     console.warn('[ads] adinplay ad timed out, unblocking UI');
-    hidePrerollNow();
     if (aipPending === finish) aipPending = null;
     finish('video-ad-timeout');
   }, adMaxWaitMs);
-  const skipTimer = rewarded ? undefined : setTimeout(() => {
-    if (settled || skipBtn) return;
-    const el = document.createElement('button');
-    el.id = 'sbAdSkip';
-    el.textContent = 'Skip Ad ✕';
-    el.onclick = () => {
-      hidePrerollNow();
-      if (aipPending === finish) aipPending = null;
-      finish('video-ad-skipped');
-    };
-    document.body.appendChild(el);
-    skipBtn = el;
-  }, 10000);
 
   aipPending = finish;
   if (rewarded) document.body.classList.add('sb-rewarded-ad');
-  try {
-    const pre = document.getElementById('preroll');
-    if (pre) pre.style.display = '';
-  } catch (e) { /* noop */ }
 
   w.aiptag.cmd.player.push(() => {
     try {

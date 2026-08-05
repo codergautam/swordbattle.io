@@ -76,6 +76,8 @@ declare module "*.jpeg";
 declare module "*.jpg";
 declare module "*.scss";
 
+declare module 'fa-solid-icons-dir/index.js';
+
 interface Window {
   socket?: any
 }

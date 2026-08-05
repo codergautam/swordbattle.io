@@ -13,6 +13,7 @@ import { ClansModule } from './clans/clans.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { SupportModule } from './support/support.module';
+import { AnnouncementsModule } from './announcements/announcements.module';
 import { AuthService } from './auth/auth.service';
 
 @Module({
@@ -53,6 +54,7 @@ import { AuthService } from './auth/auth.service';
     MaintenanceModule,
     AnalyticsModule,
     SupportModule,
+    AnnouncementsModule,
   ],
   providers: [
     AuthService,

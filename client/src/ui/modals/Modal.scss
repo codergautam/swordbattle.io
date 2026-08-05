@@ -396,6 +396,30 @@
   }
 }
 
+.modal.modal-announcements {
+  z-index: 9999;
+  min-width: 0;
+  width: 880px;
+  max-width: calc(100vw - 24px);
+  height: 580px;
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  background-color: #1b1b1e !important;
+  border: 3px solid #9a9a9e;
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 3px #000,
+    0 16px 40px rgba(0, 0, 0, 0.55);
+
+  .modal-close {
+    top: 12px;
+    right: 12px;
+  }
+}
+
 .modal.modal-support {
   z-index: 9999;
   min-width: 0;

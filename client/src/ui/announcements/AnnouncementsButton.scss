@@ -1,0 +1,42 @@
+#announcementsButton {
+  cursor: pointer;
+  background-color: #261a19 !important;
+  transition: transform cubic-bezier(0.77, 0, 0.175, 1) 0.1s;
+
+  &::after {
+    box-shadow: 0 0 0 3px #c9463e, 0 0 0 6px #000 !important;
+  }
+
+  .ui-icon {
+    color: #ed544a;
+    font-size: 26px;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  .announcements-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    background: #e0463b;
+    border: 2px solid #111;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    z-index: 3;
+    pointer-events: none;
+  }
+}

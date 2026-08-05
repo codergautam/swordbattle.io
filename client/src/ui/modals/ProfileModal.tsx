@@ -31,12 +31,16 @@ function skinFiles(id?: number) {
 }
 
 function getRankColor(rank: number) {
-  if (rank === 1) return '#ffd700';
-  if (rank === 2) return '#c0c0c0';
-  if (rank === 3) return '#cd7f32';
-  if (rank <= 10) return '#00ff00';
-  if (rank <= 50) return '#ffa500';
-  if (rank <= 100) return '#ffff00';
+  if (rank === 1) return '#ffff00';
+  if (rank === 2) return '#ccccdc';
+  if (rank === 3) return '#222222';
+  if (rank >= 4 && rank <= 5) return '#00ffff';
+  if (rank >= 6 && rank <= 10) return '#00ff00';
+  if (rank >= 11 && rank <= 25) return '#ff0000';
+  if (rank >= 26 && rank <= 50) return '#ee00ff';
+  if (rank >= 51 && rank <= 75) return '#800080';
+  if (rank >= 76 && rank <= 100) return '#707070';
+  if (rank >= 101 && rank <= 200) return '#575454ff';
   return undefined;
 }
 

@@ -1,0 +1,111 @@
+.md-body {
+  line-height: 1.55;
+  word-break: break-word;
+
+  > :first-child { margin-top: 0; }
+  > :last-child { margin-bottom: 0; }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 1.15em 0 0.45em;
+    line-height: 1.25;
+    text-align: left;
+  }
+  h1 { font-size: 1.55em; }
+  h2 { font-size: 1.3em; }
+  h3 { font-size: 1.12em; }
+  h4, h5, h6 { font-size: 1em; }
+
+  p { margin: 0.55em 0; }
+
+  ul, ol {
+    margin: 0.55em 0;
+    padding-left: 1.6em;
+    text-align: left;
+    color: inherit;
+    font-size: inherit;
+
+    li {
+      margin: 0.2em 0;
+      &::before { content: none; }
+    }
+  }
+  ul { list-style: disc; }
+  ol { list-style: decimal; }
+  ul ul, ol ul { list-style: circle; }
+
+  hr {
+    border: none;
+    border-top: 2px solid rgba(128, 128, 128, 0.35);
+    border-radius: 2px;
+    margin: 1.3em 0;
+  }
+
+  blockquote {
+    margin: 0.7em 0;
+    padding: 0.4em 1em;
+    border-left: 4px solid rgba(128, 128, 128, 0.45);
+    background: rgba(128, 128, 128, 0.12);
+    border-radius: 0 8px 8px 0;
+  }
+
+  code {
+    font-family: Consolas, Menlo, monospace;
+    font-size: 0.92em;
+    background: rgba(128, 128, 128, 0.18);
+    border-radius: 5px;
+    padding: 0.1em 0.35em;
+  }
+
+  pre {
+    background: rgba(128, 128, 128, 0.14);
+    border-radius: 8px;
+    padding: 10px 12px;
+    overflow-x: auto;
+
+    code { background: none; padding: 0; }
+  }
+
+  img {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+
+  table {
+    border-collapse: collapse;
+    margin: 0.7em 0;
+    max-width: 100%;
+    display: block;
+    overflow-x: auto;
+
+    th, td {
+      border: 1px solid rgba(128, 128, 128, 0.4);
+      padding: 5px 10px;
+    }
+  }
+
+  details {
+    margin: 0.7em 0;
+    padding: 0.55em 0.9em;
+    border: 1px solid rgba(128, 128, 128, 0.35);
+    border-radius: 9px;
+    background: rgba(128, 128, 128, 0.09);
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      user-select: none;
+      margin: -0.55em -0.9em;
+      padding: 0.55em 0.9em;
+
+      &:hover { opacity: 0.85; }
+    }
+
+    &[open] > summary {
+      margin-bottom: 0.55em;
+      border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+    }
+
+    > :nth-child(2) { margin-top: 0; }
+    > :last-child { margin-bottom: 0; }
+  }
+}

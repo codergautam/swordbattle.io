@@ -65,6 +65,7 @@ export class BaseEntity {
     if (this.game.textures.exists(shadowKey)) return shadowKey;
 
     const source = this.game.textures.get(sourceKey).getSourceImage() as HTMLImageElement;
+    if (!source || !source.width || !source.height) return sourceKey;
     const canvasTexture = this.game.textures.createCanvas(shadowKey, source.width, source.height)!;
     const ctx = canvasTexture.getContext();
     ctx.drawImage(source, 0, 0);

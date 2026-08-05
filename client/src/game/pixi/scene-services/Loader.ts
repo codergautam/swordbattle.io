@@ -75,8 +75,11 @@ export class Loader {
     const pending = this.inflight.get(key);
     if (pending) return pending;
     const p = new Promise<boolean>((resolve) => {
-      const img = new Image();
+      const maxAttempts = 3;
       let settled = false;
+      let attempt = 0;
+      let timer: any = null;
+
       const finish = (ok: boolean) => {
         if (settled) return;
         settled = true;
@@ -84,11 +87,29 @@ export class Loader {
         this.inflight.delete(key);
         resolve(ok);
       };
-      const timer = setTimeout(() => finish(false), 12000);
-      img.crossOrigin = 'anonymous';
-      img.onload = () => { let ok = true; try { this._textures.addImage(key, img); } catch (e) { ok = false; } finish(ok); };
-      img.onerror = () => { console.warn('[pixi-loader] failed to load', key, url); finish(false); };
-      img.src = withAssetVersion(url);
+
+      const tryLoad = () => {
+        attempt++;
+        const myAttempt = attempt;
+        const img = new Image();
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          if (settled || myAttempt !== attempt) return;
+          if (attempt < maxAttempts) tryLoad();
+          else finish(false);
+        }, 15000);
+        img.crossOrigin = 'anonymous';
+        img.onload = () => { let ok = true; try { this._textures.addImage(key, img); } catch (e) { ok = false; } finish(ok); };
+        img.onerror = () => {
+          if (settled || myAttempt !== attempt) return;
+          console.warn('[pixi-loader] failed to load', key, url, 'attempt', myAttempt);
+          if (attempt < maxAttempts) setTimeout(() => { if (!settled && myAttempt === attempt) tryLoad(); }, 500 * myAttempt);
+          else finish(false);
+        };
+        const base = withAssetVersion(url);
+        img.src = myAttempt > 1 ? base + (base.indexOf('?') === -1 ? '?' : '&') + 'r=' + myAttempt : base;
+      };
+      tryLoad();
     });
     this.inflight.set(key, p);
     return p;

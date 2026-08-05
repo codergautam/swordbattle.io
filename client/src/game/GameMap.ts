@@ -296,11 +296,16 @@ class GameMap {
     const toX = (wx: number) => (wx - minX) * canvasScale;
     const toY = (wy: number) => (wy - minY) * canvasScale;
 
-    const sandImg = (key: string): HTMLImageElement => {
+    const sandImg = (key: string): HTMLImageElement | HTMLCanvasElement => {
       const k = this.scene.textures.exists(key) ? key : 'sand';
-      return this.scene.textures.get(k).getSourceImage() as HTMLImageElement;
+      const img = this.scene.textures.get(k).getSourceImage() as HTMLImageElement | HTMLCanvasElement | null;
+      if (img) return img;
+      const blank = document.createElement('canvas');
+      blank.width = 1;
+      blank.height = 1;
+      return blank;
     };
-    const sandSources: Record<string, HTMLImageElement> = {
+    const sandSources: Record<string, HTMLImageElement | HTMLCanvasElement> = {
       sand: sandImg('sand'), sandRock: sandImg('sandRock'),
       sandMud: sandImg('sandMud'), sandAsh: sandImg('sandAsh'),
       rocksNew: sandImg('rocksNew'),

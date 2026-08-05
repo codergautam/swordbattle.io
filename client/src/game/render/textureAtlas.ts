@@ -45,6 +45,7 @@ export function buildTextureAtlas(scene: Phaser.Scene) {
     let x = 0, y = 0, rowH = 0;
     for (const key of keys) {
       const img = tex.get(key).getSourceImage() as CanvasImageSource;
+      if (!img) continue;
       const w = (img as any).width, h = (img as any).height;
       if (!w || !h) continue;
       if (x + w + pad > page) { x = 0; y += rowH + pad; rowH = 0; }

@@ -103,6 +103,7 @@ class Player extends BaseEntity {
   bodyScale: number = 1;
   swordLerpProgress = 0;
   angleLerp = 0;
+  localAimAngle: number | null = null;
   previousAngle = 0;
   following = false;
 
@@ -1080,7 +1081,10 @@ class Player extends BaseEntity {
     let angle: number;
     if (this.game.isMobile) {
       const a = this.game.controls.aim;
-      angle = (a && a.force > 0) ? a.angle : (typeof this.angle === 'number' ? this.angle : 0);
+      if (a && a.force > 0) this.localAimAngle = a.angle;
+      angle = typeof this.localAimAngle === 'number'
+        ? this.localAimAngle
+        : (typeof this.angle === 'number' ? this.angle : 0);
     } else if ((this.game as any)._isZooming) {
       const pointer = this.game.input.activePointer;
       const camera = this.game.cameras.main;

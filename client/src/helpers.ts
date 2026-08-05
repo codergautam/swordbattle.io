@@ -485,7 +485,7 @@ export const playRewardedAd = () => {
     } else if (windowAny?.adProvider === 'adinplay' && typeof windowAny?.aipPlayer !== 'undefined') {
       console.log('Playing rewarded ad from adinplay');
       runAdinplayAd(windowAny, true, (evt) => {
-        const success = evt === 'video-ad-completed' || evt === 'rewarded-granted';
+        const success = evt === 'video-ad-completed' || evt === 'rewarded-granted' || evt === 'video-ad-skipped';
         console.log('[ads] rewarded result:', evt, '-> success:', success);
         resolve({ success });
       });

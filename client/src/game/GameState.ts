@@ -83,7 +83,7 @@ class GameState {
 
   private skinSweepAccum: number = 0;
   private skinIdleSince: Record<string, number> = {};
-  private static readonly skinCap = 60;
+  private static readonly skinCap = 24;
   private static readonly skinIdleMs = 25000;
 
   private _boundOnOpen: () => void;
@@ -334,7 +334,7 @@ class GameState {
 
     let reason = event.reason || 'Connection failed';
     if(endpoint) {
-      reason += ` (${endpoint})`;
+      reason += ` (${String(endpoint).split('?')[0]})`;
     }
     this.game.game.events.emit('connectionClosed', reason);
     console.log('connection closed');

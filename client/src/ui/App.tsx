@@ -1365,9 +1365,9 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
             <FontAwesomeIcon icon={faGear} className='ui-icon'/>
           </div>
           <SupportButton account={account} onOpen={openSupport} />
-          <a id="githubButton" className="altLink imgPanel" href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
+          {/* <a id="githubButton" className="altLink imgPanel" href="https://github.com/codergautam/swordbattle.io" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
             <img src={GithubLogo} width={60} alt="GitHub" />
-          </a>
+          </a> */}
           <a id="discordButton" className="altLink imgPanel" href="https://discord.com/invite/9A9dNTGWb9" target="_blank" rel="nofollow" style={{ pointerEvents: 'auto' }}>
             <img src={DiscordLogo} width={60} alt="Discord" />
           </a>

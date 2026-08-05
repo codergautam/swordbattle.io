@@ -420,7 +420,7 @@
   $col-name: 1.6fr;
   $col-role: 1fr;
   $col-stat: 1.1fr;
-  $col-actions: 1.4fr;
+  $col-actions: 1.8fr;
 
   &__header {
     display: flex;
@@ -564,9 +564,10 @@
     .col-stat { color: #aaa; font-size: 13px; }
     .col-actions {
       display: flex;
+      flex-wrap: wrap;
       gap: 4px;
+      row-gap: 4px;
       justify-content: flex-end;
-      white-space: nowrap;
 
       button {
         background: rgba(255,255,255,0.1);
@@ -595,7 +596,7 @@
       align-items: center;
       gap: 8px;
       background: rgba(255,170,0,0.1);
-      border: 1px solid rgba(255,170,0,0.3);
+      border: 2px solid rgba(255,170,0,0.3);
       border-radius: 6px;
       padding: 8px 12px;
       margin-bottom: 6px;

@@ -292,12 +292,13 @@ class Entity {
     if (!target || !target.shape || this.definition.forbiddenBiomes.length === 0) return false;
     const tx = target.shape.x;
     const ty = target.shape.y;
-    for (const biomeType of this.definition.forbiddenBiomes) {
-      for (const biome of this.game.map.biomes) {
-        if (biome.type !== biomeType) continue;
-        if (biome.shape.isPointInside && biome.shape.isPointInside(tx, ty)) return true;
-      }
+    let inAnyBiome = false;
+    for (const biome of this.game.map.biomes) {
+      if (!biome.shape || !biome.shape.isPointInside || !biome.shape.isPointInside(tx, ty)) continue;
+      inAnyBiome = true;
+      if (this.definition.forbiddenBiomes.includes(biome.type)) return true;
     }
+    if (!inAnyBiome && this.definition.forbiddenBiomes.includes(Types.Biome.River)) return true;
     return false;
   }
 

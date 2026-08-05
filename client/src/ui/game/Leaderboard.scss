@@ -78,7 +78,7 @@
     }
 
     .lb-name {
-      flex: 0 1 auto;
+      flex: 1 1 auto;
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -86,16 +86,6 @@
 
       .lb-clan { color: var(--ui-accent); }
       .lb-rank { font-weight: 700; }
-    }
-
-    .lb-line {
-      flex: 1 1 8px;
-      min-width: 8px;
-      height: 1px;
-      background: var(--ui-accent);
-      opacity: 0.35;
-      margin: 0 2px;
-      align-self: center;
     }
 
     .lb-score {

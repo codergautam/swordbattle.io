@@ -240,8 +240,8 @@ export default function ClanProfile({ clanId, viewerInClan, account, onOpenUserP
               <a className="user-link" onClick={() => onOpenUserProfile?.(m.username)}>{m.username}</a>
             </span>
             <span className="col col-role">{roleLabels[m.role as ClanRole]}</span>
-            <span className="col col-stat">{numberWithCommas(m.xp)} XP</span>
-            <span className="col col-stat">{numberWithCommas(m.mastery)} mastery</span>
+            <span className="col col-stat">{numberWithCommas(m.xp)}</span>
+            <span className="col col-stat">{numberWithCommas(m.mastery)}</span>
             <span className="col col-stat">{sinceFrom(m.joined_at as any)} ago</span>
             <span className="col col-actions">
               {canPromoteRow(m) && <button onClick={() => onPromote(m)} title="Promote">▲</button>}

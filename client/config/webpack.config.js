@@ -335,6 +335,7 @@ module.exports = function (webpackEnv) {
           babelRuntimeEntry,
           babelRuntimeEntryHelpers,
           babelRuntimeRegenerator,
+          path.resolve(paths.appNodeModules, '@fortawesome/free-solid-svg-icons/index.js'),
         ]),
       ],
     },

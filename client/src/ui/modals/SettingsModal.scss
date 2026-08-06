@@ -124,6 +124,29 @@
     }
   }
 
+  .more-ads-benefits {
+    margin: 2px 0 8px;
+    padding: 10px 12px;
+    background: #2a2a2e;
+    border: 2px solid #000;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #c3c3ca;
+
+    .mab-title {
+      color: #e7e7ec;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .mab-line { padding: 1px 0; }
+
+    .mab-yellow {
+      color: #ffe000;
+      font-weight: 700;
+    }
+  }
+
   select {
     background: #2a2a2e;
     color: #fff;

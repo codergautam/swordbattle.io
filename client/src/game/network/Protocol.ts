@@ -1193,6 +1193,7 @@ export interface Account {
   subscription_start_date?: string;
   rank?: number;
   clan?: string;
+  adSupporter?: boolean;
 }
 
 export function encodeAccount(message: Account): Uint8Array {
@@ -1243,6 +1244,13 @@ function _encodeAccount(message: Account, bb: ByteBuffer): void {
     writeVarint32(bb, 50);
     writeString(bb, $clan);
   }
+
+  // optional bool adSupporter = 7;
+  let $adSupporter = message.adSupporter;
+  if ($adSupporter !== undefined) {
+    writeVarint32(bb, 56);
+    writeByte(bb, $adSupporter ? 1 : 0);
+  }
 }
 
 export function decodeAccount(binary: Uint8Array): Account {
@@ -1292,6 +1300,12 @@ function _decodeAccount(bb: ByteBuffer): Account {
       // optional string clan = 6;
       case 6: {
         message.clan = readString(bb, readVarint32(bb));
+        break;
+      }
+
+      // optional bool adSupporter = 7;
+      case 7: {
+        message.adSupporter = !!readByte(bb);
         break;
       }
 

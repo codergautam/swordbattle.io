@@ -17,6 +17,20 @@
   pointer-events: auto;
 }
 
+.ingame-ad-block-cover {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: #000;
+  pointer-events: auto;
+  cursor: default;
+}
+
 .ingame-ad-block {
   width: min(970px, 92vw);
   height: 100px;
@@ -32,4 +46,13 @@
   font-weight: 800;
   text-align: center;
   letter-spacing: 0.5px;
+}
+
+.ingame-ad-block-sub {
+  max-width: min(700px, 88vw);
+  color: #c3c3ca;
+  font-family: 'Saira', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
 }

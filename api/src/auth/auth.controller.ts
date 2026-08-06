@@ -102,6 +102,13 @@ export class AuthController {
 
   @UseGuards(AccountGuard)
   @Throttle({ short: { limit: 2, ttl: 1000 }, medium: { limit: 10, ttl: 60000 } })
+  @Post('set-more-ads')
+  async setMoreAds(@Req() request) {
+    return this.authService.setMoreAds(request.account, request.body.enabled === true);
+  }
+
+  @UseGuards(AccountGuard)
+  @Throttle({ short: { limit: 2, ttl: 1000 }, medium: { limit: 10, ttl: 60000 } })
   @Post('claim-daily-login')
   async claimDailyLogin(@Req() request) {
     return this.authService.claimDailyLogin(request.account, request.body.count);

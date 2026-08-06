@@ -196,7 +196,7 @@ class Player extends BaseEntity {
       isPlayer: true,
     });
     const nameY = -this.effectiveBodyHeight / 2 - 50;
-    const ns = resolveNameStyle(this.name, !!this.account, 'game')!;
+    const ns = resolveNameStyle(this.name, !!this.account, 'game', !!this.account?.adSupporter)!;
     const nameTag = buildNameTag(this.name, ns, 42);
     const nameW = (nameTag as any).textWidth || 0;
 

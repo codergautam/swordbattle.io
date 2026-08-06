@@ -213,6 +213,13 @@ export class AuthService {
     return this.accountsService.checkIn(account);
   }
 
+  async setMoreAds(account: Account, enabled: boolean) {
+    if (account.adSupporter !== enabled) {
+      await this.accountsService.update(account.id, { adSupporter: enabled });
+    }
+    return { success: true, adSupporter: enabled };
+  }
+
   private static stripCrazygamesRandomSuffix(username: string): string {
     const match = username.match(/^(.+)_([A-Za-z0-9]{3,5})$/);
     if (!match) return username;

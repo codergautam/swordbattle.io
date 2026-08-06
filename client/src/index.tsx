@@ -1,8 +1,9 @@
 import { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { RouterProvider, createHashRouter } from 'react-router-dom';
+import { RouterProvider, createHashRouter, Navigate } from 'react-router-dom';
 import App from './ui/App';
+import { Settings } from './game/Settings';
 import Profile from './ui/Profile';
 import SupportPage from './ui/SupportPage';
 import NameMaker from './ui/namemaker/NameMaker';
@@ -24,6 +25,11 @@ applyHudThemeCss();
 initAnalytics();
 detectAdblock();
 
+function MoreAdsRedirect() {
+  Settings.moreAds = true;
+  return <Navigate to="/" replace />;
+}
+
 const router = createHashRouter([
   {
     path: '/',
@@ -31,7 +37,7 @@ const router = createHashRouter([
   },
   {
     path: 'moreads',
-    element: <App moreAds />,
+    element: <MoreAdsRedirect />,
   },
   {
     path: 'profile',

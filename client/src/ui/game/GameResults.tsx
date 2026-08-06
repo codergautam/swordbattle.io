@@ -15,6 +15,8 @@ import { updateAccountAsync } from '../../redux/account/slice';
 import { getVariant, trackRunEnd, trackAd } from '../../analytics';
 import { updatePB, getEncouragingMessage, formatTime } from '../../game/PersonalBest';
 
+const isBasicLaunch = typeof window !== 'undefined' && !!(window as any)._isCrazyGamesBasicLaunch;
+
 // Smarter video ad logic to prevent spammed ads
 const DEATHS_BETWEEN_ADS = 1;
 const MIN_TIME_BETWEEN_ADS_MS = 1000 * 60 * 1;
@@ -298,7 +300,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
         )}
       </div>
 
-      { isLoggedIn && baseGems > 0 && (
+      { isLoggedIn && baseGems > 0 && !isBasicLaunch && (
         <div className="double-gems">
           {adblockActive ? (
             <button

@@ -93,6 +93,8 @@ export const leaderboardAccountStyle: NameStyle = { fill: '#0088ff' };
 
 export const CLAN_COLOR = '#ffe000';
 export const clanStyleGame: NameStyle = { fill: CLAN_COLOR, outline: '#000000' };
+export const adSupporterStyleGame: NameStyle = { fill: CLAN_COLOR, outline: '#000000' };
+export const adSupporterStyleLeaderboard: NameStyle = { fill: CLAN_COLOR };
 
 export const PRESET_LOGGED_OUT = {
   leaderboard: { fill: '#ffffff' } as NameStyle,
@@ -129,10 +131,14 @@ export function resolveNameStyle(
   name: string,
   hasAccount: boolean,
   context: NameContext,
+  adSupporter?: boolean,
 ): NameStyle | null {
   const lower = (name || '').toLowerCase();
   const special = NAME_REGISTRY[lower];
   if (special) return special[context] || special.leaderboard || special.game || null;
+  if (adSupporter && hasAccount) {
+    return context === 'leaderboard' ? adSupporterStyleLeaderboard : adSupporterStyleGame;
+  }
   if (context === 'leaderboard') return hasAccount ? leaderboardAccountStyle : null;
   return hasAccount ? accountNameStyle : defaultNameStyle;
 }

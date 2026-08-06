@@ -177,6 +177,14 @@ export const settingsList: Record<string, SettingType> = {
     type: 'toggle',
     default: false,
   },
+  moreAds: {
+    name: 'More ads',
+    type: 'toggle',
+    default: false,
+    onChange: (value: boolean) => {
+      window.dispatchEvent(new CustomEvent('moreAdsChanged', { detail: { enabled: value } }));
+    },
+  },
 };
 
 export const Settings: any = {};

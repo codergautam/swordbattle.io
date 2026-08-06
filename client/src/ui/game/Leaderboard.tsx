@@ -129,7 +129,7 @@ function fitFontSize(text: string) {
 const LeaderboardLine = memo(function LeaderboardLine({ place, coins, name, account, isSelf, innerRef }: any) {
   const balance = coins >= 1000 ? `${(coins / 1000).toFixed(1)}k` : coins;
 
-  const nameStyle = resolveNameStyle(name, !!account, 'leaderboard');
+  const nameStyle = resolveNameStyle(name, !!account, 'leaderboard', !!account?.adSupporter);
 
   const clan = account?.clan;
   const tag = clan && typeof clan === 'object' ? clan.tag : (typeof clan === 'string' ? clan : null);

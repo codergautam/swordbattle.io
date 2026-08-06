@@ -31,6 +31,7 @@ interface AccountData {
   recovered: boolean;
   bio: string;
   tags: { tags: string[], colors: string[] };
+  adSupporter?: boolean;
 }
 interface ClanInfo {
   clan: { id: number; tag: string; name: string; frameId: number; iconId: number; frameColor: string };
@@ -205,13 +206,16 @@ export default function Profile() {
         </h1>
         </center>
         <br />
-        {data.account.tags.tags.length > 0 && (
+        {((data.account.tags?.tags?.length ?? 0) > 0 || data.account.adSupporter) && (
           <div className="profile-tags" style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {data.account.tags.tags.map((tag: string, idx: number) => (
+            {[
+              ...(data.account.tags?.tags || []).map((tag: string, idx: number) => ({ tag, color: data.account.tags.colors?.[idx] || '#fff' })),
+              ...(data.account.adSupporter ? [{ tag: 'Ad Supporter', color: '#ffe000' }] : []),
+            ].map((t, idx) => (
               <span
                 key={idx}
                 style={{
-                  color: data.account.tags.colors[idx] || '#fff',
+                  color: t.color,
                   fontWeight: 600,
                   fontSize: '1rem',
                   padding: '2px 8px',
@@ -219,7 +223,7 @@ export default function Profile() {
                   background: 'rgba(0,0,0,0.15)',
                 }}
               >
-                {tag}
+                {t.tag}
               </span>
             ))}
           </div>

@@ -10,6 +10,7 @@ import Ad from '../Ad';
 import { crazygamesSDK } from '../../crazygames/sdk';
 import { trackRunStart, trackRunEndDeferred } from '../../analytics';
 import { getAdblockStatus } from '../../crazygames/adblock';
+import { Settings } from '../../game/Settings';
 
 declare global {
   interface Window {
@@ -20,11 +21,20 @@ declare global {
 const managems = 0;
 
 const nohud = typeof window !== 'undefined' && window.location.search.includes('nohud');
+const isBasicLaunch = typeof window !== 'undefined' && !!(window as any)._isCrazyGamesBasicLaunch;
 
-function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn, moreAds }: any) {
+function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn }: any) {
   const [gameResults, setGameResults] = useState<any>(null);
   const [playing, setPlaying] = useState(false);
-  const [moreAdsBlocked, setMoreAdsBlocked] = useState(() => (moreAds ? getAdblockStatus() : false));
+  const [moreAds, setMoreAds] = useState(!isBasicLaunch && !!Settings.moreAds);
+  const [moreAdsBlocked, setMoreAdsBlocked] = useState(() => (!isBasicLaunch && Settings.moreAds ? getAdblockStatus() : false));
+
+  useEffect(() => {
+    if (isBasicLaunch) return;
+    const h = (e: Event) => setMoreAds(!!(e as CustomEvent).detail?.enabled);
+    window.addEventListener('moreAdsChanged', h);
+    return () => window.removeEventListener('moreAdsChanged', h);
+  }, []);
 
   useEffect(() => {
     if (!moreAds) return;
@@ -119,13 +129,16 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
       { playing && !nohud && <Leaderboard game={game} /> }
       { playing && !nohud && <InGameSettings /> }
       { moreAds && playing && !gameResults && (
-        <div className="ingame-ad-overlay">
-          { moreAdsBlocked ? (
+        moreAdsBlocked ? (
+          <div className="ingame-ad-block-cover">
             <div className="ingame-ad-block">Turn off your adblocker</div>
-          ) : (
+            <div className="ingame-ad-block-sub">The "More ads" setting requires ads to be visible. Disable your adblocker and reload, or turn off "More ads" in settings.</div>
+          </div>
+        ) : (
+          <div className="ingame-ad-overlay">
             <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90]]} placement="ingame_moreads" />
-          )}
-        </div>
+          </div>
+        )
       )}
       {gameResults && (
       <>

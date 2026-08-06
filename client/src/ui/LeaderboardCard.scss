@@ -1,92 +1,104 @@
-#leaderboard-card {
-  text-align: center;
+.menu-lb {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
   height: 100%;
+  text-align: left;
 
-  .leaderboard-card-title {
-    margin-top: 0;
-    margin-bottom: 0.6rem;
-    font-size: 1.1rem;
-    color: #fff;
-  }
-
-  .leaderboard-card-list {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    flex: 1;
-  }
-
-  .leaderboard-card-loading {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 13px;
-    padding: 0.3rem 0;
-  }
-
-  .leaderboard-card-row {
+  .menu-lb-title {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0.35rem 0.6rem;
-    border-radius: 0.4rem;
-    background: rgba(255, 255, 255, 0.05);
-    font-size: 14px;
-  }
-
-  .leaderboard-card-rank {
-    width: 1.8rem;
-    flex-shrink: 0;
+    gap: 9px;
+    font-size: 22px;
     font-weight: 700;
-    text-align: left;
+    color: #fff;
+    text-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+    margin-bottom: 10px;
+
+    .menu-lb-title-icon {
+      color: #f5c542;
+      font-size: 18px;
+    }
   }
 
-  .leaderboard-card-name {
+  .menu-lb-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
     flex: 1;
-    text-align: left;
-    color: #e0e0e0;
+  }
+
+  .menu-lb-empty {
+    color: #9a9aa2;
+    font-weight: 700;
+    text-align: center;
+    padding: 14px 0;
+  }
+
+  .menu-lb-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    background: #202024;
+    border: 3px solid #000;
+    border-radius: 10px;
+    transition: background 0.12s ease;
+
+    &:hover { background: #26262b; }
+  }
+
+  .menu-lb-rank {
+    flex: 0 0 auto;
+    min-width: 26px;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .menu-lb-skin {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      -webkit-user-drag: none;
+      user-select: none;
+    }
+  }
+
+  .menu-lb-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #e7e7ec;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin: 0 0.4rem;
-  }
 
-  .leaderboard-card-xp {
-    color: rgba(255, 255, 255, 0.6);
-    flex-shrink: 0;
-    font-size: 12px;
-  }
-
-  .leaderboard-card-tip {
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.4);
-    margin-top: auto;
-    padding-top: 0.6rem;
-    margin-bottom: 0.6rem;
-  }
-
-  .leaderboard-card-button {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    width: 100%;
-    padding: 0.6rem 1rem;
-    border-radius: 0.5rem;
-    background-color: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 15px;
-    cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease;
-
-    &:hover {
-      color: rgba(255, 255, 255, 0.9);
-      border-color: rgba(255, 255, 255, 0.4);
+    .menu-lb-clan {
+      color: #f5c542;
+      margin-right: 5px;
     }
+  }
+
+  .menu-lb-xp {
+    flex: 0 0 auto;
+    font-size: 13px;
+    font-weight: 700;
+    color: #f5c542;
+  }
+
+  .menu-lb-tip {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #9a9aa2;
+    text-align: center;
   }
 }

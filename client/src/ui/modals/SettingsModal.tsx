@@ -1,11 +1,16 @@
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Settings, settingsList } from '../../game/Settings';
+import { selectAccount } from '../../redux/account/selector';
+import api from '../../api';
 import './SettingsModal.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faGear, faImage, faCoins,
-  faVectorSquare, faExpand, faComment, faArrowsUpDownLeftRight, faVolumeHigh, faVideo,
+  faVectorSquare, faExpand, faComment, faArrowsUpDownLeftRight, faVolumeHigh, faVideo, faRectangleAd,
 } from '@fortawesome/free-solid-svg-icons';
+
+const isBasicLaunch = typeof window !== 'undefined' && !!(window as any)._isCrazyGamesBasicLaunch;
 
 function isChatForceDisabled(): boolean {
   try {
@@ -25,7 +30,9 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (
 }
 
 function SettingsModal() {
+  const account = useSelector(selectAccount);
   const [coins, setCoins] = useState(Settings.coins);
+  const [moreAds, setMoreAds] = useState(Settings.moreAds);
   const [screenEffects, setScreenEffects] = useState(Settings.screenEffects);
   const [antialiasing, setAntialiasing] = useState(Settings.antialiasing);
   const [resolution, setResolution] = useState(Settings.resolution);
@@ -45,6 +52,13 @@ function SettingsModal() {
   const updateEnableChat = (v: boolean) => {
     if (chatForceDisabled) return;
     setEnableChat(v); Settings.enableChat = v;
+  };
+  const updateMoreAds = (v: boolean) => {
+    setMoreAds(v);
+    Settings.moreAds = v;
+    if (account?.isLoggedIn) {
+      api.post(`${api.endpoint}/auth/set-more-ads`, { enabled: v });
+    }
   };
 
   return (
@@ -112,6 +126,29 @@ function SettingsModal() {
             <span className="s-val">{sound}</span>
           </div>
         </div>
+
+        {!isBasicLaunch && (
+        <>
+        <h3 className="section"> Support the game</h3>
+        <div className="settings-line">
+          <span className="s-label"><FontAwesomeIcon icon={faRectangleAd} className="s-icon" /> More ads <em>(shows a banner ad while you play)</em></span>
+          <Toggle checked={moreAds} onChange={updateMoreAds} />
+        </div>
+        {moreAds && (
+          <div className="more-ads-benefits">
+            {account?.isLoggedIn ? (
+              <>
+                <div className="mab-title">Thanks for supporting Swordbattle! Your benefits:</div>
+                <div className="mab-line">• <span className="mab-yellow">Ad Supporter</span> tag on your profile</div>
+                <div className="mab-line">• Your name shows in <span className="mab-yellow">yellow</span> in-game</div>
+              </>
+            ) : (
+              <div className="mab-title">Log in to get the <span className="mab-yellow">Ad Supporter</span> profile tag and a <span className="mab-yellow">yellow</span> in-game name!</div>
+            )}
+          </div>
+        )}
+        </>
+        )}
       </div>
     </div>
   );

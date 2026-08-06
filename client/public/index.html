@@ -7,6 +7,7 @@
   <!-- Swordbattle.io -->
   <script>
     console.log("%cSwordbattle.io %cV2\n%cA project by %cGautam\n\n%cgithub.com/codergautam", "color: orange; font-size: 30px;", "color: red; font-size: 30px;", "color: green; font-size: 20px;", "color: cyan; font-size: 20px", "color: grey; font-size: 10px");
+    window._isCrazyGamesBasicLaunch = new URLSearchParams(window.location.search).has('crazygames');
   </script>
 
 
@@ -18,20 +19,24 @@
   <link rel="stylesheet" href="https://sdk.playlight.dev/playlight-sdk.css">
   <script type="module">
     try {
-      const module = await import("https://sdk.playlight.dev/playlight-sdk.es.js");
-      const playlightSDK = module.default;
-      await playlightSDK.init({
-        button: {
-        position: 'bottom-right',
-        visible: false
-      },
-      exitIntent: {
-        enabled: false
+      if (window._isCrazyGamesBasicLaunch) {
+        window.showPlaylight = async () => {};
+      } else {
+        const module = await import("https://sdk.playlight.dev/playlight-sdk.es.js");
+        const playlightSDK = module.default;
+        await playlightSDK.init({
+          button: {
+          position: 'bottom-right',
+          visible: false
+        },
+        exitIntent: {
+          enabled: false
+        }
+        });
+        window.showPlaylight = async (visible = true) => {
+          await playlightSDK.setDiscovery(visible)
+        };
       }
-      });
-      window.showPlaylight = async (visible = true) => {
-        await playlightSDK.setDiscovery(visible)
-      };
     } catch (error) {
       console.error("Error loading the Playlight SDK:", error);
     }
@@ -50,13 +55,6 @@
   <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 
     <!-- Ads -->
-
-  <script>
-    // CrazyGames is no longer used, so we always run our own web ads (AdinPlay + AdSense),
-    // including inside portal iframes. This flag stays defined (false) only so the older
-    // `_isCrazyGamesBasicLaunch` checks scattered through the code keep resolving to "show ads".
-    window._isCrazyGamesBasicLaunch = false;
-  </script>
 
   <script>
     if (!window._isCrazyGamesBasicLaunch) {

@@ -69,6 +69,8 @@ try {
   debugMode = window.location.search.includes("debugAlertMode");
   } catch(e) {}
 
+const isBasicLaunch = typeof window !== 'undefined' && !!(window as any)._isCrazyGamesBasicLaunch;
+
 const modalClasses = new Map<any, string>([
   [ShopModal, 'modal-fullscreen'],
   [RewardsModal, 'modal-fullscreen'],
@@ -86,8 +88,7 @@ const modalClasses = new Map<any, string>([
 const instantSwapModals = new Set<any>([ShopModal, RewardsModal, InventoryModal, ProfileModal, FullChangelogModal]);
 const modalCloseMs = 200;
 
-function App({ moreAds = false }: { moreAds?: boolean }) {
-  useEffect(() => { if (moreAds) document.title = 'Swordbattle.io (more ads)'; }, [moreAds]);
+function App() {
   let { skins } = cosmetics;
   const RESET_HOUR = 23; // 0-23 utc
 
@@ -428,6 +429,11 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
       if(e.detail === 1) setAssetsLoaded(true);
     });
   }, []);
+
+  useEffect(() => {
+    if (!account?.isLoggedIn) return;
+    api.post(`${api.endpoint}/auth/set-more-ads`, { enabled: !isBasicLaunch && !!Settings.moreAds });
+  }, [account?.isLoggedIn, account?.username]);
 
 
   useEffect(() => {
@@ -1195,7 +1201,6 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
         setGame={setGame}
         openLeaderboard={openLeaderboard}
         onPendingRespawn={(info: any) => setPendingRespawn(info)}
-        moreAds={moreAds}
       />
       {connectionError && (
         <Modal
@@ -1281,9 +1286,9 @@ function App({ moreAds = false }: { moreAds?: boolean }) {
     left: '50%',
     transform: 'translate(-50%, -25%)' }} >
               <div className="menu">
-                {crazygamesSDK.shouldUseSDK() && !account?.secret ? (
+                {(crazygamesSDK.shouldUseSDK() || isBasicLaunch) && !account?.secret ? (
                   <div className="accountCard menuCard panel">
-                    <LeaderboardCard onViewLeaderboard={openLeaderboard} />
+                    <LeaderboardCard />
                   </div>
                 ) : (
                   <div className="accountCard menuCard panel">

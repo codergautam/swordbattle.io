@@ -186,10 +186,13 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ username, onOpenClan }) => 
                 )}
                 {acc.username}
               </div>
-              {acc.tags?.tags?.length > 0 && (
+              {(acc.tags?.tags?.length > 0 || acc.adSupporter) && (
                 <div className="profile-tags">
-                  {acc.tags.tags.map((tag: string, i: number) => (
-                    <span key={i} className="profile-tag" style={{ color: acc.tags.colors?.[i] || '#fff' }}>{tag}</span>
+                  {[
+                    ...(acc.tags?.tags || []).map((tag: string, i: number) => ({ tag, color: acc.tags.colors?.[i] || '#fff' })),
+                    ...(acc.adSupporter ? [{ tag: 'Ad Supporter', color: '#ffe000' }] : []),
+                  ].map((t, i) => (
+                    <span key={i} className="profile-tag" style={{ color: t.color }}>{t.tag}</span>
                   ))}
                 </div>
               )}

@@ -27,6 +27,8 @@ export class Account {
 
   @Column({ default: false }) subscription: boolean;
 
+  @Column({ default: false }) adSupporter: boolean;
+
   @Column({ nullable: true }) subscription_start_date: Date;
 
   @Column({ default: false }) is_v1: boolean;

@@ -1,4 +1,4 @@
-import { Graphics as PixiGraphics, Rectangle, Matrix, Transform } from 'pixi.js';
+import { Graphics as PixiGraphics, Rectangle, Matrix, Transform } from 'pixi.js-legacy';
 import { applyPhaserGO } from './mixin';
 
 const tempTransform = new Transform();

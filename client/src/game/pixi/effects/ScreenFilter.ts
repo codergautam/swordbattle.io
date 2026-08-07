@@ -1,4 +1,4 @@
-import { Filter } from 'pixi.js';
+import { Filter } from 'pixi.js-legacy';
 import { screenEffectsState, screenEffectsRuntime, hexToRgb01 } from '../../effects/screenEffectsState';
 import { biomeFxRuntime } from '../../effects/biomeEffects';
 

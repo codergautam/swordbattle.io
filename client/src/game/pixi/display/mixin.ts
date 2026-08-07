@@ -1,4 +1,4 @@
-import { Container as PixiContainer, IPointData, ObservablePoint, Graphics as PixiGraphics, Rectangle } from 'pixi.js';
+import { Container as PixiContainer, IPointData, ObservablePoint, Graphics as PixiGraphics, Rectangle } from 'pixi.js-legacy';
 import { toPixiBlend } from '../mathgeom';
 
 export type Constructor<T = {}> = new (...args: any[]) => T;
@@ -87,14 +87,19 @@ export function applyPhaserGO<TBase extends Constructor<PixiContainer>>(Base: TB
       inv.pivot.copyFrom(src.transform.pivot);
       const b = src.getLocalBounds();
       const m = 100000;
+      const rectPoly = (x: number, y: number, w: number, h: number) => [x, y, x + w, y, x + w, y + h, x, y + h];
       inv.beginFill(0xffffff, 1);
-      inv.drawRect(b.x - m, b.y - m, b.width + 2 * m, b.height + 2 * m);
+      inv.drawPolygon(rectPoly(b.x - m, b.y - m, b.width + 2 * m, b.height + 2 * m));
       inv.beginHole();
       const gd = src.geometry && src.geometry.graphicsData;
       if (gd && gd.length) {
-        for (const d of gd) inv.drawShape(d.shape);
+        for (const d of gd) {
+          const s: any = d.shape;
+          if (s && s.type === 1 && s.width !== undefined) inv.drawPolygon(rectPoly(s.x, s.y, s.width, s.height));
+          else inv.drawShape(s);
+        }
       } else {
-        inv.drawRect(b.x, b.y, b.width, b.height);
+        inv.drawPolygon(rectPoly(b.x, b.y, b.width, b.height));
       }
       inv.endHole();
       inv.endFill();

@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import api from '../../api';
@@ -6,7 +6,7 @@ import { numberWithCommas, secondsToTime, sinceFrom, fixDate, lastSeen } from '.
 import cosmetics from '../../game/cosmetics.json';
 import SkinView from '../SkinView';
 import { getSkinScale } from '../../game/skinScales';
-import { withAssetVersion } from '../../assetVersion';
+import { ProfileTheme, bannerUrl, getThemeMeta, hexToRgba, loadGoogleFont, resolveProfileTheme, themeCssVars } from '../profileTheme';
 import './ProfileModal.scss';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -15,6 +15,10 @@ interface ProfileModalProps {
   username?: string;
   isOwnProfile?: boolean;
   onOpenClan?: (clanId: number) => void;
+  mockData?: any;
+  mockGames?: any[];
+  themeOverride?: ProfileTheme;
+  themeNameOverride?: string;
 }
 
 const sorts: { key: 'coins' | 'kills' | 'playtime'; label: string }[] = [
@@ -65,7 +69,7 @@ function gameAge(dateLike: any) {
 const dayMs = 86400000;
 const maxGraphPoints = 400;
 
-function buildGraph(dailyStats: any[]) {
+function buildGraph(dailyStats: any[], theme: ProfileTheme) {
   const xpByDay = new Map<number, number>();
   let minDay = Infinity;
   let maxDay = -Infinity;
@@ -95,34 +99,50 @@ function buildGraph(dailyStats: any[]) {
     datasets: [{
       label: 'Total XP',
       data: points,
-      borderColor: '#5bb8ff',
-      backgroundColor: 'rgba(91, 184, 255, 0.18)',
-      pointRadius: 0,
+      borderColor: theme.chart,
+      backgroundColor: theme.classicGraph ? theme.chart : hexToRgba(theme.chart, 0.18),
+      pointRadius: 3,
+      pointHoverRadius: 5,
+      pointBackgroundColor: theme.chart,
+      pointBorderColor: theme.chart,
       borderWidth: 3,
-      fill: true,
+      fill: !theme.classicGraph,
       tension: 0.4,
     }],
   };
 }
 
-const chartOptions: any = {
-  responsive: true,
-  maintainAspectRatio: false,
-  interaction: { mode: 'index', intersect: false },
-  scales: {
-    y: { beginAtZero: true, ticks: { color: '#9a9aa2' }, grid: { color: 'rgba(255,255,255,0.08)' } },
-    x: { ticks: { color: '#9a9aa2', maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,0.06)' } },
-  },
-  plugins: { legend: { labels: { color: '#e7e7ec' } } },
-};
+function buildChartOptions(theme: ProfileTheme): any {
+  const dark = theme.darkGraphGrid;
+  const gridY = dark ? 'rgba(0, 0, 0, 0.11)' : hexToRgba(theme.text, 0.08);
+  const gridX = dark ? 'rgba(0, 0, 0, 0.09)' : hexToRgba(theme.text, 0.06);
+  const tickColor = dark ? 'rgba(0, 0, 0, 0.55)' : theme.muted;
+  const legendColor = dark ? 'rgba(0, 0, 0, 0.75)' : theme.text;
+  const font = {
+    family: theme.font ? `'${theme.font}', 'Saira', sans-serif` : `'Saira', sans-serif`,
+    weight: theme.fontWeight || '700',
+  };
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    scales: {
+      y: { beginAtZero: true, ticks: { color: tickColor, font }, grid: { color: gridY } },
+      x: { ticks: { color: tickColor, maxTicksLimit: 8, font }, grid: { color: gridX } },
+    },
+    plugins: { legend: { labels: { color: legendColor, font } } },
+  };
+}
 
-const ProfileModal: React.FC<ProfileModalProps> = ({ username, onOpenClan }) => {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [games, setGames] = useState<any[]>([]);
+const ProfileModal: React.FC<ProfileModalProps> = ({ username, onOpenClan, mockData, mockGames, themeOverride, themeNameOverride }) => {
+  const [data, setData] = useState<any>(mockData ?? null);
+  const [loading, setLoading] = useState(!mockData);
+  const [games, setGames] = useState<any[]>(mockGames ?? []);
   const [gameSort, setGameSort] = useState<'coins' | 'kills' | 'playtime'>('coins');
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (mockData) { setData(mockData); setLoading(false); return; }
     if (!username) { setData(null); setLoading(false); return; }
     let cancelled = false;
     setLoading(true);
@@ -133,27 +153,34 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ username, onOpenClan }) => 
       setLoading(false);
     });
     return () => { cancelled = true; };
-  }, [username]);
+  }, [username, mockData]);
 
   useEffect(() => {
+    if (mockData) { setGames(mockGames ?? []); return; }
     if (!data?.account) return;
     api.post(`${api.endpoint}/games/fetch?${Date.now()}`, { sortBy: gameSort, timeRange: 'all', limit: 30, accountId: data.account.id }, (res: any) => {
       setGames(Array.isArray(res) ? res : []);
     });
-  }, [data, gameSort, username]);
+  }, [data, gameSort, username, mockData, mockGames]);
 
   const acc = data?.account;
   const ts = data?.totalStats;
   const skin = skinFiles(acc?.skins?.equipped);
+  const theme = useMemo(
+    () => themeOverride || resolveProfileTheme(acc?.themes?.equipped),
+    [themeOverride, acc?.themes?.equipped],
+  );
+  const themeName = themeNameOverride ?? getThemeMeta(acc?.themes?.equipped)?.displayName;
   const sortedGames = useMemo(
     () => [...(games || [])].sort((a, b) => b[gameSort] - a[gameSort]).slice(0, 10),
     [games, gameSort],
   );
   const dailyStats = data?.dailyStats;
   const graphData = useMemo(
-    () => (dailyStats && dailyStats.length > 1 ? buildGraph(dailyStats) : null),
-    [dailyStats],
+    () => (dailyStats && dailyStats.length > 1 ? buildGraph(dailyStats, theme) : null),
+    [dailyStats, theme],
   );
+  const chartOptions = useMemo(() => buildChartOptions(theme), [theme]);
   const lastOnlineText = useMemo(() => {
     if (!dailyStats || !dailyStats.length) return null;
     const latest = dailyStats.reduce(
@@ -163,43 +190,59 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ username, onOpenClan }) => 
     return `last online ${lastSeen(latest)}`;
   }, [dailyStats]);
 
+  const cssVars = useMemo(() => themeCssVars(theme), [theme]);
+
+  useEffect(() => {
+    if (!theme.googleFont || !theme.font) return;
+    const t = setTimeout(() => loadGoogleFont(theme.font), 400);
+    return () => clearTimeout(t);
+  }, [theme.googleFont, theme.font]);
+
+  useLayoutEffect(() => {
+    const shell = rootRef.current?.closest('.modal') as HTMLElement | null;
+    if (!shell) return;
+    Object.entries(cssVars).forEach(([k, v]) => shell.style.setProperty(k, v));
+    return () => { Object.keys(cssVars).forEach((k) => shell.style.removeProperty(k)); };
+  }, [cssVars]);
+
   return (
-    <div className="profile-modal">
+    <div className={`profile-modal${theme.plainStatColors ? ' plain-stats' : ''}`} ref={rootRef} style={cssVars as any}>
       {loading ? (
         <div className="profile-empty">Loading…</div>
       ) : !acc ? (
         <div className="profile-empty">Account not found.</div>
       ) : (
         <div className="profile-scroll">
-          <div
-            className="profile-banner"
-            style={{ backgroundImage: "linear-gradient(180deg, rgba(20,26,38,0.22), rgba(20,26,38,0.45)), url('" + withAssetVersion('assets/game/tiles/ice-new.png') + "')" }}
-          >
-            <div className="profile-skin"><SkinView body={skin.body} sword={skin.sword} scale={skin.scale} shadow /></div>
-            <div className="profile-id">
-              <div className="profile-name">
-                {data.clan?.clan && (
-                  <span
-                    className={`profile-clan${data.clan.clan.id && onOpenClan ? ' clickable' : ''}`}
-                    onClick={() => { if (data.clan.clan.id && onOpenClan) onOpenClan(data.clan.clan.id); }}
-                  >[{data.clan.clan.tag}]</span>
-                )}
-                {acc.username}
-              </div>
-              {(acc.tags?.tags?.length > 0 || acc.adSupporter) && (
-                <div className="profile-tags">
-                  {[
-                    ...(acc.tags?.tags || []).map((tag: string, i: number) => ({ tag, color: acc.tags.colors?.[i] || '#fff' })),
-                    ...(acc.adSupporter ? [{ tag: 'Ad Supporter', color: '#ffe000' }] : []),
-                  ].map((t, i) => (
-                    <span key={i} className="profile-tag" style={{ color: t.color }}>{t.tag}</span>
-                  ))}
+          <div className={`profile-banner${theme.banner ? ' has-banner' : ''}`}>
+            {theme.banner && <img className="profile-bannerimg" src={bannerUrl(theme.banner)} alt="" draggable={false} />}
+            {theme.showThemeLabel && themeName && <div className="profile-themetag">Theme: {themeName}</div>}
+            <div className="profile-head">
+              <div className="profile-skin"><SkinView body={skin.body} sword={skin.sword} scale={skin.scale} shiftYPct={4} shadow /></div>
+              <div className="profile-id">
+                <div className="profile-name">
+                  {data.clan?.clan && (
+                    <span
+                      className={`profile-clan${data.clan.clan.id && onOpenClan ? ' clickable' : ''}`}
+                      onClick={() => { if (data.clan.clan.id && onOpenClan) onOpenClan(data.clan.clan.id); }}
+                    >[{data.clan.clan.tag}]</span>
+                  )}
+                  {acc.username}
                 </div>
-              )}
-              <div className="profile-meta">
-                <span>Joined {sinceFrom(acc.created_at)} ago</span>
-                <span>{numberWithCommas(acc.profile_views || 0)} profile views</span>
-                {data.rank && <span style={getRankColor(data.rank) ? { color: getRankColor(data.rank) } : undefined}>#{data.rank} all-time</span>}
+                {(acc.tags?.tags?.length > 0 || acc.adSupporter) && (
+                  <div className="profile-tags">
+                    {[
+                      ...(acc.tags?.tags || []).map((tag: string, i: number) => ({ tag, color: acc.tags.colors?.[i] || '#fff' })),
+                      ...(acc.adSupporter ? [{ tag: 'Ad Supporter', color: '#ffe000' }] : []),
+                    ].map((t, i) => (
+                      <span key={i} className="profile-tag" style={{ color: t.color }}>{t.tag}</span>
+                    ))}
+                  </div>
+                )}
+                <div className="profile-meta">
+                  <span>Joined {sinceFrom(acc.created_at)} ago</span>
+                  <span>{numberWithCommas(acc.profile_views || 0)} profile views</span>
+                  {data.rank && <span style={getRankColor(data.rank) ? { color: getRankColor(data.rank) } : undefined}>#{data.rank} all-time</span>}
+                </div>
               </div>
             </div>
           </div>

@@ -566,6 +566,8 @@ module.exports = function (webpackEnv) {
       ].filter(Boolean),
     },
     plugins: [
+      require('../../scripts/updatebanners').webpackPlugin(),
+      require('../../scripts/updatefonts').webpackPlugin(),
       // Generates an `index.html` file with the <script> injected.
       new HtmlWebpackPlugin(
         Object.assign(
@@ -574,7 +576,7 @@ module.exports = function (webpackEnv) {
             inject: true,
             template: paths.appHtml,
           },
-          { adProvider: env.raw.AD_PROVIDER ?? 'adinplay' },
+          { adProvider: env.raw.AD_PROVIDER ?? 'adsense' },
           isEnvProduction
             ? {
                 minify: {

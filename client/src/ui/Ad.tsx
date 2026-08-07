@@ -1,21 +1,31 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { config } from "../config";
 import { crazygamesSDK } from "../crazygames/sdk";
 import { trackAd } from "../analytics";
 import { getAdblockStatus } from "../crazygames/adblock";
 import AdblockPromo from "./AdblockPromo";
+import AdsenseSlot from "./AdsenseSlot";
 
-const AD_REFRESH_MS = 30000; // refresh ad every 30 seconds
+const adRefreshMs = 30000;
+const cycleTickMs = 2000;
+const unconfirmedRetryMs = 10000;
+const unconfirmedBackoffMs = 60000;
+const maxUnconfirmedAttempts = 3;
 const debug = config.isDev;
 
-function findAdType(screenW: number, screenH: number, types: [number, number][], horizThresh: number): number {
-  let type = 0;
+const deadSlotSizes = new Set<string>();
+
+function findAdType(screenW: number, screenH: number, types: [number, number][], horizThresh: number, dead: Set<string> = deadSlotSizes): number {
+  let type = -1;
   for (let i = 0; i < types.length; i++) {
+    if (dead.has(`${types[i][0]}x${types[i][1]}`)) continue;
+    if (type === -1) type = i;
     if (types[i][0] <= screenW*0.9 && types[i][1] <= screenH * horizThresh) {
       type = i;
     }
   }
 
+  if (type === -1) return -1;
   if(types[type][0] > screenW || types[type][1] > screenH*horizThresh) return -1;
 
   return type;
@@ -25,27 +35,55 @@ function isAdsDisabled(): boolean {
   return !!(window as any)._isCrazyGamesBasicLaunch || crazygamesSDK.shouldUseSDK();
 }
 
-const activeSlotCounts = new Map<string, number>();
-const displayedSlots = new Set<string>();
+const slotOwners = new Map<string, symbol>();
+const slotWaiters = new Map<string, Array<() => void>>();
+const confirmedSlots = new Set<string>();
 
 function destroyAdSlot(slotId: string) {
   const tag = (window as any).aipDisplayTag;
-  displayedSlots.delete(slotId);
+  confirmedSlots.delete(slotId);
   try {
     if (tag && tag.destroySlot) tag.destroySlot(slotId);
     else if (tag && tag.clear) tag.clear(slotId);
   } catch (e) {}
 }
 
-export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThresh = 0.3, placement, adblockPromo }: { screenW: number, screenH: number, types: [number, number][]; centerOnOverflow?: number; horizThresh?: number; placement?: string; adblockPromo?: boolean }) {
+function isSlotViewable(el: HTMLElement | null): boolean {
+  if (!el) return false;
+  if (document.visibilityState !== 'visible') return false;
+  if ((window as any).videoAdActive) return false;
+  const r = el.getBoundingClientRect();
+  if (r.width < 10 || r.height < 10) return false;
+  const vw = window.innerWidth || 0;
+  const vh = window.innerHeight || 0;
+  const ix = Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0));
+  const iy = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+  if (ix * iy < 0.5 * r.width * r.height) return false;
+  const overlays = document.querySelectorAll('.modal, .loading-screen, .loading-cover');
+  for (let i = 0; i < overlays.length; i++) {
+    if (!overlays[i].contains(el)) return false;
+  }
+  return true;
+}
+
+export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThresh = 0.3, placement, adblockPromo, provider }: { screenW: number, screenH: number, types: [number, number][]; centerOnOverflow?: number; horizThresh?: number; placement?: string; adblockPromo?: boolean; provider?: string }) {
   const [type, setType] = useState(findAdType(screenW, screenH, types, horizThresh));
-  const [adProvider, setAdProvider] = useState<string>((window as any).adProvider || 'adinplay');
+  const [windowProvider, setWindowProvider] = useState<string>((window as any).adProvider || 'adsense');
+  const adProvider = provider || windowProvider;
+  const setAdProvider = setWindowProvider;
   const [adblock, setAdblock] = useState(() => (adblockPromo ? getAdblockStatus() : false));
+  const [owner, setOwner] = useState(false);
+  const tokenRef = useRef<symbol | null>(null);
+  if (!tokenRef.current) tokenRef.current = Symbol('ad-slot-owner');
   const showMock = debug;
   const typesKey = types.map((t) => `${t[0]}x${t[1]}`).join('|');
+  const blocked = !!(adblockPromo && adblock);
 
   useEffect(() => {
-    setType(findAdType(screenW, screenH, types, horizThresh));
+    const recompute = () => setType(findAdType(screenW, screenH, types, horizThresh));
+    recompute();
+    window.addEventListener('adSlotSizeDead', recompute);
+    return () => window.removeEventListener('adSlotSizeDead', recompute);
   }, [screenW, screenH, types, horizThresh]);
 
   useEffect(() => {
@@ -57,7 +95,7 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
   }, [adblockPromo]);
 
   useEffect(() => {
-    if (isAdsDisabled() || type === -1 || showMock || (adblockPromo && adblock)) return;
+    if (isAdsDisabled() || type === -1 || showMock || blocked) return;
     const mountedAt = Date.now();
     return () => {
       trackAd('display_view', {
@@ -68,7 +106,7 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [type]);
+  }, [type, blocked]);
 
   useEffect(() => {
     const handler = (e: Event) => setAdProvider((e as CustomEvent).detail);
@@ -78,8 +116,45 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
 
   useEffect(() => {
     if (isAdsDisabled()) return;
-    if (adProvider === 'crazygames') return;
-    if (adblockPromo && adblock) return;
+    if (adProvider !== 'adinplay') return;
+    if (blocked) return;
+    if (showMock) return;
+    if (type === -1) return;
+
+    const slotId = `swordbattle-io_${types[type][0]}x${types[type][1]}`;
+    const token = tokenRef.current!;
+    const claim = () => {
+      slotOwners.set(slotId, token);
+      setOwner(true);
+    };
+    if (!slotOwners.has(slotId)) {
+      claim();
+    } else {
+      const waiters = slotWaiters.get(slotId) || [];
+      waiters.push(claim);
+      slotWaiters.set(slotId, waiters);
+    }
+
+    return () => {
+      const waiters = slotWaiters.get(slotId) || [];
+      const idx = waiters.indexOf(claim);
+      if (idx >= 0) waiters.splice(idx, 1);
+      if (slotOwners.get(slotId) === token) {
+        slotOwners.delete(slotId);
+        destroyAdSlot(slotId);
+        setOwner(false);
+        const next = waiters.shift();
+        if (next) next();
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type, adProvider, typesKey, blocked]);
+
+  useEffect(() => {
+    if (!owner) return;
+    if (isAdsDisabled()) return;
+    if (adProvider !== 'adinplay') return;
+    if (blocked) return;
     if (showMock) return;
     if (type === -1) return;
 
@@ -90,10 +165,12 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
     const size = `${w}x${h}`;
 
     let cycleCleanup: (() => void) | null = null;
+    let lastAttemptAt = 0;
+    let unconfirmedAttempts = 0;
 
     const runCycle = () => {
       if (cycleCleanup) { cycleCleanup(); cycleCleanup = null; }
-      const canRefresh = displayedSlots.has(slotId) && !!(windowAny.aipDisplayTag && windowAny.aipDisplayTag.refresh);
+      const canRefresh = confirmedSlots.has(slotId) && !!(windowAny.aipDisplayTag && windowAny.aipDisplayTag.refresh);
       if (!(windowAny.aiptag && windowAny.aiptag.cmd && windowAny.aiptag.cmd.display)) return;
 
       let settled = false;
@@ -130,6 +207,7 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
         if (empty) {
           if (!noFillReported) { noFillReported = true; trackAd('display_no_fill', { ad_format: 'banner', ad_size: size, placement }); }
         } else {
+          confirmedSlots.add(slotId);
           trackAd('display_filled', { ad_format: 'banner', ad_size: size, placement });
           startViewability();
         }
@@ -137,10 +215,11 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
 
       const onRenderEnded = (e: any) => {
         const det = e?.detail;
-        if (!det || settled) return;
+        if (!det) return;
         if (det.adType && det.adType !== 'display') return;
         if ((det.slotId ?? det.slotElementId) !== slotId) return;
-        settle(det.isEmpty === true);
+        confirmedSlots.add(slotId);
+        if (!settled) settle(det.isEmpty === true);
       };
       const onVis = () => { if (document.visibilityState === 'hidden' && dwell) { clearTimeout(dwell); dwell = null; } };
 
@@ -176,7 +255,6 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
           if (windowAny.aipDisplayTag && windowAny.aipDisplayTag.clear) windowAny.aipDisplayTag.clear(slotId);
         } catch (e) { console.warn('error clearing ad', e); }
         windowAny.aiptag.cmd.display.push(function () { windowAny.aipDisplayTag.display(slotId); });
-        displayedSlots.add(slotId);
       }
 
       cycleCleanup = () => {
@@ -190,29 +268,43 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
       };
     };
 
-    const prevCount = activeSlotCounts.get(slotId) || 0;
-    activeSlotCounts.set(slotId, prevCount + 1);
-    if (prevCount > 0) {
-      return () => {
-        activeSlotCounts.set(slotId, (activeSlotCounts.get(slotId) || 1) - 1);
-      };
-    }
+    const tick = () => {
+      const el = document.getElementById(slotId);
+      if (!isSlotViewable(el as HTMLElement | null)) return;
+      const confirmed = confirmedSlots.has(slotId);
+      const since = Date.now() - lastAttemptAt;
+      if (!confirmed && unconfirmedAttempts >= maxUnconfirmedAttempts && since >= unconfirmedRetryMs) {
+        const excluded = new Set(deadSlotSizes);
+        excluded.add(size);
+        if (findAdType(screenW, screenH, types, horizThresh, excluded) !== -1) {
+          deadSlotSizes.add(size);
+          window.dispatchEvent(new Event('adSlotSizeDead'));
+          return;
+        }
+      }
+      const retryMs = unconfirmedAttempts >= maxUnconfirmedAttempts ? unconfirmedBackoffMs : unconfirmedRetryMs;
+      const due = lastAttemptAt === 0
+        || (!confirmed && since >= retryMs)
+        || (confirmed && since >= adRefreshMs);
+      if (!due) return;
+      lastAttemptAt = Date.now();
+      if (!confirmed) unconfirmedAttempts++;
+      else unconfirmedAttempts = 0;
+      runCycle();
+    };
 
-    const timerId = setInterval(() => { if (document.visibilityState === 'visible') runCycle(); }, AD_REFRESH_MS);
-    runCycle();
+    const timerId = setInterval(tick, cycleTickMs);
+    tick();
     return () => {
       clearInterval(timerId);
       if (cycleCleanup) cycleCleanup();
-      const remaining = (activeSlotCounts.get(slotId) || 1) - 1;
-      activeSlotCounts.set(slotId, remaining);
-      if (remaining <= 0) destroyAdSlot(slotId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [type, adProvider, placement, typesKey]);
+  }, [owner, type, adProvider, placement, typesKey, blocked]);
 
   if (isAdsDisabled()) return null;
 
-  if (adblockPromo && adblock) {
+  if (blocked) {
     const t = type === -1 ? 0 : type;
     return <AdblockPromo w={Math.min(types[t][0], screenW)} h={types[t][1]} centerOnOverflow={centerOnOverflow} />;
   }
@@ -242,7 +334,14 @@ export default function Ad({ screenW, screenH, types, centerOnOverflow, horizThr
     );
   }
 
+  if (adProvider === 'adsense') {
+    return <AdsenseSlot key={`${w}x${h}`} w={w} h={h} placement={placement} centerTransform={centerTransform} />;
+  }
+
+  if (adProvider !== 'adinplay') return null;
+  if (!owner) return null;
+
   return (
-    <div style={{ transform: centerTransform }} id={`swordbattle-io_${w}x${h}`} />
+    <div style={{ width: w, height: h, transform: centerTransform }} id={`swordbattle-io_${w}x${h}`} />
   )
 }

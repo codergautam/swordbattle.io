@@ -4,8 +4,10 @@
   "private": true,
   "homepage": "./",
   "scripts": {
+    "prestart": "node ../scripts/updatebanners.js",
     "start": "node scripts/start.js",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "prebuild": "node ../scripts/updatebanners.js",
     "build": "node scripts/build.js",
     "build-protocol": "npx pbjs --ts ./src/game/network/Protocol.ts ./src/game/network/schema.proto",
     "test": "node scripts/test.js"
@@ -50,6 +52,7 @@
     "phaser": "^3.60.0",
     "phaser3-rex-plugins": "^1.60.2",
     "pixi.js": "7",
+    "pixi.js-legacy": "^7.4.3",
     "postcss": "^8.4.4",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^6.2.1",

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Phaser from '../../game/engine';
 import config from '../../game/PhaserConfig';
 import Leaderboard from './Leaderboard';
@@ -22,12 +22,18 @@ const managems = 0;
 
 const nohud = typeof window !== 'undefined' && window.location.search.includes('nohud');
 const isBasicLaunch = typeof window !== 'undefined' && !!(window as any)._isCrazyGamesBasicLaunch;
+const ingameAdProvider = 'adinplay';
 
 function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn }: any) {
   const [gameResults, setGameResults] = useState<any>(null);
   const [playing, setPlaying] = useState(false);
   const [moreAds, setMoreAds] = useState(!isBasicLaunch && !!Settings.moreAds);
   const [moreAdsBlocked, setMoreAdsBlocked] = useState(() => (!isBasicLaunch && Settings.moreAds ? getAdblockStatus() : false));
+
+  useEffect(() => {
+    if (!moreAds) return;
+    (window as any).loadAdinplay?.();
+  }, [moreAds]);
 
   useEffect(() => {
     if (isBasicLaunch) return;
@@ -123,6 +129,47 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
     }
   }, []);
 
+  const playingRef = useRef(playing);
+  useEffect(() => { playingRef.current = playing; }, [playing]);
+
+  useEffect(() => {
+    if (!game) return;
+    const hibernateMs = 3 * 60 * 1000;
+    let timer: any = null;
+    const arm = () => {
+      if (timer || !document.hidden || playingRef.current || (window as any).__hibernated) return;
+      timer = setTimeout(() => {
+        timer = null;
+        if (!document.hidden || playingRef.current || (window as any).__hibernated) return;
+        (window as any).__hibernated = true;
+        try { (window as any).socket?.close?.(); } catch (e) {}
+        try { game.destroy(true); } catch (e) {}
+      }, hibernateMs);
+    };
+    const onVis = () => {
+      if (document.hidden) {
+        arm();
+      } else {
+        if (timer) { clearTimeout(timer); timer = null; }
+        if ((window as any).__hibernated) {
+          window.onbeforeunload = null;
+          window.location.reload();
+        }
+      }
+    };
+    const onIdle = () => { if (document.hidden) arm(); };
+    document.addEventListener('visibilitychange', onVis);
+    game.events.on('setGameResults', onIdle);
+    game.events.on('connectionClosed', onIdle);
+    if (document.hidden) arm();
+    return () => {
+      document.removeEventListener('visibilitychange', onVis);
+      try { game.events.off('setGameResults', onIdle); } catch (e) {}
+      try { game.events.off('connectionClosed', onIdle); } catch (e) {}
+      if (timer) clearTimeout(timer);
+    };
+  }, [game]);
+
   return (
     <div className="game">
       <div id="phaser-container" />
@@ -136,7 +183,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
           </div>
         ) : (
           <div className="ingame-ad-overlay">
-            <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90]]} placement="ingame_moreads" />
+            <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90]]} placement="ingame_moreads" provider={ingameAdProvider} />
           </div>
         )
       )}
@@ -148,7 +195,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         results={gameResults}
         isLoggedIn={loggedIn}
         openLeaderboard={openLeaderboard}
-        adElement={<Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} horizThresh={0.3} placement="game_results" adblockPromo />}
+        adElement={<Ad screenW={dimensions.width} screenH={dimensions.height} types={[[468, 60], [300, 250]]} horizThresh={0.4} placement="game_results" adblockPromo />}
       />
       </>
       )}

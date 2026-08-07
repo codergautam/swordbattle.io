@@ -1,4 +1,4 @@
-import { utils } from 'pixi.js';
+import { utils } from 'pixi.js-legacy';
 
 export interface Viewport { width: number; height: number; }
 

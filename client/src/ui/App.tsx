@@ -1,4 +1,4 @@
-import { cloneElement, useCallback, useEffect, useRef, useState } from 'react';
+import { cloneElement, lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -63,6 +63,10 @@ import SupportButton from './support/SupportButton';
 import SupportModal from './support/SupportModal';
 import AnnouncementsButton from './announcements/AnnouncementsButton';
 import AnnouncementsModal from './announcements/AnnouncementsModal';
+import { designerUsername, getMockProfileData, getMockProfileGames } from './profileDesigner/mockProfile';
+import { ProfileTheme, resolveProfileTheme } from './profileTheme';
+
+const ProfileDesignerPanel = lazy(() => import('./profileDesigner/ProfileDesignerPanel'));
 
 let debugMode = false;
 try {
@@ -70,6 +74,7 @@ try {
   } catch(e) {}
 
 const isBasicLaunch = typeof window !== 'undefined' && !!(window as any)._isCrazyGamesBasicLaunch;
+const needsMenuAdUnmount = typeof window !== 'undefined' && (window as any).adProvider === 'adinplay';
 
 const modalClasses = new Map<any, string>([
   [ShopModal, 'modal-fullscreen'],
@@ -88,9 +93,9 @@ const modalClasses = new Map<any, string>([
 const instantSwapModals = new Set<any>([ShopModal, RewardsModal, InventoryModal, ProfileModal, FullChangelogModal]);
 const modalCloseMs = 200;
 
-function App() {
+function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
   let { skins } = cosmetics;
-  const RESET_HOUR = 23; // 0-23 utc
+  const resetHour = 23; // 0-23 utc
 
   const dispatch = useDispatch();
   const account = useSelector(selectAccount);
@@ -103,9 +108,11 @@ function App() {
   const [shownModal, setShownModal] = useState<any>(null);
   const [modalClosing, setModalClosing] = useState(false);
   const modalCloseTimer = useRef<any>(null);
-  const [profileUser, setProfileUser] = useState<string | null>(null);
+  const [profileUser, setProfileUser] = useState<string | null>(profileDesigner ? designerUsername : null);
   const [profileClosing, setProfileClosing] = useState(false);
   const profileTimer = useRef<any>(null);
+  const [designerTheme, setDesignerTheme] = useState<ProfileTheme>(() => resolveProfileTheme(1));
+  const [designerThemeName, setDesignerThemeName] = useState('My Theme');
   const [previewSkinId, setPreviewSkinId] = useState<number | null>(null);
   const [previewClosing, setPreviewClosing] = useState(false);
   const previewTimer = useRef<any>(null);
@@ -128,6 +135,12 @@ function App() {
     || (navigator.maxTouchPoints > 1 && /Macintosh|Mac OS/i.test(navigator.userAgent)));
 
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+  useEffect(() => {
+    if (!profileDesigner) return;
+    document.body.classList.add('profile-designer-mode');
+    return () => document.body.classList.remove('profile-designer-mode');
+  }, [profileDesigner]);
 
   // Detect if we're in a small desktop viewport (non-fullscreen windows, iframes, CrazyGames)
   const isSmallDesktopIframe = () => {
@@ -1375,7 +1388,9 @@ function App() {
               <br />
               <div className='fullWidth'>
                 <div id="adBelow">
-                 <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} placement="main_menu" adblockPromo />
+                 {(!needsMenuAdUnmount || (!shownModal && !profileUser && !previewSkinId)) && (
+                   <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} placement="main_menu" adblockPromo />
+                 )}
                 </div>
               </div>
             </div>
@@ -1401,14 +1416,33 @@ function App() {
           {profileUser && (
             <Modal
               key="profile-overlay"
-              child={<ProfileModal username={profileUser} isOwnProfile={account.isLoggedIn && profileUser === account.username} onOpenClan={(clanId: number) => { closeProfileOverlay(); setModal(<ClansModal account={account} onViewProfile={openProfileOverlay} initialClanId={clanId} />); }} />}
-              requestClose={closeProfileOverlay}
+              child={<ProfileModal
+                username={profileUser}
+                isOwnProfile={account.isLoggedIn && profileUser === account.username}
+                onOpenClan={profileDesigner ? undefined : (clanId: number) => { closeProfileOverlay(); setModal(<ClansModal account={account} onViewProfile={openProfileOverlay} initialClanId={clanId} />); }}
+                mockData={profileDesigner ? getMockProfileData() : undefined}
+                mockGames={profileDesigner ? getMockProfileGames() : undefined}
+                themeOverride={profileDesigner ? designerTheme : undefined}
+                themeNameOverride={profileDesigner ? designerThemeName : undefined}
+              />}
+              requestClose={profileDesigner ? undefined : closeProfileOverlay}
               className="modal-profile"
               backdropClass="modal-backdrop-top"
               scaleDisabled
               backdrop
               closing={profileClosing}
             />
+          )}
+          {profileDesigner && createPortal(
+            <Suspense fallback={null}>
+              <ProfileDesignerPanel
+                theme={designerTheme}
+                onChange={setDesignerTheme}
+                displayName={designerThemeName}
+                onDisplayNameChange={setDesignerThemeName}
+              />
+            </Suspense>,
+            document.body,
           )}
           {previewSkinId !== null && createPortal(
             <Modal

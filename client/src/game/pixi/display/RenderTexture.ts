@@ -1,4 +1,4 @@
-import { Container as PixiContainer, RenderTexture as PixiRT } from 'pixi.js';
+import { Container as PixiContainer, RenderTexture as PixiRT } from 'pixi.js-legacy';
 import { Sprite } from './Sprite';
 
 type BatchEntry = { child: any; x: number; y: number; px: number; py: number; visible: boolean; renderable: boolean; parent: any };
@@ -24,9 +24,14 @@ export class RenderTexture extends Sprite {
     const r = this._renderer();
     if (r) {
       try {
-        r.renderTexture.bind(this.rt);
-        r.renderTexture.clear([0, 0, 0, 0]);
-        r.renderTexture.bind(null);
+        if (r.renderTexture) {
+          r.renderTexture.bind(this.rt);
+          r.renderTexture.clear([0, 0, 0, 0]);
+          r.renderTexture.bind(null);
+        } else {
+          const target = (this.rt.baseTexture as any)._canvasRenderTarget;
+          if (target) target.clear();
+        }
       } catch (e) { /* noop */ }
     }
     return this;
@@ -49,6 +54,8 @@ export class RenderTexture extends Sprite {
     return this;
   }
 
+  renderScale = 1;
+
   endDraw(): this {
     const list = this.batchList;
     this.batchList = null;
@@ -57,6 +64,7 @@ export class RenderTexture extends Sprite {
     if (!r) return this;
     let scratch = RenderTexture.scratch;
     if (!scratch) scratch = RenderTexture.scratch = new PixiContainer();
+    scratch.scale.set(this.renderScale);
     for (const e of list) {
       e.child.visible = true;
       e.child.renderable = true;
@@ -66,6 +74,7 @@ export class RenderTexture extends Sprite {
     try {
       r.render(scratch, { renderTexture: this.rt, clear: false, skipUpdateTransform: false });
     } catch (e) { /* noop */ }
+    scratch.scale.set(1);
     for (const e of list) {
       scratch.removeChild(e.child);
       if (e.parent) e.parent.addChild(e.child);

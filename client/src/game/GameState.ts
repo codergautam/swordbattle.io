@@ -83,7 +83,7 @@ class GameState {
 
   private skinSweepAccum: number = 0;
   private skinIdleSince: Record<string, number> = {};
-  private static readonly skinCap = 60;
+  static skinCap = 60;
   private static readonly skinIdleMs = 25000;
 
   private _boundOnOpen: () => void;

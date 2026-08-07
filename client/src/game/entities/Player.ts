@@ -16,8 +16,8 @@ const {skins} = cosmetics;
 
 const particlePool: Phaser.GameObjects.Sprite[] = [];
 const graphicsPool: Phaser.GameObjects.Graphics[] = [];
-const MAX_PARTICLE_POOL = 200;
-const MAX_GRAPHICS_POOL = 50;
+const maxParticlePool = 200;
+const maxGraphicsPool = 50;
 
 function getParticle(game: Phaser.Scene, key: string) {
   let p = particlePool.pop();
@@ -33,7 +33,7 @@ function getParticle(game: Phaser.Scene, key: string) {
 function releaseParticle(p: Phaser.GameObjects.Sprite) {
   p.setActive(false).setVisible(false);
   p.x = 0; p.y = 0;
-  if (particlePool.length < MAX_PARTICLE_POOL) {
+  if (particlePool.length < maxParticlePool) {
     particlePool.push(p);
   } else {
     p.destroy();
@@ -53,7 +53,7 @@ function getGraphics(game: Phaser.Scene) {
 function releaseGraphics(g: Phaser.GameObjects.Graphics) {
   g.clear();
   g.setActive(false).setVisible(false);
-  if (graphicsPool.length < MAX_GRAPHICS_POOL) {
+  if (graphicsPool.length < maxGraphicsPool) {
     graphicsPool.push(g);
   } else {
     g.destroy();
@@ -1502,8 +1502,12 @@ class Player extends BaseEntity {
     let rt = this.shadowRT;
     if (!rt) {
       if (!on || offCamera) return;
-      const rtSize = Math.ceil(Math.max(this.body.width, this.body.height) * 3.2);
+      const fullSize = Math.ceil(Math.max(this.body.width, this.body.height) * 3.2);
+      const rtSize = Math.min(1024, Math.ceil(fullSize / 2));
       rt = this.shadowRT = this.game.add.renderTexture(0, 0, rtSize, rtSize).setOrigin(0.5, 0.5);
+      (rt as any).renderScale = rtSize / fullSize;
+      (rt as any).shadowFullSize = fullSize;
+      rt.setScale(fullSize / rtSize);
       rt.setAlpha(BaseEntity.shadow.alpha * (1 - this._submergedProgress));
       this.container.addAt(rt, 0);
     }
@@ -1527,7 +1531,8 @@ class Player extends BaseEntity {
     if (sig === this.shadowSig) return;
     this.shadowSig = sig;
 
-    const ox = rt.width / 2, oy = rt.height / 2;
+    const full = (rt as any).shadowFullSize || rt.width;
+    const ox = full / 2, oy = full / 2;
     rt.clear();
     rt.beginDraw();
     rt.batchDraw(this.shadow, ox + this.shadow.x, oy + this.shadow.y);

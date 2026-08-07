@@ -1,4 +1,4 @@
-import { Sprite as PixiSprite, Texture } from 'pixi.js';
+import { Sprite as PixiSprite, Texture } from 'pixi.js-legacy';
 import { applyPhaserGO } from './mixin';
 
 const PhaserSpriteBase = applyPhaserGO(PixiSprite);

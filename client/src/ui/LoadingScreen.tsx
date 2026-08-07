@@ -100,7 +100,7 @@ function LoadingScreen({ progress, instantStart }: any) {
   // Show white screen while waiting for background image or timeout
   if (!showLoadingScreen) {
     return (
-      <div style={{
+      <div className="loading-cover" style={{
         position: 'absolute',
         width: '100%',
         height: '100%',

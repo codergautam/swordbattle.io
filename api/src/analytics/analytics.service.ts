@@ -172,7 +172,7 @@ export class AnalyticsService {
       newPlayerLifetime, deSkew, concentration, abTest, adDaily, adByPlacement,
       rewardedFunnel, adblockDaily, topCountries, deviceSplit,
       playCtr, playtime, engagement, mobileSplit, stickiness, sessionDepth,
-      firstRun, adPerDau, d1Overall,
+      firstRun, adPerDau, d1Overall, adBySize,
     ] = await Promise.all([
       run(`SELECT COUNT(*)::int AS sessions, COUNT(DISTINCT visitor_id)::int AS unique_visitors,
             COUNT(*) FILTER (WHERE clicked_play)::int AS play_clicks,
@@ -296,6 +296,14 @@ export class AnalyticsService {
             act AS (SELECT DISTINCT visitor_id, created_at::date AS day FROM analytics_sessions WHERE ${human})
             SELECT ROUND(100.0*COUNT(DISTINCT a.visitor_id)/NULLIF(COUNT(DISTINCT f.visitor_id),0),1)::float AS d1_pct
             FROM firsts f LEFT JOIN act a ON a.visitor_id=f.visitor_id AND a.day=f.fd+1`),
+      run(`SELECT COALESCE(a.ad_size,'(none)') AS size, COALESCE(a.placement,'(none)') AS placement,
+            COUNT(*) FILTER (WHERE a.event_type='display_request')::int AS requests,
+            COUNT(*) FILTER (WHERE a.event_type='display_filled')::int AS fills,
+            COUNT(*) FILTER (WHERE a.event_type='display_no_fill')::int AS no_fills,
+            COUNT(*) FILTER (WHERE a.event_type='display_viewable')::int AS viewable,
+            ROUND(100.0*COUNT(*) FILTER (WHERE a.event_type='display_filled')/NULLIF(COUNT(*) FILTER (WHERE a.event_type='display_request'),0),1)::float AS fill_pct
+           FROM analytics_ad_events a JOIN analytics_sessions s ON s.session_id=a.session_id
+           WHERE s.${human} AND a.ad_format='banner' AND a.created_at >= now() - ${iv} GROUP BY 1,2 ORDER BY requests DESC`),
     ]);
 
     const round2 = (rows: any[]) => rows.map((r) => ({ ...r, est_usd: r.est_usd == null ? 0 : Math.round(Number(r.est_usd) * 100) / 100 }));
@@ -318,6 +326,7 @@ export class AnalyticsService {
       abTest,
       adDaily: round2(adDaily),
       adByPlacement: round2(adByPlacement),
+      adBySize,
       rewardedFunnel,
       adblockDaily,
       topCountries,

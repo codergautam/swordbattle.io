@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import { RouterProvider, createHashRouter, Navigate } from 'react-router-dom';
 import App from './ui/App';
 import { Settings } from './game/Settings';
-import Profile from './ui/Profile';
 import SupportPage from './ui/SupportPage';
 import NameMaker from './ui/namemaker/NameMaker';
 import AnnouncementsAdminPage from './ui/announcements/AnnouncementsAdminPage';
@@ -20,10 +19,31 @@ import { initAnalytics } from './analytics';
 import './global.scss';
 
 const MetricsPage = lazy(() => import('./ui/MetricsPage'));
+const BotsPage = lazy(() => import('./ui/BotsPage'));
 
 applyHudThemeCss();
 initAnalytics();
 detectAdblock();
+
+function syncAdSound(volume: number) {
+  const w = window as any;
+  if (w.adProvider !== 'adsense' || typeof w.adConfig !== 'function') return;
+  w.adConfig({ sound: Number(volume) > 0 ? 'on' : 'off' });
+}
+syncAdSound(Settings.sound);
+window.addEventListener('soundVolumeChanged', (e: any) => syncAdSound(e?.detail?.volume));
+
+window.addEventListener('unload', () => {});
+window.addEventListener('pagehide', () => {
+  try { (window as any).phaser_game?.destroy?.(true); } catch (e) {}
+  try { (window as any).socket?.close?.(); } catch (e) {}
+});
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) {
+    try { window.onbeforeunload = null; } catch (err) {}
+    window.location.reload();
+  }
+});
 
 function MoreAdsRedirect() {
   Settings.moreAds = true;
@@ -41,11 +61,15 @@ const router = createHashRouter([
   },
   {
     path: 'profile',
-    element: <Profile />,
+    element: <Navigate to="/" replace />,
   },
   {
     path: 'namemaker',
     element: <NameMaker />,
+  },
+  {
+    path: ':secret/profiledesigner',
+    element: <App profileDesigner />,
   },
   {
     path: ':secret/metrics',
@@ -58,6 +82,10 @@ const router = createHashRouter([
   {
     path: ':secret/announcements',
     element: <AnnouncementsAdminPage />,
+  },
+  {
+    path: ':secret/bots',
+    element: <Suspense fallback={null}><BotsPage /></Suspense>,
   },
 ], {
   basename: config.basename,

@@ -13,6 +13,8 @@ class Timerish {
   get active() { return this.t < this.dur; }
 }
 
+const noRetaliate = { noRetaliate: true };
+
 function angDiff(a, b) {
   let d = a - b;
   while (d > Math.PI) d -= 2 * Math.PI;
@@ -107,17 +109,15 @@ def(class Lavacopy extends Upgrade {
     const ents = this.player.game && this.player.game.entities;
     if (!ents || !this.player.shape) return;
     const selfR = this.player.shape.radius || 100;
-    const fieldR = selfR * 1.35;
-    const dps = 22;
+    const fieldR = selfR * 1.25;
+    const dps = 15;
     for (const e of ents.values()) {
       if (!e || e.removed || e === this.player || !e.shape) continue;
-      const isTarget = e.type === Types.Entity.Player
-        || (Types.Groups.Mobs.includes && Types.Groups.Mobs.includes(e.type));
-      if (!isTarget) continue;
+      if (e.type !== Types.Entity.Player) continue;
       const dx = e.shape.x - this.player.shape.x, dy = e.shape.y - this.player.shape.y;
       const reach = fieldR + (e.shape.radius || 0);
       if (dx * dx + dy * dy > reach * reach) continue;
-      if (typeof e.damaged === 'function') { try { e.damaged(dps * dt, this.player); } catch (err) {} }
+      if (typeof e.damaged === 'function') { try { e.damaged(dps * dt, this.player, false, noRetaliate); } catch (err) {} }
     }
   }
 });
@@ -130,9 +130,9 @@ def(class Pacifist extends Upgrade {
   }
 });
 
-def(class Collector extends Upgrade {
-  static type = U.Collector; static owner = E.Basic; static tier = 3;
-  update(dt) { this.player.coinMultiplier *= 1.5; }
+def(class Battler extends Upgrade {
+  static type = U.Battler; static owner = E.Basic; static tier = 3;
+  update(dt) { this.player.sword.damage.multiplier *= 1.5; }
 });
 
 def(class Battleswords extends Upgrade {
@@ -250,7 +250,7 @@ def(class Spikes extends Upgrade {
   static type = U.Spikes; static owner = E.Tank; static tier = 2;
   onDamaged(attacker, damage, isThrown) {
     if (attacker && attacker.type === Types.Entity.Player && typeof attacker.damaged === 'function' && damage > 0) {
-      try { attacker.damaged(damage * 0.5, this.player); } catch (e) {}
+      try { attacker.damaged(damage * 0.5, this.player, false, noRetaliate); } catch (e) {}
     }
   }
   update(dt) {}
@@ -344,7 +344,7 @@ def(class Deathsender extends Upgrade {
       const hasLifetaker = this.player.upgrades && this.player.upgrades.acquiredIds
         && this.player.upgrades.acquiredIds.includes(U.Lifetaker);
       if (hasLifetaker && a.health && a.health.percent < 0.5) mult = 0.8;
-      try { a.damaged(this.player.sword.damage.value * mult, this.player); } catch (e) {}
+      try { a.damaged(this.player.sword.damage.value * mult, this.player, false, noRetaliate); } catch (e) {}
     }
   }
 });

@@ -283,7 +283,7 @@ class GameMap {
     const worldH = maxY - minY;
 
     const isMobile = this.scene.isMobile;
-    const canvasScale = isMobile ? 0.07 : 0.13;
+    const canvasScale = isMobile ? 0.07 : 0.08;
     const canvasW = Math.ceil(worldW * canvasScale);
     const canvasH = Math.ceil(worldH * canvasScale);
 
@@ -394,6 +394,15 @@ class GameMap {
       sprite.setDisplaySize(worldW, worldH);
       sprite.setDepth(-1.5);
       this.riverBorderSprites.push(sprite);
+      setTimeout(() => {
+        try {
+          const r: any = (this.scene.game as any).app?.renderer;
+          if (r && r.gl && this.scene.textures.exists(key)) {
+            canvas.width = 1;
+            canvas.height = 1;
+          }
+        } catch (e) {}
+      }, 8000);
     }
   }
 

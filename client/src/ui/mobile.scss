@@ -118,9 +118,8 @@ body.sb-mobile.sb-portrait {
   .profile-stats {
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 7px;
-    .pstat { padding: 9px 4px; }
-    .pstat-v { font-size: 15px; }
-    .pstat-l { font-size: 10px; }
+    .pstat-v { padding: 9px 4px; font-size: 15px; }
+    .pstat-l { padding: 6px 4px; font-size: 10px; }
   }
 
   .hub-content .badges {
@@ -419,7 +418,7 @@ body.sb-mobile.sb-landscape {
   }
 
   .modal.modal-profile { height: calc(100vh - 18px) !important; }
-  .profile-banner {
+  .profile-head {
     gap: 12px;
     padding: 10px 16px;
     .profile-skin { width: 64px; }

@@ -9,7 +9,7 @@ export const Upgrades: Record<number, [string, string, string]> = {
   [UpgradeTypes.Handling]: ['Handling', 'Increase your move speed and health while your sword is being thrown.', icon],
   [UpgradeTypes.Lavacopy]: ['Burner', 'Surround yourself with a small lava field that burns nearby enemies.', icon],
   [UpgradeTypes.Pacifist]: ['Pacifist', 'Deal and take half damage against other players.', icon],
-  [UpgradeTypes.Collector]: ['Collector', '+50% coins from all sources.', icon],
+  [UpgradeTypes.Battler]: ['Battler', '+50% damage against all sources.', icon],
   [UpgradeTypes.Battleswords]: ['Daggers', 'Wield two swords at once! Hold to auto-attack. Throws both swords at once.', icon],
 
   [UpgradeTypes.Momentum]: ['Momentum', 'Hitting players gives a small damage boost for 2s.', icon],
@@ -72,7 +72,7 @@ export const UpgradeOwners: Record<number, number> = {
   [UpgradeTypes.Toughened]: EvolutionTypes.Default, [UpgradeTypes.Footwork]: EvolutionTypes.Default,
   [UpgradeTypes.ClasslessAbility]: EvolutionTypes.Default, [UpgradeTypes.Handling]: EvolutionTypes.Default,
   [UpgradeTypes.Lavacopy]: EvolutionTypes.Default, [UpgradeTypes.Pacifist]: EvolutionTypes.Default,
-  [UpgradeTypes.Collector]: EvolutionTypes.Default, [UpgradeTypes.Battleswords]: EvolutionTypes.Default,
+  [UpgradeTypes.Battler]: EvolutionTypes.Default, [UpgradeTypes.Battleswords]: EvolutionTypes.Default,
   [UpgradeTypes.Momentum]: EvolutionTypes.Knight, [UpgradeTypes.Gale]: EvolutionTypes.Knight,
   [UpgradeTypes.Lunge]: EvolutionTypes.Knight, [UpgradeTypes.Riposte]: EvolutionTypes.Knight,
   [UpgradeTypes.Striketwice]: EvolutionTypes.Knight, [UpgradeTypes.Twothrow]: EvolutionTypes.Knight,

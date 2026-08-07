@@ -112,7 +112,7 @@ module.exports = {
     Toughened: 1, Footwork: 2,
     ClasslessAbility: 3, Handling: 4,
     Lavacopy: 5, Pacifist: 6,
-    Collector: 7, Battleswords: 8,
+    Battler: 7, Battleswords: 8,
     Momentum: 10, Gale: 11,
     Lunge: 12, Riposte: 13,
     Striketwice: 14, Twothrow: 15,

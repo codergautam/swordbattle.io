@@ -1,4 +1,4 @@
-import { Container, utils } from 'pixi.js';
+import { Container, utils } from 'pixi.js-legacy';
 import { GameObjectFactory } from '../scene-services/GameObjectFactory';
 import { Loader } from '../scene-services/Loader';
 import { TextureManager } from '../scene-services/TextureManager';

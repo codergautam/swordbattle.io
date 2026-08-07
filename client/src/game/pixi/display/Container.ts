@@ -1,4 +1,4 @@
-import { Container as PixiContainer, DisplayObject } from 'pixi.js';
+import { Container as PixiContainer, DisplayObject } from 'pixi.js-legacy';
 import { applyPhaserGO } from './mixin';
 
 export class Container extends applyPhaserGO(PixiContainer) {

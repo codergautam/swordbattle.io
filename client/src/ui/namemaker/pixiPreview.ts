@@ -9,7 +9,7 @@ import {
   TextStyle,
   TilingSprite,
   SCALE_MODES,
-} from 'pixi.js';
+} from 'pixi.js-legacy';
 import * as cosmetics from '../../game/cosmetics.json';
 import { withAssetVersion } from '../../assetVersion';
 import { NameStyle, CLAN_COLOR } from '../../game/nameStyles';

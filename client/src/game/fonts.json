@@ -1,0 +1,40 @@
+{
+  "fonts": [
+    {
+      "file": "Araboto Black 400.ttf",
+      "family": "Araboto Black",
+      "format": "truetype",
+      "hash": "aaf51389f1"
+    },
+    {
+      "file": "Araboto Bold 400.ttf",
+      "family": "Araboto Bold",
+      "format": "truetype",
+      "hash": "6fefe7f4f1"
+    },
+    {
+      "file": "Araboto Light 400.ttf",
+      "family": "Araboto Light",
+      "format": "truetype",
+      "hash": "77552228e8"
+    },
+    {
+      "file": "Araboto Medium 400.ttf",
+      "family": "Araboto Medium",
+      "format": "truetype",
+      "hash": "69ecdd7ba5"
+    },
+    {
+      "file": "Araboto Normal 400.ttf",
+      "family": "Araboto Normal",
+      "format": "truetype",
+      "hash": "33886558ac"
+    },
+    {
+      "file": "Araboto Thin 400.ttf",
+      "family": "Araboto Thin",
+      "format": "truetype",
+      "hash": "cad8a2419f"
+    }
+  ]
+}

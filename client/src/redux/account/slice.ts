@@ -44,6 +44,7 @@ export type AccountState = {
   xp: number;
   recovered: boolean;
   profiles: { equipped: number; owned: number[] };
+  themes: { equipped: number; owned: number[] };
   bio: string;
   tags: { tags: string[]; colors: string[] };
   isCrazygames: boolean;
@@ -75,6 +76,7 @@ const initialState: AccountState = {
   xp: 0,
   recovered: false,
   profiles: { equipped: 1, owned: [1] },
+  themes: { equipped: 1, owned: [1] },
   bio: '',
   tags: { tags: [], colors: [] },
   isCrazygames: false,
@@ -223,6 +225,7 @@ const accountSlice = createSlice({
       state.xp = 0;
       state.recovered = false;
       state.profiles = { equipped: 1, owned: [1] };
+      state.themes = { equipped: 1, owned: [1] };
       state.bio = '';
       state.tags = { tags: [], colors: [] };
       state.isCrazygames = false;
@@ -254,6 +257,7 @@ const accountSlice = createSlice({
       state.xp = action.payload.xp;
       state.recovered = action.payload.recovered;
       state.profiles = action.payload.profiles;
+      state.themes = action.payload.themes ?? { equipped: 1, owned: [1] };
       state.bio = action.payload.bio;
       state.tags = action.payload.tags;
       state.isCrazygames = action.payload.isCrazygames;

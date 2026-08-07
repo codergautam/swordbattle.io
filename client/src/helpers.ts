@@ -212,8 +212,16 @@ export function isAdBlockActive(): boolean {
 
 
 const adMaxWaitMs = 60000;
+const rewardedFastFailMs = 3000;
+const breakStartMs = 8000;
 
-const aipHasRewardedPlacement = false;
+let pendingRewardRelease: (() => void) | null = null;
+
+function releasePendingReward() {
+  const release = pendingRewardRelease;
+  pendingRewardRelease = null;
+  if (release) release();
+}
 
 let aipPending: ((evt: string) => void) | null = null;
 
@@ -241,7 +249,115 @@ function ensureAipPlayer(w: any): boolean {
   return typeof w.aiptag.adplayer?.startPreRoll === 'function';
 }
 
-function runAdinplayAd(w: any, rewarded: boolean, done: (evt: string) => void) {
+function runAdsenseBreak(w: any, opts: { type: string; name: string }, done: (evt: string) => void) {
+  if (typeof w.adBreak !== 'function') { done('no-provider'); return; }
+  if (w.videoAdActive) { console.warn('[ads] an ad is already running'); done('video-ad-error'); return; }
+  releasePendingReward();
+
+  let settled = false;
+  let started = false;
+  const finish = (evt: string) => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(failsafe);
+    clearTimeout(startTimer);
+    w.videoAdActive = false;
+    done(evt);
+  };
+  const failsafe = setTimeout(() => finish('video-ad-timeout'), adMaxWaitMs);
+  const startTimer = setTimeout(() => { if (!started) finish('video-ad-notready'); }, breakStartMs);
+
+  w.videoAdActive = true;
+
+  const params: any = {
+    type: opts.type,
+    name: opts.name,
+    beforeAd: () => { started = true; w.videoAdActive = true; },
+    afterAd: () => { w.videoAdActive = false; },
+    adBreakDone: (info: any) => {
+      const status = (info && info.breakStatus) || 'unknown';
+      finish(status === 'viewed' ? 'video-ad-completed' : 'video-ad-' + status);
+    },
+  };
+
+  try {
+    w.adBreak(params);
+  } catch (e) {
+    console.error('[ads] adBreak failed', e);
+    finish('video-ad-error');
+  }
+}
+
+export function isAdsenseProvider(): boolean {
+  return (window as any)?.adProvider === 'adsense';
+}
+
+export function armAdsenseReward(handlers: {
+  onOffer: (show: () => void) => void;
+  onDone: (result: { success: boolean; evt: string }) => void;
+}): () => void {
+  const w = window as any;
+  if (!isAdsenseProvider() || typeof w.adBreak !== 'function' || w.videoAdActive) {
+    handlers.onDone({ success: false, evt: 'no-provider' });
+    return () => {};
+  }
+  releasePendingReward();
+
+  let done = false;
+  let offered = false;
+  let viewed = false;
+  let shown = false;
+
+  const settle = (result: { success: boolean; evt: string }) => {
+    if (done) return;
+    done = true;
+    clearTimeout(offerTimer);
+    if (pendingRewardRelease === release) pendingRewardRelease = null;
+    handlers.onDone(result);
+  };
+  const release = () => { settle({ success: false, evt: 'rewarded-superseded' }); };
+  const offerTimer = setTimeout(() => {
+    if (!offered) settle({ success: false, evt: 'rewarded-unavailable-notready' });
+  }, breakStartMs);
+
+  try {
+    w.adBreak({
+      type: 'reward',
+      name: 'reward_2x_gems',
+      beforeReward: (showAdFn: () => void) => {
+        offered = true;
+        clearTimeout(offerTimer);
+        if (done) return;
+        handlers.onOffer(() => {
+          shown = true;
+          w.videoAdActive = true;
+          try { showAdFn(); } catch (e) { w.videoAdActive = false; }
+        });
+      },
+      adViewed: () => { viewed = true; },
+      adDismissed: () => { viewed = false; },
+      afterAd: () => { w.videoAdActive = false; },
+      adBreakDone: (info: any) => {
+        if (shown) w.videoAdActive = false;
+        const status = (info && info.breakStatus) || 'unknown';
+        if (viewed) settle({ success: true, evt: 'rewarded-granted' });
+        else settle({ success: false, evt: (offered ? 'rewarded-' : 'rewarded-unavailable-') + status });
+      },
+    });
+    pendingRewardRelease = release;
+  } catch (e) {
+    console.error('[ads] rewarded adBreak failed', e);
+    settle({ success: false, evt: 'video-ad-error' });
+  }
+
+  return () => {
+    if (pendingRewardRelease === release) pendingRewardRelease = null;
+    done = true;
+    clearTimeout(offerTimer);
+  };
+}
+
+function runAdinplayAd(w: any, rewarded: boolean, done: (evt: string) => void, forcePreroll = false) {
   if (aipPending) { console.warn('[ads] an ad is already running'); done('video-ad-error'); return; }
 
   let settled = false;
@@ -249,6 +365,7 @@ function runAdinplayAd(w: any, rewarded: boolean, done: (evt: string) => void) {
     if (settled) return;
     settled = true;
     clearTimeout(failsafe);
+    w.videoAdActive = false;
     if (rewarded) document.body.classList.remove('sb-rewarded-ad');
     done(evt);
   };
@@ -259,13 +376,14 @@ function runAdinplayAd(w: any, rewarded: boolean, done: (evt: string) => void) {
   }, adMaxWaitMs);
 
   aipPending = finish;
+  w.videoAdActive = true;
   if (rewarded) document.body.classList.add('sb-rewarded-ad');
 
   w.aiptag.cmd.player.push(() => {
     try {
       if (!ensureAipPlayer(w)) { aipSettle('video-ad-error'); return; }
       const player = w.aiptag.adplayer;
-      if (rewarded && aipHasRewardedPlacement && typeof player.startRewardedAd === 'function') {
+      if (rewarded && !forcePreroll && typeof player.startRewardedAd === 'function') {
         player.startRewardedAd({ showLoading: true });
       } else {
         player.startPreRoll();
@@ -283,8 +401,18 @@ export const playVideoAd = (force = false) => {
   // basic launch
   if(crazygamesSDK.shouldUseSDK()) { resolve({ played: false, evt: 'cg-basic' }); return; }
   if(force || Date.now() - windowAny?.lastVidAdTime > windowAny?.vidAdDelay) {
+    if (windowAny?.adProvider === 'adsense') {
+      runAdsenseBreak(windowAny, { type: 'start', name: 'death_interstitial' }, (evt) => {
+        console.log('[ads] adsense interstitial finished:', evt);
+        const played = evt === 'video-ad-completed';
+        if (played) {
+          windowAny.lastVidAdTime = Date.now();
+          try { window.localStorage.setItem('lastVidAdTime', windowAny.lastVidAdTime); } catch (e) {}
+        }
+        resolve({ played, evt });
+      });
     // CrazyGames SDK
-    if(windowAny?.adProvider === 'crazygames') {
+    } else if(windowAny?.adProvider === 'crazygames') {
       console.log('Playing video ad from CrazyGames');
 
       crazygamesSDK.requestAd('midgame', {
@@ -309,24 +437,26 @@ export const playVideoAd = (force = false) => {
     } else if (windowAny?.adProvider === 'gamemonetize' && typeof windowAny.sdk !== 'undefined' && windowAny.sdk.showBanner !== 'undefined') {
     console.log('Playing video ad from gamemonetize');
     const sdk = windowAny.sdk;
-    sdk?.showBanner();
+    let gmSettled = false;
+    const gmFailsafe = setTimeout(() => {
+      if (gmSettled) return;
+      gmSettled = true;
+      resolve({ played: false, evt: 'gamemonetize-timeout' });
+    }, adMaxWaitMs);
     const onComplete = () => {
+      window.removeEventListener('gamemonetize_event_SDK_GAME_START', onComplete);
+      if (gmSettled) return;
+      gmSettled = true;
+      clearTimeout(gmFailsafe);
       console.log('Ad complete');
       resolve({ played: true, evt: 'gamemonetize-complete' });
-      window.removeEventListener('gamemonetize_event_SDK_BANNER_COMPLETE', onComplete);
     };
-    // const onImpression = () => {
-
-    //   window.removeEventListener('gamemonetize_event_SDK_BANNER_IMPRESSION', onImpression);
-    // };
 
     windowAny.lastVidAdTime = Date.now();
     window.localStorage.setItem('lastVidAdTime', windowAny.lastVidAdTime);
 
-    // window.addEventListener('gamemonetize_event_SDK_BANNER_IMPRESSION', onImpression);
-    window.addEventListener('gamemonetize_event_SDK_GAME_START', (e: any) => {
-      onComplete();
-    });
+    window.addEventListener('gamemonetize_event_SDK_GAME_START', onComplete);
+    sdk?.showBanner();
     // adinplay
   } else if(windowAny?.adProvider === 'adinplay' && typeof windowAny?.aipPlayer !== 'undefined') {
     console.log('Playing video ad from adinplay');
@@ -393,23 +523,24 @@ export const playVideoAd = (force = false) => {
 
     runAdinplayAd(windowAny, false, (evt) => {
       console.log('[ads] preroll finished:', evt);
+      const played = evt === 'video-ad-completed' || evt === 'video-ad-skipped';
+      if (played) {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('debugAd')) {
+          console.log('debugAd=true, not resetting lastVidAdTime');
+        } else {
+          windowAny.lastVidAdTime = Date.now();
+          window.localStorage.setItem('lastVidAdTime', windowAny.lastVidAdTime);
+        }
+      }
       resolve({ played: evt === 'video-ad-completed', evt });
     });
-
-
-    // if debugAd = true, dont reset lastVidAdTime
-    const urlParams = new URLSearchParams(window.location.search);
-    const ad = urlParams.get('debugAd');
-    if(ad) {
-      console.log('debugAd=true, not resetting lastVidAdTime');
-    } else {
-      windowAny.lastVidAdTime = Date.now();
-      window.localStorage.setItem('lastVidAdTime', windowAny.lastVidAdTime);
-    }
   } else if(windowAny?.adProvider === 'gamepix' && windowAny?.GamePix) {
     windowAny?.GamePix.interstitialAd().then(function (res: any) {
       console.log('Ad closed', res);
       resolve({ played: true, evt: 'gamepix-closed' });
+    }).catch(function () {
+      resolve({ played: false, evt: 'gamepix-error' });
     });
   } else {
     console.log('Adprovider is', windowAny?.adProvider, 'not playing video ad');
@@ -427,6 +558,11 @@ export const playRewardedAd = () => {
   return new Promise<{ success: boolean; evt: string }>((resolve, reject) => {
     // basic launch
     if(crazygamesSDK.shouldUseSDK()) { resolve({ success: true, evt: 'cg-basic' }); return; }
+    if (windowAny?.adProvider === 'adsense') {
+      console.warn('[ads] playRewardedAd is not supported on adsense, use armAdsenseReward');
+      resolve({ success: false, evt: 'rewarded-needs-arm' });
+      return;
+    }
     if(windowAny?.adProvider === 'crazygames') {
       console.log('Playing rewarded ad from CrazyGames');
 
@@ -453,7 +589,17 @@ export const playRewardedAd = () => {
       });
     } else if (windowAny?.adProvider === 'adinplay' && typeof windowAny?.aipPlayer !== 'undefined') {
       console.log('Playing rewarded ad from adinplay');
+      const startedAt = Date.now();
       runAdinplayAd(windowAny, true, (evt) => {
+        if (evt === 'rewarded-not-granted' && Date.now() - startedAt < rewardedFastFailMs) {
+          console.log('[ads] no rewarded placement, falling back to preroll');
+          runAdinplayAd(windowAny, true, (evt2) => {
+            const success = evt2 === 'video-ad-completed';
+            console.log('[ads] rewarded-fallback preroll result:', evt2, '-> success:', success);
+            resolve({ success, evt: evt2 });
+          }, true);
+          return;
+        }
         const success = evt === 'video-ad-completed' || evt === 'rewarded-granted';
         console.log('[ads] rewarded result:', evt, '-> success:', success);
         resolve({ success, evt });

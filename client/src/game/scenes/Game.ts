@@ -5,7 +5,7 @@ import HUD from '../hud/HUD';
 import Safezone from '../biomes/Safezone';
 import Biome from '../biomes/Biome';
 import { BaseEntity } from '../entities/BaseEntity';
-import { Settings } from '../Settings';
+import settingsManager, { Settings } from '../Settings';
 import { config } from '../../config';
 import { Controls } from '../Controls';
 import ScreenEffectsPipeline from '../effects/ScreenEffectsPipeline';
@@ -77,7 +77,6 @@ export default class Game extends Phaser.Scene {
     this.load.image('fireTile', publicPath + '/assets/game/tiles/fire.jpg');
     this.load.image('earthTile', publicPath + '/assets/game/tiles/grass.jpg');
     this.load.image('iceTile', publicPath + '/assets/game/tiles/ice-new.png');
-    this.load.image('river', publicPath + '/assets/game/tiles/river-new.png');
     this.load.image('riverBottom', publicPath + '/assets/game/tiles/river-bottom.png');
     this.load.image('riverTop', publicPath + '/assets/game/tiles/river-top.png');
     this.load.image('safezone', publicPath + '/assets/game/tiles/spawn.png');
@@ -85,13 +84,11 @@ export default class Game extends Phaser.Scene {
     this.load.image('sandRock', publicPath + '/assets/game/tiles/sandrock.png');
     this.load.image('sandMud', publicPath + '/assets/game/tiles/sandmud.png');
     this.load.image('sandAsh', publicPath + '/assets/game/tiles/sandash.png');
-    this.load.image('rockcoast', publicPath + '/assets/game/tiles/rockcoast.png');
     this.load.image('tutorialTile', publicPath + '/assets/game/tiles/tutorial.png');
     this.load.image('meadowTile', publicPath + '/assets/game/tiles/meadow.jpg');
     this.load.image('savannaTile', publicPath + '/assets/game/tiles/savanna.jpg');
     this.load.image('alpineTile', publicPath + '/assets/game/tiles/alpine.jpg');
     this.load.image('dirtTile', publicPath + '/assets/game/tiles/dirt.png');
-    this.load.image('rocksTile', publicPath + '/assets/game/tiles/rocks.png');
     this.load.image('rocksNewTile', publicPath + '/assets/game/tiles/rocks-new-tile.png');
     this.load.image('rocksNew', publicPath + '/assets/game/tiles/rocks-new.png');
     this.load.image('desertTile', publicPath + '/assets/game/tiles/desert.png');
@@ -117,7 +114,6 @@ export default class Game extends Phaser.Scene {
     this.load.image('bushCactus',       publicPath + '/assets/game/cactus.png');
     this.load.image('cactus',           publicPath + '/assets/game/cactus.png');
     this.load.image('oasisDown',        publicPath + '/assets/game/oasisDown.png');
-    this.load.image('oasisUp',          publicPath + '/assets/game/oasisUp.png');
     this.load.image('deadBush',         publicPath + '/assets/game/deadbush.png');
     this.load.image('partTree',  publicPath + '/assets/game/partTree.png');
     this.load.image('partPine',  publicPath + '/assets/game/partPine.png');
@@ -141,7 +137,6 @@ export default class Game extends Phaser.Scene {
     this.load.image('iceSpike', publicPath + '/assets/game/Ice_Spike.png');
     this.load.image('icePond', publicPath + '/assets/game/Ice_Pond.png');
     this.load.image('rock', publicPath + '/assets/game/Rock.png');
-    this.load.image('rockShadow', publicPath + '/assets/game/rockShadow.png');
     this.load.image('lavaRock', publicPath + '/assets/game/Lava_Rock.png');
     this.load.image('lavaPool', publicPath + '/assets/game/Lava_Pool.png');
     for (let i = 1; i <= 9; i++) {
@@ -154,50 +149,32 @@ export default class Game extends Phaser.Scene {
 
     this.load.image('wolfMobPassive', publicPath + '/assets/game/mobs/wolfPassive.png');
     this.load.image('wolfMobAggressive', publicPath + '/assets/game/mobs/wolfAggressive.png');
-    this.load.image('wolfShadow', publicPath + '/assets/game/mobs/wolfShadow.png');
     this.load.image('scorpion',         publicPath + '/assets/game/mobs/scorpion.png');
-    this.load.image('scorpionShadow',   publicPath + '/assets/game/mobs/scorpionShadow.png');
     this.load.image('camelPassive',     publicPath + '/assets/game/mobs/camelPassive.png');
     this.load.image('camelAngry',       publicPath + '/assets/game/mobs/camelAngry.png');
-    this.load.image('camelShadow',      publicPath + '/assets/game/mobs/camelShadow.png');
     this.load.image('desertBunny',      publicPath + '/assets/game/mobs/desertbunny.png');
-    this.load.image('desertCat',        publicPath + '/assets/game/mobs/desertcat.png');
+    this.load.image('desertCat',        publicPath + '/assets/game/mobs/cat.png');
     this.load.image('fireSpirit',       publicPath + '/assets/game/mobs/firespirit.png');
-    this.load.image('fireSpiritShadow', publicPath + '/assets/game/mobs/firespiritShadow.png');
     this.load.image('sphinx',           publicPath + '/assets/game/mobs/sphinx.png');
-    this.load.image('sphinxShadow',     publicPath + '/assets/game/mobs/sphinxShadow.png');
     this.load.image('ancientDirt',       publicPath + '/assets/game/mobs/ancient-dirt.png');
     this.load.image('swordProjDirt',     publicPath + '/assets/game/mobs/sword-dirt.png');
     this.load.image('boulderDirt',       publicPath + '/assets/game/mobs/boulder-dirt.png');
     this.load.image('catMobPassive', publicPath + '/assets/game/mobs/cat.png');
-    this.load.image('catShadow', publicPath + '/assets/game/mobs/catShadow.png');
     this.load.image('bunny', publicPath + '/assets/game/mobs/bunny.png');
-    this.load.image('bunnyShadow', publicPath + '/assets/game/mobs/bunnyShadow.png');
     this.load.image('moose', publicPath + '/assets/game/mobs/moose.png');
-    this.load.image('mooseShadow', publicPath + '/assets/game/mobs/mooseShadow.png');
     this.load.image('fish', publicPath + '/assets/game/mobs/bluefish.png');
-    this.load.image('fishShadow', publicPath + '/assets/game/mobs/fishShadow.png'); // unused
     this.load.image('angryFish', publicPath + '/assets/game/mobs/angryfish.png');
-    this.load.image('angryFishShadow', publicPath + '/assets/game/mobs/fishShadow.png'); // unused
     this.load.image('chimera', publicPath + '/assets/game/mobs/chimera.png');
-    this.load.image('chimeraShadow', publicPath + '/assets/game/mobs/chimeraShadow.png');
     this.load.image('yeti', publicPath + '/assets/game/mobs/yeti.png'); // add winter
-    this.load.image('yetiShadow', publicPath + '/assets/game/mobs/yetiShadow.png');
     this.load.image('iceSpirit', publicPath + '/assets/game/mobs/icespirit.png');
-    this.load.image('iceSpiritShadow', publicPath + '/assets/game/mobs/iceSpiritShadow.png');
     this.load.image('santa', publicPath + '/assets/game/mobs/santa.png'); // Unused for now
     // this.load.image('santaShadow', publicPath + '/assets/game/mobs/santaShadow.png');
     this.load.image('roku', publicPath + '/assets/game/mobs/roku.png');
-    this.load.image('rokuShadow', publicPath + '/assets/game/mobs/rokuShadow.png');
     this.load.image('ancient', publicPath + '/assets/game/mobs/ancient.png');
-    this.load.image('ancientShadow', publicPath + '/assets/game/mobs/ancientShadow.png');
     this.load.image('fireball', publicPath + '/assets/game/mobs/fireball.png');
     this.load.image('boulder', publicPath + '/assets/game/mobs/boulder.png');
-    this.load.image('boulderShadow', publicPath + '/assets/game/mobs/boulderShadow.png');
     this.load.image('swordProj', publicPath + '/assets/game/mobs/sword.png');
-    this.load.image('swordProjShadow', publicPath + '/assets/game/mobs/swordShadow.png');
     this.load.image('snowball', publicPath + '/assets/game/mobs/snowball.png');
-    this.load.image('snowballShadow', publicPath + '/assets/game/mobs/snowballShadow.png');
     this.load.image('ornament1', publicPath + '/assets/game/mobs/ornament1.png');
     this.load.image('ornament2', publicPath + '/assets/game/mobs/ornament2.png');
 
@@ -251,26 +228,6 @@ export default class Game extends Phaser.Scene {
     this.load.image('assassinOverlay', publicPath + '/assets/game/evolutions/assassin.png');
     this.load.image('eliteOverlay', publicPath + '/assets/game/evolutions/elite.png');
     this.load.image('trackerOverlay', publicPath + '/assets/game/evolutions/tracker.png');
-
-    // Upgrade card icons (minor)
-    this.load.image('card_damage', publicPath + '/assets/game/upgrades/damage.png');
-    this.load.image('card_attackspeed', publicPath + '/assets/game/upgrades/attackspeed.png');
-    this.load.image('card_knockback', publicPath + '/assets/game/upgrades/knockback.png');
-    this.load.image('card_throwdamage', publicPath + '/assets/game/upgrades/throwdamage.png');
-    this.load.image('card_maxhealth', publicPath + '/assets/game/upgrades/maxhealth.png');
-    this.load.image('card_regenrate', publicPath + '/assets/game/upgrades/regenrate.png');
-    this.load.image('card_regencooldown', publicPath + '/assets/game/upgrades/regencooldown.png');
-    this.load.image('card_knockbackresist', publicPath + '/assets/game/upgrades/knockbackresist.png');
-    this.load.image('card_movespeed', publicPath + '/assets/game/upgrades/movespeed.png');
-    this.load.image('card_coinmagnet', publicPath + '/assets/game/upgrades/coinmagnet.png');
-    this.load.image('card_viewdistance', publicPath + '/assets/game/upgrades/viewdistance.png');
-    this.load.image('card_throwcooldown', publicPath + '/assets/game/upgrades/throwcooldown.png');
-    this.load.image('card_playersize', publicPath + '/assets/game/upgrades/playersize.png');
-
-    // Upgrade card icons (major - positional)
-    this.load.image('card_major1', publicPath + '/assets/game/upgrades/major1.png');
-    this.load.image('card_major2', publicPath + '/assets/game/upgrades/major2.png');
-    this.load.image('card_major3', publicPath + '/assets/game/upgrades/major3.png');
 
     this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');
@@ -454,6 +411,20 @@ export default class Game extends Phaser.Scene {
     window.addEventListener('crazyGamesAdStarted', this._adStartHandler);
     window.addEventListener('crazyGamesAdFinished', this._adFinishHandler);
     document.addEventListener('visibilitychange', this._visibilityHandler);
+
+    const lowMemoryDevice = (() => {
+      try {
+        const mem = (navigator as any).deviceMemory;
+        return (this.game as any).isCanvasMode || (typeof mem === 'number' && mem <= 4);
+      } catch (e) { return false; }
+    })();
+    if (lowMemoryDevice) {
+      (GameState as any).skinCap = 20;
+      let savedShadows: any;
+      try { savedShadows = settingsManager.get().livingShadows; } catch (e) {}
+      if (savedShadows === undefined) Settings.livingShadows = false;
+      console.log('[Game] low-memory device profile active');
+    }
 
     BaseEntity.setLivingShadowsEnabled(Settings.livingShadows !== false);
     window.addEventListener('livingShadowsChanged', (e: any) => {

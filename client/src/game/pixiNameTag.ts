@@ -1,5 +1,5 @@
 
-import { Container, Text, TextStyle, Sprite, Texture, BlurFilter } from 'pixi.js';
+import { Container, Text, TextStyle, Sprite, Texture, BlurFilter } from 'pixi.js-legacy';
 import {
   NameStyle,
   GradientSpec,
@@ -36,7 +36,8 @@ export function buildNameTag(text: string, style: NameStyle, fontSize: number): 
   const container = new Container();
   const t = text || ' ';
   const w = style.outline ? outlineWidthPx(style.outlineWidth, fontSize) : 0;
-  const gradientOutline = !!style.outline && isGradient(style.outline);
+  const canvasMode = !!(window as any).phaser_game?.isCanvasMode;
+  const gradientOutline = !!style.outline && isGradient(style.outline) && !canvasMode;
 
   if (style.shadow) {
     const shStyle = new TextStyle(baseStyle(fontSize));
@@ -67,7 +68,7 @@ export function buildNameTag(text: string, style: NameStyle, fontSize: number): 
   const fillStyle = new TextStyle(baseStyle(fontSize));
   applyCanvasFill(fillStyle as any, style.fill);
   if (style.outline && !gradientOutline) {
-    fillStyle.stroke = style.outline as string;
+    fillStyle.stroke = isGradient(style.outline) ? firstColor(style.outline) : style.outline as string;
     fillStyle.strokeThickness = w;
   }
   const fillText = new Text(t, fillStyle);

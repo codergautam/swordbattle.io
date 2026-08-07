@@ -3209,8 +3209,8 @@
       "id": 318,
       "buyable": true,
       "price": 100000,
-      "swordFileName": "vipSkillzSwordNew.png",
-      "bodyFileName": "vipSkillzPlayerNew.png",
+      "swordFileName": "vipSkillzSwordFix.png",
+      "bodyFileName": "vipSkillzPlayerFix.png",
       "description": "Given to Skillz for becoming a #5 all-time player. Also available to other players for 100k gems."
     },
     "amethyst": {
@@ -4943,6 +4943,32 @@
       "swordFileName": "vipShadowbladeSword.png",
       "bodyFileName": "vipShadowbladePlayer.png",
       "description": "Given to Shadowblade for contributing to the community and Swordbattle as a whole."
+    }
+  },
+  "themes": {
+    "default": {
+      "name": "default",
+      "displayName": "Default",
+      "id": 1,
+      "buyable": false,
+      "price": 0,
+      "description": "The default profile theme"
+    },
+    "classicv1": {
+      "name": "classicv1",
+      "displayName": "Classic V1",
+      "id": 2,
+      "buyable": false,
+      "price": 0,
+      "description": "The original theme from V1!"
+    },
+    "classicv2": {
+      "name": "classicv2",
+      "displayName": "Classic V2",
+      "id": 3,
+      "buyable": false,
+      "price": 0,
+      "description": "The original theme from V2!"
     }
   }
 }

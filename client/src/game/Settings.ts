@@ -55,8 +55,8 @@ export const settingsList: Record<string, SettingType> = {
       const saved = localStorage.getItem('swordbattle:WebGL');
       if (newValue) {
         localStorage.setItem('swordbattle:WebGL', 'OK');
-        // Player explicitly re-enabled WebGL — clear the auto-fail flag so it's tried again
         localStorage.removeItem('swordbattle:webgl_failed');
+        localStorage.removeItem('swordbattle:webgl_slow');
       } else {
         localStorage.removeItem('swordbattle:WebGL');
       }
@@ -201,24 +201,30 @@ class SettingsManager {
         get: () => value,
         set: (newValue) => {
           value = newValue;
-          this.saveSetting(key, newValue);
+          this.saveSettingSafe(key, newValue);
         },
       })
     }
 
-    if (!localStorage.getItem('swordbattle:webgl_migrated')) {
-      localStorage.setItem('swordbattle:webgl_migrated', '1');
-      const saved = this.get();
-      if (saved.useWebGL === undefined) {
-        localStorage.setItem('swordbattle:WebGL', 'OK');
+    try {
+      if (!localStorage.getItem('swordbattle:webgl_migrated')) {
+        localStorage.setItem('swordbattle:webgl_migrated', '1');
+        const saved = this.get();
+        if (saved.useWebGL === undefined) {
+          localStorage.setItem('swordbattle:WebGL', 'OK');
+        }
       }
-    }
+    } catch (e) {}
 
     const savedSettings = this.get();
     for (const key in savedSettings) {
       Settings[key] = savedSettings[key];
     }
     isLoaded = true;
+  }
+
+  saveSettingSafe(key: string, value: any) {
+    try { this.saveSetting(key, value); } catch (e) {}
   }
 
   get() {

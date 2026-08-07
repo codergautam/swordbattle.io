@@ -8,6 +8,7 @@ import validateUserbio from 'src/helpers/validateUserbio';
 import { Transaction } from 'src/transactions/transactions.entity';
 import * as cosmetics from '../cosmetics.json';
 import { CosmeticsService } from 'src/cosmetics/cosmetics.service';
+import { applyThemeGrants } from './themeGrants';
 
 const usernameWaitTime = config.config.usernameWaitTime;
 
@@ -95,6 +96,35 @@ export class AccountsService {
 
     // Save the updated skins data back to the user's account
     user.skins = skinsData;
+    await this.accountsRepository.save(user);
+
+    return { success: true };
+  }
+
+  async equipCosmetic(userId: number, itemId: number, type: string) {
+    if (type === 'skins') return this.equipSkin(userId, itemId);
+    if (type !== 'themes') return { error: 'Invalid type' };
+
+    if (typeof itemId !== 'number' || isNaN(itemId)) {
+      return { error: 'Invalid item id' };
+    }
+
+    const user = await this.accountsRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const theme: any = Object.values(cosmetics[type] || {}).find((t: any) => t.id === itemId);
+    if (!theme) {
+      return { error: 'Invalid theme id' };
+    }
+
+    applyThemeGrants(user);
+    if (!user.themes.owned.includes(itemId)) {
+      return { error: 'User does not own this theme' };
+    }
+
+    user.themes = { ...user.themes, equipped: itemId };
     await this.accountsRepository.save(user);
 
     return { success: true };

@@ -1,4 +1,4 @@
-import { TilingSprite as PixiTilingSprite, Texture } from 'pixi.js';
+import { TilingSprite as PixiTilingSprite, Texture } from 'pixi.js-legacy';
 import { applyPhaserGO } from './mixin';
 
 const PhaserTileBase = applyPhaserGO(PixiTilingSprite);

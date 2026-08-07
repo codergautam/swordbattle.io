@@ -921,7 +921,7 @@ class PlayerAI extends Player {
     }
   }
 
-  damaged(damage, entity) {
+  damaged(damage, entity, isThrown = false, opts = null) {
     if (entity && !entity.removed && entity.shape) {
       if (entity.type === Types.Entity.Player && Math.random() < 0.5) {
         this.attackCooldown = Math.max(this.attackCooldown,
@@ -959,7 +959,7 @@ class PlayerAI extends Player {
       }
     }
 
-    super.damaged(damage, entity);
+    super.damaged(damage, entity, isThrown, opts);
   }
 
   remove(reason) {

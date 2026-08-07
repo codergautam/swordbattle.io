@@ -112,11 +112,21 @@ class Socket {
     this.socket.binaryType = 'arraybuffer';
     window.socket = this.socket;
 
+    const ws = this.socket;
+    const connectTimer = setTimeout(() => {
+      if (ws.readyState === 0) {
+        console.warn('[Socket] connection timed out:', endpoint);
+        try { ws.close(); } catch (e) {}
+      }
+    }, 12000);
+
     this.socket.addEventListener('open', () => {
+      clearTimeout(connectTimer);
       this.onOpen();
       onOpen();
     });
     this.socket.addEventListener('close', (event: CloseEvent) => {
+      clearTimeout(connectTimer);
       if(this.debugMode) {
         alert('Connection closed: ' + event.code + ' ' + event.reason);
       }

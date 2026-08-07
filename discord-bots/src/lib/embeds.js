@@ -8,7 +8,21 @@ export const colors = {
   newTicket: 0xe67e22,
   reply: 0x3498db,
   digest: 0x2ecc71,
+  staffReply: 0x9b59b6,
+  statusChange: 0x95a5a6,
 };
+
+export function parseColor(value, fallback) {
+  const hex = String(value || '').replace('#', '').trim();
+  if (!/^[0-9a-fA-F]{6}$/.test(hex)) return fallback;
+  return parseInt(hex, 16);
+}
+
+export function reactionIdentifier(raw) {
+  const s = String(raw || '').trim();
+  const match = s.match(/^<(a?):([^:]+):(\d+)>$/);
+  return match ? `${match[2]}:${match[3]}` : s;
+}
 
 export function formatNumber(n) {
   return Math.round(Number(n) || 0).toLocaleString('en-US');

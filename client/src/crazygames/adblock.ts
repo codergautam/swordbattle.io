@@ -9,7 +9,13 @@ let adblockChecked = false;
 export function isAdScriptBlocked(): boolean {
   const w = window as any;
   if (w._isCrazyGamesBasicLaunch) return false;
-  const provider = w.adProvider || 'adinplay';
+  const provider = w.adProvider || 'adsense';
+  if (provider === 'adsense') {
+    if (w.adsenseFailed === true) return true;
+    const startedAt = w.adsenseStartedAt || 0;
+    if (!startedAt || Date.now() - startedAt < 5000) return false;
+    return w.adsbygoogle?.loaded !== true;
+  }
   return provider === 'adinplay' && !!w.aiptag
     && typeof w.aipDisplayTag === 'undefined'
     && typeof w.aipPlayer === 'undefined';
@@ -47,7 +53,7 @@ async function runCheck() {
 
 export async function detectAdblock(): Promise<boolean> {
   await runCheck();
-  for (const delay of [3500, 8000, 15000]) setTimeout(runCheck, delay);
+  for (const delay of [3500, 6000, 8000, 15000]) setTimeout(runCheck, delay);
   return hasAdblock;
 }
 

@@ -5,12 +5,12 @@ import { colors, discordTimestamp, escapeName, formatDuration, formatNumber, tru
 
 const minify = (rows, n) => rows.slice(0, n).map((r) => ({ username: r.username, clanTag: r.clanTag || null, value: r.value, fp: r.fp || null }));
 
-export function createAnnouncer({ getBoard, sendMessage, loadState, saveState, log, cfg, now = () => Date.now(), sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)) }) {
+export function createAnnouncer({ getBoard, sendMessage, loadState, saveState, log, cfg, getSettings, now = () => Date.now(), sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)) }) {
   let state = null;
 
   const fmtValue = (board, value) => (board.duration ? formatDuration(value) : formatNumber(value));
 
-  const renderBoardValue = (board, d, currentRows, context) => {
+  const renderBoardValue = (board, d, currentRows, context, settings) => {
     const contextRank = new Map();
     context.forEach((row, i) => contextRank.set(row.username, i + 1));
     const currentRank = new Map();
@@ -24,7 +24,7 @@ export function createAnnouncer({ getBoard, sendMessage, loadState, saveState, l
     const headlines = [];
     for (const e of [...d.newEntries].sort((a, b) => a.rank - b.rank)) {
       const was = contextRank.get(e.username);
-      const wasNote = was && was > 10 ? ` (was #${was})` : '';
+      const wasNote = was && was > settings.topN ? ` (was #${was})` : '';
       if (e.rank === 1) headlines.push(`${emojis.crown} New #1: ${display(e.username)} — ${fmtValue(board, e.value)}${wasNote}`);
       else headlines.push(`${emojis.enter} ${display(e.username)} entered at #${e.rank} — ${fmtValue(board, e.value)}${wasNote}`);
     }
@@ -34,34 +34,44 @@ export function createAnnouncer({ getBoard, sendMessage, loadState, saveState, l
     }
     const lines = headlines.slice(0, 8);
     if (headlines.length > 8) lines.push(`…and ${headlines.length - 8} more changes`);
+
     const consequences = [];
-    if (d.rankDowns.length) consequences.push(`Pushed down: ${d.rankDowns.map((x) => `${escapeName(x.username)} #${x.from}→#${x.to}`).join(', ')}`);
-    if (d.exits.length) {
-      consequences.push(`Fell out: ${d.exits.map((x) => {
-        const cur = currentRank.get(x.username);
-        return cur ? `${escapeName(x.username)} (now #${cur})` : escapeName(x.username);
-      }).join(', ')}`);
+    const downs = [...d.rankDowns].sort((a, b) => a.to - b.to);
+    const exits = [...d.exits].sort((a, b) => a.lastRank - b.lastRank);
+    const exitLabel = (x) => {
+      const cur = currentRank.get(x.username);
+      return cur ? `${escapeName(x.username)} (now #${cur})` : escapeName(x.username);
+    };
+    if (downs.length) {
+      const shown = settings.singlePush ? downs.slice(0, 1) : downs;
+      const rest = downs.length - shown.length;
+      consequences.push(`Pushed down: ${shown.map((x) => `${escapeName(x.username)} #${x.from}→#${x.to}`).join(', ')}${rest > 0 ? ` (+${rest} more)` : ''}`);
+    }
+    if (exits.length) {
+      const shown = settings.singlePush ? exits.slice(0, 1) : exits;
+      const rest = exits.length - shown.length;
+      consequences.push(`Fell out: ${shown.map(exitLabel).join(', ')}${rest > 0 ? ` (+${rest} more)` : ''}`);
     }
     if (d.renames.length) consequences.push(`Renamed: ${d.renames.map((r) => `${escapeName(r.from)} → ${escapeName(r.to)}`).join(', ')}`);
     if (consequences.length) lines.push(truncate(`${emojis.down} ${consequences.join(' · ')}`, 400));
     return truncate(lines.join('\n'), 800) || '—';
   };
 
-  const buildMessage = (changed) => {
+  const buildMessage = (changed, settings) => {
     const fields = [];
     for (const board of boards) {
       const d = changed.get(board.key);
       if (!d) continue;
       const currentRows = getBoard(board.key).rows;
       const context = (state.boards[board.key] && state.boards[board.key].context) || [];
-      fields.push({ name: `${board.emoji} ${board.label}`, value: renderBoardValue(board, d, currentRows, context), inline: false });
+      fields.push({ name: `${board.emoji} ${board.label}`, value: renderBoardValue(board, d, currentRows, context, settings), inline: false });
     }
     return {
       content: `<@&${cfg.roleId}>`,
       embeds: [{
         title: `${emojis.update} Leaderboard update`,
         color: colors.brand,
-        description: `All-time boards · ${discordTimestamp(now(), 'R')}`,
+        description: `All-time boards · top ${settings.topN} · ${discordTimestamp(now(), 'R')}`,
         fields,
       }],
       allowedMentions: { parse: [], roles: [cfg.roleId] },
@@ -69,6 +79,11 @@ export function createAnnouncer({ getBoard, sendMessage, loadState, saveState, l
   };
 
   const evaluate = async (fetchedKeys) => {
+    const settings = getSettings();
+    const topN = settings.topN;
+    const contextN = Math.max(25, topN * 2);
+    const baseline = (rows) => ({ updatedAt: now(), topN, top: minify(rows, topN), context: minify(rows, contextN) });
+
     if (!state) {
       const loaded = await loadState('leaderboard');
       state = loaded && loaded.version === 1 && loaded.boards ? loaded : { version: 1, lastAnnouncedAt: 0, boards: {} };
@@ -80,14 +95,20 @@ export function createAnnouncer({ getBoard, sendMessage, loadState, saveState, l
       if (!snapshot) continue;
       const existing = state.boards[key];
       if (!existing || !Array.isArray(existing.top)) {
-        state.boards[key] = { updatedAt: now(), top: minify(snapshot.rows, 10), context: minify(snapshot.rows, 25) };
+        state.boards[key] = baseline(snapshot.rows);
         dirty = true;
         continue;
       }
-      const d = diffTop(existing.top, minify(snapshot.rows, 10));
+      if (existing.topN !== topN) {
+        state.boards[key] = baseline(snapshot.rows);
+        dirty = true;
+        log.info(`${key}: tracked positions changed to ${topN}, baseline reset silently`);
+        continue;
+      }
+      const d = diffTop(existing.top, minify(snapshot.rows, topN));
       if (isEmptyDiff(d)) continue;
       if (!hasRealEvents(d)) {
-        state.boards[key] = { updatedAt: now(), top: minify(snapshot.rows, 10), context: minify(snapshot.rows, 25) };
+        state.boards[key] = baseline(snapshot.rows);
         dirty = true;
         log.info(`${key}: rename detected (${d.renames.map((r) => `${r.from} → ${r.to}`).join(', ')}), baseline updated silently`);
         continue;
@@ -97,7 +118,7 @@ export function createAnnouncer({ getBoard, sendMessage, loadState, saveState, l
     if (dirty) await saveState('leaderboard', state);
     if (!changed.size) return;
     if (now() - (state.lastAnnouncedAt || 0) < cfg.flushMinutes * 60000) return;
-    const payload = buildMessage(changed);
+    const payload = buildMessage(changed, settings);
     try {
       await sendMessage(payload);
     } catch (err) {
@@ -111,8 +132,7 @@ export function createAnnouncer({ getBoard, sendMessage, loadState, saveState, l
       }
     }
     for (const key of changed.keys()) {
-      const rows = getBoard(key).rows;
-      state.boards[key] = { updatedAt: now(), top: minify(rows, 10), context: minify(rows, 25) };
+      state.boards[key] = baseline(getBoard(key).rows);
     }
     state.lastAnnouncedAt = now();
     await saveState('leaderboard', state);

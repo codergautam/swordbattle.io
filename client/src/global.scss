@@ -46,3 +46,8 @@ html, body {
 body.sb-rewarded-ad #adinplay-progress-text + a {
   display: none !important;
 }
+
+ins.adsbygoogle[data-ad-status="unfilled"],
+ins.adsbygoogle[data-ad-status="unfill-optimized"] {
+  display: none !important;
+}

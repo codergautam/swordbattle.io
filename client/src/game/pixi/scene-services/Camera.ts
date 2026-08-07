@@ -1,4 +1,4 @@
-import { Container } from 'pixi.js';
+import { Container } from 'pixi.js-legacy';
 import * as mathgeom from '../mathgeom';
 
 export interface Viewport { width: number; height: number; }

@@ -57,24 +57,11 @@
     <!-- Ads -->
 
   <script>
-    if (!window._isCrazyGamesBasicLaunch) {
-      var s = document.createElement('script');
-      s.async = true;
-      s.setAttribute('data-ad-frequency-hint', '30s');
-      s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3340825671684972';
-      s.crossOrigin = 'anonymous';
-      document.head.appendChild(s);
+    window.adsenseClient = 'ca-pub-3340825671684972';
 
-      window.adsbygoogle = window.adsbygoogle || [];
-      var adBreak = adConfig = function(o) {adsbygoogle.push(o);}
-      adConfig({preloadAdBreaks: 'on'});
-      window.adBreak = adBreak;
-    }
-  </script>
-
-  <script>
     const vidAdDelay = {
-      adinplay: 1000 * 60 * 5, // 5 minutes
+      adsense: 0, // the Ad Placement API does its own frequency capping
+      adinplay: 1000 * 60 * 2, // 2 minutes
       gamemonetize: 1000 * 60 * 2, // 2 minutes
       gamepix: 0, // gamepix has its own logic it seems
       crazygames: 0 // Crazygames handles timing automatically
@@ -83,9 +70,9 @@
     function checkAdProvider() {
       if (window._isCrazyGamesBasicLaunch) return 'crazygames';
 
-      let adProvider = '<%= htmlWebpackPlugin.options.adProvider %>' || "adinplay";
+      let adProvider = '<%= htmlWebpackPlugin.options.adProvider %>' || "adsense";
       // get query string in url check if other ad provider is set
-      const validAdProviders = ["adinplay", "gamemonetize", "gamepix"];
+      const validAdProviders = ["adsense", "adinplay", "gamemonetize", "gamepix"];
       const urlParams = new URLSearchParams(window.location.search);
       const adProviderParam = urlParams.get("adprovider");
       if (adProviderParam && validAdProviders.includes(adProviderParam)) {
@@ -96,6 +83,31 @@
 
     window.adProvider = checkAdProvider();
     console.log("Ad provider:", window.adProvider)
+
+    // AdinPlay is loaded on demand: as the main provider, or alongside AdSense purely
+    // for the in-game banner (which AdSense may not serve over a gameplay screen).
+    window.loadAdinplay = function () {
+      if (window._isCrazyGamesBasicLaunch || window._adinplayLoading) return;
+      window._adinplayLoading = true;
+
+      window.aiptag = window.aiptag || {};
+      window.aiptag.cmd = window.aiptag.cmd || [];
+      window.aiptag.cmd.display = window.aiptag.cmd.display || [];
+      window.aiptag.cmd.player = window.aiptag.cmd.player || [];
+
+      //CMP tool settings
+      window.aiptag.cmp = {
+        show: true,
+        position: "centered",  //centered or bottom
+        button: true,
+        buttonText: "Privacy settings",
+        buttonPosition: "bottom-right" //bottom-left, bottom-right, top-left, top-right
+      };
+
+      var aipScript = document.createElement('script');
+      aipScript.src = '//api.adinplay.com/libs/aiptag/pub/SWT/swordbattle.io/tag.min.js';
+      document.head.appendChild(aipScript);
+    };
 
     window.vidAdDelay = vidAdDelay[window.adProvider];
     window.lastVidAdTime = 0;
@@ -109,7 +121,28 @@
         }
       } catch (e) { };
 
-      if (window.adProvider === "gamemonetize") {
+      if (window.adProvider === "adsense") {
+        window.adsbygoogle = window.adsbygoogle || [];
+        window.adBreak = window.adConfig = function (o) { window.adsbygoogle.push(o); };
+
+        window.adsenseStartedAt = Date.now();
+        var s = document.createElement('script');
+        s.async = true;
+        s.setAttribute('data-ad-frequency-hint', '90s');
+        s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + window.adsenseClient;
+        s.crossOrigin = 'anonymous';
+        s.onerror = function () { window.adsenseFailed = true; };
+        document.head.appendChild(s);
+
+        window.adConfig({
+          preloadAdBreaks: 'on',
+          sound: 'on',
+          onReady: function () {
+            window._adsenseReady = true;
+            window.dispatchEvent(new CustomEvent('adsenseReady'));
+          }
+        });
+      } else if (window.adProvider === "gamemonetize") {
         window.SDK_OPTIONS = {
           gameId: "m2yzvbmyf75dl11i5lrtzlykjkzrgb85",
           onEvent: function (a) {
@@ -124,43 +157,15 @@
           var d = a.getElementsByTagName(b)[0];
           a.getElementById(c) || (a = a.createElement(b), a.id = c, a.src = "https://api.gamemonetize.com/sdk.js", d.parentNode.insertBefore(a, d))
         })(document, "script", "gamemonetize-sdk");
-      } else if(window.adProvider === "adinplay") {
-        // Adinplay settings
-        var aiptag = aiptag || {};
-        aiptag.cmd = aiptag.cmd || [];
-        aiptag.cmd.display = aiptag.cmd.display || [];
-        aiptag.cmd.player = aiptag.cmd.player || [];
-
-        //CMP tool settings
-        aiptag.cmp = {
-          show: true,
-          position: "centered",  //centered or bottom
-          button: true,
-          buttonText: "Privacy settings",
-          buttonPosition: "bottom-right" //bottom-left, bottom-right, top-left, top-right
-        }
+      } else if (window.adProvider === "adinplay") {
+        window.loadAdinplay();
+      } else if (window.adProvider === "gamepix") {
+        var gpScript = document.createElement('script');
+        gpScript.src = 'https://integration.gamepix.com/sdk/v3/gamepix.sdk.js';
+        document.head.appendChild(gpScript);
       }
     }
   </script>
-
-  <% if (htmlWebpackPlugin.options.adProvider==="adinplay" ) { %>
-    <script>
-      if (!window._isCrazyGamesBasicLaunch) {
-        var s = document.createElement('script');
-        s.src = '//api.adinplay.com/libs/aiptag/pub/SWT/swordbattle.io/tag.min.js';
-        document.head.appendChild(s);
-      }
-    </script>
-    <% } %>
-    <% if (htmlWebpackPlugin.options.adProvider==="gamepix" ) { %>
-      <script>
-        if (!window._isCrazyGamesBasicLaunch) {
-          var s = document.createElement('script');
-          s.src = 'https://integration.gamepix.com/sdk/v3/gamepix.sdk.js';
-          document.head.appendChild(s);
-        }
-      </script>
-      <% } %>
 
     <!-- End of Ads -->
 

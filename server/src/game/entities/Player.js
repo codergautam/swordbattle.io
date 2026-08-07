@@ -552,9 +552,11 @@ class Player extends Entity {
     this.shape.y = clamp(this.shape.y, -this.game.map.height / 2, this.game.map.height / 2);
   }
 
-  damaged(damage, entity = null, isThrown = false) {
+  damaged(damage, entity = null, isThrown = false, opts = null) {
     if (this.cards.choosingCard && this.cards.instantSelect && !this.cards.isTutorial) return;
     if (this.removed) return;
+
+    const noRetaliate = !!(opts && opts.noRetaliate);
 
     const origDamage = damage;
     damage *= this.damageReduction;
@@ -601,14 +603,15 @@ class Player extends Entity {
       return;
     }
 
-    if (this.evolutions && this.evolutions.evolutionEffect && typeof this.evolutions.evolutionEffect.onDamaged === 'function') {
-      try {
-        this.evolutions.evolutionEffect.onDamaged(entity);
-      } catch (e) {
-        //
+    if (!noRetaliate) {
+      if (this.evolutions && this.evolutions.evolutionEffect && typeof this.evolutions.evolutionEffect.onDamaged === 'function') {
+        try {
+          this.evolutions.evolutionEffect.onDamaged(entity);
+        } catch (e) {
+        }
       }
+      if (this.upgrades) this.upgrades.hook('onDamaged', entity, damage, isThrown);
     }
-    if (this.upgrades) this.upgrades.hook('onDamaged', entity, damage, isThrown);
 
 
     if (this.health.isDead) {

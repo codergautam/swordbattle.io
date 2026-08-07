@@ -363,6 +363,7 @@ export default function MetricsPage() {
           </Section>
           <Section title="Ad exposure per DAU"><KeyVals obj={data.adPerDau} /></Section>
           <Section title="Revenue by placement / format"><DistBars rows={data.adByPlacement} labelKey="placement" valueKey="est_usd" suffix=" $" /><DataTable rows={data.adByPlacement} /></Section>
+          <Section title="Banner fill by size / placement (0% fill = slot not configured at AdinPlay)"><DataTable rows={data.adBySize} /></Section>
           <Section title="Rewarded 2× gems funnel">
             <Funnel steps={rewardedTotals(data.rewardedFunnel)} />
             <DataTable rows={data.rewardedFunnel} />

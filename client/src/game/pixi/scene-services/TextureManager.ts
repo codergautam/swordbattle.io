@@ -1,4 +1,4 @@
-import { Texture, BaseTexture, RenderTexture, SCALE_MODES } from 'pixi.js';
+import { Texture, BaseTexture, RenderTexture, SCALE_MODES } from 'pixi.js-legacy';
 
 export class ShimTexture {
   key: string;
@@ -153,5 +153,32 @@ export class TextureManager {
   private _missing(): ShimTexture {
     if (!this._missingTex) this._missingTex = new ShimTexture('__MISSING', Texture.EMPTY, null, null);
     return this._missingTex;
+  }
+
+  private static keepSourceKeys = new Set(['sand', 'sandRock', 'sandMud', 'sandAsh', 'rocksNew']);
+  private static keepSourcePattern = /(Body|Sword|_shadow)$/;
+
+  releaseDecodedSources(renderer: any): number {
+    if (!renderer || !renderer.gl || !renderer.texture) return 0;
+    let released = 0;
+    for (const [key, t] of this._map) {
+      if (TextureManager.keepSourceKeys.has(key) || TextureManager.keepSourcePattern.test(key)) continue;
+      const src = (t as any)._source;
+      if (!src || !(src instanceof HTMLImageElement)) continue;
+      try {
+        const base: any = t.pixi.baseTexture;
+        if (!base || !base.valid) continue;
+        renderer.texture.bind(base);
+        renderer.texture.bind(null);
+        if (base.resource) base.resource.source = null;
+        (t as any)._source = null;
+        released++;
+      } catch (e) {}
+    }
+    if (released > 0) {
+      (window as any).__texSourcesReleased = true;
+      try { renderer.textureGC.mode = 1; } catch (e) {}
+    }
+    return released;
   }
 }

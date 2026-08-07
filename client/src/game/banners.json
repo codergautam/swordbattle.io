@@ -1,0 +1,79 @@
+{
+  "banners": [
+    {
+      "file": "alpine.png",
+      "displayName": "Alpine",
+      "hash": "e75d32d0df"
+    },
+    {
+      "file": "ash.png",
+      "displayName": "Ash",
+      "hash": "10f4e34aa5"
+    },
+    {
+      "file": "classic.png",
+      "displayName": "Classic",
+      "hash": "ffc4b705b8"
+    },
+    {
+      "file": "grass.png",
+      "displayName": "Grass",
+      "hash": "9c2d58bc15"
+    },
+    {
+      "file": "honeycomb.png",
+      "displayName": "Honeycomb",
+      "hash": "31d1c18434"
+    },
+    {
+      "file": "ice.png",
+      "displayName": "Ice",
+      "hash": "f3d9c79afb"
+    },
+    {
+      "file": "lava.png",
+      "displayName": "Lava",
+      "hash": "92a5210995"
+    },
+    {
+      "file": "loading.png",
+      "displayName": "Loading",
+      "hash": "78963ceb14"
+    },
+    {
+      "file": "river.png",
+      "displayName": "River",
+      "hash": "3fa7b6190f"
+    },
+    {
+      "file": "rock.png",
+      "displayName": "Rock",
+      "hash": "2fd10e5395"
+    },
+    {
+      "file": "sand.png",
+      "displayName": "Sand",
+      "hash": "0e753ef23b"
+    },
+    {
+      "file": "savanna.png",
+      "displayName": "Savanna",
+      "hash": "683b482260"
+    },
+    {
+      "file": "snow.png",
+      "displayName": "Snow",
+      "hash": "8c0fbcffd1"
+    },
+    {
+      "file": "spawn.png",
+      "displayName": "Spawn",
+      "hash": "1a3a2a6650"
+    },
+    {
+      "file": "v1.png",
+      "displayName": "V1",
+      "hash": "23bc77c5fb"
+    }
+  ]
+}

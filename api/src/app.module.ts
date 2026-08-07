@@ -14,6 +14,7 @@ import { MaintenanceModule } from './maintenance/maintenance.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { SupportModule } from './support/support.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
+import { BotsModule } from './bots/bots.module';
 import { AuthService } from './auth/auth.service';
 
 @Module({
@@ -55,6 +56,7 @@ import { AuthService } from './auth/auth.service';
     AnalyticsModule,
     SupportModule,
     AnnouncementsModule,
+    BotsModule,
   ],
   providers: [
     AuthService,

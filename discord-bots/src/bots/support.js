@@ -2,6 +2,7 @@ import { config } from '../config.js';
 import { apiGet } from '../lib/api.js';
 import { loadState, saveState } from '../lib/state.js';
 import { colors, discordTimestamp, truncate } from '../lib/embeds.js';
+import { getBotConfig, refreshBotConfig, startBotConfigRefresh, stopBotConfigRefresh } from '../lib/botConfig.js';
 import { createLogger } from '../lib/log.js';
 import { createBotClient, sendToChannel } from '../lib/discord.js';
 
@@ -35,59 +36,122 @@ function buildEmbed(t, msg, kind) {
     { name: 'Created', value: discordTimestamp(t.created_at), inline: true },
   ];
   if (kind === 'reply' && msg) fields.push({ name: 'Replied', value: discordTimestamp(msg.at), inline: true });
+  if (kind === 'staff' && msg) fields.push({ name: 'Sent', value: discordTimestamp(msg.at), inline: true });
+  const color = kind === 'new' ? colors.newTicket : kind === 'reply' ? colors.reply : colors.staffReply;
   return {
     title: truncate(`Ticket #${t.id} — ${subjectOf(t)}`, 256),
     url: ticketLink(t.id),
-    color: kind === 'new' ? colors.newTicket : colors.reply,
+    color,
     description: lines.join('\n'),
     fields,
     timestamp: new Date(t.updated_at).toISOString(),
   };
 }
 
+function buildStatusEmbed(t, prevStatus) {
+  return {
+    title: truncate(`Ticket #${t.id} — ${subjectOf(t)}`, 256),
+    url: ticketLink(t.id),
+    color: colors.statusChange,
+    description: `Status changed from **${prevStatus}** to **${t.status}**.\nOpen here: <${ticketLink(t.id)}>`,
+    fields: [
+      { name: 'Category', value: categoryTitles[t.category] || t.category, inline: true },
+      { name: 'Account', value: accountLabel(t), inline: true },
+    ],
+    timestamp: new Date(t.updated_at).toISOString(),
+  };
+}
+
 export async function start(token) {
   const client = await createBotClient(token, log);
-  const botState = (await loadState('support')) || { watermark: null, notified: {} };
-  if (!botState.notified) botState.notified = {};
+  const botState = (await loadState('support')) || {};
+  if (typeof botState.watermark === 'undefined') botState.watermark = null;
+  if (!botState.tickets) {
+    botState.tickets = {};
+    if (botState.notified) {
+      for (const [id, at] of Object.entries(botState.notified)) {
+        botState.tickets[id] = { notified: at, staffNotified: 0, status: null, seenAt: at };
+      }
+    }
+  }
+  delete botState.notified;
   let inFlight = false;
 
-  const send = (content, embed) =>
+  await refreshBotConfig();
+  startBotConfigRefresh();
+
+  const send = (content, embed, roleId) =>
     sendToChannel(client, config.support.channelId, {
       content,
       embeds: [embed],
-      allowedMentions: { parse: [], roles: [config.support.roleId] },
+      allowedMentions: { parse: [], roles: roleId ? [roleId] : [] },
     }, log);
 
-  const pruneNotified = () => {
+  const entry = (id) => {
+    if (!botState.tickets[id]) botState.tickets[id] = { notified: 0, staffNotified: 0, status: null, seenAt: Date.now() };
+    return botState.tickets[id];
+  };
+
+  const prune = () => {
     const cutoff = Date.now() - 30 * 86400000;
-    for (const [id, at] of Object.entries(botState.notified)) {
-      if (at < cutoff) delete botState.notified[id];
+    for (const [id, rec] of Object.entries(botState.tickets)) {
+      if ((rec.seenAt || 0) < cutoff) delete botState.tickets[id];
     }
   };
 
   const processTicket = async (t, watermark) => {
+    const cfg = getBotConfig().support;
+    const rec = entry(t.id);
     const createdAtMs = Date.parse(t.created_at);
-    const lastNotified = botState.notified[t.id] || 0;
+    const prevStatus = rec.status;
+    rec.seenAt = Date.now();
+
     const freshUserMsgs = (t.messages || []).filter(
-      (m) => m.from === 'user' && m.at > watermark && m.at > createdAtMs + 2000 && m.at > lastNotified,
+      (m) => m.from === 'user' && m.at > watermark && m.at > createdAtMs + 2000 && m.at > (rec.notified || 0),
     );
-    if (createdAtMs > watermark && lastNotified < createdAtMs) {
+    const freshStaffMsgs = (t.messages || []).filter(
+      (m) => m.from === 'staff' && m.at > watermark && m.at > (rec.staffNotified || 0),
+    );
+
+    let handled = false;
+
+    if (createdAtMs > watermark && (rec.notified || 0) < createdAtMs) {
       const first = (t.messages || [])[0];
-      await send(`<@&${config.support.roleId}> A new support ticket has been created!`, buildEmbed(t, first, 'new'));
-      botState.notified[t.id] = Math.max(createdAtMs, ...freshUserMsgs.map((m) => m.at));
-      await saveState('support', botState);
-      return;
-    }
-    if (freshUserMsgs.length) {
+      await send(`<@&${config.support.roleId}> A new support ticket has been created!`, buildEmbed(t, first, 'new'), config.support.roleId);
+      rec.notified = Math.max(createdAtMs, ...freshUserMsgs.map((m) => m.at));
+      handled = true;
+    } else if (freshUserMsgs.length) {
       const latest = freshUserMsgs[freshUserMsgs.length - 1];
       const who = t.username ? `@${t.username}` : 'An anonymous user';
       await send(
         `<@&${config.support.roleId}> ${who} has responded on their support ticket "${subjectOf(t)}"`,
         buildEmbed(t, latest, 'reply'),
+        config.support.roleId,
       );
-      botState.notified[t.id] = latest.at;
-      await saveState('support', botState);
+      rec.notified = latest.at;
+      handled = true;
     }
+
+    if (freshStaffMsgs.length) {
+      const latest = freshStaffMsgs[freshStaffMsgs.length - 1];
+      if (!handled && cfg.notifyStaffReply) {
+        await send(`Staff replied to support ticket "${subjectOf(t)}"`, buildEmbed(t, latest, 'staff'), null);
+        handled = true;
+      }
+      rec.staffNotified = latest.at;
+    }
+
+    if (!handled && prevStatus && prevStatus !== t.status) {
+      const isClosed = t.status === 'closed';
+      if ((isClosed && cfg.notifyClosed) || (!isClosed && cfg.notifyStatusChange)) {
+        const content = isClosed
+          ? `Support ticket "${subjectOf(t)}" was closed`
+          : `Support ticket "${subjectOf(t)}" is now ${t.status}`;
+        await send(content, buildStatusEmbed(t, prevStatus), null);
+      }
+    }
+
+    rec.status = t.status;
   };
 
   const poll = async () => {
@@ -97,6 +161,7 @@ export async function start(token) {
       if (botState.watermark === null) {
         const res = await apiGet(`/support/admin/updates?since=${Date.now()}`, { auth: true });
         botState.watermark = res.serverTime;
+        for (const t of res.tickets || []) entry(t.id).status = t.status;
         await saveState('support', botState);
         log.info(`baselined watermark at ${new Date(botState.watermark).toISOString()}`);
         return;
@@ -119,7 +184,7 @@ export async function start(token) {
         }
         const maxUpdated = Math.max(...tickets.map((t) => Date.parse(t.updated_at)));
         botState.watermark = tickets.length === 100 ? maxUpdated - 1 : maxUpdated;
-        pruneNotified();
+        prune();
         await saveState('support', botState);
         if (tickets.length < 100) break;
       }
@@ -138,6 +203,7 @@ export async function start(token) {
     client,
     stop: async () => {
       clearInterval(timer);
+      stopBotConfigRefresh();
       await client.destroy();
     },
   };

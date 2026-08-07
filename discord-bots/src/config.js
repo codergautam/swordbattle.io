@@ -36,5 +36,8 @@ export const config = {
     pollSeconds: envNumber('LEADERBOARD_POLL_SECONDS', 60),
     staggerMs: envNumber('LEADERBOARD_STAGGER_MS', 4000),
     flushMinutes: envNumber('LEADERBOARD_FLUSH_MINUTES', 5),
+    dailyCron: process.env.LEADERBOARD_DAILY_CRON || '55 23 * * *',
+    dailyTz: process.env.LEADERBOARD_DAILY_TZ || 'UTC',
+    messagePollMs: envNumber('LEADERBOARD_MESSAGE_POLL_MS', 15000),
   },
 };

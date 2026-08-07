@@ -255,8 +255,8 @@
   max-width: calc(100vw - 24px);
   height: calc(100vh - 64px);
   padding: 0;
-  background: #181818 !important;
-  border: 3px solid #bbbbca;
+  background: var(--pf-bg, #181818) !important;
+  border: 3px solid var(--pf-frame, #6dffa0);
   border-bottom: none;
   border-radius: 18px 18px 0 0;
   box-shadow:

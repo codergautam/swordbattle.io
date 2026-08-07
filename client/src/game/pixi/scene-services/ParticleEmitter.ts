@@ -1,4 +1,4 @@
-import { Texture } from 'pixi.js';
+import { Texture } from 'pixi.js-legacy';
 import { Container, Sprite } from '../display';
 
 const deg2rad = Math.PI / 180;

@@ -1,4 +1,4 @@
-import { Text as PixiText } from 'pixi.js';
+import { Text as PixiText } from 'pixi.js-legacy';
 import { applyPhaserGO } from './mixin';
 
 const PhaserTextBase = applyPhaserGO(PixiText);

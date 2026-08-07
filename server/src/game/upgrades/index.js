@@ -4,12 +4,12 @@ const defs = require('./definitions');
 const E = Types.Evolution;
 const u = Types.Upgrade;
 
-const UPGRADE_TREE = {
+const upgradeTree = {
   [E.Basic]: [
     [u.Toughened, u.Footwork],
     [u.ClasslessAbility, u.Handling],
     [u.Lavacopy, u.Pacifist],
-    [u.Collector, u.Battleswords],
+    [u.Battler, u.Battleswords],
   ],
   [E.Knight]: [
     [u.Momentum, u.Gale],
@@ -60,7 +60,7 @@ class UpgradeSystem {
 
   tree() {
     const evo = this.player.evolutions ? this.player.evolutions.evolution : Types.Evolution.Basic;
-    return UPGRADE_TREE[evo] || [];
+    return upgradeTree[evo] || [];
   }
 
   hasAvailableTier() { return this.tierIndex < this.tree().length; }
@@ -108,5 +108,5 @@ class UpgradeSystem {
 }
 
 module.exports = UpgradeSystem;
-module.exports.UPGRADE_TREE = UPGRADE_TREE;
+module.exports.upgradeTree = upgradeTree;
 module.exports.definitions = defs;

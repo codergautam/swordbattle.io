@@ -1,4 +1,4 @@
-import { Rectangle } from 'pixi.js';
+import { Rectangle } from 'pixi.js-legacy';
 import { Container } from '../display';
 
 export class SoundStub {

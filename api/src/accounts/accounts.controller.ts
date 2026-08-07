@@ -8,6 +8,7 @@ import { CosmeticsService } from 'src/cosmetics/cosmetics.service';
 import { ClansService } from 'src/clans/clans.service';
 import { ServerGuard } from 'src/auth/guards/server.guard';
 import { AccountGuard, AccountRequest } from 'src/auth/guards/account.guard';
+import { applyThemeGrants } from './themeGrants';
 
 @Controller('profile')
 export class AccountsController {
@@ -77,12 +78,31 @@ export class AccountsController {
   }
 
   @UseGuards(AccountGuard)
+  @Throttle({ short: { limit: 3, ttl: 1000 }, medium: { limit: 20, ttl: 60000 } })
+  @Post('cosmetics/:type/equip/:itemId')
+  async equipCosmetic(@Req() request: any) {
+    const id = request.account.id;
+    const itemId = request.params.itemId;
+    const type = request.params.type;
+
+    if (!['skins', 'themes'].includes(type)) {
+      return { error: 'Invalid type' };
+    }
+
+    if (!itemId || isNaN(Number(itemId))) {
+      return { error: 'Invalid item id' };
+    }
+
+    return await this.accountsService.equipCosmetic(id, Number(itemId), type);
+  }
+
+  @UseGuards(AccountGuard)
   @SkipThrottle({ short: true, medium: true, long: true })
   @Post('getPrivateUserInfo')
   async getPrivateAccount(@Req() request: AccountRequest) {
     const id = request.account.id;
     const account = await this.accountsService.getById(id);
-    const sanitized: any = this.accountsService.sanitizeAccount(account);
+    const sanitized: any = applyThemeGrants(this.accountsService.sanitizeAccount(account));
     sanitized.clan = await this.clansService.getMembershipForAccount(id);
     return { account: sanitized };
   }
@@ -98,7 +118,7 @@ export class AccountsController {
   @Throttle({ short: { limit: 5, ttl: 1000 }, medium: { limit: 30, ttl: 60000 } })
   @Post('getPublicUserInfo/:username')
   async getAccount(@Param('username') username: string, @Req() request: Request) {
-    const account = await this.accountsService.getByUsername(username);
+    const account = applyThemeGrants(await this.accountsService.getByUsername(username));
     const totalStats = await this.statsService.getTotalStats(account);
     const dailyStats = await this.statsService.getAllDailyStats(account);
     const clan = await this.clansService.getMembershipForAccount(account.id);
@@ -122,7 +142,7 @@ export class AccountsController {
   @Throttle({ short: { limit: 5, ttl: 1000 }, medium: { limit: 30, ttl: 60000 } })
   @Post('getPublicUserInfoById/:id')
   async getAccountById(@Param('id') id: number, @Req() request: Request) {
-    const account = await this.accountsService.getById(id);
+    const account = applyThemeGrants(await this.accountsService.getById(id));
     const totalStats = await this.statsService.getTotalStats(account);
     const dailyStats = await this.statsService.getAllDailyStats(account);
     const clan = await this.clansService.getMembershipForAccount(id);

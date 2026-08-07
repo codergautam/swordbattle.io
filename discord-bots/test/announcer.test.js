@@ -5,13 +5,14 @@ import { createAnnouncer } from '../src/bots/leaderboard/announcer.js';
 const mkRows = (...names) => names.map((n, i) => ({ username: n, clanTag: null, value: 1000 - i * 10 }));
 const minified = (rows, n) => rows.slice(0, n).map((r) => ({ username: r.username, clanTag: r.clanTag || null, value: r.value }));
 
-function makeHarness({ flushMinutes = 5, initialState = null } = {}) {
+function makeHarness({ flushMinutes = 5, initialState = null, topN = 10, singlePush = false } = {}) {
   const harness = {
     clock: 10000000,
     sent: [],
     failSends: 0,
     stateStore: initialState,
     snapshots: new Map(),
+    settings: { topN, singlePush },
   };
   harness.announcer = createAnnouncer({
     getBoard: (key) => harness.snapshots.get(key),
@@ -28,6 +29,7 @@ function makeHarness({ flushMinutes = 5, initialState = null } = {}) {
     },
     log: { info() {}, warn() {}, error() {} },
     cfg: { roleId: '123', flushMinutes },
+    getSettings: () => harness.settings,
     now: () => harness.clock,
     sleep: async () => {},
   });
@@ -35,10 +37,10 @@ function makeHarness({ flushMinutes = 5, initialState = null } = {}) {
   return harness;
 }
 
-function preloaded(clock, boardsSpec) {
+function preloaded(clock, boardsSpec, topN = 10) {
   const boards = {};
   for (const [key, rows] of Object.entries(boardsSpec)) {
-    boards[key] = { updatedAt: clock, top: minified(rows, 10), context: minified(rows, 25) };
+    boards[key] = { updatedAt: clock, topN, top: minified(rows, topN), context: minified(rows, Math.max(25, topN * 2)) };
   }
   return { version: 1, lastAnnouncedAt: clock, boards };
 }
@@ -132,6 +134,45 @@ test('new entry previously in context 11-25 gets a was-note', async () => {
   assert.equal(h.sent.length, 1);
   const value = h.sent[0].embeds[0].fields[0].value;
   assert.ok(value.includes('New #1:') && value.includes('P14') && value.includes('(was #14)'));
+});
+
+test('single push mode collapses pushed-down and fell-out to the highest affected', async () => {
+  const base = mkRows('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J');
+  const h = makeHarness({ initialState: preloaded(10000000, { xp: base }), singlePush: true });
+  h.clock += 6 * 60000;
+  h.setBoard('xp', mkRows('A', 'B', 'N', 'C', 'D', 'E', 'F', 'G', 'H', 'I'));
+  await h.announcer.evaluate(['xp']);
+  assert.equal(h.sent.length, 1);
+  const lines = h.sent[0].embeds[0].fields[0].value.split('\n');
+  assert.equal(lines.length, 2);
+  assert.ok(lines[1].includes('Pushed down: C #3→#4 (+6 more)'));
+  assert.ok(lines[1].includes('Fell out: J'));
+  assert.ok(!lines[1].includes('D #4→#5'));
+});
+
+test('changing tracked positions rebaselines silently instead of announcing', async () => {
+  const names = Array.from({ length: 20 }, (_, i) => `P${i + 1}`);
+  const h = makeHarness({ initialState: preloaded(10000000, { xp: mkRows(...names) }), topN: 20 });
+  h.clock += 6 * 60000;
+  h.setBoard('xp', mkRows(...names));
+  await h.announcer.evaluate(['xp']);
+  assert.equal(h.sent.length, 0);
+  assert.equal(h.stateStore.boards.xp.topN, 20);
+  assert.equal(h.stateStore.boards.xp.top.length, 20);
+});
+
+test('tracked positions of 5 only reacts to changes inside the top 5', async () => {
+  const base = mkRows('A', 'B', 'C', 'D', 'E', 'F', 'G');
+  const h = makeHarness({ initialState: preloaded(10000000, { xp: base }, 5), topN: 5 });
+  h.clock += 6 * 60000;
+  h.setBoard('xp', mkRows('A', 'B', 'C', 'D', 'E', 'G', 'F'));
+  await h.announcer.evaluate(['xp']);
+  assert.equal(h.sent.length, 0);
+  h.clock += 6 * 60000;
+  h.setBoard('xp', mkRows('B', 'A', 'C', 'D', 'E', 'G', 'F'));
+  await h.announcer.evaluate(['xp']);
+  assert.equal(h.sent.length, 1);
+  assert.equal(h.stateStore.boards.xp.top.length, 5);
 });
 
 test('rename-only change silently rebaselines without announcing', async () => {

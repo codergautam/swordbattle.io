@@ -28,6 +28,7 @@ export class SoundSystem {
     this._ctx = null;
     this._master = null;
     this.buffers.clear();
+    this.urlDecodes.clear();
   }
 
   private ensureCtx(): AudioContext | null {
@@ -46,19 +47,29 @@ export class SoundSystem {
     return this._ctx;
   }
 
+  private urlDecodes = new Map<string, Promise<AudioBuffer | null>>();
+
   async decode(key: string, url: string): Promise<void> {
     const ctx = this.ensureCtx();
     if (!ctx) return;
     const c: AudioContext = ctx;
-    try {
-      const resp = await fetch(url);
-      const arr = await resp.arrayBuffer();
-      const buf: AudioBuffer = await new Promise((resolve, reject) => {
-        const p = c.decodeAudioData(arr, resolve, reject);
-        if (p && (p as any).then) (p as Promise<AudioBuffer>).then(resolve, reject);
-      });
-      this.buffers.set(key, buf);
-    } catch (e) { /* noop */ }
+    let pending = this.urlDecodes.get(url);
+    if (!pending) {
+      pending = (async () => {
+        try {
+          const resp = await fetch(url);
+          const arr = await resp.arrayBuffer();
+          const buf: AudioBuffer = await new Promise((resolve, reject) => {
+            const p = c.decodeAudioData(arr, resolve, reject);
+            if (p && (p as any).then) (p as Promise<AudioBuffer>).then(resolve, reject);
+          });
+          return buf;
+        } catch (e) { return null; }
+      })();
+      this.urlDecodes.set(url, pending);
+    }
+    const buf = await pending;
+    if (buf) this.buffers.set(key, buf);
   }
 
   add(key: string, config?: any): any {

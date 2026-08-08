@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Phaser from '../../game/engine';
 import config from '../../game/PhaserConfig';
 import Leaderboard from './Leaderboard';
@@ -128,47 +128,6 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
       };
     }
   }, []);
-
-  const playingRef = useRef(playing);
-  useEffect(() => { playingRef.current = playing; }, [playing]);
-
-  useEffect(() => {
-    if (!game) return;
-    const hibernateMs = 3 * 60 * 1000;
-    let timer: any = null;
-    const arm = () => {
-      if (timer || !document.hidden || playingRef.current || (window as any).__hibernated) return;
-      timer = setTimeout(() => {
-        timer = null;
-        if (!document.hidden || playingRef.current || (window as any).__hibernated) return;
-        (window as any).__hibernated = true;
-        try { (window as any).socket?.close?.(); } catch (e) {}
-        try { game.destroy(true); } catch (e) {}
-      }, hibernateMs);
-    };
-    const onVis = () => {
-      if (document.hidden) {
-        arm();
-      } else {
-        if (timer) { clearTimeout(timer); timer = null; }
-        if ((window as any).__hibernated) {
-          window.onbeforeunload = null;
-          window.location.reload();
-        }
-      }
-    };
-    const onIdle = () => { if (document.hidden) arm(); };
-    document.addEventListener('visibilitychange', onVis);
-    game.events.on('setGameResults', onIdle);
-    game.events.on('connectionClosed', onIdle);
-    if (document.hidden) arm();
-    return () => {
-      document.removeEventListener('visibilitychange', onVis);
-      try { game.events.off('setGameResults', onIdle); } catch (e) {}
-      try { game.events.off('connectionClosed', onIdle); } catch (e) {}
-      if (timer) clearTimeout(timer);
-    };
-  }, [game]);
 
   return (
     <div className="game">

@@ -119,6 +119,7 @@ class GameState {
     this.socket.removeEventListener('message', this._boundOnMessage as any);
     this.socket.removeEventListener('close', this._boundOnClose as any);
 
+    this.gameMap.cancelDeferredWork();
     this.gameMap = new GameMap(this.game);
     this.spectator = new Spectator(this.game);
     }

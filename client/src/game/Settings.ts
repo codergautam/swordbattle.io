@@ -56,7 +56,11 @@ export const settingsList: Record<string, SettingType> = {
         if (newValue) {
           localStorage.setItem('swordbattle:WebGL', 'OK');
           localStorage.removeItem('swordbattle:webgl_failed');
+          localStorage.removeItem('swordbattle:webgl_failed_at');
           localStorage.removeItem('swordbattle:webgl_slow');
+          localStorage.removeItem('swordbattle:webgl_lost_count');
+          localStorage.removeItem('swordbattle:webgl_lost_at');
+          try { sessionStorage.removeItem('swordbattle:canvasThisSession'); } catch (e) {}
         } else {
           localStorage.removeItem('swordbattle:WebGL');
         }
@@ -98,7 +102,6 @@ export const settingsList: Record<string, SettingType> = {
     min: 30,
     max: 100,
     onChange: () => {
-      // Emit resize event to update game resolution
       window.dispatchEvent(new Event('resize'));
     },
   },
@@ -215,6 +218,21 @@ class SettingsManager {
         if (saved.useWebGL === undefined) {
           localStorage.setItem('swordbattle:WebGL', 'OK');
         }
+      }
+      if (!localStorage.getItem('swordbattle:webgl_default_v3')) {
+        localStorage.setItem('swordbattle:webgl_default_v3', '1');
+        const saved = this.get();
+        if (saved.useWebGL === false) {
+          delete saved.useWebGL;
+          localStorage.setItem(this.key, JSON.stringify(saved));
+        }
+        localStorage.setItem('swordbattle:WebGL', 'OK');
+        localStorage.removeItem('swordbattle:webgl_failed');
+        localStorage.removeItem('swordbattle:webgl_failed_at');
+        localStorage.removeItem('swordbattle:webgl_slow');
+        localStorage.removeItem('swordbattle:webgl_lost_count');
+        localStorage.removeItem('swordbattle:webgl_lost_at');
+        try { sessionStorage.removeItem('swordbattle:canvasThisSession'); } catch (e) {}
       }
     } catch (e) {}
 

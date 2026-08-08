@@ -42,16 +42,20 @@ export class Game {
 
   private failed = false;
   isCanvasMode = false;
+  private destroyed = false;
+  private lostTimer: any = null;
+  private onContextLost: ((e: Event) => void) | null = null;
+  private onContextRestored: (() => void) | null = null;
 
   constructor(config: any) {
     this.config = config || {};
     this.antialias = this.config.antialias !== false;
     (window as any).phaser_game = this;
 
+    try { localStorage.removeItem('swordbattle:webgl_slow'); } catch (e) {}
+
     let explicitUseWebGL: boolean | undefined;
     try { explicitUseWebGL = settingsManager.get().useWebGL; } catch (e) {}
-
-    try { localStorage.removeItem('swordbattle:webgl_slow'); } catch (e) {}
 
     let previouslyFailed = false;
     try {
@@ -67,6 +71,20 @@ export class Game {
       }
     } catch (e) {}
 
+    let repeatedContextLoss = false;
+    try {
+      const lostAt = Number(localStorage.getItem('swordbattle:webgl_lost_at') || 0);
+      if (lostAt && Date.now() - lostAt > 7 * 86400000) {
+        localStorage.removeItem('swordbattle:webgl_lost_count');
+        localStorage.removeItem('swordbattle:webgl_lost_at');
+      } else if (Number(localStorage.getItem('swordbattle:webgl_lost_count') || 0) >= 2) {
+        repeatedContextLoss = true;
+      }
+    } catch (e) {}
+
+    let canvasThisSession = false;
+    try { canvasThisSession = sessionStorage.getItem('swordbattle:canvasThisSession') === '1'; } catch (e) {}
+
     let compatRequested = false;
     let compatReason = '';
     const override = rendererOverride();
@@ -76,8 +94,12 @@ export class Game {
         compatReason = `?renderer=${override} override`;
       } else if (explicitUseWebGL === false) {
         compatRequested = true; compatReason = 'user setting';
+      } else if (canvasThisSession) {
+        compatRequested = true; compatReason = 'WebGL context died in this session';
       } else if (explicitUseWebGL === undefined && previouslyFailed) {
         compatRequested = true; compatReason = 'WebGL previously failed on this device';
+      } else if (explicitUseWebGL === undefined && repeatedContextLoss) {
+        compatRequested = true; compatReason = 'WebGL context repeatedly died on this device';
       } else if (explicitUseWebGL === undefined && detectWebGLQuality() === 'none') {
         compatRequested = true; compatReason = 'no WebGL available';
       }
@@ -138,31 +160,28 @@ export class Game {
     if (parent && this.canvas) parent.appendChild(this.canvas);
 
     if (this.canvas && !this.isCanvasMode) {
-      let lostTimer: any = null;
-      this.canvas.addEventListener('webglcontextlost', (e) => {
+      this.onContextLost = (e: Event) => {
+        if (this.destroyed) return;
         try { e.preventDefault(); } catch (err) {}
         this.showFatalOverlay('Graphics interrupted',
           "The game's graphics were interrupted (this can happen when your GPU is briefly overloaded), reload to keep playing",
           true);
-        // A context that never comes back means the game is unplayable, so recover
-        // even for players who explicitly asked for WebGL — otherwise they reload
-        // into the same dead context forever. Skipped only for ?renderer= testing.
-        if (!override && !lostTimer) {
-          lostTimer = setTimeout(() => {
-            console.warn('[PixiGame] WebGL context lost and not restored, switching to compatibility (canvas) mode');
-            Game.disableWebGLAndReload();
-          }, 5000);
+        if (!override && !this.lostTimer) {
+          this.lostTimer = setTimeout(() => {
+            this.lostTimer = null;
+            if (this.destroyed) return;
+            console.warn('[PixiGame] WebGL context lost and not restored, falling back to compatibility (canvas) mode for this session');
+            Game.autoFallbackToCanvas();
+          }, 15000);
         }
-      }, false);
-      this.canvas.addEventListener('webglcontextrestored', () => {
-        if (lostTimer) { clearTimeout(lostTimer); lostTimer = null; }
-        if ((window as any).__texSourcesReleased) {
-          try { window.onbeforeunload = null; } catch (e) {}
-          window.location.reload();
-          return;
-        }
+      };
+      this.onContextRestored = () => {
+        if (this.lostTimer) { clearTimeout(this.lostTimer); this.lostTimer = null; }
+        if (this.destroyed) return;
         this.removeFatalOverlay();
-      }, false);
+      };
+      this.canvas.addEventListener('webglcontextlost', this.onContextLost, false);
+      this.canvas.addEventListener('webglcontextrestored', this.onContextRestored, false);
     }
 
     this.worldRoot = new Container(); this.worldRoot.sortableChildren = true;
@@ -214,14 +233,22 @@ export class Game {
     this.scale = { resize() {}, setZoom() {}, width: 0, height: 0 } as any;
   }
 
-  // Turn WebGL off the same way the settings toggle does, so the change is visible in
-  // Settings and the player can turn it back on. Writing a private localStorage flag
-  // instead would leave the UI claiming WebGL is on while the game runs on canvas.
   static disableWebGLAndReload(): void {
     try { Settings.useWebGL = false; } catch (e) { /* noop */ }
     try { localStorage.removeItem('swordbattle:WebGL'); } catch (e) { /* noop */ }
     try { (window as any).onbeforeunload = null; } catch (e) { /* noop */ }
     try { window.location.reload(); } catch (e) { /* noop */ }
+  }
+
+  static autoFallbackToCanvas(): void {
+    try { sessionStorage.setItem('swordbattle:canvasThisSession', '1'); } catch (e) {}
+    try {
+      const n = Number(localStorage.getItem('swordbattle:webgl_lost_count') || 0) + 1;
+      localStorage.setItem('swordbattle:webgl_lost_count', String(n));
+      localStorage.setItem('swordbattle:webgl_lost_at', String(Date.now()));
+    } catch (e) {}
+    try { (window as any).onbeforeunload = null; } catch (e) {}
+    try { window.location.reload(); } catch (e) {}
   }
 
   private showFatalOverlay(title: string, message: string, offerCompatMode = false): void {
@@ -323,7 +350,7 @@ export class Game {
           new Promise((res) => setTimeout(res, 2500)),
         ]);
       }
-    } catch (e) { /* noop */ }
+    } catch (e) {}
     try { TextMetrics.clearMetrics(); } catch (e) { /* noop */ }
 
     try {
@@ -336,18 +363,6 @@ export class Game {
     }
 
     this.loop.start((time: number, delta: number) => this.step(time, delta));
-
-    if (!this.isCanvasMode) {
-      let passes = 0;
-      const releaseTimer = setInterval(() => {
-        passes++;
-        try {
-          const n = scene.textures.releaseDecodedSources(this.app.renderer);
-          if (n) console.log(`[PixiGame] released ${n} decoded texture sources`);
-        } catch (e) {}
-        if (passes >= 6) clearInterval(releaseTimer);
-      }, 20000);
-    }
   }
 
   private loggedErrors = new Set<string>();
@@ -452,6 +467,15 @@ export class Game {
   }
 
   destroy(removeCanvas: boolean): void {
+    this.destroyed = true;
+    if (this.lostTimer) { clearTimeout(this.lostTimer); this.lostTimer = null; }
+    try {
+      if (this.canvas && this.onContextLost) this.canvas.removeEventListener('webglcontextlost', this.onContextLost, false);
+      if (this.canvas && this.onContextRestored) this.canvas.removeEventListener('webglcontextrestored', this.onContextRestored, false);
+    } catch (e) {}
+    this.onContextLost = null;
+    this.onContextRestored = null;
+
     if (this.failed) { if ((window as any).phaser_game === this) (window as any).phaser_game = null; return; }
     try { this.loop.destroy(); } catch (e) { /* noop */ }
     try {

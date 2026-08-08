@@ -59,11 +59,35 @@ export class Loader {
     if (total === 0) { this.emitProgress(1); this.fireComplete(onceC); return; }
     let done = 0;
     const tick = () => { done++; this.emitProgress(done / total); };
-    const imgs = imgQueue.map(({ key, url }) => this.loadImage(key, url).then((ok) => { tick(); return ok ? null : { key, url, type: 'image' }; }));
-    const auds = audQueue.map(({ key, url }) =>
-      (this._sound ? this._sound.decode(key, Array.isArray(url) ? url[0] : url) : Promise.resolve()).then(() => { tick(); return null; }),
-    );
-    const results = await Promise.all([...imgs, ...auds]);
+    const jobs: Array<() => Promise<any>> = [
+      ...imgQueue.map(({ key, url }) => async () => {
+        const ok = await this.loadImage(key, url);
+        tick();
+        return ok ? null : { key, url, type: 'image' };
+      }),
+      ...audQueue.map(({ key, url }) => async () => {
+        try {
+          if (this._sound) await this._sound.decode(key, Array.isArray(url) ? url[0] : url);
+          return null;
+        } catch (e) {
+          return { key, url, type: 'audio' };
+        } finally {
+          tick();
+        }
+      }),
+    ];
+    const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+      || (navigator.maxTouchPoints > 1 && /Macintosh|Mac OS/i.test(navigator.userAgent));
+    const concurrency = mobile ? 4 : 10;
+    const results = new Array(jobs.length);
+    let next = 0;
+    const worker = async () => {
+      while (next < jobs.length) {
+        const index = next++;
+        results[index] = await jobs[index]();
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(concurrency, jobs.length) }, worker));
 
     const failed = results.find((r) => r);
     if (failed) this.fireError(failed, onceE);

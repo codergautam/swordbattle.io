@@ -382,7 +382,7 @@ export default class Game extends Phaser.Scene {
           sprite.destroy();
         }
         map.riverBorderSprites = [];
-        map.createRiverBorders();
+        map.scheduleRiverBorders();
         map.update();
         for (const biome of map.biomes) {
           if (biome.container) {
@@ -443,6 +443,7 @@ export default class Game extends Phaser.Scene {
   }
 
   shutdown() {
+    this.gameState.gameMap.cancelDeferredWork();
     if (this._resizeHandler) {
       window.removeEventListener('resize', this._resizeHandler);
       if ((window as any).visualViewport) {

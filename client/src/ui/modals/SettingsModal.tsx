@@ -89,8 +89,8 @@ function SettingsModal() {
         </div>
         <div className="settings-line">
           <span className="s-label">
-            <FontAwesomeIcon icon={faGear} className="s-icon" /> Use WebGL <em>(reloads — off is much slower, only turn off if the game looks broken)</em>
-            {rendererMode === 'canvas' && <em> — currently running in compatibility mode</em>}
+            <FontAwesomeIcon icon={faGear} className="s-icon" /> Use WebGL
+            {rendererMode === 'canvas' && <em> (currently running in compatibility mode)</em>}
           </span>
           <Toggle checked={useWebGL} onChange={updateUseWebGL} />
         </div>

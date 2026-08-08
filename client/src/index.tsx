@@ -33,19 +33,6 @@ function syncAdSound(volume: number) {
 syncAdSound(Settings.sound);
 window.addEventListener('soundVolumeChanged', (e: any) => syncAdSound(e?.detail?.volume));
 
-window.addEventListener('unload', () => {});
-window.addEventListener('pagehide', (e) => {
-  if (!e.persisted) return;
-  try { (window as any).phaser_game?.destroy?.(true); } catch (err) {}
-  try { (window as any).socket?.close?.(); } catch (err) {}
-});
-window.addEventListener('pageshow', (e) => {
-  if (e.persisted) {
-    try { window.onbeforeunload = null; } catch (err) {}
-    window.location.reload();
-  }
-});
-
 function MoreAdsRedirect() {
   Settings.moreAds = true;
   return <Navigate to="/" replace />;

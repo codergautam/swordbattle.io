@@ -3,7 +3,6 @@ import * as Protocol from './Protocol';
 const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
 window.socket = null;
 
-const enableDecodeWorker = false;
 
 const usePooledDecode = true;
 const decodeHarness = typeof window !== 'undefined' && window.location.search.includes('decodecheck');
@@ -30,9 +29,6 @@ class Socket {
   private queue: any[];
   private debugMode: boolean = false;
 
-  private decoder: Worker | null = null;
-  private usingWorker = false;
-  private seq = 0;
   private onMessage: ((payload: any) => void) | null = null;
 
   constructor() {
@@ -42,32 +38,6 @@ class Socket {
     try {
       this.debugMode = window.location.search.includes("debugAlertMode");
       } catch(e) {}
-
-    if (enableDecodeWorker) this.initDecoder();
-  }
-
-  private initDecoder() {
-    try {
-      const w = new Worker(new URL('./decoder.worker.ts', import.meta.url));
-      w.onmessage = (e: MessageEvent) => {
-        const d = e.data || {};
-        if (d.ready) { this.usingWorker = true; return; }
-        if (!this.usingWorker) return;
-        if (d.error) { console.warn('[Socket] worker decode error:', d.error); return; }
-        if (d.payload && this.onMessage) this.onMessage(d.payload);
-      };
-      w.onerror = () => this.disableWorker();
-      this.decoder = w;
-      w.postMessage({ init: true });
-    } catch (e) {
-      this.disableWorker();
-    }
-  }
-
-  private disableWorker() {
-    this.usingWorker = false;
-    try { this.decoder?.terminate(); } catch (e) {}
-    this.decoder = null;
   }
 
   private syncDecode(data: ArrayBuffer) {
@@ -136,15 +106,6 @@ class Socket {
     this.socket.addEventListener('message', (message: any) => {
       if (typeof message.data === 'string') return;
 
-      if (this.usingWorker && this.decoder) {
-        try {
-          this.seq++;
-          this.decoder.postMessage({ seq: this.seq, buffer: message.data }, [message.data]);
-          return;
-        } catch (e) {
-          this.disableWorker();
-        }
-      }
       this.syncDecode(message.data);
     });
 

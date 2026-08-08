@@ -52,15 +52,17 @@ export const settingsList: Record<string, SettingType> = {
     type: 'toggle',
     default: true,
     onChange: (newValue: boolean) => {
-      const saved = localStorage.getItem('swordbattle:WebGL');
-      if (newValue) {
-        localStorage.setItem('swordbattle:WebGL', 'OK');
-        localStorage.removeItem('swordbattle:webgl_failed');
-        localStorage.removeItem('swordbattle:webgl_slow');
-      } else {
-        localStorage.removeItem('swordbattle:WebGL');
-      }
-      if (saved !== (newValue ? 'OK' : null)) {
+      try {
+        if (newValue) {
+          localStorage.setItem('swordbattle:WebGL', 'OK');
+          localStorage.removeItem('swordbattle:webgl_failed');
+          localStorage.removeItem('swordbattle:webgl_slow');
+        } else {
+          localStorage.removeItem('swordbattle:WebGL');
+        }
+      } catch (e) {}
+      if (isLoaded) {
+        try { window.onbeforeunload = null; } catch (e) {}
         window.location.reload();
       }
     },

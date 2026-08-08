@@ -29,6 +29,8 @@ class Client {
 
     this.messages = [];
     this.pingTimer = 0;
+    this.lastPongAt = Date.now();
+    this.droppedPayloads = 0;
     this.disconnectReason = {
       message: '',
       type: 0
@@ -106,11 +108,15 @@ class Client {
   send(data) {
     if (!data) return;
     const packet = Protocol.encode(data);
-    if(data.fullSync) console.log('sending fullsync to', this.player?.name ?? 'spectator', Date.now(), `(${packet.byteLength} bytes, ${Object.keys(data.entities || {}).length} entities, ${Object.keys(data.globalEntities || {}).length} globals)`);
     if (!this.isSocketClosed) {
       const result = this.socket.send(packet, true, true);
       if (result === 2) {
-        this.fullSync = true;
+        this.droppedPayloads = (this.droppedPayloads || 0) + 1;
+        if (this.droppedPayloads % 100 === 0) {
+          console.warn(`[SEND] client ${this.id} (${this.ip}) has dropped ${this.droppedPayloads} payloads (slow connection)`);
+        }
+      } else {
+        this.droppedPayloads = 0;
       }
     }
   }
@@ -124,8 +130,15 @@ class Client {
 
     this.pingTimer -= 1;
     if (this.pingTimer <= 0) {
-      this.socket.ping();
-      this.pingTimer = 900;
+      try { this.socket.ping(); } catch (e) {}
+      this.pingTimer = Client.pingIntervalTicks;
+      const now = Date.now();
+      if (!this.lastPongAt) this.lastPongAt = now;
+      if (now - this.lastPongAt > Client.pongTimeoutMs) {
+        console.log(`[PING] client ${this.id} (${this.ip}) unresponsive for ${Math.round((now - this.lastPongAt) / 1000)}s, closing`);
+        try { this.socket.close(); } catch (e) {}
+        return;
+      }
     }
 
     // Reset rate limit counter every second (60 ticks at 60 TPS)
@@ -251,5 +264,8 @@ class Client {
     }
   }
 }
+
+Client.pingIntervalTicks = 200;
+Client.pongTimeoutMs = 45000;
 
 module.exports = Client;

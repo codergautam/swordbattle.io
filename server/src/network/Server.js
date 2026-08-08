@@ -110,11 +110,16 @@ class Server {
         const client = new Client(this.game, socket);
         this.addClient(client);
       },
+      pong: (socket) => {
+        const client = this.clients.get(socket.id);
+        if (client) client.lastPongAt = Date.now();
+      },
       message: (socket, message) => {
         const client = this.clients.get(socket.id);
         if (!client) {
           return;
         }
+        client.lastPongAt = Date.now();
 
         if (message.byteLength > 4096) {
           try { client.socket.close(); } catch(e) {}
@@ -131,17 +136,22 @@ class Server {
         }
       },
       close: (socket, code) => {
+        const client = this.clients.get(socket.id);
+        if (!client) return;
+        client.isSocketClosed = true;
         try {
-          const client = this.clients.get(socket.id);
-          client.isSocketClosed = true;
           if (client.player && !client.player.removed) {
-            client.player.remove()
+            client.player.remove();
           }
-          this.removeClient(client);
-          console.log(`Client disconnected with code ${code}.`);
         } catch (e) {
+          console.error(`[CLOSE] player.remove failed for client ${client.id} (${client.ip}):`, e);
+          try {
+            this.game.players.delete(client.player);
+            this.game.removeEntity(client.player);
+          } catch (e2) {}
         }
-
+        this.removeClient(client);
+        console.log(`Client disconnected with code ${code}.`);
       }
     });
   }
@@ -165,11 +175,20 @@ class Server {
     for (const client of this.clients.values()) {
       if (!client.isReady) continue;
 
-      client.update(dt);
-      for (const message of client.messages) {
-        this.game.processClientMessage(client, message);
-      }
+      const messages = client.messages;
       client.messages = [];
+      try {
+        client.update(dt);
+        for (const message of messages) {
+          try {
+            this.game.processClientMessage(client, message);
+          } catch (err) {
+            console.error(`[TICK] processClientMessage failed for client ${client.id} (${client.ip}):`, err);
+          }
+        }
+      } catch (err) {
+        console.error(`[TICK] client.update failed for client ${client.id} (${client.ip}):`, err);
+      }
     }
 
     this.game.tick(dt);

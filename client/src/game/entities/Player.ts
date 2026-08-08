@@ -228,15 +228,6 @@ class Player extends BaseEntity {
       .setOrigin(0.5, 1)
       .setFill('#ffffff');
 
-    this.choosingText = this.game.add.text(0, 0, 'Choosing an upgrade...', {
-      fontFamily: 'Saira, sans-serif',
-      fontSize: '60px',
-      fontStyle: 'bold',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 6,
-      align: 'center',
-    }).setOrigin(0.5, 0.5).setAlpha(0);
 
     this.cardSummaryBg = this.game.add.graphics();
     this.cardSummaryContainer = this.game.add.container(0, -this.effectiveBodyHeight / 2 - 130, [this.cardSummaryBg]);
@@ -250,7 +241,7 @@ class Player extends BaseEntity {
     this.submergedShadow.fillCircle(0, 0, submergedRadius);
     this.submergedShadow.setAlpha(0);
 
-    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.evolutionOverlayShadow, this.swordShadow, this.submergedShadow, this.bodyContainer, this.cardSummaryContainer, this.messageText, this.choosingText]);
+    this.container = this.game.add.container(this.shape.x, this.shape.y, [this.shadow, this.evolutionOverlayShadow, this.swordShadow, this.submergedShadow, this.bodyContainer, this.cardSummaryContainer, this.messageText]);
     this.container.addChildAt(nameTag, 6);
     if (clanText) this.container.add(clanText);
 
@@ -374,13 +365,31 @@ class Player extends BaseEntity {
     });
   }
 
+  ensureChoosingText(): Phaser.GameObjects.Text | null {
+    if (this.choosingText) return this.choosingText;
+    if (!this.container) return null;
+    this.choosingText = this.game.add.text(0, 0, 'Choosing an upgrade...', {
+      fontFamily: 'Saira, sans-serif',
+      fontSize: '60px',
+      fontStyle: 'bold',
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 6,
+      align: 'center',
+    }).setOrigin(0.5, 0.5).setAlpha(0);
+    this.container.add(this.choosingText);
+    return this.choosingText;
+  }
+
   updateChoosingOverlay(choosing: boolean) {
-    if (!this.choosingText) return;
+    if (!choosing && !this.choosingText) return;
+    const text = this.ensureChoosingText();
+    if (!text) return;
     if (choosing) {
-      this.choosingText.setAlpha(1);
+      text.setAlpha(1);
     } else {
       this.game.tweens.add({
-        targets: this.choosingText,
+        targets: text,
         alpha: 0,
         duration: 300,
       });
@@ -1405,12 +1414,15 @@ class Player extends BaseEntity {
   update(dt: number) {
     super.update(dt);
 
-    if (this.choosingText && !this.isMe) {
+    if (!this.isMe) {
       const isTutorial = (this as any).isTutorial;
       if (isTutorial) {
-        this.choosingText.setText('In Tutorial');
-        this.choosingText.setAlpha(1);
-      } else {
+        const text = this.ensureChoosingText();
+        if (text) {
+          text.setText('In Tutorial');
+          text.setAlpha(1);
+        }
+      } else if (this.choosingText) {
         this.choosingText.setAlpha(0);
       }
     }

@@ -14,7 +14,6 @@ import { updateWind } from '../effects/Wind';
 import { updateBiomeEffects, resetBiomeEffects } from '../effects/biomeEffects';
 import { initPerfStats, tickPerfStats } from '../debug/perfStats';
 import { initAblation } from '../debug/ablation';
-import { buildTextureAtlas } from '../render/textureAtlas';
 import { crazygamesSDK } from '../../crazygames/sdk';
 import * as cosmetics from '../cosmetics.json';
 const {skins} = cosmetics;
@@ -319,7 +318,6 @@ export default class Game extends Phaser.Scene {
 
     initPerfStats(this);
     initAblation();
-    buildTextureAtlas(this);
 
 
 

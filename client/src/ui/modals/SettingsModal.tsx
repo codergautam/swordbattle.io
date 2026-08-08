@@ -42,6 +42,7 @@ function SettingsModal() {
   const chatForceDisabled = isChatForceDisabled();
   const [enableChat, setEnableChat] = useState(chatForceDisabled ? false : Settings.enableChat);
   const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
+  const rendererMode = (window as any).__rendererMode;
 
   const updateCoins = (v: boolean) => { setCoins(v); Settings.coins = v; };
   const updateScreenEffects = (v: boolean) => { setScreenEffects(v); Settings.screenEffects = v; };
@@ -87,7 +88,10 @@ function SettingsModal() {
           <Toggle checked={antialiasing} onChange={updateAntialiasing} />
         </div>
         <div className="settings-line">
-          <span className="s-label"><FontAwesomeIcon icon={faGear} className="s-icon" /> Use WebGL <em>(reloads)</em></span>
+          <span className="s-label">
+            <FontAwesomeIcon icon={faGear} className="s-icon" /> Use WebGL <em>(reloads — off is much slower, only turn off if the game looks broken)</em>
+            {rendererMode === 'canvas' && <em> — currently running in compatibility mode</em>}
+          </span>
           <Toggle checked={useWebGL} onChange={updateUseWebGL} />
         </div>
         <div className="settings-line">

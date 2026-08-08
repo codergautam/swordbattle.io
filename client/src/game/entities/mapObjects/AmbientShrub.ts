@@ -59,6 +59,7 @@ class AmbientShrub extends BaseEntity {
 
   update(dt: number) {
     super.update(dt);
+    if (this.container && this.container.visible === false) return;
     if (this.swaysInWind && this.body) {
       this.body.setRotation(this.baseAngle + windRotation(this.shape.x));
     }

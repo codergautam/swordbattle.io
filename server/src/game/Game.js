@@ -544,11 +544,22 @@ class Game {
     }
 
     if (client.account && client.account.id) {
-      // Make sure same account can't join twice
-      for (const player of this.players) {
-        if (player?.client?.account && player.client.account?.id === client.account.id) {
-          return;
+      for (const player of Array.from(this.players)) {
+        const otherClient = player?.client;
+        if (!otherClient || otherClient === client) continue;
+        if (otherClient.account?.id !== client.account.id) continue;
+        console.log(`[JOIN] account ${client.account.id} rejoined; dropping previous session ${otherClient.id}`);
+        try {
+          otherClient.disconnectReason = {
+            message: 'You joined from another tab or device',
+            type: Types.DisconnectReason.Server,
+          };
+          if (player && !player.removed) player.remove();
+        } catch (e) {
+          console.error('[JOIN] failed to remove previous session:', e);
+          try { this.players.delete(player); } catch (e2) {}
         }
+        try { otherClient.socket.close(); } catch (e) {}
       }
     }
 

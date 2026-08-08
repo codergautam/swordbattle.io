@@ -160,6 +160,7 @@ export class TextureManager {
 
   releaseDecodedSources(renderer: any): number {
     if (!renderer || !renderer.gl || !renderer.texture) return 0;
+    const ctxUid = renderer.CONTEXT_UID;
     let released = 0;
     for (const [key, t] of this._map) {
       if (TextureManager.keepSourceKeys.has(key) || TextureManager.keepSourcePattern.test(key)) continue;
@@ -167,9 +168,7 @@ export class TextureManager {
       if (!src || !(src instanceof HTMLImageElement)) continue;
       try {
         const base: any = t.pixi.baseTexture;
-        if (!base || !base.valid) continue;
-        renderer.texture.bind(base);
-        renderer.texture.bind(null);
+        if (!base || !base.valid || !base._glTextures || !base._glTextures[ctxUid]) continue;
         if (base.resource) base.resource.source = null;
         (t as any)._source = null;
         released++;

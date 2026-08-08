@@ -88,6 +88,7 @@ class ProgressBar extends HudComponent {
   private lastFillPx = -1;
   private lastPct = -1;
   private lastLevelText = -1;
+  private lastLevelTextAt = 0;
   private drawFill(progress: number) {
     const inset = 5;
     const trackW = this.width - inset * 2;
@@ -301,10 +302,13 @@ class ProgressBar extends HudComponent {
       this.currentProgress = this.targetProgress;
     }
     const pct = Math.round(this.currentProgress * 100);
-    if (pct !== this.lastPct || player.level !== this.lastLevelText) {
+    const levelChanged = player.level !== this.lastLevelText;
+    const nowMs = Date.now();
+    if (levelChanged || (pct !== this.lastPct && nowMs - this.lastLevelTextAt >= 100)) {
       this.levelText!.text = `Level ${player.level} (${pct}%)`;
       this.lastPct = pct;
       this.lastLevelText = player.level;
+      this.lastLevelTextAt = nowMs;
     }
     this.drawFill(this.currentProgress);
 

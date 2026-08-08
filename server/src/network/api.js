@@ -7,6 +7,7 @@ function get(path, callback = (data) => {}) {
   fetch(endpoint + path, {
     method: 'GET',
     mode: 'cors',
+    signal: AbortSignal.timeout(10000),
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': endpoint,
@@ -35,6 +36,7 @@ function post(path, body, callback = (data) => {}) {
     method: 'POST',
     mode: 'cors',
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(10000),
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': endpoint,

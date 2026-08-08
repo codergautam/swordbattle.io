@@ -74,6 +74,7 @@ export class TreeShake {
 
     const shaking = this.shT !== Infinity;
     if (!this.cfg.wind && !shaking) return;
+    if (this.entity.container && this.entity.container.visible === false) return;
 
     let posX = 0, posY = 0, shakeRot = 0;
     if (shaking) {

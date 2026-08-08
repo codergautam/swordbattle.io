@@ -60,7 +60,7 @@ class CoinCounter extends HudComponent {
     for (const r of this.rows) {
       r.container.setVisible(r.visible);
       if (!r.visible) continue;
-      const w = pad + ICON + gap + Math.ceil(r.text.width) + pad;
+      const w = pad + ICON + gap + Math.max(r.shownW, Math.ceil(r.text.width)) + pad;
       r.panel.clear();
       drawPanel(r.panel, -w / 2, -rowH / 2, w, rowH, { radius: 11 });
       r.icon.setPosition(-w / 2 + pad, 0);
@@ -88,7 +88,7 @@ class CoinCounter extends HudComponent {
   private setRowText(r: Row, str: string) {
     if (r.text.text === str) return;
     r.text.setText(str);
-    const w = Math.ceil(r.text.width);
+    const w = Math.ceil(r.text.width / 8) * 8;
     if (w !== r.shownW) { r.shownW = w; this.layout(); }
   }
 

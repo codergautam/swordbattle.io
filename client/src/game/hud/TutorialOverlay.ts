@@ -11,6 +11,7 @@ class TutorialOverlay extends HudComponent {
   headerText: Phaser.GameObjects.Text | null = null;
   bodyText: Phaser.GameObjects.Text | null = null;
   progressText: Phaser.GameObjects.Text | null = null;
+  lastRemainingShown = -1;
   nextButton: Phaser.GameObjects.Container | null = null;
   nextButtonBg: Phaser.GameObjects.Graphics | null = null;
   nextButtonText: Phaser.GameObjects.Text | null = null;
@@ -410,7 +411,11 @@ class TutorialOverlay extends HudComponent {
       const coins = player.coins || 0;
       const remaining = Math.max(0, 1000 - coins);
       if (remaining > 0) {
-        this.progressText.setText(`Collect ${remaining} more coins to proceed`);
+        const shown = Math.ceil(remaining / 10) * 10;
+        if (shown !== this.lastRemainingShown) {
+          this.lastRemainingShown = shown;
+          this.progressText.setText(`Collect ${shown} more coins to proceed`);
+        }
       } else {
         const possEvols = (player as any).possibleEvolutions;
         if (possEvols && Object.keys(possEvols).length > 0) {

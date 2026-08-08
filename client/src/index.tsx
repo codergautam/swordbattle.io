@@ -34,9 +34,10 @@ syncAdSound(Settings.sound);
 window.addEventListener('soundVolumeChanged', (e: any) => syncAdSound(e?.detail?.volume));
 
 window.addEventListener('unload', () => {});
-window.addEventListener('pagehide', () => {
-  try { (window as any).phaser_game?.destroy?.(true); } catch (e) {}
-  try { (window as any).socket?.close?.(); } catch (e) {}
+window.addEventListener('pagehide', (e) => {
+  if (!e.persisted) return;
+  try { (window as any).phaser_game?.destroy?.(true); } catch (err) {}
+  try { (window as any).socket?.close?.(); } catch (err) {}
 });
 window.addEventListener('pageshow', (e) => {
   if (e.persisted) {

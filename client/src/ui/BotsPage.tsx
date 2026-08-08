@@ -160,22 +160,20 @@ export default function BotsPage() {
         </div>
       </div>
       {error && <p className="bp-error">{error}</p>}
-      <p className="bp-muted">Changes save instantly. Bots pick them up within a minute.</p>
 
       <section className="bp-card">
         <h2>Support bot</h2>
-        <p className="bp-muted">Extra notifications posted in the support channel. These never ping the support role.</p>
         <label className="bp-toggle">
           <input type="checkbox" checked={config.support.notifyStaffReply} onChange={(e) => setSupport('notifyStaffReply', e.target.checked)} />
-          <span><b>Staff reply notifications</b> — post when a staff member replies to a ticket, including what they wrote.</span>
+          <span><b>Staff reply notifications</b>: post when a staff member replies to a ticket, including what they wrote</span>
         </label>
         <label className="bp-toggle">
           <input type="checkbox" checked={config.support.notifyClosed} onChange={(e) => setSupport('notifyClosed', e.target.checked)} />
-          <span><b>Ticket closed notifications</b> — post when a ticket is marked closed.</span>
+          <span><b>Ticket closed notifications</b>: post when a ticket is marked closed</span>
         </label>
         <label className="bp-toggle">
           <input type="checkbox" checked={config.support.notifyStatusChange} onChange={(e) => setSupport('notifyStatusChange', e.target.checked)} />
-          <span><b>Other status changes</b> — post when a ticket is reopened or marked answered without a reply.</span>
+          <span><b>Other status changes</b>: post when a ticket is reopened or marked answered without a reply</span>
         </label>
       </section>
 
@@ -189,17 +187,16 @@ export default function BotsPage() {
               {topNOptions.map((n) => <option key={n} value={n}>Top {n}</option>)}
             </select>
           </label>
-          <p className="bp-muted bp-inline">Announcements trigger on changes inside this many positions. Changing it re-baselines every board silently (no burst of alerts).</p>
         </div>
 
         <label className="bp-toggle">
           <input type="checkbox" checked={config.leaderboard.singlePush} onChange={(e) => setLeaderboard('singlePush', e.target.checked)} />
-          <span><b>Single push mode</b> — in "Pushed down" and "Fell out", only show the highest-ranked player affected plus a count of the rest.</span>
+          <span><b>Single push mode</b>: in "Pushed down" and "Fell out", only show the highest-ranked player affected plus a count of the rest.</span>
         </label>
 
         <label className="bp-toggle">
           <input type="checkbox" checked={config.leaderboard.dailyEnabled} onChange={(e) => setLeaderboard('dailyEnabled', e.target.checked)} />
-          <span><b>Daily leaderboard</b> — post the day's top XP earners just before the day ends (23:55 UTC).</span>
+          <span><b>Daily leaderboard</b>: post the day's top XP earners just before the day ends (23:55 UTC).</span>
         </label>
 
         <div className="bp-row">
@@ -214,13 +211,12 @@ export default function BotsPage() {
               disabled={!config.leaderboard.dailyEnabled}
             />
           </label>
-          <p className="bp-muted bp-inline">The daily post only pings the leaderboard role when the day's top player earned at least this much XP. Below it, the post still goes out silently.</p>
         </div>
       </section>
 
       <section className="bp-card">
         <h2>Send a custom message</h2>
-        <p className="bp-muted">Posted by the leaderboard bot in the leaderboard channel as an embed.</p>
+        <p className="bp-muted">Posted as an embed by the bot</p>
 
         <label className="bp-field">
           <span>Title</span>
@@ -236,7 +232,7 @@ export default function BotsPage() {
             value={body}
             onChange={(e) => setBody(e.target.value)}
             onFocus={() => setEmojiTarget('body')}
-            placeholder="Supports Discord markdown and custom emoji tags."
+            placeholder="Supports Discord markdown"
           />
         </label>
 
@@ -265,7 +261,7 @@ export default function BotsPage() {
         {emojis.length > 0 && (
           <div className="bp-emojis">
             <div className="bp-emojis-head">
-              Server emojis — click to insert into {emojiTarget === 'body' ? 'the message' : 'reactions'}
+              Click to insert into {emojiTarget === 'body' ? 'the message' : 'reactions'}
             </div>
             <div className="bp-emojis-list">
               {emojis.map((e) => (

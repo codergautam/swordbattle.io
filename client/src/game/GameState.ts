@@ -333,6 +333,11 @@ class GameState {
       return;
     }
 
+    if (event.code === 4409) {
+      window.alert('Account is already in-game');
+      return;
+    }
+
     let reason = event.reason || 'Connection failed';
     if(endpoint) {
       reason += ` (${String(endpoint).split('?')[0]})`;

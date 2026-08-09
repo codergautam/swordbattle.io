@@ -548,18 +548,9 @@ class Game {
         const otherClient = player?.client;
         if (!otherClient || otherClient === client) continue;
         if (otherClient.account?.id !== client.account.id) continue;
-        console.log(`[JOIN] account ${client.account.id} rejoined; dropping previous session ${otherClient.id}`);
-        try {
-          otherClient.disconnectReason = {
-            message: 'You joined from another tab or device',
-            type: Types.DisconnectReason.Server,
-          };
-          if (player && !player.removed) player.remove();
-        } catch (e) {
-          console.error('[JOIN] failed to remove previous session:', e);
-          try { this.players.delete(player); } catch (e2) {}
-        }
-        try { otherClient.socket.close(); } catch (e) {}
+        console.log(`[JOIN] account ${client.account.id} already has an active session`);
+        try { client.socket.end(4409, 'Account is already in-game'); } catch (e) {}
+        return null;
       }
     }
 

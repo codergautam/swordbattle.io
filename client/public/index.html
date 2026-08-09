@@ -216,6 +216,34 @@
       <meta name="viewport" id="viewport"
         content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,initial-scale=1.0, user-scalable=0" />
       <title>Swordbattle.io</title>
+      <script>
+        (function () {
+          const retryKey = 'static-asset-retry';
+
+          function retryWithFreshAssets() {
+            try {
+              if (sessionStorage.getItem(retryKey)) return;
+              sessionStorage.setItem(retryKey, '1');
+              const url = new URL(window.location.href);
+              url.searchParams.set('assets', Date.now().toString());
+              window.location.replace(url.toString());
+            } catch (error) {}
+          }
+
+          window.addEventListener('error', function (event) {
+            const element = event.target;
+            if (!(element instanceof HTMLScriptElement) && !(element instanceof HTMLLinkElement)) return;
+            const source = element.src || element.href;
+            if (source && /\/static\/(?:js|css)\//.test(source)) retryWithFreshAssets();
+          }, true);
+
+          setTimeout(function () {
+            try {
+              sessionStorage.removeItem(retryKey);
+            } catch (error) {}
+          }, 10000);
+        })();
+      </script>
 
 </head>
 

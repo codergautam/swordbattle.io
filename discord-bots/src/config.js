@@ -23,7 +23,7 @@ export const config = {
     roleId: process.env.METRICS_ROLE_ID || '1534654923457822923',
     cron: process.env.METRICS_CRON || '15 0 * * *',
     tz: process.env.METRICS_TZ || 'UTC',
-    ccuPollMs: envNumber('CCU_POLL_MS', 60000),
+    ccuPollMs: envNumber('CCU_POLL_MS', 15000),
     serverInfoUrls: (process.env.SERVERINFO_URLS || 'https://na.swordbattle.io/serverinfo,https://eu.swordbattle.io/serverinfo')
       .split(',')
       .map((s) => s.trim())

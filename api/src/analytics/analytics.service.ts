@@ -110,29 +110,26 @@ export class AnalyticsService {
   async insertRun(dto: RunDTO): Promise<void> {
     if (!dto.run_id) return;
     const existing = await this.runRepo.findOne({ where: { run_id: dto.run_id } });
-    if (existing) return;
-
-    const row = this.runRepo.create({
-      run_id: dto.run_id,
-      session_id: dto.session_id ?? null,
-      visitor_id: dto.visitor_id ?? null,
-      account_id: dto.account_id ?? null,
-      started_at: dto.started_at ? new Date(dto.started_at) : null,
-      ended_at: dto.ended_at ? new Date(dto.ended_at) : null,
-      playtime_ms: dto.playtime_ms ?? null,
-      end_reason: dto.end_reason ?? 'unknown',
-      killer_name: dto.killer_name ?? null,
-      coins: dto.coins ?? 0,
-      kills: dto.kills ?? 0,
-      run_index: dto.run_index ?? 0,
-      is_first_run: dto.is_first_run ?? false,
-      is_logged_in: dto.is_logged_in ?? false,
-      is_mobile: dto.is_mobile ?? false,
-      device_type: dto.device_type ?? null,
-      preroll_variant: dto.preroll_variant ?? null,
-      preroll_shown: dto.preroll_shown ?? false,
-      ab_variants: dto.ab_variants ?? null,
-    });
+    const row = existing ?? this.runRepo.create({ run_id: dto.run_id, end_reason: 'active' });
+    const set = (key: keyof AnalyticsRun, value: any) => { if (value !== undefined && value !== null) (row as any)[key] = value; };
+    set('session_id', dto.session_id);
+    set('visitor_id', dto.visitor_id);
+    set('account_id', dto.account_id);
+    if (dto.started_at && !row.started_at) row.started_at = new Date(dto.started_at);
+    if (dto.ended_at) row.ended_at = new Date(dto.ended_at);
+    set('playtime_ms', dto.playtime_ms);
+    set('end_reason', dto.end_reason);
+    set('killer_name', dto.killer_name);
+    set('coins', dto.coins);
+    set('kills', dto.kills);
+    set('run_index', dto.run_index);
+    set('is_first_run', dto.is_first_run);
+    set('is_logged_in', dto.is_logged_in);
+    set('is_mobile', dto.is_mobile);
+    set('device_type', dto.device_type);
+    set('preroll_variant', dto.preroll_variant);
+    set('preroll_shown', dto.preroll_shown);
+    set('ab_variants', dto.ab_variants);
     await this.runRepo.save(row);
   }
 
@@ -350,38 +347,55 @@ export class AnalyticsService {
     const run = (sql: string): Promise<any[]> =>
       this.sessionRepo.query(sql, [date]).catch((e) => { console.error('[analytics/daily-digest]', e?.message); return []; });
 
+    const identityCte = `WITH visitor_accounts AS (
+              SELECT visitor_id, MAX(account_id) AS account_id FROM analytics_sessions
+              WHERE is_bot = false AND visitor_id IS NOT NULL AND account_id IS NOT NULL GROUP BY visitor_id
+              HAVING COUNT(DISTINCT account_id) = 1
+            ), base AS (
+              SELECT s.*, COALESCE('a:' || COALESCE(s.account_id, va.account_id)::text, 'v:' || s.visitor_id) AS person_id,
+                COALESCE(s.client_started_at, s.created_at) AS session_at,
+                (COALESCE(s.client_started_at, s.created_at) AT TIME ZONE 'UTC')::date AS session_day
+              FROM analytics_sessions s LEFT JOIN visitor_accounts va ON va.visitor_id = s.visitor_id
+              WHERE s.is_bot = false
+            )`;
+
     const [core, players, games, retention, newPlayer, ads] = await Promise.all([
-      run(`SELECT COUNT(*)::int AS visits, COUNT(DISTINCT visitor_id)::int AS dau,
+      run(`${identityCte}
+           SELECT COUNT(*)::int AS visits, COUNT(DISTINCT person_id)::int AS dau,
             COUNT(*) FILTER (WHERE play_count>0)::int AS played_sessions,
             ROUND(100.0*COUNT(*) FILTER (WHERE play_count>0)/NULLIF(COUNT(*),0),1)::float AS conversion_pct,
             ROUND(AVG(total_playtime_ms) FILTER (WHERE play_count>0)/60000.0,2)::float AS avg_playtime_min,
             ROUND((percentile_cont(0.5) WITHIN GROUP (ORDER BY total_playtime_ms) FILTER (WHERE play_count>0))::numeric/60000.0,2)::float AS median_playtime_min,
+            COUNT(*) FILTER (WHERE adblock IS NOT NULL)::int AS adblock_measured_sessions,
             ROUND(100.0*AVG((adblock)::int) FILTER (WHERE adblock IS NOT NULL),1)::float AS adblock_pct
-           FROM analytics_sessions WHERE is_bot = false AND created_at::date = $1::date`),
-      run(`WITH firsts AS (SELECT visitor_id, MIN(created_at::date) AS first_day FROM analytics_sessions WHERE is_bot = false AND visitor_id IS NOT NULL GROUP BY visitor_id),
-            today AS (SELECT DISTINCT visitor_id FROM analytics_sessions WHERE is_bot = false AND visitor_id IS NOT NULL AND created_at::date = $1::date)
+           FROM base WHERE session_day = $1::date`),
+      run(`${identityCte}, firsts AS (SELECT person_id, MIN(session_day) AS first_day FROM base WHERE person_id IS NOT NULL GROUP BY person_id),
+            today AS (SELECT DISTINCT person_id FROM base WHERE person_id IS NOT NULL AND session_day = $1::date)
             SELECT COUNT(*) FILTER (WHERE f.first_day = $1::date)::int AS new_players,
               COUNT(*) FILTER (WHERE f.first_day < $1::date)::int AS returning_players
-            FROM today t JOIN firsts f ON f.visitor_id = t.visitor_id`),
-      run(`SELECT COUNT(*)::int AS games_played
-           FROM analytics_runs r JOIN analytics_sessions s ON s.session_id = r.session_id
-           WHERE s.is_bot = false AND r.created_at::date = $1::date`),
-      run(`WITH firsts AS (SELECT visitor_id, MIN(created_at::date) AS first_day FROM analytics_sessions WHERE is_bot = false AND visitor_id IS NOT NULL GROUP BY visitor_id HAVING MIN(created_at::date) IN ($1::date - 1, $1::date - 7)),
-            act AS (SELECT DISTINCT visitor_id FROM analytics_sessions WHERE is_bot = false AND created_at::date = $1::date)
-            SELECT COUNT(f.visitor_id) FILTER (WHERE f.first_day = $1::date - 1)::int AS d1_cohort,
-              ROUND(100.0*COUNT(a.visitor_id) FILTER (WHERE f.first_day = $1::date - 1)/NULLIF(COUNT(f.visitor_id) FILTER (WHERE f.first_day = $1::date - 1),0),1)::float AS d1_pct,
-              COUNT(f.visitor_id) FILTER (WHERE f.first_day = $1::date - 7)::int AS d7_cohort,
-              ROUND(100.0*COUNT(a.visitor_id) FILTER (WHERE f.first_day = $1::date - 7)/NULLIF(COUNT(f.visitor_id) FILTER (WHERE f.first_day = $1::date - 7),0),1)::float AS d7_pct
-            FROM firsts f LEFT JOIN act a ON a.visitor_id = f.visitor_id`),
-      run(`WITH firsts AS (SELECT visitor_id, MIN(created_at::date) AS first_day FROM analytics_sessions WHERE is_bot = false AND visitor_id IS NOT NULL GROUP BY visitor_id)
-            SELECT ROUND(AVG(s.total_playtime_ms) FILTER (WHERE s.play_count>0)/60000.0,2)::float AS new_player_avg_playtime_min
-            FROM analytics_sessions s JOIN firsts f ON f.visitor_id = s.visitor_id
-            WHERE s.is_bot = false AND s.created_at::date = $1::date AND f.first_day >= $1::date - 6`),
+            FROM today t JOIN firsts f ON f.person_id = t.person_id`),
+      run(`SELECT COUNT(*)::int AS games_played FROM analytics_runs r
+           JOIN analytics_sessions s ON s.session_id = r.session_id
+           WHERE s.is_bot = false AND (COALESCE(r.started_at, r.created_at) AT TIME ZONE 'UTC')::date = $1::date`),
+      run(`${identityCte}, firsts AS (
+              SELECT person_id, MIN(session_day) AS first_day FROM base WHERE person_id IS NOT NULL GROUP BY person_id
+              HAVING MIN(session_day) IN ($1::date - 1, $1::date - 7)
+            ), act AS (SELECT DISTINCT person_id FROM base WHERE session_day = $1::date)
+            SELECT COUNT(f.person_id) FILTER (WHERE f.first_day = $1::date - 1)::int AS d1_cohort,
+              ROUND(100.0*COUNT(a.person_id) FILTER (WHERE f.first_day = $1::date - 1)/NULLIF(COUNT(f.person_id) FILTER (WHERE f.first_day = $1::date - 1),0),1)::float AS d1_pct,
+              COUNT(f.person_id) FILTER (WHERE f.first_day = $1::date - 7)::int AS d7_cohort,
+              ROUND(100.0*COUNT(a.person_id) FILTER (WHERE f.first_day = $1::date - 7)/NULLIF(COUNT(f.person_id) FILTER (WHERE f.first_day = $1::date - 7),0),1)::float AS d7_pct
+            FROM firsts f LEFT JOIN act a ON a.person_id = f.person_id`),
+      run(`${identityCte}, firsts AS (SELECT person_id, MIN(session_day) AS first_day FROM base WHERE person_id IS NOT NULL GROUP BY person_id),
+            per_player AS (
+              SELECT b.person_id, SUM(b.total_playtime_ms) AS playtime_ms FROM base b JOIN firsts f ON f.person_id = b.person_id
+              WHERE f.first_day = $1::date AND b.session_day = $1::date AND b.play_count > 0 GROUP BY b.person_id
+            ) SELECT ROUND(AVG(playtime_ms)/60000.0,2)::float AS new_player_avg_playtime_min FROM per_player`),
       run(`SELECT COALESCE(SUM(a.estimated_revenue_usd),0)::float AS ad_revenue_usd,
             COUNT(*) FILTER (WHERE a.event_type='display_viewable')::int AS ad_impressions,
             COUNT(*) FILTER (WHERE a.event_type IN ('video_complete','rewarded_complete'))::int AS video_ads
            FROM analytics_ad_events a JOIN analytics_sessions s ON s.session_id = a.session_id
-           WHERE s.is_bot = false AND a.created_at::date = $1::date`),
+           WHERE s.is_bot = false AND (a.created_at AT TIME ZONE 'UTC')::date = $1::date`),
     ]);
 
     const c = core[0] || {};
@@ -411,6 +425,7 @@ export class AnalyticsService {
       adImpressions: a.ad_impressions ?? 0,
       videoAds: a.video_ads ?? 0,
       adblockPct: c.adblock_pct ?? null,
+      adblockMeasuredSessions: c.adblock_measured_sessions ?? 0,
     };
   }
 

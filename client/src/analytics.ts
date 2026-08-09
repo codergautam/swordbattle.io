@@ -120,6 +120,7 @@ let session: SessionState | null = null;
 let currentRun: { run_id: string; started_at: number; run_index: number } | null = null;
 let finalized = false;
 let pendingDisconnect: any = null;
+let heartbeatTimer: any = null;
 
 function post(path: string, body: any) {
   try {
@@ -136,7 +137,15 @@ function post(path: string, body: any) {
 
 function sendSession() {
   if (!session) return;
-  post('/analytics/session', session);
+  const activePlaytimeMs = currentRun ? Math.max(0, Date.now() - currentRun.started_at) : 0;
+  post('/analytics/session', {
+    ...session,
+    total_playtime_ms: session.total_playtime_ms + activePlaytimeMs,
+    max_run_playtime_ms: Math.max(session.max_run_playtime_ms, activePlaytimeMs),
+    reached_1min: session.reached_1min || activePlaytimeMs >= 60000,
+    reached_5min: session.reached_5min || activePlaytimeMs >= 300000,
+    duration_ms: Math.max(0, Date.now() - session.client_started_at),
+  });
 }
 
 export function getVariant(experiment: string): string | undefined {
@@ -217,12 +226,15 @@ export function initAnalytics() {
 
     setTimeout(() => {
       try {
+        if ((window as any).adProvider === 'crazygames') return;
         const blocked = isAdBlockActive();
         if (session) session.adblock = blocked;
         trackAd(blocked ? 'adblock_detected' : 'adblock_absent', {});
         sendSession();
       } catch (_) {}
     }, 3500);
+
+    heartbeatTimer = setInterval(sendSession, 30000);
 
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') sendSession(); });
     window.addEventListener('pagehide', () => finalizeSession('closed_tab'));
@@ -250,6 +262,21 @@ export function trackRunStart() {
   if (!session) return;
   session.play_count += 1;
   currentRun = { run_id: uuid(), started_at: Date.now(), run_index: session.play_count };
+  post('/analytics/run', {
+    run_id: currentRun.run_id,
+    session_id: session.session_id,
+    visitor_id: session.visitor_id,
+    account_id: session.account_id,
+    started_at: currentRun.started_at,
+    run_index: currentRun.run_index,
+    is_first_run: currentRun.run_index === 1,
+    is_logged_in: session.is_logged_in,
+    is_mobile: session.is_mobile,
+    device_type: session.device_type,
+    preroll_variant: session.ab_variants.death_preroll,
+    ab_variants: session.ab_variants,
+  });
+  sendSession();
 }
 
 export function trackRunEndDeferred(reason: string) {
@@ -323,6 +350,7 @@ export function trackAd(eventType: string, opts: { ad_format?: string; ad_size?:
 export function finalizeSession(reason: string) {
   if (!session || finalized) return;
   finalized = true;
+  if (heartbeatTimer) clearInterval(heartbeatTimer);
   try {
     if (currentRun) trackRunEnd('quit_mid_game');
     const now = Date.now();

@@ -286,7 +286,7 @@ export default function MetricsPage() {
           <Section title="Summary (last N days, humans only)">
             <StatTiles tiles={[
               { label: 'sessions', value: data.kpi.sessions, spark: sortAsc(data.daily, 'day').map((r) => r.visits) },
-              { label: 'unique visitors', value: data.kpi.unique_visitors, spark: sortAsc(data.daily, 'day').map((r) => r.uniques) },
+              { label: 'unique browser IDs', value: data.kpi.unique_visitors, spark: sortAsc(data.daily, 'day').map((r) => r.uniques) },
               { label: 'play clicks', value: data.kpi.play_clicks },
               { label: 'avg playing min', value: data.kpi.avg_playing_min, spark: sortAsc(data.daily, 'day').map((r) => r.avg_min) },
               { label: '1-min conversion', value: data.kpi.conversion_1min_pct, suffix: '%', spark: sortAsc(data.daily, 'day').map((r) => r.conversion_pct) },
@@ -334,15 +334,15 @@ export default function MetricsPage() {
 
           <Section title="Time to press Play (seconds)"><KeyVals obj={data.timeToPlay} /></Section>
 
-          <Section title="New players — first-visit conversion over time">
+          <Section title="First-observed browser IDs: first-visit conversion">
             <TimeSeries data={data.newPlayerConversion} xKey="joined" yMax={100} valueSuffix="%" series={[
               { key: 'pct_clicked', label: '% clicked', color: '#2f6f9f' },
               { key: 'conv_1min_pct', label: '% to 1 min', color: '#d98a3d' },
             ]} />
             <DataTable rows={data.newPlayerConversion} />
           </Section>
-          <Section title="New players — lifetime (per-player, de-skewed)"><KeyVals obj={data.newPlayerLifetime} /></Section>
-          <Section title="Retention — D1 / D7 by join day (blank = not yet elapsed)">
+          <Section title="Recently first-observed browser IDs: recorded lifetime"><KeyVals obj={data.newPlayerLifetime} /></Section>
+          <Section title="Browser-ID retention: exact-day D1 / D7 (blank = not yet elapsed)">
             <TimeSeries data={data.retention} xKey="joined" yMax={100} valueSuffix="%" series={[
               { key: 'd1_pct', label: 'D1 %', color: '#2f6f9f' },
               { key: 'd7_pct', label: 'D7 %', color: '#d98a3d' },
@@ -355,20 +355,20 @@ export default function MetricsPage() {
 
           <Section title="A/B — death_preroll variant (adblock excluded)"><DataTable rows={data.abTest} /></Section>
 
-          <Section title="Estimated ad revenue (daily, USD) — viewable impressions only">
+          <Section title="Modeled value of tracked ads (not provider revenue)">
             <TimeSeries data={data.adDaily} xKey="day" valueSuffix=" $" series={[
               { key: 'est_usd', label: 'est USD', color: '#2f7d4f', area: true },
             ]} />
             <DataTable rows={data.adDaily} />
           </Section>
           <Section title="Ad exposure per DAU"><KeyVals obj={data.adPerDau} /></Section>
-          <Section title="Revenue by placement / format"><DistBars rows={data.adByPlacement} labelKey="placement" valueKey="est_usd" suffix=" $" /><DataTable rows={data.adByPlacement} /></Section>
+          <Section title="Modeled tracked-ad value by placement / format"><DistBars rows={data.adByPlacement} labelKey="placement" valueKey="est_usd" suffix=" $" /><DataTable rows={data.adByPlacement} /></Section>
           <Section title="Banner fill by size / placement (0% fill = slot not configured at AdinPlay)"><DataTable rows={data.adBySize} /></Section>
           <Section title="Rewarded 2× gems funnel">
             <Funnel steps={rewardedTotals(data.rewardedFunnel)} />
             <DataTable rows={data.rewardedFunnel} />
           </Section>
-          <Section title="Adblock rate (daily %)">
+          <Section title="Measured adblock rate (CrazyGames excluded)">
             <TimeSeries data={data.adblockDaily} xKey="day" yMax={100} valueSuffix="%" series={[
               { key: 'adblock_pct', label: 'adblock %', color: '#b7791f', area: true },
             ]} />

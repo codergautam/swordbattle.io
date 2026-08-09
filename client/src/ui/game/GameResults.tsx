@@ -361,7 +361,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
             <button
               type="button"
               className="double-gems-btn double-gems-adblock"
-              onClick={() => void showDialog('Turn off your ad blocker on swordbattle.io to claim this offer. Ads pay for servers and development.', '2x Gems')}
+              onClick={() => void showDialog('Turn off your ad blocker on swordbattle.io to claim this offer!\n\nAds are how we pay for the servers and support is greatly appreciated. Thanks for playing!', '2x Gems')}
             >
               <img className="dg-icon" src={gemRewardImg} alt="" />
               <span>Disable adblocker for 2&#215; Gems</span>

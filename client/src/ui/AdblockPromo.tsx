@@ -13,7 +13,7 @@ export default function AdblockPromo({ w, h, centerOnOverflow }: { w: number; h:
     <div
       role="button"
       tabIndex={0}
-      onClick={() => void showDialog('Turn off your ad blocker on swordbattle.io to earn 2x gems from every game. Ads pay for servers and development.', '2x Gems')}
+      onClick={() => void showDialog('Turn off your ad blocker on swordbattle.io to earn 2x gems from every game!\n\nAds are how we pay for the servers and support is greatly appreciated. Thanks for playing!', '2x Gems')}
       style={{
         boxSizing: 'border-box',
         width: w,

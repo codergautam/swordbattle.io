@@ -396,12 +396,18 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
     return (
       <div className="shop-modal all-skins-modal">
         <div className="shop-extra">
-          <div className="shop-headrow"><h1 className="shop-title">All Skins</h1></div>
-          <div className="badges">
-            <button onClick={() => setShowAllSkins(false)}>Back to Shop</button>
-            <label className="settings-line"><span>Show Ultimate Skins</span><input type="checkbox" checked={showUltimate} onChange={(e) => updateShowUltimate(e.target.checked)} /></label>
-            <label className="settings-line"><span>Show Event Skins</span><input type="checkbox" checked={showEvent} onChange={(e) => updateShowEvent(e.target.checked)} /></label>
-            <label className="settings-line"><span>Sort by</span>
+          <div className="all-skins-toolbar">
+            <h1 className="shop-title">All Skins</h1>
+            <button className="all-skins-back" onClick={() => setShowAllSkins(false)}>Back to Shop</button>
+            <div className="all-skins-toggle">
+              <span>Show Ultimate Skins</span>
+              <label className="switch"><input type="checkbox" checked={showUltimate} onChange={(e) => updateShowUltimate(e.target.checked)} /><span className="slider round" /></label>
+            </div>
+            <div className="all-skins-toggle">
+              <span>Show Event Skins</span>
+              <label className="switch"><input type="checkbox" checked={showEvent} onChange={(e) => updateShowEvent(e.target.checked)} /><span className="slider round" /></label>
+            </div>
+            <label className="all-skins-sort">Sort by
               <select value={allSkinSort} onChange={(e) => setAllSkinSort(e.target.value)}>
                 <option value="price-low">Price: low to high</option>
                 <option value="price-high">Price: high to low</option>

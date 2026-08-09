@@ -16,7 +16,7 @@ export const Upgrades: Record<number, [string, string, string]> = {
   [UpgradeTypes.Gale]: ['Gale', 'Gain a burst of movement speed after 2s without being hit.', icon],
   [UpgradeTypes.Lunge]: ['Lance', 'Throwing your sword does a small dash forward.', icon],
   [UpgradeTypes.Riposte]: ['Riposte', 'Hitting back soon after being hit deals bonus damage and knockback.', icon],
-  [UpgradeTypes.Striketwice]: ['Reprise', 'Every swing quickly strikes twice.', icon],
+  [UpgradeTypes.Striketwice]: ['Reprise', 'Every swing strikes twice.', icon],
   [UpgradeTypes.Twothrow]: ['Javelins', 'Throw an extra sword with each throw.', icon],
 
   [UpgradeTypes.Overrun]: ['Force', 'Walking into an enemy shoves them away.', icon],

@@ -193,7 +193,7 @@ def(class Striketwice extends Upgrade {
   static type = U.Striketwice; static owner = E.Knight; static tier = 2;
   update(dt) {
     this.player.modifiers.strikeTwice = true;
-    this.player.sword.swingDuration.multiplier['striketwice'] = 2;
+    this.player.sword.swingDuration.multiplier['striketwice'] = 3;
   }
 });
 

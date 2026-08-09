@@ -199,27 +199,40 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Trigger happy time for good games
+  // Trigger happy time for good games. At most once per results object: pbResult
+  // comes from a useMemo whose recomputation React does not guarantee against, and
+  // updatePB() is a write, so a second pass reports anyRecord=false, produces a new
+  // identity, re-runs this effect and fires happytime again on the same run.
+  const happytimeFiredFor = useRef<any>(null);
   useEffect(() => {
+    if (!results || happytimeFiredFor.current === results) return;
+    happytimeFiredFor.current = results;
     try {
       const coins = results?.coins || 0;
       const kills = results?.kills || 0;
       const survivalTime = results?.survivalTime || 0;
 
-      if (coins >= 1000000) {
-        console.log('[CrazyGames] Happy time! 1M+ coins achieved!');
+      // These fire on genuinely good runs, not once-in-a-lifetime ones. The old
+      // thresholds (1M coins / 200 kills / 1 hour) were far beyond the ~6 min
+      // average run, so happytime effectively never fired and CrazyGames never
+      // got the signal to prompt for a rating or a favourite.
+      if (pbResult?.anyRecord) {
+        console.log('[CrazyGames] Happy time! New personal best.');
         crazygamesSDK.happytime();
-      } else if (kills >= 200) {
-        console.log('[CrazyGames] Happy time! 200+ kills achieved!');
+      } else if (kills >= 10) {
+        console.log('[CrazyGames] Happy time! 10+ kills.');
         crazygamesSDK.happytime();
-            } else if (survivalTime >= 3600) { // 1 hour
-        console.log('[CrazyGames] Happy time! Survived 1+ hours!');
+      } else if (survivalTime >= 300) { // 5 minutes, ~a good run
+        console.log('[CrazyGames] Happy time! 5+ minute run.');
+        crazygamesSDK.happytime();
+      } else if (coins >= 100000) {
+        console.log('[CrazyGames] Happy time! 100k+ coins.');
         crazygamesSDK.happytime();
       }
     } catch (error) {
       console.error('[CrazyGames] Error triggering happy time:', error);
     }
-  }, [results]);
+  }, [results, pbResult]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

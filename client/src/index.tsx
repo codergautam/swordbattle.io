@@ -10,13 +10,16 @@ import AnnouncementsAdminPage from './ui/announcements/AnnouncementsAdminPage';
 import { store } from './redux/store';
 import { config } from './config';
 import { load } from 'recaptcha-v3'
-import { crazygamesSDK } from './crazygames/sdk';
+import { crazygamesSDK, applyCrazygamesFirstVisitAutoStart } from './crazygames/sdk';
 import { detectAdblock } from './crazygames/adblock';
 import { initializeDataStorage } from './crazygames/dataStorage';
 import { applyHudThemeCss } from './hudTheme';
 import { initAnalytics } from './analytics';
+import { mark } from './bootTiming';
 
 import './global.scss';
+
+mark('index.tsx module eval');
 
 const MetricsPage = lazy(() => import('./ui/MetricsPage'));
 const BotsPage = lazy(() => import('./ui/BotsPage'));
@@ -87,7 +90,7 @@ let debugMode = false;
 try {
   debugMode = window.location.search.includes("debugAlertMode");
   } catch(e) {}
-if(config.recaptchaClientKey) {
+if(config.captchaEnabled) {
 load(config.recaptchaClientKey).then((recaptcha) => {
   console.log('recaptcha loaded');
   if(debugMode) alert('recaptcha loaded');
@@ -129,6 +132,7 @@ try {
     console.log('[InstantStart] Enabled via URL params');
   }
 } catch(e) {}
+applyCrazygamesFirstVisitAutoStart();
 const root = ReactDOM.createRoot(document.getElementById('root') as Element);
 document.addEventListener('contextmenu',function(e) {
   e.preventDefault();

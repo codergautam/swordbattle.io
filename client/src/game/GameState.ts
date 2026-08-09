@@ -9,13 +9,15 @@ import GlobalEntity from './entities/GlobalEntity';
 import { BaseEntity } from './entities/BaseEntity';
 import { GetEntityClass } from './entities';
 import { Spectator } from './Spectator';
-import { getServer } from '../ServerList';
+import { getServer, rememberServer, forgetServer } from '../ServerList';
 import { config } from '../config';
 import exportCaptcha from './components/captchaEncoder';
 import { findCoinCollector } from '../helpers';
 import { crazygamesSDK } from '../crazygames/sdk';
 import * as cosmetics from './cosmetics.json';
 import { perfMark, perfEnabled, perfWsProcess, perfEntityAdd } from './debug/perfStats';
+import { mark, span } from '../bootTiming';
+import { ldMark } from '../loaderDebug';
 const { skins } = cosmetics as any;
 
 class GameState {
@@ -33,6 +35,8 @@ class GameState {
   previousPlayerAngle: number = 0;
   payloadsQueue: any[] = [];
   isReady = false;
+  destroyed = false;
+  serverOpened = false;
   tickAccumulator = 0;
   private _returningFromHidden = false;
   private _pendingMessages: any[] = [];
@@ -76,6 +80,7 @@ class GameState {
   moverList: any[] = [];
   private _playersCache: any[] | null = null;
   captchaVerified = false;
+  serverAddress = '';
   failedSkinLoads: Record<number, boolean> = {};
   recentDeadPlayers: Record<number, { name: string, time: number }> = {};
   chainDamagedTimestamps: Record<number, number> = {};
@@ -125,12 +130,17 @@ class GameState {
     }
     // rebind
     console.time("getServer");
+    const endGetServer = span('gamestate:getServer');
     getServer().then(server => {
       console.timeEnd("getServer");
+      endGetServer({ address: server.address });
       if(this.debugMode) {
         alert("Sending ws connection to "+server.address+" name "+server.name);
       }
       console.log('connecting to', server.address, Date.now());
+      mark('socket:connect-issued', server.address);
+      ldMark(`socket connect issued -> ${server.address} (ping ${server.ping}ms)`);
+      this.serverAddress = server.address;
       this.socket = Socket.connect(
         server.address,
         this._boundOnOpen,
@@ -141,6 +151,11 @@ class GameState {
   }
 
   initialize() {
+    // The scene owns this instance from its constructor, so a scene that is shut
+    // down and started again reuses it. Without clearing the flag, onServerMessage
+    // would drop every packet for the rest of the page's life.
+    this.destroyed = false;
+    this.serverOpened = false;
     this.game.game.events.on('startGame', this.start, this);
     this.game.game.events.on('restartGame', this.restart, this);
     this.game.game.events.on('startSpectate', this.spectate, this);
@@ -170,7 +185,7 @@ class GameState {
       console.log('[Invite] Using invite roomId:', inviteRoomId);
     }
 
-    if(config.recaptchaClientKey) {
+    if(config.captchaEnabled) {
       console.log('[CAPTCHA] Waiting for reCAPTCHA to load...');
       const waitForRecaptcha = () => {
         if ((window as any).recaptcha) {
@@ -219,7 +234,7 @@ class GameState {
     // Check if there's an invite roomId from CrazyGames invite link
     const inviteRoomId = (window as any).inviteRoomId;
 
-    if(config.recaptchaClientKey) {
+    if(config.captchaEnabled) {
       console.log('[CAPTCHA] Waiting for reCAPTCHA to load...');
       const waitForRecaptcha = () => {
         if ((window as any).recaptcha) {
@@ -259,7 +274,7 @@ class GameState {
   spectate() {
     console.log('[CAPTCHA] spectate() - recaptchaClientKey:', config.recaptchaClientKey, 'captchaVerified:', this.captchaVerified);
 
-    if(config.recaptchaClientKey && !this.captchaVerified) {
+    if(config.captchaEnabled && !this.captchaVerified) {
       if(this.debugMode) alert("Attempting recaptcha");
       console.log('[CAPTCHA] Waiting for reCAPTCHA to load...');
       const waitForRecaptcha = () => {
@@ -302,12 +317,25 @@ class GameState {
   onServerOpen() {
     this.spectate();
     console.log('server connected', Date.now());
+    mark('socket:open');
+    ldMark('socket OPEN (isConnected leg satisfied)');
+    this.serverOpened = true;
+    rememberServer(this.serverAddress);
+    // The play button only needs a live socket. Waiting on the captcha +
+    // spectate + fullSync round trip below costs ~1.8s for nothing.
+    this.game.game.events.emit('connected');
 
     // Enable CrazyGames invite button when game starts
     crazygamesSDK.setInviteMode('playing');
   }
 
   onServerClose(event: CloseEvent, endpoint?: string) {
+    // Closing without ever having opened means we never reached the box. Blacklist
+    // it so the next getServer() picks elsewhere. Gating on "never opened" rather
+    // than code 1006 matters: a healthy session that drops an hour in also closes
+    // 1006, and that box has done nothing wrong.
+    if (!this.serverOpened) forgetServer(this.serverAddress);
+    this.serverOpened = false;
     Socket.close();
     this.tickAccumulator = 0;
 
@@ -355,7 +383,18 @@ class GameState {
     }
   }
 
+  // Called on scene teardown. After this the renderer and every display object
+  // are gone, so any further snapshot would run against freed PIXI internals.
+  destroy() {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    this.payloadsQueue = [];
+    this._pendingMessages = [];
+    Socket.close();
+  }
+
   onServerMessage(data: any) {
+    if (this.destroyed) return;
     if (!this.game.isReady) {
       this.payloadsQueue.push(this.detachSnapshot(data));
     } else {

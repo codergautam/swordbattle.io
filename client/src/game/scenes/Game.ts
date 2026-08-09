@@ -189,44 +189,44 @@ export default class Game extends Phaser.Scene {
     this.load.image('crown', publicPath + '/assets/game/player/crown-new.png');
 
     // evols
-    this.load.image('tankOverlay', publicPath + '/assets/game/evolutions/tank.png');
-    this.load.image('berserkerOverlay', publicPath + '/assets/game/evolutions/berserker.png');
-    this.load.image('vampireOverlay', publicPath + '/assets/game/evolutions/vampire.png');
-    this.load.image('knightOverlay', publicPath + '/assets/game/evolutions/knight.png');
-    this.load.image('samuraiOverlay', publicPath + '/assets/game/evolutions/samurai.png');
-    this.load.image('rookOverlay', publicPath + '/assets/game/evolutions/rook.png');
-    this.load.image('stalkerOverlay', publicPath + '/assets/game/evolutions/stalker.png');
-    this.load.image('warriorOverlay', publicPath + '/assets/game/evolutions/warrior.png');
-    this.load.image('lumberjackOverlay', publicPath + '/assets/game/evolutions/lumberjack.png');
-    this.load.image('defenderOverlay', publicPath + '/assets/game/evolutions/defender.png');
-    this.load.image('fighterOverlay', publicPath + '/assets/game/evolutions/fighter.png');
-    this.load.image('fighterBadge', publicPath + '/assets/game/ui/fighter.png');
-    this.load.image('fishermanOverlay', publicPath + '/assets/game/evolutions/fisherman.png');
-    this.load.image('archerOverlay', publicPath + '/assets/game/evolutions/archer.png');
-    this.load.image('superArcherOverlay', publicPath + '/assets/game/evolutions/superarcher.png');
-    this.load.image('sniperOverlay', publicPath + '/assets/game/evolutions/sniper.png');
-    this.load.image('rammerOverlay', publicPath + '/assets/game/evolutions/rammer.png');
-    this.load.image('juggernautOverlay', publicPath + '/assets/game/evolutions/juggernaut.png');
-    this.load.image('slasherOverlay', publicPath + '/assets/game/evolutions/slasher.png');
-    this.load.image('strikerOverlay', publicPath + '/assets/game/evolutions/striker.png');
-    this.load.image('plaguebearerOverlay', publicPath + '/assets/game/evolutions/plaguebearer.png');
-    this.load.image('snowWalkerOverlay', publicPath + '/assets/game/evolutions/snowwalker.png');
-    this.load.image('candyWalkerOverlay', publicPath + '/assets/game/evolutions/candywalker.png');
-    this.load.image('treeOverlay', publicPath + '/assets/game/evolutions/tree.png');
-    this.load.image('festiveOverlay', publicPath + '/assets/game/evolutions/festive.png');
-    this.load.image('iceSniperOverlay', publicPath + '/assets/game/evolutions/icesniper.png');
-    this.load.image('snowboarderOverlay', publicPath + '/assets/game/evolutions/snowboarder.png');
-    this.load.image('snowtrekkerOverlay', publicPath + '/assets/game/evolutions/snowtrekker.png');
-    this.load.image('iceSpikeOverlay', publicPath + '/assets/game/evolutions/icespike.png');
-    this.load.image('iceKingOverlay', publicPath + '/assets/game/evolutions/iceking.png');
-    this.load.image('drifterOverlay', publicPath + '/assets/game/evolutions/drifter.png');
-    this.load.image('colossalOverlay', publicPath + '/assets/game/evolutions/colossal.png');
-    this.load.image('medicOverlay', publicPath + '/assets/game/evolutions/medic.png');
-    this.load.image('discoOverlay', publicPath + '/assets/game/evolutions/disco.png');
-    this.load.image('butcherOverlay', publicPath + '/assets/game/evolutions/butcher.png');
-    this.load.image('assassinOverlay', publicPath + '/assets/game/evolutions/assassin.png');
-    this.load.image('eliteOverlay', publicPath + '/assets/game/evolutions/elite.png');
-    this.load.image('trackerOverlay', publicPath + '/assets/game/evolutions/tracker.png');
+    this.deferLoad('tankOverlay', publicPath + '/assets/game/evolutions/tank.png');
+    this.deferLoad('berserkerOverlay', publicPath + '/assets/game/evolutions/berserker.png');
+    this.deferLoad('vampireOverlay', publicPath + '/assets/game/evolutions/vampire.png');
+    this.deferLoad('knightOverlay', publicPath + '/assets/game/evolutions/knight.png');
+    this.deferLoad('samuraiOverlay', publicPath + '/assets/game/evolutions/samurai.png');
+    this.deferLoad('rookOverlay', publicPath + '/assets/game/evolutions/rook.png');
+    this.deferLoad('stalkerOverlay', publicPath + '/assets/game/evolutions/stalker.png');
+    this.deferLoad('warriorOverlay', publicPath + '/assets/game/evolutions/warrior.png');
+    this.deferLoad('lumberjackOverlay', publicPath + '/assets/game/evolutions/lumberjack.png');
+    this.deferLoad('defenderOverlay', publicPath + '/assets/game/evolutions/defender.png');
+    this.deferLoad('fighterOverlay', publicPath + '/assets/game/evolutions/fighter.png');
+    this.deferLoad('fighterBadge', publicPath + '/assets/game/ui/fighter.png');
+    this.deferLoad('fishermanOverlay', publicPath + '/assets/game/evolutions/fisherman.png');
+    this.deferLoad('archerOverlay', publicPath + '/assets/game/evolutions/archer.png');
+    this.deferLoad('superArcherOverlay', publicPath + '/assets/game/evolutions/superarcher.png');
+    this.deferLoad('sniperOverlay', publicPath + '/assets/game/evolutions/sniper.png');
+    this.deferLoad('rammerOverlay', publicPath + '/assets/game/evolutions/rammer.png');
+    this.deferLoad('juggernautOverlay', publicPath + '/assets/game/evolutions/juggernaut.png');
+    this.deferLoad('slasherOverlay', publicPath + '/assets/game/evolutions/slasher.png');
+    this.deferLoad('strikerOverlay', publicPath + '/assets/game/evolutions/striker.png');
+    this.deferLoad('plaguebearerOverlay', publicPath + '/assets/game/evolutions/plaguebearer.png');
+    this.deferLoad('snowWalkerOverlay', publicPath + '/assets/game/evolutions/snowwalker.png');
+    this.deferLoad('candyWalkerOverlay', publicPath + '/assets/game/evolutions/candywalker.png');
+    this.deferLoad('treeOverlay', publicPath + '/assets/game/evolutions/tree.png');
+    this.deferLoad('festiveOverlay', publicPath + '/assets/game/evolutions/festive.png');
+    this.deferLoad('iceSniperOverlay', publicPath + '/assets/game/evolutions/icesniper.png');
+    this.deferLoad('snowboarderOverlay', publicPath + '/assets/game/evolutions/snowboarder.png');
+    this.deferLoad('snowtrekkerOverlay', publicPath + '/assets/game/evolutions/snowtrekker.png');
+    this.deferLoad('iceSpikeOverlay', publicPath + '/assets/game/evolutions/icespike.png');
+    this.deferLoad('iceKingOverlay', publicPath + '/assets/game/evolutions/iceking.png');
+    this.deferLoad('drifterOverlay', publicPath + '/assets/game/evolutions/drifter.png');
+    this.deferLoad('colossalOverlay', publicPath + '/assets/game/evolutions/colossal.png');
+    this.deferLoad('medicOverlay', publicPath + '/assets/game/evolutions/medic.png');
+    this.deferLoad('discoOverlay', publicPath + '/assets/game/evolutions/disco.png');
+    this.deferLoad('butcherOverlay', publicPath + '/assets/game/evolutions/butcher.png');
+    this.deferLoad('assassinOverlay', publicPath + '/assets/game/evolutions/assassin.png');
+    this.deferLoad('eliteOverlay', publicPath + '/assets/game/evolutions/elite.png');
+    this.deferLoad('trackerOverlay', publicPath + '/assets/game/evolutions/tracker.png');
 
     this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');
@@ -255,13 +255,34 @@ export default class Game extends Phaser.Scene {
     this.load.image(skins.player.name+'Body', basePath + skins.player.bodyFileName);
     this.load.image(skins.player.name+'Sword', basePath + skins.player.swordFileName);
 
-    this.soundManager.load(publicPath);
+    // Sound is deliberately NOT loaded here - 61 files / 4.1MB of audio decode
+    // has no bearing on the first frame. It streams in from loadDeferred() once
+    // the play button is live; SoundSystem.play() no-ops on a missing buffer.
     Biome.initialize(this);
 
     // log progress on load
     this.load.on('progress', (value: number) => {
       if(!this.isReady) window.dispatchEvent(new CustomEvent('assetsLoadProgress', { detail: value }));
     });
+  }
+
+  /* Audio, once the play button is already live. The progress listener above
+     ignores this batch because isReady is set before we get here. */
+  private deferred: Array<[string, string]> = [];
+
+  /* Queued during preload, fetched only after the play button is already live. */
+  private deferLoad(key: string, url: string) {
+    this.deferred.push([key, url]);
+  }
+
+  /* Evolution overlays can't be needed at spawn - evolving costs coins you have
+     to earn first - and audio has no bearing on the first frame. The progress
+     listener ignores this batch because isReady is set before we get here. */
+  private loadDeferred() {
+    for (const [key, url] of this.deferred) this.load.image(key, url);
+    this.deferred.length = 0;
+    this.soundManager.load(publicPath);
+    this.load.start();
   }
 
   private fxAttached = false;
@@ -443,6 +464,9 @@ export default class Game extends Phaser.Scene {
   }
 
   shutdown() {
+    // Kill the network first — everything below frees objects the socket
+    // would otherwise keep writing into.
+    this.gameState.destroy();
     this.gameState.gameMap.cancelDeferredWork();
     if (this._resizeHandler) {
       window.removeEventListener('resize', this._resizeHandler);
@@ -595,6 +619,7 @@ export default class Game extends Phaser.Scene {
       this.isReady = true;
       window.dispatchEvent(new CustomEvent('assetsLoadProgress', { detail: 1 }));
       console.log('Game is ready');
+      this.loadDeferred();
     }
     if (this.fxAttached) {
       screenEffectsRuntime.scrollX = this.cameras.main.scrollX;

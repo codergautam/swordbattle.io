@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AccountState, setAccount, updateAccountAsync } from '../../redux/account/slice';
 import { RootState } from '../../redux/store';
@@ -18,9 +18,11 @@ import EditClanTab from './clans/tabs/EditClanTab';
 import SearchTab from './clans/tabs/SearchTab';
 import XpGateOverlay from './clans/XpGateOverlay';
 import { clanXpRequirement } from './clans/constants';
-import ProfileModal from './ProfileModal';
 import Modal from './Modal';
 import ModalAd from '../ModalAd';
+
+// Eager, this drags chart.js (189KB) into the main bundle via App -> ClansModal.
+const ProfileModal = lazy(() => import('./ProfileModal'));
 
 interface ClansModalProps {
   account: AccountState;
@@ -245,12 +247,14 @@ function ClansModal({ account, onViewProfile, initialClanId }: ClansModalProps) 
       )}
 
       {userProfileOverlay && (
-        <Modal
-          child={<ProfileModal username={userProfileOverlay} isOwnProfile={userProfileOverlay === account.username} />}
-          close={closeUserProfile}
-          scaleDisabled
-          className="modal-fullscreen"
-        />
+        <Suspense fallback={null}>
+          <Modal
+            child={<ProfileModal username={userProfileOverlay} isOwnProfile={userProfileOverlay === account.username} />}
+            close={closeUserProfile}
+            scaleDisabled
+            className="modal-fullscreen"
+          />
+        </Suspense>
       )}
     </div>
   );

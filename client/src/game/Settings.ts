@@ -1,3 +1,5 @@
+import { crazygamesSDK } from '../crazygames/sdk';
+
 const isDev = process.env.NODE_ENV === 'development';
 
 interface SettingType {
@@ -203,15 +205,26 @@ export const Settings: any = {};
 class SettingsManager {
   key: string = 'swordbattle:settings';
 
+  /* Live value behind each Settings property. Held here rather than in a per-key
+     closure so a default can be revised later without going through the setter,
+     which would persist it and turn it into an explicit user choice. */
+  private values: Record<string, any> = {};
+
   initialize() {
+    // CrazyGames players expect mouse-only movement, so move the default before
+    // the properties are defined. Saved settings are applied below and still win.
+    if (crazygamesSDK.isCrazyGamesContext()) {
+      settingsList.movementMode.default = 'mouse';
+    }
+
     for (const key in settingsList) {
       const setting = settingsList[key as keyof typeof settingsList];
-      let value = setting.default;
+      this.values[key] = setting.default;
 
       Object.defineProperty(Settings, key, {
-        get: () => value,
+        get: () => this.values[key],
         set: (newValue) => {
-          value = newValue;
+          this.values[key] = newValue;
           this.saveSettingSafe(key, newValue);
         },
       })
@@ -247,6 +260,19 @@ class SettingsManager {
       Settings[key] = savedSettings[key];
     }
     isLoaded = true;
+
+    // The SDK reports its environment after this module evaluates, so the check
+    // above always misses on CrazyGames and this is the path that actually lands.
+    // Written straight to the value slot: assigning through Settings would run the
+    // setter and persist it, making a default indistinguishable from a deliberate
+    // choice. get() reads saved settings, so an explicit pick still wins.
+    try {
+      window.addEventListener('crazygamesSDKReady', () => {
+        if (this.get().movementMode !== undefined) return;
+        settingsList.movementMode.default = 'mouse';
+        this.values.movementMode = 'mouse';
+      }, { once: true });
+    } catch (e) {}
   }
 
   saveSettingSafe(key: string, value: any) {

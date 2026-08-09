@@ -16,7 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: false
-      REACT_APP_ASSET_VER: ${{ github.sha }}
+      # MUST match the game server's CAPTCHA_ENABLED. The client only sends a
+      # captcha token when this is 'true'; a server with captcha still enforced
+      # closes the socket of every client that does not send one, so flipping this
+      # on or off means deploying the SERVER FIRST, then the client. This workflow
+      # deploys the client automatically on push to main and the server not at all.
+      REACT_APP_CAPTCHA_ENABLED: 'false'
       REACT_APP_RECAPTCHA_CLIENT_KEY: 6LdVxgYdAAAAAPtvjrXLAzSd2ANyzIkiSqk_yFpt
       REACT_APP_API: api.swordbattle.io
       REACT_APP_ENDPOINT_US: na.swordbattle.io
@@ -31,6 +36,13 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18'
+
+    # Keyed to asset CONTENT, not the commit. Using github.sha meant every push -
+    # even a README typo - changed the ?v= on all ~1300 assets and forced every
+    # returning player to re-download them. GitHub Pages caps Cache-Control at
+    # max-age=600 and can't be configured, so cache stability is all we control.
+    - name: Compute asset version from content
+      run: echo "REACT_APP_ASSET_VER=$(find client/public/assets -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | cut -c1-12)" >> $GITHUB_ENV
 
     - name: Install and Build
       run: |

@@ -48,12 +48,13 @@ import LeaderboardCard from './LeaderboardCard';
 // import Game from '../game/scenes/Game';
 import titleImg from '../assets/img/final.png';
 import Leaderboard from './game/Leaderboard';
-import { crazygamesSDK } from '../crazygames/sdk';
+import { crazygamesSDK, applyCrazygamesFirstVisitAutoStart } from '../crazygames/sdk';
+import { markOnce, reportOnce } from '../bootTiming';
+import { ldGate, ldGateSummary, ldReportOnce, ldMark, ldTrace, ldReactProgress } from '../loaderDebug';
 import { initializeDataStorage } from '../crazygames/dataStorage';
 
 import * as cosmetics from '../game/cosmetics.json'
 import RewardsModal from './modals/RewardsModal';
-import ProfileModal from './modals/ProfileModal';
 import SkinPreviewModal from './modals/SkinPreviewModal';
 import FullChangelogModal from './modals/FullChangelogModal';
 import ClansModal from './modals/ClansModal';
@@ -67,6 +68,13 @@ import { designerUsername, getMockProfileData, getMockProfileGames } from './pro
 import { ProfileTheme, resolveProfileTheme } from './profileTheme';
 
 const ProfileDesignerPanel = lazy(() => import('./profileDesigner/ProfileDesignerPanel'));
+
+// Pulls in chart.js (189KB of the main bundle) for a modal nobody has open at
+// boot. Lazy so it costs nothing until someone actually views a profile.
+// displayName matters: the modal render keys off type.displayName || type.name,
+// and a lazy() wrapper has neither by default.
+const ProfileModal = lazy(() => import('./modals/ProfileModal'));
+(ProfileModal as any).displayName = 'ProfileModal';
 
 function decodeCrazygamesUserId(token: string): string | null {
   try {
@@ -137,7 +145,12 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
   const [accountReady, setAccountReady] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
-  const [crazygamesAuthReady, setCrazygamesAuthReady] = useState(false);
+  const [crazygamesAuthReady, setCrazygamesAuthReadyRaw] = useState(false);
+  // 10 call sites flip this flag; wrap once so the winner names itself.
+  const setCrazygamesAuthReady = useCallback((v: boolean) => {
+    if (v) ldTrace('setCrazygamesAuthReady(true)');
+    setCrazygamesAuthReadyRaw(v);
+  }, []);
   const [showMenuTutorial, setShowMenuTutorial] = useState(false);
   const [isFirstVisit] = useState(() => !localStorage.getItem('swordbattle:hasVisited'));
   const [instantStart, setInstantStart] = useState<boolean>((window as any).instantStart || false);
@@ -452,8 +465,15 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
 
   useEffect(() => {
     window.addEventListener('assetsLoadProgress', (e: any) => {
-      setLoadingProgress(Math.floor(e.detail * 98));
-      if(e.detail === 1) setAssetsLoaded(true);
+      const pct = Math.floor(e.detail * 98);
+      // Fires once per asset. Counts how many of those actually change the
+      // rendered number - the rest are wasted App re-renders.
+      ldReactProgress(pct);
+      // Game.ts re-dispatches detail:1 when the scene goes ready, which lands
+      // AFTER the gate has already set 100. Never walk the bar backwards or the
+      // loading screen reappears over a running game.
+      setLoadingProgress((p) => Math.max(p, pct));
+      if(e.detail === 1) { ldTrace('assetsLoaded=true'); setAssetsLoaded(true); }
     });
   }, []);
 
@@ -489,8 +509,25 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
       alert('check. Connected: ' + isConnected + ' Assets: ' + assetsLoaded + ' CG Auth: ' + (crazygamesAuthReady || !isCrazygames));
     }
 
+    if (assetsLoaded) markOnce('gate:assetsLoaded');
+    if (isConnected) markOnce('gate:isConnected');
+    if (crazygamesAuthReady || !isCrazygames) markOnce('gate:crazygamesAuthReady');
+
+    // The play button is an AND of three independent legs - log each one as it
+    // lands so the last one to arrive is obvious.
+    if (assetsLoaded) ldGate('assetsLoaded');
+    if (isConnected) ldGate('isConnected');
+    if (crazygamesAuthReady || !isCrazygames) ldGate('crazygamesAuthReady');
+
     if(assetsLoaded && isConnected && (crazygamesAuthReady || !isCrazygames)) {
+      markOnce('READY (loadingProgress=100)');
+      // Safety net: Game.create() normally closes this, but a scene that never
+      // boots would leave CrazyGames' loading timer running forever.
+      crazygamesSDK.loadingStop();
+      ldGateSummary();
       setLoadingProgress(100);
+      reportOnce();
+      ldReportOnce();
     }
   }, [isConnected, assetsLoaded, crazygamesAuthReady]);
 
@@ -594,7 +631,9 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
         if (!currentUserId) {
           console.log('[CrazyGames] No CrazyGames user logged in');
 
-          if ((window as any).instantStart) {
+          // First-visit auto-start is meant to be frictionless, so only invite /
+          // instant-multiplayer sessions are worth interrupting for a login.
+          if ((window as any).instantStart && !(window as any)._cgFirstVisitAutoStart) {
             console.log('[CrazyGames] Instant multiplayer mode - prompting user to log in');
             try {
               const promptedUser = await crazygamesSDK.showAuthPrompt();
@@ -738,6 +777,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
           if (sdkGame.isInstantMultiplayer === true) {
             console.log('[CrazyGames] isInstantMultiplayer is TRUE');
             (window as any).instantStart = true;
+            (window as any)._cgFirstVisitAutoStart = false;
             setInstantStart(true);
           }
           const roomId = sdkGame.getInviteParam?.('roomId');
@@ -747,8 +787,10 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
             const region = sdkGame.getInviteParam?.('region');
             if (region) (window as any).inviteRegion = region;
             (window as any).instantStart = true;
+            (window as any)._cgFirstVisitAutoStart = false;
             setInstantStart(true);
           }
+          if (applyCrazygamesFirstVisitAutoStart()) setInstantStart(true);
         } catch (error) {
           console.error('[CrazyGames] Error checking multiplayer:', error);
         }
@@ -770,6 +812,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
           if (sdkGame.isInstantMultiplayer === true) {
             console.log('[CrazyGames] isInstantMultiplayer is TRUE (late detection)');
             (window as any).instantStart = true;
+            (window as any)._cgFirstVisitAutoStart = false;
             setInstantStart(true);
           }
           const roomId = sdkGame.getInviteParam?.('roomId');
@@ -778,8 +821,10 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
             const region = sdkGame.getInviteParam?.('region');
             if (region) (window as any).inviteRegion = region;
             (window as any).instantStart = true;
+            (window as any)._cgFirstVisitAutoStart = false;
             setInstantStart(true);
           }
+          if (applyCrazygamesFirstVisitAutoStart()) setInstantStart(true);
         } catch (e) {
           console.error('[CrazyGames] Error checking multiplayer (late):', e);
         }
@@ -788,10 +833,11 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
       };
       window.addEventListener('crazygamesSDKReady', onSdkReady, { once: true });
 
-      console.log('[CrazyGames] Calling attemptCrazygamesLogin with delay');
-      setTimeout(() => {
-        attemptCrazygamesLogin();
-      }, 500);
+      // No delay: a late SDK is already covered by the crazygamesSDKReady
+      // listener above, and with no SDK this returns immediately. The old 500ms
+      // sleep just held the crazygamesAuthReady gate shut for half a second.
+      console.log('[CrazyGames] Calling attemptCrazygamesLogin');
+      attemptCrazygamesLogin();
     }
 
     // Monitor CrazyGames user account changes (login/logout)
@@ -1341,8 +1387,9 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
             <img src={DiscordLogo} width={60} alt="Discord" />
           </a>
           </div>
-          {shownModal && (() => { const cls = modalClasses.get(shownModal.type) ?? ''; const isFullscreen = cls === 'modal-fullscreen'; const isSettings = cls === 'modal-settings'; return <Modal key={shownModal.type.displayName || shownModal.type.name} child={shownModal} requestClose={closeModal} scaleDisabled={!!cls} className={cls} backdrop={!!cls && !isFullscreen} backdropClass={isSettings ? 'modal-backdrop-clear' : ''} closing={modalClosing} />; })()}
+          {shownModal && (() => { const cls = modalClasses.get(shownModal.type) ?? ''; const isFullscreen = cls === 'modal-fullscreen'; const isSettings = cls === 'modal-settings'; return <Suspense fallback={null}><Modal key={shownModal.type.displayName || shownModal.type.name} child={shownModal} requestClose={closeModal} scaleDisabled={!!cls} className={cls} backdrop={!!cls && !isFullscreen} backdropClass={isSettings ? 'modal-backdrop-clear' : ''} closing={modalClosing} /></Suspense>; })()}
           {profileUser && (
+            <Suspense fallback={null}>
             <Modal
               key="profile-overlay"
               child={<ProfileModal
@@ -1361,6 +1408,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
               backdrop
               closing={profileClosing}
             />
+            </Suspense>
           )}
           {profileDesigner && createPortal(
             <Suspense fallback={null}>

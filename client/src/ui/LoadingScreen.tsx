@@ -7,12 +7,12 @@ function LoadingScreen({ progress, instantStart, waitingForConnection, connectio
   const [opacity, setOpacity] = useState(1);
   const [shown, setShown] = useState(0);
   const progressRef = useRef(progress);
-  const lastChangeRef = useRef(0);
-  if (progressRef.current !== progress) {
-    progressRef.current = progress;
-    lastChangeRef.current = typeof performance !== 'undefined' ? performance.now() : 0;
-  }
+  progressRef.current = progress;
 
+  // Track the real number. The old curve mapped 98% to 82% and crept upward on
+  // a timer to disguise a slow load - now that loading is ~2s that padding is
+  // slower than the game itself, and it parked the bar at 96 forever.
+  const shownRef = useRef(0);
   useEffect(() => {
     let raf = 0;
     let last = performance.now();
@@ -20,15 +20,15 @@ function LoadingScreen({ progress, instantStart, waitingForConnection, connectio
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       const real = progressRef.current;
-      const stalledBonus = Math.min(15, ((now - lastChangeRef.current) / 1000) * 2.5);
-      let done = false;
-      setShown((v) => {
-        const target = real >= 100 ? 100 : Math.min(97, Math.min(real, 98) * (82 / 98) + stalledBonus);
-        const next = v + Math.max(0, target - v) * Math.min(1, dt * (real >= 100 ? 8 : 2.2));
-        if (real >= 100 && next >= 99.5) { done = true; return 100; }
-        return next - v > 0.01 ? next : v;
-      });
-      if (!done) raf = requestAnimationFrame(step);
+      const v = shownRef.current;
+      const next = real - v < 0.5 ? real : v + (real - v) * Math.min(1, dt * 12);
+      if (next !== v) {
+        shownRef.current = next;
+        setShown(next);
+      }
+      // This component renders null once loaded but stays mounted, so the loop
+      // must stop itself or it burns a frame callback for the whole session.
+      if (next < 100) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);

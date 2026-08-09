@@ -8,6 +8,7 @@ import {
 import { numberWithCommas, sinceFrom } from '../../../helpers';
 import ClanEmblem from './ClanEmblem';
 import { ClanRole, roleLabels, statusLabels, ClanStatus, clanXpRequirement, clanMemberCap } from './constants';
+import { confirmDialog, promptDialog, showDialog } from '../../PromptDialog';
 
 interface ClanProfileProps {
   clanId: number;
@@ -77,7 +78,7 @@ export default function ClanProfile({ clanId, viewerInClan, account, onOpenUserP
       setActionError('Only the leader can promote to co-leader');
       return;
     }
-    if (!window.confirm(`Promote ${m.username} to ${roleLabels[newRole]}?`)) return;
+    if (!await confirmDialog(`Promote ${m.username} to ${roleLabels[newRole]}?`, 'Confirm promotion', 'Promote')) return;
     await wrapAction(null, () => dispatch(changeRole(clanId, m.accountId, newRole as 0 | 1 | 2 | 3) as any));
   };
 
@@ -88,35 +89,50 @@ export default function ClanProfile({ clanId, viewerInClan, account, onOpenUserP
       setActionError('Only the leader can demote a co-leader');
       return;
     }
-    if (!window.confirm(`Demote ${m.username} to ${roleLabels[newRole]}?`)) return;
+    if (!await confirmDialog(`Demote ${m.username} to ${roleLabels[newRole]}?`, 'Confirm demotion', 'Demote')) return;
     await wrapAction(null, () => dispatch(changeRole(clanId, m.accountId, newRole as 0 | 1 | 2 | 3) as any));
   };
 
   const onKick = async (m: typeof sorted[number]) => {
-    if (!window.confirm(`Kick ${m.username} from the clan?`)) return;
+    if (!await confirmDialog(`Kick ${m.username} from the clan?`, 'Confirm kick', 'Kick')) return;
     await wrapAction(`Kicking ${m.username}...`, () => dispatch(kickMember(clanId, m.accountId) as any));
   };
 
   const onTransfer = async (m: typeof sorted[number]) => {
-    if (!window.confirm(`Transfer leadership to ${m.username}? You will become co-leader.`)) return;
+    if (!await confirmDialog(`Transfer leadership to ${m.username}? You will become co-leader.`, 'Transfer leadership', 'Transfer')) return;
     await wrapAction('Transferring leadership...', () => dispatch(transferLeadership(clanId, m.accountId) as any));
   };
 
   const onLeave = async () => {
-    if (!window.confirm('Are you sure you want to leave this clan? You won\'t be able to join another clan for 24 hours.')) return;
+    if (!await confirmDialog('You will not be able to join another clan for 24 hours.', 'Leave clan', 'Leave')) return;
     await wrapAction('Leaving clan...', () => dispatch(leaveClan(clanId) as any));
   };
 
   const onDisband = async () => {
-    if (!window.confirm('Disband the clan? This cannot be undone. You will not receive any refunds.')) return;
+    if (!await confirmDialog('This cannot be undone. You will not receive any refunds.', 'Disband clan', 'Disband')) return;
     await wrapAction('Disbanding clan...', () => dispatch(disbandClan(clanId) as any));
   };
 
   const onJoin = async () => {
     if (!canActuallyJoin) return;
-    const res: any = await wrapAction('Joining clan...', () => dispatch(joinClan(clanId) as any));
-    if (res?.requested) alert('Join request sent');
-    else if (res?.message || res?.error) alert(res?.message ?? res?.error);
+    let reason: string | undefined;
+    if (profile.status === ClanStatus.Request) {
+      const result = await promptDialog({
+        title: 'Request to Join',
+        message: `Request to join ${profile.name}. You can include a reason.`,
+        placeholder: 'Reason (optional)',
+        maxLength: 300,
+        multiline: true,
+        confirmLabel: 'Send Request',
+      });
+      if (result === null) return;
+      reason = result;
+    } else if (!await confirmDialog(`Join ${profile.name}?`, 'Join clan', 'Join')) {
+      return;
+    }
+    const res: any = await wrapAction(profile.status === ClanStatus.Request ? 'Sending request...' : 'Joining clan...', () => dispatch(joinClan(clanId, reason) as any));
+    if (res?.requested) await showDialog('Join request sent.');
+    else if (res?.message || res?.error) await showDialog(res?.message ?? res?.error, 'Clan');
   };
 
   const acceptReq = (reqId: number) => wrapAction(null, () => dispatch(respondRequest(clanId, reqId, true) as any));
@@ -258,9 +274,14 @@ export default function ClanProfile({ clanId, viewerInClan, account, onOpenUserP
           <h3>Pending Requests</h3>
           {profile.pendingRequests.map((r) => (
             <div className="request-row" key={r.id}>
-              <a className="user-link" onClick={() => onOpenUserProfile?.(r.username)}>{r.username}</a>
-              <button onClick={() => acceptReq(r.id)}>Accept</button>
-              <button className="reject" onClick={() => rejectReq(r.id)}>Reject</button>
+              <div className="request-main">
+                <a className="user-link" onClick={() => onOpenUserProfile?.(r.username)}>{r.username}</a>
+                <span className={r.reason ? 'request-reason' : 'request-reason muted'}>{r.reason || 'No reason given.'}</span>
+              </div>
+              <div className="request-actions">
+                <button onClick={() => acceptReq(r.id)}>Accept</button>
+                <button className="reject" onClick={() => rejectReq(r.id)}>Reject</button>
+              </div>
             </div>
           ))}
         </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setAccount } from '../../redux/account/slice';
 import api from '../../api';
+import { showDialog } from '../PromptDialog';
 
 import './LoginModal.scss';
 
@@ -13,7 +14,7 @@ function LoginModal({ onSuccess, onSupport }: any) {
   const onLogin = () => {
     api.post(`${api.endpoint}/auth/login`, { username, password }, (data) => {
       if (data.message) {
-        window.alert(Array.isArray(data.message) ? data.message.join('\n') : data.message);
+        void showDialog(Array.isArray(data.message) ? data.message.join('\n') : data.message, 'Log in');
       } else {
         data.account.secret = data.secret;
 

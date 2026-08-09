@@ -601,7 +601,11 @@
       padding: 8px 12px;
       margin-bottom: 6px;
 
-      .user-link { flex: 1; }
+      .request-main { min-width: 0; flex: 1; }
+      .user-link { display: block; }
+      .request-reason { display: block; overflow-wrap: anywhere; color: #e7e7ec; font-size: 13px; line-height: 1.35; }
+      .request-reason.muted { color: #999; font-style: italic; }
+      .request-actions { display: flex; flex: 0 0 auto; gap: 8px; }
       button {
         background: #33cc33;
         border: none;

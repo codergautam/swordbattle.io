@@ -19,6 +19,7 @@ export class AnnouncementsService {
       color: a.color,
       isUpdate: !!a.is_update,
       createdAt: a.created_at,
+      views: Number(a.views ?? 0),
     };
   }
 
@@ -39,6 +40,8 @@ export class AnnouncementsService {
   async get(id: number) {
     const a = await this.announcements.findOne({ where: { id, published: true } });
     if (!a) throw new NotFoundException('Announcement not found');
+    a.views = Number(a.views ?? 0) + 1;
+    await this.announcements.save(a);
     return { announcement: this.fullView(a) };
   }
 

@@ -1,5 +1,6 @@
 import gemRewardImg from '../assets/img/gem-reward.png';
 import { withAssetVersion } from '../assetVersion';
+import { showDialog } from './PromptDialog';
 
 const textOutline = '-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 3px 0 #000';
 
@@ -12,7 +13,7 @@ export default function AdblockPromo({ w, h, centerOnOverflow }: { w: number; h:
     <div
       role="button"
       tabIndex={0}
-      onClick={() => window.alert('Turn off your ad blocker on swordbattle.io to earn 2x gems from every game!\n\nAds are how we pay for the servers and support is greatly appreciated. Thanks for playing!')}
+      onClick={() => void showDialog('Turn off your ad blocker on swordbattle.io to earn 2x gems from every game. Ads pay for servers and development.', '2x Gems')}
       style={{
         boxSizing: 'border-box',
         width: w,

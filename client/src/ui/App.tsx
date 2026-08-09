@@ -65,6 +65,7 @@ import AnnouncementsButton from './announcements/AnnouncementsButton';
 import AnnouncementsModal from './announcements/AnnouncementsModal';
 import { designerUsername, getMockProfileData, getMockProfileGames } from './profileDesigner/mockProfile';
 import { ProfileTheme, resolveProfileTheme } from './profileTheme';
+import PromptDialog, { promptDialog, showDialog } from './PromptDialog';
 
 const ProfileDesignerPanel = lazy(() => import('./profileDesigner/ProfileDesignerPanel'));
 
@@ -125,7 +126,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
   const profileTimer = useRef<any>(null);
   const [designerTheme, setDesignerTheme] = useState<ProfileTheme>(() => resolveProfileTheme(1));
   const [designerThemeName, setDesignerThemeName] = useState('My Theme');
-  const [previewSkinId, setPreviewSkinId] = useState<number | null>(null);
+  const [previewSkin, setPreviewSkin] = useState<{ id: number; viewOnly: boolean } | null>(null);
   const [previewClosing, setPreviewClosing] = useState(false);
   const previewTimer = useRef<any>(null);
   const [connectionError, setConnectionError] = useState<string>('');
@@ -332,7 +333,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
           count = 0;
           const next = !Settings.unloadSkins;
           Settings.unloadSkins = next;
-          window.alert(next ? 'unloadSkins enabled' : 'unloadSkins disabled');
+          void showDialog(next ? 'Skin unloading enabled.' : 'Skin unloading disabled.', 'Settings');
         }
       } else {
         count = 0;
@@ -918,7 +919,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
     console.log('Starting game');
     localStorage.setItem('swordbattle:hasVisited', '1');
     if(!isConnected) {
-      alert('Not connected yet');
+      void showDialog('Still connecting to a server.', 'Connection');
       return;
     }
     else  {
@@ -1003,14 +1004,35 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
   const onLogin = () => setModal(<LoginModal onSuccess={onSucessAuth} onSupport={openSupport} />);
   const onSignup = () => setModal(<SignupModal onSuccess={onSucessAuth} />);
   const onLogout = () => dispatch(logoutAsync() as any);
-  const onChangeName = () => {
-    const newName = prompt('What do you want to change your name to? Please note that you can only change your name once every 7 days.');
+  const onChangeName = async () => {
+    const newName = await promptDialog({
+      title: 'Change Name',
+      message: 'You can change your name once every 7 days.',
+      placeholder: 'New name',
+      maxLength: 20,
+      confirmLabel: 'Save',
+      validate: (value) => new Promise((resolve) => {
+        if (!value) { resolve('Enter a name.'); return; }
+        api.get(`${api.endpoint}/auth/username-available?username=${encodeURIComponent(value)}`, (data: any) => {
+          resolve(data?.available ? null : (data?.reason || 'Username is taken'));
+        });
+      }),
+    });
     if (!newName) return;
 
     dispatch(changeNameAsync(newName) as any);
   }
-  const onChangeBio = () => {
-    const newBio = prompt('What do you want your bio to be? You can change it whenever you want, but it can only be up to 100 characters long.');
+  const onChangeBio = async () => {
+    const newBio = await promptDialog({
+      title: 'Change Bio',
+      message: 'Your bio can be up to 100 characters.',
+      placeholder: 'Bio',
+      initialValue: account.bio || '',
+      maxLength: 100,
+      multiline: true,
+      confirmLabel: 'Save',
+      validate: (value) => value ? null : 'Enter a bio.',
+    });
     if (!newBio) return;
 
     dispatch(changeBioAsync(newBio) as any);
@@ -1027,15 +1049,15 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
     profileTimer.current = setTimeout(() => { setProfileUser(null); setProfileClosing(false); }, 220);
   };
 
-  const openSkinPreview = (id: number) => {
+  const openSkinPreview = (id: number, viewOnly = false) => {
     clearTimeout(previewTimer.current);
-    setPreviewSkinId(id);
+    setPreviewSkin({ id, viewOnly });
     setPreviewClosing(false);
   };
   const closeSkinPreview = () => {
     clearTimeout(previewTimer.current);
     setPreviewClosing(true);
-    previewTimer.current = setTimeout(() => { setPreviewSkinId(null); setPreviewClosing(false); }, 220);
+    previewTimer.current = setTimeout(() => { setPreviewSkin(null); setPreviewClosing(false); }, 220);
   };
 
   const openHub = (tab: HubTab) => {
@@ -1283,8 +1305,9 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
 
                     <div id="enterGame" className={`menuButton${isFirstVisit ? ' first-visit' : ''}`} onClick={() => {
                         if (accountReady && isConnected) {
-                          if (account.isLoggedIn && account.username.startsWith(".")) {alert(
-                            "Your account has been temporarily suspended due to violations of the game's rules. This restriction will be lifted soon. Please log out to play with a different account."
+                          if (account.isLoggedIn && account.username.startsWith(".")) { void showDialog(
+                            "Your account has been temporarily suspended due to violations of the game's rules. This restriction will be lifted soon. Please log out to play with a different account.",
+                            'Account suspended'
                             ); return; } (window as any)._wasInstantStart = false; onStart(); }}}>
                         {(accountReady && isConnected) ? 'Play!' : 'Connecting...'}
                     </div>
@@ -1316,7 +1339,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
               <br />
               <div className='fullWidth'>
                 <div id="adBelow">
-                 {(!needsMenuAdUnmount || (!shownModal && !profileUser && !previewSkinId)) && (
+                 {(!needsMenuAdUnmount || (!shownModal && !profileUser && !previewSkin)) && (
                    <Ad screenW={dimensions.width} screenH={dimensions.height} types={[[728, 90], [970, 90], [970, 250]]} placement="main_menu" adblockPromo />
                  )}
                 </div>
@@ -1372,10 +1395,10 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
             </Suspense>,
             document.body,
           )}
-          {previewSkinId !== null && createPortal(
+          {previewSkin !== null && createPortal(
             <Modal
               key="skinpreview-overlay"
-              child={<SkinPreviewModal skinId={previewSkinId} />}
+              child={<SkinPreviewModal skinId={previewSkin.id} viewOnly={previewSkin.viewOnly} />}
               requestClose={closeSkinPreview}
               className="modal-skinpreview"
               backdropClass="modal-backdrop-top"
@@ -1449,6 +1472,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
 
         </>
       )}
+    <PromptDialog />
     </div>
   );
 }

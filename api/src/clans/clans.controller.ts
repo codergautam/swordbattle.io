@@ -76,8 +76,8 @@ export class ClansController {
 
   @Post(':id/join')
   @Throttle({ short: { limit: 1, ttl: 1000 }, medium: { limit: 5, ttl: 60000 } })
-  async joinOrRequest(@Req() req: AccountRequest, @Param('id', ParseIntPipe) id: number) {
-    return this.clansService.joinOrRequest(req.account, id);
+  async joinOrRequest(@Req() req: AccountRequest, @Param('id', ParseIntPipe) id: number, @Body() body: { reason?: string }) {
+    return this.clansService.joinOrRequest(req.account, id, body?.reason);
   }
 
   @Post(':id/requests/:reqId/accept')

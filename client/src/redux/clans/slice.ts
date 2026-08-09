@@ -17,7 +17,7 @@ export type ClanMemberRow = {
 
 export type ClanProfile = ClanSummary & {
   members: ClanMemberRow[];
-  pendingRequests: { id: number; accountId: number; username: string; created_at: string }[];
+  pendingRequests: { id: number; accountId: number; username: string; reason: string; created_at: string }[];
 };
 
 export type ClanChatRow = {
@@ -275,8 +275,8 @@ export const createClan = (body: any) => async (dispatch: any) => {
   return res;
 };
 
-export const joinClan = (clanId: number) => async (dispatch: any) => {
-  const res = await post(`/clans/${clanId}/join`);
+export const joinClan = (clanId: number, reason?: string) => async (dispatch: any) => {
+  const res = await post(`/clans/${clanId}/join`, reason === undefined ? {} : { reason });
   if (res?.joined) {
     dispatch(setRecommended([]));
     await dispatch(fetchMyClan());

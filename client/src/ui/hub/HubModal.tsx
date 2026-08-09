@@ -30,7 +30,7 @@ const tabs: { key: HubTab; label: string; icon: React.ReactNode; color: string }
 
 const loggedInOnly: HubTab[] = ['inventory', 'rewards'];
 
-function HubModal({ account, initialTab = 'shop', onViewProfile, onPreviewSkin }: { account: any; initialTab?: HubTab; onViewProfile?: (u: string) => void; onPreviewSkin?: (id: number) => void }) {
+function HubModal({ account, initialTab = 'shop', onViewProfile, onPreviewSkin }: { account: any; initialTab?: HubTab; onViewProfile?: (u: string) => void; onPreviewSkin?: (id: number, viewOnly?: boolean) => void }) {
   const loggedIn = !!account?.isLoggedIn;
   const visibleTabs = tabs.filter((t) => loggedIn || !loggedInOnly.includes(t.key));
 

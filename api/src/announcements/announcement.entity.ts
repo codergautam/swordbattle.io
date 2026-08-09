@@ -18,4 +18,6 @@ export class Announcement {
   @Column({ default: true }) published: boolean;
 
   @Column({ default: false }) is_update: boolean;
+
+  @Column({ default: 0 }) views: number;
 }

@@ -7,6 +7,7 @@ import ultimacyRewardImg from '../../assets/img/ultimacy-reward.png';
 import twoXpRewardImg from '../../assets/img/2xp-reward.png';
 
 import './RewardsModal.scss';
+import { showDialog } from '../PromptDialog';
 
 interface RewardsModalProps {
   account: AccountState;
@@ -218,9 +219,9 @@ const RewardsModal: React.FC<RewardsModalProps> = ({ account }) => {
           const onCellClick = isNextClaim && !claiming
             ? () => handleClaim(1)
             : isClaimable
-              ? () => window.alert('Claim the previous rewards first!')
+              ? () => void showDialog('Claim the previous rewards first.', 'Daily Rewards')
               : reward.state === 'locked'
-                ? () => window.alert('This reward is locked! Check in daily to unlock more rewards.')
+                ? () => void showDialog('This reward is locked. Check in daily to unlock more rewards.', 'Daily Rewards')
                 : undefined;
 
           return (

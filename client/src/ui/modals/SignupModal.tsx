@@ -4,6 +4,7 @@ import { setAccount } from '../../redux/account/slice';
 import api from '../../api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faXmark, faSpinner, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { showDialog } from '../PromptDialog';
 
 import './SignupModal.scss';
 
@@ -52,7 +53,7 @@ function SignupModal({ onSuccess }: any) {
     api.post(`${api.endpoint}/auth/register`, { username, email, password }, (data) => {
       setIsLoading(false);
       if (data.message) {
-        window.alert(Array.isArray(data.message) ? data.message.join('\n') : data.message);
+        void showDialog(Array.isArray(data.message) ? data.message.join('\n') : data.message, 'Sign up');
       } else {
         data.account.secret = data.secret;
         dispatch(setAccount(data.account));

@@ -10,7 +10,7 @@ import SkinView from '../SkinView';
 import ModalAd from '../ModalAd';
 import { getSkinScale } from '../../game/skinScales';
 import { buyFormats, numberWithCommas, sinceFrom } from '../../helpers';
-import { Id } from '@reduxjs/toolkit/dist/tsHelpers';
+import { confirmDialog, showDialog } from '../PromptDialog';
 let { skins } = cosmetics;
 
 const basePath = 'assets/game/player/';
@@ -19,7 +19,7 @@ const RESET_HOUR = 23;
 
 interface ShopModalProps {
   account: AccountState;
-  onPreviewSkin?: (id: number) => void;
+  onPreviewSkin?: (id: number, viewOnly?: boolean) => void;
 }
 
 interface Skin {
@@ -64,13 +64,14 @@ interface SkinGridProps {
   showButton?: boolean;
   account?: AccountState;
   skinStatus?: { [id: number]: string };
-  onActionClick?: (id: number) => void;
+  onActionClick?: (id: number, viewOnly?: boolean) => void;
   showTokenPrice?: boolean;
+  buttonMode?: (skin: Skin) => 'action' | 'view' | 'none';
 }
 
 const SkinGrid: React.FC<SkinGridProps> = ({
   skins, filter, sort, searchTerm, highlightSearchTerm, skinCounts,
-  assignRef, showButton, account, skinStatus, onActionClick, showTokenPrice,
+  assignRef, showButton, account, skinStatus, onActionClick, showTokenPrice, buttonMode,
 }) => {
   const filtered = Object.values(skins)
     .filter((skinData: any) => filter(skinData as Skin))
@@ -80,6 +81,9 @@ const SkinGrid: React.FC<SkinGridProps> = ({
     <div className='skins'>
       {filtered.map((skinData: any, index) => {
         const skin = skinData as Skin;
+        const mode = buttonMode
+          ? buttonMode(skin)
+          : showButton && (skin.buyable || account?.skins?.owned?.includes(skin.id)) ? 'action' : 'none';
         return (
           <div className="skin-card" key={skin.name}>
             <h2 className="skin-name" dangerouslySetInnerHTML={{ __html: highlightSearchTerm(skin.displayName, searchTerm) }}></h2>
@@ -108,7 +112,10 @@ const SkinGrid: React.FC<SkinGridProps> = ({
               </span>
               <span className='skin-buys'>{Object.keys(skinCounts ?? {}).length > 0 ? buyFormats(skinCounts[skin.id] ?? 0) : '...'} buys</span>
             </div>
-            {showButton && (skin.buyable || account?.skins?.owned?.includes(skin.id)) && (() => {
+            {mode === 'view' && (
+              <button className="buy-button" onClick={() => onActionClick?.(skin.id, true)}>View</button>
+            )}
+            {mode === 'action' && (() => {
               const owned = !!account?.skins?.owned?.includes(skin.id);
               const equipped = account?.skins?.equipped === skin.id;
               const price = skin.price ?? 0;
@@ -137,6 +144,10 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
   const [selectedBadge, setSelectedBadge] = useState('norm');
   const [shopDayKey, setShopDayKey] = useState<string>(() => getShopDayKey());
   const [timeUntilResetMs, setTimeUntilResetMs] = useState<number>(() => msUntilNextReset());
+  const [showAllSkins, setShowAllSkins] = useState(false);
+  const [showUltimate, setShowUltimate] = useState(Settings.showUltimate);
+  const [showEvent, setShowEvent] = useState(Settings.showEvent);
+  const [allSkinSort, setAllSkinSort] = useState('price-low');
 
   const skinRefs = useRef<(HTMLImageElement | null)[]>(new Array(Object.keys(skins).length).fill(null));
   // const swordRefs = useRef<(HTMLImageElement | null)[]>(new Array(Object.keys(skins).length).fill(null));
@@ -154,13 +165,13 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
     return account?.isLoggedIn && account?.username?.startsWith(".");
   }
 
-  function handleActionClick(id: number) {
-    if (onPreviewSkin) { onPreviewSkin(id); return; }
+  async function handleActionClick(id: number, viewOnly = false) {
+    if (onPreviewSkin) { onPreviewSkin(id, viewOnly); return; }
     // If there is action already happening, don't do anything
     if (skinStatus[id]) return;
 
     if (accountHasBan() && account.skins.equipped !== id && account.skins.owned.includes(id)) {
-      alert("Skins cannot be equipped");
+      await showDialog('Skins cannot be equipped.');
       return;
     }
 
@@ -170,10 +181,10 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
     if (!owned) {
       if (skinObj?.ultimate && skinObj?.original && !account.skins.owned.includes(skinObj.original)) {
         const orig: any = Object.values(skins).find((s: any) => s.id === skinObj.original);
-        alert(`You need to own the "${orig?.displayName ?? 'original'}" skin before you can unlock the "${skinObj?.displayName ?? 'this'}" skin!`);
+        await showDialog(`You need to own the "${orig?.displayName ?? 'original'}" skin before you can unlock the "${skinObj?.displayName ?? 'this'}" skin!`);
         return;
       }
-      if (!window.confirm(`Do you want to ${skinObj?.ultimate ? 'unlock' : 'buy'} the "${skinObj?.displayName ?? 'this'}" skin?`)) return;
+      if (!await confirmDialog(`Do you want to ${skinObj?.ultimate ? 'unlock' : 'buy'} the "${skinObj?.displayName ?? 'this'}" skin?`, 'Confirm purchase', skinObj?.ultimate ? 'Unlock' : 'Buy')) return;
     }
 
     const skinAction = account.skins.equipped === id ? null :
@@ -184,7 +195,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
 
       const apiPath = skinAction === 'Equipping...' ? '/equip/' : '/buy/';
       api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${id}`, null, (data) => {
-        if (data.error) alert(data.error);
+        if (data.error) void showDialog(data.error, 'Shop');
         dispatch(updateAccountAsync() as any);
         setSkinStatus(prev => ({ ...prev, [id]: '' }));
       });
@@ -232,7 +243,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
 
     // Fetch skin counts
     api.get(`${api.endpoint}/profile/skins/buys?${Date.now()}`, (data) => {
-      if (data.error) return alert('Error fetching skin cnts '+ data.error);
+      if (data.error) { void showDialog('Could not fetch skin counts.', 'Shop'); return; }
       setSkinCounts(data);
     });
 
@@ -327,7 +338,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
     // Fetch buy counts
     const fetchBuyCounts = () => {
       api.get(`${api.endpoint}/profile/skins/buys?${Date.now()}`, (data) => {
-        if (data.error) return alert('Error fetching skin cnts '+ data.error);
+        if (data.error) { void showDialog('Could not fetch skin counts.', 'Shop'); return; }
         setSkinCounts(data);
       });
     };
@@ -362,6 +373,62 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
       clearTimeout(timeoutId);
     };
   }, []);
+
+  const updateShowUltimate = (value: boolean) => {
+    setShowUltimate(value);
+    Settings.showUltimate = value;
+  };
+  const updateShowEvent = (value: boolean) => {
+    setShowEvent(value);
+    Settings.showEvent = value;
+  };
+  const sortAllSkins = (a: Skin, b: Skin) => {
+    switch (allSkinSort) {
+      case 'price-high': return (b.price ?? 0) - (a.price ?? 0);
+      case 'buys': return (skinCounts[b.id] ?? 0) - (skinCounts[a.id] ?? 0);
+      case 'name-az': return a.displayName.localeCompare(b.displayName);
+      case 'name-za': return b.displayName.localeCompare(a.displayName);
+      default: return (a.price ?? 0) - (b.price ?? 0);
+    }
+  };
+
+  if (showAllSkins) {
+    return (
+      <div className="shop-modal all-skins-modal">
+        <div className="shop-extra">
+          <div className="shop-headrow"><h1 className="shop-title">All Skins</h1></div>
+          <div className="badges">
+            <button onClick={() => setShowAllSkins(false)}>Back to Shop</button>
+            <label className="settings-line"><span>Show Ultimate Skins</span><input type="checkbox" checked={showUltimate} onChange={(e) => updateShowUltimate(e.target.checked)} /></label>
+            <label className="settings-line"><span>Show Event Skins</span><input type="checkbox" checked={showEvent} onChange={(e) => updateShowEvent(e.target.checked)} /></label>
+            <label className="settings-line"><span>Sort by</span>
+              <select value={allSkinSort} onChange={(e) => setAllSkinSort(e.target.value)}>
+                <option value="price-low">Price: low to high</option>
+                <option value="price-high">Price: high to low</option>
+                <option value="buys">Most buys</option>
+                <option value="name-az">Name: A to Z</option>
+                <option value="name-za">Name: Z to A</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div className="scroll">
+          <SkinGrid
+            skins={skins}
+            filter={(skin) => !skin.og && !skin.currency && (showUltimate || !skin.ultimate) && (showEvent || (!skin.event && !skin.eventoffsale))}
+            sort={sortAllSkins}
+            searchTerm=""
+            highlightSearchTerm={highlightSearchTerm}
+            skinCounts={skinCounts}
+            assignRef={assignRef}
+            buttonMode={() => 'view'}
+            onActionClick={(id) => onPreviewSkin?.(id, true)}
+            showTokenPrice
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="shop-modal">
@@ -402,10 +469,8 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
           skins={skins}
           filter={(skin) => {
             if (skin.og) return false;
-            if (skin.eventoffsale) return false;
-            if (skin.price === 0) return false;
-            if (skin.description?.includes("Given")) return false;
             if (skin.currency) return false;
+            if (!todaysGlobalSkinList?.includes(skin.id) && !skin.eventoffsale) return false;
             return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
           }}
           sort={(a, b) => (a.price ?? 0) - (b.price ?? 0)}
@@ -413,6 +478,10 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
           highlightSearchTerm={highlightSearchTerm}
           skinCounts={skinCounts}
           assignRef={assignRef}
+          buttonMode={(skin) => skin.eventoffsale || !skin.buyable ? 'view' : 'action'}
+          account={account}
+          skinStatus={skinStatus}
+          onActionClick={handleActionClick}
           showTokenPrice={false}
         />
       <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
@@ -455,6 +524,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
           account={account}
           skinStatus={skinStatus}
           onActionClick={handleActionClick}
+          buttonMode={(skin) => skin.eventoffsale || !skin.buyable ? 'view' : 'action'}
           showTokenPrice={false}
         />
       <br /><br /><br /><br /><br /><br /><br /><br />
@@ -509,8 +579,10 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
           account={account}
           skinStatus={skinStatus}
           onActionClick={handleActionClick}
+          buttonMode={(skin) => skin.eventoffsale || !skin.buyable ? 'view' : 'action'}
           showTokenPrice
         />
+        <button className="view-all-skins" onClick={() => setShowAllSkins(true)}>View All Skins</button>
       <br /><br /><br /><br /><br /><br /><br /><br />
       </div>
           </>

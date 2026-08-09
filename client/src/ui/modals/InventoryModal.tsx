@@ -10,6 +10,7 @@ import SkinView from '../SkinView';
 import { getSkinScale } from '../../game/skinScales';
 import { buyFormats, numberWithCommas, sinceFrom } from '../../helpers';
 import { Id } from '@reduxjs/toolkit/dist/tsHelpers';
+import { confirmDialog, showDialog } from '../PromptDialog';
 let { skins } = cosmetics;
 
 const basePath = 'assets/game/player/';
@@ -188,12 +189,12 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account, onPreviewSkin 
     return account?.isLoggedIn && account?.username?.startsWith(".");
   }
 
-  function handleActionClick(id: number) {
+  async function handleActionClick(id: number) {
     if (onPreviewSkin) { onPreviewSkin(id); return; }
     if (skinStatus[id]) return;
 
     if (accountHasBan() && equippedSkinId !== id && account.skins.owned.includes(id)) {
-      alert("Skins cannot be equipped");
+      await showDialog('Skins cannot be equipped.');
       return;
     }
 
@@ -205,10 +206,10 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account, onPreviewSkin 
     if (!isOwned) {
       if (skinObj?.ultimate && skinObj?.original && !account.skins.owned.includes(skinObj.original)) {
         const orig: any = Object.values(skins).find((s: any) => s.id === skinObj.original);
-        alert(`You need to own the "${orig?.displayName ?? 'original'}" skin before you can unlock the "${skinObj?.displayName ?? 'this'}" skin!`);
+        await showDialog(`You need to own the "${orig?.displayName ?? 'original'}" skin before you can unlock the "${skinObj?.displayName ?? 'this'}" skin!`);
         return;
       }
-      if (!window.confirm(`Do you want to ${skinObj?.ultimate ? 'unlock' : 'buy'} the "${skinObj?.displayName ?? 'this'}" skin?`)) return;
+      if (!await confirmDialog(`Do you want to ${skinObj?.ultimate ? 'unlock' : 'buy'} the "${skinObj?.displayName ?? 'this'}" skin?`, 'Confirm purchase', skinObj?.ultimate ? 'Unlock' : 'Buy')) return;
     }
 
     const actionText = isOwned ? 'Equipping...' : 'Getting...';
@@ -224,7 +225,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account, onPreviewSkin 
     const apiPath = isOwned ? '/equip/' : '/buy/';
     api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${id}`, null, (data) => {
       if (data.error) {
-        alert(data.error);
+        void showDialog(data.error, 'Inventory');
         setSkinStatus(prev => {
           const copy = { ...prev };
           delete copy[id];
@@ -283,7 +284,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account, onPreviewSkin 
 
     // Fetch skin counts
       api.get(`${api.endpoint}/profile/skins/buys?${Date.now()}`, (data) => {
-        if (data.error) return alert('Error fetching skin cnts '+ data.error);
+        if (data.error) { void showDialog('Could not fetch skin counts.', 'Inventory'); return; }
         setSkinCounts(data);
       });
 
@@ -410,13 +411,8 @@ const InventoryModal: React.FC<InventoryModalProps> = ({ account, onPreviewSkin 
         <SkinGrid
           skins={skins}
           filter={(skin) => {
-            if (skin.eventoffsale) return false;
             if (skin.currency) return false;
             if (!account?.skins.owned.includes(skin.id)) return false;
-            if (!Settings.showUltimate && skin.ultimate) return false;
-            if (!Settings.showEvent && skin.event) return false;
-            if (!Settings.showEvent && skin.eventoffsale) return false;
-            if (!Settings.showOG && skin.og) return false;
             return skin.displayName.toLowerCase().includes(searchTerm.toLowerCase());
           }}
           sort={sortSkins}

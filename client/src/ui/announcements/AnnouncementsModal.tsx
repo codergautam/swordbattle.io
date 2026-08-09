@@ -104,7 +104,7 @@ function AnnouncementsModal({ initialId = null }: { initialId?: number | null })
                     <span className="an-row-title-text">{a.title}</span>
                     {a.isUpdate && <span className="an-chip">Update</span>}
                   </span>
-                  <span className="an-row-date">{formatAnnouncementDate(a.createdAt)}</span>
+                  <span className="an-row-date">{formatAnnouncementDate(a.createdAt)} ({a.views || 0} views)</span>
                 </span>
                 <FontAwesomeIcon icon={faChevronRight} className="an-chev" />
               </button>
@@ -122,7 +122,7 @@ function AnnouncementsModal({ initialId = null }: { initialId?: number | null })
                     <span className="an-article-title">{shown.title}</span>
                     {shown.isUpdate && <span className="an-chip">Update</span>}
                   </h1>
-                  <span className="an-row-date">{formatAnnouncementDate(shown.createdAt)}</span>
+                  <span className="an-row-date">{formatAnnouncementDate(shown.createdAt)} ({shown.views || 0} views)</span>
                 </div>
                 <button className="an-copy" onClick={() => copyLink(shown.id)} title="Copy link to this announcement">
                   <FontAwesomeIcon icon={copied ? faCheck : faLink} /> {copied ? 'Copied!' : 'Copy link'}

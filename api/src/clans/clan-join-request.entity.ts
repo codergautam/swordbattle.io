@@ -18,6 +18,8 @@ export class ClanJoinRequest {
 
   @CreateDateColumn() created_at: Date;
 
+  @Column({ type: 'varchar', length: 300, default: '' }) reason: string;
+
   @Index()
   @Column() clanId: number;
 

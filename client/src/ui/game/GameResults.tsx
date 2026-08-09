@@ -6,6 +6,7 @@ import { useScale } from '../Scale';
 import PlayAgainImg from '../../assets/img/play-again.png';
 import HomeImg from '../../assets/img/home.png';
 import gemRewardImg from '../../assets/img/gem-reward.png';
+import { showDialog } from '../PromptDialog';
 import './GameResults.scss';
 import { DisconnectTypes } from '../../game/Types';
 import { calculateGemsXP, playVideoAd, playRewardedAd, isAdBlockActive, isAdsenseProvider, armAdsenseReward } from '../../helpers';
@@ -347,7 +348,7 @@ function GameResults({ onHome, results, game, isLoggedIn, adElement }: any) {
             <button
               type="button"
               className="double-gems-btn double-gems-adblock"
-              onClick={() => window.alert('Turn off your ad blocker on swordbattle.io to claim this offer!\n\nAds are how we pay for the servers and support is greatly appreciated. Thanks for playing!')}
+              onClick={() => void showDialog('Turn off your ad blocker on swordbattle.io to claim this offer. Ads pay for servers and development.', '2x Gems')}
             >
               <img className="dg-icon" src={gemRewardImg} alt="" />
               <span>Disable adblocker for 2&#215; Gems</span>

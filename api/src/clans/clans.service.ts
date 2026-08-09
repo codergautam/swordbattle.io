@@ -374,7 +374,7 @@ export class ClansService {
   }
 
 
-  async joinOrRequest(account: Account, clanId: number) {
+  async joinOrRequest(account: Account, clanId: number, requestReason?: string) {
     this.requireXpEligible(account);
     if (await this.getMembership(account.id)) {
       throw new ConflictException('You are already in a clan');
@@ -408,7 +408,8 @@ export class ClansService {
       if (existing) {
         throw new ConflictException('You already have a pending request for this clan');
       }
-      const req = this.requests.create({ clanId, accountId: account.id });
+      const reason = typeof requestReason === 'string' ? requestReason.trim().slice(0, 300) : '';
+      const req = this.requests.create({ clanId, accountId: account.id, reason });
       await this.requests.save(req);
       return { requested: true };
     }
@@ -848,16 +849,17 @@ export class ClansService {
     };
     memberSummaries.sort(sortFns[sort] ?? sortFns.xp);
 
-    let pendingRequests: { id: number; accountId: number; username: string; created_at: Date }[] = [];
+    let pendingRequests: { id: number; accountId: number; username: string; reason: string; created_at: Date }[] = [];
     const reqRows: any[] = await this.requests.createQueryBuilder('r')
       .leftJoin('r.account', 'a')
-      .select(['r.id AS id', 'r.accountId AS "accountId"', 'a.username AS username', 'r.created_at AS "created_at"'])
+      .select(['r.id AS id', 'r.accountId AS "accountId"', 'a.username AS username', 'r.reason AS reason', 'r.created_at AS "created_at"'])
       .where('r.clanId = :id', { id: clanId })
       .getRawMany();
     pendingRequests = reqRows.map((r) => ({
       id: Number(r.id),
       accountId: Number(r.accountId),
       username: r.username,
+      reason: r.reason || '',
       created_at: new Date(r.created_at),
     }));
 

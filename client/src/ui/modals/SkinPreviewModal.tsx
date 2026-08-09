@@ -5,6 +5,7 @@ import { updateAccountAsync } from '../../redux/account/slice';
 import api from '../../api';
 import { getSkinScale } from '../../game/skinScales';
 import { withAssetVersion } from '../../assetVersion';
+import { confirmDialog, showDialog } from '../PromptDialog';
 import './SkinPreviewModal.scss';
 
 const { skins } = cosmetics as any;
@@ -184,7 +185,7 @@ function SkinPreviewStage({ body, sword, scale, bg, evo }: { body: string; sword
   );
 }
 
-export default function SkinPreviewModal({ skinId }: { skinId: number }) {
+export default function SkinPreviewModal({ skinId, viewOnly = false }: { skinId: number; viewOnly?: boolean }) {
   const account = useSelector((s: any) => s.account);
   const dispatch = useDispatch();
   const [status, setStatus] = useState('');
@@ -228,21 +229,21 @@ export default function SkinPreviewModal({ skinId }: { skinId: number }) {
   const buttonState = equipped ? 'equipped' : owned ? 'owned' : afford ? 'afford' : 'cantafford';
   const buttonLabel = status || (equipped ? 'Equipped' : owned ? 'Equip' : isUlt ? 'Unlock' : (price > 0 ? 'Buy' : 'Get'));
 
-  function commit() {
+  async function commit() {
     if (status || equipped || !isLoggedIn) return;
-    if (account?.username?.startsWith('.') && owned) { alert('Skins cannot be equipped'); return; }
+    if (account?.username?.startsWith('.') && owned) { await showDialog('Skins cannot be equipped.'); return; }
     if (!owned) {
       if (isUlt && skin.original && !ownsOriginal) {
-        alert(`You need to own the "${original?.displayName ?? 'original'}" skin before you can unlock the "${skin.displayName}" skin!`);
+        await showDialog(`You need to own the "${original?.displayName ?? 'original'}" skin before you can unlock the "${skin.displayName}" skin!`);
         return;
       }
-      if (!window.confirm(`Do you want to ${isUlt ? 'unlock' : 'buy'} the "${skin.displayName}" skin?`)) return;
+      if (!await confirmDialog(`Do you want to ${isUlt ? 'unlock' : 'buy'} the "${skin.displayName}" skin?`, 'Confirm purchase', isUlt ? 'Unlock' : 'Buy')) return;
     }
     const action = owned ? 'Equipping...' : (isUlt ? 'Unlocking...' : 'Buying...');
     setStatus(action);
     const apiPath = owned ? '/equip/' : '/buy/';
     api.post(`${api.endpoint}/profile/cosmetics/skins${apiPath}${skinId}`, null, (data: any) => {
-      if (data?.error) alert(data.error);
+      if (data?.error) void showDialog(data.error, 'Skin preview');
       dispatch(updateAccountAsync() as any);
       setStatus('');
     });
@@ -339,7 +340,9 @@ export default function SkinPreviewModal({ skinId }: { skinId: number }) {
               )}
             </div>
 
-            {isLoggedIn ? (
+            {viewOnly ? (
+              <span className="sp-login-note">View only</span>
+            ) : isLoggedIn ? (
               <button className={`sp-buy buy-${buttonState}`} onClick={commit} disabled={equipped || !!status}>
                 {buttonLabel}
               </button>

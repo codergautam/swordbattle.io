@@ -8,6 +8,7 @@ export type AnnouncementSummary = {
   color: string;
   isUpdate: boolean;
   createdAt: string;
+  views: number;
 };
 
 export type AnnouncementFull = AnnouncementSummary & { body: string };

@@ -8,10 +8,25 @@
  * against the original stays under RMSE_MAX. Transparent pixels are excluded
  * so alpha ringing doesn't fail an otherwise clean image. Originals are never
  * touched - the loader falls back to them if a .webp is missing.
+ *
+ * Requires sharp, which is deliberately NOT a dependency of this package: the
+ * generated .webp files are committed, so this only runs when assets change.
+ * Listing it pulled a ~50MB native binary into every CI install and pinned the
+ * whole project to sharp's Node engine range. Install it on demand instead:
+ *
+ *   npm i --no-save sharp
  */
 const fs = require('fs');
 const path = require('path');
-const sharp = require('sharp');
+
+let sharp;
+try {
+  sharp = require('sharp');
+} catch (e) {
+  console.error('This script needs sharp, which is not installed by default.\n');
+  console.error('  cd client && npm i --no-save sharp\n');
+  process.exit(1);
+}
 
 const ASSETS = path.join(__dirname, '..', 'public', 'assets');
 const RMSE_MAX = 5;

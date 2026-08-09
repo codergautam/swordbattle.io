@@ -1,6 +1,6 @@
 import { EntityDepth } from '.';
 import { isObject, mergeDeepInto } from '../../helpers';
-import { EntityTypes, ShapeTypes } from '../Types';
+import { ShapeTypes } from '../Types';
 import { Shape, ShapeType } from '../physics/Shape';
 import { Health } from '../components/Health';
 import { Settings } from '../Settings';
@@ -41,7 +41,6 @@ export class BaseEntity {
   shape!: ShapeType;
   container: any = null;
   healthBar?: Health;
-  hitboxGraphics?: Phaser.GameObjects.Graphics;
   removed: boolean = false;
   hidden: boolean = false;
   depth = 0;
@@ -249,48 +248,7 @@ export class BaseEntity {
     }
     this.updateRotation(dt);
     this.updateWorldDepth();
-    this.updateHitbox();
     this.healthBar?.update(dt);
-  }
-
-  private updateHitbox() {
-    const isSword = this.type === EntityTypes.Sword
-      || this.type === EntityTypes.ThrownSword
-      || this.type === EntityTypes.SwordProj;
-    if (this.type !== EntityTypes.Player && !isSword) return;
-
-    if (!Settings.showHitboxes) {
-      if (this.hitboxGraphics) this.hitboxGraphics.setVisible(false);
-      return;
-    }
-
-    if (!this.hitboxGraphics) {
-      this.hitboxGraphics = this.game.add.graphics();
-    }
-
-    const graphics = this.hitboxGraphics;
-    graphics.clear();
-    graphics.setVisible(true);
-    graphics.setDepth((EntityDepth[this.type] || 0) + 0.1);
-    graphics.lineStyle(4, this.type === EntityTypes.Player ? 0x00ff88 : 0xff4d4d, 0.9);
-
-    if (this.shape.type === ShapeTypes.Circle) {
-      graphics.strokeCircle(this.container.x, this.container.y, this.shape.radius);
-      return;
-    }
-
-    if (this.shape.type === ShapeTypes.Polygon && this.shape.points.length) {
-      const offsetX = this.container.x - this.shape.x;
-      const offsetY = this.container.y - this.shape.y;
-      graphics.beginPath();
-      graphics.moveTo(this.shape.x + this.shape.points[0].x + offsetX, this.shape.y + this.shape.points[0].y + offsetY);
-      for (let i = 1; i < this.shape.points.length; i++) {
-        const point = this.shape.points[i];
-        graphics.lineTo(this.shape.x + point.x + offsetX, this.shape.y + point.y + offsetY);
-      }
-      graphics.closePath();
-      graphics.strokePath();
-    }
   }
 
   updateRotation(dt?: number) {
@@ -341,11 +299,6 @@ export class BaseEntity {
         if (this.healthBar && typeof this.healthBar.destroy === 'function') {
           this.healthBar.destroy();
           this.healthBar = undefined;
-        }
-
-        if (this.hitboxGraphics) {
-          this.hitboxGraphics.destroy();
-          this.hitboxGraphics = undefined;
         }
 
         if (this.container) {

@@ -7,7 +7,7 @@ import './SettingsModal.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faGear, faImage, faCoins,
-  faVectorSquare, faExpand, faComment, faArrowsUpDownLeftRight, faVolumeHigh, faVideo, faRectangleAd, faCrosshairs,
+  faVectorSquare, faExpand, faComment, faArrowsUpDownLeftRight, faVolumeHigh, faVideo, faRectangleAd,
 } from '@fortawesome/free-solid-svg-icons';
 
 const isBasicLaunch = typeof window !== 'undefined' && !!(window as any)._isCrazyGamesBasicLaunch;
@@ -38,7 +38,6 @@ function SettingsModal() {
   const [resolution, setResolution] = useState(Settings.resolution);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
   const [cameraFollowsMouse, setCameraFollowsMouse] = useState(Settings.cameraFollowsMouse);
-  const [showHitboxes, setShowHitboxes] = useState(Settings.showHitboxes);
   const [sound, setSound] = useState(Settings.sound);
   const chatForceDisabled = isChatForceDisabled();
   const [enableChat, setEnableChat] = useState(chatForceDisabled ? false : Settings.enableChat);
@@ -51,7 +50,6 @@ function SettingsModal() {
   const updateResolution = (v: any) => { setResolution(v); Settings.resolution = Number(v); };
   const updateMovementMode = (v: any) => { setMovementMode(v); Settings.movementMode = v; };
   const updateCameraFollowsMouse = (v: boolean) => { setCameraFollowsMouse(v); Settings.cameraFollowsMouse = v; };
-  const updateShowHitboxes = (v: boolean) => { setShowHitboxes(v); Settings.showHitboxes = v; };
   const updateSound = (v: any) => { setSound(v); Settings.sound = v; };
   const updateEnableChat = (v: boolean) => {
     if (chatForceDisabled) return;
@@ -126,10 +124,6 @@ function SettingsModal() {
         <div className="settings-line">
           <span className="s-label"><FontAwesomeIcon icon={faVideo} className="s-icon" /> Camera follows cursor</span>
           <Toggle checked={cameraFollowsMouse} onChange={updateCameraFollowsMouse} />
-        </div>
-        <div className="settings-line">
-          <span className="s-label"><FontAwesomeIcon icon={faCrosshairs} className="s-icon" /> Show player and sword hitboxes</span>
-          <Toggle checked={showHitboxes} onChange={updateShowHitboxes} />
         </div>
         <div className="settings-line">
           <span className="s-label"><FontAwesomeIcon icon={faVolumeHigh} className="s-icon" /> Sound</span>

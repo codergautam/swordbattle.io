@@ -182,11 +182,6 @@ export const settingsList: Record<string, SettingType> = {
     type: 'toggle',
     default: false,
   },
-  showHitboxes: {
-    name: 'Show player and sword hitboxes',
-    type: 'toggle',
-    default: false,
-  },
   moreAds: {
     name: 'More ads',
     type: 'toggle',

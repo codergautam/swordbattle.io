@@ -197,7 +197,7 @@ const autoObjects = {
     { type: 'Chimera', amount: Math.round(a / 22e6), position: 'random', respawnable: true, size: [70, 120] },
     { type: 'IceSpirit', amount: Math.round(a / 28e6), position: 'random', respawnable: true, size: [70, 110], skin: 1 },
     { type: 'Ore', amount: Math.round(a / 7.0e6), position: 'random', respawnable: true, respawnTime: [45, 120], skin: 1 },
-    { type: 'Roku', amount: 1, position: 'center', offset: [0, -2400], respawnable: true, respawnTime: [60 * 10, 60 * 15], size: [500, 600], health: 250, isBoss: true, damage: 8, rotationSpeed: 5, fireballSize: 100 },
+    { type: 'Roku', amount: 1, position: 'center', offset: [0, -2400], respawnable: true, respawnTime: [60 * 10, 60 * 15], size: [500, 600], health: 500, isBoss: true, damage: 8, rotationSpeed: 5, fireballSize: 100 },
     { type: 'IceSpirit', amount: 1, position: 'center', offset: [0, 2400], respawnable: true, respawnTime: [60 * 8, 60 * 14], size: 200, health: 250, isBoss: true, skin: 1 },
   ],
 
@@ -212,7 +212,7 @@ const autoObjects = {
     { type: 'Wolf', amount: Math.round(a / 28e6), position: 'random', respawnable: true, size: [85, 105] },
     { type: 'IceSpirit', amount: Math.round(a / 55e6), position: 'random', respawnable: true, size: [70, 100] },
     { type: 'Ore', amount: Math.round(a / 7.0e6), position: 'random', respawnable: true, respawnTime: [45, 120], skin: 4 },
-    { type: 'Yeti', amount: 1, position: 'random', respawnable: true, respawnTime: [60 * 7, 60 * 17], size: [300, 400], health: 200, isBoss: true, damage: 1.0, speed: 20 },
+    { type: 'Yeti', amount: 1, position: 'random', respawnable: true, respawnTime: [60 * 7, 60 * 17], size: [300, 400], health: 400, isBoss: true, damage: 1.0, speed: 20 },
   ],
 
   Alpine: (a) => [
@@ -278,7 +278,7 @@ const autoObjects = {
     { type: 'Moose', amount: Math.round(a / 28e6), position: 'random', respawnable: true, size: [180, 230], skin: 1 },
     { type: 'Wolf', amount: Math.round(a / 22e6), position: 'random', respawnable: true, size: [45, 60], skin: 1 },
     { type: 'Ore', amount: Math.round(a / 8.0e6), position: 'random', respawnable: true, respawnTime: [45, 120], skin: 2 },
-    { type: 'Sphinx', amount: 1, position: 'random', respawnable: true, respawnTime: [60 * 6, 60 * 14], size: [220, 280], health: 250, isBoss: true, damage: 6, sandBlockSize: 100, sandBallSize: 80 },
+    { type: 'Sphinx', amount: 1, position: 'random', respawnable: true, respawnTime: [60 * 6, 60 * 14], size: [220, 280], health: 400, isBoss: true, damage: 6, sandBlockSize: 100, sandBallSize: 80 },
     { type: 'AmbientShrub', kind: 'rock', amount: Math.round(a / 3e6), position: 'random', size: [40, 85] },
     { type: 'AmbientShrub', kind: 'rock', style: 'desert', amount: Math.round(a / 3e6), position: 'random', size: [40, 85] },
   ],

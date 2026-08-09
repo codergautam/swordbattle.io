@@ -1,1 +1,7 @@
 node_modules/
+
+# The server is a yarn project (server/yarn.lock). A stray `pnpm install` leaves
+# a second, competing lockfile plus a pnpm-workspace.yaml behind; neither should
+# ever be committed. Delete them locally if present.
+pnpm-lock.yaml
+pnpm-workspace.yaml

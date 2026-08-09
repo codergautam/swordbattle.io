@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Phaser from '../../game/engine';
 import config from '../../game/PhaserConfig';
 import Leaderboard from './Leaderboard';
@@ -60,9 +60,15 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
       window.removeEventListener('adinplayLoadStateChanged', updateBlocked);
     };
   }, [moreAds]);
+  const gameRef = useRef<any>(null);
+
   useEffect(() => {
-    if (!game) {
-      let gameplayStartCalled = false;
+    // Guard on the ref, not the `game` prop: the prop is captured from the
+    // render that created this effect, so after a remount it still holds the
+    // instance we just destroyed and the game would never be rebuilt.
+    if (!gameRef.current) {
+      // The SDK owns session state and is idempotent, so we only track the
+      // pending instant-start delay here.
       let gameplayDelayTimer: any = null;
 
       const stopGameplay = () => {
@@ -70,21 +76,18 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
           clearTimeout(gameplayDelayTimer);
           gameplayDelayTimer = null;
         }
-        if (gameplayStartCalled) crazygamesSDK.gameplayStop();
-        gameplayStartCalled = false;
+        crazygamesSDK.gameplayStop();
       };
 
       const startGameplay = () => {
-        if (gameplayStartCalled || gameplayDelayTimer) return;
+        if (gameplayDelayTimer) return;
         if ((window as any)._wasInstantStart) {
           gameplayDelayTimer = setTimeout(() => {
-            crazygamesSDK.gameplayStart();
-            gameplayStartCalled = true;
             gameplayDelayTimer = null;
+            crazygamesSDK.gameplayStart();
           }, managems);
         } else {
           crazygamesSDK.gameplayStart();
-          gameplayStartCalled = true;
         }
       };
 
@@ -92,9 +95,11 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         ...config,
         parent: 'phaser-container',
       });
+      gameRef.current = game;
       setGame(game);
       window.phaser_game = game;
 
+      game.events.on('connected', onGameReady);
       game.events.on('gameReady', onGameReady);
       game.events.on('connectionClosed', onConnectionClosed);
       game.events.on('connectionClosed', () => {
@@ -102,7 +107,10 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         trackRunEndDeferred('server_disconnect');
       });
       game.events.on('setGameResults', (results: any) => {
-        stopGameplay();
+        // Death does NOT end the CrazyGames gameplay session. The results /
+        // respawn screen is part of the .io loop, so it keeps counting as
+        // playtime; the SDK only pauses for ads, a hidden tab, or idle-out.
+        if (results) crazygamesSDK.gameplayEnterResults();
         setGameResults(results);
         setPlaying(false);
       });
@@ -132,6 +140,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         }
         game.destroy(true);
         window.phaser_game = undefined;
+        gameRef.current = null;
         setGame(null);
       };
     }

@@ -97,6 +97,8 @@ class Socket {
     });
     this.socket.addEventListener('close', (event: CloseEvent) => {
       clearTimeout(connectTimer);
+      // A superseded socket must never tear down the connection that replaced it.
+      if (this.socket !== ws) return;
       if(this.debugMode) {
         alert('Connection closed: ' + event.code + ' ' + event.reason);
       }
@@ -105,6 +107,9 @@ class Socket {
     });
     this.socket.addEventListener('message', (message: any) => {
       if (typeof message.data === 'string') return;
+      // Drop frames from a socket we've already moved on from — its GameState
+      // and display objects may already be destroyed.
+      if (this.socket !== ws) return;
 
       this.syncDecode(message.data);
     });
@@ -128,6 +133,9 @@ class Socket {
   }
 
   close() {
+    // Drop the handler first: it holds the GameState, whose entities may be
+    // destroyed moments from now.
+    this.onMessage = null;
     if (this.socket) {
       this.socket.close(1000);
       this.socket = null;

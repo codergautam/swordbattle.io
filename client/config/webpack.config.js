@@ -274,6 +274,12 @@ module.exports = function (webpackEnv) {
               // Pending further investigation:
               // https://github.com/terser-js/terser/issues/120
               inline: 2,
+              // Players should not see the boot/loader/CrazyGames chatter. This
+              // strips console.log/debug/info calls from production builds only -
+              // dev keeps everything. warn and error survive on purpose.
+              // The ?boottiming and ?loaderdebug tools call console through an
+              // alias so they keep working in prod; see src/bootTiming.ts.
+              pure_funcs: ['console.log', 'console.debug', 'console.info', 'console.time', 'console.timeEnd'],
             },
             mangle: {
               safari10: true,

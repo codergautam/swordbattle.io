@@ -6,9 +6,19 @@
       "hash": "e75d32d0df"
     },
     {
+      "file": "alpine.webp",
+      "displayName": "Alpine",
+      "hash": "de1e0eb2e3"
+    },
+    {
       "file": "ash.png",
       "displayName": "Ash",
       "hash": "10f4e34aa5"
+    },
+    {
+      "file": "ash.webp",
+      "displayName": "Ash",
+      "hash": "945e60ab98"
     },
     {
       "file": "classic.png",
@@ -16,9 +26,19 @@
       "hash": "ffc4b705b8"
     },
     {
+      "file": "classic.webp",
+      "displayName": "Classic",
+      "hash": "ce080a0d2a"
+    },
+    {
       "file": "grass.png",
       "displayName": "Grass",
       "hash": "9c2d58bc15"
+    },
+    {
+      "file": "grass.webp",
+      "displayName": "Grass",
+      "hash": "35a9b5e3d3"
     },
     {
       "file": "ice.png",
@@ -26,9 +46,19 @@
       "hash": "f3d9c79afb"
     },
     {
+      "file": "ice.webp",
+      "displayName": "Ice",
+      "hash": "283a5625db"
+    },
+    {
       "file": "lava.png",
       "displayName": "Lava",
       "hash": "92a5210995"
+    },
+    {
+      "file": "lava.webp",
+      "displayName": "Lava",
+      "hash": "f5748df874"
     },
     {
       "file": "loading.png",
@@ -36,9 +66,19 @@
       "hash": "78963ceb14"
     },
     {
+      "file": "loading.webp",
+      "displayName": "Loading",
+      "hash": "5ccddc96ca"
+    },
+    {
       "file": "river.png",
       "displayName": "River",
       "hash": "3fa7b6190f"
+    },
+    {
+      "file": "river.webp",
+      "displayName": "River",
+      "hash": "e7e1905c0a"
     },
     {
       "file": "rock.png",
@@ -46,9 +86,19 @@
       "hash": "2fd10e5395"
     },
     {
+      "file": "rock.webp",
+      "displayName": "Rock",
+      "hash": "c6569318c0"
+    },
+    {
       "file": "sand.png",
       "displayName": "Sand",
       "hash": "0e753ef23b"
+    },
+    {
+      "file": "sand.webp",
+      "displayName": "Sand",
+      "hash": "c19d79146c"
     },
     {
       "file": "savanna.png",
@@ -56,9 +106,19 @@
       "hash": "683b482260"
     },
     {
+      "file": "savanna.webp",
+      "displayName": "Savanna",
+      "hash": "aa5e24afe6"
+    },
+    {
       "file": "snow.png",
       "displayName": "Snow",
       "hash": "8c0fbcffd1"
+    },
+    {
+      "file": "snow.webp",
+      "displayName": "Snow",
+      "hash": "f6169427c3"
     },
     {
       "file": "spawn.png",
@@ -66,9 +126,19 @@
       "hash": "1a3a2a6650"
     },
     {
+      "file": "spawn.webp",
+      "displayName": "Spawn",
+      "hash": "5dbe13f5b0"
+    },
+    {
       "file": "v1.png",
       "displayName": "V1",
       "hash": "23bc77c5fb"
+    },
+    {
+      "file": "v1.webp",
+      "displayName": "V1",
+      "hash": "a3b9d1f6be"
     }
   ]
 }

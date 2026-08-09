@@ -259,7 +259,9 @@ class GameMap {
       case BiomeTypes.Desert: BiomeClass = Biome; break;
       case BiomeTypes.Oasis: BiomeClass = Biome; break;
     }
-    if (!BiomeClass) return console.log('Unknown biome type: ', biomeData.type);
+    // Statement, not `return console.log(...)` - terser only strips calls whose
+    // return value is discarded, so the old form survived into production.
+    if (!BiomeClass) { console.log('Unknown biome type: ', biomeData.type); return; }
 
     const biome = new BiomeClass(this.scene, biomeData);
     const depth = biomeData.nestingDepth || 0;

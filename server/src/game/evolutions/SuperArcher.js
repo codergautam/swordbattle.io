@@ -17,9 +17,9 @@ module.exports = class SuperArcher extends Evolution {
     this.player.shape.setScale(0.925);
 
     this.player.modifiers.scaleThrow = true;
-    this.player.modifiers.throwDamage = 2.6;
+    this.player.modifiers.throwDamage = 2;
 
-    this.player.health.max.multiplier *= 1;
+    this.player.health.max.multiplier *= 0.9;
     this.player.health.regenWait.multiplier = 0.7;
     this.player.health.regen.multiplier *= 1.0;
     this.player.speed.multiplier *= 0.95;

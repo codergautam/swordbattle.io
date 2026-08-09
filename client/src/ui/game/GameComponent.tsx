@@ -9,7 +9,7 @@ import './GameComponent.scss';
 import Ad from '../Ad';
 import { crazygamesSDK } from '../../crazygames/sdk';
 import { trackRunStart, trackRunEndDeferred } from '../../analytics';
-import { getAdblockStatus } from '../../crazygames/adblock';
+import { getAdblockStatus, isAdScriptBlocked } from '../../crazygames/adblock';
 import { Settings } from '../../game/Settings';
 
 declare global {
@@ -24,11 +24,15 @@ const nohud = typeof window !== 'undefined' && window.location.search.includes('
 const isBasicLaunch = typeof window !== 'undefined' && !!(window as any)._isCrazyGamesBasicLaunch;
 const ingameAdProvider = 'adinplay';
 
+function isMoreAdsBlocked(): boolean {
+  return getAdblockStatus() || isAdScriptBlocked(ingameAdProvider);
+}
+
 function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn }: any) {
   const [gameResults, setGameResults] = useState<any>(null);
   const [playing, setPlaying] = useState(false);
   const [moreAds, setMoreAds] = useState(!isBasicLaunch && !!Settings.moreAds);
-  const [moreAdsBlocked, setMoreAdsBlocked] = useState(() => (!isBasicLaunch && Settings.moreAds ? getAdblockStatus() : false));
+  const [moreAdsBlocked, setMoreAdsBlocked] = useState(() => (!isBasicLaunch && Settings.moreAds ? isMoreAdsBlocked() : false));
 
   useEffect(() => {
     if (!moreAds) return;
@@ -43,53 +47,35 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
   }, []);
 
   useEffect(() => {
-    if (!moreAds) return;
-    const h = (e: Event) => setMoreAdsBlocked(!!(e as CustomEvent).detail);
-    window.addEventListener('adblockStatusChanged', h);
-    setMoreAdsBlocked(getAdblockStatus());
-    return () => window.removeEventListener('adblockStatusChanged', h);
+    if (!moreAds) {
+      setMoreAdsBlocked(false);
+      return;
+    }
+    const updateBlocked = () => setMoreAdsBlocked(isMoreAdsBlocked());
+    window.addEventListener('adblockStatusChanged', updateBlocked);
+    window.addEventListener('adinplayLoadStateChanged', updateBlocked);
+    updateBlocked();
+    return () => {
+      window.removeEventListener('adblockStatusChanged', updateBlocked);
+      window.removeEventListener('adinplayLoadStateChanged', updateBlocked);
+    };
   }, [moreAds]);
   useEffect(() => {
     if (!game) {
       let gameplayStartCalled = false;
       let gameplayDelayTimer: any = null;
 
-      const game = new Phaser.Game({
-        ...config,
-        parent: 'phaser-container',
-      });
-      setGame(game);
-      window.phaser_game = game;
-
-      game.events.on('gameReady', onGameReady);
-      game.events.on('connectionClosed', onConnectionClosed);
-      game.events.on('connectionClosed', () => trackRunEndDeferred('server_disconnect'));
-      game.events.on('setGameResults', (results: any) => {
-        setGameResults(results);
-        setPlaying(false);
+      const stopGameplay = () => {
         if (gameplayDelayTimer) {
           clearTimeout(gameplayDelayTimer);
           gameplayDelayTimer = null;
         }
-      });
-      game.events.on('restartGame', (name: string) => {
-        setPlaying(true);
-        trackRunStart();
-        if (!gameplayStartCalled && (window as any)._wasInstantStart) {
-          gameplayDelayTimer = setTimeout(() => {
-            crazygamesSDK.gameplayStart();
-            gameplayStartCalled = true;
-            gameplayDelayTimer = null;
-          }, managems);
-        }
-      });
-      game.events.on('startGame', (name: string) => {
-        setPlaying(true);
-        trackRunStart();
-        if (shouldShowTutorial()) {
-          try { localStorage.setItem('swordbattle:tutorialSeen', '1'); } catch (_) {}
-        }
+        if (gameplayStartCalled) crazygamesSDK.gameplayStop();
+        gameplayStartCalled = false;
+      };
 
+      const startGameplay = () => {
+        if (gameplayStartCalled || gameplayDelayTimer) return;
         if ((window as any)._wasInstantStart) {
           gameplayDelayTimer = setTimeout(() => {
             crazygamesSDK.gameplayStart();
@@ -100,24 +86,46 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
           crazygamesSDK.gameplayStart();
           gameplayStartCalled = true;
         }
+      };
+
+      const game = new Phaser.Game({
+        ...config,
+        parent: 'phaser-container',
       });
-      game.events.on('goHome', () => {
-        if (gameplayDelayTimer) {
-          clearTimeout(gameplayDelayTimer);
-          gameplayDelayTimer = null;
-        }
-        if (gameplayStartCalled) {
-        }
-        gameplayStartCalled = false;
+      setGame(game);
+      window.phaser_game = game;
+
+      game.events.on('gameReady', onGameReady);
+      game.events.on('connectionClosed', onConnectionClosed);
+      game.events.on('connectionClosed', () => {
+        stopGameplay();
+        trackRunEndDeferred('server_disconnect');
       });
+      game.events.on('setGameResults', (results: any) => {
+        stopGameplay();
+        setGameResults(results);
+        setPlaying(false);
+      });
+      game.events.on('restartGame', (name: string) => {
+        setPlaying(true);
+        trackRunStart();
+        startGameplay();
+      });
+      game.events.on('startGame', (name: string) => {
+        setPlaying(true);
+        trackRunStart();
+        if (shouldShowTutorial()) {
+          try { localStorage.setItem('swordbattle:tutorialSeen', '1'); } catch (_) {}
+        }
+        startGameplay();
+      });
+      game.events.on('goHome', stopGameplay);
       game.events.on('pendingRespawnInfo', (info: any) => {
         onPendingRespawn?.(info);
       });
 
       return () => {
-        if (gameplayDelayTimer) {
-          clearTimeout(gameplayDelayTimer);
-        }
+        stopGameplay();
         const gameScene = game.scene.getScene('game') as any;
         if (gameScene?.shutdown) {
           gameScene.shutdown();
@@ -154,7 +162,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         results={gameResults}
         isLoggedIn={loggedIn}
         openLeaderboard={openLeaderboard}
-        adElement={<Ad screenW={dimensions.width} screenH={dimensions.height} types={[[468, 60], [300, 250]]} horizThresh={0.4} placement="game_results" adblockPromo />}
+        adElement={<Ad screenW={dimensions.width} screenH={dimensions.height} types={[[468, 60], [300, 250]]} adinplayTypes={[[728, 90], [970, 90], [970, 250]]} horizThresh={0.4} placement="game_results" adblockPromo />}
       />
       </>
       )}

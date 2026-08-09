@@ -3,7 +3,7 @@ import { adsenseClient, getAdSlot } from '../adConfig';
 import { trackAd } from '../analytics';
 
 const minRequestGapMs = 30000;
-const fillTimeoutMs = 8000;
+const fillTimeoutMs = 15000;
 const viewableDwellMs = 1000;
 
 const lastRequestAt = new Map<string, number>();
@@ -13,8 +13,16 @@ function warnMissingSlot(placement?: string) {
   const key = placement || 'default';
   if (warnedPlacements.has(key)) return;
   warnedPlacements.add(key);
-  console.error(`[ads] no AdSense data-ad-slot configured for placement "${key}" — add it to client/src/adConfig.ts (Ads > By ad unit > Display ads in the AdSense dashboard). No ad will render here.`);
+  console.error(`[ads] no AdSense data-ad-slot configured for placement "${key}". Add it to client/src/adConfig.ts (Ads > By ad unit > Display ads in the AdSense dashboard). No ad will render here.`);
   trackAd('display_misconfigured', { ad_format: 'banner', placement });
+}
+
+function isRendered(element: Element): boolean {
+  const rect = element.getBoundingClientRect();
+  if (rect.width < 1 || rect.height < 1) return false;
+  const style = window.getComputedStyle(element);
+  if (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse') return false;
+  return Number(style.opacity || 1) > 0.01;
 }
 
 function isViewable(el: HTMLElement | null): boolean {
@@ -28,9 +36,10 @@ function isViewable(el: HTMLElement | null): boolean {
   const ix = Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0));
   const iy = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
   if (ix * iy < 0.5 * r.width * r.height) return false;
-  const overlays = document.querySelectorAll('.modal, .loading-screen, .loading-cover');
+  const overlays = document.querySelectorAll('.modal, .loading-screen, .loading-cover, .tutorial-overlay.show');
   for (let i = 0; i < overlays.length; i++) {
-    if (!overlays[i].contains(el)) return false;
+    const overlay = overlays[i];
+    if (!overlay.contains(el) && isRendered(overlay)) return false;
   }
   return true;
 }

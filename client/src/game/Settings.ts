@@ -182,12 +182,23 @@ export const settingsList: Record<string, SettingType> = {
     type: 'toggle',
     default: false,
   },
+  showHitboxes: {
+    name: 'Show player and sword hitboxes',
+    type: 'toggle',
+    default: false,
+  },
   moreAds: {
     name: 'More ads',
     type: 'toggle',
     default: false,
     onChange: (value: boolean) => {
       window.dispatchEvent(new CustomEvent('moreAdsChanged', { detail: { enabled: value } }));
+      if (isLoaded) {
+        setTimeout(() => {
+          window.onbeforeunload = null;
+          window.location.reload();
+        }, 0);
+      }
     },
   },
 };

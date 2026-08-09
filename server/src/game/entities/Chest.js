@@ -8,9 +8,9 @@ const helpers = require('../../helpers');
 // size, coins, health, weight
 const rarities = [
   [200, 50, 1, 650],      // Normal chest
-  [350, 150, 30, 160],    // Green chest
-  [600, 350, 55, 95],     // Red
-  [800, 1000, 90, 55],    // Blue
+  [350, 150, 20, 160],    // Green chest
+  [600, 350, 35, 95],     // Red
+  [800, 1000, 80, 55],    // Blue
   [1200, 2500, 150, 24],  // Yellow
   [1600, 6500, 250, 10],  // Purple
   [1750, 12500, 400, 5],  // Silver

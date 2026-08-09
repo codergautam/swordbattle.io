@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import './LoadingScreen.scss';
 import { useScale } from './Scale';
 
-function LoadingScreen({ progress, instantStart }: any) {
+function LoadingScreen({ progress, instantStart, waitingForConnection, connectionError }: any) {
   const [isFading, setIsFading] = useState(false);
   const [opacity, setOpacity] = useState(1);
   const [shown, setShown] = useState(0);
@@ -38,7 +38,7 @@ function LoadingScreen({ progress, instantStart }: any) {
   const [showLoadingScreen, setShowLoadingScreen] = useState(false);
   const [useBackgroundImage, setUseBackgroundImage] = useState(true);
   const scale = useScale();
-  const isLoaded = progress === 100;
+  const isLoaded = progress === 100 || !!connectionError;
 
   // Preload the background image with timeout
   useEffect(() => {
@@ -124,15 +124,15 @@ function LoadingScreen({ progress, instantStart }: any) {
     >
       <div className="loading-container" style={scale.styles}>
         <div className="loading-text">
-          {instantStart ? 'Entering the arena' : 'Loading'}... ({Math.floor(shown)}%)
+          {instantStart ? 'Entering the arena' : waitingForConnection ? 'Connecting' : 'Loading'}... ({Math.floor(shown)}%)
         </div>
         <div className="progress-bar">
           <div className={`progress ${shown < 1 ? 'no-outline' : ''}`} style={{ width: `${shown}%`, transition: 'width 350ms linear' }}></div>
         </div>
 
-        {stuckVisible && (
-          <p style={{color: 'white'}}>Stuck at 98%? Try refreshing or interacting with the page</p>
-        )}
+        {/* {stuckVisible && !waitingForConnection && (
+          <p style={{color: 'white'}}>Stuck loading? Try refreshing or interacting with the page</p>
+        )} */}
       </div>
     </div>
   );

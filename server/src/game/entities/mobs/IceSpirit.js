@@ -12,7 +12,7 @@ class IceSpiritMob extends Entity {
     forbiddenBiomes: [Types.Biome.River, Types.Biome.Safezone],
     attackRadius: 1000,
     size: 85,
-    health: 100,
+    health: 75,
     regen: 2,
     speed: 35,
     damage: 12,

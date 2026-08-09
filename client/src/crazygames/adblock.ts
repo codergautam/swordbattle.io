@@ -6,19 +6,22 @@
 let hasAdblock = false;
 let adblockChecked = false;
 
-export function isAdScriptBlocked(): boolean {
+export function isAdScriptBlocked(providerOverride?: string): boolean {
   const w = window as any;
   if (w._isCrazyGamesBasicLaunch) return false;
-  const provider = w.adProvider || 'adsense';
+  const provider = providerOverride || w.adProvider || 'adsense';
   if (provider === 'adsense') {
     if (w.adsenseFailed === true) return true;
     const startedAt = w.adsenseStartedAt || 0;
     if (!startedAt || Date.now() - startedAt < 5000) return false;
     return w.adsbygoogle?.loaded !== true;
   }
-  return provider === 'adinplay' && !!w.aiptag
-    && typeof w.aipDisplayTag === 'undefined'
-    && typeof w.aipPlayer === 'undefined';
+  if (provider !== 'adinplay') return false;
+  if (w.adinplayFailed === true) return true;
+  if (w.adinplayLoading === true) return false;
+  const startedAt = w.adinplayStartedAt || 0;
+  if (!startedAt || Date.now() - startedAt < 5000) return false;
+  return typeof w.aipDisplayTag === 'undefined' && typeof w.aipPlayer === 'undefined';
 }
 
 function baitBlocked(): Promise<boolean> {

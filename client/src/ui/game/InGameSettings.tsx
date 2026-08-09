@@ -8,6 +8,7 @@ function InGameSettings() {
   const [enableChat, setEnableChat] = useState(Settings.enableChat);
   const [screenEffects, setScreenEffects] = useState(Settings.screenEffects);
   const [cameraFollowsMouse, setCameraFollowsMouse] = useState(Settings.cameraFollowsMouse);
+  const [showHitboxes, setShowHitboxes] = useState(Settings.showHitboxes);
 
   useEffect(() => {
     const toggle = () => setOpen((o) => !o);
@@ -53,6 +54,12 @@ function InGameSettings() {
             <span>Camera follows cursor</span>
             <input type="checkbox" checked={!!cameraFollowsMouse}
               onChange={(e) => apply('cameraFollowsMouse', e.target.checked, setCameraFollowsMouse)} />
+          </label>
+
+          <label className="igs-row">
+            <span>Show player and sword hitboxes</span>
+            <input type="checkbox" checked={!!showHitboxes}
+              onChange={(e) => apply('showHitboxes', e.target.checked, setShowHitboxes)} />
           </label>
         </div>
       </div>

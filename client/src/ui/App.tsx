@@ -477,6 +477,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
     }
   }, [gameStarted]);
   const onGameReady = () => {
+    setConnectionError('');
     setIsConnected(true);
   };
 
@@ -488,7 +489,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
       alert('check. Connected: ' + isConnected + ' Assets: ' + assetsLoaded + ' CG Auth: ' + (crazygamesAuthReady || !isCrazygames));
     }
 
-    if(assetsLoaded && (crazygamesAuthReady || !isCrazygames)) {
+    if(assetsLoaded && isConnected && (crazygamesAuthReady || !isCrazygames)) {
       setLoadingProgress(100);
     }
   }, [isConnected, assetsLoaded, crazygamesAuthReady]);
@@ -994,6 +995,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
   };
   const onConnectionClosed = (reason: string) => {
     console.log('Connection closed', reason);
+    setIsConnected(false);
     setConnectionError(reason);
   }
 
@@ -1125,7 +1127,12 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
   const isLoaded = loadingProgress === 100;
   return (
     <div className="App">
-      <LoadingScreen progress={loadingProgress} instantStart={instantStart} />
+      <LoadingScreen
+        progress={loadingProgress}
+        instantStart={instantStart}
+        waitingForConnection={assetsLoaded && !isConnected && !connectionError}
+        connectionError={connectionError}
+      />
       <GameComponent
         onHome={onHome}
         onGameReady={onGameReady}

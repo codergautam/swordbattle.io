@@ -7,7 +7,7 @@ import './SettingsModal.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faGear, faImage, faCoins,
-  faVectorSquare, faExpand, faComment, faArrowsUpDownLeftRight, faVolumeHigh, faVideo, faRectangleAd,
+  faVectorSquare, faExpand, faComment, faArrowsUpDownLeftRight, faVolumeHigh, faVideo, faRectangleAd, faCrosshairs,
 } from '@fortawesome/free-solid-svg-icons';
 
 const isBasicLaunch = typeof window !== 'undefined' && !!(window as any)._isCrazyGamesBasicLaunch;
@@ -38,6 +38,7 @@ function SettingsModal() {
   const [resolution, setResolution] = useState(Settings.resolution);
   const [movementMode, setMovementMode] = useState(Settings.movementMode);
   const [cameraFollowsMouse, setCameraFollowsMouse] = useState(Settings.cameraFollowsMouse);
+  const [showHitboxes, setShowHitboxes] = useState(Settings.showHitboxes);
   const [sound, setSound] = useState(Settings.sound);
   const chatForceDisabled = isChatForceDisabled();
   const [enableChat, setEnableChat] = useState(chatForceDisabled ? false : Settings.enableChat);
@@ -50,6 +51,7 @@ function SettingsModal() {
   const updateResolution = (v: any) => { setResolution(v); Settings.resolution = Number(v); };
   const updateMovementMode = (v: any) => { setMovementMode(v); Settings.movementMode = v; };
   const updateCameraFollowsMouse = (v: boolean) => { setCameraFollowsMouse(v); Settings.cameraFollowsMouse = v; };
+  const updateShowHitboxes = (v: boolean) => { setShowHitboxes(v); Settings.showHitboxes = v; };
   const updateSound = (v: any) => { setSound(v); Settings.sound = v; };
   const updateEnableChat = (v: boolean) => {
     if (chatForceDisabled) return;
@@ -126,6 +128,10 @@ function SettingsModal() {
           <Toggle checked={cameraFollowsMouse} onChange={updateCameraFollowsMouse} />
         </div>
         <div className="settings-line">
+          <span className="s-label"><FontAwesomeIcon icon={faCrosshairs} className="s-icon" /> Show player and sword hitboxes</span>
+          <Toggle checked={showHitboxes} onChange={updateShowHitboxes} />
+        </div>
+        <div className="settings-line">
           <span className="s-label"><FontAwesomeIcon icon={faVolumeHigh} className="s-icon" /> Sound</span>
           <div className="s-range">
             <input type="range" name="sound" id="sound"
@@ -148,9 +154,9 @@ function SettingsModal() {
           <div className="more-ads-benefits">
             {account?.isLoggedIn ? (
               <>
-                <div className="mab-title">Thanks for supporting Swordbattle! Your benefits:</div>
-                <div className="mab-line">• <span className="mab-yellow">Ad Supporter</span> tag on your profile</div>
-                <div className="mab-line">• Your name shows in <span className="mab-yellow">yellow</span> in-game</div>
+                <div className="mab-title">Thanks for supporting Swordbattle.</div>
+                <div className="mab-line"><span className="mab-yellow">Ad Supporter</span> profile tag</div>
+                <div className="mab-line"><span className="mab-yellow">Yellow</span> in-game name</div>
               </>
             ) : (
               <div className="mab-title">Log in to get the <span className="mab-yellow">Ad Supporter</span> profile tag and a <span className="mab-yellow">yellow</span> in-game name!</div>

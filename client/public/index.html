@@ -84,29 +84,63 @@
     window.adProvider = checkAdProvider();
     console.log("Ad provider:", window.adProvider)
 
-    // AdinPlay is loaded on demand: as the main provider, or alongside AdSense purely
-    // for the in-game banner (which AdSense may not serve over a gameplay screen).
     window.loadAdinplay = function () {
-      if (window._isCrazyGamesBasicLaunch || window._adinplayLoading) return;
-      window._adinplayLoading = true;
+      if (window._isCrazyGamesBasicLaunch) return Promise.resolve(false);
+      if (window.aipDisplayTag && window.aipPlayer) return Promise.resolve(true);
+      if (window.adinplayLoadPromise) return window.adinplayLoadPromise;
 
       window.aiptag = window.aiptag || {};
       window.aiptag.cmd = window.aiptag.cmd || [];
       window.aiptag.cmd.display = window.aiptag.cmd.display || [];
       window.aiptag.cmd.player = window.aiptag.cmd.player || [];
 
-      //CMP tool settings
       window.aiptag.cmp = {
         show: true,
-        position: "centered",  //centered or bottom
+        position: "centered",
         button: true,
         buttonText: "Privacy settings",
-        buttonPosition: "bottom-right" //bottom-left, bottom-right, top-left, top-right
+        buttonPosition: "bottom-right"
       };
 
-      var aipScript = document.createElement('script');
-      aipScript.src = '//api.adinplay.com/libs/aiptag/pub/SWT/swordbattle.io/tag.min.js';
-      document.head.appendChild(aipScript);
+      window.adinplayLoading = true;
+      window.adinplayLoadAttempts = (window.adinplayLoadAttempts || 0) + 1;
+      window.adinplayStartedAt = Date.now();
+      window.adinplayFailed = false;
+
+      window.adinplayLoadPromise = new Promise(function (resolve) {
+        const existingScript = document.getElementById('adinplay-sdk');
+        if (existingScript) existingScript.remove();
+
+        const adinplayScript = document.createElement('script');
+        adinplayScript.id = 'adinplay-sdk';
+        adinplayScript.async = true;
+        adinplayScript.src = 'https://api.adinplay.com/libs/aiptag/pub/SWT/swordbattle.io/tag.min.js';
+        adinplayScript.onload = function () {
+          const ready = !!(window.aipDisplayTag && window.aipPlayer);
+          const shouldRetry = !ready && window.adinplayLoadAttempts < 3;
+          window.adinplayLoading = false;
+          window.adinplayFailed = !ready && !shouldRetry;
+          window.adinplayLoadPromise = null;
+          if (ready) window.adinplayLoadAttempts = 0;
+          else adinplayScript.remove();
+          window.dispatchEvent(new CustomEvent('adinplayLoadStateChanged', { detail: { ready: ready, failed: !ready && !shouldRetry } }));
+          if (shouldRetry) setTimeout(window.loadAdinplay, window.adinplayLoadAttempts * 4000);
+          resolve(ready);
+        };
+        adinplayScript.onerror = function () {
+          const shouldRetry = window.adinplayLoadAttempts < 3;
+          window.adinplayLoading = false;
+          window.adinplayFailed = !shouldRetry;
+          window.adinplayLoadPromise = null;
+          adinplayScript.remove();
+          window.dispatchEvent(new CustomEvent('adinplayLoadStateChanged', { detail: { ready: false, failed: !shouldRetry } }));
+          if (shouldRetry) setTimeout(window.loadAdinplay, window.adinplayLoadAttempts * 4000);
+          resolve(false);
+        };
+        document.head.appendChild(adinplayScript);
+      });
+
+      return window.adinplayLoadPromise;
     };
 
     window.vidAdDelay = vidAdDelay[window.adProvider];

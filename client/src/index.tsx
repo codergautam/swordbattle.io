@@ -75,6 +75,10 @@ const router = createHashRouter([
     path: ':secret/bots',
     element: <Suspense fallback={null}><BotsPage /></Suspense>,
   },
+  {
+    path: '*',
+    element: <App />,
+  },
 ], {
   basename: config.basename,
 });

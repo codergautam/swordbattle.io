@@ -1294,7 +1294,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
                   <ChangelogCard onViewChangelog={(id: number) => openAnnouncements(id)}/>
                 </div>
               </div>
-              <div
+              {/* <div
                 className="panel tipCard"
                 style={{
                   overflow: 'hidden',
@@ -1312,8 +1312,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
                 title={randomMessage}
               >
                 {randomMessage}
-                {/* Due to a bug duplicating Snowtokens earned multiple times, some winter skins may have been refunded. Sorry for the inconvenience. */}
-              </div>
+              </div> */}
               <br />
               <div className='fullWidth'>
                 <div id="adBelow">

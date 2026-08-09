@@ -6,7 +6,6 @@ import api from '../api';
 import cosmetics from '../game/cosmetics.json';
 import { getSkinScale } from '../game/skinScales';
 import { withAssetVersion } from '../assetVersion';
-import { crazygamesSDK } from '../crazygames/sdk';
 import './LeaderboardCard.scss';
 
 const skinBody: Record<number, string> = {};
@@ -27,9 +26,9 @@ export default function LeaderboardCard() {
       api.post(`${api.endpoint}/stats/fetch?${Date.now()}`, {
         sortBy: 'xp',
         timeRange,
-        limit: 5,
+        limit: 3,
       }, (data: any) => {
-        const rows = !data || data.message || !Array.isArray(data) ? [] : data.slice(0, 5);
+        const rows = !data || data.message || !Array.isArray(data) ? [] : data.slice(0, 3);
         if (rows.length === 0 && onEmpty) {
           onEmpty();
           return;
@@ -71,9 +70,9 @@ export default function LeaderboardCard() {
           ))
         )}
       </div>
-      <div className="menu-lb-tip">
-        {crazygamesSDK.shouldUseSDK() ? 'Make a CrazyGames account to earn XP!' : 'Make an account to earn XP!'}
-      </div>
+      {/* <div className="menu-lb-tip">
+        Make a CrazyGames account to earn XP!
+      </div> */}
     </div>
   );
 }

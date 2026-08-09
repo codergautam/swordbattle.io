@@ -51,55 +51,30 @@ export class Game {
     this.antialias = this.config.antialias !== false;
     (window as any).phaser_game = this;
 
-    try { localStorage.removeItem('swordbattle:webgl_slow'); } catch (e) {}
-
     let explicitUseWebGL: boolean | undefined;
     try { explicitUseWebGL = settingsManager.get().useWebGL; } catch (e) {}
 
-    let previouslyFailed = false;
-    try {
-      if (localStorage.getItem('swordbattle:webgl_failed') === '1') {
-        const at = Number(localStorage.getItem('swordbattle:webgl_failed_at') || 0);
-        if (at && Date.now() - at > 86400000) {
-          localStorage.removeItem('swordbattle:webgl_failed');
-          localStorage.removeItem('swordbattle:webgl_failed_at');
-          console.log('[PixiGame] retrying WebGL after previous failure expired');
-        } else {
-          previouslyFailed = true;
-        }
-      }
-    } catch (e) {}
-
-    let repeatedContextLoss = false;
-    try {
-      const lostAt = Number(localStorage.getItem('swordbattle:webgl_lost_at') || 0);
-      if (lostAt && Date.now() - lostAt > 7 * 86400000) {
+    if (explicitUseWebGL !== false) {
+      try {
+        localStorage.removeItem('swordbattle:webgl_slow');
+        localStorage.removeItem('swordbattle:webgl_failed');
+        localStorage.removeItem('swordbattle:webgl_failed_at');
         localStorage.removeItem('swordbattle:webgl_lost_count');
         localStorage.removeItem('swordbattle:webgl_lost_at');
-      } else if (Number(localStorage.getItem('swordbattle:webgl_lost_count') || 0) >= 2) {
-        repeatedContextLoss = true;
-      }
-    } catch (e) {}
-
-    let canvasThisSession = false;
-    try { canvasThisSession = sessionStorage.getItem('swordbattle:canvasThisSession') === '1'; } catch (e) {}
+      } catch (e) {}
+      try { sessionStorage.removeItem('swordbattle:canvasThisSession'); } catch (e) {}
+    }
 
     let compatRequested = false;
     let compatReason = '';
     const override = rendererOverride();
     try {
-      if (override) {
-        compatRequested = override === 'canvas';
-        compatReason = `?renderer=${override} override`;
+      if (override === 'canvas') {
+        compatRequested = true;
+        compatReason = '?renderer=canvas override';
       } else if (explicitUseWebGL === false) {
         compatRequested = true; compatReason = 'user setting';
-      } else if (canvasThisSession) {
-        compatRequested = true; compatReason = 'WebGL context died in this session';
-      } else if (explicitUseWebGL === undefined && previouslyFailed) {
-        compatRequested = true; compatReason = 'WebGL previously failed on this device';
-      } else if (explicitUseWebGL === undefined && repeatedContextLoss) {
-        compatRequested = true; compatReason = 'WebGL context repeatedly died on this device';
-      } else if (explicitUseWebGL === undefined && detectWebGLQuality() === 'none') {
+      } else if (override !== 'webgl' && detectWebGLQuality() === 'none') {
         compatRequested = true; compatReason = 'no WebGL available';
       }
     } catch (e) {}
@@ -133,10 +108,6 @@ export class Game {
         } catch (e) {
           console.error(`[PixiGame] WebGL init attempt ${i + 1}/${attempts.length} failed:`, e);
         }
-      }
-      if (!app) {
-        try { localStorage.setItem('swordbattle:webgl_failed', '1'); } catch (e2) {}
-        try { localStorage.setItem('swordbattle:webgl_failed_at', String(Date.now())); } catch (e2) {}
       }
     }
     if (!app) {
@@ -229,17 +200,6 @@ export class Game {
     try { localStorage.removeItem('swordbattle:WebGL'); } catch (e) { /* noop */ }
     try { (window as any).onbeforeunload = null; } catch (e) { /* noop */ }
     try { window.location.reload(); } catch (e) { /* noop */ }
-  }
-
-  static autoFallbackToCanvas(): void {
-    try { sessionStorage.setItem('swordbattle:canvasThisSession', '1'); } catch (e) {}
-    try {
-      const n = Number(localStorage.getItem('swordbattle:webgl_lost_count') || 0) + 1;
-      localStorage.setItem('swordbattle:webgl_lost_count', String(n));
-      localStorage.setItem('swordbattle:webgl_lost_at', String(Date.now()));
-    } catch (e) {}
-    try { (window as any).onbeforeunload = null; } catch (e) {}
-    try { window.location.reload(); } catch (e) {}
   }
 
   private showFatalOverlay(title: string, message: string, offerCompatMode = false): void {

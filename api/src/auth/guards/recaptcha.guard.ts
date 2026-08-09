@@ -10,7 +10,13 @@ export class RecaptchaGuard implements CanActivate {
     const recaptchaToken = body.recaptchaToken;
     const secret = process.env.RECAPTCHA_SECRET_KEY;
 
-    if(!secret) {
+    // Same switch as the client's REACT_APP_CAPTCHA_ENABLED and the game server's
+    // CAPTCHA_ENABLED, so captcha can be turned off without deleting the secret.
+    // Without this the guard keys off the secret alone: the client stops sending a
+    // token while the secret is still configured, and every registration 403s.
+    const captchaEnabled = process.env.CAPTCHA_ENABLED === 'true' && !!secret;
+
+    if(!captchaEnabled) {
       return true;
     }
 

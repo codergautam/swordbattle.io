@@ -43,7 +43,6 @@ export class Game {
   private failed = false;
   isCanvasMode = false;
   private destroyed = false;
-  private lostTimer: any = null;
   private onContextLost: ((e: Event) => void) | null = null;
   private onContextRestored: (() => void) | null = null;
 
@@ -163,20 +162,12 @@ export class Game {
       this.onContextLost = (e: Event) => {
         if (this.destroyed) return;
         try { e.preventDefault(); } catch (err) {}
+        if ((window as any).videoAdActive) return;
         this.showFatalOverlay('Graphics interrupted',
           "The game's graphics were interrupted (this can happen when your GPU is briefly overloaded), reload to keep playing",
           true);
-        if (!override && !this.lostTimer) {
-          this.lostTimer = setTimeout(() => {
-            this.lostTimer = null;
-            if (this.destroyed) return;
-            console.warn('[PixiGame] WebGL context lost and not restored, falling back to compatibility (canvas) mode for this session');
-            Game.autoFallbackToCanvas();
-          }, 15000);
-        }
       };
       this.onContextRestored = () => {
-        if (this.lostTimer) { clearTimeout(this.lostTimer); this.lostTimer = null; }
         if (this.destroyed) return;
         this.removeFatalOverlay();
       };
@@ -468,7 +459,6 @@ export class Game {
 
   destroy(removeCanvas: boolean): void {
     this.destroyed = true;
-    if (this.lostTimer) { clearTimeout(this.lostTimer); this.lostTimer = null; }
     try {
       if (this.canvas && this.onContextLost) this.canvas.removeEventListener('webglcontextlost', this.onContextLost, false);
       if (this.canvas && this.onContextRestored) this.canvas.removeEventListener('webglcontextrestored', this.onContextRestored, false);

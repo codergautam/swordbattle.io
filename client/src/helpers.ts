@@ -217,6 +217,10 @@ const breakStartMs = 8000;
 
 let pendingRewardRelease: (() => void) | null = null;
 
+function setVideoAdActive(w: any, active: boolean) {
+  w.videoAdActive = active;
+}
+
 function releasePendingReward() {
   const release = pendingRewardRelease;
   pendingRewardRelease = null;
@@ -261,19 +265,19 @@ function runAdsenseBreak(w: any, opts: { type: string; name: string }, done: (ev
     settled = true;
     clearTimeout(failsafe);
     clearTimeout(startTimer);
-    w.videoAdActive = false;
+    setVideoAdActive(w, false);
     done(evt);
   };
   const failsafe = setTimeout(() => finish('video-ad-timeout'), adMaxWaitMs);
   const startTimer = setTimeout(() => { if (!started) finish('video-ad-notready'); }, breakStartMs);
 
-  w.videoAdActive = true;
+  setVideoAdActive(w, true);
 
   const params: any = {
     type: opts.type,
     name: opts.name,
-    beforeAd: () => { started = true; w.videoAdActive = true; },
-    afterAd: () => { w.videoAdActive = false; },
+    beforeAd: () => { started = true; setVideoAdActive(w, true); },
+    afterAd: () => { setVideoAdActive(w, false); },
     adBreakDone: (info: any) => {
       const status = (info && info.breakStatus) || 'unknown';
       finish(status === 'viewed' ? 'video-ad-completed' : 'video-ad-' + status);
@@ -307,11 +311,13 @@ export function armAdsenseReward(handlers: {
   let offered = false;
   let viewed = false;
   let shown = false;
+  let adTimer: ReturnType<typeof setTimeout> | null = null;
 
   const settle = (result: { success: boolean; evt: string }) => {
     if (done) return;
     done = true;
     clearTimeout(offerTimer);
+    if (adTimer) clearTimeout(adTimer);
     if (pendingRewardRelease === release) pendingRewardRelease = null;
     handlers.onDone(result);
   };
@@ -330,15 +336,22 @@ export function armAdsenseReward(handlers: {
         if (done) return;
         handlers.onOffer(() => {
           shown = true;
-          w.videoAdActive = true;
-          try { showAdFn(); } catch (e) { w.videoAdActive = false; }
+          setVideoAdActive(w, true);
+          adTimer = setTimeout(() => settle({ success: false, evt: 'rewarded-timeout' }), adMaxWaitMs);
+          try { showAdFn(); } catch (e) {
+            setVideoAdActive(w, false);
+            settle({ success: false, evt: 'rewarded-show-error' });
+          }
         });
       },
       adViewed: () => { viewed = true; },
       adDismissed: () => { viewed = false; },
-      afterAd: () => { w.videoAdActive = false; },
+      afterAd: () => {
+        setVideoAdActive(w, false);
+        if (shown) settle({ success: viewed, evt: viewed ? 'rewarded-granted' : 'rewarded-dismissed' });
+      },
       adBreakDone: (info: any) => {
-        if (shown) w.videoAdActive = false;
+        if (shown) setVideoAdActive(w, false);
         const status = (info && info.breakStatus) || 'unknown';
         if (viewed) settle({ success: true, evt: 'rewarded-granted' });
         else settle({ success: false, evt: (offered ? 'rewarded-' : 'rewarded-unavailable-') + status });

@@ -1,5 +1,6 @@
 import { useSnapshot } from 'valtio';
 import store from '../Store';
+import { getGameRuntime } from '../game/gameRuntime';
 
 export function setScale() {
 	const gc = gcd()
@@ -137,7 +138,7 @@ export function fitMobileLeaderboard() {
 	const cap = 0.72;
 	let fit = cap;
 	try {
-		const g: any = (window as any).phaser_game;
+		const g: any = getGameRuntime();
 		const sc = g && g.scene && g.scene.getMain && g.scene.getMain();
 		const base = sc && sc.controls && sc.controls.aimJoystick && sc.controls.aimJoystick.base;
 		const canvas = g && g.canvas;

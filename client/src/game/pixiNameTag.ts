@@ -1,5 +1,6 @@
 
 import { Container, Text, TextStyle, Sprite, Texture, BlurFilter } from 'pixi.js-legacy';
+import { getGameRuntime } from './gameRuntime';
 import {
   NameStyle,
   GradientSpec,
@@ -36,7 +37,7 @@ export function buildNameTag(text: string, style: NameStyle, fontSize: number): 
   const container = new Container();
   const t = text || ' ';
   const w = style.outline ? outlineWidthPx(style.outlineWidth, fontSize) : 0;
-  const canvasMode = !!(window as any).phaser_game?.isCanvasMode;
+  const canvasMode = !!getGameRuntime()?.isCanvasMode;
   const gradientOutline = !!style.outline && isGradient(style.outline) && !canvasMode;
 
   if (style.shadow) {

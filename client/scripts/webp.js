@@ -155,6 +155,7 @@ function runWorker() {
 }
 
 function runPool(stale, onResult) {
+  if (stale.length === 0) return Promise.resolve();
   return new Promise((resolve, reject) => {
     const n = Math.min(JOBS, stale.length);
     let next = 0;

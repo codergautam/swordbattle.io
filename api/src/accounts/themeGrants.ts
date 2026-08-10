@@ -1,25 +1,41 @@
-export const defaultThemes = { equipped: 1, owned: [1] };
+type ThemeInventory = { equipped: number; owned: number[] };
+type ThemeGrant = { equipped?: number; owned?: number[] };
 
-export const themeGrants: Record<string, { equipped?: number; owned?: number[] }> = {
+export const defaultThemes: ThemeInventory = { equipped: 1, owned: [1] };
+export const defaultHudThemes: ThemeInventory = { equipped: 1, owned: [1] };
+
+export const themeGrants: Record<string, ThemeGrant> = {
 };
 
-export function applyThemeGrants<T extends { username?: string; themes?: { equipped: number; owned: number[] } }>(
-  account: T,
-): T {
-  if (!account) return account;
+export const hudThemeGrants: Record<string, ThemeGrant> = {
+};
 
-  const current = account.themes || defaultThemes;
-  const owned = Array.isArray(current.owned) && current.owned.length ? [...current.owned] : [...defaultThemes.owned];
-  const grant = themeGrants[(account.username || '').toLowerCase()];
+function applyGrants(current: ThemeInventory | undefined, grant: ThemeGrant | undefined, defaults: ThemeInventory) {
+  const inventory = current || defaults;
+  const owned = Array.isArray(inventory.owned) && inventory.owned.length ? [...inventory.owned] : [...defaults.owned];
 
   if (grant) {
     for (const id of grant.owned || []) if (!owned.includes(id)) owned.push(id);
     if (grant.equipped && !owned.includes(grant.equipped)) owned.push(grant.equipped);
   }
 
-  account.themes = {
-    equipped: grant?.equipped ?? current.equipped ?? defaultThemes.equipped,
+  return {
+    equipped: grant?.equipped ?? inventory.equipped ?? defaults.equipped,
     owned,
   };
+}
+
+export function applyThemeGrants<T extends {
+  username?: string;
+  themes?: ThemeInventory;
+  hudThemes?: ThemeInventory;
+}>(
+  account: T,
+): T {
+  if (!account) return account;
+
+  const username = (account.username || '').toLowerCase();
+  account.themes = applyGrants(account.themes, themeGrants[username], defaultThemes);
+  account.hudThemes = applyGrants(account.hudThemes, hudThemeGrants[username], defaultHudThemes);
   return account;
 }

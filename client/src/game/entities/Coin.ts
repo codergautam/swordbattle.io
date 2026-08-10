@@ -2,10 +2,15 @@ import { BaseEntity } from './BaseEntity';
 
 class Coin extends BaseEntity {
   static stateFields = [...BaseEntity.stateFields];
+  static pickupDuration = 220;
 
   hunter: any = null;
-  eatingTween: Phaser.Tweens.Tween | null = null;
   displayRadius = 0.35;
+  pickupElapsed = 0;
+  pickupStarted = false;
+  pickupStartX = 0;
+  pickupStartY = 0;
+  pickupStartScale = 1;
 
   createSprite() {
     this.container = this.game.add.sprite(this.shape.x, this.shape.y, 'coin');
@@ -13,51 +18,42 @@ class Coin extends BaseEntity {
     return this.container;
   }
 
-  private getOrCreateEatingTween(): Phaser.Tweens.Tween {
-    if (!this.eatingTween) {
-      this.eatingTween = this.game.tweens.addCounter({
-        from: 0,
-        to: 1,
-        duration: 200,
-        repeat: 0,
-      });
-      this.eatingTween.pause();
-    }
-    return this.eatingTween;
-  }
-
   update(dt: number) {
-    super.update(dt);
-
-    if (this.removed) {
-      const { hunter } = this;
-      if (hunter) {
-        try {
-        const tween = this.getOrCreateEatingTween();
-        tween.resume();
-
-        const diffX = hunter.container.x - this.container.x;
-        const diffY = hunter.container.y - this.container.y;
-        const angle = Math.atan2(diffY, diffX);
-        const value = tween.getValue();
-        this.container.x = this.container.x + Math.abs(diffX) * Math.cos(angle) * value;
-        this.container.y = this.container.y + Math.abs(diffY) * Math.sin(angle) * value;
-
-        if (!tween.isActive()) {
-          this.remove();
-        }
-      } catch (e) {
-        console.log(e);
-        this.remove();
-      }
-      } else {
-        this.remove();
-      }
+    if (!this.removed) {
+      super.update(dt);
+      return;
     }
+
+    const hunterContainer = this.hunter?.container;
+    if (!hunterContainer || !this.container) {
+      this.remove();
+      return;
+    }
+
+    if (!this.pickupStarted) {
+      this.pickupStarted = true;
+      this.pickupStartX = this.container.x;
+      this.pickupStartY = this.container.y;
+      this.pickupStartScale = this.container.scale;
+    }
+
+    this.pickupElapsed += dt;
+    const progress = Math.min(1, this.pickupElapsed / Coin.pickupDuration);
+    const positionProgress = progress * progress;
+    this.container.x = this.pickupStartX + (hunterContainer.x - this.pickupStartX) * positionProgress;
+    this.container.y = this.pickupStartY + (hunterContainer.y - this.pickupStartY) * positionProgress;
+
+    const scaleProgress = progress < 0.2
+      ? 1 + progress * 0.4
+      : 1.08 - (progress - 0.2) * 1.1;
+    this.container.scale = this.pickupStartScale * Math.max(0.2, scaleProgress);
+    this.container.alpha = progress < 0.7 ? 1 : 1 - (progress - 0.7) / 0.3;
+    this.container.rotation += dt * 0.012;
+
+    if (progress >= 1) this.remove();
   }
 
   remove() {
-    this.eatingTween?.destroy();
     this.game.gameState.removedEntities.delete(this);
     if (this.removed && !this.container) return;
     this.removed = true;

@@ -47,6 +47,7 @@ class Stats extends HudComponent {
   updateInterval = 1000;
   private lastFrameCount = 0;
   gear!: Phaser.GameObjects.Text;
+  designerGear?: Phaser.GameObjects.Image;
   players!: StatRow;
   fps!: StatRow;
   tps!: StatRow;
@@ -66,12 +67,21 @@ class Stats extends HudComponent {
     if (this.game.isMobile) return;
     ensureIconTextures(this.hud.scene);
 
-    this.gear = this.hud.scene.add.text(0, 0, '⚙', {
+    this.gear = this.hud.scene.add.text(0, 0, '\u2699', {
       fontSize: 20, fontFamily: "'Saira', sans-serif", color: getTheme().accent, stroke: '#000000', strokeThickness: 3,
     }).setOrigin(0, 0).setInteractive({ useHandCursor: true });
     this.gear.on('pointerover', () => this.gear.setColor('#ffffff'));
     this.gear.on('pointerout', () => this.gear.setColor(getTheme().accent));
     this.gear.on('pointerdown', () => window.dispatchEvent(new CustomEvent('toggleInGameSettings')));
+
+    if ((window as any).hudDesignerMode) {
+      const tint = parseInt(getTheme().accent.slice(1), 16);
+      this.designerGear = this.hud.scene.add.image(30, 2, 'wrenchIcon')
+        .setOrigin(0, 0).setDisplaySize(21, 21).setTint(tint).setInteractive({ useHandCursor: true });
+      this.designerGear.on('pointerover', () => this.designerGear?.setTint(0xffffff));
+      this.designerGear.on('pointerout', () => this.designerGear?.setTint(parseInt(getTheme().accent.slice(1), 16)));
+      this.designerGear.on('pointerdown', () => window.dispatchEvent(new CustomEvent('toggleHudDesigner')));
+    }
 
     this.players = this.mkRow('statPlayers', top + row * 0);
     this.fps = this.mkRow('statFps', top + row * 1);
@@ -80,6 +90,7 @@ class Stats extends HudComponent {
 
     this.container = this.game.add.container(0, 0, [
       this.gear,
+      ...(this.designerGear ? [this.designerGear] : []),
       this.players.icon, this.players.text,
       this.fps.icon, this.fps.text,
       this.tps.icon, this.tps.text,
@@ -93,6 +104,16 @@ class Stats extends HudComponent {
         color: '#7fd6ff', stroke: '#000000', strokeThickness: 3,
       }).setOrigin(0, 0.5);
       this.container.add(this.perfText);
+    }
+  }
+
+  applyTheme() {
+    if (!this.gear) return;
+    const t = getTheme();
+    this.gear.setColor(t.accent).setStroke(t.textOutline, t.textOutlineW);
+    this.designerGear?.setTint(parseInt(t.accent.slice(1), 16));
+    for (const stat of [this.players, this.fps, this.tps, this.ping]) {
+      stat?.text.setColor(t.text).setStroke(t.textOutline, t.textOutlineW);
     }
   }
 

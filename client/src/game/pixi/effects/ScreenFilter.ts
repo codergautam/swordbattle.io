@@ -137,13 +137,8 @@ void main() {
   float edge = smoothstep(uVignetteSize, uVignetteSize + 0.45, dist);
   color.rgb = mix(color.rgb, uVignetteColor, edge * uVignette);
 
-  // Blindness (Stalker): a strong radial darkening that IGNORES the screen-effects toggle
-  // (anti-cheat). Reuses dist from the vignette. The ramp reaches full black by dist ~0.4,
-  // WELL inside the screen edges (top/bottom edge is dist ~0.5), so the whole rim of the
-  // screen is genuinely black — you can only see a SMALL circle around yourself. That tight
-  // sight radius is what makes it a strategic debuff, not a mild tint.
-  float bd = smoothstep(0.06, 0.40, dist);
-  color.rgb *= (1.0 - uBlind * mix(0.55, 1.0, bd));
+  float bd = smoothstep(0.12, 0.58, dist);
+  color.rgb *= (1.0 - uBlind * mix(0.28, 0.72, bd));
 
   // Movement-reactive precipitation. uScroll shifts the field so moving up makes
   // it fall faster, moving sideways slides it across. Wind adds a steady sideways

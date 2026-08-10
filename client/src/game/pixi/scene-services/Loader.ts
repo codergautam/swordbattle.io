@@ -114,7 +114,7 @@ export class Loader {
     if (pending) return pending;
     ldStarted(key);
     const p = new Promise<boolean>((resolve) => {
-      const maxAttempts = 4; // 1 webp probe + 3 at the original
+      const maxAttempts = 4;
       let settled = false;
       let attempt = 0;
       let timer: any = null;
@@ -151,8 +151,6 @@ export class Loader {
         img.onerror = () => {
           if (settled || myAttempt !== attempt) return;
           ldAttemptFailed(key, myAttempt);
-          // Attempt 1 is the .webp; a miss just means this file wasn't converted,
-          // so drop to the original immediately rather than backing off.
           if (myAttempt === 1) { tryLoad(); return; }
           console.warn('[pixi-loader] failed to load', key, url, 'attempt', myAttempt);
           if (attempt < maxAttempts) setTimeout(() => { if (!settled && myAttempt === attempt) tryLoad(); }, 500 * myAttempt);

@@ -13,9 +13,7 @@ const supportsWebp = (() => {
   }
 })();
 
-/* scripts/webp.js writes a .webp next to every image it can shrink. Files it
-   skipped simply 404 here and the loader retries the original. */
 export function toWebp(url: string): string {
   if (!supportsWebp) return url;
-  return url.replace(/\.(png|jpe?g)(?=$|[?#])/i, '.webp');
+  return url.replace(/\.png(?=$|[?#])/i, '.webp');
 }

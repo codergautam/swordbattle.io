@@ -6,11 +6,6 @@ let currentEndpoint: string | null = null;
 
 const unavialableMessage = 'Server is temporarily unavailable, try again later';
 
-let debugMode = false;
-try {
-  debugMode = window.location.search.includes("debugAlertMode");
-  } catch(e) {}
-
 async function checkEndpoint() {
   if (!currentEndpoint) {
     currentEndpoint = endpoint;
@@ -52,7 +47,7 @@ function get(url: string, callback = (data: any) => {}): any {
 }
 }
 
-function post(url: string, body: any, callback = (data: any) => {}, token?: string, useRecaptcha = false) {
+function post(url: string, body: any, callback = (data: any) => {}, token?: string) {
 
   if(!body) body = {};
   
@@ -71,19 +66,12 @@ function post(url: string, body: any, callback = (data: any) => {}, token?: stri
   }
 
   function call() {
-  const recaptchaClientKey = config.recaptchaClientKey;
-
-  const sendRequest = (recaptchaToken = '') => {
     const headers = {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': endpoint,
       'Authorization': token ? `Bearer ${token}` : '',
-      'Recaptcha-Token': ''
     };
 
-    if (recaptchaToken) {
-      body.recaptchaToken = recaptchaToken;
-    }
     if(secret) {
       body.secret = secret;
     }
@@ -98,18 +86,7 @@ function post(url: string, body: any, callback = (data: any) => {}, token?: stri
     .then(res => res.json())
     .then(callback)
     .catch(() => callback({ message: unavialableMessage }));
-  };
-
-  if (useRecaptcha && recaptchaClientKey && (window as any).recaptcha) {
-      const endpointName = url.split('/').pop() as string;
-      (window as any).recaptcha.execute(endpointName, {}).then((recaptchaToken: string) => {
-        if(debugMode) alert('got recaptcha of length '+recaptchaToken.length)
-        sendRequest(recaptchaToken);
-      });
-  } else {
-    sendRequest();
   }
-}
 }
 
 async function postAsync(url: string, body: any): Promise<any> {

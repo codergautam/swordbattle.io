@@ -9,7 +9,6 @@ import NameMaker from './ui/namemaker/NameMaker';
 import AnnouncementsAdminPage from './ui/announcements/AnnouncementsAdminPage';
 import { store } from './redux/store';
 import { config } from './config';
-import { load } from 'recaptcha-v3'
 import { crazygamesSDK, applyCrazygamesFirstVisitAutoStart } from './crazygames/sdk';
 import { detectAdblock } from './crazygames/adblock';
 import { initializeDataStorage } from './crazygames/dataStorage';
@@ -44,7 +43,7 @@ function MoreAdsRedirect() {
 const router = createHashRouter([
   {
     path: '/',
-    element: <App />,
+    element: <App key="main" />,
   },
   {
     path: 'moreads',
@@ -60,7 +59,11 @@ const router = createHashRouter([
   },
   {
     path: ':secret/profiledesigner',
-    element: <App profileDesigner />,
+    element: <App key="profile-designer" profileDesigner />,
+  },
+  {
+    path: ':secret/huddesigner',
+    element: <App key="hud-designer" hudDesigner />,
   },
   {
     path: ':secret/metrics',
@@ -90,18 +93,6 @@ let debugMode = false;
 try {
   debugMode = window.location.search.includes("debugAlertMode");
   } catch(e) {}
-if(config.captchaEnabled) {
-load(config.recaptchaClientKey).then((recaptcha) => {
-  console.log('recaptcha loaded');
-  if(debugMode) alert('recaptcha loaded');
-
-  // emit custom recaptchaLoaded event to let other parts of the app know that recaptcha is ready
-  const event = new CustomEvent('recaptchaLoaded', { detail: true });
-  window.dispatchEvent(event);
-  (window as any).recaptcha = recaptcha as  any;
-});
-}
-
 // Initialize CrazyGames SDK
 crazygamesSDK.init().then(async () => {
   console.log('CrazyGames SDK ready');

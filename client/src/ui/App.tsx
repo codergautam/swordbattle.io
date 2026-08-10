@@ -41,6 +41,7 @@ import MigrationModal from './modals/MigrationModal';
 import { getCookies, playVideoAd } from '../helpers';
 import Ad from './Ad';
 import { Settings } from '../game/Settings';
+import { getGameRuntime } from '../game/gameRuntime';
 import { getServerList, updatePing } from '../ServerList';
 import AccountCard from './AccountCard';
 import ChangelogCard from './ChangelogCard';
@@ -67,6 +68,7 @@ import AnnouncementsModal from './announcements/AnnouncementsModal';
 import { designerUsername, getMockProfileData, getMockProfileGames } from './profileDesigner/mockProfile';
 import { ProfileTheme, resolveProfileTheme } from './profileTheme';
 import PromptDialog, { promptDialog, showDialog } from './PromptDialog';
+import { setHudThemeById } from '../hudTheme';
 
 const ProfileDesignerPanel = lazy(() => import('./profileDesigner/ProfileDesignerPanel'));
 
@@ -114,7 +116,8 @@ const modalClasses = new Map<any, string>([
 const instantSwapModals = new Set<any>([ShopModal, RewardsModal, InventoryModal, ProfileModal, FullChangelogModal]);
 const modalCloseMs = 200;
 
-function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
+function App({ profileDesigner = false, hudDesigner = false }: { profileDesigner?: boolean; hudDesigner?: boolean }) {
+  (window as any).hudDesignerMode = hudDesigner;
   let { skins } = cosmetics;
   const resetHour = 23; // 0-23 utc
 
@@ -124,6 +127,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
   const scale = useScale(false);
   const [name, setName] = useState('');
   const [gameStarted, setGameStarted] = useState(false);
+  const gameStartedRef = useRef(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [modal, setModal] = useState<any>(null);
   const [shownModal, setShownModal] = useState<any>(null);
@@ -145,7 +149,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
   const [isConnected, setIsConnected] = useState(false);
   const [accountReady, setAccountReady] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
-  const [game, setGame] = useState<Phaser.Game | undefined>(window.phaser_game);
+  const [game, setGame] = useState<Phaser.Game | undefined>(getGameRuntime());
   const [crazygamesAuthReady, setCrazygamesAuthReadyRaw] = useState(false);
   // 10 call sites flip this flag; wrap once so the winner names itself.
   const setCrazygamesAuthReady = useCallback((v: boolean) => {
@@ -154,7 +158,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
   }, []);
   const [showMenuTutorial, setShowMenuTutorial] = useState(false);
   const [isFirstVisit] = useState(() => !localStorage.getItem('swordbattle:hasVisited'));
-  const [instantStart, setInstantStart] = useState<boolean>((window as any).instantStart || false);
+  const [instantStart, setInstantStart] = useState<boolean>(hudDesigner || (window as any).instantStart || false);
   const [isFullscreen, setIsFullscreen] = useState(!!document.fullscreenElement);
   const [isMobileDevice] = useState(() =>
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -163,10 +167,18 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
   const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
   useEffect(() => {
-    if (!profileDesigner) return;
-    document.body.classList.add('profile-designer-mode');
-    return () => document.body.classList.remove('profile-designer-mode');
-  }, [profileDesigner]);
+    document.body.classList.toggle('profile-designer-mode', profileDesigner);
+    document.body.classList.toggle('hud-designer-mode', hudDesigner);
+    return () => {
+      document.body.classList.remove('profile-designer-mode');
+      document.body.classList.remove('hud-designer-mode');
+    };
+  }, [profileDesigner, hudDesigner]);
+
+  useEffect(() => {
+    if (hudDesigner) return;
+    setHudThemeById(account?.hudThemes?.equipped || 1);
+  }, [hudDesigner, account?.hudThemes?.equipped]);
 
   // Detect if we're in a small desktop viewport (non-fullscreen windows, iframes, CrazyGames)
   const isSmallDesktopIframe = () => {
@@ -485,6 +497,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
 
 
   useEffect(() => {
+    gameStartedRef.current = gameStarted;
     if (gameStarted) {
       // prevent accidental exit
       window.onbeforeunload = function(e)
@@ -848,22 +861,15 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
       let isProcessingChange = false;
 
       const checkUserAccountChange = async () => {
+        if (gameStartedRef.current || document.hidden || isProcessingChange) return;
+        isProcessingChange = true;
         try {
           const user = await crazygamesSDK.getUser().catch(() => null);
-          if (!user) return;
+          if (!user || gameStartedRef.current || document.hidden) return;
           const token = await crazygamesSDK.getUserToken().catch(() => null);
+          if (gameStartedRef.current || document.hidden) return;
           const currentUserId = token ? decodeCrazygamesUserId(token) : null;
           if (!currentUserId) return;
-          const existingSecret = window.localStorage.getItem('secret');
-          const hasValidSecret = existingSecret && existingSecret !== 'undefined' && existingSecret !== 'null';
-
-          console.log('[CrazyGames Monitor] Check:', {
-            currentUserId,
-            previousUserId,
-            hasSecret: hasValidSecret,
-            isInitialized,
-            isProcessing: isProcessingChange
-          });
 
           // First time - just initialize
           if (!isInitialized) {
@@ -873,13 +879,8 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
             return;
           }
 
-          // Prevent multiple simultaneous change processing
-          if (isProcessingChange) {
-            console.log('[CrazyGames Monitor] Already processing a change, skipping');
-            return;
-          }
-
           if (!previousUserId && currentUserId) {
+            if (gameStartedRef.current) return;
             await loginWithCurrentCrazygamesUser(user);
             previousUserId = currentUserId;
           }
@@ -887,6 +888,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
           else if (previousUserId && currentUserId && previousUserId !== currentUserId) {
             console.log('[CrazyGames Monitor] User account changed - reloading page to switch accounts');
 
+            if (gameStartedRef.current) return;
             await loginWithCurrentCrazygamesUser(user);
             previousUserId = currentUserId;
           }
@@ -894,15 +896,28 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
           previousUserId = currentUserId;
         } catch (error) {
           console.error('[CrazyGames Monitor] Error checking user account change:', error);
+        } finally {
+          isProcessingChange = false;
         }
       };
 
-      const intervalId = setInterval(checkUserAccountChange, 10000);
+      const checkOnFocus = () => { void checkUserAccountChange(); };
+      const checkOnVisibility = () => {
+        if (!document.hidden) void checkUserAccountChange();
+      };
+      const intervalId = setInterval(checkUserAccountChange, 60000);
 
       // Initial check after a short delay to let SDK fully initialize
-      setTimeout(checkUserAccountChange, 100);
+      const initialCheckId = setTimeout(checkUserAccountChange, 100);
+      window.addEventListener('focus', checkOnFocus);
+      document.addEventListener('visibilitychange', checkOnVisibility);
 
-      return () => clearInterval(intervalId);
+      return () => {
+        clearInterval(intervalId);
+        clearTimeout(initialCheckId);
+        window.removeEventListener('focus', checkOnFocus);
+        document.removeEventListener('visibilitychange', checkOnVisibility);
+      };
     }
   }, [dispatch]);
 
@@ -973,7 +988,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
       const go = () => {
         setPendingRespawn(null);
         setGameStarted(true);
-        window.phaser_game?.events.emit('startGame', name);
+        game?.events.emit('startGame', name);
       }
       // playVideoAd().then(() => {
       //   go();
@@ -1198,7 +1213,6 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
       <LoadingScreen
         progress={loadingProgress}
         instantStart={instantStart}
-        waitingForConnection={assetsLoaded && !isConnected && !connectionError}
         connectionError={connectionError}
       />
       <GameComponent
@@ -1211,6 +1225,7 @@ function App({ profileDesigner = false }: { profileDesigner?: boolean }) {
         setGame={setGame}
         openLeaderboard={openLeaderboard}
         onPendingRespawn={(info: any) => setPendingRespawn(info)}
+        hudDesigner={hudDesigner}
       />
       {connectionError && (
         <Modal

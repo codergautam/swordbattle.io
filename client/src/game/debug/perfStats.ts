@@ -34,6 +34,7 @@ function wrap(proto: any, name: string, ph: Phase) {
 }
 
 export function initPerfStats(scene?: any) {
+  if (process.env.NODE_ENV === 'production') return;
   try {
     enabled = typeof window !== 'undefined'
       && new URLSearchParams(window.location.search).has('perfstats');

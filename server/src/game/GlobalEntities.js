@@ -43,7 +43,15 @@ class GlobalEntities {
         if (this.game.newEntities.has(entity)) {
           this.filterAndWrite(this.getChangesCache, id, fields);
         } else {
-          this.filterAndWrite(this.getChangesCache, id, entity.state.getChanges());
+          const changes = entity.state.getChanges();
+          if (Object.keys(changes).length) {
+            changes.id = fields.id;
+            changes.type = fields.type;
+            if (changes.shapeData) {
+              changes.shapeData = { ...fields.shapeData, ...changes.shapeData };
+            }
+          }
+          this.filterAndWrite(this.getChangesCache, id, changes);
         }
       });
       this.game.removedEntities.forEach(entity => {

@@ -30,11 +30,7 @@ module.exports = {
   // Recaptcha Secret key
   recaptchaSecretKey: process.env.RECAPTCHA_SECRET_KEY || '',
 
-  // Captcha costs the player a round trip to Google before they can join, so
-  // it stays off until botting forces it back on. MUST match the client's
-  // REACT_APP_CAPTCHA_ENABLED - if this is on and the client is off, every
-  // client gets its socket closed.
-  captchaEnabled: process.env.CAPTCHA_ENABLED === 'true' && !!process.env.RECAPTCHA_SECRET_KEY,
+  captchaEnabled: false,
 
   // Game configuration settings
   tickRate: 20,

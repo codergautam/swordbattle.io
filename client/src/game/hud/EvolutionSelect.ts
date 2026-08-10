@@ -244,10 +244,10 @@ class EvolutionSelect extends HudComponent {
 
   private drawCard(card: { panel: Phaser.GameObjects.Graphics; key: string }, hot: boolean) {
     const g = card.panel;
+    const t = getTheme();
     g.clear();
-    drawPanel(g, -cardW / 2, -cardH / 2, cardW, cardH, { radius: 10 });
+    drawPanel(g, -cardW / 2, -cardH / 2, cardW, cardH, { radius: t.radius });
     if (hot) {
-      const t = getTheme();
       g.fillStyle(t.border, 0.16);
       g.fillRoundedRect(-cardW / 2, -cardH / 2, cardW, cardH, 10);
       g.lineStyle(3, 0xffffff, 0.95);
@@ -256,12 +256,22 @@ class EvolutionSelect extends HudComponent {
   }
 
   private redrawBg() {
+    const t = getTheme();
     const count = this.cards.length;
     const rowW = count > 0 ? count * cardW + (count - 1) * cardGap : 240;
     const w = rowW + pad * 2;
     const bottom = this.minimized ? cardsTop - 8 : cardsTop + cardH + pad + footerH;
     this.bg.clear();
-    drawPanel(this.bg, -w / 2, -24, w, bottom + 24, { radius: 14 });
+    drawPanel(this.bg, -w / 2, -24, w, bottom + 24, { radius: t.radius * 1.4 });
+  }
+
+  applyTheme() {
+    if (!this.bg) return;
+    const t = getTheme();
+    this.title?.setColor(t.accent).setStroke(t.textOutline, t.textOutlineW);
+    this.footer?.setStroke(t.textOutline, t.textOutlineW);
+    this.redrawBg();
+    for (const card of this.cards) this.drawCard(card, card.key === this.hoverKey);
   }
 
   update(dt = 16) {

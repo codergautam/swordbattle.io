@@ -1,6 +1,7 @@
 import HudComponent from './HudComponent';
 import { BiomeTypes, EntityTypes, FlagTypes } from '../Types';
 import { drawPanel } from './panel';
+import { getTheme } from '../../hudTheme';
 
 class ProgressBar extends HudComponent {
   panelG!: Phaser.GameObjects.Graphics;
@@ -31,8 +32,9 @@ class ProgressBar extends HudComponent {
 
   initialize() {
     this.panelG = this.game.add.graphics();
+    const t = getTheme();
     drawPanel(this.panelG, 0, 0, this.width, this.height, {
-      radius: this.height / 2, bg: 0x403f3f, bgAlpha: 1,
+      radius: Math.min(this.height / 2, t.radius * 1.7), bg: 0x403f3f, bgAlpha: 1,
     });
 
     this.fillG = this.game.add.graphics();
@@ -83,6 +85,16 @@ class ProgressBar extends HudComponent {
     this.progressBarContainer = this.hud.scene.add.container(0, 0, [this.panelG, this.fillG, this.levelText, this.inSafezoneMessage, this.burningText]);
     this.container = this.game.add.container(0, 0, [this.progressBarContainer, this.levelUpText, this.stabbedText]);
     this.hud.add(this.container);
+  }
+
+  applyTheme() {
+    if (!this.panelG) return;
+    const t = getTheme();
+    this.panelG.clear();
+    drawPanel(this.panelG, 0, 0, this.width, this.height, {
+      radius: Math.min(this.height / 2, t.radius * 1.7), bg: 0x403f3f, bgAlpha: 1,
+    });
+    this.levelText?.setColor(t.text).setStroke(t.textOutline, t.textOutlineW);
   }
 
   private lastFillPx = -1;

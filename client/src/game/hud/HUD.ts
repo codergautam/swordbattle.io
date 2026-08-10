@@ -30,6 +30,7 @@ class HUD {
   scale = 0.8;
   hidden = false;
   private _chatSettingHandler: ((e: Event) => void) | null = null;
+  private themeHandler: (() => void) | null = null;
 
   constructor(game: Game) {
     this.game = game;
@@ -74,6 +75,11 @@ class HUD {
       }
     };
     window.addEventListener('chatSettingChanged', this._chatSettingHandler);
+    this.themeHandler = () => {
+      for (let i = 0; i < this.components.length; i++) this.components[i].applyTheme?.();
+    };
+    window.addEventListener('hudThemeChanged', this.themeHandler);
+    this.themeHandler();
   }
 
   applyCrazyGamesSettings() {
@@ -163,6 +169,10 @@ class HUD {
     if (this._chatSettingHandler) {
       window.removeEventListener('chatSettingChanged', this._chatSettingHandler);
       this._chatSettingHandler = null;
+    }
+    if (this.themeHandler) {
+      window.removeEventListener('hudThemeChanged', this.themeHandler);
+      this.themeHandler = null;
     }
   }
 }

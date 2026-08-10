@@ -184,22 +184,25 @@ export function getCookies() {
 }
 
 export function findCoinCollector(coin: Coin, players: Player[]) {
-    const errorThreshold = 1.1;
-    const coinRadius = coin.shape.radius * coin.container.scale * errorThreshold;
-    const coinX = coin.shape.x;
-    const coinY = coin.shape.y;
+  const errorThreshold = 1.25;
+  const coinX = coin.shape.x;
+  const coinY = coin.shape.y;
+  let collector: Player | null = null;
+  let nearestDistance = Infinity;
 
-    let entity = null;
-    players.forEach((player: Player) => {
-      const playerRadius = player.shape.radius * 2 * errorThreshold;
-      if (playerRadius > coinRadius) {
-        const distance = Math.sqrt(Math.pow(player.shape.x - coinX, 2) + Math.pow(player.shape.y - coinY, 2));
-        if (distance < playerRadius) {
-          entity = player;
-        }
-      }
-    });
-    return entity;
+  players.forEach((player: Player) => {
+    if (!player.shape || !player.container || player.removed) return;
+    const dx = player.shape.x - coinX;
+    const dy = player.shape.y - coinY;
+    const distance = dx * dx + dy * dy;
+    const pickupRadius = (player.shape.radius + coin.shape.radius) * errorThreshold;
+    if (distance <= pickupRadius * pickupRadius && distance < nearestDistance) {
+      collector = player;
+      nearestDistance = distance;
+    }
+  });
+
+  return collector;
 }
 
 

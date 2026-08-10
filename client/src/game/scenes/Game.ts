@@ -14,6 +14,7 @@ import { updateWind } from '../effects/Wind';
 import { updateBiomeEffects, resetBiomeEffects } from '../effects/biomeEffects';
 import { initPerfStats, tickPerfStats } from '../debug/perfStats';
 import { initAblation } from '../debug/ablation';
+import { reportIntegrityViolation } from '../integrity';
 import { crazygamesSDK } from '../../crazygames/sdk';
 import * as cosmetics from '../cosmetics.json';
 const {skins} = cosmetics;
@@ -47,6 +48,7 @@ export default class Game extends Phaser.Scene {
   private _contextRestoredHandler: (() => void) | null = null;
   private _contextWasLost = false;
   _isZooming = false;
+  private zoomMismatchFrames = 0;
 
 	constructor() {
 		super('game');
@@ -632,7 +634,18 @@ export default class Game extends Phaser.Scene {
     this.refreshScreenEffects();
     this.soundManager.update(dt);
     this.gameState.updateTick(dt);
-    (this.cameras.main as any).advanceEffects(dt);
+    const camera = this.cameras.main as any;
+    camera.advanceEffects(dt);
+    if (!this._isZooming) {
+      const expectedZoom = this.zoom * this.scaleZoom;
+      if (Math.abs(camera.zoom - expectedZoom) > 0.02) {
+        camera.setZoom(expectedZoom);
+        this.zoomMismatchFrames++;
+        if (this.zoomMismatchFrames >= 3) reportIntegrityViolation();
+      } else {
+        this.zoomMismatchFrames = 0;
+      }
+    }
     this.updateCameraDrift(dt);
     this.gameState.updateGraphics(dt);
     this.updateBackgroundTile();

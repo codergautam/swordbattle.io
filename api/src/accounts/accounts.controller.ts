@@ -49,7 +49,7 @@ export class AccountsController {
     const itemId = request.params.itemId;
     const type = request.params.type;
 
-    if(!['skins'].includes(type)) {
+    if(!['skins', 'themes', 'hudThemes'].includes(type)) {
       return { error: 'Invalid type' };
     }
 
@@ -85,7 +85,7 @@ export class AccountsController {
     const itemId = request.params.itemId;
     const type = request.params.type;
 
-    if (!['skins', 'themes'].includes(type)) {
+    if (!['skins', 'themes', 'hudThemes'].includes(type)) {
       return { error: 'Invalid type' };
     }
 

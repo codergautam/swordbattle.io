@@ -125,6 +125,26 @@ export const NAME_REGISTRY: Record<string, RegistryEntry> = {
     leaderboard: { fill: { type: 'linear', angle: 90, stops: [{ color: '#ff0000', pos: 0 }, { color: '#ff8002', pos: 1 }] }, outline: { type: 'linear', angle: 180, stops: [{ color: '#6e0009', pos: 0 }, { color: '#ee3700', pos: 1 }] }, outlineWidth: 'medium', shadow: { type: 'linear', angle: 180, stops: [{ color: '#ff6a00', pos: 0 }, { color: '#ffab00', pos: 1 }] } },
     game: { fill: { type: 'linear', angle: 90, stops: [{ color: '#ff0000', pos: 0 }, { color: '#ff8c00', pos: 1 }] }, outline: '#00090c', outlineWidth: 'medium', shadow: { type: 'linear', angle: 180, stops: [{ color: '#ffa500', pos: 0 }, { color: '#ff0000', pos: 1 }] } },
   },
+  'angel': {
+    leaderboard: { fill: { type: 'linear', angle: 135, stops: [{ color: '#03ecfc', pos: 0 }, { color: '#005157', pos: 1 }] }, outline: { type: 'linear', angle: 135, stops: [{ color: '#0033ff', pos: 0 }, { color: '#001361', pos: 1 }] }, shadow: { type: 'linear', angle: 135, stops: [{ color: '#000000', pos: 0 }, { color: '#000000', pos: 1 }] } },
+    game: { fill: { type: 'linear', angle: 135, stops: [{ color: '#03ecfc', pos: 0 }, { color: '#005157', pos: 1 }] }, outline: { type: 'linear', angle: 180, stops: [{ color: '#0033ff', pos: 0 }, { color: '#001361', pos: 1 }] }, shadow: { type: 'linear', angle: 135, stops: [{ color: '#000000', pos: 0 }, { color: '#000000', pos: 1 }] } },
+  },
+  'cool guy 53': {
+    leaderboard: { fill: '#00d2ff', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#574ddd', pos: 1 }] }, outlineWidth: 'medium' },
+    game: { fill: '#5b8cff', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#574ddd', pos: 1 }] } },
+  },
+  'codergautam': {
+    leaderboard: { fill: '#ff0000', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#ee0000', pos: 1 }] }, outlineWidth: 'medium' },
+    game: { fill: '#ff0000', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#ee0000', pos: 1 }] }, outlineWidth: 'medium' },
+  },
+  'update testing accou': {
+    leaderboard: { fill: '#00ff00', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#00bd00', pos: 1 }] }, outlineWidth: 'medium' },
+    game: { fill: '#00ff00', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#00bd00', pos: 1 }] }, outlineWidth: 'medium' },
+  },
+  'awes0me': {
+    leaderboard: { fill: '#ffff00', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#acac00', pos: 1 }] }, outlineWidth: 'medium' },
+    game: { fill: '#ffff00', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#acac00', pos: 1 }] }, outlineWidth: 'medium' },
+  },
 };
 
 export function resolveNameStyle(

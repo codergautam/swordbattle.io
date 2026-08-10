@@ -1,7 +1,6 @@
-import { Application, utils, Rectangle, TextMetrics, Sprite as PixiSprite, Texture as PixiTexture } from 'pixi.js-legacy';
+import { Application, GC_MODES, utils, Rectangle, TextMetrics, Sprite as PixiSprite, Texture as PixiTexture } from 'pixi.js-legacy';
 import { screenEffectsRuntime } from '../../effects/screenEffectsState';
 import { detectWebGLQuality } from './webglQuality';
-import settingsManager, { Settings } from '../../Settings';
 import { Container } from '../display';
 import { perfCounters } from '../display/Graphics';
 import { TimeStep } from './TimeStep';
@@ -49,31 +48,21 @@ export class Game {
   constructor(config: any) {
     this.config = config || {};
     this.antialias = this.config.antialias !== false;
-    (window as any).phaser_game = this;
-
-    let explicitUseWebGL: boolean | undefined;
-    try { explicitUseWebGL = settingsManager.get().useWebGL; } catch (e) {}
-
-    if (explicitUseWebGL !== false) {
-      try {
-        localStorage.removeItem('swordbattle:webgl_slow');
-        localStorage.removeItem('swordbattle:webgl_failed');
-        localStorage.removeItem('swordbattle:webgl_failed_at');
-        localStorage.removeItem('swordbattle:webgl_lost_count');
-        localStorage.removeItem('swordbattle:webgl_lost_at');
-      } catch (e) {}
-      try { sessionStorage.removeItem('swordbattle:canvasThisSession'); } catch (e) {}
-    }
 
     let compatRequested = false;
     let compatReason = '';
     const override = rendererOverride();
+    let canvasThisSession = false;
+    try {
+      canvasThisSession = sessionStorage.getItem('swordbattle:canvasFallbackV4') === '1';
+      if (canvasThisSession) sessionStorage.removeItem('swordbattle:canvasFallbackV4');
+    } catch (e) {}
     try {
       if (override === 'canvas') {
         compatRequested = true;
         compatReason = '?renderer=canvas override';
-      } else if (explicitUseWebGL === false) {
-        compatRequested = true; compatReason = 'user setting';
+      } else if (override !== 'webgl' && canvasThisSession) {
+        compatRequested = true; compatReason = 'WebGL failed in this session';
       } else if (override !== 'webgl' && detectWebGLQuality() === 'none') {
         compatRequested = true; compatReason = 'no WebGL available';
       }
@@ -120,8 +109,9 @@ export class Game {
     }
     this.app = app;
     this.isCanvasMode = !(this.app.renderer as any).gl;
+    const textureGC = (this.app.renderer as any).textureGC;
+    if (textureGC) textureGC.mode = GC_MODES.MANUAL;
     if (this.isCanvasMode) console.log('[PixiGame] running in compatibility (canvas) mode');
-    (window as any).__rendererMode = this.isCanvasMode ? 'canvas' : 'webgl';
     this.canvas = this.app.view as unknown as HTMLCanvasElement;
 
     const parent = typeof this.config.parent === 'string'
@@ -195,11 +185,16 @@ export class Game {
     this.scale = { resize() {}, setZoom() {}, width: 0, height: 0 } as any;
   }
 
-  static disableWebGLAndReload(): void {
-    try { Settings.useWebGL = false; } catch (e) { /* noop */ }
-    try { localStorage.removeItem('swordbattle:WebGL'); } catch (e) { /* noop */ }
+  static switchToCanvasAndReload(): void {
+    try { sessionStorage.setItem('swordbattle:canvasFallbackV4', '1'); } catch (e) {}
     try { (window as any).onbeforeunload = null; } catch (e) { /* noop */ }
     try { window.location.reload(); } catch (e) { /* noop */ }
+  }
+
+  runTextureGC(): void {
+    const textureGC = (this.app?.renderer as any)?.textureGC;
+    if (!textureGC) return;
+    try { textureGC.run(); } catch (e) {}
   }
 
   private showFatalOverlay(title: string, message: string, offerCompatMode = false): void {
@@ -228,7 +223,7 @@ export class Game {
       compat.textContent = 'Switch to compatibility mode';
       compat.style.cssText = 'display:block;margin:14px auto 0;font:inherit;font-size:14px;font-weight:700;'
         + 'color:#cfcfd6;background:transparent;border:2px solid #555;border-radius:8px;padding:8px 18px;cursor:pointer;';
-      compat.onclick = () => { Game.disableWebGLAndReload(); };
+      compat.onclick = () => { Game.switchToCanvasAndReload(); };
       box.appendChild(compat);
     }
     o.appendChild(box);
@@ -252,8 +247,8 @@ export class Game {
     c.width = 256; c.height = 256;
     const ctx = c.getContext('2d')!;
     const g = ctx.createRadialGradient(128, 128, 40, 128, 128, 150);
-    g.addColorStop(0, 'rgba(0,0,0,0.55)');
-    g.addColorStop(1, 'rgba(0,0,0,1)');
+    g.addColorStop(0, 'rgba(0,0,0,0.28)');
+    g.addColorStop(1, 'rgba(0,0,0,0.72)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 256, 256);
     const spr = new PixiSprite(PixiTexture.from(c));
@@ -342,6 +337,9 @@ export class Game {
     const frame = this.cullFrame++;
     for (let i = 0, n = kids.length; i < n; i++) {
       const c = kids[i];
+      if (c.visible === false) {
+        continue;
+      }
       if (c._cullR === undefined || ((frame + i) % 90) === 0) {
         let r = 0;
         try {
@@ -426,7 +424,7 @@ export class Game {
     this.onContextLost = null;
     this.onContextRestored = null;
 
-    if (this.failed) { if ((window as any).phaser_game === this) (window as any).phaser_game = null; return; }
+    if (this.failed) return;
     try { this.loop.destroy(); } catch (e) { /* noop */ }
     try {
       const scene = this.scene.getMain();
@@ -435,6 +433,5 @@ export class Game {
       if (scene && scene.sound && typeof scene.sound.destroy === 'function') scene.sound.destroy();
     } catch (e) { /* noop */ }
     try { this.app.destroy(removeCanvas, { children: true, texture: false, baseTexture: false }); } catch (e) { /* noop */ }
-    if ((window as any).phaser_game === this) (window as any).phaser_game = null;
   }
 }

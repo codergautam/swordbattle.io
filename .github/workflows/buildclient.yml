@@ -16,13 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: false
-      # MUST match the game server's CAPTCHA_ENABLED. The client only sends a
-      # captcha token when this is 'true'; a server with captcha still enforced
-      # closes the socket of every client that does not send one, so flipping this
-      # on or off means deploying the SERVER FIRST, then the client. This workflow
-      # deploys the client automatically on push to main and the server not at all.
-      REACT_APP_CAPTCHA_ENABLED: 'false'
-      REACT_APP_RECAPTCHA_CLIENT_KEY: 6LdVxgYdAAAAAPtvjrXLAzSd2ANyzIkiSqk_yFpt
       REACT_APP_API: api.swordbattle.io
       REACT_APP_ENDPOINT_US: na.swordbattle.io
       REACT_APP_ENDPOINT_EU: eu.swordbattle.io

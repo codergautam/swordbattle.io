@@ -3,6 +3,7 @@ const IdPool = require('./components/IdPool');
 const QuadTree = require('./components/Quadtree');
 const GameMap = require('./GameMap');
 const GlobalEntities = require('./GlobalEntities');
+const CombatDirector = require('./components/CombatDirector');
 const Player = require('./entities/Player');
 const helpers = require('../helpers');
 const config = require('../config');
@@ -10,6 +11,11 @@ const filter = null;
 const Types = require('./Types');
 const { getBannedIps } = require('../moderation');
 const { filterChatMessage } = helpers;
+const {
+  normalizeAngle,
+  sanitizeInputEvents,
+  sanitizeMouse,
+} = require('./components/InputSanitizer');
 
 function hasOwnProperties(obj) {
   for (const key in obj) {
@@ -27,6 +33,7 @@ class Game {
     this.idPool = new IdPool();
     this.map = new GameMap(this);
     this.globalEntities = new GlobalEntities(this);
+    this.combatDirector = new CombatDirector(this);
 
     this.entitiesQuadtree = null;
     this._removedEntitiesById = new Map();
@@ -63,6 +70,7 @@ class Game {
       this.processCollisions(entity, response, dt);
     }
     this.map.update(dt);
+    this.combatDirector.update();
   }
 
   processCollisions(entity, response, dt) {
@@ -300,7 +308,7 @@ class Game {
     if (!player || player.removed) return;
 
     if (data.inputs) {
-      for (const input of data.inputs) {
+      for (const input of sanitizeInputEvents(data.inputs)) {
         if (input.inputDown) {
           player.inputs.inputDown(input.inputType);
         } else {
@@ -314,14 +322,16 @@ class Game {
       player.reportedChestCombo = raw >= 8 ? Math.max(1, Math.min(2, (raw >> 3) / 100)) : 1;
       player.reportedChestAt = Date.now();
     }
-    if (data.angle && !isNaN(data.angle)) {
-      player.angle = Number(data.angle);
+    if (data.angle !== undefined && data.angle !== null) {
+      const angle = normalizeAngle(data.angle);
+      if (angle !== null) player.angle = angle;
     }
     if (data.mouse) {
-      if (data.mouse.force === 0) {
+      const mouse = sanitizeMouse(data.mouse);
+      if (!mouse || mouse.force === 0) {
         player.mouse = null;
       } else {
-        player.mouse = data.mouse;
+        player.mouse = mouse;
       }
     }
     if (data.selectedEvolution) {
@@ -371,7 +381,9 @@ class Game {
       }
     }
     if (data.chatMessage && typeof data.chatMessage === 'string') {
-      player.addChatMessage(data.chatMessage);
+      if (!this.combatDirector.handleCommand(player, data.chatMessage)) {
+        player.addChatMessage(data.chatMessage);
+      }
     }
   }
   createPayload(client) {
@@ -561,6 +573,8 @@ class Game {
     client.fullSync = true;
     client.player = player;
     player.client = client;
+    player.lastKilledByKey = client.lastKilledByKey || null;
+    client.lastKilledByKey = null;
     player.isFirstLife = !!data.firstLife;
     if (client.account) {
       const account = client.account;
@@ -603,6 +617,7 @@ class Game {
 
         player.respawnedAt = Date.now();
         player.respawnKillerName = pendingRespawn.killerName;
+        player.lastKilledByKey = pendingRespawn.killerIdentity || player.lastKilledByKey;
 
         client.pendingRespawn = null;
       } else {
@@ -667,6 +682,7 @@ class Game {
     this.removedEntities.add(entity);
     this._removedEntitiesById.set(entity.id, entity);
     entity.removed = true;
+    if (entity.type === Types.Entity.Player) this.combatDirector.forgetPlayer(entity);
   }
 
   handleNickname(nickname) {

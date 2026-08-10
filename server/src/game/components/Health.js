@@ -20,9 +20,18 @@ class Health {
   }
 
   damaged(damage, opts = {}) {
+    if (this.isDead) return 0;
+
+    const safeDamage = Number(damage);
+    const maxHealth = Number(this.max.value);
+    if (!Number.isFinite(safeDamage) || safeDamage <= 0) return 0;
+    if (!Number.isFinite(maxHealth) || maxHealth <= 0) return 0;
+
     const { source = 'melee' } = opts;
-    const coef = damage / this.max.value;
-    this.percent -= coef;
+    const healthBefore = this.percent * maxHealth;
+    const appliedDamage = Math.min(safeDamage, healthBefore);
+    const coef = appliedDamage / maxHealth;
+    this.percent = appliedDamage >= healthBefore ? 0 : this.percent - coef;
     this.lastDamage = Date.now();
 
     const newWaitUntil = this.lastDamage + this.regenWait.value * Health.sourceWaitMult(source);
@@ -30,19 +39,36 @@ class Health {
       this.regenWaitUntil = newWaitUntil;
     }
 
-    if (this.percent <= 0) {
-      this.percent = 0;
+    if (this.percent === 0) {
       this.isDead = true;
     }
+    return appliedDamage;
   }
 
   gain(amount) {
-    this.percent = Math.min(this.percent + amount / this.max.value, 1);
+    if (this.isDead) return 0;
+
+    const safeAmount = Number(amount);
+    const maxHealth = Number(this.max.value);
+    if (!Number.isFinite(safeAmount) || safeAmount <= 0) return 0;
+    if (!Number.isFinite(maxHealth) || maxHealth <= 0) return 0;
+
+    const before = this.percent;
+    this.percent = Math.min(this.percent + safeAmount / maxHealth, 1);
+    return (this.percent - before) * maxHealth;
   }
 
   update(dt) {
+    if (this.isDead) return;
     if (Date.now() < this.regenWaitUntil) return;
-    const coef = this.regen.value / this.max.value * dt;
+    if (!Number.isFinite(dt) || dt <= 0) return;
+
+    const maxHealth = Number(this.max.value);
+    const regeneration = Number(this.regen.value);
+    if (!Number.isFinite(maxHealth) || maxHealth <= 0) return;
+    if (!Number.isFinite(regeneration) || regeneration <= 0) return;
+
+    const coef = regeneration / maxHealth * dt;
     this.percent = Math.min(this.percent + coef, 1);
   }
 

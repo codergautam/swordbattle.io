@@ -36,12 +36,13 @@ class Client {
       type: 0
     }
     this.pendingRespawn = null;
+    this.lastKilledByKey = null;
 
     // Rate limiting
     this.messageCount = 0;
-    this.messageResetTimer = 0;
-    this.maxMessagesPerSecond = 500; 
-    this.maxQueueSize = 250;
+    this.messageWindowStartedAt = Date.now();
+    this.maxMessagesPerSecond = 180;
+    this.maxQueueSize = 90;
 
     this.lastPlayTime = 0;
     this.playCount = 0;
@@ -55,6 +56,12 @@ class Client {
   }
 
   addMessage(message) {
+    const now = Date.now();
+    if (now - this.messageWindowStartedAt >= 1000) {
+      this.messageCount = 0;
+      this.messageWindowStartedAt = now;
+    }
+
     // Rate limiting check
     this.messageCount++;
     if (this.messageCount > this.maxMessagesPerSecond) {
@@ -141,16 +148,9 @@ class Client {
       }
     }
 
-    // Reset rate limit counter every second (60 ticks at 60 TPS)
-    this.messageResetTimer += 1;
-    if (this.messageResetTimer >= 60) {
-      this.messageCount = 0;
-      this.messageResetTimer = 0;
-    }
-
-    // Reset decode error counter every 10 seconds (600 ticks at 60 TPS)
-    this.decodeErrorResetTimer += 1;
-    if (this.decodeErrorResetTimer >= 600) {
+    // Reset malformed-message accounting on wall time, independent of TPS.
+    this.decodeErrorResetTimer += dt;
+    if (this.decodeErrorResetTimer >= 10) {
       this.decodeErrorCount = 0;
       this.decodeErrorResetTimer = 0;
     }

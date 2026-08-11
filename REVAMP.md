@@ -20,6 +20,12 @@ This branch deliberately changes gameplay and server behavior without modifying 
 - Health rejects negative, non-finite, post-death, and overkill mutations.
 - The server package now has a Node-native automated test suite covering the new systems.
 
+## Performance observability
+
+- `/serverinfo` reports cumulative tick timing by phase, packet-size totals grouped by full sync/delta/control traffic, dropped packet count, one-second event-loop delay percentiles, and process memory usage.
+- `npm run bench` runs seeded collision and protocol snapshot benchmarks. Each benchmark validates a deterministic checksum before reporting timings, so performance comparisons also catch behavior drift.
+- Spectator full sync no longer duplicates static map objects in both `mapData.staticObjects` and `entities`; player full sync remains unchanged.
+
 ## Protected surfaces
 
 The revamp does not modify:

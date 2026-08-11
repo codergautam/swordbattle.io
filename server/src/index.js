@@ -92,6 +92,7 @@ function start() {
         entityCnt: game.entities.size,
         playerCnt: game.players.size,
         realPlayersCnt: [...game.players.values()].filter(p => !p.isBot).length,
+        performance: server.performanceMetrics.snapshot(),
       }));
     } catch (err) {
       console.error('[ERROR] /serverinfo error:', err);
@@ -133,7 +134,8 @@ function start() {
 
   function stop(reason) {
     try {
-    console.log('Stopping game...', reason);
+      server.performanceMetrics.close();
+      console.log('Stopping game...', reason);
     for (const client of server.clients.values()) {
       console.log(`Disconnecting client ${client.id}`);
       if (client.player) {

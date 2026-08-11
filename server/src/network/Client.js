@@ -114,9 +114,22 @@ class Client {
 
   send(data) {
     if (!data) return;
+    const metrics = this.server && this.server.performanceMetrics;
+    const encodeStartedAt = metrics ? metrics.now() : 0;
     const packet = Protocol.encode(data);
+    const encodeMs = metrics ? metrics.now() - encodeStartedAt : 0;
+    let socketSendMs = 0;
     if (!this.isSocketClosed) {
+      const sendStartedAt = metrics ? metrics.now() : 0;
       const result = this.socket.send(packet, true, true);
+      socketSendMs = metrics ? metrics.now() - sendStartedAt : 0;
+      if (metrics) {
+        const kind = data.fullSync ? 'fullSync' : (data.isPong ? 'control' : 'delta');
+        metrics.recordPacket(packet.byteLength, {
+          kind,
+          dropped: result === 2,
+        });
+      }
       if (result === 2) {
         this.droppedPayloads = (this.droppedPayloads || 0) + 1;
         if (this.droppedPayloads % 100 === 0) {
@@ -126,6 +139,7 @@ class Client {
         this.droppedPayloads = 0;
       }
     }
+    return { packetBytes: packet.byteLength, encodeMs, socketSendMs };
   }
 
   update(dt) {

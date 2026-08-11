@@ -51,14 +51,21 @@ class Game {
   }
 
   tick(dt) {
+    const metrics = this.performanceMetrics;
+    let phaseStartedAt = metrics ? metrics.now() : 0;
     for (const [id, entity] of this.entities) {
       // Not a sword
       const entityType = entity.type;
       if (entityType === Types.Entity.Sword) continue;
       entity.update(dt);
     }
+    if (metrics) metrics.recordPhase('entityUpdate', metrics.now() - phaseStartedAt);
 
+    if (metrics) phaseStartedAt = metrics.now();
     this.updateQuadtree(this.entitiesQuadtree, this.entities);
+    if (metrics) metrics.recordPhase('spatialIndexRebuild', metrics.now() - phaseStartedAt);
+
+    if (metrics) phaseStartedAt = metrics.now();
     const response = new SAT.Response();
     for (const [id, entity] of this.entities) {
       if (entity.removed) continue;
@@ -69,8 +76,15 @@ class Game {
 
       this.processCollisions(entity, response, dt);
     }
+    if (metrics) metrics.recordPhase('collisionProcessing', metrics.now() - phaseStartedAt);
+
+    if (metrics) phaseStartedAt = metrics.now();
     this.map.update(dt);
+    if (metrics) metrics.recordPhase('mapUpdate', metrics.now() - phaseStartedAt);
+
+    if (metrics) phaseStartedAt = metrics.now();
     this.combatDirector.update();
+    if (metrics) metrics.recordPhase('combatDirector', metrics.now() - phaseStartedAt);
   }
 
   processCollisions(entity, response, dt) {
@@ -409,7 +423,8 @@ class Game {
       client.fullSync = false;
       data.fullSync = true;
       data.selfId = entity.id;
-      data.entities = this.getAllEntities(entity);
+      // Spectator full sync already carries the same static world in mapData.
+      data.entities = this.getAllEntities(entity, !spectator.isSpectating);
       data.globalEntities = this.globalEntities.getAll();
     } else {
       data.entities = this.getEntitiesChanges(entity);
@@ -438,12 +453,14 @@ class Game {
     }
   }
 
-  getAllEntities(player) {
+  getAllEntities(player, includeStatic = true) {
     const entities = {};
 
-    for (const entity of this.entities.values()) {
-      if (entity.isStatic) {
-        entities[entity.id] = entity.state.get();
+    if (includeStatic) {
+      for (const entity of this.entities.values()) {
+        if (entity.isStatic) {
+          entities[entity.id] = entity.state.get();
+        }
       }
     }
 

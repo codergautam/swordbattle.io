@@ -241,6 +241,17 @@ export default class Game extends Phaser.Scene {
     this.deferLoad('bishopOverlay', publicPath + '/assets/game/evolutions/bishop.svg');
     this.deferLoad('bishopCannon', publicPath + '/assets/game/evolutions/bishop-cannon.svg');
     this.deferLoad('bishopChakram', publicPath + '/assets/game/evolutions/bishop-chakram.svg');
+    this.deferLoad('phantomOverlay', publicPath + '/assets/game/evolutions/phantom.svg');
+    this.deferLoad('wraithOverlay', publicPath + '/assets/game/evolutions/wraith.svg');
+    this.deferLoad('medicRevampOverlay', publicPath + '/assets/game/evolutions/medic-revamp.svg');
+    this.deferLoad('seraphOverlay', publicPath + '/assets/game/evolutions/seraph.svg');
+    this.deferLoad('arsenalOverlay', publicPath + '/assets/game/evolutions/arsenal.svg');
+    this.deferLoad('phantomPhase', publicPath + '/assets/game/evolutions/phantom-phase.svg');
+    this.deferLoad('wraithPhase', publicPath + '/assets/game/evolutions/wraith-phase.svg');
+    this.deferLoad('medicPulse', publicPath + '/assets/game/evolutions/medic-pulse.svg');
+    this.deferLoad('seraphPulse', publicPath + '/assets/game/evolutions/seraph-pulse.svg');
+    this.deferLoad('arsenalCannon', publicPath + '/assets/game/evolutions/arsenal-cannon.svg');
+    this.deferLoad('arsenalChakram', publicPath + '/assets/game/evolutions/arsenal-chakram.svg');
 
     this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');

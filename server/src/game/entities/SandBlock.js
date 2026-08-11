@@ -40,6 +40,7 @@ class SandBlock extends Entity {
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.modifiers?.phaseImmune) return;
     if (entity.depth !== this.depth) return;
 
     const mtv = this.shape.getCollisionOverlap(response);

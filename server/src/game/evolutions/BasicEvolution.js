@@ -68,6 +68,8 @@ class BasicEvolution extends Effect {
 
   update(dt) {
     this.player.modifiers.invisible = false;
+    this.player.modifiers.phaseImmune = false;
+    this.player.modifiers.attackLocked = false;
     this.player.modifiers.damageScale = true;
     this.player.wideSwing = false;
     this.player.modifiers.swingWide = false;

@@ -570,6 +570,7 @@ class Player extends Entity {
   }
 
   damaged(damage, entity = null, isThrown = false, opts = null) {
+    if (this.modifiers.phaseImmune) return;
     if (this.cards.choosingCard && this.cards.instantSelect && !this.cards.isTutorial) return;
     if (this.removed) return;
 

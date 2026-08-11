@@ -110,6 +110,10 @@ module.exports = {
     Elite: 36,
     Tracker: 37,
     Bishop: 38,
+    Phantom: 39,
+    Wraith: 40,
+    Seraph: 41,
+    Arsenal: 42,
   },
   Upgrade: {
     None: 0,

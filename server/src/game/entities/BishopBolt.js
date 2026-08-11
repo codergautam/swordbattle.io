@@ -38,6 +38,7 @@ class BishopBolt extends Entity {
   }
 
   processTargetsCollision(entity) {
+    if (this.owner?.modifiers?.attackLocked || entity.modifiers?.phaseImmune) return;
     if (entity.depth !== this.depth || this.isFriendly(entity)) return;
     if (entity.inSafezone || entity.cards?.isTutorial) return;
     if (typeof entity.damaged === 'function') {

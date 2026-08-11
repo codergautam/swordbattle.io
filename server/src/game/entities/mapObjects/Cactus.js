@@ -26,6 +26,7 @@ class Cactus extends Entity {
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.modifiers?.phaseImmune) return;
     if (entity.modifiers?.dashNoclip) return;
     const eCenter = (entity.shape.center && typeof entity.shape.center === 'object')
       ? entity.shape.center

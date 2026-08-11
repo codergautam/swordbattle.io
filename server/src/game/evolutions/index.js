@@ -37,7 +37,7 @@ const TERMINAL_EVOLUTIONS = (() => {
 })();
 
 class EvolutionSystem {
-  static SELECTION_LEVELS = [2, 12, 18, 24];
+  static SELECTION_LEVELS = [2, 12, 18, 24, 42];
   static TERMINAL_EVOLUTIONS = TERMINAL_EVOLUTIONS;
 
   static nextTierAfter(level) {

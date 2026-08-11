@@ -17,6 +17,10 @@ module.exports = class Bishop extends Evolution {
   static chakramHitCooldown = 0.45;
   static cannonRange = 2200;
   static cannonCooldown = 1.15;
+  static cannonDamageScale = 0.45;
+  static cannonSpeed = 1800;
+  static cannonKnockback = 95;
+  static chakramDamageScale = 0.32;
 
   constructor(player) {
     super(player);
@@ -74,7 +78,9 @@ module.exports = class Bishop extends Evolution {
       target.shape.x - this.player.shape.x,
     );
     const bolt = new BishopBolt(this.player.game, this.player, angle, {
-      damage: Math.max(2, this.player.sword.damage.value * 0.45),
+      damage: Math.max(2, this.player.sword.damage.value * this.constructor.cannonDamageScale),
+      speed: this.constructor.cannonSpeed,
+      knockback: this.constructor.cannonKnockback,
     });
     if (!this.player.game.addEntity(bolt)) {
       bolt.removed = true;
@@ -134,7 +140,7 @@ module.exports = class Bishop extends Evolution {
       const lastHit = this.chakramHits.get(entity.id) ?? -Infinity;
       if (this.elapsed - lastHit + Number.EPSILON < this.constructor.chakramHitCooldown) continue;
       this.chakramHits.set(entity.id, this.elapsed);
-      entity.damaged(Math.max(2, this.player.sword.damage.value * 0.32), this.player, false);
+      entity.damaged(Math.max(2, this.player.sword.damage.value * this.constructor.chakramDamageScale), this.player, false);
     }
   }
 
@@ -152,6 +158,8 @@ module.exports = class Bishop extends Evolution {
       this.processChakramField();
       return;
     }
+
+    if (this.player.modifiers.attackLocked) return;
 
     this.cannonCooldown -= dt;
     if (this.cannonCooldown <= 0) {

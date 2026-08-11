@@ -5,7 +5,7 @@ import { getTheme } from '../../hudTheme';
 import { drawPanel } from './panel';
 
 const selectionTiers: Array<[level: number, coins: number]> = [
-  [2, 50], [12, 5000], [18, 20000], [24, 50000],
+  [2, 50], [12, 5000], [18, 20000], [24, 50000], [42, 2000000],
 ];
 const footerH = 22;
 
@@ -401,9 +401,8 @@ class EvolutionSelect extends HudComponent {
       const offerLevel = this.game.gameState?.self?.entity?.activeSelection || 0;
       if (offerLevel > 0) {
         const evo = this.game.gameState?.self?.entity?.evolution ?? 0;
-        const playerLevel = this.game.gameState?.self?.entity?.level ?? 0;
-        const terminal = [14, 15, 17, 35, 36, 37];
-        const isTerminal = terminal.includes(evo) || (evo === 13 && playerLevel >= 18);
+        const terminal = [14, 15, 17, 35, 36, 37, 40, 41, 42];
+        const isTerminal = terminal.includes(evo);
         const next = isTerminal ? undefined : selectionTiers.find(([lvl]) => lvl > offerLevel);
         this.footer.setText(next ? `Next selection at ${next[1].toLocaleString()} coins` : 'Last selection');
       }

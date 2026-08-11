@@ -45,11 +45,13 @@ const Entity = {
   SandBall: 42,
   Ore: 43,
   AmbientShrub: 44,
+  Zombie: 45,
 };
 
 const Mobs = [
   Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Santa, Entity.Chimera, Entity.Roku, Entity.Ancient, Entity.Cat, Entity.Fish, Entity.AngryFish, Entity.IceSpirit,
   Entity.Sphinx,
+  Entity.Zombie,
 ];
 const Groups = {
   Obstacles: [

@@ -164,6 +164,7 @@ class Player extends Entity {
     state.previousLevelCoins = this.levels.previousLevelCoins;
     state.upgradePoints = this.levels.upgradePoints;
     state.skin = this.skin;
+    state.valorCrests = Number(this.client?.account?.valorCrests) || 0;
 
     state.buffs = structuredClone(this.levels.buffs);
 
@@ -819,7 +820,7 @@ class Player extends Entity {
 
     super.remove();
 
-    if (this.name !== "Update Testing Account" && !this.cards.isTutorial) {
+    if (this.shouldDropCurrencyOnRemove() && this.name !== "Update Testing Account" && !this.cards.isTutorial) {
       let dropAmount = this.calculateDropAmount();
       if (this.client && this.client.insuranceUsed && this.cards.hasMajor(130)) {
         const keptGold = Math.round(this.levels.coins * 0.40);
@@ -827,6 +828,10 @@ class Player extends Entity {
       }
       this.game.map.spawnCoinsInShape(this.shape, dropAmount, this.client?.account?.id);
     }
+  }
+
+  shouldDropCurrencyOnRemove() {
+    return true;
   }
 
   calculateDropAmount() {

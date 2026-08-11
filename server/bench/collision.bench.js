@@ -1,8 +1,10 @@
 const { performance } = require('node:perf_hooks');
 const QuadTree = require('../src/game/components/Quadtree');
+const WorldIndex = require('../src/game/components/WorldIndex');
 const { rectangleRectangle } = require('../src/game/collisions');
 
-const DEFAULT_SIGNATURE = '28329:6120:3015404203';
+const LEGACY_SIGNATURE = '28329:6120:3015404203';
+const WORLD_INDEX_SIGNATURE = '6120:6120:3190863947';
 
 function createRandom(seed) {
   let state = seed >>> 0;
@@ -54,13 +56,16 @@ function createCollisionFixture(options = {}) {
   return { worldSize, rectangles, queries };
 }
 
-function executeCollisionPass(fixture) {
-  const tree = new QuadTree({
+function executeCollisionPass(fixture, implementation = 'worldIndex') {
+  const boundary = {
     x: 0,
     y: 0,
     width: fixture.worldSize,
     height: fixture.worldSize,
-  }, 10, 5);
+  };
+  const tree = implementation === 'legacy'
+    ? new QuadTree(boundary, 10, 5)
+    : new WorldIndex(boundary, 512);
 
   const buildStartedAt = performance.now();
   for (const rectangle of fixture.rectangles) tree.insert(rectangle);
@@ -89,26 +94,41 @@ function executeCollisionPass(fixture) {
 function runCollisionBenchmark(options = {}) {
   const iterations = options.iterations || 5;
   const fixture = createCollisionFixture(options);
-  const samples = [];
-  let expected = null;
-
-  for (let iteration = 0; iteration < iterations; iteration++) {
-    const sample = executeCollisionPass(fixture);
-    const deterministicSignature = `${sample.candidateCount}:${sample.exactHitCount}:${sample.checksum}`;
-    if (expected === null) expected = deterministicSignature;
-    if (deterministicSignature !== expected) {
-      throw new Error(`Collision benchmark became nondeterministic: ${deterministicSignature} != ${expected}`);
+  const runImplementation = (implementation) => {
+    const samples = [];
+    let expected = null;
+    for (let iteration = 0; iteration < iterations; iteration++) {
+      const sample = executeCollisionPass(fixture, implementation);
+      const deterministicSignature = `${sample.candidateCount}:${sample.exactHitCount}:${sample.checksum}`;
+      if (expected === null) expected = deterministicSignature;
+      if (deterministicSignature !== expected) {
+        throw new Error(`${implementation} collision benchmark became nondeterministic`);
+      }
+      samples.push(sample);
     }
-    samples.push(sample);
-  }
+    const average = (key) => samples.reduce((sum, sample) => sum + sample[key], 0) / samples.length;
+    return {
+      signature: expected,
+      buildMeanMs: Number(average('buildMs').toFixed(3)),
+      queryMeanMs: Number(average('queryMs').toFixed(3)),
+      candidateCount: samples[0].candidateCount,
+      exactHitCount: samples[0].exactHitCount,
+      checksum: samples[0].checksum,
+    };
+  };
 
-  const average = (key) => samples.reduce((sum, sample) => sum + sample[key], 0) / samples.length;
+  const legacy = runImplementation('legacy');
+  const worldIndex = runImplementation('worldIndex');
+
   const usesDefaultFixture = options.seed === undefined
     && options.entityCount === undefined
     && options.queryCount === undefined
     && options.worldSize === undefined;
-  if (usesDefaultFixture && expected !== DEFAULT_SIGNATURE) {
-    throw new Error(`Collision behavior drifted: ${expected} != ${DEFAULT_SIGNATURE}`);
+  if (usesDefaultFixture && legacy.signature !== LEGACY_SIGNATURE) {
+    throw new Error(`Legacy collision behavior drifted: ${legacy.signature} != ${LEGACY_SIGNATURE}`);
+  }
+  if (usesDefaultFixture && worldIndex.signature !== WORLD_INDEX_SIGNATURE) {
+    throw new Error(`WorldIndex behavior drifted: ${worldIndex.signature} != ${WORLD_INDEX_SIGNATURE}`);
   }
   return {
     benchmark: 'collision',
@@ -116,11 +136,11 @@ function runCollisionBenchmark(options = {}) {
     iterations,
     entityCount: fixture.rectangles.length,
     queryCount: fixture.queries.length,
-    buildMeanMs: Number(average('buildMs').toFixed(3)),
-    queryMeanMs: Number(average('queryMs').toFixed(3)),
-    candidateCount: samples[0].candidateCount,
-    exactHitCount: samples[0].exactHitCount,
-    checksum: samples[0].checksum,
+    legacy,
+    worldIndex,
+    candidateReductionPercent: Number(
+      ((1 - worldIndex.candidateCount / legacy.candidateCount) * 100).toFixed(2),
+    ),
   };
 }
 

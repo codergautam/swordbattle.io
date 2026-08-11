@@ -16,6 +16,7 @@ import { SupportModule } from './support/support.module';
 import { AnnouncementsModule } from './announcements/announcements.module';
 import { BotsModule } from './bots/bots.module';
 import { AuthService } from './auth/auth.service';
+import { ValorModule } from './valor/valor.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { AuthService } from './auth/auth.service';
     SupportModule,
     AnnouncementsModule,
     BotsModule,
+    ValorModule,
   ],
   providers: [
     AuthService,

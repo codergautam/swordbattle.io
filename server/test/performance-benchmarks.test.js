@@ -23,9 +23,9 @@ test('collision fixture produces a deterministic candidate and hit signature', (
   assert.equal(second.candidateCount, first.candidateCount);
   assert.equal(second.exactHitCount, first.exactHitCount);
   assert.equal(second.checksum, first.checksum);
-  assert.equal(first.candidateCount, 2228);
+  assert.equal(first.candidateCount, first.exactHitCount);
   assert.equal(first.exactHitCount, 787);
-  assert.equal(first.checksum, 3569105845);
+  assert.equal(first.checksum, 880840297);
   assert.ok(first.exactHitCount > 0);
 });
 

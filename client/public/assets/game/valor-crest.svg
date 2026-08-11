@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff5ad"/><stop offset=".22" stop-color="#f5c54a"/><stop offset=".58" stop-color="#9c5f11"/><stop offset=".78" stop-color="#f8da70"/><stop offset="1" stop-color="#80500e"/></linearGradient>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".35" stop-color="#92b7cf"/><stop offset=".62" stop-color="#f0fbff"/><stop offset="1" stop-color="#526a82"/></linearGradient>
+    <radialGradient id="blue" cx="34%" cy="25%" r="80%"><stop stop-color="#72edff"/><stop offset=".28" stop-color="#168fdc"/><stop offset=".7" stop-color="#123b99"/><stop offset="1" stop-color="#081a55"/></radialGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#698ba7"/><stop offset=".42" stop-color="#fff"/><stop offset=".62" stop-color="#aeeeff"/><stop offset="1" stop-color="#425b76"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#02091d" flood-opacity=".8"/></filter>
+  </defs>
+  <g filter="url(#shadow)" stroke="#07152c" stroke-linejoin="round">
+    <path d="M128 13 226 48v64c0 65-39 109-98 132-59-23-98-67-98-132V48z" fill="url(#gold)" stroke-width="12"/>
+    <path d="M128 29 208 58v53c0 53-30 91-80 113-50-22-80-60-80-113V58z" fill="url(#silver)" stroke-width="5"/>
+    <path d="M128 40 196 65v45c0 46-25 79-68 99-43-20-68-53-68-99V65z" fill="url(#blue)" stroke-width="7"/>
+    <path d="M75 76c32-25 73-27 106-6-28 2-57 14-78 37-13 14-21 31-26 50-9-27-10-56-2-81z" fill="#baf8ff" opacity=".25" stroke="none"/>
+    <g stroke-width="6">
+      <path d="m71 55 28 19 70 108-18 12L85 82z" fill="url(#blade)"/>
+      <path d="m185 54-27 20-69 109 18 11 65-111z" fill="url(#blade)"/>
+      <path d="m79 159 35 23-8 14-36-23z" fill="url(#gold)"/>
+      <path d="m177 159-35 23 8 14 36-23z" fill="url(#gold)"/>
+      <path d="m72 174 19 13-13 27-17-11zM184 174l-19 13 13 27 17-11z" fill="#775018"/>
+      <path d="m61 203 18 12-15 13-13-9zM195 203l-18 12 15 13 13-9z" fill="url(#gold)"/>
+    </g>
+    <path d="M128 81 140 112 174 114 147 135 155 168 128 149 101 168 109 135 82 114 116 112z" fill="#71efff" stroke="#dffcff" stroke-width="5"/>
+    <path d="m128 93 6 25 25 2-20 14 6 24-17-14z" fill="#fff" opacity=".52" stroke="none"/>
+  </g>
+  <g fill="#fff">
+    <path d="m190 35 4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/>
+    <circle cx="174" cy="31" r="4"/><circle cx="207" cy="72" r="3"/>
+  </g>
+</svg>

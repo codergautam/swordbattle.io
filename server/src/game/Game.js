@@ -1,10 +1,12 @@
 const SAT = require('sat');
 const IdPool = require('./components/IdPool');
-const QuadTree = require('./components/Quadtree');
+const WorldIndex = require('./components/WorldIndex');
 const GameMap = require('./GameMap');
 const GlobalEntities = require('./GlobalEntities');
 const CombatDirector = require('./components/CombatDirector');
+const WorldEventDirector = require('./components/WorldEventDirector');
 const Player = require('./entities/Player');
+const api = require('../network/api');
 const helpers = require('../helpers');
 const config = require('../config');
 const filter = null;
@@ -34,6 +36,7 @@ class Game {
     this.map = new GameMap(this);
     this.globalEntities = new GlobalEntities(this);
     this.combatDirector = new CombatDirector(this);
+    this.worldEventDirector = new WorldEventDirector(this);
 
     this.entitiesQuadtree = null;
     this._removedEntitiesById = new Map();
@@ -47,7 +50,8 @@ class Game {
     this.map.initialize();
 
     const mapBoundary = this.map;
-    this.entitiesQuadtree = new QuadTree(mapBoundary, 10, 5);
+    this.entitiesQuadtree = new WorldIndex(mapBoundary, 512);
+    this.entitiesQuadtree.sync(this.entities);
   }
 
   tick(dt) {
@@ -62,8 +66,8 @@ class Game {
     if (metrics) metrics.recordPhase('entityUpdate', metrics.now() - phaseStartedAt);
 
     if (metrics) phaseStartedAt = metrics.now();
-    this.updateQuadtree(this.entitiesQuadtree, this.entities);
-    if (metrics) metrics.recordPhase('spatialIndexRebuild', metrics.now() - phaseStartedAt);
+    this.entitiesQuadtree.sync(this.entities);
+    if (metrics) metrics.recordPhase('spatialIndexSync', metrics.now() - phaseStartedAt);
 
     if (metrics) phaseStartedAt = metrics.now();
     const response = new SAT.Response();
@@ -81,6 +85,10 @@ class Game {
     if (metrics) phaseStartedAt = metrics.now();
     this.map.update(dt);
     if (metrics) metrics.recordPhase('mapUpdate', metrics.now() - phaseStartedAt);
+
+    if (metrics) phaseStartedAt = metrics.now();
+    this.worldEventDirector.update(dt);
+    if (metrics) metrics.recordPhase('worldEventDirector', metrics.now() - phaseStartedAt);
 
     if (metrics) phaseStartedAt = metrics.now();
     this.combatDirector.update();
@@ -395,7 +403,8 @@ class Game {
       }
     }
     if (data.chatMessage && typeof data.chatMessage === 'string') {
-      if (!this.combatDirector.handleCommand(player, data.chatMessage)) {
+      if (!this.worldEventDirector.handleCommand(player, data.chatMessage)
+        && !this.combatDirector.handleCommand(player, data.chatMessage)) {
         player.addChatMessage(data.chatMessage);
       }
     }
@@ -442,15 +451,6 @@ class Game {
       return null;
     }
     return data;
-  }
-
-  updateQuadtree(quadtree, entities) {
-    quadtree.clear();
-    for (const [id, entity] of entities) {
-      const collisionRect = entity.shape.boundary;
-      collisionRect.entity = entity;
-      quadtree.insert(collisionRect);
-    }
   }
 
   getAllEntities(player, includeStatic = true) {
@@ -595,6 +595,10 @@ class Game {
     player.isFirstLife = !!data.firstLife;
     if (client.account) {
       const account = client.account;
+      if (!Number.isFinite(Number(account.valorCrests))) account.valorCrests = 0;
+      api.get(`/valor/profile/${account.id}`, profile => {
+        if (!profile?.error && client.account) client.account.valorCrests = Number(profile.crests) || 0;
+      });
       if (account.skins && account.skins.equipped) {
         player.skin = account.skins.equipped;
         player.sword.skin = player.skin;
@@ -679,6 +683,7 @@ class Game {
     }
     this.entities.set(entity.id, entity);
     this.newEntities.add(entity);
+    if (this.entitiesQuadtree) this.entitiesQuadtree.upsertEntity(entity);
     return entity;
   }
 
@@ -694,6 +699,7 @@ class Game {
     if (entity.sword) this.removeEntity(entity.sword);
     if (entity.offhandSword) this.removeEntity(entity.offhandSword);
     this.entities.delete(entity?.id);
+    if (this.entitiesQuadtree) this.entitiesQuadtree.remove(entity);
     this.players.delete(entity);
     this.newEntities.delete(entity);
     this.removedEntities.add(entity);

@@ -168,7 +168,7 @@ class CombatDirector {
     const command = rawMessage.trim().toLowerCase().split(/\s+/, 1)[0];
     switch (command) {
       case '/help':
-        player.setSystemMessage('/stats /dash /bounty /players');
+        player.setSystemMessage('/stats /dash /bounty /players /event /valor /valor top');
         return true;
       case '/stats':
         player.setSystemMessage(`K ${player.kills} A ${player.assists} streak ${player.killStreak}`);

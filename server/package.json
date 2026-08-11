@@ -10,6 +10,7 @@
     "bench": "node bench/run.js",
     "bench:collision": "node bench/collision.bench.js",
     "bench:snapshot": "node bench/snapshot.bench.js",
+    "bench:soak": "node bench/outbreak-soak.bench.js",
     "foreverprod": "forever start src/index.js"
   },
   "author": "",

@@ -5,6 +5,7 @@ const GameMap = require('./GameMap');
 const GlobalEntities = require('./GlobalEntities');
 const CombatDirector = require('./components/CombatDirector');
 const WorldEventDirector = require('./components/WorldEventDirector');
+const DevelopmentAdminCommands = require('./components/DevelopmentAdminCommands');
 const Player = require('./entities/Player');
 const api = require('../network/api');
 const helpers = require('../helpers');
@@ -37,6 +38,7 @@ class Game {
     this.globalEntities = new GlobalEntities(this);
     this.combatDirector = new CombatDirector(this);
     this.worldEventDirector = new WorldEventDirector(this);
+    this.developmentAdminCommands = new DevelopmentAdminCommands(this);
 
     this.entitiesQuadtree = null;
     this._removedEntitiesById = new Map();
@@ -403,7 +405,8 @@ class Game {
       }
     }
     if (data.chatMessage && typeof data.chatMessage === 'string') {
-      if (!this.worldEventDirector.handleCommand(player, data.chatMessage)
+      if (!this.developmentAdminCommands.handleCommand(player, data.chatMessage)
+        && !this.worldEventDirector.handleCommand(player, data.chatMessage)
         && !this.combatDirector.handleCommand(player, data.chatMessage)) {
         player.addChatMessage(data.chatMessage);
       }

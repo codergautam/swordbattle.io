@@ -85,6 +85,7 @@ class ZombieBrain {
       this.aimAngle = this.moveAngle;
       return;
     }
+    z.scaleToTarget(this.target);
 
     const zp = position(z), tp = position(this.target);
     const dx = tp.x - zp.x, dy = tp.y - zp.y;

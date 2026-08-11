@@ -65,6 +65,7 @@ class GameMap {
     this.tutorialSafezone = null;
     this.shape = null;
     this.entityTimers = new Set();
+    this.nextWolfPackId = 1;
     this.coinsCount = map.coinsCount !== undefined ? map.coinsCount : 100;
     this.chestsCount = map.chestCount !== undefined ? map.chestCount : 150;
     this.aiPlayersCount = map.aiPlayersCount !== undefined ? map.aiPlayersCount : 10;
@@ -269,6 +270,10 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
   }
 
   addEntity(objectData) {
+    if (objectData.type === Types.Entity.Wolf && !objectData.packMember) {
+      return this.addWolfPack(objectData);
+    }
+
     let ObjectClass;
     switch (objectData.type) {
       case Types.Entity.MossyRock: ObjectClass = MossyRock; break;
@@ -325,6 +330,32 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     }
     this.game.addEntity(entity);
     return entity;
+  }
+
+  addWolfPack(objectData) {
+    const requestedSize = Number.isFinite(Number(objectData.packSize))
+      ? Math.floor(Number(objectData.packSize))
+      : Math.floor(helpers.random(3, 6));
+    const packSize = helpers.clamp(requestedSize, 2, 6);
+    const packId = this.nextWolfPackId++;
+    const leader = this.addEntity({ ...objectData, packMember: true, packId });
+    if (!leader) return null;
+
+    for (let index = 1; index < packSize && this.game.entities.size < this.game.maxEntities; index++) {
+      const angle = index / packSize * Math.PI * 2 + helpers.random(-0.2, 0.2);
+      const radius = helpers.random(180, 320);
+      this.addEntity({
+        ...objectData,
+        packMember: true,
+        packId,
+        spawnZone: undefined,
+        position: [
+          leader.shape.x + Math.cos(angle) * radius,
+          leader.shape.y + Math.sin(angle) * radius,
+        ],
+      });
+    }
+    return leader;
   }
 
   addEntityTimer(definition, time) {

@@ -2,6 +2,7 @@ const Player = require('./Player');
 const Timer = require('../components/Timer');
 const Types = require('../Types');
 const helpers = require('../../helpers');
+const BotSocialSystem = require('../components/BotSocialSystem');
 
 const Goal = {
   Wander: 0,
@@ -73,6 +74,9 @@ class PlayerAI extends Player {
     super(game, objectData.name);
 
     this.isBot = true;
+    this.botTeamId = null;
+    this.botTeammateId = null;
+    this.social = new BotSocialSystem(this);
 
     this.smartness = Math.random();
     this.aggression = helpers.clamp(0.25 + this.smartness * 0.45 + Math.random() * 0.3, 0, 1);
@@ -195,6 +199,13 @@ class PlayerAI extends Player {
     this.inputs.inputUp(Types.Input.Ability);
 
     this.perceive();
+    this.social.update(dt, this.bots);
+    const sharedTarget = this.social.sharedCombatTarget();
+    if (sharedTarget && this.target !== sharedTarget) {
+      this.setGoal(mobTypes.has(sharedTarget.type) ? Goal.FightMob : Goal.HuntBot, sharedTarget);
+    } else if (this.target && this.social.isTeammate(this.target)) {
+      this.abandonGoal();
+    }
     this.skill = this.computeSkill();
 
     let forced = this.evaluateThreats(dt);
@@ -376,6 +387,7 @@ class PlayerAI extends Player {
     const myCoins = (this.levels && this.levels.coins) || 0;
     for (const b of this.bots) {
       if (b.removed || !b.shape) continue;
+      if (this.social.isTeammate(b)) continue;
       const bc = (b.levels && b.levels.coins) || 0;
       const ratio = bc / Math.max(1, myCoins);
       if (ratio > 3 && myCoins > 800 && this.aggression < 0.7) continue;
@@ -402,6 +414,7 @@ class PlayerAI extends Player {
     let bestScore = -Infinity;
     for (const p of this.game.players) {
       if (p === this || p.removed || !p.isBot || !p.levels) continue;
+      if (this.social.isTeammate(p)) continue;
       if (p.levels.coins < richCoins) continue;
       const d = this.dist(p);
       const score = p.levels.coins / (d + 1500);
@@ -517,6 +530,14 @@ class PlayerAI extends Player {
   }
 
   executeWander(dt) {
+    const teammate = this.social.teammate();
+    if (teammate && this.dist(teammate) > 520) {
+      const mate = posOf(teammate);
+      const towardMate = Math.atan2(mate.y - this.shape.y, mate.x - this.shape.x);
+      this.steerMove(towardMate + this.strafeDir * 0.18, 95, dt, 4.5);
+      this.angle = this.turnToward(this.angle, this.moveAngle, dt, 4);
+      return;
+    }
     this.wanderTimer.update(dt);
     if (this.wanderTimer.finished) {
       this.wanderTimer.renew();
@@ -922,6 +943,7 @@ class PlayerAI extends Player {
   }
 
   damaged(damage, entity, isThrown = false, opts = null) {
+    if (entity?.isBot && this.social.isTeammate(entity)) return;
     if (entity && !entity.removed && entity.shape) {
       if (entity.type === Types.Entity.Player && Math.random() < 0.5) {
         this.attackCooldown = Math.max(this.attackCooldown,
@@ -963,6 +985,7 @@ class PlayerAI extends Player {
   }
 
   remove(reason) {
+    this.social.disband();
     super.remove(reason);
   }
 }

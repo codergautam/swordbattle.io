@@ -4,10 +4,12 @@ const Game = require('../src/game/Game');
 const Types = require('../src/game/Types');
 const WorldEventDirector = require('../src/game/components/WorldEventDirector');
 
-function player(id, { safe = false, account = id } = {}) {
+function player(id, { safe = false, account = id, maxHealth = 1000, coins = 10000 } = {}) {
   return {
     id, type: Types.Entity.Player, isBot: false, removed: false, inSafezone: safe,
     shape: { x: id * 50, y: id * 80 }, cards: { isTutorial: false },
+    health: { max: { value: maxHealth } },
+    levels: { coins },
     client: { id: `client-${id}`, account: account ? { id: account, valorCrests: 0 } : null },
     messages: [], setSystemMessage(message) { this.messages.push(message); },
   };
@@ -47,6 +49,9 @@ test('outbreak warning uses active eligible play and spawns an exact 16/3/1 ring
   assert.equal(zombies.length, 20);
   assert.deepEqual(zombies.reduce((counts, z) => ({ ...counts, [z.variant]: (counts[z.variant] || 0) + 1 }), {}), { 1: 16, 2: 3, 3: 1 });
   assert.ok(zombies.every(z => Math.abs(Math.hypot(z.shape.x - p.shape.x, z.shape.y - p.shape.y) - 1200) < 1e-6));
+  assert.ok(zombies.every(z => z.health.max.value === p.health.max.value / 20));
+  assert.ok(zombies.every(z => z.levels.coins === Math.floor(p.levels.coins / 20)));
+  assert.ok(zombies.every(z => z.isGlobal));
 });
 
 test('safe players defer their whole ring, late joins get one, and capacity never truncates', () => {
@@ -150,6 +155,8 @@ test('ZombieBrain targets humans, leads throws, dodges trajectories, and uses re
   game.entitiesQuadtree = { get: () => [] };
   z.brain.decide();
   assert.equal(z.brain.target, human);
+  assert.equal(z.health.max.value, human.health.max.value / 20);
+  assert.equal(z.levels.coins, Math.floor(human.levels.coins / 20));
   assert.ok(z.brain.aimAngle > 0);
   z.health.percent = 0.24;
   z.brain.decide();
@@ -160,6 +167,15 @@ test('ZombieBrain targets humans, leads throws, dodges trajectories, and uses re
   z.health.percent = 0.36;
   z.brain.decide();
   assert.equal(z.brain.retreating, false);
+
+  human.removed = true;
+  const strongerHuman = player(10, { maxHealth: 2400, coins: 54321 });
+  strongerHuman.shape.x = 700; strongerHuman.shape.y = 0;
+  game.players.add(strongerHuman);
+  z.brain.decide();
+  assert.equal(z.brain.target, strongerHuman);
+  assert.equal(z.health.max.value, 120);
+  assert.equal(z.levels.coins, 2716);
 
   const projectile = { type: Types.Entity.ThrownSword, shape: { x: -300, y: 0 }, velocity: { x: 600, y: 0 } };
   game.entitiesQuadtree = { get: () => [{ entity: projectile }] };

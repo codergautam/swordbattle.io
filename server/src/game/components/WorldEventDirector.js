@@ -94,6 +94,12 @@ class WorldEventDirector {
     this.broadcast('The zombie outbreak has begun!');
   }
 
+  summonOutbreak() {
+    if (this.phase === PHASE.ACTIVE) return false;
+    this.beginOutbreak();
+    return true;
+  }
+
   isRegularNpc(entity) {
     if (!entity || entity.removed || entity.type === Types.Entity.Zombie) return false;
     return (entity.type === Types.Entity.Player && entity.isBot) || Types.Groups.Mobs.includes(entity.type);
@@ -153,7 +159,7 @@ class WorldEventDirector {
     const start = ((player.id || 0) * 2.399963229728653) % (Math.PI * 2);
     const spawned = [];
     for (let i = 0; i < RING_VARIANTS.length; i++) {
-      const zombie = new Zombie(this.game, RING_VARIANTS[i], this.eventId);
+      const zombie = new Zombie(this.game, RING_VARIANTS[i], this.eventId, player);
       const baseAngle = start + i / RING_VARIANTS.length * Math.PI * 2;
       const point = this.ringPoint(player, baseAngle);
       zombie.shape.x = point.x;

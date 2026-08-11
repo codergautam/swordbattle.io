@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",
-    "dev": "nodemon ./src/index.js --watch ./src",
+    "dev": "nodemon ./scripts/start-development.js --watch ./src",
     "test": "node --test test/*.test.js",
     "bench": "node bench/run.js",
     "bench:collision": "node bench/collision.bench.js",

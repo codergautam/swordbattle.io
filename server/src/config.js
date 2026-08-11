@@ -3,6 +3,10 @@ require('dotenv').config();
 
 // Export configuration object for the application
 module.exports = {
+  // Fail closed: privileged commands exist only in an explicitly marked
+  // development process, never merely because NODE_ENV was omitted.
+  isDevelopment: process.env.NODE_ENV === 'development',
+
   // Define the port to be used, default to 8000 if not specified in the environment
   port: process.env.SERVER_PORT || process.env.PORT || 8000,
 

@@ -114,6 +114,7 @@ module.exports = {
     Wraith: 40,
     Seraph: 41,
     Arsenal: 42,
+    Reaper: 43,
   },
   Upgrade: {
     None: 0,
@@ -183,6 +184,7 @@ module.exports = {
     Blinded: 35,
     FighterBoost: 36,
     ArcherCombo: 37,
+    ReaperMarked: 38,
   },
   Effect: {
     Custom: 1,

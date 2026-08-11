@@ -417,7 +417,7 @@ class EvolutionSelect extends HudComponent {
       const offerLevel = this.game.gameState?.self?.entity?.activeSelection || 0;
       if (offerLevel > 0) {
         const evo = this.game.gameState?.self?.entity?.evolution ?? 0;
-        const terminal = [14, 15, 17, 35, 36, 37, 40, 41, 42];
+        const terminal = [14, 15, 17, 36, 37, 40, 41, 42, 43];
         const isTerminal = terminal.includes(evo);
         const next = isTerminal ? undefined : selectionTiers.find(([lvl]) => lvl > offerLevel);
         this.footer.setText(next ? `Next selection at ${next[1].toLocaleString()} coins` : 'Last selection');

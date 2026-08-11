@@ -8,6 +8,7 @@ const Wraith = require('../src/game/evolutions/Wraith');
 const Medic = require('../src/game/evolutions/Medic');
 const Seraph = require('../src/game/evolutions/Seraph');
 const Arsenal = require('../src/game/evolutions/Arsenal');
+const Reaper = require('../src/game/evolutions/Reaper');
 const Types = require('../src/game/Types');
 
 function playerFixture(name = 'Player') {
@@ -49,6 +50,7 @@ test('new evolution paths are offered at levels 18, 24, and the existing level-4
     [Types.Evolution.Phantom, Types.Evolution.Wraith],
     [Types.Evolution.Medic, Types.Evolution.Seraph],
     [Types.Evolution.Bishop, Types.Evolution.Arsenal],
+    [Types.Evolution.Assassin, Types.Evolution.Reaper],
   ]) {
     player.evolutions.evolution = from;
     assert.equal(player.evolutions.checkRequirements(to), true);
@@ -156,4 +158,77 @@ test('Arsenal specializes Bishop cannon and chakram constants without changing B
   assert.equal(Arsenal.chakramCount, 36);
   assert.equal(Arsenal.chakramRadius, 260);
   assert.equal(Arsenal.chakramHitCooldown, 0.35);
+});
+
+test('Reaper is an Assassin capstone whose mark follows the last damaged player', () => {
+  const { game, player } = playerFixture('Reaper');
+  const first = addPlayer(game, 'First', 500);
+  const second = addPlayer(game, 'Second', 700);
+  const effect = new Reaper(player);
+
+  assert.equal(Reaper.previousEvol, Types.Evolution.Assassin);
+  effect.onHit(first, true);
+  assert.equal(effect.markedTarget, first);
+  effect.update(0.05);
+  assert.equal(first.flags.get(Types.Flags.ReaperMarked), player.id);
+
+  effect.onHit(second, true);
+  assert.equal(effect.markedTarget, second);
+  assert.equal(effect.executionTarget, null);
+
+  effect.onHit({ type: Types.Entity.Chest }, false);
+  assert.equal(effect.markedTarget, null);
+});
+
+test('Reaper execution validates its mark, teleports behind it, and spends on one melee attempt', () => {
+  const { game, player } = playerFixture('Reaper');
+  const target = addPlayer(game, 'Target', 900);
+  target.angle = 0;
+  const effect = new Reaper(player);
+  effect.abilityCooldownTimer.finished = true;
+
+  effect.activateAbility();
+  assert.equal(effect.isAbilityActive, false);
+  assert.equal(effect.canActivateAbility, true);
+
+  effect.onHit(target, true);
+  effect.activateAbility();
+  assert.equal(effect.isAbilityActive, true);
+  assert.equal(effect.executionTarget, target);
+  assert.ok(player.shape.x < target.shape.x);
+  assert.ok(Math.abs(player.shape.y - target.shape.y) < 1e-9);
+  assert.equal(player.velocity.x, 0);
+  assert.equal(player.velocity.y, 0);
+
+  const before = target.health.percent;
+  effect.onHit(target, false);
+  assert.ok(target.health.percent < before);
+  assert.equal(effect.isAbilityActive, false);
+  assert.equal(effect.markedTarget, null);
+  assert.equal(effect.canActivateAbility, false);
+});
+
+test('Reaper refuses protected, dead, distant, and flying-sword executions without consuming cooldown', () => {
+  const { game, player } = playerFixture('Reaper');
+  const target = addPlayer(game, 'Target', 500);
+  const effect = new Reaper(player);
+  effect.abilityCooldownTimer.finished = true;
+  effect.onHit(target, true);
+
+  target.inSafezone = true;
+  effect.activateAbility();
+  assert.equal(effect.isAbilityActive, false);
+  assert.equal(effect.canActivateAbility, true);
+
+  target.inSafezone = false;
+  effect.onHit(target, true);
+  target.shape.x = Reaper.executionRange + 100;
+  effect.activateAbility();
+  assert.equal(effect.isAbilityActive, false);
+
+  target.shape.x = 500;
+  player.sword.isFlying = true;
+  effect.activateAbility();
+  assert.equal(effect.isAbilityActive, false);
+  assert.equal(effect.canActivateAbility, true);
 });

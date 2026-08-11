@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <radialGradient id="rmGlow"><stop offset=".45" stop-color="#ff334f" stop-opacity="0"/><stop offset=".7" stop-color="#ff334f" stop-opacity=".38"/><stop offset="1" stop-color="#520716" stop-opacity="0"/></radialGradient>
+    <linearGradient id="rmEdge" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff9c91"/><stop offset=".45" stop-color="#ef3048"/><stop offset="1" stop-color="#7b0b26"/></linearGradient>
+  </defs>
+  <circle cx="128" cy="128" r="120" fill="url(#rmGlow)"/>
+  <circle cx="128" cy="128" r="98" fill="none" stroke="#09070c" stroke-width="15" stroke-dasharray="42 14"/>
+  <circle cx="128" cy="128" r="96" fill="none" stroke="url(#rmEdge)" stroke-width="8" stroke-dasharray="42 14"/>
+  <path d="M128 16v38M128 202v38M16 128h38M202 128h38" stroke="#0a070c" stroke-width="19" stroke-linecap="round"/>
+  <path d="M128 16v38M128 202v38M16 128h38M202 128h38" stroke="#ff5363" stroke-width="9" stroke-linecap="round"/>
+  <path d="m128 71 36 21-8 48-28 27-28-27-8-48Z" fill="#15121b" stroke="#07060a" stroke-width="10" stroke-linejoin="round"/>
+  <path d="m105 111 18 5-15 13m43-18-18 5 15 13" fill="none" stroke="#ff4a5e" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

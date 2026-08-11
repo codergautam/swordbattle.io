@@ -44,4 +44,5 @@ export const Evolutions: Record<any, [string, string, number, [number, number], 
   [EvolutionTypes.Wraith]: ['Wraith', 'wraithOverlay', 1.22, [0.5, 0.52], 'A faster, deadlier Phantom with a longer phase and a stronger returning strike.', 'Phase'],
   [EvolutionTypes.Seraph]: ['Seraph', 'seraphOverlay', 1.2, [0.5, 0.52], 'A high-level ranged healer with stronger regeneration and a powerful emergency recovery.', 'Heal'],
   [EvolutionTypes.Arsenal]: ['Arsenal', 'arsenalOverlay', 1.24, [0.5, 0.52], 'An upgraded Bishop with a faster cannon and a denser, harder-hitting chakram defense.', 'Chakram Conclave'],
+  [EvolutionTypes.Reaper]: ['Reaper', 'reaperOverlay', 1.24, [0.5, 0.52], 'Marks the last enemy damaged, then blinks behind that target for a powerful execution attempt.', 'Execution'],
 };

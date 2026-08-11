@@ -1,10 +1,10 @@
 # LordHank2 Revamp
 
-This branch expands Swordbattle with hardened combat and networking, deterministic performance infrastructure, automatic zombie outbreaks, permanent Valor Crests, five new SVG evolution paths, smarter wildlife, and more social NPC players while preserving the existing world layout, shop, menus, cosmetics catalogs, and currency purchases.
+This branch expands Swordbattle with hardened combat and networking, deterministic performance infrastructure, automatic zombie outbreaks, permanent Valor Crests, new SVG evolution paths including Reaper, smarter wildlife, and more social NPC players while preserving the existing world layout, shop, menus, cosmetics catalogs, and currency purchases.
 
 ## Pull request summary
 
-This revamp adds double-tap dashing, assists, streak bounties, revenge rewards, anti-farming protections, safer health/input/chat/network handling, detailed tick/packet/event-loop/memory metrics, deterministic collision and snapshot benchmarks, and a 512-unit deterministic spatial grid; it also introduces automatic 20-zombie-per-player outbreaks with predictive dedicated AI, dynamic one-twentieth target health and coin scaling, existing undead artwork, minimap markers, persistent non-spendable Valor Crests and leaderboards, the Bishop, Phantom, Medic, Wraith, Seraph, and Arsenal evolution branches with additive SVG art, development-only outbreak/coin commands, 3-5-wolf boid packs that retain the original wolf stats, and full-health NPC-player alliances that chat, follow each other, share enemies, and prevent friendly fire, all without modifying the existing map data, shop, menus, cosmetics catalogs, or spendable-currency systems.
+This revamp adds double-tap dashing, assists, streak bounties, revenge rewards, anti-farming protections, safer health/input/chat/network handling, detailed tick/packet/event-loop/memory metrics, deterministic collision and snapshot benchmarks, and a 512-unit deterministic spatial grid; it also introduces automatic 20-zombie-per-player outbreaks with predictive dedicated AI, dynamic one-twentieth target health and coin scaling, existing undead artwork, minimap markers, persistent non-spendable Valor Crests and leaderboards, the Bishop, Phantom, Medic, Wraith, Seraph, Arsenal, and Reaper evolution branches with additive SVG art, development-only outbreak/coin commands, 3-5-wolf boid packs that retain the original wolf stats, and full-health NPC-player alliances that chat, follow each other, share enemies, and prevent friendly fire, all without modifying the existing map data, shop, menus, cosmetics catalogs, or spendable-currency systems.
 
 ## Combat and player systems
 
@@ -15,6 +15,7 @@ This revamp adds double-tap dashing, assists, streak bounties, revenge rewards, 
 - **Phantom and Wraith:** Stalker can become Phantom at level 24 and Wraith at the level-42 cap. Phase temporarily prevents attacking while granting damage and knockback immunity, then arms one timed ambush hit; entering safety cancels it without an ambush.
 - **Medic and Seraph:** Archer can become Medic at level 18 and Seraph at level 42. Real players receive a strong self-heal, while NPC versions also share bounded healing with nearby living NPC teammates that have the same non-null team ID.
 - **Arsenal:** Bishop can become Arsenal at level 42, upgrading cannon range, cadence, bolt power, and chakram damage while preserving Bishop's familiar cannon-off/chakram-on ability cycle.
+- **Reaper:** Assassin can become Reaper at level 42. Its mark always follows the last player or NPC-player it damaged; attacking anything else clears the old mark. Execution validates the marked enemy, teleports behind it without crossing into protected space, and arms one short, bounded melee finisher attempt.
 - **Commands:** `/help`, `/stats`, `/dash`, `/bounty`, `/players`, `/event`, `/valor`, and `/valor top` expose the new systems through the existing chat channel.
 
 ## Zombie outbreaks and Valor Crests
@@ -57,12 +58,12 @@ This revamp adds double-tap dashing, assists, streak bounties, revenge rewards, 
 
 - Existing map definitions, biome files, static-map artwork, and world layout are unchanged.
 - Existing shop code, menus, cosmetics catalogs, cosmetic ownership, and spendable-currency purchase mechanics are unchanged.
-- Existing visual assets are unchanged; the branch only references previously unused zombie artwork and adds standalone Valor Crest, Bishop, Phantom, Medic, Wraith, Seraph, Arsenal, ability-effect, cannon, and chakram SVGs plus zombie minimap dots.
+- Existing visual assets are unchanged; the branch only references previously unused zombie artwork and adds standalone Valor Crest, Bishop, Phantom, Medic, Wraith, Seraph, Arsenal, Reaper, ability-effect, cannon, mark, and chakram SVGs plus zombie minimap dots.
 - Existing nametags, health bars, HUD panels, and minimap styling are not repositioned or restyled; additions are event-specific and additive.
 - The existing GPL-3.0 license and attribution remain intact.
 
 ## Validation
 
-- The Node server suite covers combat rewards, dashing, input/health hardening, rate limiting, performance metrics and benchmarks, spectator synchronization, `WorldIndex`, outbreak lifecycle and AI, target-scaled zombie health/coins, Bishop and Arsenal targeting/projectiles/chakram shielding, Phantom/Wraith phase safety, Medic/Seraph team healing, development-admin lockout, wolf packs/boids, and NPC-player alliances.
+- The Node server suite covers combat rewards, dashing, input/health hardening, rate limiting, performance metrics and benchmarks, spectator synchronization, `WorldIndex`, outbreak lifecycle and AI, target-scaled zombie health/coins, Bishop and Arsenal targeting/projectiles/chakram shielding, Phantom/Wraith phase safety, Medic/Seraph team healing, Reaper marking and guarded executions, development-admin lockout, wolf packs/boids, and NPC-player alliances.
 - API award tests verify transactional and idempotent Valor updates.
 - The client production build completes successfully; its reported lint warnings predate these additions.

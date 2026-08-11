@@ -86,6 +86,7 @@ export enum FlagTypes {
   Blinded = 35,
   FighterBoost = 36,
   ArcherCombo = 37,
+  ReaperMarked = 38,
 }
 
 export enum EvolutionTypes {
@@ -132,6 +133,7 @@ export enum EvolutionTypes {
   Wraith = 40,
   Seraph = 41,
   Arsenal = 42,
+  Reaper = 43,
 }
 
 export enum UpgradeTypes {

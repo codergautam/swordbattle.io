@@ -153,6 +153,7 @@ class Player extends BaseEntity {
   bishopChakramContainer?: Phaser.GameObjects.Container;
   bishopChakrams: Phaser.GameObjects.Sprite[] = [];
   evolutionAbilityEffect?: Phaser.GameObjects.Sprite;
+  reaperMarkEffect?: Phaser.GameObjects.Sprite;
   private abilityVisualStarted = 0;
   private abilityVisualWasActive = false;
 
@@ -190,6 +191,7 @@ class Player extends BaseEntity {
     this.evolutionOverlayShadow.setAlpha(1).setVisible(false);
     this.updateEvolution();
     this.evolutionAbilityEffect = this.game.add.sprite(0, 0, '').setVisible(false);
+    this.reaperMarkEffect = this.game.add.sprite(0, 0, 'reaperMark').setVisible(false);
 
     this.sword = this.game.add.sprite(this.effectiveBodyWidth / 2, this.effectiveBodyHeight / 2, 'playerSword').setRotation(Math.PI / 4);
     this.swordShadow = this.createBakedOutlineShadow('playerSword', 0.5, 0.5).setRotation(Math.PI / 4);
@@ -250,7 +252,7 @@ class Player extends BaseEntity {
     this.cardSummaryContainer = this.game.add.container(0, -this.effectiveBodyHeight / 2 - 130, [this.cardSummaryBg]);
     this.cardSummaryContainer.setAlpha(0);
 
-    this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.evolutionAbilityEffect, this.swordContainer, this.body, this.evolutionOverlay]);
+    this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.reaperMarkEffect, this.evolutionAbilityEffect, this.swordContainer, this.body, this.evolutionOverlay]);
 
     const submergedRadius = this.effectiveBodyWidth * 0.6;
     this.submergedShadow = this.game.add.graphics();
@@ -1103,7 +1105,8 @@ class Player extends BaseEntity {
       && (this.evolution === EvolutionTypes.Phantom || this.evolution === EvolutionTypes.Wraith);
     const isHealing = this.abilityActive
       && (this.evolution === EvolutionTypes.Medic || this.evolution === EvolutionTypes.Seraph);
-    const visualActive = !!(isPhasing || isHealing);
+    const isExecuting = this.abilityActive && this.evolution === EvolutionTypes.Reaper;
+    const visualActive = !!(isPhasing || isHealing || isExecuting);
     if (visualActive && !this.abilityVisualWasActive) this.abilityVisualStarted = Date.now();
     this.abilityVisualWasActive = visualActive;
 
@@ -1142,7 +1145,35 @@ class Player extends BaseEntity {
         .setAlpha((1 - progress) * 0.92);
       return;
     }
+    if (isExecuting) {
+      if (this.evolutionAbilityEffect.texture.key !== 'reaperExecution') {
+        this.evolutionAbilityEffect.setTexture('reaperExecution');
+      }
+      const pulse = 0.94 + Math.sin(Date.now() / 90) * 0.08;
+      this.evolutionAbilityEffect
+        .setVisible(true)
+        .setDisplaySize(this.effectiveBodyWidth * 2.05 * pulse, this.effectiveBodyWidth * 2.05 * pulse)
+        .setRotation(-Date.now() / 1000 * 1.6)
+        .setAlpha(0.88);
+      return;
+    }
     this.evolutionAbilityEffect.setVisible(false);
+  }
+
+  updateReaperMarkVisual() {
+    if (!this.reaperMarkEffect) return;
+    const markedBy = this.flags && this.flags[FlagTypes.ReaperMarked];
+    const marked = markedBy !== false && markedBy !== undefined && markedBy !== null;
+    if (!marked) {
+      this.reaperMarkEffect.setVisible(false);
+      return;
+    }
+    const pulse = 1 + Math.sin(Date.now() / 135) * 0.07;
+    this.reaperMarkEffect
+      .setVisible(true)
+      .setDisplaySize(this.effectiveBodyWidth * 1.7 * pulse, this.effectiveBodyWidth * 1.7 * pulse)
+      .setRotation(Date.now() / 1000 * 0.9)
+      .setAlpha(0.9);
   }
 
   interpolate(dt: number) {
@@ -1626,13 +1657,15 @@ class Player extends BaseEntity {
     this.interpolate(dt);
     this.updateBishopEffects();
     this.updateEvolutionAbilityVisual();
+    this.updateReaperMarkVisual();
 
     if (this.abilityActive) {
       if (this.evolution) {
         const evolutionClass = Evolutions[this.evolution];
         if (evolutionClass[0] !== 'Stalker' && evolutionClass[0] !== 'Juggernaut'
           && evolutionClass[0] !== 'Phantom' && evolutionClass[0] !== 'Wraith'
-          && evolutionClass[0] !== 'Medic' && evolutionClass[0] !== 'Seraph') {
+          && evolutionClass[0] !== 'Medic' && evolutionClass[0] !== 'Seraph'
+          && evolutionClass[0] !== 'Reaper') {
           this.addAbilityParticles();
         }
       } else {

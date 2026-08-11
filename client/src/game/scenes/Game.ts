@@ -252,6 +252,9 @@ export default class Game extends Phaser.Scene {
     this.deferLoad('seraphPulse', publicPath + '/assets/game/evolutions/seraph-pulse.svg');
     this.deferLoad('arsenalCannon', publicPath + '/assets/game/evolutions/arsenal-cannon.svg');
     this.deferLoad('arsenalChakram', publicPath + '/assets/game/evolutions/arsenal-chakram.svg');
+    this.deferLoad('reaperOverlay', publicPath + '/assets/game/evolutions/reaper.svg');
+    this.deferLoad('reaperMark', publicPath + '/assets/game/evolutions/reaper-mark.svg');
+    this.deferLoad('reaperExecution', publicPath + '/assets/game/evolutions/reaper-execution.svg');
 
     this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');

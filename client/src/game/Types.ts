@@ -46,6 +46,7 @@ export enum EntityTypes {
   Ore = 43,
   AmbientShrub = 44,
   Zombie = 45,
+  BishopBolt = 46,
 }
 
 export enum FlagTypes {
@@ -126,6 +127,7 @@ export enum EvolutionTypes {
   Assassin = 35,
   Elite = 36,
   Tracker = 37,
+  Bishop = 38,
 }
 
 export enum UpgradeTypes {

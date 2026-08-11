@@ -39,4 +39,5 @@ export const Evolutions: Record<any, [string, string, number, [number, number], 
   [EvolutionTypes.Assassin]: ['Assassin', 'assassinOverlay', 1.2717, [0.5, 0.53], 'Deals 10% of the enemy\'s remaining HP as bonus damage.', 'Silencing'],
   [EvolutionTypes.Elite]: ['The Elite', 'eliteOverlay', 1.2717, [0.5, 0.53], 'Each successful hit increases damage by 15%, up to 5 times (175% max), fading out of combat.', "Sovereign's Sword"],
   [EvolutionTypes.Tracker]: ['Tracker', 'trackerOverlay', 1.2717, [0.5, 0.53], 'Changes movement speed to match the nearest enemy.', 'Radar'],
+  [EvolutionTypes.Bishop]: ['Bishop', 'bishopOverlay', 1.2, [0.5, 0.52], 'Carries an unstoppable auto-cannon that targets the nearest player or NPC.', 'Chakram Conclave'],
 };

@@ -46,6 +46,7 @@ const Entity = {
   Ore: 43,
   AmbientShrub: 44,
   Zombie: 45,
+  BishopBolt: 46,
 };
 
 const Mobs = [
@@ -108,6 +109,7 @@ module.exports = {
     Assassin: 35,
     Elite: 36,
     Tracker: 37,
+    Bishop: 38,
   },
   Upgrade: {
     None: 0,

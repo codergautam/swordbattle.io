@@ -10,7 +10,7 @@ const SOLIDS = new Set([
 const PROJECTILES = new Set([
   Types.Entity.Sword, Types.Entity.ThrownSword, Types.Entity.Fireball,
   Types.Entity.Boulder, Types.Entity.SwordProj, Types.Entity.Snowball,
-  Types.Entity.SandBall,
+  Types.Entity.SandBall, Types.Entity.BishopBolt,
 ]);
 
 function position(entity) {

@@ -183,6 +183,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('fireball', publicPath + '/assets/game/mobs/fireball.png');
     this.load.image('boulder', publicPath + '/assets/game/mobs/boulder.png');
     this.load.image('swordProj', publicPath + '/assets/game/mobs/sword.png');
+    this.load.image('bishopBolt', publicPath + '/assets/game/evolutions/bishop-bolt.svg');
     this.load.image('snowball', publicPath + '/assets/game/mobs/snowball.png');
     this.load.image('ornament1', publicPath + '/assets/game/mobs/ornament1.png');
     this.load.image('ornament2', publicPath + '/assets/game/mobs/ornament2.png');
@@ -237,6 +238,9 @@ export default class Game extends Phaser.Scene {
     this.deferLoad('assassinOverlay', publicPath + '/assets/game/evolutions/assassin.png');
     this.deferLoad('eliteOverlay', publicPath + '/assets/game/evolutions/elite.png');
     this.deferLoad('trackerOverlay', publicPath + '/assets/game/evolutions/tracker.png');
+    this.deferLoad('bishopOverlay', publicPath + '/assets/game/evolutions/bishop.svg');
+    this.deferLoad('bishopCannon', publicPath + '/assets/game/evolutions/bishop-cannon.svg');
+    this.deferLoad('bishopChakram', publicPath + '/assets/game/evolutions/bishop-chakram.svg');
 
     this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');

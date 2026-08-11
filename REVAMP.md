@@ -1,16 +1,17 @@
 # LordHank2 Revamp
 
-This branch expands Swordbattle with hardened combat and networking, deterministic performance infrastructure, automatic zombie outbreaks, permanent Valor Crests, smarter wildlife, and more social NPC players while preserving the existing world layout, shop, menus, cosmetics catalogs, and currency purchases.
+This branch expands Swordbattle with hardened combat and networking, deterministic performance infrastructure, automatic zombie outbreaks, permanent Valor Crests, the new Bishop evolution, smarter wildlife, and more social NPC players while preserving the existing world layout, shop, menus, cosmetics catalogs, and currency purchases.
 
 ## Pull request summary
 
-This revamp adds double-tap dashing, assists, streak bounties, revenge rewards, anti-farming protections, safer health/input/chat/network handling, detailed tick/packet/event-loop/memory metrics, deterministic collision and snapshot benchmarks, and a 512-unit deterministic spatial grid; it also introduces automatic 20-zombie-per-player outbreaks with predictive dedicated AI, dynamic one-twentieth target health and coin scaling, existing undead artwork, minimap markers, persistent non-spendable Valor Crests and leaderboards, development-only outbreak/coin commands, 3-5-wolf boid packs that retain the original wolf stats, and full-health NPC-player alliances that chat, follow each other, share enemies, and prevent friendly fire, all without modifying the existing map data, shop, menus, cosmetics catalogs, or spendable-currency systems.
+This revamp adds double-tap dashing, assists, streak bounties, revenge rewards, anti-farming protections, safer health/input/chat/network handling, detailed tick/packet/event-loop/memory metrics, deterministic collision and snapshot benchmarks, and a 512-unit deterministic spatial grid; it also introduces automatic 20-zombie-per-player outbreaks with predictive dedicated AI, dynamic one-twentieth target health and coin scaling, existing undead artwork, minimap markers, persistent non-spendable Valor Crests and leaderboards, the Knight-to-Bishop auto-cannon and 36-chakram evolution branch, development-only outbreak/coin commands, 3-5-wolf boid packs that retain the original wolf stats, and full-health NPC-player alliances that chat, follow each other, share enemies, and prevent friendly fire, all without modifying the existing map data, shop, menus, cosmetics catalogs, or spendable-currency systems.
 
 ## Combat and player systems
 
 - **Double-tap dash:** double-tap a movement key outside safety for a short collision-phasing burst. Player damage interrupts it and a cooldown prevents spam.
 - **Streaks, bounties, assists, and revenge:** recent contributors receive scaled assist rewards, streaking players build capped bounties, eliminations provide a small heal, and defeating your previous killer grants a capped revenge reward.
 - **Anti-farming:** repeated eliminations of the same identity inside two minutes sharply reduce extra rewards, reaching zero on the fourth rapid repeat.
+- **Bishop evolution:** Knight can evolve into Bishop at level 12. Its center-mounted cannon automatically fires at the nearest valid player, NPC-player, or mob and cannot be disabled manually; activating Chakram Conclave hides the cannon for exactly five seconds while 36 rotating chakrams damage nearby enemies and block incoming sword throws.
 - **Commands:** `/help`, `/stats`, `/dash`, `/bounty`, `/players`, `/event`, `/valor`, and `/valor top` expose the new systems through the existing chat channel.
 
 ## Zombie outbreaks and Valor Crests
@@ -53,12 +54,12 @@ This revamp adds double-tap dashing, assists, streak bounties, revenge rewards, 
 
 - Existing map definitions, biome files, static-map artwork, and world layout are unchanged.
 - Existing shop code, menus, cosmetics catalogs, cosmetic ownership, and spendable-currency purchase mechanics are unchanged.
-- Existing visual assets are unchanged; the branch only references previously unused zombie artwork and adds the standalone Valor Crest SVG and zombie minimap dots.
+- Existing visual assets are unchanged; the branch only references previously unused zombie artwork and adds standalone Valor Crest and Bishop SVGs plus zombie minimap dots.
 - Existing nametags, health bars, HUD panels, and minimap styling are not repositioned or restyled; additions are event-specific and additive.
 - The existing GPL-3.0 license and attribution remain intact.
 
 ## Validation
 
-- The Node server suite covers combat rewards, dashing, input/health hardening, rate limiting, performance metrics and benchmarks, spectator synchronization, `WorldIndex`, outbreak lifecycle and AI, target-scaled zombie health/coins, development-admin lockout, wolf packs/boids, and NPC-player alliances.
+- The Node server suite covers combat rewards, dashing, input/health hardening, rate limiting, performance metrics and benchmarks, spectator synchronization, `WorldIndex`, outbreak lifecycle and AI, target-scaled zombie health/coins, Bishop targeting/projectiles/chakram shielding, development-admin lockout, wolf packs/boids, and NPC-player alliances.
 - API award tests verify transactional and idempotent Valor updates.
 - The client production build completes successfully; its reported lint warnings predate these additions.

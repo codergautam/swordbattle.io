@@ -18,6 +18,13 @@ const particlePool: Phaser.GameObjects.Sprite[] = [];
 const graphicsPool: Phaser.GameObjects.Graphics[] = [];
 const maxParticlePool = 200;
 const maxGraphicsPool = 50;
+const bishopTargetTypes = new Set<number>([
+  EntityTypes.Player, EntityTypes.Zombie, EntityTypes.Wolf, EntityTypes.Bunny,
+  EntityTypes.Moose, EntityTypes.Yeti, EntityTypes.Chimera, EntityTypes.Roku,
+  EntityTypes.Cat, EntityTypes.Santa, EntityTypes.Ancient, EntityTypes.Fish,
+  EntityTypes.AngryFish, EntityTypes.IceSpirit, EntityTypes.Sphinx,
+]);
+const bishopChakramCount = 36;
 
 function getParticle(game: Phaser.Scene, key: string) {
   let p = particlePool.pop();
@@ -142,6 +149,9 @@ class Player extends BaseEntity {
   protected usesDedicatedEventTextures: boolean = false;
   valorCrestContainer?: Phaser.GameObjects.Container;
   valorCrestCount?: Phaser.GameObjects.Text;
+  bishopCannon?: Phaser.GameObjects.Sprite;
+  bishopChakramContainer?: Phaser.GameObjects.Container;
+  bishopChakrams: Phaser.GameObjects.Sprite[] = [];
 
   get survivalTime() {
     return (Date.now() - this.survivalStarted) / 1000;
@@ -994,6 +1004,79 @@ class Player extends BaseEntity {
     }
   }
 
+  ensureBishopVisuals() {
+    if (!this.container || this.bishopCannon || !this.game.textures.exists('bishopCannon')) return;
+    this.bishopCannon = this.game.add.sprite(0, 0, 'bishopCannon')
+      .setOrigin(0.18, 0.5)
+      .setDisplaySize(this.effectiveBodyWidth * 1.35, this.effectiveBodyWidth * 0.42)
+      .setVisible(false);
+    this.bishopChakramContainer = this.game.add.container(0, 0).setVisible(false);
+    for (let index = 0; index < bishopChakramCount; index++) {
+      const chakram = this.game.add.sprite(0, 0, 'bishopChakram')
+        .setDisplaySize(this.effectiveBodyWidth * 0.24, this.effectiveBodyWidth * 0.24);
+      this.bishopChakramContainer.add(chakram);
+      this.bishopChakrams.push(chakram);
+    }
+    const insertAt = Math.max(0, this.container.length - 2);
+    this.container.addAt(this.bishopCannon, insertAt);
+    this.container.addAt(this.bishopChakramContainer, insertAt + 1);
+  }
+
+  nearestBishopVisualTarget() {
+    let best: any = null;
+    let bestDistance = Infinity;
+    const seen = new Set<number>();
+    const inspect = (entry: any) => {
+      const entity = entry?.gameWorldEntity || entry;
+      if (!entity || entity === this || entity.id === this.id || entity.removed
+        || !bishopTargetTypes.has(entity.type) || !entity.container || seen.has(entity.id)) return;
+      seen.add(entity.id);
+      const dx = entity.container.x - this.container.x;
+      const dy = entity.container.y - this.container.y;
+      const distance = dx * dx + dy * dy;
+      if (distance < bestDistance) {
+        best = entity;
+        bestDistance = distance;
+      }
+    };
+    Object.values(this.game.gameState.entities).forEach(inspect);
+    Object.values(this.game.gameState.globalEntities).forEach(inspect);
+    return best;
+  }
+
+  updateBishopEffects() {
+    const isBishop = this.evolution === EvolutionTypes.Bishop;
+    if (!isBishop) {
+      this.bishopCannon?.setVisible(false);
+      this.bishopChakramContainer?.setVisible(false);
+      return;
+    }
+    this.ensureBishopVisuals();
+    if (!this.bishopCannon || !this.bishopChakramContainer) return;
+
+    const chakramsActive = !!this.abilityActive;
+    this.bishopCannon.setVisible(!chakramsActive);
+    this.bishopChakramContainer.setVisible(chakramsActive);
+    if (!chakramsActive) {
+      const target = this.nearestBishopVisualTarget();
+      const angle = target
+        ? Math.atan2(target.container.y - this.container.y, target.container.x - this.container.x)
+        : (this.angleLerp || 0);
+      this.bishopCannon.setRotation(angle);
+      return;
+    }
+
+    const radius = this.effectiveBodyWidth * 1.23;
+    const spin = Date.now() / 1000 * 2.8;
+    for (let index = 0; index < this.bishopChakrams.length; index++) {
+      const angle = spin + index / bishopChakramCount * Math.PI * 2;
+      const chakram = this.bishopChakrams[index];
+      chakram.setPosition(Math.cos(angle) * radius, Math.sin(angle) * radius);
+      chakram.setRotation(angle * 2.4);
+    }
+    this.bishopChakramContainer.setRotation(-spin * 0.2);
+  }
+
   interpolate(dt: number) {
     const swordLerpDt = dt / (this.swordSwingDuration * 1000);
     if (this.swordRaiseStarted) {
@@ -1473,6 +1556,7 @@ class Player extends BaseEntity {
 
     if (this.isMe) this.predictSwingStart();
     this.interpolate(dt);
+    this.updateBishopEffects();
 
     if (this.abilityActive) {
       if (this.evolution) {

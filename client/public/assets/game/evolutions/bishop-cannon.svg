@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 180">
+  <defs>
+    <linearGradient id="barrel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#edfaff"/>
+      <stop offset=".48" stop-color="#7ea8c7"/>
+      <stop offset="1" stop-color="#284766"/>
+    </linearGradient>
+    <linearGradient id="trim" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff07a"/>
+      <stop offset="1" stop-color="#b66c08"/>
+    </linearGradient>
+  </defs>
+  <path d="M62 53h342l55 37-55 37H62Z" fill="url(#barrel)" stroke="#0c1422" stroke-width="22" stroke-linejoin="round"/>
+  <path d="M117 39h52v102h-52zM330 42h45v96h-45z" fill="url(#trim)" stroke="#0c1422" stroke-width="16"/>
+  <path d="M441 55h52v70h-52z" fill="#172b43" stroke="#0c1422" stroke-width="20"/>
+  <ellipse cx="62" cy="90" rx="48" ry="65" fill="url(#trim)" stroke="#0c1422" stroke-width="22"/>
+  <path d="M88 67h246" stroke="#ffffff" stroke-opacity=".75" stroke-width="12" stroke-linecap="round"/>
+</svg>

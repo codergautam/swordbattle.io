@@ -63,6 +63,7 @@ class EvolutionSelect extends HudComponent {
   private cards: { container: Phaser.GameObjects.Container; panel: Phaser.GameObjects.Graphics; key: string }[] = [];
   private badgeTweens: any[] = [];
   private removesShown = false;
+  private previewTextureSignature = '';
 
   initialize() {
     if (!this.hud.scene) return;
@@ -340,12 +341,22 @@ class EvolutionSelect extends HudComponent {
     const keys = layout.map(t => t.key);
     const count = layout.length;
     const removesUpgrades = curUpgrades.length > 0;
+    const scene = this.hud.scene!;
+    const previewTextureSignature = layout
+      .filter(tile => tile.kind === 'evo')
+      .map(tile => `${tile.id}:${scene.textures.exists(Evolutions[tile.id]?.[1]) ? 1 : 0}`)
+      .join('|');
+    const waitingForEvolutionTextures = previewTextureSignature.includes(':0');
 
     const sameList = count > 0 && count === this.cards.length
       && removesUpgrades === this.removesShown
+      && previewTextureSignature === this.previewTextureSignature
       && keys.every((k, i) => this.cards[i] && this.cards[i].key === k);
     if (sameList && this.container.visible && this.container.alpha >= 1) {
       this.pendingGrace = 0;
+      // Deferred evolution SVGs load after the first playable frame. Keep a
+      // cheap readiness check alive until they arrive so their cards rebuild.
+      if (waitingForEvolutionTextures) this.updateList = true;
       return;
     }
 
@@ -354,6 +365,7 @@ class EvolutionSelect extends HudComponent {
     this.cardsC.removeAll(true);
     this.cards = [];
     this.removesShown = removesUpgrades;
+    this.previewTextureSignature = previewTextureSignature;
     this.hideTip();
 
     this.title.setText(this.mode === 'upgrades' ? 'Upgrades' : 'Evolutions');
@@ -383,7 +395,6 @@ class EvolutionSelect extends HudComponent {
     }
 
     const discovered = getDiscoveredEvolutions();
-    const scene = this.hud.scene!;
     const step = cardW + cardGap;
     const cy = cardsTop + cardH / 2;
     for (let i = 0; i < layout.length; i++) {
@@ -431,11 +442,15 @@ class EvolutionSelect extends HudComponent {
     const body = scene.add.sprite(0, 0, skinKey).setOrigin(0.5, 0.5);
     if (usingSkin && player.skin === 459) body.setScale(1.25);
     const previewScale = usingSkin ? ((player as any).bodyScale ?? 1) : 1;
-    const overlay = scene.add.sprite(0, 0, evolution[1]).setOrigin(evolution[3][0], evolution[3][1]);
     const bw = body.width || 1;
     const bh = body.height || 1;
-    overlay.setScale((bw / previewScale) / (overlay.width || 1) * evolution[2]);
-    const preview = scene.add.container(0, -14, [body, overlay]);
+    const previewParts: Phaser.GameObjects.GameObject[] = [body];
+    if (scene.textures.exists(evolution[1])) {
+      const overlay = scene.add.sprite(0, 0, evolution[1]).setOrigin(evolution[3][0], evolution[3][1]);
+      overlay.setScale((bw / previewScale) / (overlay.width || 1) * evolution[2]);
+      previewParts.push(overlay);
+    }
+    const preview = scene.add.container(0, -14, previewParts);
     preview.setScale(PREVIEW / (bh / previewScale));
     card.add(preview);
 

@@ -64,6 +64,7 @@ class EvolutionSelect extends HudComponent {
   private badgeTweens: any[] = [];
   private removesShown = false;
   private previewTextureSignature = '';
+  private waitingForPreviewTextures = false;
 
   initialize() {
     if (!this.hud.scene) return;
@@ -347,6 +348,13 @@ class EvolutionSelect extends HudComponent {
       .map(tile => `${tile.id}:${scene.textures.exists(Evolutions[tile.id]?.[1]) ? 1 : 0}`)
       .join('|');
     const waitingForEvolutionTextures = previewTextureSignature.includes(':0');
+    if (waitingForEvolutionTextures && !this.waitingForPreviewTextures) {
+      this.waitingForPreviewTextures = true;
+      scene.load.once(Phaser.Loader.Events.COMPLETE, () => {
+        this.waitingForPreviewTextures = false;
+        this.updateList = true;
+      });
+    }
 
     const sameList = count > 0 && count === this.cards.length
       && removesUpgrades === this.removesShown
@@ -354,9 +362,6 @@ class EvolutionSelect extends HudComponent {
       && keys.every((k, i) => this.cards[i] && this.cards[i].key === k);
     if (sameList && this.container.visible && this.container.alpha >= 1) {
       this.pendingGrace = 0;
-      // Deferred evolution SVGs load after the first playable frame. Keep a
-      // cheap readiness check alive until they arrive so their cards rebuild.
-      if (waitingForEvolutionTextures) this.updateList = true;
       return;
     }
 

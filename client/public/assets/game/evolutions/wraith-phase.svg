@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
   <defs><radialGradient id="wg"><stop offset=".28" stop-color="#ffffff" stop-opacity="0"/><stop offset=".58" stop-color="#bafaff" stop-opacity=".38"/><stop offset=".78" stop-color="#9a67ff" stop-opacity=".75"/><stop offset="1" stop-color="#160936" stop-opacity="0"/></radialGradient></defs>
   <circle cx="128" cy="128" r="122" fill="url(#wg)"/>
   <path d="m128 5 18 37 39-27-4 45 45-5-28 37 39 21-44 17 24 38-46-8-13 45-30-35-31 35-13-45-46 8 24-38-44-17 39-21-28-37 45 5-4-45 39 27Z" fill="none" stroke="#eaffff" stroke-opacity=".82" stroke-width="7" stroke-linejoin="round"/>

@@ -1512,6 +1512,7 @@ export interface Entity {
   offhandDecreasing?: boolean;
   activeSelection?: number;
   abilityCharges?: number;
+  valorCrests?: number;
   cardOffers?: number[];
   chosenCards?: number[];
   choosingCard?: boolean;
@@ -2032,6 +2033,13 @@ function _encodeEntity(message: Entity, bb: ByteBuffer): void {
   if ($abilityCharges !== undefined) {
     writeVarint32(bb, 552);
     writeVarint64(bb, intToLong($abilityCharges));
+  }
+
+  // optional int32 valorCrests = 70;
+  let $valorCrests = message.valorCrests;
+  if ($valorCrests !== undefined) {
+    writeVarint32(bb, 560);
+    writeVarint64(bb, intToLong($valorCrests));
   }
 
 }
@@ -2570,6 +2578,12 @@ function _decodeEntity(bb: ByteBuffer): Entity {
       // optional int32 abilityCharges = 69;
       case 69: {
         message.abilityCharges = readVarint32(bb);
+        break;
+      }
+
+      // optional int32 valorCrests = 70;
+      case 70: {
+        message.valorCrests = readVarint32(bb);
         break;
       }
 

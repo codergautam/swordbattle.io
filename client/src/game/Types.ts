@@ -45,6 +45,7 @@ export enum EntityTypes {
   SandBall = 42,
   Ore = 43,
   AmbientShrub = 44,
+  Zombie = 45,
 }
 
 export enum FlagTypes {

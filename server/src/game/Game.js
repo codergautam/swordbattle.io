@@ -1,15 +1,23 @@
 const SAT = require('sat');
 const IdPool = require('./components/IdPool');
-const QuadTree = require('./components/Quadtree');
+const WorldIndex = require('./components/WorldIndex');
 const GameMap = require('./GameMap');
 const GlobalEntities = require('./GlobalEntities');
+const CombatDirector = require('./components/CombatDirector');
+const WorldEventDirector = require('./components/WorldEventDirector');
 const Player = require('./entities/Player');
+const api = require('../network/api');
 const helpers = require('../helpers');
 const config = require('../config');
 const filter = null;
 const Types = require('./Types');
 const { getBannedIps } = require('../moderation');
 const { filterChatMessage } = helpers;
+const {
+  normalizeAngle,
+  sanitizeInputEvents,
+  sanitizeMouse,
+} = require('./components/InputSanitizer');
 
 function hasOwnProperties(obj) {
   for (const key in obj) {
@@ -27,6 +35,8 @@ class Game {
     this.idPool = new IdPool();
     this.map = new GameMap(this);
     this.globalEntities = new GlobalEntities(this);
+    this.combatDirector = new CombatDirector(this);
+    this.worldEventDirector = new WorldEventDirector(this);
 
     this.entitiesQuadtree = null;
     this._removedEntitiesById = new Map();
@@ -40,18 +50,26 @@ class Game {
     this.map.initialize();
 
     const mapBoundary = this.map;
-    this.entitiesQuadtree = new QuadTree(mapBoundary, 10, 5);
+    this.entitiesQuadtree = new WorldIndex(mapBoundary, 512);
+    this.entitiesQuadtree.sync(this.entities);
   }
 
   tick(dt) {
+    const metrics = this.performanceMetrics;
+    let phaseStartedAt = metrics ? metrics.now() : 0;
     for (const [id, entity] of this.entities) {
       // Not a sword
       const entityType = entity.type;
       if (entityType === Types.Entity.Sword) continue;
       entity.update(dt);
     }
+    if (metrics) metrics.recordPhase('entityUpdate', metrics.now() - phaseStartedAt);
 
-    this.updateQuadtree(this.entitiesQuadtree, this.entities);
+    if (metrics) phaseStartedAt = metrics.now();
+    this.entitiesQuadtree.sync(this.entities);
+    if (metrics) metrics.recordPhase('spatialIndexSync', metrics.now() - phaseStartedAt);
+
+    if (metrics) phaseStartedAt = metrics.now();
     const response = new SAT.Response();
     for (const [id, entity] of this.entities) {
       if (entity.removed) continue;
@@ -62,7 +80,19 @@ class Game {
 
       this.processCollisions(entity, response, dt);
     }
+    if (metrics) metrics.recordPhase('collisionProcessing', metrics.now() - phaseStartedAt);
+
+    if (metrics) phaseStartedAt = metrics.now();
     this.map.update(dt);
+    if (metrics) metrics.recordPhase('mapUpdate', metrics.now() - phaseStartedAt);
+
+    if (metrics) phaseStartedAt = metrics.now();
+    this.worldEventDirector.update(dt);
+    if (metrics) metrics.recordPhase('worldEventDirector', metrics.now() - phaseStartedAt);
+
+    if (metrics) phaseStartedAt = metrics.now();
+    this.combatDirector.update();
+    if (metrics) metrics.recordPhase('combatDirector', metrics.now() - phaseStartedAt);
   }
 
   processCollisions(entity, response, dt) {
@@ -300,7 +330,7 @@ class Game {
     if (!player || player.removed) return;
 
     if (data.inputs) {
-      for (const input of data.inputs) {
+      for (const input of sanitizeInputEvents(data.inputs)) {
         if (input.inputDown) {
           player.inputs.inputDown(input.inputType);
         } else {
@@ -314,14 +344,16 @@ class Game {
       player.reportedChestCombo = raw >= 8 ? Math.max(1, Math.min(2, (raw >> 3) / 100)) : 1;
       player.reportedChestAt = Date.now();
     }
-    if (data.angle && !isNaN(data.angle)) {
-      player.angle = Number(data.angle);
+    if (data.angle !== undefined && data.angle !== null) {
+      const angle = normalizeAngle(data.angle);
+      if (angle !== null) player.angle = angle;
     }
     if (data.mouse) {
-      if (data.mouse.force === 0) {
+      const mouse = sanitizeMouse(data.mouse);
+      if (!mouse || mouse.force === 0) {
         player.mouse = null;
       } else {
-        player.mouse = data.mouse;
+        player.mouse = mouse;
       }
     }
     if (data.selectedEvolution) {
@@ -371,7 +403,10 @@ class Game {
       }
     }
     if (data.chatMessage && typeof data.chatMessage === 'string') {
-      player.addChatMessage(data.chatMessage);
+      if (!this.worldEventDirector.handleCommand(player, data.chatMessage)
+        && !this.combatDirector.handleCommand(player, data.chatMessage)) {
+        player.addChatMessage(data.chatMessage);
+      }
     }
   }
   createPayload(client) {
@@ -397,7 +432,8 @@ class Game {
       client.fullSync = false;
       data.fullSync = true;
       data.selfId = entity.id;
-      data.entities = this.getAllEntities(entity);
+      // Spectator full sync already carries the same static world in mapData.
+      data.entities = this.getAllEntities(entity, !spectator.isSpectating);
       data.globalEntities = this.globalEntities.getAll();
     } else {
       data.entities = this.getEntitiesChanges(entity);
@@ -417,21 +453,14 @@ class Game {
     return data;
   }
 
-  updateQuadtree(quadtree, entities) {
-    quadtree.clear();
-    for (const [id, entity] of entities) {
-      const collisionRect = entity.shape.boundary;
-      collisionRect.entity = entity;
-      quadtree.insert(collisionRect);
-    }
-  }
-
-  getAllEntities(player) {
+  getAllEntities(player, includeStatic = true) {
     const entities = {};
 
-    for (const entity of this.entities.values()) {
-      if (entity.isStatic) {
-        entities[entity.id] = entity.state.get();
+    if (includeStatic) {
+      for (const entity of this.entities.values()) {
+        if (entity.isStatic) {
+          entities[entity.id] = entity.state.get();
+        }
       }
     }
 
@@ -561,9 +590,15 @@ class Game {
     client.fullSync = true;
     client.player = player;
     player.client = client;
+    player.lastKilledByKey = client.lastKilledByKey || null;
+    client.lastKilledByKey = null;
     player.isFirstLife = !!data.firstLife;
     if (client.account) {
       const account = client.account;
+      if (!Number.isFinite(Number(account.valorCrests))) account.valorCrests = 0;
+      api.get(`/valor/profile/${account.id}`, profile => {
+        if (!profile?.error && client.account) client.account.valorCrests = Number(profile.crests) || 0;
+      });
       if (account.skins && account.skins.equipped) {
         player.skin = account.skins.equipped;
         player.sword.skin = player.skin;
@@ -603,6 +638,7 @@ class Game {
 
         player.respawnedAt = Date.now();
         player.respawnKillerName = pendingRespawn.killerName;
+        player.lastKilledByKey = pendingRespawn.killerIdentity || player.lastKilledByKey;
 
         client.pendingRespawn = null;
       } else {
@@ -647,6 +683,7 @@ class Game {
     }
     this.entities.set(entity.id, entity);
     this.newEntities.add(entity);
+    if (this.entitiesQuadtree) this.entitiesQuadtree.upsertEntity(entity);
     return entity;
   }
 
@@ -662,11 +699,13 @@ class Game {
     if (entity.sword) this.removeEntity(entity.sword);
     if (entity.offhandSword) this.removeEntity(entity.offhandSword);
     this.entities.delete(entity?.id);
+    if (this.entitiesQuadtree) this.entitiesQuadtree.remove(entity);
     this.players.delete(entity);
     this.newEntities.delete(entity);
     this.removedEntities.add(entity);
     this._removedEntitiesById.set(entity.id, entity);
     entity.removed = true;
+    if (entity.type === Types.Entity.Player) this.combatDirector.forgetPlayer(entity);
   }
 
   handleNickname(nickname) {

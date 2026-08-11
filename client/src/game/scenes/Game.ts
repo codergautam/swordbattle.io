@@ -72,6 +72,14 @@ export default class Game extends Phaser.Scene {
     // Signal that asset loading has started
     crazygamesSDK.loadingStart();
 
+    this.load.image('realZombieBody', publicPath + '/assets/game/player/realZombiePlayer.png');
+    this.load.image('realZombieSword', publicPath + '/assets/game/player/realZombieSword.png');
+    this.load.image('nightlurkerBody', publicPath + '/assets/game/player/nightlurkerPlayer.png');
+    this.load.image('nightlurkerSword', publicPath + '/assets/game/player/nightlurkerSword.png');
+    this.load.image('bonedragonBody', publicPath + '/assets/game/player/bonedragonPlayer.png');
+    this.load.image('bonedragonSword', publicPath + '/assets/game/player/bonedragonSword.png');
+    this.load.image('valorCrest', publicPath + '/assets/game/valor-crest.svg');
+
     this.load.image('wrenchIcon', publicPath + '/assets/game/ui/wrench.png');
     this.load.image('closeIcon', publicPath + '/assets/game/ui/close.png');
     this.load.image('rockTile', publicPath + '/assets/game/tiles/rock.png');

@@ -36,12 +36,13 @@ class Client {
       type: 0
     }
     this.pendingRespawn = null;
+    this.lastKilledByKey = null;
 
     // Rate limiting
     this.messageCount = 0;
-    this.messageResetTimer = 0;
-    this.maxMessagesPerSecond = 500; 
-    this.maxQueueSize = 250;
+    this.messageWindowStartedAt = Date.now();
+    this.maxMessagesPerSecond = 180;
+    this.maxQueueSize = 90;
 
     this.lastPlayTime = 0;
     this.playCount = 0;
@@ -55,6 +56,12 @@ class Client {
   }
 
   addMessage(message) {
+    const now = Date.now();
+    if (now - this.messageWindowStartedAt >= 1000) {
+      this.messageCount = 0;
+      this.messageWindowStartedAt = now;
+    }
+
     // Rate limiting check
     this.messageCount++;
     if (this.messageCount > this.maxMessagesPerSecond) {
@@ -107,9 +114,22 @@ class Client {
 
   send(data) {
     if (!data) return;
+    const metrics = this.server && this.server.performanceMetrics;
+    const encodeStartedAt = metrics ? metrics.now() : 0;
     const packet = Protocol.encode(data);
+    const encodeMs = metrics ? metrics.now() - encodeStartedAt : 0;
+    let socketSendMs = 0;
     if (!this.isSocketClosed) {
+      const sendStartedAt = metrics ? metrics.now() : 0;
       const result = this.socket.send(packet, true, true);
+      socketSendMs = metrics ? metrics.now() - sendStartedAt : 0;
+      if (metrics) {
+        const kind = data.fullSync ? 'fullSync' : (data.isPong ? 'control' : 'delta');
+        metrics.recordPacket(packet.byteLength, {
+          kind,
+          dropped: result === 2,
+        });
+      }
       if (result === 2) {
         this.droppedPayloads = (this.droppedPayloads || 0) + 1;
         if (this.droppedPayloads % 100 === 0) {
@@ -119,6 +139,7 @@ class Client {
         this.droppedPayloads = 0;
       }
     }
+    return { packetBytes: packet.byteLength, encodeMs, socketSendMs };
   }
 
   update(dt) {
@@ -141,16 +162,9 @@ class Client {
       }
     }
 
-    // Reset rate limit counter every second (60 ticks at 60 TPS)
-    this.messageResetTimer += 1;
-    if (this.messageResetTimer >= 60) {
-      this.messageCount = 0;
-      this.messageResetTimer = 0;
-    }
-
-    // Reset decode error counter every 10 seconds (600 ticks at 60 TPS)
-    this.decodeErrorResetTimer += 1;
-    if (this.decodeErrorResetTimer >= 600) {
+    // Reset malformed-message accounting on wall time, independent of TPS.
+    this.decodeErrorResetTimer += dt;
+    if (this.decodeErrorResetTimer >= 10) {
       this.decodeErrorCount = 0;
       this.decodeErrorResetTimer = 0;
     }

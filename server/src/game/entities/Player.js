@@ -20,6 +20,7 @@ const Timer = require('../components/Timer');
 const EvolutionSystem = require('../evolutions');
 const UpgradeSystem = require('../upgrades');
 const CardSystem = require('../components/CardSystem');
+const DashSystem = require('../components/DashSystem');
 const Types = require('../Types');
 const config = require('../../config');
 const { clamp, calculateGemsXP, filterChatMessage } = require('../../helpers');
@@ -70,6 +71,8 @@ class Player extends Entity {
     this.movementDirection = 0;
     this.angle = 0;
     this.inputs = new Inputs();
+    this.dash = new DashSystem(this);
+    this.inputs.onDirectionInput = inputType => this.dash.onDirectionInput(inputType);
     this.lastDirectionInput = 3; // down
     this.mouse = null;
     this.targets.add(Types.Entity.Player);
@@ -89,6 +92,10 @@ class Player extends Entity {
 
     this.startTimestamp = Date.now();
     this.kills = 0;
+    this.assists = 0;
+    this.killStreak = 0;
+    this.bounty = 0;
+    this.lastKilledByKey = null;
     this.biome = 0;
     this.inSafezone = true;
 
@@ -126,6 +133,8 @@ class Player extends Entity {
 
     this.chatMessage = '';
     this.chatMessageTimer = new Timer(0, 3);
+    this.lastChatAt = 0;
+    this.lastCommandAt = 0;
 
     this.combatLog = new Map();
 
@@ -155,6 +164,7 @@ class Player extends Entity {
     state.previousLevelCoins = this.levels.previousLevelCoins;
     state.upgradePoints = this.levels.upgradePoints;
     state.skin = this.skin;
+    state.valorCrests = Number(this.client?.account?.valorCrests) || 0;
 
     state.buffs = structuredClone(this.levels.buffs);
 
@@ -255,6 +265,7 @@ class Player extends Entity {
 
     this.effects.forEach(effect => effect.update(dt));
     this.upgrades.update(dt);
+    this.dash.update(dt);
     if (this._blindUntil && Date.now() < this._blindUntil) {
       this.flags.set(Types.Flags.Blinded, 1);
     }
@@ -496,6 +507,12 @@ class Player extends Entity {
       }
     }
 
+    if (this.modifiers.dashDirection !== undefined) {
+      this.movementDirection = this.modifiers.dashDirection;
+      dx = speed * Math.cos(this.movementDirection);
+      dy = speed * Math.sin(this.movementDirection);
+    }
+
     if (isNaN(this.velocity.x) || isNaN(this.velocity.y)) {
       console.error(`[VELOCITY_NAN] Player "${this.name}" (id=${this.id}) velocity is NaN! vx=${this.velocity.x}, vy=${this.velocity.y}, pos=(${this.shape.x},${this.shape.y}), effects=[${[...this.effects.keys()]}]`);
       this.velocity.x = 0;
@@ -573,6 +590,8 @@ class Player extends Entity {
       return;
     }
 
+    if (damage > 0 && entity && entity.type === Types.Entity.Player) this.dash.interrupt();
+
 
     if (entity && entity.type === Types.Entity.Player && !this.isBot && !entity.isBot) {
       if (!this.combatLog.has(entity.id)) {
@@ -586,6 +605,7 @@ class Player extends Entity {
       entity.combatLog.get(this.id).damageDealt += damage;
     }
 
+    let appliedDamage = 0;
     if (this.name !== "Update Testing Account") {
       let source = 'map';
       if (entity && entity.type === Types.Entity.Player) {
@@ -593,7 +613,11 @@ class Player extends Entity {
       } else if (entity && Types.Groups.Mobs.includes(entity.type)) {
         source = 'mob';
       }
-      this.health.damaged(damage, { source });
+      appliedDamage = this.health.damaged(damage, { source });
+    }
+
+    if (appliedDamage > 0 && entity && entity.type === Types.Entity.Player) {
+      this.game.combatDirector.recordDamage(this, entity, appliedDamage);
     }
 
     if (this.cards.isTutorial && this.health.isDead) {
@@ -650,6 +674,11 @@ class Player extends Entity {
             entity.cards.onKill(this);
           } catch (e) { /* */ }
           try {
+            this.game.combatDirector.handleKill(this, entity);
+          } catch (e) {
+            console.error('[COMBAT_DIRECTOR] Failed to resolve kill rewards:', e);
+          }
+          try {
             this.flags.set(Types.Flags.PlayerDeath, true);
           } catch (e) { /* */ }
         }
@@ -685,9 +714,14 @@ class Player extends Entity {
   }
 
   addChatMessage(message) {
-    if (message.length === '') return;
+    if (typeof message !== 'string') return;
 
-    const originalMessage = message.slice(0, 60);
+    const now = Date.now();
+    if (now - this.lastChatAt < 750) return;
+    this.lastChatAt = now;
+
+    const originalMessage = message.trim().slice(0, 60);
+    if (originalMessage.length === 0) return;
     const result = filterChatMessage(originalMessage, filter);
     this.chatMessage = result.filtered;
     this.chatMessageTimer.renew();
@@ -695,6 +729,11 @@ class Player extends Entity {
     if (result.matched.length > 0) {
       this.logSwearingIncident(originalMessage, result.matched);
     }
+  }
+
+  setSystemMessage(message) {
+    this.chatMessage = String(message || '').slice(0, 60);
+    this.chatMessageTimer.renew();
   }
 
   logSwearingIncident(message, matchedWords) {
@@ -720,6 +759,7 @@ class Player extends Entity {
 
   remove(message = 'Server', type = Types.DisconnectReason.Server) {
     if (this.client) {
+      this.client.lastKilledByKey = this.lastKilledByKey;
       this.client.disconnectReason = {
         message: message,
         type: type
@@ -744,6 +784,7 @@ class Player extends Entity {
           x: this.shape.x,
           y: this.shape.y,
           killerName: (this.killerEntity && this.killerEntity.type === Types.Entity.Player) ? this.killerEntity.name : null,
+          killerIdentity: this.lastKilledByKey,
           expiresAt: Date.now() + 120000,
           carryKills: this.kills,
           carryPlaytime: this.playtime,
@@ -763,6 +804,7 @@ class Player extends Entity {
           x: this.shape.x,
           y: this.shape.y,
           killerName: (this.killerEntity && this.killerEntity.type === Types.Entity.Player) ? this.killerEntity.name : null,
+          killerIdentity: this.lastKilledByKey,
           expiresAt: Date.now() + 120000,
         };
       }
@@ -778,7 +820,7 @@ class Player extends Entity {
 
     super.remove();
 
-    if (this.name !== "Update Testing Account" && !this.cards.isTutorial) {
+    if (this.shouldDropCurrencyOnRemove() && this.name !== "Update Testing Account" && !this.cards.isTutorial) {
       let dropAmount = this.calculateDropAmount();
       if (this.client && this.client.insuranceUsed && this.cards.hasMajor(130)) {
         const keptGold = Math.round(this.levels.coins * 0.40);
@@ -786,6 +828,10 @@ class Player extends Entity {
       }
       this.game.map.spawnCoinsInShape(this.shape, dropAmount, this.client?.account?.id);
     }
+  }
+
+  shouldDropCurrencyOnRemove() {
+    return true;
   }
 
   calculateDropAmount() {

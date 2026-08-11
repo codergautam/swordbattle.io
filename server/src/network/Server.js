@@ -4,11 +4,14 @@ const Protocol = require('./protocol/Protocol');
 const Client = require('./Client');
 const { getBannedIps } = require('../moderation');
 const api = require('./api');
+const PerformanceMetrics = require('../metrics/PerformanceMetrics');
 
 class Server {
   constructor(game) {
     this.globalConnectionLimit = 500;
     this.game = game;
+    this.performanceMetrics = new PerformanceMetrics();
+    this.game.performanceMetrics = this.performanceMetrics;
     this.clients = new Map();
     this.disconnectedClients = new Set();
     this.maxConnectionsPerIP = 50;
@@ -172,6 +175,10 @@ class Server {
   }
 
   tick(dt) {
+    const metrics = this.performanceMetrics;
+    const tickStartedAt = metrics.now();
+    let phaseStartedAt = tickStartedAt;
+
     for (const client of this.clients.values()) {
       if (!client.isReady) continue;
 
@@ -190,22 +197,45 @@ class Server {
         console.error(`[TICK] client.update failed for client ${client.id} (${client.ip}):`, err);
       }
     }
+    metrics.recordPhase('clientInput', metrics.now() - phaseStartedAt);
 
+    phaseStartedAt = metrics.now();
     this.game.tick(dt);
+    metrics.recordPhase('simulation', metrics.now() - phaseStartedAt);
 
+    phaseStartedAt = metrics.now();
     for (const client of this.disconnectedClients) {
       this.game.removeClient(client);
       this.clients.delete(client.id);
       this.disconnectedClients.delete(client);
     }
-    Protocol.beginBroadcast();
-    for (const client of this.clients.values()) {
-      const payload = this.game.createPayload(client);
-      client.send(payload);
-    }
+    metrics.recordPhase('disconnectCleanup', metrics.now() - phaseStartedAt);
 
+    phaseStartedAt = metrics.now();
+    Protocol.beginBroadcast();
+    let snapshotBuildMs = 0;
+    let protocolEncodeMs = 0;
+    let socketSendMs = 0;
+    for (const client of this.clients.values()) {
+      const snapshotStartedAt = metrics.now();
+      const payload = this.game.createPayload(client);
+      snapshotBuildMs += metrics.now() - snapshotStartedAt;
+      const sendTiming = client.send(payload);
+      if (sendTiming) {
+        protocolEncodeMs += sendTiming.encodeMs;
+        socketSendMs += sendTiming.socketSendMs;
+      }
+    }
+    metrics.recordPhase('snapshotBuild', snapshotBuildMs);
+    metrics.recordPhase('protocolEncode', protocolEncodeMs);
+    metrics.recordPhase('socketSend', socketSendMs);
+    metrics.recordPhase('replication', metrics.now() - phaseStartedAt);
+
+    phaseStartedAt = metrics.now();
     this.game.endTick();
     this.clients.forEach(client => client.cleanup());
+    metrics.recordPhase('endTickCleanup', metrics.now() - phaseStartedAt);
+    metrics.recordTick(metrics.now() - tickStartedAt);
   }
 }
 

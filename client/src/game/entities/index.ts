@@ -42,6 +42,7 @@ import AngryFishMob from './mobs/AngryFish';
 import IceSpiritMob from './mobs/IceSpirit';
 import CaptureZone from './CaptureZone';
 import ThrownSword from './ThrownSword';
+import Zombie from './Zombie';
 
 export const EntityDepth: Record<any, number> = {
   [EntityTypes.CaptureZone]: 0.5,
@@ -68,6 +69,7 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.IceSpirit]: 11,
 
   [EntityTypes.Player]: 20,
+  [EntityTypes.Zombie]: 20,
   [EntityTypes.Sword]: 21,
   [EntityTypes.Fireball]: 22,
   [EntityTypes.Boulder]: 22,
@@ -96,6 +98,7 @@ export const EntityDepth: Record<any, number> = {
 export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
   switch (type) {
     case EntityTypes.Player: return Player;
+    case EntityTypes.Zombie: return Zombie;
     case EntityTypes.Coin: return Coin;
     case EntityTypes.Token: return Token;
     case EntityTypes.House1: return House1;

@@ -70,7 +70,7 @@ class Player extends BaseEntity {
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordSwingArc', 'swordFlying', 'swordFlyingCooldown', 'swordBoomerangReturning',
     'swordRaising', 'swordDecreasing', 'offhandRaising', 'offhandDecreasing',
     'activeSelection', 'abilityCharges',
-    'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing',
+    'viewportZoom', 'chatMessage', 'skin', 'skinName', 'account', 'wideSwing', 'valorCrests',
     'cardOffers', 'chosenCards', 'choosingCard', 'cardTimer', 'cardPickNumber', 'availableUpgrades',
     'rerollsAvailable', 'pendingPicks', 'skipResults', 'isTutorial',
   ];
@@ -139,6 +139,9 @@ class Player extends BaseEntity {
   private radarPulseElapsed: number = -1;
   private radarSweepAngle: number = 0;
   private _lastSilenced: boolean = false;
+  protected usesDedicatedEventTextures: boolean = false;
+  valorCrestContainer?: Phaser.GameObjects.Container;
+  valorCrestCount?: Phaser.GameObjects.Text;
 
   get survivalTime() {
     return (Date.now() - this.survivalStarted) / 1000;
@@ -245,6 +248,15 @@ class Player extends BaseEntity {
     this.container.addChildAt(nameTag, 6);
     if (clanText) this.container.add(clanText);
 
+    const crestIcon = this.game.add.image(-7, 0, 'valorCrest').setDisplaySize(22, 22).setOrigin(1, 0.5);
+    this.valorCrestCount = this.game.add.text(-2, 0, '', {
+      fontFamily: "'Saira', sans-serif", fontSize: '18px', fontStyle: '700',
+      color: '#dffcff', stroke: '#07152c', strokeThickness: 3,
+    }).setOrigin(0, 0.5);
+    this.valorCrestContainer = this.game.add.container(0, nameY + 38, [crestIcon, this.valorCrestCount]);
+    this.valorCrestContainer.setVisible(false);
+    this.container.add(this.valorCrestContainer);
+
     if (ogex) {
       try {
         const clearSparkle = () => {
@@ -284,7 +296,7 @@ class Player extends BaseEntity {
       }
     }
 
-    if (!Settings.unloadSkins) {
+    if (!Settings.unloadSkins && !this.usesDedicatedEventTextures) {
       if (Settings.loadskins) {
           this.loadSkin(this.skin).then(() => {
           const skinBase = skins.player.name;
@@ -1428,6 +1440,9 @@ class Player extends BaseEntity {
     }
 
     this.updateCardSummary();
+    const crests = Math.max(0, Math.floor(Number(this.valorCrests) || 0));
+    this.valorCrestContainer?.setVisible(crests > 0);
+    if (crests > 0 && this.valorCrestCount?.text !== String(crests)) this.valorCrestCount?.setText(String(crests));
 
     const ups = ((this as any).currentUpgrades || []);
     const throwHidesSword = ups.includes(UpgradeTypes.Battleswords) || ups.includes(UpgradeTypes.Kunais);

@@ -1072,6 +1072,7 @@ function App({ profileDesigner = false, hudDesigner = false }: { profileDesigner
       placeholder: 'New name',
       maxLength: 20,
       confirmLabel: 'Save',
+      validateOnChange: true,
       validate: (value) => new Promise((resolve) => {
         if (!value) { resolve('Enter a name.'); return; }
         api.get(`${api.endpoint}/auth/username-available?username=${encodeURIComponent(value)}`, (data: any) => {

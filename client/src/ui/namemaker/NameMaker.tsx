@@ -10,10 +10,10 @@ import {
   ColorValue,
   OutlineWidth,
   resolveNameStyle,
+  resolveClanColor,
   registryEntryToCode,
-  CLAN_COLOR,
-  PRESET_LOGGED_OUT,
-  PRESET_LOGGED_IN,
+  presetLoggedOut,
+  presetLoggedIn,
 } from '../../game/nameStyles';
 import PlayerPreview from './PlayerPreview';
 import '../game/Leaderboard.scss';
@@ -239,7 +239,7 @@ function LeaderboardPreview({
               <div className={`lb-row ${r.self ? 'self' : ''}`} key={r.key}>
                 <span className="lb-place">{i + 1}</span>
                 <span className="lb-name" style={{ fontSize: 17 }}>
-                  {r.clan && <span className="lb-clan" style={{ color: CLAN_COLOR }}>[{r.clan}] </span>}
+                  {r.clan && <span className="lb-clan" style={{ color: resolveClanColor(r.clan) }}>[{r.clan}] </span>}
                   <StyledName name={r.name} style={style} fontSize={17} />
                 </span>
                 <span className="lb-score">{formatScore(r.score)}</span>
@@ -262,8 +262,8 @@ export default function NameMaker() {
   const nameEdited = useRef(false);
   const [bots] = useState(() => Array.from({ length: 5 }, randomNickname));
 
-  const [lbState, setLbState] = useState<StyleState>(() => nameStyleToState(PRESET_LOGGED_OUT.leaderboard));
-  const [gameState, setGameState] = useState<StyleState>(() => nameStyleToState(PRESET_LOGGED_OUT.game));
+  const [lbState, setLbState] = useState<StyleState>(() => nameStyleToState(presetLoggedOut.leaderboard));
+  const [gameState, setGameState] = useState<StyleState>(() => nameStyleToState(presetLoggedOut.game));
 
   useEffect(() => {
     if (account?.isLoggedIn) return;
@@ -338,8 +338,8 @@ export default function NameMaker() {
           />
         </div>
         <div className="nm-row nm-preset-btns">
-          <button onClick={() => applyPreset(PRESET_LOGGED_OUT)}>Logged out preset</button>
-          <button onClick={() => applyPreset(PRESET_LOGGED_IN)}>Logged in preset</button>
+          <button onClick={() => applyPreset(presetLoggedOut)}>Logged out preset</button>
+          <button onClick={() => applyPreset(presetLoggedIn)}>Logged in preset</button>
         </div>
       </div>
 

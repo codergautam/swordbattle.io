@@ -23,6 +23,7 @@ const bishopTargetTypes = new Set<number>([
   EntityTypes.Moose, EntityTypes.Yeti, EntityTypes.Chimera, EntityTypes.Roku,
   EntityTypes.Cat, EntityTypes.Santa, EntityTypes.Ancient, EntityTypes.Fish,
   EntityTypes.AngryFish, EntityTypes.IceSpirit, EntityTypes.Sphinx,
+  EntityTypes.Tideclaw, EntityTypes.Stormray,
 ]);
 const bishopChakramCount = 36;
 
@@ -1164,7 +1165,9 @@ class Player extends BaseEntity {
     if (!this.reaperMarkEffect) return;
     const markedBy = this.flags && this.flags[FlagTypes.ReaperMarked];
     const marked = markedBy !== false && markedBy !== undefined && markedBy !== null;
-    if (!marked) {
+    const selfId = this.game.gameState.self.id;
+    const canSeeMark = marked && (this.isMe || Number(markedBy) === selfId);
+    if (!canSeeMark) {
       this.reaperMarkEffect.setVisible(false);
       return;
     }

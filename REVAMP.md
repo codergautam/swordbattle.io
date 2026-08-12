@@ -1,6 +1,6 @@
 # LordHank2 Revamp
 
-This branch expands Swordbattle with hardened combat and networking, deterministic performance infrastructure, automatic zombie outbreaks, permanent Valor Crests, new SVG evolution paths including Reaper, smarter wildlife, and more social NPC players while preserving the existing world layout, shop, menus, cosmetics catalogs, and currency purchases.
+This branch expands Swordbattle with hardened combat and networking, deterministic performance infrastructure, automatic zombie outbreaks, permanent Valor Crests, new SVG evolution paths including Reaper, smarter wildlife, more social NPC players, and a new northwestern Tidelands frontier while preserving every existing map feature, shop, menu, cosmetics catalog, and currency purchase.
 
 ## Pull request summary
 
@@ -32,6 +32,14 @@ This revamp adds double-tap dashing, assists, streak bounties, revenge rewards, 
 
 - Wolves spawn in 3-5-member packs and use boid separation, alignment, cohesion, and shared aggro while retaining their original 75 maximum health and 22 base speed.
 - Two nearby NPC players can form a two-member alliance only while both are at full health. They communicate through existing chat bubbles, follow one another, share combat targets, ignore each other when choosing rivals, prevent friendly fire, and disband when a teammate is removed.
+- NPC players draw from 411 unique, situation-aware lines for combat, retreat, low health, bosses, abilities, victories, gathering, exploration, and teamwork, with attacked reactions limited to one line every two seconds.
+
+## Northwestern Tidelands
+
+- The world grows from 35,000×35,000 to 43,750×43,750 by moving only its top and left bounds outward; all original coordinates and the original bottom-right boundary stay fixed.
+- A new SVG-tiled tidal shelf wraps the north and west sides, with two winding channels populated by the repository's restored blue and angry fish.
+- Tideclaws sidestep, switch orbit direction, rush distant targets, and knock enemies away; Stormrays circle targets and periodically commit to high-speed dives.
+- New SVG whirlpools slow players, pull them toward the eye, and deal small periodic damage. The new region also contains its own chests, ore, and ambient stone formations.
 
 ## Development tools
 
@@ -56,9 +64,9 @@ This revamp adds double-tap dashing, assists, streak bounties, revenge rewards, 
 
 ## Preserved surfaces
 
-- Existing map definitions, biome files, static-map artwork, and world layout are unchanged.
+- Every original map polygon, static-map asset, and coordinate remains unchanged; the new Tidelands are additive beyond the former top and left borders.
 - Existing shop code, menus, cosmetics catalogs, cosmetic ownership, and spendable-currency purchase mechanics are unchanged.
-- Existing visual assets are unchanged; the branch only references previously unused zombie artwork and adds standalone Valor Crest, Bishop, Phantom, Medic, Wraith, Seraph, Arsenal, Reaper, ability-effect, cannon, mark, and chakram SVGs plus zombie minimap dots.
+- Existing visual assets are unchanged; the branch only references previously unused zombie and fish artwork and adds standalone Valor Crest, evolution, ability-effect, Tidelands tile, Tideclaw, Stormray, and whirlpool SVGs plus zombie minimap dots.
 - Existing nametags, health bars, HUD panels, and minimap styling are not repositioned or restyled; additions are event-specific and additive.
 - The existing GPL-3.0 license and attribution remain intact.
 

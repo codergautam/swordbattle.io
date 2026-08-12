@@ -271,6 +271,7 @@ class Minimap extends HudComponent {
         case BiomeTypes.Rocks: color = 0x8a8a8a; break;
         case BiomeTypes.Desert: color = 0xe4c987; break;
         case BiomeTypes.Oasis: color = 0xe4c987; break;
+        case BiomeTypes.Tidelands: color = 0x246c72; break;
       }
       biomeGraphics.fillStyle(color);
       biome.shape.fillShape(biomeGraphics);

@@ -102,6 +102,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('rocksNew', publicPath + '/assets/game/tiles/rocks-new.png');
     this.load.image('desertTile', publicPath + '/assets/game/tiles/desert.png');
     this.load.image('oasisTile', publicPath + '/assets/game/tiles/oasis.png');
+    this.load.image('tidelandsTile', publicPath + '/assets/game/tiles/tidelands.svg');
 
     if (Settings.coins) {
       this.load.image('coin', publicPath + '/assets/game/coin.png');
@@ -173,6 +174,9 @@ export default class Game extends Phaser.Scene {
     this.load.image('moose', publicPath + '/assets/game/mobs/moose.png');
     this.load.image('fish', publicPath + '/assets/game/mobs/bluefish.png');
     this.load.image('angryFish', publicPath + '/assets/game/mobs/angryfish.png');
+    this.load.image('tideclaw', publicPath + '/assets/game/mobs/tideclaw.svg');
+    this.load.image('stormray', publicPath + '/assets/game/mobs/stormray.svg');
+    this.load.image('whirlpool', publicPath + '/assets/game/hazards/whirlpool.svg');
     this.load.image('chimera', publicPath + '/assets/game/mobs/chimera.png');
     this.load.image('yeti', publicPath + '/assets/game/mobs/yeti.png'); // add winter
     this.load.image('iceSpirit', publicPath + '/assets/game/mobs/icespirit.png');

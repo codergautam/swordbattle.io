@@ -47,6 +47,9 @@ export enum EntityTypes {
   AmbientShrub = 44,
   Zombie = 45,
   BishopBolt = 46,
+  Tideclaw = 47,
+  Stormray = 48,
+  Whirlpool = 49,
 }
 
 export enum FlagTypes {
@@ -187,6 +190,7 @@ export enum BiomeTypes {
   Rocks = 11,
   Desert = 12,
   Oasis = 13,
+  Tidelands = 14,
 }
 
 export enum ShapeTypes {

@@ -1,8 +1,5 @@
 const Types = require('../Types');
-
-const FORMATION_MESSAGES = ['Team up?', 'Want to stick together?', "I've got your back."];
-const REPLY_MESSAGES = ['Deal!', 'Together!', 'I am with you.'];
-const TEAM_CHAT = ['Stay close!', 'Cover me!', 'Nice work!', 'Watch my back.'];
+const BotDialogue = require('./BotDialogue');
 
 function distance(left, right) {
   return Math.hypot(left.shape.x - right.shape.x, left.shape.y - right.shape.y);
@@ -15,6 +12,8 @@ class BotSocialSystem {
     this.formationRadius = options.formationRadius || 850;
     this.formationTimer = options.formationDelay ?? (1.5 + this.random() * 3);
     this.chatTimer = 10 + this.random() * 12;
+    this.attackedChatCooldown = 0;
+    this.situationChatCooldown = 3 + this.random() * 4;
   }
 
   isFullHealth(bot = this.bot) {
@@ -34,6 +33,8 @@ class BotSocialSystem {
 
   update(dt, nearbyBots) {
     if (!Number.isFinite(dt) || dt <= 0) return;
+    this.attackedChatCooldown = Math.max(0, this.attackedChatCooldown - dt);
+    this.situationChatCooldown = Math.max(0, this.situationChatCooldown - dt);
     if (this.bot.botTeamId !== null) {
       const mate = this.teammate();
       if (!mate) {
@@ -44,7 +45,8 @@ class BotSocialSystem {
       }
       this.chatTimer -= dt;
       if (this.chatTimer <= 0 && distance(this.bot, mate) <= this.formationRadius * 1.5) {
-        this.bot.addChatMessage(TEAM_CHAT[Math.floor(this.random() * TEAM_CHAT.length)]);
+        this.bot.addChatMessage(BotDialogue.pick('team', this.random));
+        this.situationChatCooldown = Math.max(this.situationChatCooldown, 2);
         this.chatTimer = 12 + this.random() * 16;
       }
       return;
@@ -61,6 +63,37 @@ class BotSocialSystem {
     else this.formationTimer = 2 + this.random() * 4;
   }
 
+  onAttacked(attacker) {
+    if (!attacker || attacker === this.bot || attacker.removed) return false;
+    if (attacker.type === Types.Entity.Player && this.isTeammate(attacker)) return false;
+    if (this.bot.removed || this.bot.health?.isDead || this.attackedChatCooldown > 0) return false;
+
+    let category = 'attacked';
+    if (this.bot.health?.percent <= 0.3) category = 'lowHealth';
+    else if (Types.Groups.Mobs.includes(attacker.type)) category = attacker.isGlobal ? 'boss' : 'mob';
+    else if (attacker.type !== Types.Entity.Player) return false;
+
+    this.bot.addChatMessage(BotDialogue.pick(category, this.random));
+    this.attackedChatCooldown = 2;
+    return true;
+  }
+
+  onSituation(category) {
+    if (this.bot.removed || this.bot.health?.isDead || this.situationChatCooldown > 0) return false;
+    this.bot.addChatMessage(BotDialogue.pick(category, this.random));
+    this.situationChatCooldown = 7 + this.random() * 8;
+    return true;
+  }
+
+  onAbility() {
+    return this.onSituation('ability');
+  }
+
+  onVictory() {
+    this.situationChatCooldown = 0;
+    return this.onSituation('victory');
+  }
+
   formTeam(other) {
     if (!other || other === this.bot || !this.isFullHealth() || !this.isFullHealth(other)) return false;
     if (this.bot.botTeamId !== null || other.botTeamId !== null) return false;
@@ -71,8 +104,10 @@ class BotSocialSystem {
     this.bot.botTeammateId = other.id;
     other.botTeamId = teamId;
     other.botTeammateId = this.bot.id;
-    this.bot.addChatMessage(FORMATION_MESSAGES[Math.floor(this.random() * FORMATION_MESSAGES.length)]);
-    other.addChatMessage(REPLY_MESSAGES[Math.floor(this.random() * REPLY_MESSAGES.length)]);
+    this.bot.addChatMessage(BotDialogue.pick('formation', this.random));
+    other.addChatMessage(BotDialogue.pick('reply', this.random));
+    this.situationChatCooldown = Math.max(this.situationChatCooldown, 3);
+    if (other.social) other.social.situationChatCooldown = Math.max(other.social.situationChatCooldown, 3);
     this.bot.abandonGoal?.();
     other.abandonGoal?.();
     return true;

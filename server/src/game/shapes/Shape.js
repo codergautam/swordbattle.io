@@ -17,8 +17,8 @@ class Shape {
   }
 
   set x(value) {
-    // this.collisionPoly.pos.x = value;
-    this.collisionPoly.pos.x = helpers.clamp(value, -config.world.worldWidth / 2, config.world.worldWidth / 2);
+    const min = Number.isFinite(config.world.worldX) ? config.world.worldX : -config.world.worldWidth / 2;
+    this.collisionPoly.pos.x = helpers.clamp(value, min, min + config.world.worldWidth);
   }
 
   get y() {
@@ -26,8 +26,8 @@ class Shape {
   }
 
   set y(value) {
-    // this.collisionPoly.pos.y = value;
-    this.collisionPoly.pos.y = helpers.clamp(value, -config.world.worldHeight / 2, config.world.worldHeight / 2);
+    const min = Number.isFinite(config.world.worldY) ? config.world.worldY : -config.world.worldHeight / 2;
+    this.collisionPoly.pos.y = helpers.clamp(value, min, min + config.world.worldHeight);
   }
 
   get boundary() {

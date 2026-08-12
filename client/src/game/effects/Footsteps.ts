@@ -31,6 +31,7 @@ function biomeSurface(t: number | undefined): Surface {
     case BiomeTypes.Desert:
     case BiomeTypes.Oasis: return 'sand';
     case BiomeTypes.Dirt: return 'dirt';
+    case BiomeTypes.Tidelands: return 'water';
     default: return 'grass';
   }
 }

@@ -35,12 +35,15 @@ const BunnyMob = require('./entities/mobs/Bunny');
 const MooseMob = require('./entities/mobs/Moose');
 const FishMob = require('./entities/mobs/Fish');
 const AngryFishMob = require('./entities/mobs/AngryFish');
+const TideclawMob = require('./entities/mobs/Tideclaw');
+const StormrayMob = require('./entities/mobs/Stormray');
 const IceSpiritMob = require('./entities/mobs/IceSpirit');
 const ChimeraMob = require('./entities/mobs/Chimera');
 const YetiMob = require('./entities/mobs/Yeti');
 const SantaMob = require('./entities/mobs/Santa');
 const RokuMob = require('./entities/mobs/Roku');
 const AncientMob = require('./entities/mobs/Ancient');
+const Whirlpool = require('./entities/mapObjects/Whirlpool');
 const Fireball = require('./entities/Fireball');
 const Boulder = require('./entities/Boulder');
 const SwordProj = require('./entities/SwordProj');
@@ -303,6 +306,9 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
       case Types.Entity.Moose: ObjectClass = MooseMob; break;
       case Types.Entity.Fish: ObjectClass = FishMob; break;
       case Types.Entity.AngryFish: ObjectClass = AngryFishMob; break;
+      case Types.Entity.Tideclaw: ObjectClass = TideclawMob; break;
+      case Types.Entity.Stormray: ObjectClass = StormrayMob; break;
+      case Types.Entity.Whirlpool: ObjectClass = Whirlpool; break;
       case Types.Entity.IceSpirit: ObjectClass = IceSpiritMob; break;
       case Types.Entity.Chimera: ObjectClass = ChimeraMob; break;
       case Types.Entity.Yeti: ObjectClass = YetiMob; break;
@@ -505,8 +511,8 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     if (map.worldWidth && map.worldHeight) {
       this.width = map.worldWidth;
       this.height = map.worldHeight;
-      this.x = -this.width / 2;
-      this.y = -this.height / 2;
+      this.x = Number.isFinite(map.worldX) ? map.worldX : -this.width / 2;
+      this.y = Number.isFinite(map.worldY) ? map.worldY : -this.height / 2;
     } else {
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       for (const biome of this.biomes) {
@@ -524,6 +530,8 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
 
     config.world.worldWidth = this.width;
     config.world.worldHeight = this.height;
+    config.world.worldX = this.x;
+    config.world.worldY = this.y;
 
     this.shape = Polygon.createFromRectangle(this.x, this.y, this.width, this.height);
     this.halfWidth = this.width / 2;

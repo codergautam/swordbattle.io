@@ -252,6 +252,7 @@ class GameMap {
       case BiomeTypes.Rocks: BiomeClass = Biome; break;
       case BiomeTypes.Desert: BiomeClass = Biome; break;
       case BiomeTypes.Oasis: BiomeClass = Biome; break;
+      case BiomeTypes.Tidelands: BiomeClass = Biome; break;
     }
     // Statement, not `return console.log(...)` - terser only strips calls whose
     // return value is discarded, so the old form survived into production.

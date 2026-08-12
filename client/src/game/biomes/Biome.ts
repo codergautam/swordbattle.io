@@ -6,7 +6,7 @@ import River from './River';
 export type BiomeType = Biome | River;
 
 const containerPools = new WeakMap<Phaser.Scene, Phaser.GameObjects.TileSprite[]>();
-const biomesCount = 12;
+const biomesCount = 20;
 
 export const riverFlowSpeed = 26;
 export const riverBottomSpeed = 7;
@@ -112,6 +112,7 @@ class Biome {
       case BiomeTypes.Rocks: texture = 'rocksNewTile'; break;
       case BiomeTypes.Desert: texture = 'desertTile'; break;
       case BiomeTypes.Oasis: texture = 'oasisTile'; break;
+      case BiomeTypes.Tidelands: texture = 'tidelandsTile'; break;
     }
 
     this.maskGraphics = this.scene.make.graphics();

@@ -675,6 +675,9 @@ class Player extends Entity {
           case Types.Entity.Sphinx: reason = 'The Sphinx'; break;
           case Types.Entity.SandBlock: reason = 'The Sphinx'; break;
           case Types.Entity.SandBall: reason = 'The Sphinx'; break;
+          case Types.Entity.Tideclaw: reason = 'A Tideclaw'; break;
+          case Types.Entity.Stormray: reason = 'A Stormray'; break;
+          case Types.Entity.Whirlpool: reason = 'A Whirlpool'; break;
         }
 
         disconnectType = (entity.type === Types.Entity.Player) ? Types.DisconnectReason.Player : Types.DisconnectReason.Mob;
@@ -690,6 +693,7 @@ class Player extends Entity {
           } catch (e) {
             console.error('[COMBAT_DIRECTOR] Failed to resolve kill rewards:', e);
           }
+          if (entity.isBot && entity.social) entity.social.onVictory();
           try {
             this.flags.set(Types.Flags.PlayerDeath, true);
           } catch (e) { /* */ }

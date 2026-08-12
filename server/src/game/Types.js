@@ -47,11 +47,14 @@ const Entity = {
   AmbientShrub: 44,
   Zombie: 45,
   BishopBolt: 46,
+  Tideclaw: 47,
+  Stormray: 48,
+  Whirlpool: 49,
 };
 
 const Mobs = [
   Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Santa, Entity.Chimera, Entity.Roku, Entity.Ancient, Entity.Cat, Entity.Fish, Entity.AngryFish, Entity.IceSpirit,
-  Entity.Sphinx,
+  Entity.Sphinx, Entity.Tideclaw, Entity.Stormray,
   Entity.Zombie,
 ];
 const Groups = {
@@ -211,6 +214,7 @@ module.exports = {
     Rocks: 11,
     Desert: 12,
     Oasis: 13,
+    Tidelands: 14,
   },
   Shape: {
     Point: 1,

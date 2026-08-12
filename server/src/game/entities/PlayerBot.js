@@ -15,6 +15,17 @@ const Goal = {
   Flee: 7,
 };
 
+const goalDialogue = {
+  [Goal.Wander]: 'wander',
+  [Goal.Coins]: 'coins',
+  [Goal.Ore]: 'ore',
+  [Goal.Chest]: 'chest',
+  [Goal.HuntBot]: 'challenge',
+  [Goal.Spar]: 'challenge',
+  [Goal.FightMob]: 'mob',
+  [Goal.Flee]: 'flee',
+};
+
 const goalDuration = {
   [Goal.Wander]: [3, 6],
   [Goal.Coins]: [8, 14],
@@ -334,6 +345,7 @@ class PlayerAI extends Player {
   }
 
   setGoal(goal, target = null) {
+    const changed = this.goal !== goal || this.target !== target;
     const wasCombat = this.goal === Goal.HuntBot || this.goal === Goal.Spar || this.goal === Goal.FightMob;
     this.goal = goal;
     this.target = target;
@@ -356,14 +368,22 @@ class PlayerAI extends Player {
           0.3 + (1 - this.skill) * 0.45 + Math.random() * 0.2);
       }
     }
+    if (changed) {
+      const category = goal === Goal.FightMob && this.isBossMobEntity(target)
+        ? 'boss'
+        : goalDialogue[goal];
+      if (category && !this.suppressGoalDialogue) this.social.onSituation(category);
+    }
   }
 
   setFlee(threat) {
-    if (this.goal !== Goal.Flee || this.fleeFrom !== threat) {
+    const changed = this.goal !== Goal.Flee || this.fleeFrom !== threat;
+    if (changed) {
       this.fleeTimer = helpers.random(1.2, 2.5);
     }
     this.goal = Goal.Flee;
     this.fleeFrom = threat;
+    if (changed && !this.suppressGoalDialogue) this.social.onSituation('flee');
   }
 
   abandonGoal() {
@@ -816,6 +836,7 @@ class PlayerAI extends Player {
     if (this.skill > 0.6 && this.evolutions && this.evolutions.evolutionEffect
       && this.evolutions.evolutionEffect.isAbilityAvailable && Math.random() < 0.02) {
       this.inputs.inputDown(Types.Input.Ability);
+      this.social.onAbility();
     }
   }
 
@@ -944,6 +965,8 @@ class PlayerAI extends Player {
 
   damaged(damage, entity, isThrown = false, opts = null) {
     if (entity?.isBot && this.social.isTeammate(entity)) return;
+    const healthBefore = this.health.percent;
+    this.suppressGoalDialogue = true;
     if (entity && !entity.removed && entity.shape) {
       if (entity.type === Types.Entity.Player && Math.random() < 0.5) {
         this.attackCooldown = Math.max(this.attackCooldown,
@@ -982,6 +1005,10 @@ class PlayerAI extends Player {
     }
 
     super.damaged(damage, entity, isThrown, opts);
+    this.suppressGoalDialogue = false;
+    if (!this.removed && !this.health.isDead && this.health.percent < healthBefore) {
+      this.social.onAttacked(entity);
+    }
   }
 
   remove(reason) {

@@ -4,6 +4,7 @@ const { clamp } = require('../../helpers');
 
 module.exports = class Reaper extends Assassin {
   static type = Types.Evolution.Reaper;
+  static availableToBots = false;
   static level = 42;
   static previousEvol = Types.Evolution.Assassin;
   static abilityDuration = 2.5;
@@ -65,15 +66,17 @@ module.exports = class Reaper extends Assassin {
     const map = this.player.game?.map;
     if (!map) return null;
     const baseDistance = (target.shape.radius || 0) + (this.player.shape.radius || 0) + 55;
-    const halfWidth = Number.isFinite(map.halfWidth) ? map.halfWidth : map.width / 2;
-    const halfHeight = Number.isFinite(map.halfHeight) ? map.halfHeight : map.height / 2;
+    const minX = Number.isFinite(map.x) ? map.x : -map.width / 2;
+    const minY = Number.isFinite(map.y) ? map.y : -map.height / 2;
+    const maxX = minX + map.width;
+    const maxY = minY + map.height;
     const angles = [0, Math.PI / 8, -Math.PI / 8, Math.PI / 4, -Math.PI / 4];
     const distances = [baseDistance, baseDistance + 90, baseDistance + 180];
     for (const offset of angles) {
       const angle = target.angle + Math.PI + offset;
       for (const distance of distances) {
-        const x = clamp(target.shape.x + Math.cos(angle) * distance, -halfWidth, halfWidth);
-        const y = clamp(target.shape.y + Math.sin(angle) * distance, -halfHeight, halfHeight);
+        const x = clamp(target.shape.x + Math.cos(angle) * distance, minX, maxX);
+        const y = clamp(target.shape.y + Math.sin(angle) * distance, minY, maxY);
         if (!this.pointIsProtected(x, y)) return { x, y };
       }
     }

@@ -527,8 +527,8 @@ class Entity {
     }
     // prevent leaving map
     const map = this.game.map;
-    this.shape.x = helpers.clamp(this.shape.x, -map.halfWidth, map.halfWidth);
-    this.shape.y = helpers.clamp(this.shape.y, -map.halfHeight, map.halfHeight);
+    this.shape.x = helpers.clamp(this.shape.x, map.x, map.x + map.width);
+    this.shape.y = helpers.clamp(this.shape.y, map.y, map.y + map.height);
     this.velocity.scale(0.9);
   }
 

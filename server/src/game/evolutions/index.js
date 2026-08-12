@@ -130,6 +130,7 @@ class EvolutionSystem {
 
     // If evolution definition is missing, it's not available
     if (!Evol) return false;
+    if (this.player.isBot && Evol.availableToBots === false) return false;
 
     let previousOk = true;
     if (Evol.previousEvol !== undefined) {

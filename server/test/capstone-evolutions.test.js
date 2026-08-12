@@ -57,6 +57,17 @@ test('new evolution paths are offered at levels 18, 24, and the existing level-4
   }
 });
 
+test('NPC players cannot select Reaper', () => {
+  const { player } = playerFixture('NPC Assassin');
+  player.isBot = true;
+  player.levels.level = 42;
+  player.evolutions.evolution = Types.Evolution.Assassin;
+
+  assert.equal(player.evolutions.checkRequirements(Types.Evolution.Reaper), false);
+  player.evolutions.upgrade(Types.Evolution.Reaper);
+  assert.equal(player.evolutions.evolution, Types.Evolution.Assassin);
+});
+
 test('Phantom phase blocks attacks and damage, cancels in safety, and grants one timed ambush', () => {
   const { game, player } = playerFixture('Phantom');
   const target = addPlayer(game, 'Target', 100);

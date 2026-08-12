@@ -18,6 +18,10 @@ class Coin extends Entity {
 
     this.shape = Circle.create(0, 0, radius);
     this.targets.add(Types.Entity.Player);
+    // Spawn validation already enforces forbidden objects and world bounds.
+    // Moving drops clamp themselves below, so the map need not repeat those
+    // expensive checks for every resting coin on every server tick.
+    this.skipBorderCollision = true;
     this.droppedBy = objectData.droppedBy;
 
     if (Array.isArray(objectData.velocity)) {
@@ -35,6 +39,9 @@ class Coin extends Entity {
   if (Math.abs(this.velocity.x) > 0.01 || Math.abs(this.velocity.y) > 0.01) {
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
+    const map = this.game.map;
+    this.shape.x = helpers.clamp(this.shape.x, map.x + this.shape.radius, map.x + map.width - this.shape.radius);
+    this.shape.y = helpers.clamp(this.shape.y, map.y + this.shape.radius, map.y + map.height - this.shape.radius);
     this.velocity.scale(0.5);
 
     if (Math.abs(this.velocity.x) < 0.01) this.velocity.x = 0;

@@ -59,6 +59,8 @@ class GameMap {
   constructor(game) {
     this.game = game;
     this.biomes = [];
+    this.biomesByType = new Map();
+    this.landBiomes = [];
     this.staticObjects = [];
     this.x = 0;
     this.y = 0;
@@ -83,6 +85,10 @@ class GameMap {
     }
     this.calculateMapBounds();
     this.computeBiomeContainment();
+    this.landBiomes = this.biomes.filter(biome =>
+      biome.type !== Types.Biome.River
+      && biome.type !== Types.Biome.Safezone
+      && biome.type !== Types.Biome.TutorialZone);
     this.biomes.forEach(biome => biome.initialize());
 
     const Circle = require('./shapes/Circle');
@@ -200,7 +206,10 @@ class GameMap {
   }
 
 spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
-  const maxCoinsCount = 200;
+  // Coin value, not object count, is the gameplay contract. Coalescing large
+  // drops prevents boss/resource rewards from creating hundreds of collision,
+  // replication, and expiry objects at once.
+  const maxCoinsCount = 32;
   let remainingCoinValue = totalCoinValue;
   const coins = Math.min(Math.round(totalCoinValue / 5), maxCoinsCount);
   const coinValue = totalCoinValue / coins;
@@ -386,6 +395,12 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
       ? new Biome(this.game, biomeData.type, biomeData)
       : new BiomeClass(this.game, biomeData);
     this.biomes.push(biome);
+    let typedBiomes = this.biomesByType.get(biome.type);
+    if (!typedBiomes) {
+      typedBiomes = [];
+      this.biomesByType.set(biome.type, typedBiomes);
+    }
+    typedBiomes.push(biome);
     if (biome.type === Types.Biome.Safezone) {
       this.safezone = biome;
     } else if (biome.type === Types.Biome.TutorialZone) {

@@ -58,6 +58,9 @@ This revamp adds double-tap dashing, assists, streak bounties, revenge rewards, 
 ## Performance and replication
 
 - The old runtime Quadtree was replaced by an API-compatible `WorldIndex` with 512-unit cells, separate static/dynamic buckets, exact AABB filtering, query deduplication, incremental membership updates, and stable entity-ID ordering.
+- Collision and NPC-perception queries use per-entity-type spatial buckets, avoiding irrelevant broadphase candidates and stable-order sorting in internal hot paths while preserving deterministic public queries.
+- NPC-player perception is staggered at roughly 7 Hz while movement and combat execution remain on every server tick; cached biome groups and land containment remove repeated full-map polygon scans.
+- Large coin rewards preserve their full value but coalesce into at most 32 entities, and settled pickups bypass redundant border checks, preventing long-running combat from flooding simulation and replication.
 - `/serverinfo` reports tick phases, packet-size totals, drops, event-loop delay percentiles, process memory, and uptime.
 - Seeded collision and protocol snapshot benchmarks lock deterministic signatures; a five-minute synthetic outbreak soak covers 100 players and 2,000 zombies.
 - Spectator full sync no longer sends static map objects twice, while ordinary player full sync behavior remains unchanged.

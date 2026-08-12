@@ -100,7 +100,9 @@ class Game {
   }
 
   processCollisions(entity, response, dt) {
-    const quadtreeSearch = this.entitiesQuadtree.get(entity.shape.boundary);
+    const quadtreeSearch = this.entitiesQuadtree.getByTypes
+      ? this.entitiesQuadtree.getByTypes(entity.shape.boundary, entity.targets, false)
+      : this.entitiesQuadtree.get(entity.shape.boundary);
 
     let depth = 0;
     for (const { entity: targetEntity } of quadtreeSearch) {

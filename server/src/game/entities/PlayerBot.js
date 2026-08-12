@@ -50,6 +50,16 @@ const solidTypes = new Set([
 ]);
 const mobTypes = new Set(Types.Groups.Mobs);
 const bossAlways = new Set([Types.Entity.Roku, Types.Entity.Ancient, Types.Entity.Sphinx]);
+const perceptionTypes = new Set([
+  Types.Entity.Coin,
+  Types.Entity.Chest,
+  Types.Entity.Player,
+  ...hazardTypes,
+  ...projectileTypes,
+  ...solidTypes,
+  ...mobTypes,
+]);
+const perceptionInterval = 0.15;
 
 function posOf(entity) {
   const s = entity.shape;
@@ -139,6 +149,10 @@ class PlayerAI extends Player {
     this.bots = [];
     this.humans = [];
 
+    // Movement and attack execution remain tick-rate smooth, while the costly
+    // broadphase scan is staggered across bots at roughly 7 Hz.
+    this.perceptionRemaining = Math.random() * perceptionInterval;
+
     this.game.map.shape.randomSpawnInside(this.shape);
     this.decideGoal();
   }
@@ -209,7 +223,12 @@ class PlayerAI extends Player {
     this.inputs.inputUp(Types.Input.SwordThrow);
     this.inputs.inputUp(Types.Input.Ability);
 
-    this.perceive();
+    this.perceptionRemaining -= dt;
+    if (this.perceptionRemaining <= 0) {
+      this.perceive();
+      this.perceptionRemaining += perceptionInterval;
+      if (this.perceptionRemaining <= 0) this.perceptionRemaining = perceptionInterval;
+    }
     this.social.update(dt, this.bots);
     const sharedTarget = this.social.sharedCombatTarget();
     if (sharedTarget && this.target !== sharedTarget) {
@@ -239,7 +258,9 @@ class PlayerAI extends Player {
   }
 
   perceive() {
-    const ids = this.getEntitiesInViewport();
+    const nearby = this.game.entitiesQuadtree.getByTypes
+      ? this.game.entitiesQuadtree.getByTypes(this.viewport.boundary, perceptionTypes, false)
+      : this.game.entitiesQuadtree.get(this.viewport.boundary);
     this._coins.length = 0;
     this.chests.length = 0;
     this.ores.length = 0;
@@ -252,8 +273,8 @@ class PlayerAI extends Player {
     this.bots.length = 0;
     this.humans.length = 0;
 
-    for (let i = 0; i < ids.length; i++) {
-      const e = this.game.entities.get(ids[i]);
+    for (let i = 0; i < nearby.length; i++) {
+      const e = nearby[i].entity;
       if (!e || e === this || e.removed || !e.shape) continue;
       const t = e.type;
 
@@ -927,9 +948,11 @@ class PlayerAI extends Player {
 
     const map = this.game.map;
     if (map && map.width && map.height) {
-      const halfW = map.width / 2, halfH = map.height / 2;
       const edge = 1200 + myR;
-      const dL = px + halfW, dR = halfW - px, dT = py + halfH, dB = halfH - py;
+      const dL = px - map.x;
+      const dR = map.x + map.width - px;
+      const dT = py - map.y;
+      const dB = map.y + map.height - py;
       if (dL < edge) { const w = (edge - Math.max(0, dL)) / edge; rx += w * w * 6.0; }
       if (dR < edge) { const w = (edge - Math.max(0, dR)) / edge; rx -= w * w * 6.0; }
       if (dT < edge) { const w = (edge - Math.max(0, dT)) / edge; ry += w * w * 6.0; }

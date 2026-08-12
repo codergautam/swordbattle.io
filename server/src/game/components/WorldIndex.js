@@ -8,6 +8,8 @@ class WorldIndex {
     // entity cell and every queried cell on every tick.
     this.staticGrid = new Map();
     this.dynamicGrid = new Map();
+    this.staticTypeGrids = new Map();
+    this.dynamicTypeGrids = new Map();
     this.staticRecords = new Set();
     this.dynamicRecords = new Set();
     this.records = new Map();
@@ -32,10 +34,17 @@ class WorldIndex {
     return bucket || null;
   }
 
-  _addToGrid(record, updateRecordSet = true) {
-    const grid = record.isStatic ? this.staticGrid : this.dynamicGrid;
-    const records = record.isStatic ? this.staticRecords : this.dynamicRecords;
-    if (updateRecordSet) records.add(record);
+  _typeGrid(isStatic, type, create = false) {
+    const grids = isStatic ? this.staticTypeGrids : this.dynamicTypeGrids;
+    let grid = grids.get(type);
+    if (!grid && create) {
+      grid = new Map();
+      grids.set(type, grid);
+    }
+    return grid || null;
+  }
+
+  _addRecordToGrid(grid, record) {
     for (let x = record.minCellX; x <= record.maxCellX; x++) {
       for (let y = record.minCellY; y <= record.maxCellY; y++) {
         this._bucket(grid, x, y, true).add(record);
@@ -43,10 +52,8 @@ class WorldIndex {
     }
   }
 
-  _removeFromGrid(record, updateRecordSet = true) {
-    const grid = record.isStatic ? this.staticGrid : this.dynamicGrid;
-    const records = record.isStatic ? this.staticRecords : this.dynamicRecords;
-    if (updateRecordSet) records.delete(record);
+  _removeRecordFromGrid(grid, record) {
+    if (!grid) return;
     for (let x = record.minCellX; x <= record.maxCellX; x++) {
       const column = grid.get(x);
       if (!column) continue;
@@ -58,6 +65,25 @@ class WorldIndex {
       }
       if (column.size === 0) grid.delete(x);
     }
+  }
+
+  _addToGrid(record, updateRecordSet = true) {
+    const grid = record.isStatic ? this.staticGrid : this.dynamicGrid;
+    const records = record.isStatic ? this.staticRecords : this.dynamicRecords;
+    if (updateRecordSet) records.add(record);
+    this._addRecordToGrid(grid, record);
+    this._addRecordToGrid(this._typeGrid(record.isStatic, record.entity?.type, true), record);
+  }
+
+  _removeFromGrid(record, updateRecordSet = true) {
+    const grid = record.isStatic ? this.staticGrid : this.dynamicGrid;
+    const records = record.isStatic ? this.staticRecords : this.dynamicRecords;
+    if (updateRecordSet) records.delete(record);
+    this._removeRecordFromGrid(grid, record);
+    const typeGrids = record.isStatic ? this.staticTypeGrids : this.dynamicTypeGrids;
+    const typeGrid = typeGrids.get(record.entity?.type);
+    this._removeRecordFromGrid(typeGrid, record);
+    if (typeGrid && typeGrid.size === 0) typeGrids.delete(record.entity?.type);
   }
 
   insert(collisionRect, isStatic = !!collisionRect.entity?.isStatic) {
@@ -209,6 +235,31 @@ class WorldIndex {
     return results;
   }
 
+  getByTypes(rectangle, types, stable = true) {
+    if (!rectangle || !types || types.size === 0
+      || !rectangleRectangle(this.boundary, rectangle)) return [];
+    const generation = ++this.queryGeneration;
+    const results = [];
+    const minX = Math.floor(rectangle.x / this.cellSize);
+    const maxX = Math.floor((rectangle.x + Math.max(0, rectangle.width)) / this.cellSize);
+    const minY = Math.floor(rectangle.y / this.cellSize);
+    const maxY = Math.floor((rectangle.y + Math.max(0, rectangle.height)) / this.cellSize);
+    for (const type of types) {
+      const staticGrid = this.staticTypeGrids.get(type);
+      const dynamicGrid = this.dynamicTypeGrids.get(type);
+      if (staticGrid) this._collect(staticGrid, minX, maxX, minY, maxY, rectangle, generation, results);
+      if (dynamicGrid) this._collect(dynamicGrid, minX, maxX, minY, maxY, rectangle, generation, results);
+    }
+    if (stable) {
+      results.sort((left, right) => {
+        const leftId = left.entity?.id ?? left.key;
+        const rightId = right.entity?.id ?? right.key;
+        return leftId - rightId;
+      });
+    }
+    return results;
+  }
+
   query(rectangle) {
     return this.get(rectangle);
   }
@@ -216,6 +267,8 @@ class WorldIndex {
   clear() {
     this.staticGrid.clear();
     this.dynamicGrid.clear();
+    this.staticTypeGrids.clear();
+    this.dynamicTypeGrids.clear();
     this.staticRecords.clear();
     this.dynamicRecords.clear();
     this.records.clear();

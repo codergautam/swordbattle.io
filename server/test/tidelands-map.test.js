@@ -6,6 +6,8 @@ const map = require('../src/game/maps/mapLoader');
 const config = require('../src/config');
 const Types = require('../src/game/Types');
 const Circle = require('../src/game/shapes/Circle');
+const Game = require('../src/game/Game');
+const Player = require('../src/game/entities/Player');
 
 test('the world expands only north and west to 43,750 square units', () => {
   assert.equal(map.worldWidth, 43750);
@@ -24,6 +26,34 @@ test('the world expands only north and west to 43,750 square units', () => {
   point.y = 30000;
   assert.equal(point.x, 17500);
   assert.equal(point.y, 17500);
+});
+
+test('player movement uses the asymmetric northwestern world bounds', () => {
+  const game = new Game();
+  game.map.x = map.worldX;
+  game.map.y = map.worldY;
+  game.map.width = map.worldWidth;
+  game.map.height = map.worldHeight;
+  const player = new Player(game, 'Boundary Tester');
+
+  player.shape.x = map.worldX + 1;
+  player.shape.y = map.worldY + 1;
+  player.inputs.inputDown(Types.Input.Left);
+  player.inputs.inputDown(Types.Input.Up);
+  player.applyInputs(1);
+  assert.equal(player.shape.x, map.worldX);
+  assert.equal(player.shape.y, map.worldY);
+
+  player.inputs.clear();
+  player.shape.x = map.worldX + 1;
+  player.shape.y = map.worldY + 1;
+  player.hypnotizedBy = {
+    removed: false,
+    shape: { x: map.worldX, y: map.worldY },
+  };
+  player.applyInputs(1);
+  assert.equal(player.shape.x, map.worldX);
+  assert.equal(player.shape.y, map.worldY);
 });
 
 test('Tidelands include both new mobs, hazards, and restored fish channels', () => {

@@ -439,8 +439,7 @@ class Player extends Entity {
       this.shape.x += speed * Math.cos(angle) * dt;
       this.shape.y += speed * Math.sin(angle) * dt;
 
-      this.shape.x = clamp(this.shape.x, -this.game.map.width / 2, this.game.map.width / 2);
-      this.shape.y = clamp(this.shape.y, -this.game.map.height / 2, this.game.map.height / 2);
+      this.clampToMapBounds();
 
       this.movedDistance.x = speed * Math.cos(angle);
       this.movedDistance.y = speed * Math.sin(angle);
@@ -576,8 +575,15 @@ class Player extends Entity {
     this.movedDistance.x = dx;
     this.movedDistance.y = dy;
 
-    this.shape.x = clamp(this.shape.x, -this.game.map.width / 2, this.game.map.width / 2);
-    this.shape.y = clamp(this.shape.y, -this.game.map.height / 2, this.game.map.height / 2);
+    this.clampToMapBounds();
+  }
+
+  clampToMapBounds() {
+    const map = this.game.map;
+    const minX = Number.isFinite(map.x) ? map.x : -map.width / 2;
+    const minY = Number.isFinite(map.y) ? map.y : -map.height / 2;
+    this.shape.x = clamp(this.shape.x, minX, minX + map.width);
+    this.shape.y = clamp(this.shape.y, minY, minY + map.height);
   }
 
   damaged(damage, entity = null, isThrown = false, opts = null) {

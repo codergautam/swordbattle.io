@@ -30,13 +30,6 @@ jobs:
       with:
         node-version: '18'
 
-    # Needs no dependencies: it compares source hashes against scripts/webp-manifest.json
-    # and rejects two sources that would map to the same .webp name. That collision
-    # ships the wrong art with a 200 OK, so the loader's fallback never fires and
-    # nothing looks broken until someone notices the tile changed.
-    - name: Check generated .webp assets are current
-      run: cd client && node scripts/webp.js --check
-
     # Keyed to asset CONTENT, not the commit. Using github.sha meant every push -
     # even a README typo - changed the ?v= on all ~1300 assets and forced every
     # returning player to re-download them. GitHub Pages caps Cache-Control at

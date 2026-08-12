@@ -52,7 +52,7 @@ class Minimap extends HudComponent {
   private selfY = map / 2;
   private _minimapAccumulator: number = 0;
   private _minimapInterval: number = 67;
-  private _dotPositions: Map<string, { x: number, y: number, targetX: number, targetY: number, radius: number, isSelf: boolean }> = new Map();
+  private _dotPositions: Map<string, { x: number, y: number, targetX: number, targetY: number, radius: number, isSelf: boolean, isZombie: boolean }> = new Map();
   private dotLayer: Phaser.GameObjects.Container | null = null;
   private dotSprites: Phaser.GameObjects.Image[] = [];
   private static readonly dotBakeR = 9;
@@ -146,6 +146,7 @@ class Minimap extends HudComponent {
     };
     bake('mmDotEnemy', 0xff0000);
     bake('mmDotSelf', 0xffffff);
+    bake('mmDotZombie', 0x72d63c);
   }
 
   private redrawFrame() {
@@ -270,6 +271,7 @@ class Minimap extends HudComponent {
         case BiomeTypes.Rocks: color = 0x8a8a8a; break;
         case BiomeTypes.Desert: color = 0xe4c987; break;
         case BiomeTypes.Oasis: color = 0xe4c987; break;
+        case BiomeTypes.Tidelands: color = 0x246c72; break;
       }
       biomeGraphics.fillStyle(color);
       biome.shape.fillShape(biomeGraphics);
@@ -343,7 +345,7 @@ class Minimap extends HudComponent {
     const globalEntities = this.game.gameState.globalEntities;
     for (const id in globalEntities) {
       const entity = globalEntities[id];
-      if (entity.type === EntityTypes.Player) continue;
+      if (entity.type === EntityTypes.Player || entity.type === EntityTypes.Zombie) continue;
       if (!entity.container) {
         try {
           const sprite = entity.createSprite();
@@ -385,19 +387,20 @@ class Minimap extends HudComponent {
       const activeIds = new Set<string>();
       for (const id in globalEntities) {
         const player = globalEntities[id] as any;
-        if (player.type !== EntityTypes.Player) continue;
+        const isZombie = player.type === EntityTypes.Zombie;
+        if (player.type !== EntityTypes.Player && !isZombie) continue;
         const targetX = (player.shape.x - map.x) * this.scaleX;
         const targetY = (player.shape.y - map.y) * this.scaleY;
-        const isSelf = player.id === this.game.gameState.self.id;
+        const isSelf = !isZombie && player.id === this.game.gameState.self.id;
         const scale = this.scaleX * (isSelf ? 3 : 2) * (map.scale || 1) * 1.5;
         const dotRadius = player.shape.radius * scale;
         activeIds.add(id);
         const existing = this._dotPositions.get(id);
         if (existing) {
           existing.targetX = targetX; existing.targetY = targetY;
-          existing.radius = dotRadius; existing.isSelf = isSelf;
+          existing.radius = dotRadius; existing.isSelf = isSelf; existing.isZombie = isZombie;
         } else {
-          this._dotPositions.set(id, { x: targetX, y: targetY, targetX, targetY, radius: dotRadius, isSelf });
+          this._dotPositions.set(id, { x: targetX, y: targetY, targetX, targetY, radius: dotRadius, isSelf, isZombie });
         }
       }
       for (const id of this._dotPositions.keys()) {
@@ -420,7 +423,7 @@ class Minimap extends HudComponent {
       dot.y += (dot.targetY - dot.y) * lerpRate;
       const tooSmall = dot.radius < 1;
       const player = globalEntities[id as any] as any;
-      if (player && (!leader || player.coins > leader.coins)) {
+      if (player?.type === EntityTypes.Player && (!leader || player.coins > leader.coins)) {
         leader = player; leaderDotVisible = !tooSmall;
       }
       if (tooSmall) continue;
@@ -432,7 +435,7 @@ class Minimap extends HudComponent {
         pool[used] = spr;
       }
       used++;
-      spr.setTexture(dot.isSelf ? 'mmDotSelf' : 'mmDotEnemy');
+      spr.setTexture(dot.isSelf ? 'mmDotSelf' : (dot.isZombie ? 'mmDotZombie' : 'mmDotEnemy'));
       spr.setPosition(dot.x, dot.y);
       spr.setScale((dot.radius * zr) / R);
       spr.setVisible(true);

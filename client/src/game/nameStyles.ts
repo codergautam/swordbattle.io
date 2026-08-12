@@ -91,18 +91,28 @@ export const defaultNameStyle: NameStyle = { fill: '#ffffff', outline: '#000000'
 export const accountNameStyle: NameStyle = { fill: '#5b8cff', outline: '#000000' };
 export const leaderboardAccountStyle: NameStyle = { fill: '#0088ff' };
 
-export const CLAN_COLOR = '#ffe000';
-export const clanStyleGame: NameStyle = { fill: CLAN_COLOR, outline: '#000000' };
-export const adSupporterStyleGame: NameStyle = { fill: CLAN_COLOR, outline: '#000000' };
-export const adSupporterStyleLeaderboard: NameStyle = { fill: CLAN_COLOR };
-
-export const PRESET_LOGGED_OUT = {
-  leaderboard: { fill: '#ffffff' } as NameStyle,
-  game: { fill: '#ffffff', outline: '#000000' } as NameStyle,
+export const clanColor = '#ffe000';
+export const clanTagColors: Record<string, string> = {
+  APC: '#ff0000',
 };
-export const PRESET_LOGGED_IN = {
-  leaderboard: { fill: '#0088ff' } as NameStyle,
-  game: { fill: '#5b8cff', outline: '#000000' } as NameStyle,
+
+export function resolveClanColor(tag?: string): string {
+  if (!tag) return clanColor;
+  const normalized = String(tag || '').toUpperCase().trim();
+  return clanTagColors[normalized] || clanColor;
+}
+
+export const clanStyleGame: NameStyle = { fill: clanColor, outline: '#000000' };
+export const adSupporterStyleGame: NameStyle = { fill: clanColor, outline: '#000000' };
+export const adSupporterStyleLeaderboard: NameStyle = { fill: clanColor };
+
+export const presetLoggedOut: { leaderboard: NameStyle; game: NameStyle } = {
+  leaderboard: { fill: '#6800c2', outline: '#000000', shadow: '#9f00ff' },
+  game: { fill: { type: 'linear', angle: 180, stops: [{ color: '#9f00e4', pos: 0 }, { color: '#310064', pos: 1 }] }, outline: '#000000', shadow: '#ff00ff' },
+};
+export const presetLoggedIn: { leaderboard: NameStyle; game: NameStyle } = {
+  leaderboard: { fill: '#0088ff' },
+  game: { fill: '#5b8cff', outline: '#000000' },
 };
 
 export type NameContext = 'game' | 'leaderboard';
@@ -112,7 +122,7 @@ export interface RegistryEntry {
   game?: NameStyle;
 }
 
-export const NAME_REGISTRY: Record<string, RegistryEntry> = {
+export const nameRegistry: Record<string, RegistryEntry> = {
   'amethyst nightveil': {
     leaderboard: { fill: '#6800c2', outline: '#000000', shadow: '#9f00ff' },
     game: { fill: { type: 'linear', angle: 180, stops: [{ color: '#9f00e4', pos: 0 }, { color: '#310064', pos: 1 }] }, outline: '#000000', shadow: '#ff00ff' },
@@ -154,7 +164,7 @@ export function resolveNameStyle(
   adSupporter?: boolean,
 ): NameStyle | null {
   const lower = (name || '').toLowerCase();
-  const special = NAME_REGISTRY[lower];
+  const special = nameRegistry[lower];
   if (special) return special[context] || special.leaderboard || special.game || null;
   if (adSupporter && hasAccount) {
     return context === 'leaderboard' ? adSupporterStyleLeaderboard : adSupporterStyleGame;

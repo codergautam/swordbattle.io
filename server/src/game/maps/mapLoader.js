@@ -17,6 +17,7 @@ const biomeNameToType = {
   Rocks: Types.Biome.Rocks,
   Desert: Types.Biome.Desert,
   Oasis: Types.Biome.Oasis,
+  Tidelands: Types.Biome.Tidelands,
 };
 
 function sampleCatmullRom(controlPoints, samplesPerSegment, closed) {
@@ -339,6 +340,8 @@ function loadMap() {
 
   if (raw.worldWidth) config.world.worldWidth = raw.worldWidth;
   if (raw.worldHeight) config.world.worldHeight = raw.worldHeight;
+  config.world.worldX = Number.isFinite(raw.worldX) ? raw.worldX : -config.world.worldWidth / 2;
+  config.world.worldY = Number.isFinite(raw.worldY) ? raw.worldY : -config.world.worldHeight / 2;
 
   const scalePair = (p) => [p[0] * scale, p[1] * scale];
 
@@ -401,6 +404,8 @@ function loadMap() {
   return {
     worldWidth: raw.worldWidth,
     worldHeight: raw.worldHeight,
+    worldX: config.world.worldX,
+    worldY: config.world.worldY,
     scale,
     coinsCount: raw.coinsCount !== undefined ? raw.coinsCount : 0,
     chestCount: raw.chestCount,

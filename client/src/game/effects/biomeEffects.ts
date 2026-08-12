@@ -48,6 +48,7 @@ const biomeFx: Partial<Record<number, BiomeFx>> = {
   [BiomeTypes.Savanna]: build({ heat: 0.14, tint: '#ffd27a', tintAmount: 0.11, vignetteColor: '#2a2008', vignette: 0.24 }),
   [BiomeTypes.Alpine]: build({ tint: '#cfe2f0', tintAmount: 0.09, vignetteColor: '#1a2630', vignette: 0.26 }),
   [BiomeTypes.Rocks]: build({ tint: '#aab0b8', tintAmount: 0.09, vignetteColor: '#14181c', vignette: 0.32 }),
+  [BiomeTypes.Tidelands]: build({ tint: '#6de4dc', tintAmount: 0.10, vignetteColor: '#071c32', vignette: 0.34 }),
 };
 
 export function biomeTarget(biome: number | undefined): BiomeFx {

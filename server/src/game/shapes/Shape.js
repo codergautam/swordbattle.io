@@ -8,6 +8,7 @@ class Shape {
     this.type = Types.Shape.Point;
     this.collisionPoly = null;
     this.centerOffset = new SAT.Vector(0, 0);
+    this._boundary = { x: 0, y: 0, width: 0, height: 0 };
   }
 
   get x() {
@@ -16,8 +17,8 @@ class Shape {
   }
 
   set x(value) {
-    // this.collisionPoly.pos.x = value;
-    this.collisionPoly.pos.x = helpers.clamp(value, -config.world.worldWidth / 2, config.world.worldWidth / 2);
+    const min = Number.isFinite(config.world.worldX) ? config.world.worldX : -config.world.worldWidth / 2;
+    this.collisionPoly.pos.x = helpers.clamp(value, min, min + config.world.worldWidth);
   }
 
   get y() {
@@ -25,13 +26,17 @@ class Shape {
   }
 
   set y(value) {
-    // this.collisionPoly.pos.y = value;
-    this.collisionPoly.pos.y = helpers.clamp(value, -config.world.worldHeight / 2, config.world.worldHeight / 2);
+    const min = Number.isFinite(config.world.worldY) ? config.world.worldY : -config.world.worldHeight / 2;
+    this.collisionPoly.pos.y = helpers.clamp(value, min, min + config.world.worldHeight);
   }
 
   get boundary() {
     const box = this.collisionPoly.getAABBAsBox();
-    return { x: box.pos.x, y: box.pos.y, width: box.w, height: box.h };
+    this._boundary.x = box.pos.x;
+    this._boundary.y = box.pos.y;
+    this._boundary.width = box.w;
+    this._boundary.height = box.h;
+    return this._boundary;
   }
 
   get center() {

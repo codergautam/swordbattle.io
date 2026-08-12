@@ -10,7 +10,7 @@ import * as cosmetics from '../cosmetics.json';
 import { FootstepTrail } from '../effects/Footsteps';
 import { screenEffectsRuntime } from '../effects/screenEffectsState';
 import { skinBodyScales } from '../skinScales';
-import { resolveNameStyle, CLAN_COLOR } from '../nameStyles';
+import { resolveNameStyle, resolveClanColor } from '../nameStyles';
 import { buildNameTag } from '../pixiNameTag';
 const {skins} = cosmetics;
 
@@ -18,6 +18,14 @@ const particlePool: Phaser.GameObjects.Sprite[] = [];
 const graphicsPool: Phaser.GameObjects.Graphics[] = [];
 const maxParticlePool = 200;
 const maxGraphicsPool = 50;
+const bishopTargetTypes = new Set<number>([
+  EntityTypes.Player, EntityTypes.Zombie, EntityTypes.Wolf, EntityTypes.Bunny,
+  EntityTypes.Moose, EntityTypes.Yeti, EntityTypes.Chimera, EntityTypes.Roku,
+  EntityTypes.Cat, EntityTypes.Santa, EntityTypes.Ancient, EntityTypes.Fish,
+  EntityTypes.AngryFish, EntityTypes.IceSpirit, EntityTypes.Sphinx,
+  EntityTypes.Tideclaw, EntityTypes.Stormray,
+]);
+const bishopChakramCount = 36;
 
 function getParticle(game: Phaser.Scene, key: string) {
   let p = particlePool.pop();
@@ -142,6 +150,13 @@ class Player extends BaseEntity {
   protected usesDedicatedEventTextures: boolean = false;
   valorCrestContainer?: Phaser.GameObjects.Container;
   valorCrestCount?: Phaser.GameObjects.Text;
+  bishopCannon?: Phaser.GameObjects.Sprite;
+  bishopChakramContainer?: Phaser.GameObjects.Container;
+  bishopChakrams: Phaser.GameObjects.Sprite[] = [];
+  evolutionAbilityEffect?: Phaser.GameObjects.Sprite;
+  reaperMarkEffect?: Phaser.GameObjects.Sprite;
+  private abilityVisualStarted = 0;
+  private abilityVisualWasActive = false;
 
   get survivalTime() {
     return (Date.now() - this.survivalStarted) / 1000;
@@ -176,6 +191,8 @@ class Player extends BaseEntity {
     this.evolutionOverlayShadow = this.game.add.sprite(Player.shadowOffsetX, Player.shadowOffsetY, '').setRotation(-Math.PI / 2);
     this.evolutionOverlayShadow.setAlpha(1).setVisible(false);
     this.updateEvolution();
+    this.evolutionAbilityEffect = this.game.add.sprite(0, 0, '').setVisible(false);
+    this.reaperMarkEffect = this.game.add.sprite(0, 0, 'reaperMark').setVisible(false);
 
     this.sword = this.game.add.sprite(this.effectiveBodyWidth / 2, this.effectiveBodyHeight / 2, 'playerSword').setRotation(Math.PI / 4);
     this.swordShadow = this.createBakedOutlineShadow('playerSword', 0.5, 0.5).setRotation(Math.PI / 4);
@@ -209,9 +226,7 @@ class Player extends BaseEntity {
       clanText.setFontFamily("'Saira', sans-serif");
       clanText.setFontSize(42);
       clanText.setFontStyle('700');
-      clanText.setFill(CLAN_COLOR);
-      clanText.setStroke('#000000', 5);
-      clanText.setShadow(0, 0, '#000000', 0, false, false);
+      clanText.setFill(resolveClanColor(this.clan));
       clanText.setOrigin(0, 1);
       const total = clanText.width + nameW;
       clanText.x = -total / 2;
@@ -236,7 +251,7 @@ class Player extends BaseEntity {
     this.cardSummaryContainer = this.game.add.container(0, -this.effectiveBodyHeight / 2 - 130, [this.cardSummaryBg]);
     this.cardSummaryContainer.setAlpha(0);
 
-    this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.swordContainer, this.body, this.evolutionOverlay]);
+    this.bodyContainer = this.game.add.container(0, 0, [this.protectionAura, this.reaperMarkEffect, this.evolutionAbilityEffect, this.swordContainer, this.body, this.evolutionOverlay]);
 
     const submergedRadius = this.effectiveBodyWidth * 0.6;
     this.submergedShadow = this.game.add.graphics();
@@ -994,6 +1009,174 @@ class Player extends BaseEntity {
     }
   }
 
+  ensureBishopVisuals() {
+    if (!this.container || this.bishopCannon || !this.game.textures.exists('bishopCannon')) return;
+    this.bishopCannon = this.game.add.sprite(0, 0, 'bishopCannon')
+      .setOrigin(0.18, 0.5)
+      .setDisplaySize(this.effectiveBodyWidth * 1.35, this.effectiveBodyWidth * 0.42)
+      .setVisible(false);
+    this.bishopChakramContainer = this.game.add.container(0, 0).setVisible(false);
+    for (let index = 0; index < bishopChakramCount; index++) {
+      const chakram = this.game.add.sprite(0, 0, 'bishopChakram')
+        .setDisplaySize(this.effectiveBodyWidth * 0.24, this.effectiveBodyWidth * 0.24);
+      this.bishopChakramContainer.add(chakram);
+      this.bishopChakrams.push(chakram);
+    }
+    const insertAt = Math.max(0, this.container.length - 2);
+    this.container.addAt(this.bishopCannon, insertAt);
+    this.container.addAt(this.bishopChakramContainer, insertAt + 1);
+  }
+
+  nearestBishopVisualTarget() {
+    let best: any = null;
+    let bestDistance = Infinity;
+    const seen = new Set<number>();
+    const inspect = (entry: any) => {
+      const entity = entry?.gameWorldEntity || entry;
+      if (!entity || entity === this || entity.id === this.id || entity.removed
+        || !bishopTargetTypes.has(entity.type) || !entity.container || seen.has(entity.id)) return;
+      seen.add(entity.id);
+      const dx = entity.container.x - this.container.x;
+      const dy = entity.container.y - this.container.y;
+      const distance = dx * dx + dy * dy;
+      if (distance < bestDistance) {
+        best = entity;
+        bestDistance = distance;
+      }
+    };
+    Object.values(this.game.gameState.entities).forEach(inspect);
+    Object.values(this.game.gameState.globalEntities).forEach(inspect);
+    return best;
+  }
+
+  updateBishopEffects() {
+    const isBishop = this.evolution === EvolutionTypes.Bishop;
+    const isArsenal = this.evolution === EvolutionTypes.Arsenal;
+    if (!isBishop && !isArsenal) {
+      this.bishopCannon?.setVisible(false);
+      this.bishopChakramContainer?.setVisible(false);
+      return;
+    }
+    this.ensureBishopVisuals();
+    if (!this.bishopCannon || !this.bishopChakramContainer) return;
+
+    const cannonKey = isArsenal ? 'arsenalCannon' : 'bishopCannon';
+    const chakramKey = isArsenal ? 'arsenalChakram' : 'bishopChakram';
+    if (this.bishopCannon.texture.key !== cannonKey) this.bishopCannon.setTexture(cannonKey);
+    this.bishopCannon.setDisplaySize(
+      this.effectiveBodyWidth * (isArsenal ? 1.48 : 1.35),
+      this.effectiveBodyWidth * (isArsenal ? 0.48 : 0.42),
+    );
+    for (const chakram of this.bishopChakrams) {
+      if (chakram.texture.key !== chakramKey) chakram.setTexture(chakramKey);
+      chakram.setDisplaySize(
+        this.effectiveBodyWidth * (isArsenal ? 0.27 : 0.24),
+        this.effectiveBodyWidth * (isArsenal ? 0.27 : 0.24),
+      );
+    }
+
+    const chakramsActive = !!this.abilityActive;
+    this.bishopCannon.setVisible(!chakramsActive);
+    this.bishopChakramContainer.setVisible(chakramsActive);
+    if (!chakramsActive) {
+      const target = this.nearestBishopVisualTarget();
+      const angle = target
+        ? Math.atan2(target.container.y - this.container.y, target.container.x - this.container.x)
+        : (this.angleLerp || 0);
+      this.bishopCannon.setRotation(angle);
+      return;
+    }
+
+    const radius = this.effectiveBodyWidth * (isArsenal ? 1.30 : 1.23);
+    const spin = Date.now() / 1000 * 2.8;
+    for (let index = 0; index < this.bishopChakrams.length; index++) {
+      const angle = spin + index / bishopChakramCount * Math.PI * 2;
+      const chakram = this.bishopChakrams[index];
+      chakram.setPosition(Math.cos(angle) * radius, Math.sin(angle) * radius);
+      chakram.setRotation(angle * 2.4);
+    }
+    this.bishopChakramContainer.setRotation(-spin * 0.2);
+  }
+
+  updateEvolutionAbilityVisual() {
+    if (!this.evolutionAbilityEffect) return;
+    const isPhasing = this.abilityActive
+      && (this.evolution === EvolutionTypes.Phantom || this.evolution === EvolutionTypes.Wraith);
+    const isHealing = this.abilityActive
+      && (this.evolution === EvolutionTypes.Medic || this.evolution === EvolutionTypes.Seraph);
+    const isExecuting = this.abilityActive && this.evolution === EvolutionTypes.Reaper;
+    const visualActive = !!(isPhasing || isHealing || isExecuting);
+    if (visualActive && !this.abilityVisualWasActive) this.abilityVisualStarted = Date.now();
+    this.abilityVisualWasActive = visualActive;
+
+    if (isPhasing) {
+      const wraith = this.evolution === EvolutionTypes.Wraith;
+      const key = wraith ? 'wraithPhase' : 'phantomPhase';
+      if (this.evolutionAbilityEffect.texture.key !== key) this.evolutionAbilityEffect.setTexture(key);
+      this.evolutionAbilityEffect
+        .setVisible(true)
+        .setDisplaySize(this.effectiveBodyWidth * (wraith ? 1.95 : 1.78), this.effectiveBodyWidth * (wraith ? 1.95 : 1.78))
+        .setRotation(Date.now() / 1000 * (wraith ? -1.35 : 1.1))
+        .setAlpha(this.isMe ? 0.78 : 0.10);
+      const bodyAlpha = this.isMe ? 0.34 : 0.055;
+      this.body.setAlpha(bodyAlpha);
+      this.evolutionOverlay.setAlpha(bodyAlpha);
+      this.sword.setAlpha(this.isMe ? 0.18 : 0.03);
+      this.shadowRT?.setAlpha(BaseEntity.shadow.alpha * (this.isMe ? 0.16 : 0.02));
+      return;
+    }
+
+    this.body.setAlpha(1);
+    this.evolutionOverlay.setAlpha(1);
+    this.sword.setAlpha(1);
+    this.shadowRT?.setAlpha(BaseEntity.shadow.alpha * (1 - this._submergedProgress));
+    if (isHealing) {
+      const seraph = this.evolution === EvolutionTypes.Seraph;
+      const key = seraph ? 'seraphPulse' : 'medicPulse';
+      if (this.evolutionAbilityEffect.texture.key !== key) this.evolutionAbilityEffect.setTexture(key);
+      const total = seraph ? 600 : 450;
+      const progress = Phaser.Math.Clamp((Date.now() - this.abilityVisualStarted) / total, 0, 1);
+      const size = this.effectiveBodyWidth * (0.72 + progress * (seraph ? 2.15 : 1.65));
+      this.evolutionAbilityEffect
+        .setVisible(true)
+        .setDisplaySize(size, size)
+        .setRotation(seraph ? Date.now() / 1000 * 0.8 : 0)
+        .setAlpha((1 - progress) * 0.92);
+      return;
+    }
+    if (isExecuting) {
+      if (this.evolutionAbilityEffect.texture.key !== 'reaperExecution') {
+        this.evolutionAbilityEffect.setTexture('reaperExecution');
+      }
+      const pulse = 0.94 + Math.sin(Date.now() / 90) * 0.08;
+      this.evolutionAbilityEffect
+        .setVisible(true)
+        .setDisplaySize(this.effectiveBodyWidth * 2.05 * pulse, this.effectiveBodyWidth * 2.05 * pulse)
+        .setRotation(-Date.now() / 1000 * 1.6)
+        .setAlpha(0.88);
+      return;
+    }
+    this.evolutionAbilityEffect.setVisible(false);
+  }
+
+  updateReaperMarkVisual() {
+    if (!this.reaperMarkEffect) return;
+    const markedBy = this.flags && this.flags[FlagTypes.ReaperMarked];
+    const marked = markedBy !== false && markedBy !== undefined && markedBy !== null;
+    const selfId = this.game.gameState.self.id;
+    const canSeeMark = marked && (this.isMe || Number(markedBy) === selfId);
+    if (!canSeeMark) {
+      this.reaperMarkEffect.setVisible(false);
+      return;
+    }
+    const pulse = 1 + Math.sin(Date.now() / 135) * 0.07;
+    this.reaperMarkEffect
+      .setVisible(true)
+      .setDisplaySize(this.effectiveBodyWidth * 1.7 * pulse, this.effectiveBodyWidth * 1.7 * pulse)
+      .setRotation(Date.now() / 1000 * 0.9)
+      .setAlpha(0.9);
+  }
+
   interpolate(dt: number) {
     const swordLerpDt = dt / (this.swordSwingDuration * 1000);
     if (this.swordRaiseStarted) {
@@ -1473,11 +1656,17 @@ class Player extends BaseEntity {
 
     if (this.isMe) this.predictSwingStart();
     this.interpolate(dt);
+    this.updateBishopEffects();
+    this.updateEvolutionAbilityVisual();
+    this.updateReaperMarkVisual();
 
     if (this.abilityActive) {
       if (this.evolution) {
         const evolutionClass = Evolutions[this.evolution];
-        if (evolutionClass[0] !== 'Stalker' && evolutionClass[0] !== 'Juggernaut') {
+        if (evolutionClass[0] !== 'Stalker' && evolutionClass[0] !== 'Juggernaut'
+          && evolutionClass[0] !== 'Phantom' && evolutionClass[0] !== 'Wraith'
+          && evolutionClass[0] !== 'Medic' && evolutionClass[0] !== 'Seraph'
+          && evolutionClass[0] !== 'Reaper') {
           this.addAbilityParticles();
         }
       } else {

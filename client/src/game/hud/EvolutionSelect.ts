@@ -5,7 +5,7 @@ import { getTheme } from '../../hudTheme';
 import { drawPanel } from './panel';
 
 const selectionTiers: Array<[level: number, coins: number]> = [
-  [2, 50], [12, 5000], [18, 20000], [24, 50000],
+  [2, 50], [12, 5000], [18, 20000], [24, 50000], [42, 2000000],
 ];
 const footerH = 22;
 
@@ -63,6 +63,8 @@ class EvolutionSelect extends HudComponent {
   private cards: { container: Phaser.GameObjects.Container; panel: Phaser.GameObjects.Graphics; key: string }[] = [];
   private badgeTweens: any[] = [];
   private removesShown = false;
+  private previewTextureSignature = '';
+  private waitingForPreviewTextures = false;
 
   initialize() {
     if (!this.hud.scene) return;
@@ -340,9 +342,23 @@ class EvolutionSelect extends HudComponent {
     const keys = layout.map(t => t.key);
     const count = layout.length;
     const removesUpgrades = curUpgrades.length > 0;
+    const scene = this.hud.scene!;
+    const previewTextureSignature = layout
+      .filter(tile => tile.kind === 'evo')
+      .map(tile => `${tile.id}:${scene.textures.exists(Evolutions[tile.id]?.[1]) ? 1 : 0}`)
+      .join('|');
+    const waitingForEvolutionTextures = previewTextureSignature.includes(':0');
+    if (waitingForEvolutionTextures && !this.waitingForPreviewTextures) {
+      this.waitingForPreviewTextures = true;
+      scene.load.once(Phaser.Loader.Events.COMPLETE, () => {
+        this.waitingForPreviewTextures = false;
+        this.updateList = true;
+      });
+    }
 
     const sameList = count > 0 && count === this.cards.length
       && removesUpgrades === this.removesShown
+      && previewTextureSignature === this.previewTextureSignature
       && keys.every((k, i) => this.cards[i] && this.cards[i].key === k);
     if (sameList && this.container.visible && this.container.alpha >= 1) {
       this.pendingGrace = 0;
@@ -354,6 +370,7 @@ class EvolutionSelect extends HudComponent {
     this.cardsC.removeAll(true);
     this.cards = [];
     this.removesShown = removesUpgrades;
+    this.previewTextureSignature = previewTextureSignature;
     this.hideTip();
 
     this.title.setText(this.mode === 'upgrades' ? 'Upgrades' : 'Evolutions');
@@ -383,7 +400,6 @@ class EvolutionSelect extends HudComponent {
     }
 
     const discovered = getDiscoveredEvolutions();
-    const scene = this.hud.scene!;
     const step = cardW + cardGap;
     const cy = cardsTop + cardH / 2;
     for (let i = 0; i < layout.length; i++) {
@@ -401,9 +417,8 @@ class EvolutionSelect extends HudComponent {
       const offerLevel = this.game.gameState?.self?.entity?.activeSelection || 0;
       if (offerLevel > 0) {
         const evo = this.game.gameState?.self?.entity?.evolution ?? 0;
-        const playerLevel = this.game.gameState?.self?.entity?.level ?? 0;
-        const terminal = [14, 15, 17, 35, 36, 37];
-        const isTerminal = terminal.includes(evo) || (evo === 13 && playerLevel >= 18);
+        const terminal = [14, 15, 17, 36, 37, 40, 41, 42, 43];
+        const isTerminal = terminal.includes(evo);
         const next = isTerminal ? undefined : selectionTiers.find(([lvl]) => lvl > offerLevel);
         this.footer.setText(next ? `Next selection at ${next[1].toLocaleString()} coins` : 'Last selection');
       }
@@ -432,11 +447,15 @@ class EvolutionSelect extends HudComponent {
     const body = scene.add.sprite(0, 0, skinKey).setOrigin(0.5, 0.5);
     if (usingSkin && player.skin === 459) body.setScale(1.25);
     const previewScale = usingSkin ? ((player as any).bodyScale ?? 1) : 1;
-    const overlay = scene.add.sprite(0, 0, evolution[1]).setOrigin(evolution[3][0], evolution[3][1]);
     const bw = body.width || 1;
     const bh = body.height || 1;
-    overlay.setScale((bw / previewScale) / (overlay.width || 1) * evolution[2]);
-    const preview = scene.add.container(0, -14, [body, overlay]);
+    const previewParts: Phaser.GameObjects.GameObject[] = [body];
+    if (scene.textures.exists(evolution[1])) {
+      const overlay = scene.add.sprite(0, 0, evolution[1]).setOrigin(evolution[3][0], evolution[3][1]);
+      overlay.setScale((bw / previewScale) / (overlay.width || 1) * evolution[2]);
+      previewParts.push(overlay);
+    }
+    const preview = scene.add.container(0, -14, previewParts);
     preview.setScale(PREVIEW / (bh / previewScale));
     card.add(preview);
 

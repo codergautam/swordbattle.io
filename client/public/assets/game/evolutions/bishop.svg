@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="armor" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fbff"/>
+      <stop offset="0.5" stop-color="#a9c8dd"/>
+      <stop offset="1" stop-color="#4d6f91"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff27a"/>
+      <stop offset="0.5" stop-color="#f1b927"/>
+      <stop offset="1" stop-color="#9b5a08"/>
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#111a2b" stroke-width="30" opacity=".9"/>
+  <circle cx="256" cy="256" r="190" fill="none" stroke="url(#armor)" stroke-width="22"/>
+  <path d="M256 52C202 113 177 174 182 238l74 71 74-71c5-64-20-125-74-186Z" fill="url(#armor)" stroke="#101522" stroke-width="22" stroke-linejoin="round"/>
+  <path d="M256 80c-20 55-23 111-8 168" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round"/>
+  <path d="M200 224l56 71 56-71" fill="none" stroke="url(#gold)" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M162 335c55-39 133-39 188 0l-27 91c-45 23-89 23-134 0Z" fill="url(#gold)" stroke="#101522" stroke-width="24" stroke-linejoin="round"/>
+  <path d="M201 349c35-18 75-20 110-2" fill="none" stroke="#fff7a8" stroke-width="16" stroke-linecap="round"/>
+  <path d="M256 324v112" stroke="#101522" stroke-width="17"/>
+  <path d="M229 377h54M256 350v54" stroke="#f8fbff" stroke-width="13" stroke-linecap="round"/>
+</svg>

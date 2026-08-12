@@ -23,6 +23,9 @@ class WolfMob extends Entity {
     // this.tokensDrop = 100;
 
     this.tamedBy = null;
+    this.packId = objectData.packId ?? null;
+    this.flockRadius = 900;
+    this.separationRadius = 230;
 
     this.jumpTimer = new Timer(0, 2, 3);
     this.angryTimer = new Timer(0, 12, 21);
@@ -74,11 +77,7 @@ class WolfMob extends Entity {
     }
 
     this.health.update(dt);
-    if (this.target) {
-      this.jumpTimer.update(dt * 3);
-    } else {
-      this.jumpTimer.update(dt);
-    }
+    this.jumpTimer.update(this.target ? dt * 3 : dt);
 
     if (this.jumpTimer.finished) {
       this.jumpTimer.renew();
@@ -86,19 +85,83 @@ class WolfMob extends Entity {
       if (this.target) {
         const angle = helpers.angle(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
         this.angle = angle;
-        this.speed.multiplier *= 2;
       } else {
         this.angle += helpers.random(-Math.PI, Math.PI) / 2;
       }
-
-      this.velocity.add(new SAT.Vector(
-        this.speed.value * Math.cos(this.angle),
-        this.speed.value * Math.sin(this.angle)));
     }
 
-    this.velocity.scale(0.93);
+    this.applyBoidMovement(dt);
     this.shape.x += this.velocity.x;
     this.shape.y += this.velocity.y;
+  }
+
+  packmates() {
+    if (this.packId === null || !this.game.entitiesQuadtree) return [];
+    const r = this.flockRadius;
+    const nearby = this.game.entitiesQuadtree.get({
+      x: this.shape.x - r, y: this.shape.y - r, width: r * 2, height: r * 2,
+    });
+    const result = [];
+    for (const record of nearby) {
+      const wolf = record.entity;
+      if (!wolf || wolf === this || wolf.removed || wolf.type !== Types.Entity.Wolf) continue;
+      if (wolf.packId === this.packId) result.push(wolf);
+    }
+    return result;
+  }
+
+  applyBoidMovement(dt) {
+    const mates = this.packmates();
+    let desiredX = Math.cos(this.angle);
+    let desiredY = Math.sin(this.angle);
+    let separationX = 0, separationY = 0;
+    let alignmentX = 0, alignmentY = 0;
+    let centerX = 0, centerY = 0;
+
+    for (const mate of mates) {
+      if (!this.target && mate.target && !mate.target.removed) this.target = mate.target;
+      const dx = mate.shape.x - this.shape.x;
+      const dy = mate.shape.y - this.shape.y;
+      const distance = Math.max(1, Math.hypot(dx, dy));
+      if (distance < this.separationRadius) {
+        const weight = (this.separationRadius - distance) / this.separationRadius;
+        separationX -= dx / distance * weight;
+        separationY -= dy / distance * weight;
+      }
+      const mateSpeed = Math.hypot(mate.velocity.x, mate.velocity.y);
+      if (mateSpeed > 0.01) {
+        alignmentX += mate.velocity.x / mateSpeed;
+        alignmentY += mate.velocity.y / mateSpeed;
+      }
+      centerX += mate.shape.x;
+      centerY += mate.shape.y;
+    }
+
+    if (this.target && !this.target.removed) {
+      const targetAngle = helpers.angle(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
+      desiredX = Math.cos(targetAngle) * 1.8;
+      desiredY = Math.sin(targetAngle) * 1.8;
+    }
+
+    if (mates.length) {
+      alignmentX /= mates.length;
+      alignmentY /= mates.length;
+      centerX = centerX / mates.length - this.shape.x;
+      centerY = centerY / mates.length - this.shape.y;
+      const centerDistance = Math.max(1, Math.hypot(centerX, centerY));
+      desiredX += alignmentX * 0.7 + centerX / centerDistance * 0.65 + separationX * 2.4;
+      desiredY += alignmentY * 0.7 + centerY / centerDistance * 0.65 + separationY * 2.4;
+    }
+
+    const desiredMagnitude = Math.max(0.001, Math.hypot(desiredX, desiredY));
+    this.angle = Math.atan2(desiredY, desiredX);
+    const movementSpeed = this.speed.value * (this.target ? 2 : 1);
+    const targetVelocityX = desiredX / desiredMagnitude * movementSpeed;
+    const targetVelocityY = desiredY / desiredMagnitude * movementSpeed;
+    const steer = helpers.clamp(dt * 3.5, 0, 1);
+    this.velocity.x += (targetVelocityX - this.velocity.x) * steer;
+    this.velocity.y += (targetVelocityY - this.velocity.y) * steer;
+    this.velocity.scale(0.93);
   }
 
   processTargetsCollision(entity, response) {

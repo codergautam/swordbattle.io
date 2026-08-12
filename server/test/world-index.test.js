@@ -3,15 +3,38 @@ const assert = require('node:assert/strict');
 const WorldIndex = require('../src/game/components/WorldIndex');
 const { rectangleRectangle } = require('../src/game/collisions');
 
-function entity(id, x, y, width, height, isStatic = false) {
+function entity(id, x, y, width, height, isStatic = false, type = 0) {
   return {
     id,
+    type,
     isStatic,
     removed: false,
     shape: { get boundary() { return { x, y, width, height }; } },
     move(nextX, nextY) { x = nextX; y = nextY; },
   };
 }
+
+test('WorldIndex type queries retain exact filtering, deduplication, and optional stable order', () => {
+  const index = new WorldIndex({ x: 0, y: 0, width: 4096, height: 4096 }, 512);
+  const entities = new Map([
+    [9, entity(9, 100, 100, 900, 900, true, 2)],
+    [3, entity(3, 300, 300, 80, 80, false, 1)],
+    [7, entity(7, 350, 350, 80, 80, false, 2)],
+    [5, entity(5, 360, 360, 80, 80, false, 3)],
+  ]);
+  index.sync(entities);
+
+  const query = { x: 250, y: 250, width: 500, height: 500 };
+  assert.deepEqual(index.getByTypes(query, new Set([1, 2])).map(r => r.entity.id), [3, 7, 9]);
+  assert.deepEqual(index.getByTypes(query, new Set([3])).map(r => r.entity.id), [5]);
+  assert.deepEqual(index.getByTypes(query, new Set([99])).map(r => r.entity.id), []);
+
+  entities.get(7).move(3000, 3000);
+  index.sync(entities);
+  assert.deepEqual(index.getByTypes(query, new Set([2])).map(r => r.entity.id), [9]);
+  index.remove(9);
+  assert.deepEqual(index.getByTypes(query, new Set([2])).map(r => r.entity.id), []);
+});
 
 test('WorldIndex exactly matches brute force queries in deterministic ID order', () => {
   const index = new WorldIndex({ x: -2048, y: -2048, width: 4096, height: 4096 }, 512);

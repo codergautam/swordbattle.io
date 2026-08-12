@@ -27,6 +27,15 @@ class Circle extends Shape {
     return this.radius ** 2 * Math.PI;
   }
 
+  get boundary() {
+    const radius = this.radius;
+    this._boundary.x = this.x - radius;
+    this._boundary.y = this.y - radius;
+    this._boundary.width = radius * 2;
+    this._boundary.height = radius * 2;
+    return this._boundary;
+  }
+
   setScale(scale) {
     this.scaleRadius.multiplier *= scale;
     this.collisionPoly.r = this.scaleRadius.value;
@@ -41,8 +50,9 @@ class Circle extends Shape {
   }
 
   isPointInside(x, y) {
-    const point = new SAT.Vector(x, y);
-    return SAT.pointInCircle(point, this.collisionPoly);
+    const dx = x - this.x;
+    const dy = y - this.y;
+    return dx * dx + dy * dy <= this.radius * this.radius;
   }
 
   collides(shape, response) {

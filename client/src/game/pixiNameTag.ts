@@ -50,12 +50,16 @@ export function buildNameTag(text: string, style: NameStyle, fontSize: number): 
     const shText = new Text(t, shStyle);
     shText.anchor.set(0.5, 1);
     shText.filters = [new BlurFilter(Math.max(2, fontSize * 0.14))];
+    try { shText.cacheAsBitmap = true; } catch (e) {}
     container.addChild(shText);
   }
 
   if (gradientOutline) {
     const fatMask = new Text(t, new TextStyle({ ...baseStyle(fontSize), fill: '#ffffff', stroke: '#ffffff', strokeThickness: w }));
     fatMask.anchor.set(0.5, 1);
+    fatMask.renderable = false;
+    fatMask.visible = false;
+    try { fatMask.cacheAsBitmap = true; } catch (e) {}
     const gw = Math.ceil(fatMask.width + 4);
     const gh = Math.ceil(fatMask.height + 4);
     const grad = new Sprite(gradientTexture(style.outline as GradientSpec, gw, gh));

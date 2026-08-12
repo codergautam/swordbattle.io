@@ -43,6 +43,10 @@ import IceSpiritMob from './mobs/IceSpirit';
 import CaptureZone from './CaptureZone';
 import ThrownSword from './ThrownSword';
 import Zombie from './Zombie';
+import BishopBolt from './BishopBolt';
+import TideclawMob from './mobs/Tideclaw';
+import StormrayMob from './mobs/Stormray';
+import Whirlpool from './mapObjects/Whirlpool';
 
 export const EntityDepth: Record<any, number> = {
   [EntityTypes.CaptureZone]: 0.5,
@@ -67,6 +71,9 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.Fish]: 11,
   [EntityTypes.AngryFish]: 11,
   [EntityTypes.IceSpirit]: 11,
+  [EntityTypes.Tideclaw]: 11,
+  [EntityTypes.Stormray]: 12,
+  [EntityTypes.Whirlpool]: 2,
 
   [EntityTypes.Player]: 20,
   [EntityTypes.Zombie]: 20,
@@ -77,6 +84,7 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.ThrownSword]: 22,
   [EntityTypes.Snowball]: 22,
   [EntityTypes.Ornament]: 22,
+  [EntityTypes.BishopBolt]: 22,
   [EntityTypes.Roku]: 23,
   [EntityTypes.Ancient]: 23,
   [EntityTypes.Yeti]: 23,
@@ -112,6 +120,9 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.Fish: return FishMob;
     case EntityTypes.AngryFish: return AngryFishMob;
     case EntityTypes.IceSpirit: return IceSpiritMob;
+    case EntityTypes.Tideclaw: return TideclawMob;
+    case EntityTypes.Stormray: return StormrayMob;
+    case EntityTypes.Whirlpool: return Whirlpool;
     case EntityTypes.Chimera: return ChimeraMob;
     case EntityTypes.Yeti: return YetiMob;
     case EntityTypes.Santa: return SantaMob;
@@ -122,6 +133,7 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.SwordProj: return SwordProj;
     case EntityTypes.Snowball: return Snowball;
     case EntityTypes.Ornament: return Ornament;
+    case EntityTypes.BishopBolt: return BishopBolt;
 
     case EntityTypes.Rock: return Rock;
     case EntityTypes.Bush: return Bush;

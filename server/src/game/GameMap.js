@@ -35,12 +35,15 @@ const BunnyMob = require('./entities/mobs/Bunny');
 const MooseMob = require('./entities/mobs/Moose');
 const FishMob = require('./entities/mobs/Fish');
 const AngryFishMob = require('./entities/mobs/AngryFish');
+const TideclawMob = require('./entities/mobs/Tideclaw');
+const StormrayMob = require('./entities/mobs/Stormray');
 const IceSpiritMob = require('./entities/mobs/IceSpirit');
 const ChimeraMob = require('./entities/mobs/Chimera');
 const YetiMob = require('./entities/mobs/Yeti');
 const SantaMob = require('./entities/mobs/Santa');
 const RokuMob = require('./entities/mobs/Roku');
 const AncientMob = require('./entities/mobs/Ancient');
+const Whirlpool = require('./entities/mapObjects/Whirlpool');
 const Fireball = require('./entities/Fireball');
 const Boulder = require('./entities/Boulder');
 const SwordProj = require('./entities/SwordProj');
@@ -56,6 +59,8 @@ class GameMap {
   constructor(game) {
     this.game = game;
     this.biomes = [];
+    this.biomesByType = new Map();
+    this.landBiomes = [];
     this.staticObjects = [];
     this.x = 0;
     this.y = 0;
@@ -65,6 +70,7 @@ class GameMap {
     this.tutorialSafezone = null;
     this.shape = null;
     this.entityTimers = new Set();
+    this.nextWolfPackId = 1;
     this.coinsCount = map.coinsCount !== undefined ? map.coinsCount : 100;
     this.chestsCount = map.chestCount !== undefined ? map.chestCount : 150;
     this.aiPlayersCount = map.aiPlayersCount !== undefined ? map.aiPlayersCount : 10;
@@ -79,6 +85,10 @@ class GameMap {
     }
     this.calculateMapBounds();
     this.computeBiomeContainment();
+    this.landBiomes = this.biomes.filter(biome =>
+      biome.type !== Types.Biome.River
+      && biome.type !== Types.Biome.Safezone
+      && biome.type !== Types.Biome.TutorialZone);
     this.biomes.forEach(biome => biome.initialize());
 
     const Circle = require('./shapes/Circle');
@@ -113,9 +123,9 @@ class GameMap {
   }
 
   update(dt) {
-    for (const [id, entity] of this.game.entities) {
-      if (entity.isStatic) continue;
-      if (entity.skipBorderCollision) continue;
+    const dynamicEntities = this.game.dynamicEntities || this.game.entities.values();
+    for (const entity of dynamicEntities) {
+      if (!entity || entity.removed || entity.isStatic || entity.skipBorderCollision) continue;
       this.processBorderCollision(entity, dt);
     }
 
@@ -196,7 +206,10 @@ class GameMap {
   }
 
 spawnCoinsInShape(shape, totalCoinValue, droppedBy) {
-  const maxCoinsCount = 200;
+  // Coin value, not object count, is the gameplay contract. Coalescing large
+  // drops prevents boss/resource rewards from creating hundreds of collision,
+  // replication, and expiry objects at once.
+  const maxCoinsCount = 32;
   let remainingCoinValue = totalCoinValue;
   const coins = Math.min(Math.round(totalCoinValue / 5), maxCoinsCount);
   const coinValue = totalCoinValue / coins;
@@ -269,6 +282,10 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
   }
 
   addEntity(objectData) {
+    if (objectData.type === Types.Entity.Wolf && !objectData.packMember) {
+      return this.addWolfPack(objectData);
+    }
+
     let ObjectClass;
     switch (objectData.type) {
       case Types.Entity.MossyRock: ObjectClass = MossyRock; break;
@@ -298,6 +315,9 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
       case Types.Entity.Moose: ObjectClass = MooseMob; break;
       case Types.Entity.Fish: ObjectClass = FishMob; break;
       case Types.Entity.AngryFish: ObjectClass = AngryFishMob; break;
+      case Types.Entity.Tideclaw: ObjectClass = TideclawMob; break;
+      case Types.Entity.Stormray: ObjectClass = StormrayMob; break;
+      case Types.Entity.Whirlpool: ObjectClass = Whirlpool; break;
       case Types.Entity.IceSpirit: ObjectClass = IceSpiritMob; break;
       case Types.Entity.Chimera: ObjectClass = ChimeraMob; break;
       case Types.Entity.Yeti: ObjectClass = YetiMob; break;
@@ -327,6 +347,32 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     return entity;
   }
 
+  addWolfPack(objectData) {
+    const requestedSize = Number.isFinite(Number(objectData.packSize))
+      ? Math.floor(Number(objectData.packSize))
+      : Math.floor(helpers.random(3, 6));
+    const packSize = helpers.clamp(requestedSize, 2, 6);
+    const packId = this.nextWolfPackId++;
+    const leader = this.addEntity({ ...objectData, packMember: true, packId });
+    if (!leader) return null;
+
+    for (let index = 1; index < packSize && this.game.entities.size < this.game.maxEntities; index++) {
+      const angle = index / packSize * Math.PI * 2 + helpers.random(-0.2, 0.2);
+      const radius = helpers.random(180, 320);
+      this.addEntity({
+        ...objectData,
+        packMember: true,
+        packId,
+        spawnZone: undefined,
+        position: [
+          leader.shape.x + Math.cos(angle) * radius,
+          leader.shape.y + Math.sin(angle) * radius,
+        ],
+      });
+    }
+    return leader;
+  }
+
   addEntityTimer(definition, time) {
     this.entityTimers.add({
       timer: new Timer(0, time[0], time[1]),
@@ -349,6 +395,12 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
       ? new Biome(this.game, biomeData.type, biomeData)
       : new BiomeClass(this.game, biomeData);
     this.biomes.push(biome);
+    let typedBiomes = this.biomesByType.get(biome.type);
+    if (!typedBiomes) {
+      typedBiomes = [];
+      this.biomesByType.set(biome.type, typedBiomes);
+    }
+    typedBiomes.push(biome);
     if (biome.type === Types.Biome.Safezone) {
       this.safezone = biome;
     } else if (biome.type === Types.Biome.TutorialZone) {
@@ -474,8 +526,8 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     if (map.worldWidth && map.worldHeight) {
       this.width = map.worldWidth;
       this.height = map.worldHeight;
-      this.x = -this.width / 2;
-      this.y = -this.height / 2;
+      this.x = Number.isFinite(map.worldX) ? map.worldX : -this.width / 2;
+      this.y = Number.isFinite(map.worldY) ? map.worldY : -this.height / 2;
     } else {
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       for (const biome of this.biomes) {
@@ -493,6 +545,8 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
 
     config.world.worldWidth = this.width;
     config.world.worldHeight = this.height;
+    config.world.worldX = this.x;
+    config.world.worldY = this.y;
 
     this.shape = Polygon.createFromRectangle(this.x, this.y, this.width, this.height);
     this.halfWidth = this.width / 2;

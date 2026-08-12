@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs><radialGradient id="reBurst"><stop offset=".15" stop-color="#fff3ee" stop-opacity=".8"/><stop offset=".36" stop-color="#ff4a58" stop-opacity=".65"/><stop offset=".72" stop-color="#99142e" stop-opacity=".22"/><stop offset="1" stop-color="#27040d" stop-opacity="0"/></radialGradient></defs>
+  <circle cx="128" cy="128" r="122" fill="url(#reBurst)"/>
+  <path d="M128 9 145 73l42-49-13 68 64-25-50 50 67 11-67 17 50 44-65-21 14 64-43-47-16 62-17-62-42 47 13-64-64 21 50-44-67-17 67-11-50-50 64 25-13-68 42 49Z" fill="none" stroke="#1a0810" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M128 9 145 73l42-49-13 68 64-25-50 50 67 11-67 17 50 44-65-21 14 64-43-47-16 62-17-62-42 47 13-64-64 21 50-44-67-17 67-11-50-50 64 25-13-68 42 49Z" fill="none" stroke="#ff4056" stroke-width="6" stroke-linejoin="round"/>
+  <circle cx="128" cy="128" r="53" fill="none" stroke="#ffe0d9" stroke-width="7" stroke-dasharray="15 9"/>
+</svg>

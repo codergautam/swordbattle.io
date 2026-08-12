@@ -191,12 +191,8 @@ class Entity {
   sampleLandSpawn() {
     const map = this.game && this.game.map;
     if (!map || !this.shape) return false;
-    const land = map.biomes.filter(bi =>
-      bi.type !== Types.Biome.River
-      && bi.type !== Types.Biome.Safezone
-      && bi.type !== Types.Biome.TutorialZone
-      && bi.shape && typeof bi.shape.getRandomPoint === 'function'
-    );
+    const land = (map.landBiomes || map.biomes).filter(bi =>
+      bi.shape && typeof bi.shape.getRandomPoint === 'function');
     if (!land.length) return false;
     const biome = land[Math.floor(Math.random() * land.length)];
     const p = biome.shape.getRandomPoint();
@@ -236,7 +232,7 @@ class Entity {
     }
 
     let containing = null;
-    for (const biome of map.biomes) {
+    for (const biome of map.landBiomes || map.biomes) {
       if (biome.type === Types.Biome.River
         || biome.type === Types.Biome.Safezone
         || biome.type === Types.Biome.TutorialZone) continue;
@@ -311,7 +307,8 @@ class Entity {
 
     let insideRiver = false;
     if (riverInset > 0) {
-      for (const biome of this.game.map.biomes) {
+      const rivers = this.game.map.biomesByType?.get(Types.Biome.River) || this.game.map.biomes;
+      for (const biome of rivers) {
         if (biome.type !== Types.Biome.River) continue;
         if (biome.shape.isPointInside(this.shape.x, this.shape.y)) {
           insideRiver = true;
@@ -321,7 +318,8 @@ class Entity {
     }
 
     for (const biomeType of this.definition.forbiddenBiomes) {
-      for (const biome of this.game.map.biomes) {
+      const typedBiomes = this.game.map.biomesByType?.get(biomeType) || this.game.map.biomes;
+      for (const biome of typedBiomes) {
         if (biome.type !== biomeType) continue;
 
         if (insideRiver && biomeType !== Types.Biome.Safezone) {
@@ -362,18 +360,24 @@ class Entity {
 
     if (this.definition.forbiddenBiomes.includes(Types.Biome.River)) {
       const px = this.shape.x, py = this.shape.y;
-      const land = this.game.map.biomes.filter(b =>
+      const land = this.game.map.landBiomes || this.game.map.biomes.filter(b =>
         b.type !== Types.Biome.River
         && b.type !== Types.Biome.Safezone
-        && b.type !== Types.Biome.TutorialZone
-      );
+        && b.type !== Types.Biome.TutorialZone);
       let containingBiome = null;
-      for (const biome of land) {
-        if (biome.shape.isPointInside && biome.shape.isPointInside(px, py)) {
-          containingBiome = biome;
-          break;
+      const cachedLand = this._containingLandBiome;
+      if (cachedLand && cachedLand.shape.isPointInside
+        && cachedLand.shape.isPointInside(px, py)) {
+        containingBiome = cachedLand;
+      } else {
+        for (const biome of land) {
+          if (biome.shape.isPointInside && biome.shape.isPointInside(px, py)) {
+            containingBiome = biome;
+            break;
+          }
         }
       }
+      this._containingLandBiome = containingBiome;
       let nearest = null;
       let nearestDistSq = Infinity;
       if (containingBiome) {
@@ -527,8 +531,8 @@ class Entity {
     }
     // prevent leaving map
     const map = this.game.map;
-    this.shape.x = helpers.clamp(this.shape.x, -map.halfWidth, map.halfWidth);
-    this.shape.y = helpers.clamp(this.shape.y, -map.halfHeight, map.halfHeight);
+    this.shape.x = helpers.clamp(this.shape.x, map.x, map.x + map.width);
+    this.shape.y = helpers.clamp(this.shape.y, map.y, map.y + map.height);
     this.velocity.scale(0.9);
   }
 

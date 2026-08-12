@@ -46,6 +46,10 @@ export enum EntityTypes {
   Ore = 43,
   AmbientShrub = 44,
   Zombie = 45,
+  BishopBolt = 46,
+  Tideclaw = 47,
+  Stormray = 48,
+  Whirlpool = 49,
 }
 
 export enum FlagTypes {
@@ -85,6 +89,7 @@ export enum FlagTypes {
   Blinded = 35,
   FighterBoost = 36,
   ArcherCombo = 37,
+  ReaperMarked = 38,
 }
 
 export enum EvolutionTypes {
@@ -126,6 +131,12 @@ export enum EvolutionTypes {
   Assassin = 35,
   Elite = 36,
   Tracker = 37,
+  Bishop = 38,
+  Phantom = 39,
+  Wraith = 40,
+  Seraph = 41,
+  Arsenal = 42,
+  Reaper = 43,
 }
 
 export enum UpgradeTypes {
@@ -179,6 +190,7 @@ export enum BiomeTypes {
   Rocks = 11,
   Desert = 12,
   Oasis = 13,
+  Tidelands = 14,
 }
 
 export enum ShapeTypes {

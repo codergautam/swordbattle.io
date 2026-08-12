@@ -12,6 +12,7 @@ type DialogOptions = {
   placeholder?: string;
   maxLength?: number;
   validate?: (value: string) => string | null | Promise<string | null>;
+  validateOnChange?: boolean;
 };
 
 type PendingDialog = {
@@ -41,6 +42,7 @@ export default function PromptDialog() {
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [validationStatus, setValidationStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -52,8 +54,32 @@ export default function PromptDialog() {
     setValue(pending?.options.initialValue ?? '');
     setError('');
     setSubmitting(false);
+    setValidationStatus('idle');
     if (pending?.options.input) setTimeout(() => inputRef.current?.focus(), 0);
   }, [pending]);
+
+  useEffect(() => {
+    if (!pending?.options.input || !pending.options.validateOnChange || !pending.options.validate) return;
+    const nextValue = value.trim();
+    if (!nextValue) {
+      setError('');
+      setValidationStatus('idle');
+      return;
+    }
+    let active = true;
+    setError('');
+    setValidationStatus('checking');
+    const timer = setTimeout(async () => {
+      const validation = await pending.options.validate?.(nextValue);
+      if (!active) return;
+      setError(validation || '');
+      setValidationStatus(validation ? 'invalid' : 'valid');
+    }, 450);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [pending, value]);
 
   const close = (result: string | null) => {
     if (!pending) return;
@@ -65,12 +91,15 @@ export default function PromptDialog() {
     if (!pending || submitting) return;
     if (pending.options.input) {
       setSubmitting(true);
+      if (pending.options.validateOnChange) setValidationStatus('checking');
       const validation = await pending.options.validate?.(value.trim());
       setSubmitting(false);
       if (validation) {
         setError(validation);
+        if (pending.options.validateOnChange) setValidationStatus('invalid');
         return;
       }
+      if (pending.options.validateOnChange) setValidationStatus('valid');
       close(value.trim());
       return;
     }
@@ -80,19 +109,26 @@ export default function PromptDialog() {
   if (!pending) return null;
   const { options } = pending;
   return (
-    <div className="prompt-dialog-backdrop" onMouseDown={() => options.cancelLabel && close(null)}>
+    <div className="prompt-dialog-backdrop" onMouseDown={() => close(null)}>
       <div className="prompt-dialog" onMouseDown={(e) => e.stopPropagation()}>
         <h2>{options.title || 'Notice'}</h2>
         <p>{options.message}</p>
         {options.input && (options.multiline ? (
           <textarea ref={inputRef as any} value={value} placeholder={options.placeholder} maxLength={options.maxLength} onChange={(e) => setValue(e.target.value)} />
+        ) : options.validateOnChange ? (
+          <div className={`prompt-dialog-input status-${validationStatus}`}>
+            <input ref={inputRef as any} value={value} placeholder={options.placeholder} maxLength={options.maxLength} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') void confirm(); }} />
+            <span className="prompt-dialog-validation" aria-hidden="true">
+              {validationStatus === 'checking' ? '…' : validationStatus === 'valid' ? '✓' : validationStatus === 'invalid' ? '×' : ''}
+            </span>
+          </div>
         ) : (
           <input ref={inputRef as any} value={value} placeholder={options.placeholder} maxLength={options.maxLength} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') void confirm(); }} />
         ))}
         {error && <div className="prompt-dialog-error">{error}</div>}
         <div className="prompt-dialog-actions">
           {options.cancelLabel && <button onClick={() => close(null)}>{options.cancelLabel}</button>}
-          <button className="primary" disabled={submitting} onClick={() => void confirm()}>{submitting ? 'Checking...' : options.confirmLabel || 'OK'}</button>
+          <button className="primary" disabled={submitting || validationStatus === 'checking' || validationStatus === 'invalid'} onClick={() => void confirm()}>{submitting ? 'Checking...' : options.confirmLabel || 'OK'}</button>
         </div>
       </div>
     </div>

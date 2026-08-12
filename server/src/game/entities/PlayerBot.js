@@ -2,6 +2,7 @@ const Player = require('./Player');
 const Timer = require('../components/Timer');
 const Types = require('../Types');
 const helpers = require('../../helpers');
+const BotSocialSystem = require('../components/BotSocialSystem');
 
 const Goal = {
   Wander: 0,
@@ -12,6 +13,17 @@ const Goal = {
   Spar: 5,
   FightMob: 6,
   Flee: 7,
+};
+
+const goalDialogue = {
+  [Goal.Wander]: 'wander',
+  [Goal.Coins]: 'coins',
+  [Goal.Ore]: 'ore',
+  [Goal.Chest]: 'chest',
+  [Goal.HuntBot]: 'challenge',
+  [Goal.Spar]: 'challenge',
+  [Goal.FightMob]: 'mob',
+  [Goal.Flee]: 'flee',
 };
 
 const goalDuration = {
@@ -38,6 +50,16 @@ const solidTypes = new Set([
 ]);
 const mobTypes = new Set(Types.Groups.Mobs);
 const bossAlways = new Set([Types.Entity.Roku, Types.Entity.Ancient, Types.Entity.Sphinx]);
+const perceptionTypes = new Set([
+  Types.Entity.Coin,
+  Types.Entity.Chest,
+  Types.Entity.Player,
+  ...hazardTypes,
+  ...projectileTypes,
+  ...solidTypes,
+  ...mobTypes,
+]);
+const perceptionInterval = 0.15;
 
 function posOf(entity) {
   const s = entity.shape;
@@ -73,6 +95,9 @@ class PlayerAI extends Player {
     super(game, objectData.name);
 
     this.isBot = true;
+    this.botTeamId = null;
+    this.botTeammateId = null;
+    this.social = new BotSocialSystem(this);
 
     this.smartness = Math.random();
     this.aggression = helpers.clamp(0.25 + this.smartness * 0.45 + Math.random() * 0.3, 0, 1);
@@ -123,6 +148,10 @@ class PlayerAI extends Player {
     this.threatMobs = [];
     this.bots = [];
     this.humans = [];
+
+    // Movement and attack execution remain tick-rate smooth, while the costly
+    // broadphase scan is staggered across bots at roughly 7 Hz.
+    this.perceptionRemaining = Math.random() * perceptionInterval;
 
     this.game.map.shape.randomSpawnInside(this.shape);
     this.decideGoal();
@@ -194,7 +223,19 @@ class PlayerAI extends Player {
     this.inputs.inputUp(Types.Input.SwordThrow);
     this.inputs.inputUp(Types.Input.Ability);
 
-    this.perceive();
+    this.perceptionRemaining -= dt;
+    if (this.perceptionRemaining <= 0) {
+      this.perceive();
+      this.perceptionRemaining += perceptionInterval;
+      if (this.perceptionRemaining <= 0) this.perceptionRemaining = perceptionInterval;
+    }
+    this.social.update(dt, this.bots);
+    const sharedTarget = this.social.sharedCombatTarget();
+    if (sharedTarget && this.target !== sharedTarget) {
+      this.setGoal(mobTypes.has(sharedTarget.type) ? Goal.FightMob : Goal.HuntBot, sharedTarget);
+    } else if (this.target && this.social.isTeammate(this.target)) {
+      this.abandonGoal();
+    }
     this.skill = this.computeSkill();
 
     let forced = this.evaluateThreats(dt);
@@ -217,7 +258,9 @@ class PlayerAI extends Player {
   }
 
   perceive() {
-    const ids = this.getEntitiesInViewport();
+    const nearby = this.game.entitiesQuadtree.getByTypes
+      ? this.game.entitiesQuadtree.getByTypes(this.viewport.boundary, perceptionTypes, false)
+      : this.game.entitiesQuadtree.get(this.viewport.boundary);
     this._coins.length = 0;
     this.chests.length = 0;
     this.ores.length = 0;
@@ -230,8 +273,8 @@ class PlayerAI extends Player {
     this.bots.length = 0;
     this.humans.length = 0;
 
-    for (let i = 0; i < ids.length; i++) {
-      const e = this.game.entities.get(ids[i]);
+    for (let i = 0; i < nearby.length; i++) {
+      const e = nearby[i].entity;
       if (!e || e === this || e.removed || !e.shape) continue;
       const t = e.type;
 
@@ -323,6 +366,7 @@ class PlayerAI extends Player {
   }
 
   setGoal(goal, target = null) {
+    const changed = this.goal !== goal || this.target !== target;
     const wasCombat = this.goal === Goal.HuntBot || this.goal === Goal.Spar || this.goal === Goal.FightMob;
     this.goal = goal;
     this.target = target;
@@ -345,14 +389,22 @@ class PlayerAI extends Player {
           0.3 + (1 - this.skill) * 0.45 + Math.random() * 0.2);
       }
     }
+    if (changed) {
+      const category = goal === Goal.FightMob && this.isBossMobEntity(target)
+        ? 'boss'
+        : goalDialogue[goal];
+      if (category && !this.suppressGoalDialogue) this.social.onSituation(category);
+    }
   }
 
   setFlee(threat) {
-    if (this.goal !== Goal.Flee || this.fleeFrom !== threat) {
+    const changed = this.goal !== Goal.Flee || this.fleeFrom !== threat;
+    if (changed) {
       this.fleeTimer = helpers.random(1.2, 2.5);
     }
     this.goal = Goal.Flee;
     this.fleeFrom = threat;
+    if (changed && !this.suppressGoalDialogue) this.social.onSituation('flee');
   }
 
   abandonGoal() {
@@ -376,6 +428,7 @@ class PlayerAI extends Player {
     const myCoins = (this.levels && this.levels.coins) || 0;
     for (const b of this.bots) {
       if (b.removed || !b.shape) continue;
+      if (this.social.isTeammate(b)) continue;
       const bc = (b.levels && b.levels.coins) || 0;
       const ratio = bc / Math.max(1, myCoins);
       if (ratio > 3 && myCoins > 800 && this.aggression < 0.7) continue;
@@ -402,6 +455,7 @@ class PlayerAI extends Player {
     let bestScore = -Infinity;
     for (const p of this.game.players) {
       if (p === this || p.removed || !p.isBot || !p.levels) continue;
+      if (this.social.isTeammate(p)) continue;
       if (p.levels.coins < richCoins) continue;
       const d = this.dist(p);
       const score = p.levels.coins / (d + 1500);
@@ -517,6 +571,14 @@ class PlayerAI extends Player {
   }
 
   executeWander(dt) {
+    const teammate = this.social.teammate();
+    if (teammate && this.dist(teammate) > 520) {
+      const mate = posOf(teammate);
+      const towardMate = Math.atan2(mate.y - this.shape.y, mate.x - this.shape.x);
+      this.steerMove(towardMate + this.strafeDir * 0.18, 95, dt, 4.5);
+      this.angle = this.turnToward(this.angle, this.moveAngle, dt, 4);
+      return;
+    }
     this.wanderTimer.update(dt);
     if (this.wanderTimer.finished) {
       this.wanderTimer.renew();
@@ -795,6 +857,7 @@ class PlayerAI extends Player {
     if (this.skill > 0.6 && this.evolutions && this.evolutions.evolutionEffect
       && this.evolutions.evolutionEffect.isAbilityAvailable && Math.random() < 0.02) {
       this.inputs.inputDown(Types.Input.Ability);
+      this.social.onAbility();
     }
   }
 
@@ -885,9 +948,11 @@ class PlayerAI extends Player {
 
     const map = this.game.map;
     if (map && map.width && map.height) {
-      const halfW = map.width / 2, halfH = map.height / 2;
       const edge = 1200 + myR;
-      const dL = px + halfW, dR = halfW - px, dT = py + halfH, dB = halfH - py;
+      const dL = px - map.x;
+      const dR = map.x + map.width - px;
+      const dT = py - map.y;
+      const dB = map.y + map.height - py;
       if (dL < edge) { const w = (edge - Math.max(0, dL)) / edge; rx += w * w * 6.0; }
       if (dR < edge) { const w = (edge - Math.max(0, dR)) / edge; rx -= w * w * 6.0; }
       if (dT < edge) { const w = (edge - Math.max(0, dT)) / edge; ry += w * w * 6.0; }
@@ -922,6 +987,9 @@ class PlayerAI extends Player {
   }
 
   damaged(damage, entity, isThrown = false, opts = null) {
+    if (entity?.isBot && this.social.isTeammate(entity)) return;
+    const healthBefore = this.health.percent;
+    this.suppressGoalDialogue = true;
     if (entity && !entity.removed && entity.shape) {
       if (entity.type === Types.Entity.Player && Math.random() < 0.5) {
         this.attackCooldown = Math.max(this.attackCooldown,
@@ -960,9 +1028,14 @@ class PlayerAI extends Player {
     }
 
     super.damaged(damage, entity, isThrown, opts);
+    this.suppressGoalDialogue = false;
+    if (!this.removed && !this.health.isDead && this.health.percent < healthBefore) {
+      this.social.onAttacked(entity);
+    }
   }
 
   remove(reason) {
+    this.social.disband();
     super.remove(reason);
   }
 }

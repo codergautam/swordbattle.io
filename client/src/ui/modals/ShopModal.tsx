@@ -49,6 +49,7 @@ interface Skin {
   currency: boolean;
 
   tokenprice: number;
+  dailyReward?: boolean;
 }
 
 const rotate = false;
@@ -147,6 +148,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
   const [showAllSkins, setShowAllSkins] = useState(false);
   const [showUltimate, setShowUltimate] = useState(Settings.showUltimate);
   const [showEvent, setShowEvent] = useState(Settings.showEvent);
+  const [showReward, setShowReward] = useState(true);
   const [allSkinSort, setAllSkinSort] = useState('price-low');
 
   const skinRefs = useRef<(HTMLImageElement | null)[]>(new Array(Object.keys(skins).length).fill(null));
@@ -399,29 +401,37 @@ const ShopModal: React.FC<ShopModalProps> = ({ account, onPreviewSkin }) => {
           <div className="all-skins-toolbar">
             <h1 className="shop-title">All Skins</h1>
             <button className="all-skins-back" onClick={() => setShowAllSkins(false)}>Back to Shop</button>
-            <div className="all-skins-toggle">
-              <span>Show Ultimate Skins</span>
-              <label className="switch"><input type="checkbox" checked={showUltimate} onChange={(e) => updateShowUltimate(e.target.checked)} /><span className="slider round" /></label>
+            <div className="all-skins-filter-stack">
+              <div className="all-skins-toggle">
+                <span>Show Ultimate Skins</span>
+                <label className="switch"><input type="checkbox" checked={showUltimate} onChange={(e) => updateShowUltimate(e.target.checked)} /><span className="slider round" /></label>
+              </div>
+              <div className="all-skins-toggle">
+                <span>Show Event Skins</span>
+                <label className="switch"><input type="checkbox" checked={showEvent} onChange={(e) => updateShowEvent(e.target.checked)} /><span className="slider round" /></label>
+              </div>
             </div>
-            <div className="all-skins-toggle">
-              <span>Show Event Skins</span>
-              <label className="switch"><input type="checkbox" checked={showEvent} onChange={(e) => updateShowEvent(e.target.checked)} /><span className="slider round" /></label>
+            <div className="all-skins-sort-stack">
+              <label className="all-skins-sort">Sort by
+                <select value={allSkinSort} onChange={(e) => setAllSkinSort(e.target.value)}>
+                  <option value="price-low">Price: low to high</option>
+                  <option value="price-high">Price: high to low</option>
+                  <option value="buys">Most buys</option>
+                  <option value="name-az">Name: A to Z</option>
+                  <option value="name-za">Name: Z to A</option>
+                </select>
+              </label>
+              <div className="all-skins-toggle">
+                <span>Show Reward Skins</span>
+                <label className="switch"><input type="checkbox" checked={showReward} onChange={(e) => setShowReward(e.target.checked)} /><span className="slider round" /></label>
+              </div>
             </div>
-            <label className="all-skins-sort">Sort by
-              <select value={allSkinSort} onChange={(e) => setAllSkinSort(e.target.value)}>
-                <option value="price-low">Price: low to high</option>
-                <option value="price-high">Price: high to low</option>
-                <option value="buys">Most buys</option>
-                <option value="name-az">Name: A to Z</option>
-                <option value="name-za">Name: Z to A</option>
-              </select>
-            </label>
           </div>
         </div>
         <div className="scroll">
           <SkinGrid
             skins={skins}
-            filter={(skin) => !skin.og && !skin.currency && (showUltimate || !skin.ultimate) && (showEvent || (!skin.event && !skin.eventoffsale))}
+            filter={(skin) => !skin.og && !skin.currency && (showUltimate || !skin.ultimate) && (showEvent || (!skin.event && !skin.eventoffsale)) && (showReward || !skin.dailyReward)}
             sort={sortAllSkins}
             searchTerm=""
             highlightSearchTerm={highlightSearchTerm}

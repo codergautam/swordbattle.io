@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="pArmor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#59627a"/><stop offset=".48" stop-color="#24283c"/><stop offset="1" stop-color="#090b16"/></linearGradient>
+    <linearGradient id="pViolet" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d99cff"/><stop offset=".46" stop-color="#8346db"/><stop offset="1" stop-color="#35156f"/></linearGradient>
+    <linearGradient id="pCyan" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#efffff"/><stop offset=".35" stop-color="#5cf4ff"/><stop offset="1" stop-color="#168aa8"/></linearGradient>
+    <filter id="pGlow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <path d="M95 330 61 247l67 22-23-94 94 44 57-168 57 168 94-44-23 94 67-22-34 83-71 116H166Z" fill="url(#pArmor)" stroke="#090b15" stroke-width="28" stroke-linejoin="round"/>
+  <path d="m256 69-38 152 38 61 38-61Z" fill="url(#pViolet)" stroke="#0b0b18" stroke-width="19" stroke-linejoin="round"/>
+  <path d="M119 289c38-30 75-38 111-25l26 38-54 49-83-20Z" fill="#19192c" stroke="#090b15" stroke-width="20"/>
+  <path d="M393 289c-38-30-75-38-111-25l-26 38 54 49 83-20Z" fill="#19192c" stroke="#090b15" stroke-width="20"/>
+  <path d="m163 298 57-7-31 39m160-32-57-7 31 39" fill="none" stroke="url(#pCyan)" stroke-width="18" stroke-linecap="round" filter="url(#pGlow)"/>
+  <path d="M176 365c49-31 111-31 160 0l-25 73c-37 20-73 20-110 0Z" fill="url(#pViolet)" stroke="#090b15" stroke-width="24" stroke-linejoin="round"/>
+  <path d="M200 383c35-17 77-17 112 0" fill="none" stroke="#e8c8ff" stroke-width="13" stroke-linecap="round"/>
+  <path d="M256 354v93M224 409l32-31 32 31" fill="none" stroke="url(#pCyan)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M122 227 83 194m307 33 39-33" stroke="#8e54e7" stroke-width="15" stroke-linecap="round"/>
+</svg>

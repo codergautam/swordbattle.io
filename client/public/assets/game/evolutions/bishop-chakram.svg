@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="blade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".45" stop-color="#72e7ff"/>
+      <stop offset="1" stop-color="#3976c5"/>
+    </linearGradient>
+  </defs>
+  <path d="M64 7 80 31l30-7-13 28 24 19-30 9-2 31-25-18-25 18-2-31-30-9 24-19-13-28 30 7Z" fill="url(#blade)" stroke="#091526" stroke-width="10" stroke-linejoin="round"/>
+  <circle cx="64" cy="64" r="24" fill="#142942" stroke="#f7c842" stroke-width="9"/>
+  <circle cx="64" cy="64" r="10" fill="#8df3ff"/>
+</svg>

@@ -10,7 +10,7 @@ const SOLIDS = new Set([
 const PROJECTILES = new Set([
   Types.Entity.Sword, Types.Entity.ThrownSword, Types.Entity.Fireball,
   Types.Entity.Boulder, Types.Entity.SwordProj, Types.Entity.Snowball,
-  Types.Entity.SandBall,
+  Types.Entity.SandBall, Types.Entity.BishopBolt,
 ]);
 
 function position(entity) {
@@ -85,6 +85,7 @@ class ZombieBrain {
       this.aimAngle = this.moveAngle;
       return;
     }
+    z.scaleToTarget(this.target);
 
     const zp = position(z), tp = position(this.target);
     const dx = tp.x - zp.x, dy = tp.y - zp.y;

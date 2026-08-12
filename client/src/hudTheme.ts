@@ -15,6 +15,14 @@ export interface HudThemePreset {
   outerW: number;
   outerAlpha: number;
   radius: number;
+  progressBarBackgroundEnabled: boolean;
+  progressBarBg: string;
+  progressBarBgAlpha: number;
+  progressBarFill: string;
+  progressBarShineEnabled: boolean;
+  progressBarShine: string;
+  progressBarShineAlpha: number;
+  progressBarRadius: number;
   accent: string;
   text: string;
   muted: string;
@@ -37,6 +45,14 @@ export interface HudTheme {
   outerW: number;
   outerAlpha: number;
   radius: number;
+  progressBarBackgroundEnabled: boolean;
+  progressBarBg: number;
+  progressBarBgAlpha: number;
+  progressBarFill: number;
+  progressBarShineEnabled: boolean;
+  progressBarShine: number;
+  progressBarShineAlpha: number;
+  progressBarRadius: number;
   accent: string;
   text: string;
   muted: string;
@@ -68,6 +84,14 @@ export const defaultHudThemePreset: HudThemePreset = {
   outerW: 2,
   outerAlpha: 1,
   radius: 10,
+  progressBarBackgroundEnabled: true,
+  progressBarBg: '#403f3f',
+  progressBarBgAlpha: 1,
+  progressBarFill: '#10c8ff',
+  progressBarShineEnabled: true,
+  progressBarShine: '#8af3ff',
+  progressBarShineAlpha: 0.6,
+  progressBarRadius: 20,
   accent: '#6dffa0',
   text: '#ffffff',
   muted: '#c9c9cf',
@@ -120,6 +144,14 @@ export function normalizeHudThemePreset(value: Partial<HudThemePreset> | Record<
     outerW: clamp(source.outerW, 0, 12, defaultHudThemePreset.outerW),
     outerAlpha: clamp(source.outerAlpha, 0, 1, defaultHudThemePreset.outerAlpha),
     radius: clamp(source.radius, 0, 40, defaultHudThemePreset.radius),
+    progressBarBackgroundEnabled: source.progressBarBackgroundEnabled === undefined ? defaultHudThemePreset.progressBarBackgroundEnabled : !!source.progressBarBackgroundEnabled,
+    progressBarBg: normalizeHex(source.progressBarBg, defaultHudThemePreset.progressBarBg),
+    progressBarBgAlpha: clamp(source.progressBarBgAlpha, 0, 1, defaultHudThemePreset.progressBarBgAlpha),
+    progressBarFill: normalizeHex(source.progressBarFill, defaultHudThemePreset.progressBarFill),
+    progressBarShineEnabled: source.progressBarShineEnabled === undefined ? defaultHudThemePreset.progressBarShineEnabled : !!source.progressBarShineEnabled,
+    progressBarShine: normalizeHex(source.progressBarShine, defaultHudThemePreset.progressBarShine),
+    progressBarShineAlpha: clamp(source.progressBarShineAlpha, 0, 1, defaultHudThemePreset.progressBarShineAlpha),
+    progressBarRadius: clamp(source.progressBarRadius, 0, 40, defaultHudThemePreset.progressBarRadius),
     accent: normalizeHex(source.accent, defaultHudThemePreset.accent),
     text: normalizeHex(source.text, defaultHudThemePreset.text),
     muted: normalizeHex(source.muted, defaultHudThemePreset.muted),
@@ -148,6 +180,14 @@ function toRuntimeTheme(preset: HudThemePreset): HudTheme {
     outerW: preset.outerEnabled ? preset.outerW : 0,
     outerAlpha: preset.outerAlpha,
     radius: preset.radius,
+    progressBarBackgroundEnabled: preset.progressBarBackgroundEnabled,
+    progressBarBg: hexToNumber(preset.progressBarBg),
+    progressBarBgAlpha: preset.progressBarBgAlpha,
+    progressBarFill: hexToNumber(preset.progressBarFill),
+    progressBarShineEnabled: preset.progressBarShineEnabled,
+    progressBarShine: hexToNumber(preset.progressBarShine),
+    progressBarShineAlpha: preset.progressBarShineAlpha,
+    progressBarRadius: preset.progressBarRadius,
     accent: preset.accent,
     text: preset.text,
     muted: preset.muted,

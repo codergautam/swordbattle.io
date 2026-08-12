@@ -56,6 +56,7 @@ class ThrownSword extends Entity {
   }
 
   processTargetsCollision(entity, response) {
+    if (this.owner?.modifiers?.attackLocked || entity.modifiers?.phaseImmune) return;
     if (entity.depth !== this.depth) return;
     if (this.owner && entity === this.owner) return;
     if (this.collidedEntities.has(entity)) return;

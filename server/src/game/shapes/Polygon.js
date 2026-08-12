@@ -70,6 +70,27 @@ class Polygon extends Shape {
     return this._cachedArea;
   }
 
+  get boundary() {
+    const points = this.collisionPoly.calcPoints;
+    const pos = this.collisionPoly.pos;
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (let index = 0; index < points.length; index++) {
+      const point = points[index];
+      if (point.x < minX) minX = point.x;
+      if (point.y < minY) minY = point.y;
+      if (point.x > maxX) maxX = point.x;
+      if (point.y > maxY) maxY = point.y;
+    }
+    this._boundary.x = pos.x + minX;
+    this._boundary.y = pos.y + minY;
+    this._boundary.width = maxX - minX;
+    this._boundary.height = maxY - minY;
+    return this._boundary;
+  }
+
   get angle() {
     return this.collisionPoly.angle;
   }
@@ -111,8 +132,9 @@ class Polygon extends Shape {
   }
 
   isPointInside(x, y) {
-    const point = new SAT.Vector(x, y);
-    return SAT.pointInPolygon(point, this.collisionPoly);
+    Polygon._point.x = x;
+    Polygon._point.y = y;
+    return SAT.pointInPolygon(Polygon._point, this.collisionPoly);
   }
 
   collides(shape, response) {
@@ -140,5 +162,7 @@ class Polygon extends Shape {
     return data;
   }
 }
+
+Polygon._point = new SAT.Vector();
 
 module.exports = Polygon;

@@ -1,5 +1,5 @@
 import { TextureManager } from './TextureManager';
-import { withAssetVersion, toWebp } from '../../../assetVersion';
+import { withAssetVersion } from '../../../assetVersion';
 import { span } from '../../../bootTiming';
 import {
   ldBatchStart, ldBatchEnd, ldQueued, ldStarted, ldAttempt, ldAttemptFailed,
@@ -144,7 +144,30 @@ export class Loader {
           // decoded, addImage is the main-thread GPU/texture cost.
           ldOnload(key, myAttempt);
           let ok = true;
-          try { this._textures.addImage(key, img); } catch (e) { ok = false; }
+          try {
+            if (/\.svg(?:[?#]|$)/i.test(finalUrl)) {
+              // PIXI's direct HTMLImageElement upload can preserve an SVG's
+              // alpha while losing its RGB channels on some WebGL paths. A
+              // transparent 2D-canvas rasterization gives the GPU ordinary
+              // RGBA pixels and keeps the vector asset as the source.
+              const width = img.naturalWidth || img.width;
+              const height = img.naturalHeight || img.height;
+              if (!width || !height) throw new Error(`SVG ${key} has no intrinsic size`);
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              if (!ctx) throw new Error(`Could not rasterize SVG ${key}`);
+              ctx.clearRect(0, 0, width, height);
+              ctx.drawImage(img, 0, 0, width, height);
+              this._textures.addCanvas(key, canvas);
+            } else {
+              this._textures.addImage(key, img);
+            }
+          } catch (e) {
+            console.warn('[pixi-loader] failed to upload', key, e);
+            ok = false;
+          }
           ldUploaded(key);
           finish(ok);
         };
@@ -156,7 +179,7 @@ export class Loader {
           if (attempt < maxAttempts) setTimeout(() => { if (!settled && myAttempt === attempt) tryLoad(); }, 500 * myAttempt);
           else finish(false);
         };
-        const base = withAssetVersion(myAttempt === 1 ? toWebp(url) : url);
+        const base = withAssetVersion(url);
         const finalUrl = myAttempt > 2 ? base + (base.indexOf('?') === -1 ? '?' : '&') + 'r=' + myAttempt : base;
         ldAttempt(key, myAttempt, finalUrl);
         img.src = finalUrl;

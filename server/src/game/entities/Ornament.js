@@ -44,6 +44,7 @@ class Ornament extends Entity {
   }
 
   processTargetsCollision(entity, response) {
+    if (entity.modifiers?.phaseImmune) return;
     if (entity === this.owner) return;
 
     if (entity.type !== Types.Entity.Player) return;

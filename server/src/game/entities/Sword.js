@@ -91,6 +91,7 @@ class Sword extends Entity {
   }
 
   canCollide(entity) {
+    if (this.player.modifiers.attackLocked || entity.modifiers?.phaseImmune) return false;
     const canHit = this.isFlying || this.raiseAnimation || (this.doubleHitActive && this.decreaseAnimation);
     return canHit
       && !this.collidedEntities.has(entity)
@@ -106,6 +107,7 @@ class Sword extends Entity {
       && wantsSwing
       && this.isAnimationFinished
       && this.player.modifiers.invisible == false
+      && !this.player.modifiers.attackLocked
       && !this.player.modifiers.stunned
       && !this.player.modifiers.silenced
       && Date.now() >= (this.player._bsThrowUntil || 0)
@@ -117,6 +119,7 @@ class Sword extends Entity {
       && this.player.inputs.isInputDown(Types.Input.SwordThrow)
       && this.flyCooldownTime <= 0
       && this.player.modifiers.invisible == false
+      && !this.player.modifiers.attackLocked
       && !this.player.modifiers.stunned
       && !this.player.modifiers.silenced
       && !(this.player.cards.choosingCard && this.player.cards.instantSelect);

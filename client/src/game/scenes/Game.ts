@@ -102,6 +102,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('rocksNew', publicPath + '/assets/game/tiles/rocks-new.png');
     this.load.image('desertTile', publicPath + '/assets/game/tiles/desert.png');
     this.load.image('oasisTile', publicPath + '/assets/game/tiles/oasis.png');
+    this.load.image('tidelandsTile', publicPath + '/assets/game/tiles/tidelands.svg');
 
     if (Settings.coins) {
       this.load.image('coin', publicPath + '/assets/game/coin.png');
@@ -173,6 +174,9 @@ export default class Game extends Phaser.Scene {
     this.load.image('moose', publicPath + '/assets/game/mobs/moose.png');
     this.load.image('fish', publicPath + '/assets/game/mobs/bluefish.png');
     this.load.image('angryFish', publicPath + '/assets/game/mobs/angryfish.png');
+    this.load.image('tideclaw', publicPath + '/assets/game/mobs/tideclaw.svg');
+    this.load.image('stormray', publicPath + '/assets/game/mobs/stormray.svg');
+    this.load.image('whirlpool', publicPath + '/assets/game/hazards/whirlpool.svg');
     this.load.image('chimera', publicPath + '/assets/game/mobs/chimera.png');
     this.load.image('yeti', publicPath + '/assets/game/mobs/yeti.png'); // add winter
     this.load.image('iceSpirit', publicPath + '/assets/game/mobs/icespirit.png');
@@ -183,6 +187,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('fireball', publicPath + '/assets/game/mobs/fireball.png');
     this.load.image('boulder', publicPath + '/assets/game/mobs/boulder.png');
     this.load.image('swordProj', publicPath + '/assets/game/mobs/sword.png');
+    this.load.image('bishopBolt', publicPath + '/assets/game/evolutions/bishop-bolt.svg');
     this.load.image('snowball', publicPath + '/assets/game/mobs/snowball.png');
     this.load.image('ornament1', publicPath + '/assets/game/mobs/ornament1.png');
     this.load.image('ornament2', publicPath + '/assets/game/mobs/ornament2.png');
@@ -237,6 +242,23 @@ export default class Game extends Phaser.Scene {
     this.deferLoad('assassinOverlay', publicPath + '/assets/game/evolutions/assassin.png');
     this.deferLoad('eliteOverlay', publicPath + '/assets/game/evolutions/elite.png');
     this.deferLoad('trackerOverlay', publicPath + '/assets/game/evolutions/tracker.png');
+    this.deferLoad('bishopOverlay', publicPath + '/assets/game/evolutions/bishop.svg');
+    this.deferLoad('bishopCannon', publicPath + '/assets/game/evolutions/bishop-cannon.svg');
+    this.deferLoad('bishopChakram', publicPath + '/assets/game/evolutions/bishop-chakram.svg');
+    this.deferLoad('phantomOverlay', publicPath + '/assets/game/evolutions/phantom.svg');
+    this.deferLoad('wraithOverlay', publicPath + '/assets/game/evolutions/wraith.svg');
+    this.deferLoad('medicRevampOverlay', publicPath + '/assets/game/evolutions/medic-revamp.svg');
+    this.deferLoad('seraphOverlay', publicPath + '/assets/game/evolutions/seraph.svg');
+    this.deferLoad('arsenalOverlay', publicPath + '/assets/game/evolutions/arsenal.svg');
+    this.deferLoad('phantomPhase', publicPath + '/assets/game/evolutions/phantom-phase.svg');
+    this.deferLoad('wraithPhase', publicPath + '/assets/game/evolutions/wraith-phase.svg');
+    this.deferLoad('medicPulse', publicPath + '/assets/game/evolutions/medic-pulse.svg');
+    this.deferLoad('seraphPulse', publicPath + '/assets/game/evolutions/seraph-pulse.svg');
+    this.deferLoad('arsenalCannon', publicPath + '/assets/game/evolutions/arsenal-cannon.svg');
+    this.deferLoad('arsenalChakram', publicPath + '/assets/game/evolutions/arsenal-chakram.svg');
+    this.deferLoad('reaperOverlay', publicPath + '/assets/game/evolutions/reaper.svg');
+    this.deferLoad('reaperMark', publicPath + '/assets/game/evolutions/reaper-mark.svg');
+    this.deferLoad('reaperExecution', publicPath + '/assets/game/evolutions/reaper-execution.svg');
 
     this.load.image('hitParticle', publicPath + '/assets/game/particles/hit.png');
     this.load.image('starParticle', publicPath + '/assets/game/particles/star.png');

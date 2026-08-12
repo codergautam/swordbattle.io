@@ -1,5 +1,6 @@
 const Circle = require('../shapes/Circle');
 const Polygon = require('../shapes/Polygon');
+const Types = require('../Types');
 
 class Biome {
   constructor(game, type, definition) {
@@ -47,7 +48,10 @@ class Biome {
       const data = { ...entityData };
       if (data.position === 'random') {
         data.spawnZone = this.shape;
-        if (this.contains && this.contains.length) {
+        // Rivers sit inside larger land/tidal polygons. Their irregular shapes can
+        // also contain an outer polygon's center, so treating containment as an
+        // avoidance list would reject every aquatic spawn in the channel.
+        if (this.type !== Types.Biome.River && this.contains && this.contains.length) {
           data.avoidBiomes = this.contains;
         }
       } else if (data.position === 'center') {

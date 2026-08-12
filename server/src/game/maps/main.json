@@ -1,11 +1,61 @@
 {
-  "worldWidth": 35000,
-  "worldHeight": 35000,
+  "worldWidth": 43750,
+  "worldHeight": 43750,
+  "worldX": -26250,
+  "worldY": -26250,
   "scale": 1.225,
   "coinsCount": 0,
   "chestCount": 250,
   "aiPlayersCount": 30,
   "biomes": [
+    {
+      "type": "Tidelands",
+      "variant": "north-shelf",
+      "pos": [0, 0],
+      "controlPoints": [[-21300,-21300],[14200,-21300],[14200,-14220],[11100,-14000],[8100,-14520],[4900,-14100],[1700,-14600],[-1600,-14060],[-4800,-14540],[-7900,-14020],[-11100,-14620],[-14200,-14100],[-17600,-14520],[-21300,-14050]],
+      "objects": [
+        {"type":"Tideclaw","amount":12,"position":"random","respawnable":true,"respawnTime":[35,70],"size":[78,102]},
+        {"type":"Stormray","amount":10,"position":"random","respawnable":true,"respawnTime":[50,90],"size":[92,118]},
+        {"type":"Whirlpool","amount":7,"position":"random","size":[220,340],"spacingGroup":true,"spawnGap":500},
+        {"type":"Chest","amount":10,"position":"random","respawnable":true},
+        {"type":"Ore","amount":10,"position":"random","respawnable":true,"respawnTime":[55,130],"skin":4},
+        {"type":"AmbientShrub","kind":"rock","style":"alpine","amount":28,"position":"random","size":[35,75]}
+      ]
+    },
+    {
+      "type": "Tidelands",
+      "variant": "west-shelf",
+      "pos": [0, 0],
+      "controlPoints": [[-21300,-14500],[-17600,-14100],[-14200,-14500],[-14020,-11100],[-14560,-7800],[-14010,-4500],[-14520,-1200],[-14020,2200],[-14580,5500],[-14030,8800],[-14500,11300],[-14100,14200],[-21300,14200]],
+      "objects": [
+        {"type":"Tideclaw","amount":10,"position":"random","respawnable":true,"respawnTime":[35,70],"size":[78,102]},
+        {"type":"Stormray","amount":8,"position":"random","respawnable":true,"respawnTime":[50,90],"size":[92,118]},
+        {"type":"Whirlpool","amount":6,"position":"random","size":[220,340],"spacingGroup":true,"spawnGap":500},
+        {"type":"Chest","amount":8,"position":"random","respawnable":true},
+        {"type":"Ore","amount":8,"position":"random","respawnable":true,"respawnTime":[55,130],"skin":4},
+        {"type":"AmbientShrub","kind":"rock","style":"alpine","amount":24,"position":"random","size":[35,75]}
+      ]
+    },
+    {
+      "type": "River",
+      "variant": "north-channel",
+      "pos": [0, 0],
+      "controlPoints": [[-19600,-19000],[-16300,-20200],[-12500,-19400],[-9000,-20700],[-5200,-19700],[-1800,-20400],[1900,-19200],[5200,-19800],[8500,-18500],[11800,-19100],[12800,-17400],[9400,-16600],[5900,-17400],[2200,-16600],[-1500,-17400],[-5200,-16600],[-9000,-17700],[-12700,-16800],[-16400,-17900],[-19700,-17100]],
+      "objects": [
+        {"type":"Fish","amount":18,"position":"random","respawnable":true,"respawnTime":[20,45],"size":[53,73]},
+        {"type":"AngryFish","amount":10,"position":"random","respawnable":true,"respawnTime":[30,60],"size":[53,73]}
+      ]
+    },
+    {
+      "type": "River",
+      "variant": "west-channel",
+      "pos": [0, 0],
+      "controlPoints": [[-19600,-13300],[-18100,-10100],[-19400,-6800],[-18000,-3500],[-19400,-200],[-18000,3100],[-19400,6400],[-18100,9700],[-19400,12900],[-16600,13200],[-15600,9800],[-16800,6500],[-15500,3200],[-16800,-100],[-15500,-3400],[-16800,-6700],[-15500,-10000],[-16800,-13300]],
+      "objects": [
+        {"type":"Fish","amount":16,"position":"random","respawnable":true,"respawnTime":[20,45],"size":[53,73]},
+        {"type":"AngryFish","amount":9,"position":"random","respawnable":true,"respawnTime":[30,60],"size":[53,73]}
+      ]
+    },
     {
       "type": "Safezone",
       "pos": [

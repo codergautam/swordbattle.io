@@ -1,5 +1,5 @@
 import { TextureManager } from './TextureManager';
-import { withAssetVersion, toWebp } from '../../../assetVersion';
+import { withAssetVersion } from '../../../assetVersion';
 import { span } from '../../../bootTiming';
 import {
   ldBatchStart, ldBatchEnd, ldQueued, ldStarted, ldAttempt, ldAttemptFailed,
@@ -156,7 +156,7 @@ export class Loader {
           if (attempt < maxAttempts) setTimeout(() => { if (!settled && myAttempt === attempt) tryLoad(); }, 500 * myAttempt);
           else finish(false);
         };
-        const base = withAssetVersion(myAttempt === 1 ? toWebp(url) : url);
+        const base = withAssetVersion(url);
         const finalUrl = myAttempt > 2 ? base + (base.indexOf('?') === -1 ? '?' : '&') + 'r=' + myAttempt : base;
         ldAttempt(key, myAttempt, finalUrl);
         img.src = finalUrl;

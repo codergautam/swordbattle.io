@@ -210,6 +210,28 @@ const HudDesignerPanel: React.FC<HudDesignerPanelProps> = ({ onClose }) => {
       </section>
 
       <section className="hd-section">
+        <div className="hd-section-head">Progress Bar</div>
+        <label className="hd-toggle">
+          <input type="checkbox" checked={theme.progressBarBackgroundEnabled} onChange={(event) => update('progressBarBackgroundEnabled', event.target.checked)} />
+          <span>Show progress bar background</span>
+        </label>
+        <div className={theme.progressBarBackgroundEnabled ? '' : 'hd-disabled'}>
+          <ColorField label="Background" value={theme.progressBarBg} onChange={(value) => update('progressBarBg', value)} />
+          <SliderField label="Opacity" value={theme.progressBarBgAlpha} min={0} max={1} step={0.01} onChange={(value) => update('progressBarBgAlpha', value)} />
+        </div>
+        <ColorField label="Fill Color" value={theme.progressBarFill} onChange={(value) => update('progressBarFill', value)} />
+        <label className="hd-toggle">
+          <input type="checkbox" checked={theme.progressBarShineEnabled} onChange={(event) => update('progressBarShineEnabled', event.target.checked)} />
+          <span>Show shine effect</span>
+        </label>
+        <div className={theme.progressBarShineEnabled ? '' : 'hd-disabled'}>
+          <ColorField label="Shine Color" value={theme.progressBarShine} onChange={(value) => update('progressBarShine', value)} />
+          <SliderField label="Shine Opacity" value={theme.progressBarShineAlpha} min={0} max={1} step={0.01} onChange={(value) => update('progressBarShineAlpha', value)} />
+        </div>
+        <SliderField label="Corner Radius" value={theme.progressBarRadius} min={0} max={40} step={1} suffix="px" onChange={(value) => update('progressBarRadius', value)} />
+      </section>
+
+      <section className="hd-section">
         <div className="hd-section-head">Colored Outline</div>
         <label className="hd-toggle">
           <input type="checkbox" checked={theme.borderEnabled} onChange={(event) => update('borderEnabled', event.target.checked)} />

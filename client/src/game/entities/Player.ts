@@ -10,7 +10,7 @@ import * as cosmetics from '../cosmetics.json';
 import { FootstepTrail } from '../effects/Footsteps';
 import { screenEffectsRuntime } from '../effects/screenEffectsState';
 import { skinBodyScales } from '../skinScales';
-import { resolveNameStyle, CLAN_COLOR } from '../nameStyles';
+import { resolveNameStyle, resolveClanColor } from '../nameStyles';
 import { buildNameTag } from '../pixiNameTag';
 const {skins} = cosmetics;
 
@@ -206,9 +206,7 @@ class Player extends BaseEntity {
       clanText.setFontFamily("'Saira', sans-serif");
       clanText.setFontSize(42);
       clanText.setFontStyle('700');
-      clanText.setFill(CLAN_COLOR);
-      clanText.setStroke('#000000', 5);
-      clanText.setShadow(0, 0, '#000000', 0, false, false);
+      clanText.setFill(resolveClanColor(this.clan));
       clanText.setOrigin(0, 1);
       const total = clanText.width + nameW;
       clanText.x = -total / 2;

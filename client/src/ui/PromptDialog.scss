@@ -23,7 +23,17 @@
 
   h2 { margin: 0 0 10px; }
   p { margin: 0 0 16px; white-space: pre-line; line-height: 1.4; }
-  input, textarea { width: 100%; min-height: 42px; padding: 9px 11px; border: 2px solid #000; border-radius: 8px; font: inherit; color: #fff; background: #34343a; resize: vertical; }
+  input, textarea { width: 100%; min-height: 42px; padding: 9px 11px; border: 2px solid #000; border-radius: 8px; outline: none; font: inherit; color: #fff; background: #34343a; resize: vertical; }
+}
+
+.prompt-dialog-input {
+  position: relative;
+
+  input { padding-right: 40px; padding-left: 40px; }
+  .prompt-dialog-validation { position: absolute; top: 50%; right: 14px; transform: translateY(-50%); font-size: 20px; font-weight: 700; pointer-events: none; }
+  &.status-checking .prompt-dialog-validation { color: #9a9aa2; }
+  &.status-valid .prompt-dialog-validation { color: #2ec84a; }
+  &.status-invalid .prompt-dialog-validation { color: #ff5e52; }
 }
 
 .prompt-dialog-actions {

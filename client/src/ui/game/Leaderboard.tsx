@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import { useScale } from '../Scale';
 import StyledName from '../StyledName';
-import { resolveNameStyle, CLAN_COLOR } from '../../game/nameStyles';
+import { resolveNameStyle, resolveClanColor } from '../../game/nameStyles';
 import './Leaderboard.scss';
 
 function Leaderboard({ game }: any) {
@@ -142,7 +142,7 @@ const LeaderboardLine = memo(function LeaderboardLine({ place, coins, name, acco
     <div className={`lb-row ${isSelf ? 'self' : ''}`} ref={innerRef}>
       <span className="lb-place">{place}</span>
       <span className="lb-name" style={{ fontSize: nameSize }}>
-        {tag && <span className="lb-clan" style={{ color: CLAN_COLOR }}>[{tag}] </span>}
+        {tag && <span className="lb-clan" style={{ color: resolveClanColor(tag) }}>[{tag}] </span>}
         <StyledName name={name} style={nameStyle} fontSize={nameSize} />
         {rank && <span className="lb-rank" style={{ color: getRankColor(rank) }}> (#{rank})</span>}
       </span>

@@ -34,7 +34,9 @@ class ProgressBar extends HudComponent {
     this.panelG = this.game.add.graphics();
     const t = getTheme();
     drawPanel(this.panelG, 0, 0, this.width, this.height, {
-      radius: Math.min(this.height / 2, t.radius * 1.7), bg: 0x403f3f, bgAlpha: 1,
+      radius: t.progressBarRadius,
+      bg: t.progressBarBg,
+      bgAlpha: t.progressBarBackgroundEnabled ? t.progressBarBgAlpha : 0,
     });
 
     this.fillG = this.game.add.graphics();
@@ -92,7 +94,9 @@ class ProgressBar extends HudComponent {
     const t = getTheme();
     this.panelG.clear();
     drawPanel(this.panelG, 0, 0, this.width, this.height, {
-      radius: Math.min(this.height / 2, t.radius * 1.7), bg: 0x403f3f, bgAlpha: 1,
+      radius: t.progressBarRadius,
+      bg: t.progressBarBg,
+      bgAlpha: t.progressBarBackgroundEnabled ? t.progressBarBgAlpha : 0,
     });
     this.levelText?.setColor(t.text).setStroke(t.textOutline, t.textOutlineW);
   }
@@ -102,6 +106,7 @@ class ProgressBar extends HudComponent {
   private lastLevelText = -1;
   private lastLevelTextAt = 0;
   private drawFill(progress: number) {
+    const t = getTheme();
     const inset = 5;
     const trackW = this.width - inset * 2;
     const h = this.height - inset * 2;
@@ -111,12 +116,14 @@ class ProgressBar extends HudComponent {
     this.lastFillPx = px;
     this.fillG.clear();
     if (fw <= 0) return;
-    const r = Math.min(h / 2, fw / 2);
-    this.fillG.fillStyle(0x10c8ff, 1);
+    const r = t.progressBarRadius;
+    this.fillG.fillStyle(t.progressBarFill, 1);
     this.fillG.fillRoundedRect(inset, inset, fw, h, r);
-    const hh = h * 0.45;
-    this.fillG.fillStyle(0x8af3ff, 0.6);
-    this.fillG.fillRoundedRect(inset + 1, inset + 1, fw - 2, hh, Math.min(r, hh / 2));
+    if (t.progressBarShineEnabled) {
+      const hh = h * 0.45;
+      this.fillG.fillStyle(t.progressBarShine, t.progressBarShineAlpha);
+      this.fillG.fillRoundedRect(inset + 1, inset + 1, Math.max(0, fw - 2), hh, r);
+    }
   }
 
   // Adjust the progress bar's position on window resize

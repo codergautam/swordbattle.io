@@ -38,9 +38,6 @@ export class AuthService {
     if (await this.accountsService.findOneWithLowercase({ where: { username: data.username } })) {
       throw new UnauthorizedException('Username already exists');
     }
-    if (data.email && await this.accountsService.findOneWithLowercase({ where: { email: data.email } })) {
-      throw new UnauthorizedException('Email already exists');
-    }
     const secret = uuidv4();
     const account = await this.accountsService.create({secret, ...data});
     return { account: this.accountsService.sanitizeAccount(account), secret };

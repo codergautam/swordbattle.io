@@ -97,6 +97,7 @@ function StyledName({ name, style, fontSize, className, extraStyle }: StyledName
     fontFamily: "'Saira', sans-serif",
     fontWeight: 700,
     fontSize,
+    paintOrder: 'stroke fill',
   };
 
   return (

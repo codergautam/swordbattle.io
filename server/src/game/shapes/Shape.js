@@ -8,6 +8,7 @@ class Shape {
     this.type = Types.Shape.Point;
     this.collisionPoly = null;
     this.centerOffset = new SAT.Vector(0, 0);
+    this._boundary = { x: 0, y: 0, width: 0, height: 0 };
   }
 
   get x() {
@@ -31,7 +32,11 @@ class Shape {
 
   get boundary() {
     const box = this.collisionPoly.getAABBAsBox();
-    return { x: box.pos.x, y: box.pos.y, width: box.w, height: box.h };
+    this._boundary.x = box.pos.x;
+    this._boundary.y = box.pos.y;
+    this._boundary.width = box.w;
+    this._boundary.height = box.h;
+    return this._boundary;
   }
 
   get center() {

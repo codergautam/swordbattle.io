@@ -38,6 +38,7 @@ class State {
 
     let changed = false;
     for (const key in fields) {
+      if (fields[key] === previousFields[key]) continue;
       if (Array.isArray(fields[key])) {
         if (!previousFields[key] || fields[key].length !== previousFields[key].length) {
           changed = true;
@@ -73,6 +74,7 @@ class State {
 
     const changes = {};
     for (const key in fields) {
+      if (fields[key] === previousFields[key]) continue;
       if (Array.isArray(fields[key])) {
         const subChanged = this.getChanges(fields[key], previousFields[key] || []);
         if (hasOwnProperties(subChanged)) {

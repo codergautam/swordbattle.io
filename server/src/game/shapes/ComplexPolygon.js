@@ -10,6 +10,7 @@ class ComplexPolygon extends Shape {
     this.shapes = shapes;
     this.points = originalPoints.map((point) => ({ x: point[0], y: point[1] }));
     this.isComplex = true;
+    this._internalResponse = new SAT.Response();
   }
 
   get x() {
@@ -58,13 +59,11 @@ class ComplexPolygon extends Shape {
       if (maxY < point.y) maxY = point.y;
     }
 
-    this.bounds = {
-      x: this.x + minX,
-      y: this.y + minY,
-      width: maxX - minX,
-      height: maxY - minY,
-    };
-    return this.bounds;
+    this._boundary.x = this.x + minX;
+    this._boundary.y = this.y + minY;
+    this._boundary.width = maxX - minX;
+    this._boundary.height = maxY - minY;
+    return this._boundary;
   }
 
   isPointInside(x, y) {
@@ -90,15 +89,20 @@ class ComplexPolygon extends Shape {
 
   collides(otherShape, response) {
     let collides = false;
-    const mtv = new SAT.Vector();
+    // SAT explicitly supports Response reuse. Accumulate into the caller's
+    // vector so complex map geometry creates no temporary vectors/responses
+    // in the collision hot path.
+    const mtv = response.overlapV;
+    mtv.x = 0;
+    mtv.y = 0;
     for (const shape of this.shapes) {
-      const internalResponse = new SAT.Response();
+      const internalResponse = this._internalResponse;
+      internalResponse.clear();
       if (shape.collides(otherShape, internalResponse)) {
         collides = true;
         mtv.add(internalResponse.overlapN).add(internalResponse.overlapV);
       }
     }
-    response.overlapV = mtv;
     response.overlapN.scale(0);
     return collides;
   }

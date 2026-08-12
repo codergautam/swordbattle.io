@@ -31,6 +31,8 @@ class Game {
   constructor() {
     this.entities = new Map();
     this.players = new Set();
+    this.dynamicEntities = new Set();
+    this.collisionEntities = new Set();
     this.newEntities = new Set();
     this.removedEntities = new Set();
     this.idPool = new IdPool();
@@ -62,7 +64,7 @@ class Game {
     for (const [id, entity] of this.entities) {
       // Not a sword
       const entityType = entity.type;
-      if (entityType === Types.Entity.Sword) continue;
+      if (entityType === Types.Entity.Sword || entity.isStatic || entity.removed) continue;
       entity.update(dt);
     }
     if (metrics) metrics.recordPhase('entityUpdate', metrics.now() - phaseStartedAt);
@@ -73,7 +75,7 @@ class Game {
 
     if (metrics) phaseStartedAt = metrics.now();
     const response = new SAT.Response();
-    for (const [id, entity] of this.entities) {
+    for (const entity of this.collisionEntities) {
       if (entity.removed) continue;
 
       if (entity.isGlobal) {
@@ -483,71 +485,72 @@ class Game {
     const previousViewport = player.viewportEntityIds;
     const currentViewport = player.getEntitiesInViewport();
 
-    const previousSet = this.gefPrevSet || (this.gefPrevSet = new Set());
-    const seen = this.gefSeenSet || (this.gefSeenSet = new Set());
-    previousSet.clear();
-    seen.clear();
-    for (let i = 0; i < previousViewport.length; i++) {
-      previousSet.add(previousViewport[i]);
-    }
+    // WorldIndex returns unique IDs in stable numeric order. Merge the old
+    // and new viewports directly instead of building and clearing two Sets
+    // for every connected client on every snapshot.
+    let previousIndex = 0;
+    let currentIndex = 0;
+    let foundMissingCurrent = false;
+    while (previousIndex < previousViewport.length || currentIndex < currentViewport.length) {
+      const previousId = previousIndex < previousViewport.length
+        ? previousViewport[previousIndex]
+        : Infinity;
+      const currentId = currentIndex < currentViewport.length
+        ? currentViewport[currentIndex]
+        : Infinity;
 
-    for (const entityId of currentViewport) {
-      if (seen.has(entityId)) continue;
-      seen.add(entityId);
-
-      const entity = this.entities.get(entityId);
-      if (!entity) {
-        const removedEntity = this._removedEntitiesById.get(entityId);
-        changes[entityId] = { removed: true };
-        if (removedEntity?.type === Types.Entity.Player && removedEntity?.client?.disconnectReason) {
-          changes[entityId].disconnectReasonMessage = removedEntity.client.disconnectReason.message;
-          changes[entityId].disconnectReasonType = removedEntity.client.disconnectReason.type;
+      if (currentId === previousId) {
+        const entity = this.entities.get(currentId);
+        if (!entity) {
+          this._addRemovedEntityChange(changes, currentId);
+          foundMissingCurrent = true;
+        } else if (!entity.isStatic && entity.type !== Types.Entity.CaptureZone) {
+          entity.state.get();
+          if (entity.state.hasChanged()) changes[currentId] = entity.state.getChanges();
         }
-        player.viewportEntityIds = player.viewportEntityIds.filter(id => id !== entityId);
-        continue;
-      }
-      if (entity.isStatic) continue;
-      if (entity.type === Types.Entity.CaptureZone) continue;
-
-      const stateData = entity.state.get();
-
-      if (!previousSet.has(entityId)) {
-        // New entity entering viewport - send full state
-        changes[entity.id] = stateData;
+        previousIndex++;
+        currentIndex++;
+      } else if (currentId < previousId) {
+        const entity = this.entities.get(currentId);
+        if (!entity) {
+          this._addRemovedEntityChange(changes, currentId);
+          foundMissingCurrent = true;
+        } else if (!entity.isStatic && entity.type !== Types.Entity.CaptureZone) {
+          changes[currentId] = entity.state.get();
+        }
+        currentIndex++;
       } else {
-        // Entity in both viewports - send only changes
-        if (entity.state.hasChanged()) {
-          changes[entity.id] = entity.state.getChanges();
+        const entity = this.entities.get(previousId);
+        if (!entity) {
+          this._addRemovedEntityChange(changes, previousId);
+        } else if (!entity.isStatic && entity.type !== Types.Entity.CaptureZone) {
+          entity.state.get();
+          changes[previousId] = {
+            ...entity.state.getChanges(),
+            removed: true,
+          };
         }
+        previousIndex++;
       }
     }
 
-    for (const entityId of previousViewport) {
-      if (seen.has(entityId)) continue;
-      seen.add(entityId);
-
-      // Entity was in previous viewport but not in current
-      const entity = this.entities.get(entityId);
-      if (!entity) {
-        const removedEntity = this._removedEntitiesById.get(entityId);
-        changes[entityId] = { removed: true };
-        if (removedEntity?.type === Types.Entity.Player && removedEntity?.client?.disconnectReason) {
-          changes[entityId].disconnectReasonMessage = removedEntity.client.disconnectReason.message;
-          changes[entityId].disconnectReasonType = removedEntity.client.disconnectReason.type;
-        }
-        continue;
-      }
-      if (entity.isStatic) continue;
-      if (entity.type === Types.Entity.CaptureZone) continue;
-
-      entity.state.get();
-      changes[entity.id] = {
-        ...entity.state.getChanges(),
-        removed: true,
-      };
+    // This only occurs when a removal races the index query. Keep the normal
+    // allocation-free path fast while preserving the old cleanup behavior.
+    if (foundMissingCurrent) {
+      player.viewportEntityIds = currentViewport.filter(id => this.entities.has(id));
     }
 
     return changes;
+  }
+
+  _addRemovedEntityChange(changes, entityId) {
+    const change = { removed: true };
+    const removedEntity = this._removedEntitiesById.get(entityId);
+    if (removedEntity?.type === Types.Entity.Player && removedEntity?.client?.disconnectReason) {
+      change.disconnectReasonMessage = removedEntity.client.disconnectReason.message;
+      change.disconnectReasonType = removedEntity.client.disconnectReason.type;
+    }
+    changes[entityId] = change;
   }
 
   endTick() {
@@ -685,8 +688,13 @@ class Game {
       entity.id = this.idPool.take();
     }
     this.entities.set(entity.id, entity);
+    if (!entity.isStatic) this.dynamicEntities.add(entity);
+    if (entity.targets && entity.targets.size > 0) this.collisionEntities.add(entity);
     this.newEntities.add(entity);
-    if (this.entitiesQuadtree) this.entitiesQuadtree.upsertEntity(entity);
+    if (this.entitiesQuadtree) {
+      this.entitiesQuadtree.upsertEntity(entity);
+      this.entitiesQuadtree.acknowledgeEntityCount(this.entities.size);
+    }
     return entity;
   }
 
@@ -702,7 +710,12 @@ class Game {
     if (entity.sword) this.removeEntity(entity.sword);
     if (entity.offhandSword) this.removeEntity(entity.offhandSword);
     this.entities.delete(entity?.id);
-    if (this.entitiesQuadtree) this.entitiesQuadtree.remove(entity);
+    this.dynamicEntities.delete(entity);
+    this.collisionEntities.delete(entity);
+    if (this.entitiesQuadtree) {
+      this.entitiesQuadtree.remove(entity);
+      this.entitiesQuadtree.acknowledgeEntityCount(this.entities.size);
+    }
     this.players.delete(entity);
     this.newEntities.delete(entity);
     this.removedEntities.add(entity);

@@ -27,6 +27,11 @@ const { clamp, calculateGemsXP, filterChatMessage } = require('../../helpers');
 const { skins } = require('../../cosmetics.json');
 const api = require('../../network/api');
 
+const PLAYER_FLAG_VALUES = Object.values(Types.Flags);
+const EMPTY_PLAYER_FLAGS = Object.freeze(Object.fromEntries(PLAYER_FLAG_VALUES.map(flag => [flag, false])));
+const EMPTY_STATE_OBJECT = Object.freeze({});
+const EMPTY_STATE_ARRAY = Object.freeze([]);
+
 // Check if any duplicate ids in cosmetics.json
 function checkForDuplicates() {
   const ids = new Set();
@@ -139,6 +144,8 @@ class Player extends Entity {
     this.combatLog = new Map();
 
     this.hypnotizedBy = null;
+    this._biomeResponse = new SAT.Response();
+    this._appliedBiomeTypes = new Set();
   }
 
   get playtime() {
@@ -151,9 +158,11 @@ class Player extends Entity {
     state.account = this.client && this.client.account;
     state.angle = this.angle;
     state.kills = this.kills;
-    state.flags = {};
-    for (const flag of Object.values(Types.Flags)) {
-      state.flags[flag] = this.flags.has(flag) ? this.flags.get(flag) : false;
+    if (this.flags.size === 0) {
+      state.flags = EMPTY_PLAYER_FLAGS;
+    } else {
+      state.flags = { ...EMPTY_PLAYER_FLAGS };
+      for (const [flag, value] of this.flags) state.flags[flag] = value;
     }
 
     state.biome = this.biome;
@@ -166,26 +175,26 @@ class Player extends Entity {
     state.skin = this.skin;
     state.valorCrests = Number(this.client?.account?.valorCrests) || 0;
 
-    state.buffs = structuredClone(this.levels.buffs);
+    state.buffs = this.levels.getBuffState();
 
-    state.cardOffers = this.cards.cardOffers.length > 0 ? [...this.cards.cardOffers] : [];
-    state.chosenCards = [...this.cards.chosenCards];
+    state.cardOffers = this.cards.cardOffers.length > 0 ? [...this.cards.cardOffers] : EMPTY_STATE_ARRAY;
+    state.chosenCards = this.cards.chosenCards.length > 0 ? [...this.cards.chosenCards] : EMPTY_STATE_ARRAY;
     state.choosingCard = this.cards.choosingCard;
     state.cardTimer = this.cards.cardTimer;
     state.cardPickNumber = this.cards.cardPickNumber;
     state.availableUpgrades = this.cards.availableUpgrades;
     state.rerollsAvailable = this.cards.rerollsAvailable;
     state.pendingPicks = this.cards.pendingPicks;
-    state.skipResults = this.cards.lastSkipResults.length > 0 ? [...this.cards.lastSkipResults] : [];
+    state.skipResults = this.cards.lastSkipResults.length > 0 ? [...this.cards.lastSkipResults] : EMPTY_STATE_ARRAY;
     state.isTutorial = this.cards.isTutorial;
 
     state.evolution = this.evolutions.evolution;
-    state.possibleEvolutions = {};
-    this.evolutions.possibleEvols.forEach(evol => state.possibleEvolutions[evol] = true);
+    state.possibleEvolutions = this.evolutions.possibleEvols.size > 0 ? {} : EMPTY_STATE_OBJECT;
+    this.evolutions.possibleEvols.forEach(evol => { state.possibleEvolutions[evol] = true; });
 
-    state.possibleUpgrades = {};
-    this.upgrades.possibleUpgrades.forEach(up => state.possibleUpgrades[up] = true);
-    state.currentUpgrades = [...this.upgrades.acquiredIds];
+    state.possibleUpgrades = this.upgrades.possibleUpgrades.size > 0 ? {} : EMPTY_STATE_OBJECT;
+    this.upgrades.possibleUpgrades.forEach(up => { state.possibleUpgrades[up] = true; });
+    state.currentUpgrades = this.upgrades.acquiredIds.length > 0 ? [...this.upgrades.acquiredIds] : EMPTY_STATE_ARRAY;
 
     state.isAbilityAvailable = this.evolutions.evolutionEffect.isAbilityAvailable;
     state.abilityActive = this.evolutions.evolutionEffect.isAbilityActive;
@@ -321,14 +330,16 @@ class Player extends Entity {
   }
 
   applyBiomeEffects() {
-    const response = new SAT.Response();
+    const response = this._biomeResponse;
     let topBiome = null;
     let topZIndex = -Infinity;
     let foundSafezone = false;
 
-    const appliedBiomeTypes = new Set();
+    const appliedBiomeTypes = this._appliedBiomeTypes;
+    appliedBiomeTypes.clear();
 
     for (const biome of this.game.map.biomes) {
+      response.clear();
       if (biome.shape.collides(this.shape, response)) {
         biome.collides(this, response);
 

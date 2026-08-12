@@ -90,6 +90,15 @@ class LevelSystem {
         buyable: true,
       },
     }
+    this._buffState = null;
+  }
+
+  getBuffState() {
+    if (!this._buffState) {
+      this._buffState = {};
+      for (const key in this.buffs) this._buffState[key] = { ...this.buffs[key] };
+    }
+    return this._buffState;
   }
 
   addCoins(coins) {
@@ -113,6 +122,7 @@ class LevelSystem {
       const buff = this.buffs[Types.Buff.Size];
       if (buff.level >= buff.max) return;
       buff.level += 1;
+      this._buffState = null;
     }
   }
 

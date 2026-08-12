@@ -114,9 +114,9 @@ class GameMap {
   }
 
   update(dt) {
-    for (const [id, entity] of this.game.entities) {
-      if (entity.isStatic) continue;
-      if (entity.skipBorderCollision) continue;
+    const dynamicEntities = this.game.dynamicEntities || this.game.entities.values();
+    for (const entity of dynamicEntities) {
+      if (!entity || entity.removed || entity.isStatic || entity.skipBorderCollision) continue;
       this.processBorderCollision(entity, dt);
     }
 

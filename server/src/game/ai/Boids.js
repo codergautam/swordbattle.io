@@ -1,6 +1,116 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BoidsController = exports.DEFAULT_BOID_CONFIG = void 0;
+exports.BoidsController = exports.DEFAULT_BOID_CONFIG = exports.CappedFlockRegistry = void 0;
+class CappedFlockRegistry {
+    constructor(maxFlockSize = 8, random = Math.random) {
+        this.membership = new Map();
+        this.flocks = new Map();
+        this.nextFlockId = 1;
+        this.maxFlockSize = Math.max(1, Math.floor(maxFlockSize));
+        this.random = random;
+    }
+    ensure(agentId, preferredFlockId) {
+        const existing = this.membership.get(agentId);
+        if (existing !== undefined)
+            return existing;
+        const hasPreferredFlock = Number.isInteger(preferredFlockId)
+            && preferredFlockId > 0;
+        let flockId;
+        let flock;
+        if (hasPreferredFlock) {
+            flockId = preferredFlockId;
+            flock = this.flocks.get(flockId);
+            if (!flock) {
+                flock = new Set();
+                this.flocks.set(flockId, flock);
+            }
+        }
+        else {
+            while (this.flocks.has(this.nextFlockId))
+                this.nextFlockId += 1;
+            flockId = this.nextFlockId;
+            this.nextFlockId += 1;
+            flock = new Set();
+            this.flocks.set(flockId, flock);
+        }
+        if (flock.size >= this.maxFlockSize) {
+            while (this.flocks.has(this.nextFlockId))
+                this.nextFlockId += 1;
+            flockId = this.nextFlockId;
+            this.nextFlockId += 1;
+            flock = new Set();
+            this.flocks.set(flockId, flock);
+        }
+        flock.add(agentId);
+        this.membership.set(agentId, flockId);
+        return flockId;
+    }
+    remove(agentId) {
+        const flockId = this.membership.get(agentId);
+        if (flockId === undefined)
+            return;
+        this.membership.delete(agentId);
+        const flock = this.flocks.get(flockId);
+        if (!flock)
+            return;
+        flock.delete(agentId);
+        if (flock.size === 0)
+            this.flocks.delete(flockId);
+    }
+    tryMerge(firstAgentId, secondAgentId) {
+        const firstFlockId = this.ensure(firstAgentId);
+        const secondFlockId = this.ensure(secondAgentId);
+        if (firstFlockId === secondFlockId)
+            return true;
+        const firstFlock = this.flocks.get(firstFlockId);
+        const secondFlock = this.flocks.get(secondFlockId);
+        const combinedSize = firstFlock.size + secondFlock.size;
+        if (combinedSize > this.maxFlockSize) {
+            // A full flock is stable: outsiders remain cast-outs instead of causing
+            // a different wolf to be ejected every simulation tick.
+            if (firstFlock.size === this.maxFlockSize || secondFlock.size === this.maxFlockSize) {
+                return false;
+            }
+            const wolves = [...firstFlock, ...secondFlock];
+            for (let index = wolves.length - 1; index > 0; index -= 1) {
+                const sample = Math.max(0, Math.min(0.999999999, this.random()));
+                const swapIndex = Math.floor(sample * (index + 1));
+                const temporary = wolves[index];
+                wolves[index] = wolves[swapIndex];
+                wolves[swapIndex] = temporary;
+            }
+            const merged = new Set(wolves.slice(0, this.maxFlockSize));
+            const castOuts = new Set(wolves.slice(this.maxFlockSize));
+            this.flocks.set(firstFlockId, merged);
+            this.flocks.set(secondFlockId, castOuts);
+            for (const agentId of merged)
+                this.membership.set(agentId, firstFlockId);
+            for (const agentId of castOuts)
+                this.membership.set(agentId, secondFlockId);
+            return this.sameFlock(firstAgentId, secondAgentId);
+        }
+        const targetId = firstFlock.size >= secondFlock.size ? firstFlockId : secondFlockId;
+        const sourceId = targetId === firstFlockId ? secondFlockId : firstFlockId;
+        const target = this.flocks.get(targetId);
+        const source = this.flocks.get(sourceId);
+        for (const agentId of source) {
+            target.add(agentId);
+            this.membership.set(agentId, targetId);
+        }
+        this.flocks.delete(sourceId);
+        return true;
+    }
+    sameFlock(firstAgentId, secondAgentId) {
+        const firstFlockId = this.membership.get(firstAgentId);
+        return firstFlockId !== undefined && firstFlockId === this.membership.get(secondAgentId);
+    }
+    sizeOf(agentId) {
+        var _a;
+        const flockId = this.membership.get(agentId);
+        return flockId === undefined ? 0 : (((_a = this.flocks.get(flockId)) === null || _a === void 0 ? void 0 : _a.size) || 0);
+    }
+}
+exports.CappedFlockRegistry = CappedFlockRegistry;
 exports.DEFAULT_BOID_CONFIG = Object.freeze({
     perceptionRadius: 900,
     separationRadius: 210,

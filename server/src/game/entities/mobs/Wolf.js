@@ -5,9 +5,12 @@ const Health = require('../../components/Health');
 const Property = require('../../components/Property');
 const Types = require('../../Types');
 const helpers = require('../../../helpers');
-const { BoidsController } = require('../../ai/Boids');
+const { BoidsController, CappedFlockRegistry } = require('../../ai/Boids');
 
 const wolfBoids = new BoidsController();
+const flockRegistries = new WeakMap();
+const BOID_DECISION_INTERVAL = 0.2;
+const BOID_DECISION_BUCKETS = 4;
 
 class WolfMob extends Entity {
   static defaultDefinition = {
@@ -42,7 +45,11 @@ class WolfMob extends Entity {
     this.spawn();
     if (packAnchor) this.spawnNearPack(packAnchor);
     delete this.originalDefinition.packAnchor;
+    this.initialFlockId = objectData.wolfFlockId;
+    delete this.originalDefinition.wolfFlockId;
     this.wanderAngle = this.angle;
+    this.boidDecisionTimer = null;
+    this.boidSteering = { x: 0, y: 0 };
   }
 
   update(dt) {
@@ -52,8 +59,20 @@ class WolfMob extends Entity {
       this.target = null;
     }
 
-    const nearbyWolves = this.getNearbyWolves();
-    if (!this.target) this.adoptNearbyTarget(nearbyWolves);
+    if (this.boidDecisionTimer === null) {
+      this.boidDecisionTimer = (this.id % BOID_DECISION_BUCKETS)
+        * (BOID_DECISION_INTERVAL / BOID_DECISION_BUCKETS);
+    }
+    this.boidDecisionTimer -= dt;
+    const shouldDecide = this.boidDecisionTimer <= 0;
+    let nearbyWolves = null;
+    if (shouldDecide) {
+      do {
+        this.boidDecisionTimer += BOID_DECISION_INTERVAL;
+      } while (this.boidDecisionTimer <= 0);
+      nearbyWolves = this.getNearbyWolves();
+      if (!this.target) this.adoptNearbyTarget(nearbyWolves);
+    }
 
     let goal = null;
     if (this.target) {
@@ -79,18 +98,20 @@ class WolfMob extends Entity {
     }
 
     const maxSpeed = this.speed.value * (this.target ? 2 : 1);
-    const agent = this.toBoidAgent(maxSpeed);
-    const steering = wolfBoids.steer(agent, nearbyWolves.map(wolf => wolf.toBoidAgent(
-      wolf.speed.value * (wolf.target ? 2 : 1),
-    )), {
-      goal,
-      wander: { x: Math.cos(this.wanderAngle), y: Math.sin(this.wanderAngle) },
-      bounds: this.getBoidBounds(),
-    });
+    if (shouldDecide) {
+      const agent = this.toBoidAgent(maxSpeed);
+      this.boidSteering = wolfBoids.steer(agent, nearbyWolves.map(wolf => wolf.toBoidAgent(
+        wolf.speed.value * (wolf.target ? 2 : 1),
+      )), {
+        goal,
+        wander: { x: Math.cos(this.wanderAngle), y: Math.sin(this.wanderAngle) },
+        bounds: this.getBoidBounds(),
+      });
+    }
 
     const frameScale = Math.max(0.25, Math.min(2.5, dt * 20));
-    this.velocity.x += steering.x * frameScale;
-    this.velocity.y += steering.y * frameScale;
+    this.velocity.x += this.boidSteering.x * frameScale;
+    this.velocity.y += this.boidSteering.y * frameScale;
     const speedSquared = this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y;
     if (speedSquared > maxSpeed * maxSpeed) {
       const scale = maxSpeed / Math.sqrt(speedSquared);
@@ -123,15 +144,40 @@ class WolfMob extends Entity {
         height: radius * 2,
       })
       : Array.from(this.game.entities.values()).map(entity => ({ entity }));
-    const wolves = [];
+    const candidates = [];
     for (const entry of entries) {
       const entity = entry.entity;
       if (!entity || entity === this || entity.removed || entity.type !== Types.Entity.Wolf) continue;
       const dx = entity.shape.x - this.shape.x;
       const dy = entity.shape.y - this.shape.y;
-      if (dx * dx + dy * dy <= radius * radius) wolves.push(entity);
+      const distanceSquared = dx * dx + dy * dy;
+      if (distanceSquared <= radius * radius) candidates.push({ entity, distanceSquared });
+    }
+    candidates.sort((first, second) => first.distanceSquared - second.distanceSquared
+      || first.entity.id - second.entity.id);
+
+    const registry = this.getFlockRegistry();
+    registry.ensure(this.id, this.initialFlockId);
+    for (const candidate of candidates) {
+      registry.ensure(candidate.entity.id, candidate.entity.initialFlockId);
+    }
+    const wolves = [];
+    for (const candidate of candidates) {
+      const wolf = candidate.entity;
+      if (registry.sameFlock(this.id, wolf.id) || registry.tryMerge(this.id, wolf.id)) {
+        wolves.push(wolf);
+      }
     }
     return wolves;
+  }
+
+  getFlockRegistry() {
+    let registry = flockRegistries.get(this.game);
+    if (!registry) {
+      registry = new CappedFlockRegistry(8);
+      flockRegistries.set(this.game, registry);
+    }
+    return registry;
   }
 
   adoptNearbyTarget(wolves) {
@@ -247,6 +293,7 @@ class WolfMob extends Entity {
 
   remove() {
     if (this.removed) return;
+    if (this.id !== null) this.getFlockRegistry().remove(this.id);
     super.remove();
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
     // this.game.map.spawnTokensInShape(this.shape, this.tokensDrop);

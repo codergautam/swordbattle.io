@@ -52,6 +52,9 @@ const map = require('./maps/mapLoader');
 const helpers = require('../helpers');
 const config = require('../config');
 
+const WOLF_PACK_SIZE = 3;
+const WOLF_PACK_SPAWN_MULTIPLIER = 3;
+
 class GameMap {
   constructor(game) {
     this.game = game;
@@ -71,6 +74,7 @@ class GameMap {
 
     this.captureZoneTimer = new Timer(0, 30, 60);
     this.activeCaptureZones = [];
+    this.nextWolfFlockId = 1;
   }
 
   initialize() {
@@ -270,7 +274,7 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
 
   addEntity(objectData) {
     if (objectData.type === Types.Entity.Wolf && !objectData.wolfPackMember) {
-      return this.addWolfPack(objectData);
+      return this.addWolfPacks(objectData);
     }
 
     let ObjectClass;
@@ -331,20 +335,22 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     return entity;
   }
 
+  addWolfPacks(objectData) {
+    let firstLeader = null;
+    for (let index = 0; index < WOLF_PACK_SPAWN_MULTIPLIER; index += 1) {
+      const leader = this.addWolfPack(objectData);
+      if (!firstLeader && leader) firstLeader = leader;
+    }
+    return firstLeader;
+  }
+
   addWolfPack(objectData) {
-    const requestedSize = objectData.packSize;
-    const minimum = Array.isArray(requestedSize) ? requestedSize[0] : requestedSize;
-    const maximum = Array.isArray(requestedSize) ? requestedSize[1] : requestedSize;
-    const minimumPackSize = Number.isInteger(minimum) ? Math.max(1, minimum) : 3;
-    const maximumPackSize = Number.isInteger(maximum)
-      ? Math.max(minimumPackSize, maximum)
-      : Math.max(minimumPackSize, 5);
-    const packSize = Number.isInteger(requestedSize)
-      ? Math.max(1, requestedSize)
-      : helpers.randomInteger(minimumPackSize, maximumPackSize);
+    const wolfFlockId = this.nextWolfFlockId;
+    this.nextWolfFlockId += 1;
     const memberDefinition = {
       ...objectData,
       wolfPackMember: true,
+      wolfFlockId,
     };
     delete memberDefinition.packSize;
 
@@ -356,7 +362,7 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
       y: leader.shape.y,
       radius: leader.shape.radius,
     };
-    for (let index = 1; index < packSize; index += 1) {
+    for (let index = 1; index < WOLF_PACK_SIZE; index += 1) {
       this.addEntity({
         ...memberDefinition,
         spacingGroup: false,
@@ -612,5 +618,8 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     };
   }
 }
+
+GameMap.WOLF_PACK_SIZE = WOLF_PACK_SIZE;
+GameMap.WOLF_PACK_SPAWN_MULTIPLIER = WOLF_PACK_SPAWN_MULTIPLIER;
 
 module.exports = GameMap;

@@ -1,4 +1,3 @@
-const SAT = require('sat');
 const Entity = require('../Entity');
 const Circle = require('../../shapes/Circle');
 const Timer = require('../../components/Timer');
@@ -6,6 +5,9 @@ const Health = require('../../components/Health');
 const Property = require('../../components/Property');
 const Types = require('../../Types');
 const helpers = require('../../../helpers');
+const { BoidsController } = require('../../ai/Boids');
+
+const wolfBoids = new BoidsController();
 
 class WolfMob extends Entity {
   static defaultDefinition = {
@@ -15,6 +17,7 @@ class WolfMob extends Entity {
 
   constructor(game, objectData) {
     objectData = Object.assign({ size: 70 }, objectData);
+    const packAnchor = objectData.packAnchor;
     super(game, Types.Entity.Wolf, objectData);
 
     this.shape = Circle.create(0, 0, this.size);
@@ -37,6 +40,9 @@ class WolfMob extends Entity {
     this.knockbackResistance = new Property(3);
 
     this.spawn();
+    if (packAnchor) this.spawnNearPack(packAnchor);
+    delete this.originalDefinition.packAnchor;
+    this.wanderAngle = this.angle;
   }
 
   update(dt) {
@@ -46,59 +52,139 @@ class WolfMob extends Entity {
       this.target = null;
     }
 
-    // if(!this.tamedBy) {
-    //   const realPlayer = [...this.game.players].find(player => !player.isBot);
-    //   if(realPlayer) {
-    //   this.tamedBy = realPlayer.id;
-    //   realPlayer.tameWolf(this);
-    //   }
-    // }
+    const nearbyWolves = this.getNearbyWolves();
+    if (!this.target) this.adoptNearbyTarget(nearbyWolves);
 
-    if(this.tamedBy) {
+    let goal = null;
+    if (this.target) {
+      goal = { x: this.target.shape.x, y: this.target.shape.y, weight: 1.2 };
+    } else if(this.tamedBy) {
       const tamer = this.game.entities.get(this.tamedBy);
       if(!tamer || tamer?.removed) {
         this.tamedBy = null;
       } else {
-
-      // follow player around
-      const dist = helpers.distance(this.shape.x, this.shape.y, tamer.shape.x, tamer.shape.y);
-      const followRadius = this.target ? this.attackRadius : 500;
-      if(dist > followRadius) {
-        const angle = helpers.angle(this.shape.x, this.shape.y, tamer.shape.x, tamer.shape.y);
-        this.angle = angle;
-        this.velocity.add(new SAT.Vector(
-          this.speed.value * Math.cos(this.angle),
-          this.speed.value * Math.sin(this.angle)));
+        const dist = helpers.distance(this.shape.x, this.shape.y, tamer.shape.x, tamer.shape.y);
+        if(dist > 500) {
+          goal = { x: tamer.shape.x, y: tamer.shape.y, weight: 0.9 };
+        }
       }
-    }
     }
 
     this.health.update(dt);
-    if (this.target) {
-      this.jumpTimer.update(dt * 3);
-    } else {
-      this.jumpTimer.update(dt);
-    }
+    this.jumpTimer.update(dt * (this.target ? 1.8 : 1));
 
     if (this.jumpTimer.finished) {
       this.jumpTimer.renew();
-
-      if (this.target) {
-        const angle = helpers.angle(this.shape.x, this.shape.y, this.target.shape.x, this.target.shape.y);
-        this.angle = angle;
-        this.speed.multiplier *= 2;
-      } else {
-        this.angle += helpers.random(-Math.PI, Math.PI) / 2;
-      }
-
-      this.velocity.add(new SAT.Vector(
-        this.speed.value * Math.cos(this.angle),
-        this.speed.value * Math.sin(this.angle)));
+      this.wanderAngle += helpers.random(-Math.PI, Math.PI) * 0.55;
     }
 
-    this.velocity.scale(0.93);
-    this.shape.x += this.velocity.x;
-    this.shape.y += this.velocity.y;
+    const maxSpeed = this.speed.value * (this.target ? 2 : 1);
+    const agent = this.toBoidAgent(maxSpeed);
+    const steering = wolfBoids.steer(agent, nearbyWolves.map(wolf => wolf.toBoidAgent(
+      wolf.speed.value * (wolf.target ? 2 : 1),
+    )), {
+      goal,
+      wander: { x: Math.cos(this.wanderAngle), y: Math.sin(this.wanderAngle) },
+      bounds: this.getBoidBounds(),
+    });
+
+    const frameScale = Math.max(0.25, Math.min(2.5, dt * 20));
+    this.velocity.x += steering.x * frameScale;
+    this.velocity.y += steering.y * frameScale;
+    const speedSquared = this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y;
+    if (speedSquared > maxSpeed * maxSpeed) {
+      const scale = maxSpeed / Math.sqrt(speedSquared);
+      this.velocity.scale(scale);
+    }
+    this.velocity.scale(Math.pow(0.985, frameScale));
+    this.shape.x += this.velocity.x * frameScale;
+    this.shape.y += this.velocity.y * frameScale;
+    if (speedSquared > 0.01) this.angle = Math.atan2(this.velocity.y, this.velocity.x);
+  }
+
+  toBoidAgent(maxSpeed) {
+    return {
+      id: this.id === null ? 0 : this.id,
+      position: { x: this.shape.x, y: this.shape.y },
+      velocity: this.velocity,
+      maxSpeed,
+      radius: this.shape.radius,
+    };
+  }
+
+  getNearbyWolves() {
+    const radius = wolfBoids.config.perceptionRadius;
+    const tree = this.game.entitiesQuadtree;
+    const entries = tree
+      ? tree.get({
+        x: this.shape.x - radius,
+        y: this.shape.y - radius,
+        width: radius * 2,
+        height: radius * 2,
+      })
+      : Array.from(this.game.entities.values()).map(entity => ({ entity }));
+    const wolves = [];
+    for (const entry of entries) {
+      const entity = entry.entity;
+      if (!entity || entity === this || entity.removed || entity.type !== Types.Entity.Wolf) continue;
+      const dx = entity.shape.x - this.shape.x;
+      const dy = entity.shape.y - this.shape.y;
+      if (dx * dx + dy * dy <= radius * radius) wolves.push(entity);
+    }
+    return wolves;
+  }
+
+  adoptNearbyTarget(wolves) {
+    let closestTarget = null;
+    let closestDistance = Infinity;
+    for (const wolf of wolves) {
+      const candidate = wolf.target;
+      if (!candidate || candidate.removed || candidate.id === this.tamedBy) continue;
+      if (this.targetInForbiddenBiome(candidate)) continue;
+      if (candidate.type === Types.Entity.Player
+        && candidate.cards && candidate.cards.hasMajor(126)) continue;
+      const distance = helpers.distance(this.shape.x, this.shape.y, wolf.shape.x, wolf.shape.y);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestTarget = candidate;
+      }
+    }
+    if (closestTarget) {
+      this.target = closestTarget;
+      this.angryTimer.renew();
+    }
+  }
+
+  getBoidBounds() {
+    const map = this.game.map;
+    return {
+      minX: map.x,
+      minY: map.y,
+      maxX: map.x + map.width,
+      maxY: map.y + map.height,
+      margin: wolfBoids.config.perceptionRadius,
+    };
+  }
+
+  spawnNearPack(anchor) {
+    const fallbackX = this.shape.x;
+    const fallbackY = this.shape.y;
+    const minimum = (Number(anchor.radius) || this.size) + this.size + 35;
+    for (let attempt = 0; attempt < 18; attempt += 1) {
+      const angle = helpers.random(-Math.PI, Math.PI);
+      const distance = helpers.random(minimum, minimum + 280);
+      this.shape.x = anchor.x + Math.cos(angle) * distance;
+      this.shape.y = anchor.y + Math.sin(angle) * distance;
+      if (!this.crossesWorldBorder()
+        && this.fullyInsideSpawnZone()
+        && !this.inNoBuildZone()
+        && !this.collidesWithForbidden(1, false)) {
+        this.spawnFailed = false;
+        return;
+      }
+    }
+    this.shape.x = fallbackX;
+    this.shape.y = fallbackY;
   }
 
   processTargetsCollision(entity, response) {

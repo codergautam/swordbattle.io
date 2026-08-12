@@ -269,6 +269,10 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
   }
 
   addEntity(objectData) {
+    if (objectData.type === Types.Entity.Wolf && !objectData.wolfPackMember) {
+      return this.addWolfPack(objectData);
+    }
+
     let ObjectClass;
     switch (objectData.type) {
       case Types.Entity.MossyRock: ObjectClass = MossyRock; break;
@@ -325,6 +329,41 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     }
     this.game.addEntity(entity);
     return entity;
+  }
+
+  addWolfPack(objectData) {
+    const requestedSize = objectData.packSize;
+    const minimum = Array.isArray(requestedSize) ? requestedSize[0] : requestedSize;
+    const maximum = Array.isArray(requestedSize) ? requestedSize[1] : requestedSize;
+    const minimumPackSize = Number.isInteger(minimum) ? Math.max(1, minimum) : 3;
+    const maximumPackSize = Number.isInteger(maximum)
+      ? Math.max(minimumPackSize, maximum)
+      : Math.max(minimumPackSize, 5);
+    const packSize = Number.isInteger(requestedSize)
+      ? Math.max(1, requestedSize)
+      : helpers.randomInteger(minimumPackSize, maximumPackSize);
+    const memberDefinition = {
+      ...objectData,
+      wolfPackMember: true,
+    };
+    delete memberDefinition.packSize;
+
+    const leader = this.addEntity(memberDefinition);
+    if (!leader) return null;
+
+    const anchor = {
+      x: leader.shape.x,
+      y: leader.shape.y,
+      radius: leader.shape.radius,
+    };
+    for (let index = 1; index < packSize; index += 1) {
+      this.addEntity({
+        ...memberDefinition,
+        spacingGroup: false,
+        packAnchor: anchor,
+      });
+    }
+    return leader;
   }
 
   addEntityTimer(definition, time) {

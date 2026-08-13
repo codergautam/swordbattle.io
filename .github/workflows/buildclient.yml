@@ -23,12 +23,18 @@ jobs:
       REACT_APP_ENDPOINT_US_BACKUP: na.swordbattle.io
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+
+    - name: Set up pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 11.19.0
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
+        cache: 'pnpm'
 
     # Keyed to asset CONTENT, not the commit. Using github.sha meant every push -
     # even a README typo - changed the ?v= on all ~1300 assets and forced every
@@ -39,9 +45,8 @@ jobs:
 
     - name: Install and Build
       run: |
-        cd client
-        yarn install
-        yarn build
+        pnpm install --frozen-lockfile
+        pnpm --filter swordbattle.io-client build
 
     - name: Stage static assets
       if: github.event_name != 'pull_request'

@@ -74,7 +74,7 @@
     function checkAdProvider() {
       if (window._isCrazyGamesBasicLaunch) return 'crazygames';
 
-      let adProvider = '<%= htmlWebpackPlugin.options.adProvider %>' || "adsense";
+      let adProvider = '__AD_PROVIDER__' || "adsense";
       // get query string in url check if other ad provider is set
       const validAdProviders = ["adsense", "adinplay", "gamemonetize", "gamepix"];
       const urlParams = new URLSearchParams(window.location.search);
@@ -208,7 +208,7 @@
     <!-- End of Ads -->
 
       <meta charset="utf-8" />
-      <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+      <link rel="icon" href="/favicon.ico" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="theme-color" content="#000000" />
       <title>Swordbattle.io</title>
@@ -226,6 +226,7 @@
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
   <div id="preroll"></div>
+  <script type="module" src="/src/index.tsx"></script>
 </body>
 
 </html>

@@ -10,6 +10,12 @@ test('browser aliases and server enum names share values', () => {
   assert.equal(types.InputTypes, types.Input);
 });
 
+test('ES module entry exposes named browser exports', async () => {
+  const browserTypes = await import('../index.mjs');
+  assert.equal(browserTypes.EntityTypes.Player, types.Entity.Player);
+  assert.equal(browserTypes.EntityTypes, browserTypes.Entity);
+});
+
 test('the canonical protocol schema is shipped by the package', () => {
   assert.equal(fs.existsSync(schemaPath), true);
   assert.match(fs.readFileSync(schemaPath, 'utf8'), /message ServerMessage/);

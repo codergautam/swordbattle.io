@@ -7,7 +7,9 @@
   "exports": {
     ".": {
       "types": "./index.d.ts",
-      "default": "./index.js"
+      "import": "./index.mjs",
+      "require": "./index.js",
+      "default": "./index.mjs"
     },
     "./protocol": {
       "types": "./protocol/index.d.ts",
@@ -15,7 +17,7 @@
     },
     "./protocol/schema.proto": "./protocol/schema.proto"
   },
-  "files": ["index.js", "index.d.ts", "protocol"],
+  "files": ["index.js", "index.mjs", "index.d.ts", "types.json", "protocol"],
   "scripts": {
     "build": "node scripts/validate-contracts.js",
     "test": "node --test test/*.test.js"

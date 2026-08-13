@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
-const required = ['index.js', 'index.d.ts', 'protocol/schema.proto'];
+const required = ['index.js', 'index.mjs', 'index.d.ts', 'types.json', 'protocol/schema.proto'];
 
 for (const relativePath of required) {
   if (!fs.existsSync(path.join(root, relativePath))) {

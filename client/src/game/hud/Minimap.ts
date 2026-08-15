@@ -386,9 +386,10 @@ class Minimap extends HudComponent {
       for (const id in globalEntities) {
         const player = globalEntities[id] as any;
         if (player.type !== EntityTypes.Player) continue;
+        const isSelf = player.id === this.game.gameState.self.id;
+        if (player.invisible && !isSelf) continue;
         const targetX = (player.shape.x - map.x) * this.scaleX;
         const targetY = (player.shape.y - map.y) * this.scaleY;
-        const isSelf = player.id === this.game.gameState.self.id;
         const scale = this.scaleX * (isSelf ? 3 : 2) * (map.scale || 1) * 1.5;
         const dotRadius = player.shape.radius * scale;
         activeIds.add(id);

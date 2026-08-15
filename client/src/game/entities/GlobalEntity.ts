@@ -9,7 +9,7 @@ const bossTypes = new Set([
 ]);
 
 class GlobalEntity extends BaseEntity {
-  static stateFields = [...BaseEntity.stateFields, 'name', 'coins', 'angle', 'account', 'skin', 'size', 'rarity'];
+  static stateFields = [...BaseEntity.stateFields, 'name', 'coins', 'angle', 'account', 'skin', 'size', 'rarity', 'invisible'];
   minimapEntity?: BaseEntity;
   gameWorldEntity?: BaseEntity;
   private minimapGraphics?: Phaser.GameObjects.Graphics;

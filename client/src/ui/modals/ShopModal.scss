@@ -388,6 +388,10 @@ h1 {
   flex-wrap: nowrap;
 }
 
+.hub:has(.all-skins-modal) {
+  width: min(860px, calc(100vw - 90px));
+}
+
 .all-skins-modal .shop-extra {
   width: 100%;
   max-width: none;
@@ -400,10 +404,10 @@ h1 {
 }
 
 .all-skins-toolbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: start;
-  gap: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   width: 100%;
   padding-right: 44px;
 
@@ -430,7 +434,7 @@ h1 {
 }
 
 .all-skins-sort-stack {
-  margin-left: 0;
+  margin-left: auto;
 }
 
 .all-skins-toggle,
@@ -456,12 +460,12 @@ h1 {
 }
 
 @media screen and (max-width: 850px) {
-  .all-skins-toolbar { gap-column: 16px; }
+  .all-skins-toolbar { gap: 10px; }
 }
 
 @media screen and (max-width: 768px) {
   .all-skins-toolbar {
-    grid-template-columns: 1fr;
+    flex-wrap: wrap;
   }
 
   .shop-modal {

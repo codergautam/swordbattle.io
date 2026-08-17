@@ -99,9 +99,10 @@ class ProgressBar extends HudComponent {
       bgAlpha: t.progressBarBackgroundEnabled ? t.progressBarBgAlpha : 0,
     });
     this.levelText?.setColor(t.text).setStroke(t.textOutline, t.textOutlineW);
+    this.drawFill(this.currentProgress);
   }
 
-  private lastFillPx = -1;
+  private lastFillKey = '';
   private lastPct = -1;
   private lastLevelText = -1;
   private lastLevelTextAt = 0;
@@ -110,19 +111,29 @@ class ProgressBar extends HudComponent {
     const inset = 5;
     const trackW = this.width - inset * 2;
     const h = this.height - inset * 2;
-    const fw = Math.max(0, Math.min(trackW, trackW * progress));
-    const px = Math.round(fw);
-    if (px === this.lastFillPx) return;
-    this.lastFillPx = px;
+    const normalizedProgress = Number.isFinite(progress) ? Math.max(0, Math.min(1, progress)) : 0;
+    const fw = Math.round(trackW * normalizedProgress);
+    const fillKey = [
+      fw,
+      t.progressBarFill,
+      t.progressBarRadius,
+      t.progressBarShineEnabled ? 1 : 0,
+      t.progressBarShine,
+      t.progressBarShineAlpha,
+    ].join(':');
+    if (fillKey === this.lastFillKey) return;
+    this.lastFillKey = fillKey;
     this.fillG.clear();
     if (fw <= 0) return;
-    const r = t.progressBarRadius;
+    const r = Math.max(0, Math.min(t.progressBarRadius, h / 2, fw / 2));
     this.fillG.fillStyle(t.progressBarFill, 1);
     this.fillG.fillRoundedRect(inset, inset, fw, h, r);
-    if (t.progressBarShineEnabled) {
+    if (t.progressBarShineEnabled && t.progressBarShineAlpha > 0) {
       const hh = h * 0.45;
+      const shineW = Math.max(0, fw - 2);
+      const shineR = Math.max(0, Math.min(t.progressBarRadius, hh / 2, shineW / 2));
       this.fillG.fillStyle(t.progressBarShine, t.progressBarShineAlpha);
-      this.fillG.fillRoundedRect(inset + 1, inset + 1, Math.max(0, fw - 2), hh, r);
+      this.fillG.fillRoundedRect(inset + 1, inset + 1, shineW, hh, shineR);
     }
   }
 
@@ -307,8 +318,12 @@ class ProgressBar extends HudComponent {
     const player = this.game.gameState.self.entity;
     if (!this.container || !player) return;
 
-    // Calculate the raw progress
-    this.targetProgress = Math.min((player.coins - player.previousLevelCoins) / (player.nextLevelCoins - player.previousLevelCoins), 1);
+    const previousLevelCoins = Number(player.previousLevelCoins);
+    const nextLevelCoins = Number(player.nextLevelCoins);
+    const coins = Number(player.coins);
+    const levelRange = nextLevelCoins - previousLevelCoins;
+    const rawProgress = levelRange > 0 ? (coins - previousLevelCoins) / levelRange : 0;
+    this.targetProgress = Number.isFinite(rawProgress) ? Math.max(0, Math.min(rawProgress, 1)) : 0;
 
     // Check for a level-up event
     if (this.lastKnownLevel !== null && player.level > this.lastKnownLevel) {
@@ -316,7 +331,8 @@ class ProgressBar extends HudComponent {
     }
     this.lastKnownLevel = player.level;
 
-    this.currentProgress += (this.targetProgress - this.currentProgress) * 0.1;
+    if (!Number.isFinite(this.currentProgress)) this.currentProgress = this.targetProgress;
+    else this.currentProgress += (this.targetProgress - this.currentProgress) * 0.1;
     if (Math.abs(this.targetProgress - this.currentProgress) < 0.0005) {
       this.currentProgress = this.targetProgress;
     }

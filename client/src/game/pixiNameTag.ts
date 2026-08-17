@@ -40,36 +40,6 @@ export function buildNameTag(text: string, style: NameStyle, fontSize: number): 
   const canvasMode = !!getGameRuntime()?.isCanvasMode;
   const gradientOutline = !!style.outline && isGradient(style.outline) && !canvasMode;
 
-  if (style.shadow) {
-    const shStyle = new TextStyle(baseStyle(fontSize));
-    applyCanvasFill(shStyle as any, style.shadow);
-    if (w > 0) {
-      shStyle.stroke = firstColor(style.shadow);
-      shStyle.strokeThickness = w;
-    }
-    const shText = new Text(t, shStyle);
-    shText.anchor.set(0.5, 1);
-    shText.filters = [new BlurFilter(Math.max(2, fontSize * 0.14))];
-    try { shText.cacheAsBitmap = true; } catch (e) {}
-    container.addChild(shText);
-  }
-
-  if (gradientOutline) {
-    const fatMask = new Text(t, new TextStyle({ ...baseStyle(fontSize), fill: '#ffffff', stroke: '#ffffff', strokeThickness: w }));
-    fatMask.anchor.set(0.5, 1);
-    fatMask.renderable = false;
-    fatMask.visible = false;
-    try { fatMask.cacheAsBitmap = true; } catch (e) {}
-    const gw = Math.ceil(fatMask.width + 4);
-    const gh = Math.ceil(fatMask.height + 4);
-    const grad = new Sprite(gradientTexture(style.outline as GradientSpec, gw, gh));
-    grad.anchor.set(0.5, 1);
-    grad.width = gw;
-    grad.height = gh;
-    grad.mask = fatMask;
-    container.addChild(grad, fatMask);
-  }
-
   const fillStyle = new TextStyle(baseStyle(fontSize));
   applyCanvasFill(fillStyle as any, style.fill);
   if (style.outline && !gradientOutline) {
@@ -78,6 +48,37 @@ export function buildNameTag(text: string, style: NameStyle, fontSize: number): 
   }
   const fillText = new Text(t, fillStyle);
   fillText.anchor.set(0.5, 1);
+  const centerY = -fillText.height / 2;
+
+  if (style.shadow) {
+    const shStyle = new TextStyle(baseStyle(fontSize));
+    applyCanvasFill(shStyle as any, style.shadow);
+    if (w > 0) {
+      shStyle.stroke = firstColor(style.shadow);
+      shStyle.strokeThickness = w;
+    }
+    const shText = new Text(t, shStyle);
+    shText.anchor.set(0.5);
+    shText.position.y = centerY;
+    shText.filters = [new BlurFilter(Math.max(2, fontSize * 0.14))];
+    container.addChild(shText);
+  }
+
+  if (gradientOutline) {
+    const fatMask = new Text(t, new TextStyle({ ...baseStyle(fontSize), fill: '#ffffff', stroke: '#ffffff', strokeThickness: w }));
+    fatMask.anchor.set(0.5);
+    fatMask.position.y = centerY;
+    const gw = Math.ceil(fatMask.width + 4);
+    const gh = Math.ceil(fatMask.height + 4);
+    const grad = new Sprite(gradientTexture(style.outline as GradientSpec, gw, gh));
+    grad.anchor.set(0.5);
+    grad.position.y = centerY;
+    grad.width = gw;
+    grad.height = gh;
+    grad.mask = fatMask;
+    container.addChild(grad, fatMask);
+  }
+
   container.addChild(fillText);
 
   (container as any).textWidth = fillText.width;

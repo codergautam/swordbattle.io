@@ -179,6 +179,7 @@ class Player extends Entity {
 
     state.isAbilityAvailable = this.evolutions.evolutionEffect.isAbilityAvailable;
     state.abilityActive = this.evolutions.evolutionEffect.isAbilityActive;
+    state.invisible = !!this.modifiers.invisible;
     state.abilityDuration = this.evolutions.evolutionEffect.durationTime;
     state.abilityCooldown = this.evolutions.evolutionEffect.cooldownTime;
     {

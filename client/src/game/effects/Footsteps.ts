@@ -165,6 +165,13 @@ export class FootstepTrail {
     const x = c.x, y = c.y;
     if (!this.primed) { this.lastX = x; this.lastY = y; this.primed = true; return; }
 
+    if (this.player.invisible && !this.player.isMe) {
+      this.lastX = x;
+      this.lastY = y;
+      this.accum = 0;
+      return;
+    }
+
     const dx = x - this.lastX, dy = y - this.lastY;
     this.lastX = x; this.lastY = y;
     const dist = Math.hypot(dx, dy);

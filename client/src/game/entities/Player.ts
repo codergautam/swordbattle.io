@@ -66,7 +66,7 @@ class Player extends BaseEntity {
     'kills', 'flags', 'biome', 'level', 'upgradePoints',
     'coins', 'tokens', 'nextLevelCoins', 'previousLevelCoins',
     'buffs', 'evolution', 'possibleEvolutions', 'possibleUpgrades', 'currentUpgrades',
-    'isAbilityAvailable', 'abilityActive', 'abilityDuration', 'abilityCooldown',
+    'isAbilityAvailable', 'abilityActive', 'invisible', 'abilityDuration', 'abilityCooldown',
     'swordSwingAngle', 'swordSwingProgress', 'swordSwingDuration', 'swordSwingArc', 'swordFlying', 'swordFlyingCooldown', 'swordBoomerangReturning',
     'swordRaising', 'swordDecreasing', 'offhandRaising', 'offhandDecreasing',
     'activeSelection', 'abilityCharges',
@@ -121,6 +121,7 @@ class Player extends BaseEntity {
   private _lastSwordScale: number = -1;
   private _lastSwordLocalPullback: number = -1;
   private submergedAccum: number = 0;
+  private wasInvisibleToViewer: boolean = false;
 
   cardSummaryContainer: Phaser.GameObjects.Container | null = null;
   cardSummaryBg: Phaser.GameObjects.Graphics | null = null;
@@ -254,6 +255,7 @@ class Player extends BaseEntity {
         this.game.events.once(Phaser.Scenes.Events.DESTROY, clearSparkle);
         this.sparkleInterval = window.setInterval(() => {
           if (!this.game || !this.game.sys || !this.game.sys.events || !this.container) return;
+          if ((this as any).invisible && !this.isMe) return;
           const fps = this.game.game.loop?.actualFps ?? 60;
           if (fps < 15) return;
 
@@ -1500,6 +1502,25 @@ class Player extends BaseEntity {
     }
 
     this.updateShadowRT();
+    this.updateStealthVisibility();
+  }
+
+  private updateStealthVisibility() {
+    if (!this.container) return;
+
+    const invisible = !!(this as any).invisible;
+    const invisibleToViewer = invisible && !this.isMe;
+
+    if (invisibleToViewer !== this.wasInvisibleToViewer) {
+      this.container.setVisible(!invisibleToViewer);
+      if (!invisibleToViewer) this.healthBar?.resyncAfterHidden();
+      this.wasInvisibleToViewer = invisibleToViewer;
+    }
+
+    if (this.isMe) {
+      this.container.setVisible(true);
+      this.container.setAlpha(invisible ? 0.4 : 1);
+    }
   }
 
   private updateShadowRT() {

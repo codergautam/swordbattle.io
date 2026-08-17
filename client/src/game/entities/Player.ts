@@ -208,6 +208,8 @@ class Player extends BaseEntity {
       clanText.setFontSize(42);
       clanText.setFontStyle('700');
       clanText.setFill(resolveClanColor(this.clan));
+      clanText.setStroke('#000000', 5);
+      clanText.setShadow(0, 0, '#000000', 0, false, false);
       clanText.setOrigin(0, 1);
       const total = clanText.width + nameW;
       clanText.x = -total / 2;

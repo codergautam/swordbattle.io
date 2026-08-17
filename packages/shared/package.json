@@ -1,0 +1,25 @@
+{
+  "name": "@swordbattle/shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.mjs",
+      "require": "./index.js",
+      "default": "./index.mjs"
+    },
+    "./protocol": {
+      "types": "./protocol/index.d.ts",
+      "default": "./protocol/index.js"
+    },
+    "./protocol/schema.proto": "./protocol/schema.proto"
+  },
+  "files": ["index.js", "index.mjs", "index.d.ts", "types.json", "protocol"],
+  "scripts": {
+    "build": "node scripts/validate-contracts.js",
+    "test": "node --test test/*.test.js"
+  }
+}

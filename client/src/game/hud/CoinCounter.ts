@@ -83,7 +83,7 @@ class CoinCounter extends HudComponent {
     r.pulse = this.game.tweens.addCounter({
       from: 0, to: 1, duration: 380, ease: 'Quad.easeOut',
       onUpdate: (tw) => {
-        const v = tw.getValue();
+        const v = tw.getValue() ?? 0;
         const g = Math.round(225 + (255 - 225) * v);
         const b = Math.round(77 + (255 - 77) * v);
         r.text.setTint(Phaser.Display.Color.GetColor(255, g, b));

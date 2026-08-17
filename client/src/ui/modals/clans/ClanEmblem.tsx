@@ -1,9 +1,9 @@
 import React from 'react';
-import { ReactComponent as Frame1 } from './frames/frame_1.svg';
-import { ReactComponent as Frame2 } from './frames/frame_2.svg';
-import { ReactComponent as Frame3 } from './frames/frame_3.svg';
-import { ReactComponent as Frame4 } from './frames/frame_4.svg';
-import { ReactComponent as Frame5 } from './frames/frame_5.svg';
+import Frame1 from './frames/frame_1.svg?react';
+import Frame2 from './frames/frame_2.svg?react';
+import Frame3 from './frames/frame_3.svg?react';
+import Frame4 from './frames/frame_4.svg?react';
+import Frame5 from './frames/frame_5.svg?react';
 import { getIconRecolorFilter } from './constants';
 
 const frames: Record<number, React.FC<React.SVGProps<SVGSVGElement>>> = {

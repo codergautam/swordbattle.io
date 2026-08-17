@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node src/index.js",
     "start:local": "node --env-file=.env src/index.js",
-    "test": "node --test test/"
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "discord.js": "^14.16.3",

@@ -147,7 +147,7 @@ export const nameRegistry: Record<string, RegistryEntry> = {
     leaderboard: { fill: '#ff0000', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#ee0000', pos: 1 }] }, outlineWidth: 'medium' },
     game: { fill: '#ff0000', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#ee0000', pos: 1 }] }, outlineWidth: 'medium' },
   },
-  'update testing accou': {
+  'update testing account': {
     leaderboard: { fill: '#00ff00', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#00bd00', pos: 1 }] }, outlineWidth: 'medium' },
     game: { fill: '#00ff00', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#00bd00', pos: 1 }] }, outlineWidth: 'medium' },
   },

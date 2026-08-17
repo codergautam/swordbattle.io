@@ -52,6 +52,9 @@ const map = require('./maps/mapLoader');
 const helpers = require('../helpers');
 const config = require('../config');
 
+const WOLF_PACK_SIZE = 3;
+const WOLF_PACK_SPAWN_MULTIPLIER = 3;
+
 class GameMap {
   constructor(game) {
     this.game = game;
@@ -71,6 +74,7 @@ class GameMap {
 
     this.captureZoneTimer = new Timer(0, 30, 60);
     this.activeCaptureZones = [];
+    this.nextWolfFlockId = 1;
   }
 
   initialize() {
@@ -269,6 +273,10 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
   }
 
   addEntity(objectData) {
+    if (objectData.type === Types.Entity.Wolf && !objectData.wolfPackMember) {
+      return this.addWolfPacks(objectData);
+    }
+
     let ObjectClass;
     switch (objectData.type) {
       case Types.Entity.MossyRock: ObjectClass = MossyRock; break;
@@ -325,6 +333,43 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     }
     this.game.addEntity(entity);
     return entity;
+  }
+
+  addWolfPacks(objectData) {
+    let firstLeader = null;
+    for (let index = 0; index < WOLF_PACK_SPAWN_MULTIPLIER; index += 1) {
+      const leader = this.addWolfPack(objectData);
+      if (!firstLeader && leader) firstLeader = leader;
+    }
+    return firstLeader;
+  }
+
+  addWolfPack(objectData) {
+    const wolfFlockId = this.nextWolfFlockId;
+    this.nextWolfFlockId += 1;
+    const memberDefinition = {
+      ...objectData,
+      wolfPackMember: true,
+      wolfFlockId,
+    };
+    delete memberDefinition.packSize;
+
+    const leader = this.addEntity(memberDefinition);
+    if (!leader) return null;
+
+    const anchor = {
+      x: leader.shape.x,
+      y: leader.shape.y,
+      radius: leader.shape.radius,
+    };
+    for (let index = 1; index < WOLF_PACK_SIZE; index += 1) {
+      this.addEntity({
+        ...memberDefinition,
+        spacingGroup: false,
+        packAnchor: anchor,
+      });
+    }
+    return leader;
   }
 
   addEntityTimer(definition, time) {
@@ -573,5 +618,8 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
     };
   }
 }
+
+GameMap.WOLF_PACK_SIZE = WOLF_PACK_SIZE;
+GameMap.WOLF_PACK_SPAWN_MULTIPLIER = WOLF_PACK_SPAWN_MULTIPLIER;
 
 module.exports = GameMap;

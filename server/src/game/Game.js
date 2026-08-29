@@ -226,6 +226,15 @@ class Game {
 
     let { player } = client;
     if (data.play && (!player || player.removed)) {
+      if (client.account?.id && !client.hasGameSessionLease()) {
+        client.acquireGameSession((acquired) => {
+          if (acquired && !client.isSocketClosed) {
+            this.processClientMessage(client, data);
+          }
+        });
+        return;
+      }
+
       console.log('[CAPTCHA] Play request - recaptchaSecretKey:', !!config.recaptchaSecretKey, 'captchaVerified:', client.captchaVerified, 'hasCaptchaP1:', !!data.captchaP1, 'ip:', client.ip);
 
       if (getBannedIps().includes(client.ip)) {
@@ -630,6 +639,9 @@ class Game {
     if (!client.player) {
       spectator.initialize();
       client.fullSync = true;
+    }
+    if (!client.player || client.player.removed) {
+      client.releaseGameSession();
     }
     return spectator;
   }

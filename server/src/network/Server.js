@@ -12,6 +12,7 @@ class Server {
     this.clients = new Map();
     this.disconnectedClients = new Set();
     this.maxConnectionsPerIP = 50;
+    this.instanceId = process.env.SERVER_INSTANCE_ID || uuidv4();
 
     // Maintenance mode
     this.maintenanceMode = false;
@@ -53,6 +54,11 @@ class Server {
         const forwardedFor = req.getHeader('x-forwarded-for') || req.getHeader('cf-connecting-ip') || '';
         const ips = forwardedFor.split(',').map(i => i.trim());
         const ip = ips[0];
+        let browserSessionId = '';
+        try {
+          browserSessionId = new URLSearchParams(req.getQuery() || '').get('sessionId') || '';
+        } catch (e) {}
+        browserSessionId = browserSessionId.replace(/[^a-zA-Z0-9:._-]/g, '').slice(0, 128);
         if (this.maintenanceMode) {
           let secret = '';
           try { secret = new URLSearchParams(req.getQuery() || '').get('secret') || ''; } catch (e) { secret = ''; }
@@ -76,7 +82,7 @@ class Server {
           .filter(client => client.ip === ip).length;
 
         if (currentConnections >= this.maxConnectionsPerIP) {
-          res.upgrade({ id: uuidv4(), ip, tooManyConnections: true },
+          res.upgrade({ id: uuidv4(), ip, browserSessionId, tooManyConnections: true },
             req.getHeader('sec-websocket-key'),
             req.getHeader('sec-websocket-protocol'),
             req.getHeader('sec-websocket-extensions'), context,
@@ -92,7 +98,7 @@ class Server {
           return;
         }
 
-        res.upgrade({ id: uuidv4(), ip },
+        res.upgrade({ id: uuidv4(), ip, browserSessionId },
           req.getHeader('sec-websocket-key'),
           req.getHeader('sec-websocket-protocol'),
           req.getHeader('sec-websocket-extensions'), context,
@@ -139,6 +145,7 @@ class Server {
         const client = this.clients.get(socket.id);
         if (!client) return;
         client.isSocketClosed = true;
+        client.releaseGameSession();
         try {
           if (client.player && !client.player.removed) {
             client.player.remove();

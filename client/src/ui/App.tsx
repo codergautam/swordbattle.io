@@ -42,6 +42,7 @@ import { getCookies, playVideoAd } from '../helpers';
 import Ad from './Ad';
 import { Settings } from '../game/Settings';
 import { getGameRuntime } from '../game/gameRuntime';
+import { browserPlayLease } from '../game/network/BrowserPlayLease';
 import { getServerList, updatePing } from '../ServerList';
 import AccountCard from './AccountCard';
 import ChangelogCard from './ChangelogCard';
@@ -981,6 +982,10 @@ function App({ profileDesigner = false, hudDesigner = false }: { profileDesigner
     localStorage.setItem('swordbattle:hasVisited', '1');
     if(!isConnected) {
       void showDialog('Still connecting to a server.', 'Connection');
+      return;
+    }
+    if (browserPlayLease && !browserPlayLease.acquire()) {
+      window.alert('Swordbattle is already being played in another tab. Close that game or return it to the menu first.');
       return;
     }
     else  {

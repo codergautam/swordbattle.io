@@ -2,6 +2,18 @@ const Player = require('./Player');
 const Timer = require('../components/Timer');
 const Types = require('../Types');
 const helpers = require('../../helpers');
+const Dialogue = require('../ai/BotDialogue');
+const { forGame: socialGraphForGame } = require('../ai/BotSocial');
+const {
+  BotPersonality,
+  choosePersonality,
+  filterEvolutionChoices,
+} = require('../ai/BotPersonality');
+
+const GENERAL_SENSE_INTERVAL = 0.2;
+const PROJECTILE_SENSE_INTERVAL = 0.1;
+const SOCIAL_INTERVAL = 1.5;
+const GENERAL_SENSE_RANGE = 2800;
 
 const Goal = {
   Wander: 0,
@@ -31,6 +43,7 @@ const hazardTypes = new Set([Types.Entity.LavaPool, Types.Entity.Cactus]);
 const projectileTypes = new Set([
   Types.Entity.Fireball, Types.Entity.Boulder, Types.Entity.SwordProj,
   Types.Entity.Snowball, Types.Entity.SandBall, Types.Entity.SandBlock,
+  Types.Entity.ThrownSword,
 ]);
 const solidTypes = new Set([
   Types.Entity.Ore, Types.Entity.Rock, Types.Entity.LavaRock,
@@ -56,6 +69,19 @@ function approxRadius(entity) {
 }
 
 function projVel(p) {
+  if (p.type === Types.Entity.Sword) {
+    if (!p.isFlying) return { x: 0, y: 0 };
+    if (p.boomerangReturning && p.boomerangOriginX !== undefined) {
+      const dx = p.boomerangOriginX - p.shape.x;
+      const dy = p.boomerangOriginY - p.shape.y;
+      const mag = Math.hypot(dx, dy) || 1;
+      const speed = p.flySpeed && p.flySpeed.value || 95;
+      return { x: dx / mag * speed, y: dy / mag * speed };
+    }
+    const angle = p.boomerangOrigAngle || (p.shape.angle - Math.PI / 2);
+    const speed = p.flySpeed && p.flySpeed.value || 95;
+    return { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed };
+  }
   if (p.velocity && (Math.abs(p.velocity.x) > 0.01 || Math.abs(p.velocity.y) > 0.01)) {
     return { x: p.velocity.x, y: p.velocity.y };
   }
@@ -73,9 +99,19 @@ class PlayerAI extends Player {
     super(game, objectData.name);
 
     this.isBot = true;
+    this.personality = choosePersonality();
+    this.runnerRoute = this.personality === BotPersonality.Runner
+      ? (Math.random() < 0.7 ? 'archer' : 'berserker')
+      : null;
+    this.socialGraph = socialGraphForGame(game);
 
     this.smartness = Math.random();
     this.aggression = helpers.clamp(0.25 + this.smartness * 0.45 + Math.random() * 0.3, 0, 1);
+    if (this.personality === BotPersonality.Spartan) {
+      this.aggression = helpers.clamp(Math.max(0.68, this.aggression + 0.18), 0, 1);
+    } else if (this.personality === BotPersonality.Runner) {
+      this.aggression = helpers.clamp(this.aggression * 0.3, 0.05, 0.3);
+    }
     this.skill = this.computeSkill();
 
     this.goal = null;
@@ -111,6 +147,20 @@ class PlayerAI extends Player {
     this.resourceHp = undefined;
     this.stuckTime = 0;
     this.lastEvolCount = 0;
+    this.upgradeRetryTimer = 0;
+    this.lastKills = 0;
+
+    // Expensive world classification is staggered across bots. Projectile
+    // sensing remains faster and queries a much smaller region.
+    this.generalSenseTimer = Math.random() * GENERAL_SENSE_INTERVAL;
+    this.projectileSenseTimer = Math.random() * PROJECTILE_SENSE_INTERVAL;
+    this.socialTimer = helpers.random(0.5, SOCIAL_INTERVAL);
+    this.speechCooldown = helpers.random(1, 5);
+    this.pendingSpeech = null;
+    this.projectileThreat = null;
+    this.dodgeTimer = 0;
+    this.dodgeAngle = 0;
+    this.lowHealthSpoken = false;
 
     this._coins = [];
     this.chests = [];
@@ -181,6 +231,7 @@ class PlayerAI extends Player {
   applyInputs(dt) {
     this.attackCooldown = Math.max(0, this.attackCooldown - dt);
     this.throwCooldown = Math.max(0, this.throwCooldown - dt);
+    this.upgradeRetryTimer = Math.max(0, this.upgradeRetryTimer - dt);
     this.goalTimer.update(dt);
 
     this.aimErrorTimer -= dt;
@@ -194,17 +245,47 @@ class PlayerAI extends Player {
     this.inputs.inputUp(Types.Input.SwordThrow);
     this.inputs.inputUp(Types.Input.Ability);
 
-    this.perceive();
-    this.skill = this.computeSkill();
+    this.tickSpeech(dt);
+    this.generalSenseTimer -= dt;
+    let decisionDue = false;
+    if (this.generalSenseTimer <= 0) {
+      this.generalSenseTimer += GENERAL_SENSE_INTERVAL;
+      if (this.generalSenseTimer <= 0) this.generalSenseTimer = GENERAL_SENSE_INTERVAL;
+      this.perceive();
+      this.skill = this.computeSkill();
+      decisionDue = true;
+    }
 
-    let forced = this.evaluateThreats(dt);
-    if (!forced) forced = this.handleMobAggro();
-    if (!forced && this.goal !== Goal.Flee && (this.goalTimer.finished || this.goal == null)) {
-      this.decideGoal();
+    this.projectileSenseTimer -= dt;
+    if (this.projectileSenseTimer <= 0) {
+      this.projectileSenseTimer += PROJECTILE_SENSE_INTERVAL;
+      if (this.projectileSenseTimer <= 0) this.projectileSenseTimer = PROJECTILE_SENSE_INTERVAL;
+      this.scanProjectileThreats();
+    }
+    this.dodgeTimer = Math.max(0, this.dodgeTimer - dt);
+
+    if (decisionDue) {
+      let forced = this.evaluateThreats();
+      if (!forced) forced = this.handleMobAggro();
+      if (!forced && this.goal !== Goal.Flee && (this.goalTimer.finished || this.goal == null)) {
+        this.decideGoal();
+      }
+      this.checkUpgrades();
+      this.checkCombatDialogue();
     }
 
     this.executeGoal(dt);
-    this.checkUpgrades();
+    if (this.dodgeTimer > 0) this.executeProjectileDodge(dt);
+
+    this.socialTimer -= dt;
+    if (this.socialTimer <= 0) {
+      this.socialTimer = SOCIAL_INTERVAL + Math.random();
+      this.socialize();
+    }
+
+    // Bot AI may only request normal swing/throw inputs. Evolution abilities
+    // and boss-only projectile patterns stay human/server controlled.
+    this.inputs.inputUp(Types.Input.Ability);
 
     const myCoins = (this.levels && this.levels.coins) || 0;
     this.coinMultiplier *= helpers.clamp(1 - myCoins / 6000, 0.15, 1);
@@ -217,7 +298,7 @@ class PlayerAI extends Player {
   }
 
   perceive() {
-    const ids = this.getEntitiesInViewport();
+    const entities = this.queryNearby(GENERAL_SENSE_RANGE);
     this._coins.length = 0;
     this.chests.length = 0;
     this.ores.length = 0;
@@ -230,8 +311,8 @@ class PlayerAI extends Player {
     this.bots.length = 0;
     this.humans.length = 0;
 
-    for (let i = 0; i < ids.length; i++) {
-      const e = this.game.entities.get(ids[i]);
+    for (let i = 0; i < entities.length; i++) {
+      const e = entities[i];
       if (!e || e === this || e.removed || !e.shape) continue;
       const t = e.type;
 
@@ -241,13 +322,13 @@ class PlayerAI extends Player {
         this.chests.push(e);
       } else if (t === Types.Entity.Ore) {
         if (!e.isBoss) this.ores.push(e);
-        this.solids.push(e);
+        if (this.withinDistance(e, 950)) this.solids.push(e);
       } else if (hazardTypes.has(t)) {
-        this.hazards.push(e);
-      } else if (projectileTypes.has(t)) {
-        this.projectiles.push(e);
+        if (this.withinDistance(e, 1300)) this.hazards.push(e);
+      } else if (this.isEnemyProjectile(e)) {
+        if (this.withinDistance(e, 1300)) this.projectiles.push(e);
       } else if (solidTypes.has(t)) {
-        this.solids.push(e);
+        if (this.withinDistance(e, 950)) this.solids.push(e);
       } else if (mobTypes.has(t)) {
         if (this.isBossMobEntity(e)) {
           this.bosses.push(e);
@@ -262,8 +343,216 @@ class PlayerAI extends Player {
     }
   }
 
+  withinDistance(entity, distance) {
+    const position = posOf(entity);
+    const dx = position.x - this.shape.x;
+    const dy = position.y - this.shape.y;
+    return dx * dx + dy * dy <= distance * distance;
+  }
+
+  queryNearby(range) {
+    const tree = this.game.entitiesQuadtree;
+    if (!tree) return [];
+    const area = {
+      x: this.shape.x - range,
+      y: this.shape.y - range,
+      width: range * 2,
+      height: range * 2,
+    };
+    const matches = tree.get(area);
+    const entities = [];
+    const maxDistanceSq = range * range;
+    for (let i = 0; i < matches.length; i++) {
+      const entity = matches[i].entity;
+      if (!entity || entity.removed || !entity.shape) continue;
+      const position = posOf(entity);
+      const dx = position.x - this.shape.x;
+      const dy = position.y - this.shape.y;
+      if (dx * dx + dy * dy <= maxDistanceSq) entities.push(entity);
+    }
+    return entities;
+  }
+
+  isEnemyProjectile(entity) {
+    if (!entity || entity.removed || !entity.shape) return false;
+    if (entity.type === Types.Entity.Sword) {
+      return entity.isFlying && entity.player !== this;
+    }
+    if (!projectileTypes.has(entity.type)) return false;
+    const owner = entity.owner || entity.player;
+    return owner !== this;
+  }
+
+  scanProjectileThreats() {
+    const tree = this.game.entitiesQuadtree;
+    if (!tree) return;
+    const range = this.projReactRange() * 1.75;
+    const area = {
+      x: this.shape.x - range,
+      y: this.shape.y - range,
+      width: range * 2,
+      height: range * 2,
+    };
+    const matches = tree.get(area);
+    let best = null;
+    let bestTime = Infinity;
+    let bestVelocity = null;
+    for (let i = 0; i < matches.length; i++) {
+      const projectile = matches[i].entity;
+      if (!this.isEnemyProjectile(projectile)) continue;
+      const velocity = projVel(projectile);
+      const speedSq = velocity.x * velocity.x + velocity.y * velocity.y;
+      if (speedSq < 0.01) continue;
+      const relx = this.shape.x - projectile.shape.x;
+      const rely = this.shape.y - projectile.shape.y;
+      const distanceSq = relx * relx + rely * rely;
+      if (distanceSq > range * range) continue;
+      const time = (relx * velocity.x + rely * velocity.y) / speedSq;
+      if (time < 0 || time > 18) continue;
+      const missX = relx - velocity.x * time;
+      const missY = rely - velocity.y * time;
+      const clearance = this.shape.radius + approxRadius(projectile) + 105;
+      if (missX * missX + missY * missY > clearance * clearance) continue;
+      if (time < bestTime) {
+        best = projectile;
+        bestTime = time;
+        bestVelocity = velocity;
+      }
+    }
+
+    this.projectileThreat = best;
+    if (!best || !bestVelocity) return;
+    const speed = Math.hypot(bestVelocity.x, bestVelocity.y) || 1;
+    const nx = -bestVelocity.y / speed;
+    const ny = bestVelocity.x / speed;
+    const toBotX = this.shape.x - best.shape.x;
+    const toBotY = this.shape.y - best.shape.y;
+    const side = nx * toBotX + ny * toBotY >= 0 ? 1 : -1;
+    this.dodgeAngle = Math.atan2(ny * side, nx * side);
+    this.dodgeTimer = 0.34 + (1 - this.skill) * 0.12;
+    this.strafeDir = side;
+    if (Math.random() < 0.07) this.speak('dodge', best.player || best.owner);
+  }
+
+  executeProjectileDodge(dt) {
+    const steering = this.computeSteering(this.dodgeAngle, 150);
+    this.moveAngle = this.turnToward(this.moveAngle, steering.angle, dt, 13);
+    this.mouse = { angle: this.moveAngle, force: 150 };
+  }
+
+  tickSpeech(dt) {
+    this.speechCooldown = Math.max(0, this.speechCooldown - dt);
+    if (!this.pendingSpeech) return;
+    this.pendingSpeech.delay -= dt;
+    if (this.pendingSpeech.delay <= 0) {
+      const pending = this.pendingSpeech;
+      this.pendingSpeech = null;
+      this.speak(pending.situation, pending.target, true);
+    }
+  }
+
+  speak(situation, target = null, force = false) {
+    if (!force && this.speechCooldown > 0) return false;
+    const name = target && target.name;
+    this.addChatMessage(Dialogue.getLine(situation, { name }));
+    this.speechCooldown = helpers.random(6, 12);
+    return true;
+  }
+
+  queueSpeech(situation, target) {
+    if (this.pendingSpeech || this.speechCooldown > 2) return;
+    this.pendingSpeech = { situation, target, delay: helpers.random(0.55, 1.15) };
+  }
+
+  socialize() {
+    if (this.speechCooldown > 0) return;
+    let other = null;
+    let bestDistanceSq = 1200 * 1200;
+    for (const bot of this.bots) {
+      if (!bot || bot.removed || this.socialGraph.relation(this, bot)) continue;
+      const dx = bot.shape.x - this.shape.x;
+      const dy = bot.shape.y - this.shape.y;
+      const distanceSq = dx * dx + dy * dy;
+      if (distanceSq < bestDistanceSq) {
+        bestDistanceSq = distanceSq;
+        other = bot;
+      }
+    }
+    if (!other) return;
+    const relation = this.socialGraph.chooseRelation(this, other);
+    if (!this.socialGraph.setRelation(this, other, relation)) return;
+    if (relation === 'team') {
+      this.speak('teamOffer', other, true);
+      other.queueSpeech('teamAccept', this);
+    } else if (relation === 'rival') {
+      this.speak('rivalry', other, true);
+      other.queueSpeech('rivalry', this);
+    } else {
+      this.speak('neutral', other, true);
+      other.queueSpeech('neutral', this);
+    }
+  }
+
+  checkCombatDialogue() {
+    if (this.kills > this.lastKills) {
+      this.lastKills = this.kills;
+      this.speak('victory', this.target);
+    }
+    if (this.health.percent < 0.28 && !this.lowHealthSpoken) {
+      this.lowHealthSpoken = true;
+      const situation = this.personality === BotPersonality.Spartan
+        ? 'spartan'
+        : (this.personality === BotPersonality.Runner ? 'runner' : 'lowHealth');
+      this.speak(situation, this.target);
+    } else if (this.health.percent > 0.6) {
+      this.lowHealthSpoken = false;
+    }
+  }
+
+  nearestRunnerThreat() {
+    let best = null;
+    let bestDistanceSq = 2300 * 2300;
+    const groups = [this.humans, this.bots, this.mobs, this.bosses];
+    for (const group of groups) {
+      for (const entity of group) {
+        if (!entity || entity.removed || !entity.shape) continue;
+        const dx = entity.shape.x - this.shape.x;
+        const dy = entity.shape.y - this.shape.y;
+        const distanceSq = dx * dx + dy * dy;
+        if (distanceSq < bestDistanceSq) {
+          bestDistanceSq = distanceSq;
+          best = entity;
+        }
+      }
+    }
+    return best;
+  }
+
+  callForTeamHelp(attacker) {
+    if (!attacker || attacker.removed) return;
+    if (attacker.isBot && this.socialGraph.relation(this, attacker) === 'team') return;
+    const members = this.socialGraph.teamMembers(this, this.game.players);
+    for (const member of members) {
+      if (member.personality === BotPersonality.Runner) continue;
+      const dx = member.shape.x - this.shape.x;
+      const dy = member.shape.y - this.shape.y;
+      if (dx * dx + dy * dy > 2400 * 2400) continue;
+      if (attacker.type === Types.Entity.Player) member.setGoal(Goal.HuntBot, attacker);
+      else if (mobTypes.has(attacker.type)) member.setGoal(Goal.FightMob, attacker);
+      member.queueSpeech('teamAssist', this);
+    }
+  }
+
   decideGoal() {
     const coins = (this.levels && this.levels.coins) || 0;
+
+    if (this.personality === BotPersonality.Runner) {
+      const threat = this.nearestRunnerThreat();
+      if (threat) {
+        this.setFlee(threat);
+        return;
+      }
+    }
 
     let pileValue = 0;
     for (const c of this._coins) {
@@ -374,8 +663,11 @@ class PlayerAI extends Player {
     let best = null;
     let bestScore = -Infinity;
     const myCoins = (this.levels && this.levels.coins) || 0;
-    for (const b of this.bots) {
+    const candidates = this.bots.concat(this.humans);
+    for (const b of candidates) {
       if (b.removed || !b.shape) continue;
+      if (b.isBot && !this.socialGraph.canAttack(this, b)) continue;
+      if (!b.isBot && this.isTargetInRealFight(b)) continue;
       const bc = (b.levels && b.levels.coins) || 0;
       const ratio = bc / Math.max(1, myCoins);
       if (ratio > 3 && myCoins > 800 && this.aggression < 0.7) continue;
@@ -402,6 +694,7 @@ class PlayerAI extends Player {
     let bestScore = -Infinity;
     for (const p of this.game.players) {
       if (p === this || p.removed || !p.isBot || !p.levels) continue;
+      if (!this.socialGraph.canAttack(this, p)) continue;
       if (p.levels.coins < richCoins) continue;
       const d = this.dist(p);
       const score = p.levels.coins / (d + 1500);
@@ -462,17 +755,6 @@ class PlayerAI extends Player {
   }
 
   evaluateThreats() {
-    for (const p of this.projectiles) {
-      const px = p.shape.x, py = p.shape.y;
-      const relx = this.shape.x - px, rely = this.shape.y - py;
-      const d = Math.hypot(relx, rely);
-      if (d > this.projReactRange() || d < 0.001) continue;
-      const v = projVel(p);
-      const vm = Math.hypot(v.x, v.y);
-      if (vm < 0.01) continue;
-      const closing = (v.x * relx + v.y * rely) / (vm * d);
-      if (closing > 0.5) { this.setFlee(p); return true; }
-    }
     let boss = null, bd = Infinity;
     const duelFocused = this.goal === Goal.HuntBot && this.isRichDuel(this.target);
     const avoid = this.bossAvoidRange() * (duelFocused ? 0.35 : 1);
@@ -492,7 +774,8 @@ class PlayerAI extends Player {
       && this.dist(m) > this.dist(this.target) * 0.75) {
       m = this.target;
     }
-    if (this.isBossMobEntity(m) || this.health.percent < 0.32) {
+    const retreatsAtLowHealth = this.personality !== BotPersonality.Spartan;
+    if (this.isBossMobEntity(m) || (retreatsAtLowHealth && this.health.percent < 0.32)) {
       this.setFlee(m);
       return true;
     }
@@ -614,7 +897,11 @@ class PlayerAI extends Player {
     } else {
       if (d > 3600) { this.abandonGoal(); return; }
       const foeSkill = (typeof t.skill === 'number') ? t.skill : 0.5;
-      if (this.health.percent < 0.25 && foeSkill >= this.skill) { this.setFlee(t); return; }
+      if (this.personality !== BotPersonality.Spartan
+        && this.health.percent < 0.25 && foeSkill >= this.skill) {
+        this.setFlee(t);
+        return;
+      }
     }
     this.combatMove(t, dt, {});
   }
@@ -622,7 +909,10 @@ class PlayerAI extends Player {
   executeFightMob(dt) {
     const m = this.target;
     if (!m || m.removed) { this.sweepOrDecide(true); return; }
-    if (this.health.percent < 0.3) { this.setFlee(m); return; }
+    if (this.personality !== BotPersonality.Spartan && this.health.percent < 0.3) {
+      this.setFlee(m);
+      return;
+    }
     if (this.dist(m) > 2600) { this.abandonGoal(); return; }
     this.combatMove(m, dt, { mob: true });
   }
@@ -664,9 +954,23 @@ class PlayerAI extends Player {
       this.angle = this.turnToward(this.angle, this.moveAngle, dt, 8);
     }
 
+    if (this.personality === BotPersonality.Runner && !this.sword.isFlying
+      && this.sword.flyCooldownTime <= 0 && this.throwCooldown <= 0
+      && d > this.meleeReach() * 1.25 && d < this.throwRange()) {
+      const throwAim = this.aimAngle(threat, true);
+      this.angle = this.turnToward(this.angle, throwAim, dt, 10);
+      if (Math.abs(helpers.angleDifference(this.angle, throwAim)) < 0.28) {
+        this.inputs.inputDown(Types.Input.SwordThrow);
+        this.throwCooldown = 2.2;
+        if (Math.random() < 0.08) this.speak('swordThrow', threat);
+      }
+    }
+
     const safeDist = mobTypes.has(threat.type) ? 2200 : 1400;
     this.fleeTimer -= dt;
-    if ((d > safeDist && this.health.percent > 0.55) || this.fleeTimer <= 0) {
+    const runnerStillThreatened = this.personality === BotPersonality.Runner && d < 2300;
+    if (!runnerStillThreatened
+      && ((d > safeDist && this.health.percent > 0.55) || this.fleeTimer <= 0)) {
       this.abandonGoal();
     }
   }
@@ -788,13 +1092,9 @@ class PlayerAI extends Player {
       if (inBand && aligned && Math.random() < (0.25 + this.skill * 0.9) * dt) {
         this.inputs.inputDown(Types.Input.SwordThrow);
         this.throwCooldown = 2.2;
+        if (Math.random() < 0.06) this.speak('swordThrow', target);
         return;
       }
-    }
-
-    if (this.skill > 0.6 && this.evolutions && this.evolutions.evolutionEffect
-      && this.evolutions.evolutionEffect.isAbilityAvailable && Math.random() < 0.02) {
-      this.inputs.inputDown(Types.Input.Ability);
     }
   }
 
@@ -828,39 +1128,23 @@ class PlayerAI extends Player {
     for (const h of this.hazards) {
       const hp = posOf(h);
       const dx = px - hp.x, dy = py - hp.y;
-      const d = Math.hypot(dx, dy);
       const zone = approxRadius(h) + myR + react;
-      if (d < zone && d > 0.001) {
+      const distanceSq = dx * dx + dy * dy;
+      if (distanceSq < zone * zone && distanceSq > 0.000001) {
+        const d = Math.sqrt(distanceSq);
         const st = (zone - d) / zone;
         const w = st * st * 3.2;
         rx += (dx / d) * w; ry += (dy / d) * w;
       }
     }
 
-    for (const proj of this.projectiles) {
-      const dx = px - proj.shape.x, dy = py - proj.shape.y;
-      const d = Math.hypot(dx, dy);
-      const zone = approxRadius(proj) + myR + react * 0.8;
-      if (d < zone && d > 0.001) {
-        const st = (zone - d) / zone;
-        const w = st * st * 3.5;
-        rx += (dx / d) * w; ry += (dy / d) * w;
-        const v = projVel(proj);
-        const vm = Math.hypot(v.x, v.y);
-        if (vm > 0.01) {
-          let perpx = -v.y / vm, perpy = v.x / vm;
-          if (perpx * dx + perpy * dy < 0) { perpx = -perpx; perpy = -perpy; }
-          rx += perpx * w * 0.8; ry += perpy * w * 0.8;
-        }
-      }
-    }
-
     for (const b of this.bosses) {
       const bp = posOf(b);
       const dx = px - bp.x, dy = py - bp.y;
-      const d = Math.hypot(dx, dy);
       const zone = approxRadius(b) + myR + this.bossAvoidRange();
-      if (d < zone && d > 0.001) {
+      const distanceSq = dx * dx + dy * dy;
+      if (distanceSq < zone * zone && distanceSq > 0.000001) {
+        const d = Math.sqrt(distanceSq);
         const st = (zone - d) / zone;
         const w = st * st * 2.8;
         rx += (dx / d) * w; ry += (dy / d) * w;
@@ -871,9 +1155,10 @@ class PlayerAI extends Player {
       if (skipSolid && o === skipSolid) continue;
       const op = posOf(o);
       const dx = px - op.x, dy = py - op.y;
-      const d = Math.hypot(dx, dy);
       const zone = approxRadius(o) + myR + 150;
-      if (d < zone && d > 0.001) {
+      const distanceSq = dx * dx + dy * dy;
+      if (distanceSq < zone * zone && distanceSq > 0.000001) {
+        const d = Math.sqrt(distanceSq);
         const st = (zone - d) / zone;
         const w = st * st * 1.6;
         rx += (dx / d) * w * 0.6; ry += (dy / d) * w * 0.6;
@@ -908,13 +1193,30 @@ class PlayerAI extends Player {
   checkUpgrades() {
     if (!this.evolutions) return;
     const n = this.evolutions.possibleEvols.size;
-    if (n > 0 && n !== this.lastEvolCount) {
+    if (this.personality === BotPersonality.Runner && this.runnerRoute === 'archer'
+      && this.evolutions.evolution === Types.Evolution.Basic
+      && this.levels.level < 12 && n > 0) {
+      // Archer unlocks at level 12. Resolve the earlier Knight-only prompt so
+      // archer-route runners never appear as melee classes.
+      this.evolutions.skipForUpgrade();
+      this.lastEvolCount = 0;
+      return;
+    }
+    if (n > 0 && (n !== this.lastEvolCount || this.upgradeRetryTimer <= 0)) {
       this.lastEvolCount = n;
+      this.upgradeRetryTimer = helpers.random(1.5, 3.5);
       const chance = 0.35 + this.smartness * 0.55
         + Math.min(0.25, ((this.levels && this.levels.coins) || 0) / 20000);
       if (Math.random() < chance) {
-        const evol = helpers.randomChoice(Array.from(this.evolutions.possibleEvols));
-        this.evolutions.upgrade(evol);
+        const choices = filterEvolutionChoices(
+          this.personality,
+          Array.from(this.evolutions.possibleEvols),
+          this.runnerRoute,
+        );
+        if (choices.length > 0) {
+          const evol = helpers.randomChoice(choices);
+          this.evolutions.upgrade(evol);
+        }
       }
     } else if (n === 0) {
       this.lastEvolCount = 0;
@@ -930,26 +1232,38 @@ class PlayerAI extends Player {
 
       if (entity.type === Types.Entity.Player && !entity.isBot) {
         if (this.goal === Goal.Flee) {
-        } else if (this.health.percent < 0.3) {
+        } else if (this.personality === BotPersonality.Runner) {
+          this.setFlee(entity);
+        } else if (this.personality !== BotPersonality.Spartan && this.health.percent < 0.3) {
           this.setFlee(entity);
         } else if (this.goal === Goal.Spar && this.target === entity) {
         } else if (!this.isTargetInRealFight(entity) && Math.random() < 0.85) {
           this.setGoal(Goal.Spar, entity);
         }
       } else if (entity.type === Types.Entity.Player && entity.isBot) {
+        const relation = this.socialGraph.relation(this, entity);
+        if (relation === 'neutral') this.socialGraph.turnHostile(this, entity);
         const myC = (this.levels && this.levels.coins) || 0;
         const oc = (entity.levels && entity.levels.coins) || 0;
-        if (this.isRichDuel(entity)) {
+        if (relation === 'team') {
+          // Friendly collisions do not dissolve a team or start a duel.
+        } else if (this.personality === BotPersonality.Runner) {
+          this.setFlee(entity);
+        } else if (this.isRichDuel(entity)) {
           if (this.goal !== Goal.HuntBot || this.target !== entity) {
             this.setGoal(Goal.HuntBot, entity);
           }
-        } else if (this.health.percent < 0.3 || (oc > myC * 2.2 && this.aggression < 0.6)) {
+        } else if ((this.personality !== BotPersonality.Spartan && this.health.percent < 0.3)
+          || (oc > myC * 2.2 && this.aggression < 0.6)) {
           this.setFlee(entity);
         } else if (this.goal !== Goal.HuntBot || this.target !== entity) {
           this.setGoal(Goal.HuntBot, entity);
         }
       } else if (mobTypes.has(entity.type)) {
-        if (this.isBossMobEntity(entity) || this.health.percent < 0.35) {
+        if (this.personality === BotPersonality.Runner) {
+          this.setFlee(entity);
+        } else if (this.isBossMobEntity(entity)
+          || (this.personality !== BotPersonality.Spartan && this.health.percent < 0.35)) {
           this.setFlee(entity);
         } else if (this.goal !== Goal.FightMob || this.target !== entity) {
           this.setGoal(Goal.FightMob, entity);
@@ -957,12 +1271,16 @@ class PlayerAI extends Player {
       } else if (this.health.percent < 0.5) {
         this.setFlee(entity);
       }
+
+      if (Math.random() < 0.12) this.speak('damaged', entity);
+      if (entity.type === Types.Entity.Player) this.callForTeamHelp(entity);
     }
 
     super.damaged(damage, entity, isThrown, opts);
   }
 
   remove(reason) {
+    this.socialGraph.remove(this);
     super.remove(reason);
   }
 }

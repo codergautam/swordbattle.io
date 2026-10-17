@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../api';
 import { showDialog } from '../../ui/PromptDialog';
+import { getGameRuntime } from '../../game/gameRuntime';
 
 export type ClanSummary = {
   id: number;
@@ -46,6 +47,7 @@ export type AccountState = {
   recovered: boolean;
   profiles: { equipped: number; owned: number[] };
   themes: { equipped: number; owned: number[] };
+  hudThemes: { equipped: number; owned: number[] };
   bio: string;
   tags: { tags: string[]; colors: string[] };
   isCrazygames: boolean;
@@ -78,6 +80,7 @@ const initialState: AccountState = {
   recovered: false,
   profiles: { equipped: 1, owned: [1] },
   themes: { equipped: 1, owned: [1] },
+  hudThemes: { equipped: 1, owned: [1] },
   bio: '',
   tags: { tags: [], colors: [] },
   isCrazygames: false,
@@ -121,7 +124,7 @@ export const updateAccountAsync = createAsyncThunk(
     } else if (response.account) {
       response.account.secret = state.account.secret;
       dispatch(setAccount(response.account));
-      window.phaser_game?.events.emit('tokenUpdate', state.account.secret);
+      getGameRuntime()?.events.emit('tokenUpdate', state.account.secret);
       resolve(response.account);
     }
   }, state.account.secret);
@@ -221,12 +224,13 @@ const accountSlice = createSlice({
       state.tokens = 0;
       state.isLoggedIn = false;
       state.skins = { equipped: 1, owned: [1] };
-      window.phaser_game?.events.emit('tokenUpdate', '');
+      getGameRuntime()?.events.emit('tokenUpdate', '');
       state.is_v1 = false;
       state.xp = 0;
       state.recovered = false;
       state.profiles = { equipped: 1, owned: [1] };
       state.themes = { equipped: 1, owned: [1] };
+      state.hudThemes = { equipped: 1, owned: [1] };
       state.bio = '';
       state.tags = { tags: [], colors: [] };
       state.isCrazygames = false;
@@ -259,6 +263,7 @@ const accountSlice = createSlice({
       state.recovered = action.payload.recovered;
       state.profiles = action.payload.profiles;
       state.themes = action.payload.themes ?? { equipped: 1, owned: [1] };
+      state.hudThemes = action.payload.hudThemes ?? { equipped: 1, owned: [1] };
       state.bio = action.payload.bio;
       state.tags = action.payload.tags;
       state.isCrazygames = action.payload.isCrazygames;
@@ -266,7 +271,7 @@ const accountSlice = createSlice({
       state.dailyLogin = action.payload.dailyLogin || state.dailyLogin;
       if (previousToken !== state.secret) {
         console.log('Token updated');
-        window.phaser_game?.events.emit('tokenUpdate', state.secret);
+        getGameRuntime()?.events.emit('tokenUpdate', state.secret);
 
         try {
           window.localStorage.setItem('secret', state.secret);
@@ -292,7 +297,7 @@ const accountSlice = createSlice({
       console.log('Token updated');
 
       if (state.secret) {
-        window.phaser_game?.events.emit('tokenUpdate', state.secret);
+        getGameRuntime()?.events.emit('tokenUpdate', state.secret);
       }
 
       try {

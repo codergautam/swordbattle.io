@@ -1,7 +1,5 @@
 import { crazygamesSDK } from '../crazygames/sdk';
 
-const isDev = process.env.NODE_ENV === 'development';
-
 interface SettingType {
   name: string;
   default: any,
@@ -49,30 +47,6 @@ export const settingsList: Record<string, SettingType> = {
         }
       },
     },
-  useWebGL: {
-    name: 'Use WebGL (requires reload)',
-    type: 'toggle',
-    default: true,
-    onChange: (newValue: boolean) => {
-      try {
-        if (newValue) {
-          localStorage.setItem('swordbattle:WebGL', 'OK');
-          localStorage.removeItem('swordbattle:webgl_failed');
-          localStorage.removeItem('swordbattle:webgl_failed_at');
-          localStorage.removeItem('swordbattle:webgl_slow');
-          localStorage.removeItem('swordbattle:webgl_lost_count');
-          localStorage.removeItem('swordbattle:webgl_lost_at');
-          try { sessionStorage.removeItem('swordbattle:canvasThisSession'); } catch (e) {}
-        } else {
-          localStorage.removeItem('swordbattle:WebGL');
-        }
-      } catch (e) {}
-      if (isLoaded) {
-        try { window.onbeforeunload = null; } catch (e) {}
-        window.location.reload();
-      }
-    },
-  },
   antialiasing: {
     name: 'Antialiasing',
     type: 'toggle',
@@ -231,28 +205,18 @@ class SettingsManager {
     }
 
     try {
-      if (!localStorage.getItem('swordbattle:webgl_migrated')) {
-        localStorage.setItem('swordbattle:webgl_migrated', '1');
-        const saved = this.get();
-        if (saved.useWebGL === undefined) {
-          localStorage.setItem('swordbattle:WebGL', 'OK');
-        }
+      const saved = this.get();
+      if (saved.useWebGL !== undefined) {
+        delete saved.useWebGL;
+        localStorage.setItem(this.key, JSON.stringify(saved));
       }
-      if (!localStorage.getItem('swordbattle:webgl_default_v3')) {
-        localStorage.setItem('swordbattle:webgl_default_v3', '1');
-        const saved = this.get();
-        if (saved.useWebGL === false) {
-          delete saved.useWebGL;
-          localStorage.setItem(this.key, JSON.stringify(saved));
-        }
-        localStorage.setItem('swordbattle:WebGL', 'OK');
-        localStorage.removeItem('swordbattle:webgl_failed');
-        localStorage.removeItem('swordbattle:webgl_failed_at');
-        localStorage.removeItem('swordbattle:webgl_slow');
-        localStorage.removeItem('swordbattle:webgl_lost_count');
-        localStorage.removeItem('swordbattle:webgl_lost_at');
-        try { sessionStorage.removeItem('swordbattle:canvasThisSession'); } catch (e) {}
-      }
+      localStorage.removeItem('swordbattle:WebGL');
+      localStorage.removeItem('swordbattle:webgl_failed');
+      localStorage.removeItem('swordbattle:webgl_failed_at');
+      localStorage.removeItem('swordbattle:webgl_slow');
+      localStorage.removeItem('swordbattle:webgl_lost_count');
+      localStorage.removeItem('swordbattle:webgl_lost_at');
+      sessionStorage.removeItem('swordbattle:canvasThisSession');
     } catch (e) {}
 
     const savedSettings = this.get();

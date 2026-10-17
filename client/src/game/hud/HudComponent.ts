@@ -38,6 +38,8 @@ class HudComponent {
 
   resize() {}
 
+  applyTheme() {}
+
   update(dt: number) {}
 }
 

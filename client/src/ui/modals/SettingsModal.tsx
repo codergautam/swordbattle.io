@@ -41,8 +41,6 @@ function SettingsModal() {
   const [sound, setSound] = useState(Settings.sound);
   const chatForceDisabled = isChatForceDisabled();
   const [enableChat, setEnableChat] = useState(chatForceDisabled ? false : Settings.enableChat);
-  const [useWebGL, setUseWebGL] = useState(Settings.useWebGL);
-  const rendererMode = (window as any).__rendererMode;
 
   const updateCoins = (v: boolean) => { setCoins(v); Settings.coins = v; };
   const updateScreenEffects = (v: boolean) => { setScreenEffects(v); Settings.screenEffects = v; };
@@ -55,7 +53,6 @@ function SettingsModal() {
     if (chatForceDisabled) return;
     setEnableChat(v); Settings.enableChat = v;
   };
-  const updateUseWebGL = (v: boolean) => { setUseWebGL(v); Settings.useWebGL = v; };
   const updateMoreAds = (v: boolean) => {
     setMoreAds(v);
     Settings.moreAds = v;
@@ -86,13 +83,6 @@ function SettingsModal() {
         <div className="settings-line">
           <span className="s-label"><FontAwesomeIcon icon={faVectorSquare} className="s-icon" /> Antialiasing</span>
           <Toggle checked={antialiasing} onChange={updateAntialiasing} />
-        </div>
-        <div className="settings-line">
-          <span className="s-label">
-            <FontAwesomeIcon icon={faGear} className="s-icon" /> Use WebGL
-            {rendererMode === 'canvas' && <em> (currently running in compatibility mode)</em>}
-          </span>
-          <Toggle checked={useWebGL} onChange={updateUseWebGL} />
         </div>
         <div className="settings-line">
           <span className="s-label"><FontAwesomeIcon icon={faExpand} className="s-icon" /> Resolution</span>

@@ -4,6 +4,7 @@ const noop = function (this: any) { return this; };
 const has = (f: string) => { try { return new URLSearchParams(window.location.search).has(f); } catch (e) { return false; } };
 
 export function initAblation() {
+  if (process.env.NODE_ENV === 'production') return;
   const p: any = Phaser;
   const go = p?.GameObjects;
   const kill = (proto: any, on: boolean) => { if (on && proto?.renderWebGL) proto.renderWebGL = function () {}; };

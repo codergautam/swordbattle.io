@@ -22,7 +22,7 @@ function buildManifest() {
 
   const files = fs
     .readdirSync(bannersDir)
-    .filter((f) => /\.(png|jpe?g|webp|gif|avif)$/i.test(f))
+    .filter((f) => /\.(png|jpe?g|gif|avif)$/i.test(f))
     .sort((a, b) => a.localeCompare(b));
 
   const banners = files.map((file) => ({

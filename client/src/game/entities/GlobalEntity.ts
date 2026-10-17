@@ -15,6 +15,8 @@ class GlobalEntity extends BaseEntity {
   private minimapGraphics?: Phaser.GameObjects.Graphics;
 
   createSprite() {
+    if (this.type === undefined || !this.shape) return null;
+
     if (this.type === EntityTypes.CaptureZone) {
       return this.createMinimapZoneSprite();
     }
@@ -22,11 +24,16 @@ class GlobalEntity extends BaseEntity {
     const EntityClass = GetEntityClass(this.type);
     this.minimapEntity = new EntityClass(this.game);
     (this.minimapEntity as any).isMinimap = true;
+    this.minimapEntity.shape = this.shape;
     this.minimapEntity.updateState(this);
     this.minimapEntity.createSprite();
     this.minimapEntity.setDepth();
     this.minimapEntity.healthBar?.destroy();
     this.container = this.minimapEntity.container;
+    if (!this.container) {
+      this.minimapEntity = undefined;
+      return null;
+    }
     this.container.scale *= 3;
     return this.container;
   }
@@ -36,12 +43,14 @@ class GlobalEntity extends BaseEntity {
       if (!this.game.add) return;
       if (this.type === EntityTypes.CaptureZone) {
         this.gameWorldEntity = new CaptureZone(this.game);
+        this.gameWorldEntity.shape = this.shape;
         this.gameWorldEntity.updateState(this);
         this.gameWorldEntity.createSprite();
         this.gameWorldEntity.container?.setDepth(0.5);
       } else if (bossTypes.has(this.type)) {
         const EntityClass = GetEntityClass(this.type);
         this.gameWorldEntity = new EntityClass(this.game);
+        this.gameWorldEntity.shape = this.shape;
         this.gameWorldEntity.updateState(this);
         this.gameWorldEntity.createSprite();
         this.gameWorldEntity.setDepth();

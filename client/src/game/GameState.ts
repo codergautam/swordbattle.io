@@ -10,8 +10,6 @@ import { BaseEntity } from './entities/BaseEntity';
 import { GetEntityClass } from './entities';
 import { Spectator } from './Spectator';
 import { getServer, rememberServer, forgetServer } from '../ServerList';
-import { config } from '../config';
-import exportCaptcha from './components/captchaEncoder';
 import { findCoinCollector } from '../helpers';
 import { crazygamesSDK } from '../crazygames/sdk';
 import * as cosmetics from './cosmetics.json';
@@ -19,6 +17,16 @@ import { perfMark, perfEnabled, perfWsProcess, perfEntityAdd } from './debug/per
 import { mark, span } from '../bootTiming';
 import { ldMark } from '../loaderDebug';
 const { skins } = cosmetics as any;
+
+const offscreenStaticTypes = new Set<number>([
+  EntityTypes.Pond,
+  EntityTypes.IcePond,
+  EntityTypes.IceSpike,
+  EntityTypes.LavaPool,
+  EntityTypes.Cactus,
+  EntityTypes.OasisLake,
+  EntityTypes.AmbientShrub,
+]);
 
 class GameState {
   game: Game;
@@ -79,7 +87,10 @@ class GameState {
   renderClockInit = false;
   moverList: any[] = [];
   private _playersCache: any[] | null = null;
-  captchaVerified = false;
+  private entityListCache: any[] = [];
+  private globalListCache: any[] = [];
+  private entityListDirty = true;
+  private globalListDirty = true;
   serverAddress = '';
   failedSkinLoads: Record<number, boolean> = {};
   recentDeadPlayers: Record<number, { name: string, time: number }> = {};
@@ -105,8 +116,6 @@ class GameState {
     this._boundOnClose = this.onServerClose.bind(this);
 
     this.refreshSocket();
-    this.captchaVerified = false;
-
     this.debugMode = false;
     try {
     this.debugMode = window.location.search.includes("debugAlertMode");
@@ -163,9 +172,6 @@ class GameState {
   }
 
   start(name: string) {
-    const afterSent = () => {
-    }
-
     let isFirstLife = false;
     try {
       if (!localStorage.getItem('swordbattle:hasPlayed')) {
@@ -177,51 +183,18 @@ class GameState {
       }
     } catch (_) {}
 
-    console.log('[CAPTCHA] start() - recaptchaClientKey:', config.recaptchaClientKey);
-
-    // Check if there's an invite roomId from CrazyGames invite link
     const inviteRoomId = (window as any).inviteRoomId;
     if (inviteRoomId) {
       console.log('[Invite] Using invite roomId:', inviteRoomId);
     }
 
-    if(config.captchaEnabled) {
-      console.log('[CAPTCHA] Waiting for reCAPTCHA to load...');
-      const waitForRecaptcha = () => {
-        if ((window as any).recaptcha) {
-          console.log('[CAPTCHA] reCAPTCHA loaded, executing for action: play');
-          (window as any).recaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: any) => {
-            console.log('[CAPTCHA] Received captcha token, length:', captcha?.length);
-            const captchaData = exportCaptcha(captcha);
-            console.log('[CAPTCHA] Sending play request with captcha data:', Object.keys(captchaData));
-            const playRequest: any = { play: true, name, ...captchaData };
-            if (isFirstLife) playRequest.firstLife = true;
-            if (inviteRoomId) {
-              playRequest.roomId = inviteRoomId;
-              console.log('[Invite] Added roomId to play request');
-            }
-            Socket.emit(playRequest);
-            afterSent();
-          }).catch((err: any) => {
-            console.error('[CAPTCHA] Error executing captcha:', err);
-          });
-        } else {
-          console.log('[CAPTCHA] reCAPTCHA not available yet, retrying in 100ms...');
-          setTimeout(waitForRecaptcha, 100);
-        }
-      }
-      waitForRecaptcha();
-    } else {
-      console.log('[CAPTCHA] Sending play request without captcha (disabled)');
-      const playRequest: any = { play: true, name };
-      if (isFirstLife) playRequest.firstLife = true;
-      if (inviteRoomId) {
-        playRequest.roomId = inviteRoomId;
-        console.log('[Invite] Added roomId to play request');
-      }
-      Socket.emit(playRequest);
-      afterSent();
+    const playRequest: any = { play: true, name };
+    if (isFirstLife) playRequest.firstLife = true;
+    if (inviteRoomId) {
+      playRequest.roomId = inviteRoomId;
+      console.log('[Invite] Added roomId to play request');
     }
+    Socket.emit(playRequest);
   }
 
   restart() {
@@ -229,85 +202,18 @@ class GameState {
       if(!this.game.hud.evolutionSelect.minimized) this.game.hud.evolutionSelect.toggleMinimize();
     }
 
-    console.log('[CAPTCHA] restart() - recaptchaClientKey:', config.recaptchaClientKey);
-
-    // Check if there's an invite roomId from CrazyGames invite link
     const inviteRoomId = (window as any).inviteRoomId;
-
-    if(config.captchaEnabled) {
-      console.log('[CAPTCHA] Waiting for reCAPTCHA to load...');
-      const waitForRecaptcha = () => {
-        if ((window as any).recaptcha) {
-          console.log('[CAPTCHA] reCAPTCHA loaded, executing for action: play');
-          (window as any).recaptcha.execute(config.recaptchaClientKey, { action: 'play' }).then((captcha: any) => {
-            console.log('[CAPTCHA] Received captcha token, length:', captcha?.length);
-            const captchaData = exportCaptcha(captcha);
-            console.log('[CAPTCHA] Sending play request with captcha data:', Object.keys(captchaData));
-            const playRequest: any = { play: true, ...captchaData };
-            if (inviteRoomId) {
-              playRequest.roomId = inviteRoomId;
-              console.log('[Invite] Added roomId to restart request');
-            }
-            Socket.emit(playRequest);
-            afterSent();
-          }).catch((err: any) => {
-            console.error('[CAPTCHA] Error executing captcha:', err);
-          });
-        } else {
-          console.log('[CAPTCHA] reCAPTCHA not available yet, retrying in 100ms...');
-          setTimeout(waitForRecaptcha, 100);
-        }
-      }
-      waitForRecaptcha();
-    } else {
-      console.log('[CAPTCHA] Sending play request without captcha (disabled)');
-      const playRequest: any = { play: true };
-      if (inviteRoomId) {
-        playRequest.roomId = inviteRoomId;
-        console.log('[Invite] Added roomId to restart request');
-      }
-      Socket.emit(playRequest);
-      afterSent();
+    const playRequest: any = { play: true };
+    if (inviteRoomId) {
+      playRequest.roomId = inviteRoomId;
+      console.log('[Invite] Added roomId to restart request');
     }
+    Socket.emit(playRequest);
+    afterSent();
   }
 
   spectate() {
-    console.log('[CAPTCHA] spectate() - recaptchaClientKey:', config.recaptchaClientKey, 'captchaVerified:', this.captchaVerified);
-
-    if(config.captchaEnabled && !this.captchaVerified) {
-      if(this.debugMode) alert("Attempting recaptcha");
-      console.log('[CAPTCHA] Waiting for reCAPTCHA to load...');
-      const waitForRecaptcha = () => {
-        if ((window as any).recaptcha) {
-            // reCAPTCHA is available, execute your code
-            if(this.debugMode) alert("Recaptcha available, executing");
-            console.log('[CAPTCHA] reCAPTCHA loaded, executing for action: spectate');
-            (window as any).recaptcha.execute(config.recaptchaClientKey, { action: 'spectate' }).then((captcha: any) => {
-                if (this.debugMode) alert("Received captcha of length " + captcha.length + ", sending spectate");
-                console.log('[CAPTCHA] Received captcha token, length:', captcha?.length);
-                this.captchaVerified = true;
-                const captchaData = exportCaptcha(captcha);
-                console.log('[CAPTCHA] Sending spectate request with captcha data:', Object.keys(captchaData));
-                Socket.emit({ spectate: true, ...captchaData });
-            }).catch((err: any) => {
-                console.error('[CAPTCHA] Error executing captcha:', err);
-            });
-        } else {
-            // reCAPTCHA is not available, check again after 100ms
-            if(this.debugMode) alert("Recaptcha not available, waiting 100ms");
-            console.log('[CAPTCHA] reCAPTCHA not available yet, retrying in 100ms...');
-            setTimeout(waitForRecaptcha, 100);
-        }
-    }
-
-    // Start the process
-    waitForRecaptcha();
-
-    } else {
-      if(this.debugMode) alert("Sending spectate w/o recaptcha");
-      console.log('[CAPTCHA] Sending spectate request without captcha (disabled or already verified)');
-      Socket.emit({ spectate: true });
-    }
+    Socket.emit({ spectate: true });
   }
 
   updateToken(token: string) {
@@ -318,12 +224,9 @@ class GameState {
     this.spectate();
     console.log('server connected', Date.now());
     mark('socket:open');
-    ldMark('socket OPEN (isConnected leg satisfied)');
+    ldMark('socket OPEN');
     this.serverOpened = true;
     rememberServer(this.serverAddress);
-    // The play button only needs a live socket. Waiting on the captcha +
-    // spectate + fullSync round trip below costs ~1.8s for nothing.
-    this.game.game.events.emit('connected');
 
     // Enable CrazyGames invite button when game starts
     crazygamesSDK.setInviteMode('playing');
@@ -448,6 +351,7 @@ class GameState {
         if (!nd || nd.removed || nd.type !== this.entities[id].type) {
           this.entities[id].remove();
           delete this.entities[id];
+          this.entityListDirty = true;
         }
       }
       for (const entity of this.removedEntities) {
@@ -475,6 +379,7 @@ class GameState {
           if (this.entities[id].type === EntityTypes.Player) this._playersCache = null;
           this.entities[id].remove();
           delete this.entities[id];
+          this.entityListDirty = true;
         }
         continue;
       }
@@ -504,14 +409,14 @@ class GameState {
       const id = Number(stringId);
 
       const entityData = data.globalEntities[id];
-      if (!this.globalEntities[id]) {
-        this.addGlobalEntity(id, entityData);
-      }
       if (entityData.removed) {
-        this.removeGlobalEntity(id);
-      } else {
-        this.globalEntities[id].updateState(entityData);
+        if (this.globalEntities[id]) this.removeGlobalEntity(id);
+        continue;
       }
+
+      const globalEntity = this.globalEntities[id];
+      if (globalEntity) globalEntity.updateState(entityData);
+      else this.addGlobalEntity(id, entityData);
     }
 
     if (data.mapData) {
@@ -540,6 +445,7 @@ class GameState {
         if(this.debugMode) alert("Game ready-- fullsync");
 
         this.isReady = true;
+        (this.game.game as any).isGameReady = true;
         this.game.game.events.emit('gameReady');
 
         try {
@@ -674,7 +580,11 @@ class GameState {
     }
 
     let pt = perfMark();
-    const entityList = Object.values(this.entities) as any[];
+    if (this.entityListDirty) {
+      this.entityListCache = Object.values(this.entities);
+      this.entityListDirty = false;
+    }
+    const entityList = this.entityListCache;
     const n = entityList.length;
 
     this.moverList.length = 0;
@@ -689,9 +599,17 @@ class GameState {
     }
     BaseEntity.drainDestroys(Math.max(3, Math.ceil(BaseEntity.destroyQueue.length / 60)));
     pt = perfMark('removedUpd', pt);
-    for (let i = 0; i < n; i++) entityList[i].update(dt);
+    for (let i = 0; i < n; i++) {
+      const entity = entityList[i];
+      if (entity.container?.visible === false && offscreenStaticTypes.has(entity.type)) continue;
+      entity.update(dt);
+    }
     pt = perfMark('entitiesUpd', pt);
-    const globalList = Object.values(this.globalEntities) as any[];
+    if (this.globalListDirty) {
+      this.globalListCache = Object.values(this.globalEntities);
+      this.globalListDirty = false;
+    }
+    const globalList = this.globalListCache;
     for (let i = 0; i < globalList.length; i++) globalList[i].update(dt);
     pt = perfMark('globalUpd', pt);
     this.gameMap.update();
@@ -876,6 +794,7 @@ class GameState {
       entity.createSprite();
       entity.setDepth();
       this.entities[id] = entity;
+      this.entityListDirty = true;
       perfEntityAdd();
       if (entity.type === EntityTypes.Player) this._playersCache = null;
       return entity;
@@ -890,6 +809,7 @@ class GameState {
     if (!entity) return;
 
     delete this.entities[id];
+    this.entityListDirty = true;
     if (entity.type === EntityTypes.Player) this._playersCache = null;
 
     if (entity.type === EntityTypes.Coin) {
@@ -925,9 +845,12 @@ class GameState {
   }
 
   addGlobalEntity(id: number, entityData: any) {
+    if (entityData?.type === undefined || entityData?.shapeData?.type === undefined) return null;
+
     const globalEntity = new GlobalEntity(this.game);
-    globalEntity.updateState(entityData);
+    globalEntity.updateState({ ...entityData, id: entityData.id ?? id });
     this.globalEntities[id] = globalEntity;
+    this.globalListDirty = true;
 
     globalEntity.createGameWorldVisual();
 
@@ -935,6 +858,7 @@ class GameState {
       if (this.entities[id].type === EntityTypes.Player) this._playersCache = null;
       this.entities[id].remove();
       delete this.entities[id];
+      this.entityListDirty = true;
     }
 
     return globalEntity;
@@ -942,8 +866,10 @@ class GameState {
 
   removeGlobalEntity(id: number) {
     const globalEntity = this.globalEntities[id];
+    if (!globalEntity) return;
     globalEntity.remove();
     delete this.globalEntities[id];
+    this.globalListDirty = true;
   }
 
   getPlayers() {

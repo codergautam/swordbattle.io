@@ -4970,5 +4970,15 @@
       "price": 0,
       "description": "The original theme from V2!"
     }
+  },
+  "hudThemes": {
+    "default": {
+      "name": "default",
+      "displayName": "Default",
+      "id": 1,
+      "buyable": false,
+      "price": 0,
+      "description": "The default HUD theme"
+    }
   }
 }

@@ -1,0 +1,23 @@
+{
+  "default": {
+    "bg": "#181818",
+    "bgAlpha": 0.7,
+    "headerBg": "#000000",
+    "headerAlpha": 0.25,
+    "borderEnabled": true,
+    "border": "#53e08a",
+    "borderW": 2,
+    "borderAlpha": 1,
+    "outerEnabled": true,
+    "outer": "#000000",
+    "outerW": 2,
+    "outerAlpha": 1,
+    "radius": 10,
+    "accent": "#6dffa0",
+    "text": "#ffffff",
+    "muted": "#c9c9cf",
+    "textOutline": "#000000",
+    "textOutlineW": 3,
+    "backdropBlur": 0
+  }
+}

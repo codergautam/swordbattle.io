@@ -1,8 +1,8 @@
 import * as Protocol from './Protocol';
+import { registerIntegrityShutdown, registerIntegrityTarget } from '../integrity';
 
 const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-window.socket = null;
-
+registerIntegrityTarget(WebSocket.prototype, ['close', 'send']);
 
 const usePooledDecode = true;
 const decodeHarness = typeof window !== 'undefined' && window.location.search.includes('decodecheck');
@@ -74,13 +74,12 @@ class Socket {
     const endpoint = `${protocol}${address}${authSecret ? `${sep}secret=${encodeURIComponent(authSecret)}` : ''}`;
     this.onMessage = onMessage;
 
-    if (window.socket !== null) {
-      window.socket.close();
+    if (this.socket !== null) {
+      this.socket.close();
     }
 
     this.socket = new WebSocket(endpoint);
     this.socket.binaryType = 'arraybuffer';
-    window.socket = this.socket;
 
     const ws = this.socket;
     const connectTimer = setTimeout(() => {
@@ -139,9 +138,11 @@ class Socket {
     if (this.socket) {
       this.socket.close(1000);
       this.socket = null;
-      window.socket = null;
     }
   }
 }
 
-export default new Socket();
+const socket = new Socket();
+registerIntegrityShutdown(() => socket.close());
+
+export default socket;

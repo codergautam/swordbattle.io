@@ -153,7 +153,7 @@ class Minimap extends HudComponent {
     const panelW = pad * 2 + map;
     const panelH = this.minimized ? (pad + header) : (pad * 2 + header + map);
     this.outerPanel!.clear();
-    drawPanel(this.outerPanel!, 0, 0, panelW, panelH, { radius: 10 });
+    drawPanel(this.outerPanel!, 0, 0, panelW, panelH, { radius: t.radius });
 
     this.innerFrame!.clear();
     if (!this.minimized) {
@@ -170,6 +170,20 @@ class Minimap extends HudComponent {
       this.innerFrame!.fillRect(mx, my, map, map);
     }
     if (this.header) this.header.setColor(t.accent);
+  }
+
+  applyTheme() {
+    if (!this.outerPanel) return;
+    const t = getTheme();
+    this.redrawFrame();
+    for (const text of [this.header, this.leftArrow, this.rightArrow, this.zoomInBtn, this.zoomOutBtn, this.mapLabel]) {
+      text?.setStroke(t.textOutline, t.textOutlineW);
+    }
+    this.leftArrow?.setColor(t.text);
+    this.rightArrow?.setColor(t.text);
+    this.zoomInBtn?.setColor(t.text);
+    this.zoomOutBtn?.setColor(t.text);
+    this.mapLabel?.setColor(t.text);
   }
 
   updateArrows() {
@@ -333,7 +347,7 @@ class Minimap extends HudComponent {
       if (!entity.container) {
         try {
           const sprite = entity.createSprite();
-          this.mapContainer?.add(sprite);
+          if (sprite) this.mapContainer?.add(sprite);
         } catch (e) {
           console.error('Failed to add mm entity', e);
         }

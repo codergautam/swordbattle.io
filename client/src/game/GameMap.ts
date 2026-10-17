@@ -27,7 +27,6 @@ class GameMap {
   private lastCamH = -1;
   private camResized = true;
   private coastBuildHandle: any = null;
-  private coastBuildIdle = false;
   private coastBuildVersion = 0;
 
   constructor(scene: Game) {
@@ -160,12 +159,7 @@ class GameMap {
   cancelDeferredWork() {
     this.coastBuildVersion++;
     if (this.coastBuildHandle === null) return;
-    const browser = window as any;
-    if (this.coastBuildIdle && typeof browser.cancelIdleCallback === 'function') {
-      browser.cancelIdleCallback(this.coastBuildHandle);
-    } else {
-      clearTimeout(this.coastBuildHandle);
-    }
+    clearTimeout(this.coastBuildHandle);
     this.coastBuildHandle = null;
   }
 
@@ -173,19 +167,19 @@ class GameMap {
     this.cancelDeferredWork();
     const mapSig = this.lastMapSig;
     const buildVersion = this.coastBuildVersion;
-    const run = () => {
+    const run = (attempt: number) => {
       this.coastBuildHandle = null;
-      if (mapSig !== this.lastMapSig) return;
-      void this.createRiverBorders(buildVersion);
+      if (mapSig !== this.lastMapSig || buildVersion !== this.coastBuildVersion) return;
+      void this.createRiverBorders(buildVersion).catch(error => {
+        if (mapSig !== this.lastMapSig || buildVersion !== this.coastBuildVersion) return;
+        if (attempt < 2) {
+          this.coastBuildHandle = setTimeout(() => run(attempt + 1), 250);
+          return;
+        }
+        console.error('[GameMap] Failed to create river borders', error);
+      });
     };
-    const browser = window as any;
-    if (typeof browser.requestIdleCallback === 'function') {
-      this.coastBuildIdle = true;
-      this.coastBuildHandle = browser.requestIdleCallback(run, { timeout: 1500 });
-    } else {
-      this.coastBuildIdle = false;
-      this.coastBuildHandle = setTimeout(run, 150);
-    }
+    this.coastBuildHandle = setTimeout(() => run(0), 0);
   }
 
   createWorldCutout() {
@@ -465,15 +459,6 @@ class GameMap {
       sprite.setDisplaySize(worldW, worldH);
       sprite.setDepth(-1.5);
       this.riverBorderSprites.push(sprite);
-      setTimeout(() => {
-        try {
-          const r: any = (this.scene.game as any).app?.renderer;
-          if (r && r.gl && this.scene.textures.exists(key)) {
-            canvas.width = 1;
-            canvas.height = 1;
-          }
-        } catch (e) {}
-      }, 8000);
     }
   }
 

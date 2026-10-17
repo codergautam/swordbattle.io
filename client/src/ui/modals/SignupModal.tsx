@@ -59,7 +59,7 @@ function SignupModal({ onSuccess }: any) {
         dispatch(setAccount(data.account));
         onSuccess();
       }
-    }, undefined, true);
+    });
   }
 
   return (

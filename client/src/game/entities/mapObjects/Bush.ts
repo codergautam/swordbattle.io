@@ -1,5 +1,6 @@
 import { BaseEntity } from '../BaseEntity';
 import { TreeShake, shake, ShakeConfig } from '../../effects/TreeShake';
+import { reportIntegrityViolation } from '../../integrity';
 
 const variantTextures: Record<number, string> = {
   1: 'bush',
@@ -25,6 +26,9 @@ function shakePreset(skin: number): ShakeConfig {
 class Bush extends BaseEntity {
   static stateFields = [...BaseEntity.stateFields, 'skin', 'angle'];
   private shake?: TreeShake;
+  private body?: Phaser.GameObjects.Sprite;
+  private bodyScaleX = 1;
+  private bodyScaleY = 1;
 
   private variantKey(): string {
     const idx = (this.skin as number) || 1;
@@ -41,8 +45,10 @@ class Bush extends BaseEntity {
     const skin = (this.skin as number) || 1;
     const isRotating = rotatingVariants.has(skin);
 
-    const body = this.game.add.sprite(0, 0, key).setOrigin(0.5, 0.5);
+    const body = this.body = this.game.add.sprite(0, 0, key).setOrigin(0.5, 0.5);
     body.setScale((this.shape.radius * 2 * 1.5) / body.width);
+    this.bodyScaleX = body.scaleX;
+    this.bodyScaleY = body.scaleY;
     if (isRotating && typeof this.angle === 'number') body.setRotation(this.angle);
 
     const shadow = this.createOutlineShadow(key, 0.5, 0.5);
@@ -59,6 +65,18 @@ class Bush extends BaseEntity {
 
   update(dt: number) {
     super.update(dt);
+    if (!this.body || (this.body as any).destroyed || (this.body as any).parent !== this.container) {
+      reportIntegrityViolation();
+      return;
+    }
+    if (!this.body.visible) this.body.setVisible(true);
+    if (!(this.body as any).renderable) (this.body as any).renderable = true;
+    if (this.body.alpha !== 1) this.body.setAlpha(1);
+    if (this.body.scaleX !== this.bodyScaleX || this.body.scaleY !== this.bodyScaleY) {
+      this.body.setScale(this.bodyScaleX, this.bodyScaleY);
+    }
+    if (this.container.alpha !== 1) this.container.setAlpha(1);
+    if (this.container.scaleX !== 1 || this.container.scaleY !== 1) this.container.setScale(1);
     this.shake?.update(dt);
   }
 }

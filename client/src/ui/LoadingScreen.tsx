@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import './LoadingScreen.scss';
 import { useScale } from './Scale';
 
-function LoadingScreen({ progress, instantStart, waitingForConnection, connectionError }: any) {
+function LoadingScreen({ progress, instantStart, connectionError }: any) {
   const [isFading, setIsFading] = useState(false);
   const [opacity, setOpacity] = useState(1);
   const [shown, setShown] = useState(0);
@@ -124,13 +124,13 @@ function LoadingScreen({ progress, instantStart, waitingForConnection, connectio
     >
       <div className="loading-container" style={scale.styles}>
         <div className="loading-text">
-          {instantStart ? 'Entering the arena' : waitingForConnection ? 'Connecting' : 'Loading'}... ({Math.floor(shown)}%)
+          {instantStart ? 'Entering the arena' : 'Loading'}... ({Math.floor(shown)}%)
         </div>
         <div className="progress-bar">
           <div className={`progress ${shown < 1 ? 'no-outline' : ''}`} style={{ width: `${shown}%`, transition: 'width 350ms linear' }}></div>
         </div>
 
-        {/* {stuckVisible && !waitingForConnection && (
+        {/* {stuckVisible && (
           <p style={{color: 'white'}}>Stuck loading? Try refreshing or interacting with the page</p>
         )} */}
       </div>

@@ -5,7 +5,7 @@ import River from './River';
 
 export type BiomeType = Biome | River;
 
-const containers: Phaser.GameObjects.TileSprite[] = [];
+const containerPools = new WeakMap<Phaser.Scene, Phaser.GameObjects.TileSprite[]>();
 const biomesCount = 12;
 
 export const riverFlowSpeed = 26;
@@ -89,9 +89,11 @@ class Biome {
   }
 
   static initialize(scene: Phaser.Scene) {
+    const containers: Phaser.GameObjects.TileSprite[] = [];
     for (let i = 0; i < biomesCount; i++) {
       containers.push(scene.add.tileSprite(0, 0, 0, 0, '').setVisible(false));
     }
+    containerPools.set(scene, containers);
   }
 
   createSprite() {
@@ -139,7 +141,9 @@ class Biome {
     }
     const mask = new Phaser.Display.Masks.GeometryMask(this.scene, this.maskGraphics);
 
-    const container = containers.pop() ?? this.scene.add.tileSprite(0, 0, 0, 0, '').setVisible(false);
+    const container = containerPools.get(this.scene)?.pop()
+      ?? this.scene.add.tileSprite(0, 0, 0, 0, '').setVisible(false);
+    (container as any).renderable = true;
     this.container = container
       .setTexture(texture)
       .setOrigin(0.5)
@@ -184,7 +188,7 @@ class Biome {
       this.container.clearMask(true);
       this.container.setVisible(false);
       this.container.setTexture('');
-      containers.push(this.container);
+      containerPools.get(this.scene)?.push(this.container);
       this.container = null;
     }
     if (this.maskGraphics) {

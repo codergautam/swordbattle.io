@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import Phaser from '../../game/engine';
 import config from '../../game/PhaserConfig';
 import Leaderboard from './Leaderboard';
@@ -11,28 +11,40 @@ import { crazygamesSDK } from '../../crazygames/sdk';
 import { trackRunStart, trackRunEndDeferred } from '../../analytics';
 import { getAdblockStatus, isAdScriptBlocked } from '../../crazygames/adblock';
 import { Settings } from '../../game/Settings';
-
-declare global {
-  interface Window {
-    phaser_game: Phaser.Game | undefined;
-  }
-}
+import { setGameRuntime } from '../../game/gameRuntime';
 
 const managems = 0;
 
 const nohud = typeof window !== 'undefined' && window.location.search.includes('nohud');
 const isBasicLaunch = typeof window !== 'undefined' && !!(window as any)._isCrazyGamesBasicLaunch;
 const ingameAdProvider = 'adinplay';
+const HudDesignerPanel = lazy(() => import('../hudDesigner/HudDesignerPanel'));
 
 function isMoreAdsBlocked(): boolean {
   return getAdblockStatus() || isAdScriptBlocked(ingameAdProvider);
 }
 
-function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn }: any) {
+function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dimensions, game, setGame, openLeaderboard, onPendingRespawn, hudDesigner = false }: any) {
   const [gameResults, setGameResults] = useState<any>(null);
   const [playing, setPlaying] = useState(false);
   const [moreAds, setMoreAds] = useState(!isBasicLaunch && !!Settings.moreAds);
   const [moreAdsBlocked, setMoreAdsBlocked] = useState(() => (!isBasicLaunch && Settings.moreAds ? isMoreAdsBlocked() : false));
+  const [hudDesignerOpen, setHudDesignerOpen] = useState(false);
+
+  useEffect(() => {
+    if (!hudDesigner) return;
+    const toggleDesigner = () => {
+      window.dispatchEvent(new CustomEvent('closeInGameSettings'));
+      setHudDesignerOpen((open) => !open);
+    };
+    const closeDesigner = () => setHudDesignerOpen(false);
+    window.addEventListener('toggleHudDesigner', toggleDesigner);
+    window.addEventListener('toggleInGameSettings', closeDesigner);
+    return () => {
+      window.removeEventListener('toggleHudDesigner', toggleDesigner);
+      window.removeEventListener('toggleInGameSettings', closeDesigner);
+    };
+  }, [hudDesigner]);
 
   useEffect(() => {
     if (!moreAds) return;
@@ -96,11 +108,11 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         parent: 'phaser-container',
       });
       gameRef.current = game;
+      setGameRuntime(game);
       setGame(game);
-      window.phaser_game = game;
 
-      game.events.on('connected', onGameReady);
       game.events.on('gameReady', onGameReady);
+      if ((game as any).isGameReady) onGameReady();
       game.events.on('connectionClosed', onConnectionClosed);
       game.events.on('connectionClosed', () => {
         stopGameplay();
@@ -113,6 +125,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
         if (results) crazygamesSDK.gameplayEnterResults();
         setGameResults(results);
         setPlaying(false);
+        if (results) setTimeout(() => (game as any).runTextureGC?.(), 0);
       });
       game.events.on('restartGame', (name: string) => {
         setPlaying(true);
@@ -139,7 +152,7 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
           gameScene.shutdown();
         }
         game.destroy(true);
-        window.phaser_game = undefined;
+        setGameRuntime(null);
         gameRef.current = null;
         setGame(null);
       };
@@ -151,6 +164,11 @@ function GameComponent({ onHome, onGameReady, onConnectionClosed, loggedIn, dime
       <div id="phaser-container" />
       { playing && !nohud && <Leaderboard game={game} /> }
       { playing && !nohud && <InGameSettings /> }
+      { playing && !nohud && hudDesigner && hudDesignerOpen && (
+        <Suspense fallback={null}>
+          <HudDesignerPanel onClose={() => setHudDesignerOpen(false)} />
+        </Suspense>
+      )}
       { moreAds && playing && !gameResults && (
         moreAdsBlocked ? (
           <div className="ingame-ad-block-cover">

@@ -103,7 +103,7 @@ export class AccountsService {
 
   async equipCosmetic(userId: number, itemId: number, type: string) {
     if (type === 'skins') return this.equipSkin(userId, itemId);
-    if (type !== 'themes') return { error: 'Invalid type' };
+    if (!['themes', 'hudThemes'].includes(type)) return { error: 'Invalid type' };
 
     if (typeof itemId !== 'number' || isNaN(itemId)) {
       return { error: 'Invalid item id' };
@@ -114,92 +114,80 @@ export class AccountsService {
       throw new Error('User not found');
     }
 
-    const theme: any = Object.values(cosmetics[type] || {}).find((t: any) => t.id === itemId);
-    if (!theme) {
-      return { error: 'Invalid theme id' };
+    const cosmetic: any = Object.values((cosmetics as any)[type] || {}).find((item: any) => item.id === itemId);
+    const cosmeticLabel = type === 'themes' ? 'theme' : 'HUD theme';
+    if (!cosmetic) {
+      return { error: `Invalid ${cosmeticLabel} id` };
     }
 
     applyThemeGrants(user);
-    if (!user.themes.owned.includes(itemId)) {
-      return { error: 'User does not own this theme' };
+    const inventory = type === 'themes' ? user.themes : user.hudThemes;
+    if (!inventory.owned.includes(itemId)) {
+      return { error: `User does not own this ${cosmeticLabel}` };
     }
 
-    user.themes = { ...user.themes, equipped: itemId };
+    const updatedInventory = { ...inventory, equipped: itemId };
+    if (type === 'themes') user.themes = updatedInventory;
+    else user.hudThemes = updatedInventory;
     await this.accountsRepository.save(user);
 
     return { success: true };
   }
 
   async buyCosmetic(userId: number, itemId: number, type: string) {
-    // Fetch the user's current skin data
+    if (!['skins', 'themes', 'hudThemes'].includes(type)) {
+      return { error: 'Invalid type' };
+    }
+
     const user = await this.getById(userId);
     if (!user) {
       throw new Error('User not found');
     }
 
-    // Parse the 'skins' data
-    let skinsData;
-    try {
-      skinsData = user.skins
-    } catch (e) {
-      return { error: 'Failed to parse skins data' };
+    applyThemeGrants(user);
+    const inventory = type === 'skins' ? user.skins : type === 'themes' ? user.themes : user.hudThemes;
+    const cosmeticLabel = type === 'skins' ? 'skin' : type === 'themes' ? 'theme' : 'HUD theme';
+
+    if (!inventory || !Array.isArray(inventory.owned)) {
+      return { error: `Failed to read ${cosmeticLabel} data` };
     }
 
-    // Check if the user already owns the skin
-    if (skinsData.owned.includes(itemId)) {
-      return { error: 'User already owns this skin' };
+    if (inventory.owned.includes(itemId)) {
+      return { error: `User already owns this ${cosmeticLabel}` };
     }
 
-    // Check if the skin exists
-    const cosmetic: any = Object.values(cosmetics[type]).find((c: any) => c.id === itemId);
+    const cosmetic: any = Object.values((cosmetics as any)[type] || {}).find((item: any) => item.id === itemId);
     if (!cosmetic || !cosmetic.buyable) {
-      return { error: 'Invalid skin id' };
+      return { error: `Invalid ${cosmeticLabel} id` };
     }
 
-    // // Check if the skin is still available (Today's Skins)
-    // const todays = await this.cosmeticsService.getTodaysSkins();
-    // if (!todays.includes(itemId) && !cosmetic.event && !cosmetic.ultimate && !cosmetic.currency && !cosmetic.sale) {
-    //   return { error: "Skin is no longer available in today's shop; refresh the page for new available skins" };
-    // }
-
-
-    // Check if the user has enough gems
-    const skinPrice = cosmetic.price;
+    const cosmeticPrice = cosmetic.price;
     const tokenPrice = cosmetic.tokenprice;
     if (cosmetic.event || cosmetic.eventoffsale) {
       if (user.tokens < tokenPrice) {
         return { error: 'Not enough snowtokens' };
       }
-      if (user.gems < skinPrice && !cosmetic.currency) {
+      if (user.gems < cosmeticPrice && !cosmetic.currency) {
         return { error: 'Not enough gems' };
       }
     } else {
-    if (cosmetic.ultimate) {
-      if (user.mastery < skinPrice) {
-        return { error: 'Not enough mastery' };
-      }
-    } else {
-      if (user.gems < skinPrice && !cosmetic.currency) {
-        return { error: 'Not enough gems' };
-      }
-    }
-    }
-
-    // Check if prerequisite skins are bought
-    if (cosmetic.original) {
-        if (!skinsData.owned.includes(cosmetic.original)) {
-          return { error: 'You need to buy the original version of this skin first' };
+      if (cosmetic.ultimate) {
+        if (user.mastery < cosmeticPrice) {
+          return { error: 'Not enough mastery' };
+        }
+      } else {
+        if (user.gems < cosmeticPrice && !cosmetic.currency) {
+          return { error: 'Not enough gems' };
         }
       }
+    }
 
+    if (cosmetic.original && !inventory.owned.includes(cosmetic.original)) {
+      return { error: `You need to buy the original version of this ${cosmeticLabel} first` };
+    }
 
-
-    // Update the 'owned' field
-    skinsData.owned.push(itemId);
-
-    // Deduct the gems from the user's account
     if (!cosmetic.ultimate && !cosmetic.currency) {
-      user.gems -= skinPrice;
+      user.gems -= cosmeticPrice;
     }
 
     if (cosmetic.tokenprice) {
@@ -207,37 +195,24 @@ export class AccountsService {
     }
 
     if (cosmetic.currency) {
-      user.gems += skinPrice;
+      user.gems += cosmeticPrice;
     }
 
-    // Save the updated skins data and gems back to the user's account
-    user.skins = skinsData;
+    const updatedInventory = { ...inventory, owned: [...inventory.owned, itemId] };
+    if (type === 'skins') user.skins = updatedInventory;
+    else if (type === 'themes') user.themes = updatedInventory;
+    else user.hudThemes = updatedInventory;
     await this.accountsRepository.save(user);
 
-    // Add to transactions table
-    if (cosmetic.currency) {
-      const transaction = this.transactionsRepository.create({
-        account: user,
-        amount: skinPrice,
-        description: "buy-" + type + "-" + itemId,
-        transaction_id: "gems",
-      });
+    const transaction = this.transactionsRepository.create({
+      account: user,
+      amount: cosmetic.currency ? cosmeticPrice : -cosmeticPrice,
+      description: "buy-" + type + "-" + itemId,
+      transaction_id: "gems",
+    });
+    await this.transactionsRepository.save(transaction);
 
-      await this.transactionsRepository.save(transaction);
-
-       return { success: true };
-    } else {
-      const transaction = this.transactionsRepository.create({
-        account: user,
-        amount: -skinPrice,
-        description: "buy-" + type + "-" + itemId,
-        transaction_id: "gems",
-      });
-
-      await this.transactionsRepository.save(transaction);
-
-      return { success: true };
-    }
+    return { success: true };
   }
 
   async addGems(account: Account, gems: number, reason = "server") {
@@ -416,6 +391,7 @@ export class AccountsService {
   }
 
   sanitizeAccount(account: Account) {
+    applyThemeGrants(account);
     delete account.password;
     delete account.secret;
     delete account.email;

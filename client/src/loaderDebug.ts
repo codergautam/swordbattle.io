@@ -219,23 +219,6 @@ export function ldReport(): void {
   L(`distinct values    ${reactProgressDistinct}`);
   L(`wasted re-renders  ${reactProgressEvents - reactProgressDistinct}  (same integer, App re-rendered anyway)`);
 
-  // --- webp probe accounting -------------------------------------------------
-  const probed = loaded.filter((r) => r.attempts.length > 0);
-  const webpHit = probed.filter((r) => r.wonAttempt === 1);
-  const webpMiss = probed.filter((r) => r.wonAttempt > 1);
-  const wastedMs = webpMiss.reduce((a, r) => {
-    const a1 = r.attempts.find((x) => x.n === 1);
-    return a + (a1 && a1.failedAt ? a1.failedAt - a1.at : 0);
-  }, 0);
-  L('');
-  L('--- WEBP PROBE ---');
-  L(`served as .webp    ${webpHit.length}`);
-  L(`fell back to orig  ${webpMiss.length}   (each paid a failed request first)`);
-  L(`wasted on 404s     ${wastedMs.toFixed(0)}ms summed`);
-  if (webpMiss.length && verbose) {
-    for (const r of webpMiss.slice(0, 20)) L(`   miss: ${r.key}  ${r.url}`);
-  }
-
   // --- concurrency -----------------------------------------------------------
   const peak = occupancy.reduce((a, o) => Math.max(a, o.inflight), 0);
   const stalls = occupancy.filter((o) => o.inflight === 0).length;

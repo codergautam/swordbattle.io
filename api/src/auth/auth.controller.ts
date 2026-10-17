@@ -5,7 +5,6 @@ import { RegisterDTO, LoginDTO, SecretLoginDTO } from './auth.dto';
 import { AuthService } from './auth.service';
 import { ServerGuard } from './guards/server.guard';
 import { config } from 'src/config';
-import { RecaptchaGuard } from './guards/recaptcha.guard';
 import { AccountGuard } from './guards/account.guard';
 import { ClansService } from 'src/clans/clans.service';
 
@@ -23,7 +22,6 @@ export class AuthController {
   }
 
   @Post('register')
-  @UseGuards(RecaptchaGuard)
   async register(@Body() registerData: RegisterDTO, @Res({ passthrough: true }) res: Response) {
     const data = await this.authService.register(registerData);
     // res.set('Authorization', `Bearer ${data.token}`);
@@ -136,7 +134,6 @@ export class AuthController {
   }
 
   @Post('request-api-token')
-  @UseGuards(RecaptchaGuard)
   @Throttle({ short: { limit: 3, ttl: 10000 }, medium: { limit: 10, ttl: 60000 } })
   async requestApiToken(@Req() req) {
     const token = await this.authService.generateApiToken();

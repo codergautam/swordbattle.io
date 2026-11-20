@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, UseGuards, Res, Req, Query, UnauthorizedException } from '@nestjs/common';
-import { Response } from 'express';
+import { FastifyReply } from 'fastify';
 import { Throttle } from '@nestjs/throttler';
 import { RegisterDTO, LoginDTO, SecretLoginDTO } from './auth.dto';
 import { AuthService } from './auth.service';
@@ -22,7 +22,7 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() registerData: RegisterDTO, @Res({ passthrough: true }) res: Response) {
+  async register(@Body() registerData: RegisterDTO, @Res({ passthrough: true }) res: FastifyReply) {
     const data = await this.authService.register(registerData);
     // res.set('Authorization', `Bearer ${data.token}`);
     // this.setCookie(res, 'auth-token', data.token);
@@ -30,7 +30,7 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() loginData: LoginDTO, @Res({ passthrough: true }) res: Response) {
+  async login(@Body() loginData: LoginDTO, @Res({ passthrough: true }) res: FastifyReply) {
     const data = await this.authService.login(loginData);
     if (data.account.is_v1) {
       // assume the migration screen will be shown
@@ -44,7 +44,7 @@ export class AuthController {
 
   // secrets system
   @Post('loginWithSecret')
-  async loginWithSecret(@Body() loginData: SecretLoginDTO, @Res({ passthrough: true }) res: Response) {
+  async loginWithSecret(@Body() loginData: SecretLoginDTO, @Res({ passthrough: true }) res: FastifyReply) {
     const data = await this.authService.secretLogin(loginData);
 
     if(data.account.is_v1) {
@@ -76,7 +76,7 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout(@Res({ passthrough: true }) res: Response) {
+  async logout(@Res({ passthrough: true }) res: FastifyReply) {
     throw new Error('DEPRECATED');
   }
 
@@ -140,8 +140,8 @@ export class AuthController {
     return { token, expiresIn: 300000 }; // 5 minutes
   }
 
-  setCookie(res: Response, key: string, value: string) {
-    return res.cookie(key, value, {
+  setCookie(res: FastifyReply, key: string, value: string) {
+    return res.setCookie(key, value, {
       // httpOnly: true,
       secure: config.isProduction,
       sameSite: config.isProduction ? 'none' : 'lax',

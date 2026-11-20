@@ -10,16 +10,7 @@ Heroku deployment script
 EOF
 
 echo "Installing dependencies"
-cd api
-yarn install
-yarn build
-ls
-
-cd ../server
-yarn install
-
-cd ../discord-bots
-npm ci
-
-cd ..
+corepack enable
+pnpm install --frozen-lockfile
+pnpm --filter swordbattle.io-api build
 chmod +x herokustart.sh

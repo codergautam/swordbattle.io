@@ -17,13 +17,13 @@ export SERVER_PORT=8080
 
 (
   cd server
-  pm2 start yarn --name server --max-memory-restart 200M -- start
+  pm2 start node --name server --max-memory-restart 200M -- src/index.js
 )
 
 if [ -n "$SUPPORT_BOT_TOKEN" ] || [ -n "$METRICS_BOT_TOKEN" ] || [ -n "$LEADERBOARD_BOT_TOKEN" ]; then
   (
     cd discord-bots
-    pm2 start npm --name bots --max-memory-restart 150M -- start
+    pm2 start node --name bots --max-memory-restart 150M -- src/index.js
   )
 fi
 

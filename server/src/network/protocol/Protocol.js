@@ -1,6 +1,7 @@
 const protobuf = require('protobufjs');
+const { schemaPath } = require('@swordbattle/shared/protocol');
 
-const root = protobuf.loadSync(__dirname + '/schema.proto');
+const root = protobuf.loadSync(schemaPath);
 const ServerMessage = root.lookupType('ServerMessage');
 const ClientMessage = root.lookupType('ClientMessage');
 const makeSendable = (data, depth = 0) => {

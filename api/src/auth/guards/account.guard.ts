@@ -1,8 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
-import { Request } from 'express';
+import { FastifyRequest } from 'fastify';
 
-export interface AccountRequest extends Request {
+export interface AccountRequest extends FastifyRequest {
   account: any;
 }
 

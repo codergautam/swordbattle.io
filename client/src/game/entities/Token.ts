@@ -34,7 +34,7 @@ class Token extends BaseEntity {
         const diffX = hunter.container.x - this.container.x;
         const diffY = hunter.container.y - this.container.y;
         const angle = Math.atan2(diffY, diffX);
-        const value = this.eatingTween.getValue();
+        const value = this.eatingTween.getValue() ?? 0;
         this.container.x = this.container.x + Math.abs(diffX) * Math.cos(angle) * value;
         this.container.y = this.container.y + Math.abs(diffY) * Math.sin(angle) * value;
 

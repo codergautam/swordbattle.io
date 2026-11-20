@@ -1,23 +1,29 @@
 {
-  "name": "swordbattlev2",
+  "name": "swordbattle-workspace",
   "version": "1.0.0",
-  "description": "Swordbattle.io is a multiplayer game where players fight each other with different 2D swords, and try to gain coins. The more coins you have, the bigger and powerful you get! Try to become the biggest of them all.",
+  "private": true,
+  "description": "Swordbattle.io multiplayer game workspace",
   "scripts": {
+    "build": "pnpm --filter @swordbattle/shared build && pnpm --filter swordbattle.io-api build && pnpm --filter swordbattle.io-client build",
+    "build:client": "pnpm --filter swordbattle.io-client build",
+    "build:api": "pnpm --filter swordbattle.io-api build",
+    "dev:client": "pnpm --filter swordbattle.io-client dev",
+    "dev:server": "pnpm --filter swordbattle.io-server dev",
+    "dev:api": "pnpm --filter swordbattle.io-api start:dev",
+    "test": "pnpm -r --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck",
     "heroku-postbuild": "sh herokuinit.sh"
   },
   "engines": {
     "node": "22.x"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@nestjs/schedule": "^6.0.1",
     "http-proxy": "^1.18.1",
     "pm2": "^5.4.2"
   },
+  "packageManager": "pnpm@11.19.0",
   "volta": {
-    "node": "22.23.1",
-    "yarn": "1.22.22"
+    "node": "22.23.1"
   }
 }

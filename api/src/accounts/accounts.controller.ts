@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Post, Req, UseGuards, Body } from '@nestjs/common';
-import { Request } from 'express';
+import { FastifyRequest } from 'fastify';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { AccountsService } from './accounts.service';
 import { StatsService } from 'src/stats/stats.service';
@@ -117,7 +117,7 @@ export class AccountsController {
 
   @Throttle({ short: { limit: 5, ttl: 1000 }, medium: { limit: 30, ttl: 60000 } })
   @Post('getPublicUserInfo/:username')
-  async getAccount(@Param('username') username: string, @Req() request: Request) {
+  async getAccount(@Param('username') username: string, @Req() request: FastifyRequest) {
     const account = applyThemeGrants(await this.accountsService.getByUsername(username));
     const totalStats = await this.statsService.getTotalStats(account);
     const dailyStats = await this.statsService.getAllDailyStats(account);
@@ -141,7 +141,7 @@ export class AccountsController {
 
   @Throttle({ short: { limit: 5, ttl: 1000 }, medium: { limit: 30, ttl: 60000 } })
   @Post('getPublicUserInfoById/:id')
-  async getAccountById(@Param('id') id: number, @Req() request: Request) {
+  async getAccountById(@Param('id') id: number, @Req() request: FastifyRequest) {
     const account = applyThemeGrants(await this.accountsService.getById(id));
     const totalStats = await this.statsService.getTotalStats(account);
     const dailyStats = await this.statsService.getAllDailyStats(account);

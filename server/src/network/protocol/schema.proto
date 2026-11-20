@@ -171,6 +171,7 @@ message Entity {
   bool offhandDecreasing = 67;
   int32 activeSelection = 68;
   int32 abilityCharges = 69;
+  bool invisible = 70;
 
   // Sword block
 }

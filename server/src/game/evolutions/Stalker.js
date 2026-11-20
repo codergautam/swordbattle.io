@@ -10,9 +10,6 @@ module.exports = class Stalker extends Evolution {
 
   applyAbilityEffects() {
     this.player.modifiers.invisible = true;
-      this.player.shape.setScale(0.01);
-      this.player.viewport.zoom.multiplier *= 0.01
-
     this.player.speed.multiplier *= 1.5;
 
     this.player.health.regenWait.multiplier = 0;

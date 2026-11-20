@@ -99,7 +99,7 @@ export class Health {
   private lastDrawnComboSize = -1;
   private lastDrawnComboLocked = false;
   private static readonly comboMax = 5;
-  private wasStalkerInvisible = false;
+  private wasInvisible = false;
 
   private depthBase: number;
 
@@ -151,7 +151,7 @@ export class Health {
 
   private isInvisible(): boolean {
     const e = this.entity as any;
-    return e.evolution === EvolutionTypes.Stalker && !!e.abilityActive;
+    return !!e.invisible && !e.isMe;
   }
 
   resyncAfterHidden() {
@@ -204,11 +204,11 @@ export class Health {
       this.hideCombo();
       this.flashLevel = 0;
       if (this.flashFill && this.flashFill.visible) this.flashFill.setVisible(false);
-      this.wasStalkerInvisible = true;
+      this.wasInvisible = true;
       return;
     }
-    if (this.wasStalkerInvisible) {
-      this.wasStalkerInvisible = false;
+    if (this.wasInvisible) {
+      this.wasInvisible = false;
       const a = (this.hidden || this.internalHidden) ? 0 : 1;
       this.bar.setAlpha(a);
       if (this.cooldownBar) this.cooldownBar.setAlpha(a);

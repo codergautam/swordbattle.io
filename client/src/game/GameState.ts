@@ -16,6 +16,7 @@ import * as cosmetics from './cosmetics.json';
 import { perfMark, perfEnabled, perfWsProcess, perfEntityAdd } from './debug/perfStats';
 import { mark, span } from '../bootTiming';
 import { ldMark } from '../loaderDebug';
+import { browserPlayLease } from './network/BrowserPlayLease';
 const { skins } = cosmetics as any;
 
 const offscreenStaticTypes = new Set<number>([
@@ -169,9 +170,11 @@ class GameState {
     this.game.game.events.on('restartGame', this.restart, this);
     this.game.game.events.on('startSpectate', this.spectate, this);
     this.game.game.events.on('tokenUpdate', this.updateToken, this);
+    this.game.game.events.on('goHome', this.releaseBrowserPlayLease, this);
   }
 
   start(name: string) {
+    if (!this.acquireBrowserPlayLease()) return;
     let isFirstLife = false;
     try {
       if (!localStorage.getItem('swordbattle:hasPlayed')) {
@@ -198,6 +201,7 @@ class GameState {
   }
 
   restart() {
+    if (!this.acquireBrowserPlayLease()) return;
     const afterSent = () => {
       if(!this.game.hud.evolutionSelect.minimized) this.game.hud.evolutionSelect.toggleMinimize();
     }
@@ -233,6 +237,7 @@ class GameState {
   }
 
   onServerClose(event: CloseEvent, endpoint?: string) {
+    this.releaseBrowserPlayLease();
     // Closing without ever having opened means we never reached the box. Blacklist
     // it so the next getServer() picks elsewhere. Gating on "never opened" rather
     // than code 1006 matters: a healthy session that drops an hour in also closes
@@ -265,7 +270,7 @@ class GameState {
     }
 
     if (event.code === 4409) {
-      window.alert('Account is already in-game');
+      window.alert(event.reason || 'This account is already active in another game session.');
       return;
     }
 
@@ -293,7 +298,26 @@ class GameState {
     this.destroyed = true;
     this.payloadsQueue = [];
     this._pendingMessages = [];
+    this.releaseBrowserPlayLease();
     Socket.close();
+  }
+
+  private acquireBrowserPlayLease(): boolean {
+    if (!browserPlayLease) return true;
+    const acquired = browserPlayLease.acquire(() => {
+      const reason = 'Another Swordbattle tab took control of this browser session.';
+      window.alert(reason);
+      this.game.game.events.emit('connectionClosed', reason);
+      Socket.close();
+    });
+    if (!acquired) {
+      window.alert('Swordbattle is already being played in another tab. Close that game or return it to the menu first.');
+    }
+    return acquired;
+  }
+
+  private releaseBrowserPlayLease() {
+    browserPlayLease?.release();
   }
 
   onServerMessage(data: any) {

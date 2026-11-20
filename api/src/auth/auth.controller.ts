@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, Res, Req, Query, UnauthorizedException } from '@nestjs/common';
+import { Body, ConflictException, Controller, Get, Post, UseGuards, Res, Req, Query, UnauthorizedException } from '@nestjs/common';
 import { Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { RegisterDTO, LoginDTO, SecretLoginDTO } from './auth.dto';
@@ -7,12 +7,14 @@ import { ServerGuard } from './guards/server.guard';
 import { config } from 'src/config';
 import { AccountGuard } from './guards/account.guard';
 import { ClansService } from 'src/clans/clans.service';
+import { GameSessionService } from './game-session.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly clansService: ClansService,
+    private readonly gameSessions: GameSessionService,
   ) {}
 
   @Get('username-available')
@@ -85,6 +87,47 @@ export class AuthController {
   async verify(@Req() req) {
     const clan = await this.clansService.getMembershipForAccount(req.account.id);
     return { account: { ...req.account, clan } };
+  }
+
+  @UseGuards(ServerGuard, AccountGuard)
+  @Post('game-session/acquire')
+  async acquireGameSession(@Req() req) {
+    const result = await this.gameSessions.acquire(
+      req.account.id,
+      req.body.serverId,
+      req.body.ownerId,
+    );
+    if ('retryAfterMs' in result) {
+      throw new ConflictException({
+        code: 'GAME_SESSION_ACTIVE',
+        message: 'Account is already active in another game session',
+        retryAfterMs: result.retryAfterMs,
+      });
+    }
+
+    return result;
+  }
+
+  @UseGuards(ServerGuard)
+  @Post('game-session/heartbeat')
+  async heartbeatGameSession(@Body() body: any) {
+    const active = await this.gameSessions.heartbeat(
+      Number(body.accountId),
+      String(body.leaseId || ''),
+      body.serverId,
+    );
+    return { active, ttlMs: GameSessionService.leaseTtlMs };
+  }
+
+  @UseGuards(ServerGuard)
+  @Post('game-session/release')
+  async releaseGameSession(@Body() body: any) {
+    const released = await this.gameSessions.release(
+      Number(body.accountId),
+      String(body.leaseId || ''),
+      body.serverId,
+    );
+    return { released };
   }
 
   @UseGuards(AccountGuard)

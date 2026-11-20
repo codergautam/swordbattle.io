@@ -14,6 +14,7 @@ class Client {
     // this.ip = String.fromCharCode.apply(null, new Uint8Array(socket.getRemoteAddressAsText()));
 
     this.ip = socket.ip || String.fromCharCode.apply(null, new Uint8Array(socket.getRemoteAddressAsText()));
+    this.browserSessionId = socket.browserSessionId || this.id;
 
     console.log(`Client ${this.id} connected from ${this.ip} at ${Date.now()}`);
     this.token = '';
@@ -26,6 +27,14 @@ class Client {
     this.isReady = true;
     this.isSocketClosed = false;
     this.fullSync = true;
+    this.gameSessionLeaseId = '';
+    this.gameSessionExpiresAt = 0;
+    this.gameSessionNextHeartbeatAt = 0;
+    this.gameSessionHeartbeatPending = false;
+    this.gameSessionAcquirePending = false;
+    this.gameSessionAcquireCallbacks = [];
+    this.gameSessionGeneration = 0;
+    this.authGeneration = 0;
 
     this.messages = [];
     this.pingTimer = 0;
@@ -86,7 +95,9 @@ class Client {
       return;
     }
 
-    if(message.hasOwnProperty("token") && message.token === '' && this.token !== '' && this.account !== null) {
+    if(message.hasOwnProperty("token") && message.token === '' && this.token !== '') {
+      this.releaseGameSession();
+      this.authGeneration++;
       this.token = '';
       this.account = null;
     }
@@ -98,6 +109,8 @@ class Client {
       this.send({ isPong: true, tps: this.game.tps, realPlayersCnt });
     } else if (message.token) {
       // console.log('Client', this.id, 'authenticated with token');
+      if (message.token === this.token && this.account) return;
+      if (message.token !== this.token) this.releaseGameSession();
       this.token = message.token;
       this.getAccount();
     } else {
@@ -127,6 +140,8 @@ class Client {
     if (this.spectator) {
       this.spectator.update(dt);
     }
+
+    this.updateGameSessionLease();
 
     this.pingTimer -= 1;
     if (this.pingTimer <= 0) {
@@ -169,8 +184,11 @@ class Client {
     }
 
     this.isReady = false;
+    const token = this.token;
+    const generation = ++this.authGeneration;
     console.log('Client', this.id, 'authenticating with token POST /auth/verify');
-    api.post('/auth/verify', { secret: this.token }, (data) => {
+    api.post('/auth/verify', { secret: token }, (data) => {
+      if (generation !== this.authGeneration || token !== this.token || this.isSocketClosed) return;
       if (data && data.error) {
         console.warn(`Client ${this.id} authentication failed: ${data.message} (status: ${data.status || 'unknown'})`);
         this.token = '';
@@ -196,6 +214,109 @@ class Client {
       }
       this.isReady = true;
     });
+  }
+
+  hasGameSessionLease() {
+    return !!this.gameSessionLeaseId && this.gameSessionExpiresAt > Date.now();
+  }
+
+  acquireGameSession(callback = () => {}) {
+    if (!this.account?.id || !this.token) {
+      callback(true);
+      return;
+    }
+    if (this.hasGameSessionLease()) {
+      callback(true);
+      return;
+    }
+
+    this.gameSessionAcquireCallbacks.push(callback);
+    if (this.gameSessionAcquirePending) return;
+    this.gameSessionAcquirePending = true;
+    const generation = ++this.gameSessionGeneration;
+
+    api.post('/auth/game-session/acquire', {
+      secret: this.token,
+      serverId: this.server?.instanceId,
+      ownerId: this.browserSessionId,
+    }, (data) => {
+      if (generation !== this.gameSessionGeneration || this.isSocketClosed) return;
+
+      this.gameSessionAcquirePending = false;
+      const callbacks = this.gameSessionAcquireCallbacks;
+      this.gameSessionAcquireCallbacks = [];
+
+      if (data?.acquired && data.leaseId) {
+        this.gameSessionLeaseId = data.leaseId;
+        const ttlMs = Number(data.ttlMs) || Client.gameSessionTtlMs;
+        this.gameSessionExpiresAt = Date.now() + ttlMs;
+        this.gameSessionNextHeartbeatAt = Date.now() + Client.gameSessionHeartbeatMs;
+        callbacks.forEach((done) => done(true));
+        return;
+      }
+
+      callbacks.forEach((done) => done(false));
+      if (data?.status === 409 || data?.code === 'GAME_SESSION_ACTIVE') {
+        try { this.socket.end(4409, 'Account is already active in another game session'); } catch (e) {}
+      } else {
+        console.warn('[SESSION] Failed to acquire gameplay lease:', data?.message || data);
+        try { this.socket.end(1013, 'Session service temporarily unavailable'); } catch (e) {}
+      }
+    });
+  }
+
+  updateGameSessionLease() {
+    if (!this.gameSessionLeaseId || !this.account?.id || this.gameSessionHeartbeatPending) return;
+    const now = Date.now();
+    if (now < this.gameSessionNextHeartbeatAt) return;
+
+    const leaseId = this.gameSessionLeaseId;
+    this.gameSessionHeartbeatPending = true;
+    this.gameSessionNextHeartbeatAt = now + Client.gameSessionHeartbeatMs;
+    api.post('/auth/game-session/heartbeat', {
+      accountId: this.account.id,
+      leaseId,
+      serverId: this.server?.instanceId,
+    }, (data) => {
+      if (leaseId !== this.gameSessionLeaseId) return;
+      this.gameSessionHeartbeatPending = false;
+
+      if (data?.active) {
+        this.gameSessionExpiresAt = Date.now() + (Number(data.ttlMs) || Client.gameSessionTtlMs);
+        return;
+      }
+
+      if (data?.error && Date.now() < this.gameSessionExpiresAt) {
+        this.gameSessionNextHeartbeatAt = Date.now() + Client.gameSessionRetryMs;
+        return;
+      }
+
+      this.gameSessionLeaseId = '';
+      const code = data?.error ? 1013 : 4409;
+      const reason = data?.error
+        ? 'Session service temporarily unavailable'
+        : 'Gameplay session was replaced';
+      try { this.socket.end(code, reason); } catch (e) {}
+    });
+  }
+
+  releaseGameSession() {
+    const leaseId = this.gameSessionLeaseId;
+    const accountId = this.account?.id;
+    const serverId = this.server?.instanceId;
+
+    this.gameSessionGeneration++;
+    this.gameSessionLeaseId = '';
+    this.gameSessionExpiresAt = 0;
+    this.gameSessionNextHeartbeatAt = 0;
+    this.gameSessionHeartbeatPending = false;
+    this.gameSessionAcquirePending = false;
+    const callbacks = this.gameSessionAcquireCallbacks;
+    this.gameSessionAcquireCallbacks = [];
+    callbacks.forEach((done) => done(false));
+
+    if (!leaseId || !accountId) return;
+    api.post('/auth/game-session/release', { accountId, leaseId, serverId });
   }
 
   getAccountAsync() {
@@ -267,5 +388,8 @@ class Client {
 
 Client.pingIntervalTicks = 200;
 Client.pongTimeoutMs = 45000;
+Client.gameSessionHeartbeatMs = 15000;
+Client.gameSessionRetryMs = 5000;
+Client.gameSessionTtlMs = 45000;
 
 module.exports = Client;

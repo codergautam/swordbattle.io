@@ -1,5 +1,6 @@
 import * as Protocol from './Protocol';
 import { registerIntegrityShutdown, registerIntegrityTarget } from '../integrity';
+import { browserPlayLease } from './BrowserPlayLease';
 
 const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
 registerIntegrityTarget(WebSocket.prototype, ['close', 'send']);
@@ -70,8 +71,12 @@ class Socket {
   connect(address: string, onOpen: any, onMessage: any, onClose: any) {
     let authSecret = '';
     try { authSecret = window.localStorage.getItem('secret') || ''; } catch (e) {}
+    const query = new URLSearchParams();
+    if (authSecret) query.set('secret', authSecret);
+    if (browserPlayLease?.ownerId) query.set('sessionId', browserPlayLease.ownerId);
+    const queryString = query.toString();
     const sep = address.includes('?') ? '&' : '?';
-    const endpoint = `${protocol}${address}${authSecret ? `${sep}secret=${encodeURIComponent(authSecret)}` : ''}`;
+    const endpoint = `${protocol}${address}${queryString ? sep + queryString : ''}`;
     this.onMessage = onMessage;
 
     if (this.socket !== null) {

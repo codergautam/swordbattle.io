@@ -17,7 +17,12 @@ function get(path, callback = (data) => {}) {
   .then(async res => {
     if (!res.ok) {
       const text = await res.text();
-      return { error: true, status: res.status, message: text };
+      try {
+        const parsed = JSON.parse(text);
+        return { ...parsed, error: true, status: res.status, message: parsed.message || text };
+      } catch (e) {
+        return { error: true, status: res.status, message: text };
+      }
     }
     const contentType = res.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
@@ -46,7 +51,12 @@ function post(path, body, callback = (data) => {}) {
   .then(async res => {
     if (!res.ok) {
       const text = await res.text();
-      return { error: true, status: res.status, message: text };
+      try {
+        const parsed = JSON.parse(text);
+        return { ...parsed, error: true, status: res.status, message: parsed.message || text };
+      } catch (e) {
+        return { error: true, status: res.status, message: text };
+      }
     }
     const contentType = res.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {

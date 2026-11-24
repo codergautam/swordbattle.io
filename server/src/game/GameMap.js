@@ -32,6 +32,7 @@ const PlayerAI = require('./entities/PlayerBot');
 const WolfMob = require('./entities/mobs/Wolf');
 const CatMob = require('./entities/mobs/Cat');
 const BunnyMob = require('./entities/mobs/Bunny');
+const TurkeyMob = require('./entities/mobs/Turkey');
 const MooseMob = require('./entities/mobs/Moose');
 const FishMob = require('./entities/mobs/Fish');
 const AngryFishMob = require('./entities/mobs/AngryFish');
@@ -295,6 +296,7 @@ spawnTokensInShape(shape, totalTokenValue, droppedBy) {
       case Types.Entity.Wolf: ObjectClass = WolfMob; break;
       case Types.Entity.Cat: ObjectClass = CatMob; break;
       case Types.Entity.Bunny: ObjectClass = BunnyMob; break;
+      case Types.Entity.Turkey: ObjectClass = TurkeyMob; break;
       case Types.Entity.Moose: ObjectClass = MooseMob; break;
       case Types.Entity.Fish: ObjectClass = FishMob; break;
       case Types.Entity.AngryFish: ObjectClass = AngryFishMob; break;

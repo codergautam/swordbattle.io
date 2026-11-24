@@ -15,7 +15,7 @@ module.exports = class Juggernaut extends Evolution {
   update(dt) {
     super.update(dt);
     this.player.speed.multiplier *= 1.1;
-    this.player.shape.setScale(1.1);
+    this.player.shape.setScale(1.15);
     this.player.sword.damage.multiplier *= 1;
     this.player.sword.knockback.multiplier['ability'] = 1.25;
     this.player.knockbackResistance.multiplier *= 1.15;

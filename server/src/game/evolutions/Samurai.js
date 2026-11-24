@@ -12,7 +12,7 @@ module.exports = class Samurai extends Evolution {
     this.player.shape.setScale(1.1);
     this.player.sword.damage.multiplier *= 1.00;
     this.player.knockbackResistance.multiplier *= 2.0;
-    this.player.health.regen.multiplier *= 3.0;
+    this.player.health.regen.multiplier *= 5.0;
     this.player.speed.multiplier *= 1.15;
     this.player.sword.swingDuration.multiplier['ability'] = 0.90;
     this.player.sword.knockback.multiplier['ability'] = 1.5;
@@ -25,7 +25,7 @@ module.exports = class Samurai extends Evolution {
     super.update(dt);
     this.player.speed.multiplier *= 0.95;
     this.player.shape.setScale(1.0);
-    this.player.sword.damage.multiplier *= 0.90;
+    this.player.sword.damage.multiplier *= 1.02;
     this.player.sword.knockback.multiplier['ability'] = 1.15;
     this.player.knockbackResistance.multiplier *= 1.35;
     this.player.health.max.multiplier *= 1.30;

@@ -29,6 +29,7 @@ import SandBlock from './SandBlock';
 import SandBall from './SandBall';
 import SphinxMob from './mobs/Sphinx';
 import BunnyMob from './mobs/Bunny';
+import TurkeyMob from './mobs/Turkey';
 import ChimeraMob from './mobs/Chimera';
 import MooseMob from './mobs/Moose';
 import RokuMob from './mobs/Roku';
@@ -62,6 +63,7 @@ export const EntityDepth: Record<any, number> = {
   [EntityTypes.Wolf]: 11,
   [EntityTypes.Cat]: 11,
   [EntityTypes.Bunny]: 11,
+  [EntityTypes.Turkey]: 11,
   [EntityTypes.Moose]: 11,
   [EntityTypes.Fish]: 11,
   [EntityTypes.AngryFish]: 11,
@@ -105,6 +107,7 @@ export const GetEntityClass = (type: EntityTypes): typeof BaseEntity => {
     case EntityTypes.Wolf: return WolfMob;
     case EntityTypes.Cat: return CatMob;
     case EntityTypes.Bunny: return BunnyMob;
+    case EntityTypes.Turkey: return TurkeyMob;
     case EntityTypes.Moose: return MooseMob;
     case EntityTypes.Fish: return FishMob;
     case EntityTypes.AngryFish: return AngryFishMob;

@@ -124,9 +124,9 @@ export interface RegistryEntry {
 
 export const nameRegistry: Record<string, RegistryEntry> = {
   'amethyst nightveil': {
-    leaderboard: { fill: '#6800c2', outline: '#000000', shadow: '#9f00ff' },
-    game: { fill: { type: 'linear', angle: 180, stops: [{ color: '#9f00e4', pos: 0 }, { color: '#310064', pos: 1 }] }, outline: '#000000', shadow: '#ff00ff' },
-  },
+  leaderboard: { fill: { type: 'linear', angle: 180, stops: [{ color: '#c800ff', pos: 0 }, { color: '#c300d1', pos: 1 }] }, outline: { type: 'linear', angle: 180, stops: [{ color: '#8800ad', pos: 0 }, { color: '#690070', pos: 1 }] }, outlineWidth: 'medium' },
+  game: { fill: { type: 'linear', angle: 180, stops: [{ color: '#ae00ff', pos: 0 }, { color: '#8c00b3', pos: 1 }] }, outline: { type: 'linear', angle: 180, stops: [{ color: '#7100ad', pos: 0 }, { color: '#520070', pos: 1 }] }, outlineWidth: 'medium' },
+},
   'skillz': {
     leaderboard: { fill: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#0000ff', pos: 1 }] }, shadow: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#0000ff', pos: 1 }] } },
     game: { fill: '#000000', outline: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#0000ff', pos: 1 }] }, shadow: { type: 'linear', angle: 180, stops: [{ color: '#000000', pos: 0 }, { color: '#0000ff', pos: 1 }] } },

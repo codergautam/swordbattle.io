@@ -248,7 +248,7 @@ class Sword extends Entity {
         const py = this.player.shape.y + Math.sin(a) * r + Math.sin(a + Math.PI / 2) * r;
         this._spawnThrownSwordAt(a, px, py);
         if (this.player.modifiers.lungeOnThrow && this.player.velocity) {
-          const dash = 320;
+          const dash = 180;
           this.player.velocity.x += Math.cos(this.player.angle) * dash;
           this.player.velocity.y += Math.sin(this.player.angle) * dash;
         }
@@ -439,11 +439,11 @@ class Sword extends Entity {
 
       if (this.player.modifiers.kunais) {
         const a = this.player.angle;
-        const r = this.player.shape.radius || 100;
+        const r = this.player.shape.radius || 300;
         const hx = this.player.shape.x + Math.cos(a) * r + Math.cos(a + Math.PI / 2) * r;
         const hy = this.player.shape.y + Math.sin(a) * r + Math.sin(a + Math.PI / 2) * r;
         for (const off of [-0.1, 0, 0.1]) {
-          this._spawnThrownSwordAt(a + off, hx, hy, { sizeScale: 0.55, damageScale: 0.5, speedScale: 0.65, durationScale: 0.7 });
+          this._spawnThrownSwordAt(a + off, hx, hy, { sizeScale: 0.45, damageScale: 0.65, speedScale: 0.85, durationScale: 1 });
         }
         this.flyCooldownTime = this.flyCooldown.value;
         this.player.flags.set(Types.Flags.SwordThrow, true);

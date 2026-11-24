@@ -102,7 +102,7 @@ const SkinGrid: React.FC<SkinGridProps> = ({
                     {skin?.price}
                     <img className={'gem'} src={skin?.ultimate ? 'assets/game/ultimacy.png' : 'assets/game/gem.png'} alt='' width={18} height={18} />
                     {showTokenPrice && skin?.tokenprice ? (
-                      <> {skin.tokenprice}<img className={'gem'} src='assets/game/snowtoken.png' alt='' width={18} height={18} /></>
+                      <> {skin.tokenprice}<img className={'gem'} src='assets/game/fallToken.png' alt='' width={18} height={18} /></>
                     ) : null}
                   </>
                 ) : (

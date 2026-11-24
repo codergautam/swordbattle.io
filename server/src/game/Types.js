@@ -27,6 +27,7 @@ const Entity = {
   Boulder: 27,
   Fish: 28,
   AngryFish: 29,
+  Turkey: 45,
 
   IceSpirit: 30,
   Token: 31,
@@ -49,7 +50,7 @@ const Entity = {
 
 const Mobs = [
   Entity.Wolf, Entity.Bunny, Entity.Moose, Entity.Yeti, Entity.Santa, Entity.Chimera, Entity.Roku, Entity.Ancient, Entity.Cat, Entity.Fish, Entity.AngryFish, Entity.IceSpirit,
-  Entity.Sphinx,
+  Entity.Sphinx, Entity.Turkey,
 ];
 const Groups = {
   Obstacles: [

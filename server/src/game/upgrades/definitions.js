@@ -132,7 +132,7 @@ def(class Pacifist extends Upgrade {
 
 def(class Battler extends Upgrade {
   static type = U.Battler; static owner = E.Basic; static tier = 3;
-  update(dt) { this.player.sword.damage.multiplier *= 1.5; }
+  update(dt) { this.player.sword.damage.multiplier *= 1.2; }
 });
 
 def(class Battleswords extends Upgrade {
@@ -167,13 +167,15 @@ def(class Gale extends Upgrade {
   onDamaged(a) { this.sinceHit = 0; }
   update(dt) {
     this.sinceHit += dt;
-    if (this.sinceHit >= 2) this.player.speed.multiplier *= 1.2;
+    if (this.sinceHit >= 3.5) this.player.speed.multiplier *= 1.15;
   }
 });
 
 def(class Lunge extends Upgrade {
   static type = U.Lunge; static owner = E.Knight; static tier = 1;
-  update(dt) { this.player.modifiers.lungeOnThrow = true; }
+  update(dt) { 
+    this.player.modifiers.lungeOnThrow = true;
+  }
 });
 
 def(class Riposte extends Upgrade {
@@ -199,7 +201,10 @@ def(class Striketwice extends Upgrade {
 
 def(class Twothrow extends Upgrade {
   static type = U.Twothrow; static owner = E.Knight; static tier = 2;
-  update(dt) { this.player.modifiers.twinThrowUp = true; }
+  update(dt) { 
+    this.player.modifiers.twinThrowUp = true; 
+    this.player.modifiers.throwDamage = 0.65;
+  }
 });
 
 
@@ -468,8 +473,8 @@ def(class Deflect extends Upgrade {
 def(class Pacing extends Upgrade {
   static type = U.Pacing; static owner = E.Warrior; static tier = 0;
   update(dt) {
-    this.player.speed.multiplier *= 1.2;
-    this.player.shape.setScale(1 / 1.1);
+    this.player.speed.multiplier *= 1.15;
+    this.player.shape.setScale(1 / 1.05);
   }
 });
 
@@ -542,7 +547,7 @@ def(class Sardines extends Upgrade {
     try {
       const AngryFish = require('../entities/mobs/AngryFish');
       const game = this.player.game;
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 4; i++) {
         const fish = new AngryFish(game, {
           position: [this.player.shape.x + (Math.random() - 0.5) * 160, this.player.shape.y + (Math.random() - 0.5) * 160],
         });
@@ -550,7 +555,7 @@ def(class Sardines extends Upgrade {
         fish._isSardine = true;
         fish._sardineOwner = attacker;
         fish._spawnImmuneUntil = Date.now() + 500;
-        fish._despawnAt = Date.now() + 30000;
+        fish._despawnAt = Date.now() + 7500;
         if (fish.health && fish.health.regen) fish.health.regen.baseValue = 0;
         fish.target = attacker;
         if (fish.angryTimer) fish.angryTimer.renew();

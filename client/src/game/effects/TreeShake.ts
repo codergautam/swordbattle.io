@@ -13,7 +13,7 @@ export const movers = new Set<number>([
   EntityTypes.Player, EntityTypes.Wolf, EntityTypes.Cat, EntityTypes.Bunny,
   EntityTypes.Moose, EntityTypes.Fish, EntityTypes.AngryFish, EntityTypes.IceSpirit,
   EntityTypes.Chimera, EntityTypes.Yeti, EntityTypes.Santa, EntityTypes.Roku,
-  EntityTypes.Ancient, EntityTypes.Sphinx,
+  EntityTypes.Ancient, EntityTypes.Sphinx, EntityTypes.Turkey,
 ]);
 
 const mobFactor = 0.2;

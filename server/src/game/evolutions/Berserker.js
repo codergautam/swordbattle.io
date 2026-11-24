@@ -4,8 +4,8 @@ const Types = require('../Types');
 module.exports = class Berserker extends Evolution {
   static type = Types.Evolution.Berserker;
   static level = 12;
-  static previousEvol = Types.Evolution.Knight;
-  static abilityDuration = 12;
+  static previousEvol = Types.Evolution.e;
+  static abilityDuration = 8;
   static abilityCooldown = 70;
 
   applyAbilityEffects() {
@@ -21,13 +21,12 @@ module.exports = class Berserker extends Evolution {
 
   update(dt) {
     super.update(dt);
-    this.player.sword.damage.multiplier *= 1.40;
+    this.player.sword.damage.multiplier *= 1.35;
     this.player.knockbackResistance.multiplier *= 1.05;
-    this.player.speed.multiplier *= 1.12;
+    this.player.speed.multiplier *= 1.15;
     this.player.health.max.multiplier *= 0.82;
     this.player.health.regenWait.multiplier *= 1.15;
     this.player.health.regen.multiplier *= 1.1;
   
   }
 }
-

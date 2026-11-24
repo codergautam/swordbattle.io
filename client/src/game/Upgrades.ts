@@ -9,11 +9,11 @@ export const Upgrades: Record<number, [string, string, string]> = {
   [UpgradeTypes.Handling]: ['Handling', 'Increase your move speed and health while your sword is being thrown.', icon],
   [UpgradeTypes.Lavacopy]: ['Burner', 'Surround yourself with a small lava field that burns nearby enemies.', icon],
   [UpgradeTypes.Pacifist]: ['Pacifist', 'Deal and take half damage against other players.', icon],
-  [UpgradeTypes.Battler]: ['Battler', '+50% damage against all sources.', icon],
+  [UpgradeTypes.Battler]: ['Battler', '+20% damage against all sources.', icon],
   [UpgradeTypes.Battleswords]: ['Daggers', 'Wield two swords at once! Hold to auto-attack. Throws both swords at once.', icon],
 
   [UpgradeTypes.Momentum]: ['Momentum', 'Hitting players gives a small damage boost for 2s.', icon],
-  [UpgradeTypes.Gale]: ['Gale', 'Gain a burst of movement speed after 2s without being hit.', icon],
+  [UpgradeTypes.Gale]: ['Gale', 'Gain a burst of movement speed after 3s without being hit.', icon],
   [UpgradeTypes.Lunge]: ['Lance', 'Throwing your sword does a small dash forward.', icon],
   [UpgradeTypes.Riposte]: ['Riposte', 'Hitting back soon after being hit deals bonus damage and knockback.', icon],
   [UpgradeTypes.Striketwice]: ['Reprise', 'Every swing strikes twice.', icon],

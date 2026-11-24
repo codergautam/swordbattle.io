@@ -100,7 +100,7 @@ export default class Game extends Phaser.Scene {
     } else {
       this.load.image('coin', publicPath + '/assets/game/coin-new.png');
     }
-    this.load.image('token', publicPath + '/assets/game/snowtoken.png');
+    this.load.image('token', publicPath + '/assets/game/fallToken.png');
     this.load.image('kill', publicPath + '/assets/game/ui/kill.png');
     this.load.image('mastery', publicPath + '/assets/game/ui/mastery.png');
     this.load.image('house1', publicPath + '/assets/game/house1.png');
@@ -162,6 +162,7 @@ export default class Game extends Phaser.Scene {
     this.load.image('boulderDirt',       publicPath + '/assets/game/mobs/boulder-dirt.png');
     this.load.image('catMobPassive', publicPath + '/assets/game/mobs/cat.png');
     this.load.image('bunny', publicPath + '/assets/game/mobs/bunny.png');
+    this.load.image('turkey', publicPath + '/assets/game/mobs/turkey.png');
     this.load.image('moose', publicPath + '/assets/game/mobs/moose.png');
     this.load.image('fish', publicPath + '/assets/game/mobs/bluefish.png');
     this.load.image('angryFish', publicPath + '/assets/game/mobs/angryfish.png');

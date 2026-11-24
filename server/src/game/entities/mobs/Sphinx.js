@@ -35,6 +35,7 @@ class SphinxMob extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = 50000;
+    this.tokensDrop = 2500;
 
     this.jumpTimer = new Timer(0, this.definition.jumpCooldown[0], this.definition.jumpCooldown[1]);
     this.attackTimer = new Timer(0, this.definition.sandBlockCooldown[0], this.definition.sandBlockCooldown[1]);
@@ -185,6 +186,7 @@ class SphinxMob extends Entity {
     if (this.removed) return;
     super.remove();
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
+    this.game.map.spawnTokensInShape(this.shape, this.tokensDrop);
     this.createInstance();
   }
 }

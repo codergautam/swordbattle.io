@@ -19,7 +19,7 @@ class Chimera extends Entity {
     this.shape = Circle.create(0, 0, this.size);
     this.angle = helpers.random(-Math.PI, Math.PI);
     this.coinsDrop = 400;
-    // this.tokensDrop = 100;
+    this.tokensDrop = 100;
 
     this.jumpTimer = new Timer(0, 4, 5);
     this.angryTimer = new Timer(0, 4, 7);
@@ -280,7 +280,7 @@ class Chimera extends Entity {
     if (this.removed) return;
     super.remove();
     this.game.map.spawnCoinsInShape(this.shape, this.coinsDrop);
-    // this.game.map.spawnTokensInShape(this.shape, this.tokensDrop);
+    this.game.map.spawnTokensInShape(this.shape, this.tokensDrop);
     this.createInstance();
   }
 

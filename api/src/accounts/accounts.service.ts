@@ -165,7 +165,7 @@ export class AccountsService {
     const tokenPrice = cosmetic.tokenprice;
     if (cosmetic.event || cosmetic.eventoffsale) {
       if (user.tokens < tokenPrice) {
-        return { error: 'Not enough snowtokens' };
+        return { error: 'Not enough event tokens' };
       }
       if (user.gems < cosmeticPrice && !cosmetic.currency) {
         return { error: 'Not enough gems' };

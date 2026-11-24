@@ -61,13 +61,16 @@
     },
     "bread": {
       "name": "bread",
+      "eventtag": "Thanksgiving Event",
       "displayName": "Bread",
       "id": 23,
       "buyable": true,
-      "price": 200,
+      "price": 40,
+      "tokenprice": 7500,
       "swordFileName": "breadSword.png",
       "bodyFileName": "breadPlayer.png",
-      "description": "Fresh, and tasty!"
+      "description": "Fresh, and tasty!",
+      "eventoffsale": true
     },
     "witch": {
       "name": "witch",
@@ -2159,13 +2162,16 @@
     },
     "apple": {
       "name": "apple",
+      "eventtag": "Thanksgiving Event",
       "displayName": "Apple",
       "id": 222,
       "buyable": true,
-      "price": 125,
+      "price": 25,
+      "tokenprice": 5000,
       "swordFileName": "appleSword.png",
       "bodyFileName": "applePlayer.png",
-      "description": "An apple a day keeps The Roku away!"
+      "description": "An apple a day keeps The Roku away!",
+      "eventoffsale": true
     },
     "auroraborealis": {
       "name": "auroraborealis",
@@ -2179,13 +2185,16 @@
     },
     "autumn": {
       "name": "autumn",
+      "eventtag": "Thanksgiving Event",
       "displayName": "Autumn",
       "id": 224,
       "buyable": true,
-      "price": 150,
+      "price": 0,
+      "tokenprice": 0, 
       "swordFileName": "autumnSword.png",
       "bodyFileName": "autumnPlayer.png",
-      "description": "Autumn is here!"
+      "description": "Autumn is Here! Free for Thansgiving Week!",
+      "eventoffsale": true
     },
     "beachv2": {
       "name": "beachv2",
@@ -2209,13 +2218,16 @@
     },
     "blueberryv2": {
       "name": "blueberryv2",
+      "eventtag":"Thanksgiving Event",
       "displayName": "Blueberry",
       "id": 227,
       "buyable": true,
-      "price": 80,
+      "price": 16,
+      "tokenprice": 2000,
       "swordFileName": "blueberryv2Sword.png",
       "bodyFileName": "blueberryv2Player.png",
-      "description": "Embrace the sweet taste of victory!"
+      "description": "Embrace the sweet taste of victory!",
+      "eventoffsale": true
     },
     "brick": {
       "name": "brick",
@@ -2449,10 +2461,12 @@
     },
     "orange": {
       "name": "orange",
+      "eventtag":"Thanksgiving Event",
       "displayName": "Orange",
       "id": 251,
       "buyable": true,
-      "price": 2250,
+      "price": 450,
+      "tokenprice": 20000,
       "swordFileName": "orangeSword.png",
       "bodyFileName": "orangePlayer.png",
       "description": "Can you handle the tang?"
@@ -2709,13 +2723,16 @@
     },
     "leafpile": {
       "name": "leafpile",
+      "eventtag": "Thanksgiving Event",
       "displayName": "Leafpile",
       "id": 277,
       "buyable": true,
-      "price": 500,
+      "price": 100,
+      "tokenprice": 12500,
       "swordFileName": "leafpileSword.png",
       "bodyFileName": "leafpilePlayer.png",
-      "description": "A portable alternative to hiding in trees!"
+      "description": "A portable alternative to hiding in trees!",
+      "eventoffsale": true
     },
     "necromancer": {
       "name": "necromancer",
@@ -3143,13 +3160,16 @@
     },
     "egg": {
       "name": "egg",
+      "eventtag":"Thanksgiving Event",
       "displayName": "Egg",
       "id": 313,
       "buyable": true,
-      "price": 90,
+      "price": 18,
+      "tokenprice": "2500",
       "swordFileName": "eggSword.png",
       "bodyFileName": "eggPlayer.png",
-      "description": "“You better scramble like an egg before you get folded like an omelet”"
+      "description": "“You better scramble like an egg before you get folded like an omelet”",
+      "eventoffsale": true
     },
     "rainbowluminous": {
       "ultimate": true,
@@ -4361,13 +4381,16 @@
     },
     "meatball": {
       "name": "meatball",
+      "eventtag": "Thanksgiving Event",
       "displayName": "Meatball",
       "id": 429,
       "buyable": true,
-      "price": 2000,
+      "price": 400,
+      "tokenprice": 17500,
       "swordFileName": "meatballSword.png",
       "bodyFileName": "meatballPlayer.png",
-      "description": "The best part of any spaghetti dish!"
+      "description": "The best part of any spaghetti dish!",
+      "eventoffsale": true
     },
     "shapes": {
       "name": "shapes",
@@ -4867,9 +4890,10 @@
       "displayName": "Pie",
       "id": 463,
       
-      "eventtag": "PI DAY",
+      "eventtag": "Thanksgiving Event",
       "buyable": false,
-      "price": 10000,
+      "price": 2000,
+      "tokenprice": 50000,
       "swordFileName": "piev2Sword.png",
       "bodyFileName": "piev2Player.png",
       "description": "A snack before destruction",

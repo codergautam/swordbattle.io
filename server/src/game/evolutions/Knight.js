@@ -13,17 +13,17 @@ module.exports = class Knight extends Evolution {
     this.player.sword.knockback.multiplier['ability'] = 1.4;
     this.player.speed.multiplier *= 1.3;
      this.player.sword.swingDuration.multiplier['ability'] = 0.75;
-     this.player.knockbackResistance.multiplier *= 1.2;
+     this.player.knockbackResistance.multiplier *= 0.9;
   }
 
   update(dt) {
     super.update(dt);
     this.player.shape.setScale(1);
-    this.player.sword.damage.multiplier *= 1.05;
+    this.player.sword.damage.multiplier *= 0.9;
     this.player.knockbackResistance.multiplier *= 1.10;
     this.player.speed.multiplier *= 1.12;
-    this.player.health.max.multiplier *= 1.04;
-    this.player.health.regen.multiplier *= 1.05;
+    this.player.health.max.multiplier *= 1;
+    this.player.health.regen.multiplier *= 1;
 
   }
 }

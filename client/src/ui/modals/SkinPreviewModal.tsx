@@ -314,7 +314,7 @@ export default function SkinPreviewModal({ skinId, viewOnly = false }: { skinId:
             You have:
             <span className="sp-have-cur">{currencyBal.toLocaleString()}<img src={currencyIcon} alt="" width={18} height={18} /></span>
             {skin.tokenprice ? (
-              <span className="sp-have-cur">{(account?.tokens ?? 0).toLocaleString()}<img src="assets/game/snowtoken.png" alt="" width={18} height={18} /></span>
+              <span className="sp-have-cur">{(account?.tokens ?? 0).toLocaleString()}<img src="assets/game/fallToken.png" alt="" width={18} height={18} /></span>
             ) : null}
           </div>
 
@@ -328,7 +328,7 @@ export default function SkinPreviewModal({ skinId, viewOnly = false }: { skinId:
                   {skin.tokenprice ? (
                     <>
                       <span className="sp-price-val">{skin.tokenprice.toLocaleString()}</span>
-                      <img src="assets/game/snowtoken.png" alt="" width={26} height={26} />
+                      <img src="assets/game/fallToken.png" alt="" width={26} height={26} />
                     </>
                   ) : null}
                 </>

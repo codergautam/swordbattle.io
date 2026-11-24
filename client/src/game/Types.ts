@@ -27,6 +27,7 @@ export enum EntityTypes {
   Boulder = 27,
   Fish = 28,
   AngryFish = 29,
+  Turkey = 45,
 
   IceSpirit = 30,
   Token = 31,
